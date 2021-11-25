@@ -1,0 +1,86 @@
+<!--
+ Copyright 2021 NTT Corporation.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<template>
+  <v-app>
+    <v-content>
+      <router-view></router-view>
+    </v-content>
+    <config-viewer></config-viewer>
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
+  </v-app>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import ConfigViewer from "@/vue/pages/operationHistory/organisms/configViewer/ConfigViewer.vue";
+import AlertDialog from "@/vue/pages/common/AlertDialog.vue";
+import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+
+@Component({
+  components: {
+    "config-viewer": ConfigViewer,
+    "alert-dialog": AlertDialog,
+    "error-message-dialog": ErrorMessageDialog,
+  },
+})
+export default class Manager extends Vue {
+  private isConfirmButtonDisabled = false;
+
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
+
+  public created(): void {
+    (async () => {
+      try {
+        this.$store.dispatch("openProgressDialog");
+        await this.$store.dispatch("testManagement/initialize");
+      } catch (error) {
+        console.error(error);
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      } finally {
+        this.$nextTick(() => {
+          this.$store.dispatch("closeProgressDialog");
+        });
+      }
+    })();
+  }
+}
+</script>
+
+<style lang="sass">
+.pre-wrap
+  white-space: pre-wrap
+.break-word
+  word-wrap: break-word
+
+@mixin ellipsis
+  overflow: hidden !important
+  text-overflow: ellipsis !important
+  white-space: nowrap !important
+
+.ellipsis
+  @include ellipsis
+
+.ellipsis_short
+  @include ellipsis
+  max-width: 200px
+</style>
