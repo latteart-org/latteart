@@ -31,6 +31,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 # インストール
 
 「[LatteArt 導入手順書](./docs/startup/pc.md)」をご参照ください。
+
 ## 自分でビルドする場合
 
 1. `latteart`ディレクトリを任意のディレクトリに配置します。
@@ -112,6 +113,16 @@ latteart
    ```bash
    yarn start:server
    ```
+
+# コントリビューション
+
+[LatteArtへのコントリビューション](./docs/contributing_ja.md)をご参照ください。
+
+# 問い合わせ
+
+LatteArt に関する質問等は GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) へお願いします。
+
+その他のお問い合わせは、NTT ソフトウェアイノベ－ションセンタ（`iso-tool-support-p-ml [at] hco.ntt.co.jp`）までお願いします。
 
 # License
 

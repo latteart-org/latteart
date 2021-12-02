@@ -2,7 +2,7 @@
 
 # LatteArt
 
-- 日本語版は[README_ja.md](/README_ja.md)を参照して下さい。
+[日本語版 Readme はこちら](/README_ja.md)を参照して下さい。
 
 ## Project Setup
 
@@ -126,6 +126,12 @@ Detect source code changes and rebuild LatteArt.
 1. If you want to test the application on the local server via remote device features of Chrome Devtools, set the wait time until reloading a browser because it takes a little time to recognize the device.
 1. Enter the URL of an application that you want to test and press the "Start" button.
 
-## License
+# Contact
+
+If you have any questions about LatteArt, please post them to [Discussions](https://github.com/latteart-org/latteart/discussions) on GitHub.
+
+For other inquiries, please contact NTT Software Innovation Center (`iso-tool-support-p-ml [at] hco.ntt.co.jp`).
+
+# License
 
 This software is licensed under the Apache License, Version2.0.
