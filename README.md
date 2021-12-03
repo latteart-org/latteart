@@ -10,7 +10,6 @@
 1. Install `yarn` corresponding to the version of node.js.
 1. Go to the root directory of the project.
 1. Execute the following command.
-
    ```bash
    yarn install
    ```
@@ -125,6 +124,10 @@ Detect source code changes and rebuild LatteArt.
 1. Select the connected device name in the "Device advanced settings" on the config page.
 1. If you want to test the application on the local server via remote device features of Chrome Devtools, set the wait time until reloading a browser because it takes a little time to recognize the device.
 1. Enter the URL of an application that you want to test and press the "Start" button.
+
+# Contributing to LatteArt
+
+Please read [this document](./docs/contributing.md) to contribute to LatteArt.
 
 # Contact
 
