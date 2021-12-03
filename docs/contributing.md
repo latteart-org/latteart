@@ -19,6 +19,7 @@ Use [discussions](https://github.com/latteart-org/latteart/discussions) feature 
 
 ## Pull Requests
 - Create a pull request to merge code from your feature branch to the develop branch.
+    - In principle, branch names should be `feature/#[issue number]_[summary]`.
 - You must agree to [DCO](https://developercertificate.org/) to contribute to LatteArt.
     - Add the following signature to the commit message to indicate that you agree with the DCO.
         - `Signed-off-by: Random J Developer <random@developer.example.org>`
