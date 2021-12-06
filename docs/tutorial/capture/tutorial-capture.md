@@ -236,7 +236,8 @@ Test Management Tool: http://127.0.0.1:3000 ?mode=manage
 
 ## テストスクリプト生成
 
-- 履歴画面の「スクリプト生成」ボタンを押下すると、テストスクリプト（ページオブジェクト、テストケース、テストデータ）およびJSDocを用いた説明書を zip 形式で生成することができます。テストスクリプトは JavaScript で記述されています。
+インポートしたセッションを元にテストスクリプトを生成します。
+詳細は「[テストスクリプト自動生成](/docs/manual/common/test-script-generation.md)」をご参照ください。
 
 <div align="center">
 <img src="./images/script-generation.png"/> 

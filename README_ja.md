@@ -19,7 +19,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 - テスト中の思考や気づきの記録の支援
 - 実施したテストの可視化
 - 実施したテストの管理
-- Page Object Pattern を利用した保守性の高いテストスクリプトの自動生成
+- ページオブジェクトパターンを利用した保守性の高いテストスクリプトの自動生成
 
 # ドキュメント
 - [LatteArt 導入手順書](./docs/startup/pc.md): LatteArt のインストール・起動方法
@@ -27,6 +27,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 - [LatteArt チュートリアル（テスト実践編）](./docs/tutorial/management/tutorial-management.md) : LatteArt を用いたテストの考え方、およびテストの実践
 - [記録ツール 操作説明書](./docs/manual/capture/manual-capture.md): 記録ツールの各機能の詳細
 - [管理ツール 操作説明書](./docs/manual/management/manual-management.md): 管理ツールの各機能の詳細
+- [テストスクリプト自動生成](./docs/manual/common/test-script-generation.md): テストスクリプト自動生成機能の詳細
 
 # インストール
 
