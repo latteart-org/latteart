@@ -25,8 +25,8 @@ LatteArt は以下の 2 つのツールで構成されています。
 - [LatteArt 導入手順書](./docs/startup/pc.md): LatteArt のインストール・起動方法
 - [LatteArt チュートリアル（操作記録編）](./docs/tutorial/capture/tutorial-capture.md) : LatteArt を用いたテストの記録方法
 - [LatteArt チュートリアル（テスト実践編）](./docs/tutorial/management/tutorial-management.md) : LatteArt を用いたテストの考え方、およびテストの実践
-- [記録ツール 操作説明書](/docs/manual/capture/manual-capture.md): 記録ツールの各機能の詳細
-- [管理ツール 操作説明書](../../manual/management/manual-management.md): 管理ツールの各機能の詳細
+- [記録ツール 操作説明書](./docs/manual/capture/manual-capture.md): 記録ツールの各機能の詳細
+- [管理ツール 操作説明書](./docs/manual/management/manual-management.md): 管理ツールの各機能の詳細
 
 # インストール
 
