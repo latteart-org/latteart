@@ -216,25 +216,8 @@
                           $store.getters.message('session-info.bug-status')
                         "
                         :items="issueOptions"
-                        :disabled="isViewerMode"
+                        :disabled="true"
                       ></v-select>
-                    </td>
-
-                    <td class="px-2 py-0">
-                      <v-text-field
-                        single-line
-                        :placeholder="
-                          $store.getters.message('session-info.bug-number')
-                        "
-                        @change="
-                          (value) =>
-                            updateIssue(props.item.source, { ticketId: value })
-                        "
-                        :value="props.item.ticketId"
-                        :disabled="
-                          props.item.status === 'unreported' || isViewerMode
-                        "
-                      ></v-text-field>
                     </td>
 
                     <td class="px-2 py-0 ellipsis_short">
@@ -294,15 +277,6 @@
           <v-list-tile>
             <v-list-tile-content>
               <v-list-tile-title>{{
-                $store.getters.message("session-info.bug-number")
-              }}</v-list-tile-title>
-              <p class="break-all">{{ issueDetailsDialogTicketId }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
-
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
                 $store.getters.message("session-info.summary")
               }}</v-list-tile-title>
               <p class="break-all">{{ issueDetailsDialogSummary }}</p>
@@ -314,7 +288,7 @@
               <v-list-tile-title>{{
                 $store.getters.message("session-info.details")
               }}</v-list-tile-title>
-              <p class="break-all">{{ issueDetailsDialogText }}</p>
+              <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
@@ -437,7 +411,7 @@ export default class SessionInfo extends Vue {
     },
     {
       text: this.$store.getters.message("session-info.bug-unreported"),
-      value: "unreported",
+      value: "invalid",
     },
   ];
 
@@ -448,12 +422,7 @@ export default class SessionInfo extends Vue {
       sortable: false,
       align: "center",
     },
-    {
-      text: this.$store.getters.message("session-info.bug-number"),
-      width: "160",
-      sortable: false,
-      align: "center",
-    },
+
     {
       text: this.$store.getters.message("session-info.summary"),
       sortable: false,
@@ -526,7 +495,8 @@ export default class SessionInfo extends Vue {
     a.href = file.fileUrl
       ? `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${file.fileUrl}`
       : (`data:text/plain;base64,${file.fileData}` as string);
-    a.download = file.name;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
     a.click();
     return false;
   }
@@ -651,7 +621,6 @@ export default class SessionInfo extends Vue {
     if (!this.session) {
       return [];
     }
-
     return this.session.issues;
   }
 
@@ -695,7 +664,7 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogStatus =
       status === "reported"
         ? this.$store.getters.message("session-info.bug-reported")
-        : status === "unreported"
+        : status === "invalid"
         ? this.$store.getters.message("session-info.bug-unreported")
         : none;
     this.issueDetailsDialogTicketId = ticketId !== "" ? ticketId : none;

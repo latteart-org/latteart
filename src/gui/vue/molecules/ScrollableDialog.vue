@@ -19,7 +19,7 @@
     scrollable
     persistent
     max-height="800"
-    max-width="500"
+    :max-width="maxWidth"
     v-model="opened"
     :transition="noTransition ? false : 'dialog-transition'"
     :fullscreen="fullscreen"
@@ -54,5 +54,6 @@ export default class ScrollableDialog extends Vue {
   @Prop({ type: String, default: "" }) public readonly title!: string;
   @Prop({ type: String, default: "" }) public readonly content!: string;
   @Prop({ type: String, default: "" }) public readonly footer!: string;
+  @Prop({ type: Number, default: 500 }) public readonly maxWidth!: number;
 }
 </script>

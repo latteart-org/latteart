@@ -136,13 +136,9 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
           return {
             sourceScreenDef: transition.source.screenDef,
             targetScreenDef: transition.target.screenDef,
-            history: transition.history
-              .map((operationWithNotes) => {
-                return operationWithNotes.operation;
-              })
-              .filter((operation) => {
-                return operation.windowHandle === state.selectedWindowHandle;
-              }),
+            history: transition.history.filter(({ operation }) => {
+              return operation.windowHandle === state.selectedWindowHandle;
+            }),
             screenElements: transition.screenElements,
             inputElements: transition.inputElements,
           };

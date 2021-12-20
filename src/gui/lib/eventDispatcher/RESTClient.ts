@@ -74,6 +74,12 @@ export default class RESTClient {
       body: body ? JSON.stringify(body) : undefined,
     });
 
+    if (res.status >= 400) {
+      throw new Error(
+        `Request error. status: ${res.status}, message: ${res.body}`
+      );
+    }
+
     if (res.status === 204) {
       return;
     }

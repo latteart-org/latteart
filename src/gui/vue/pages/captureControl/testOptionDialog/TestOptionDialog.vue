@@ -123,8 +123,12 @@ export default class TestOptionDialog extends Vue {
     try {
       this.$store.commit("captureControl/setTestOption", {
         testOption: {
-          firstTestPurpose: this.firstTestPurpose,
-          firstTestPurposeDetails: this.firstTestPurposeDetails,
+          firstTestPurpose: this.shouldRecordTestPurpose
+            ? this.firstTestPurpose
+            : "",
+          firstTestPurposeDetails: this.shouldRecordTestPurpose
+            ? this.firstTestPurposeDetails
+            : "",
           shouldRecordTestPurpose: this.shouldRecordTestPurpose,
         },
       });

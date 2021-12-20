@@ -26,9 +26,12 @@
 1. The following directory is created in `dist/latteart`.
    ```bash
    dist/latteart
+       ├─ capture.bat # batch file
+       ├─ manage.bat  # batch file
+       ├─ launch.config.json # batch execution configuration file
+       ├─ launch.exe # executable file for Windows
        ├─ public # contains index.html and favicon
-       ├─ latteart.exe # executable file for Windows
-       └─ latteart # executable file for Mac
+       └─ latteart.exe # executable file for Windows
    ```
 
 ### Build Snapshot Viewer
@@ -82,9 +85,10 @@ Detect source code changes and rebuild LatteArt.
 1. Put `latteart-capture-cl` and `latteart-repository` directories into `latteart` directory.
    ```bash
    latteart
-       ├─ capture.vbs
-       ├─ manage.vbs
-       ├─ latteart
+       ├─ capture.bat
+       ├─ manage.bat
+       ├─ launch.config.json
+       ├─ launch.exe
        ├─ latteart-capture-cl # put
        └─ latteart-repository # put
    ```
@@ -93,9 +97,9 @@ Detect source code changes and rebuild LatteArt.
 
 1. Execute the following script.
    - Capture tool
-     - capture.vbs
+     - capture.bat
    - Test management tool
-     - manage.vbs
+     - manage.bat
 1. The tools are executed on a new tab in a web browser. (You can also execute the tools by opening the following URLs.)
    - Capture tool
      - http://127.0.0.1:3000
@@ -106,8 +110,8 @@ Detect source code changes and rebuild LatteArt.
 
 1. Close the window with the following message displayed.
    ```bash
-   Capture Tool: http://127.0.0.1:3000
-   Test Management Tool: http://127.0.0.1:3000?mode=manage
+   capture: http://127.0.0.1:3000
+   manage: http://127.0.0.1:3000?mode=manage
    ```
 1. The other windows are automatically closed.
 

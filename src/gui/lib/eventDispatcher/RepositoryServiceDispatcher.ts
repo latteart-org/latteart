@@ -305,17 +305,17 @@ export default class RepositoryServiceDispatcher
   /**
    * Compress screenshot of test step.
    * @param testResultId  Test result id.
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    * @returns File path after compression.
    */
   public async compressTestStepImage(
     testResultId: string,
-    sequence: number
+    testStepId: string
   ): Promise<Reply<{ imageFileUrl: string }>> {
     try {
       const { imageFileUrl } = await this.restClient.httpPost(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${sequence}/compressed-image`
+          `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`
         ),
         null
       );
@@ -349,6 +349,7 @@ export default class RepositoryServiceDispatcher
     capturedOperation: CapturedOperation
   ): Promise<
     Reply<{
+      id: string;
       operation: Operation;
       coverageSource: CoverageSource;
       inputElementInfo: InputElementInfo;
@@ -356,6 +357,7 @@ export default class RepositoryServiceDispatcher
   > {
     try {
       const {
+        id,
         operation,
         coverageSource,
         inputElementInfo,
@@ -366,6 +368,7 @@ export default class RepositoryServiceDispatcher
       return {
         succeeded: true,
         data: {
+          id,
           operation: Operation.createFromOtherOperation({
             other: operation,
             overrideParams: {
@@ -393,13 +396,13 @@ export default class RepositoryServiceDispatcher
   /**
    * Add bug information to the test step with the specified sequence number.
    * @param testResultId  Test result ID.
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    * @param bug  Bug information to add.
    * @returns Added bug information.
    */
   public async addBug(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     bug: {
       summary: string;
       details: string;
@@ -431,13 +434,13 @@ export default class RepositoryServiceDispatcher
       } = await (async () => {
         const { bugs } = await this.restClient.httpGet(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           )
         );
 
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           ),
           {
             bugs: [...bugs, savedNote.id],
@@ -448,7 +451,6 @@ export default class RepositoryServiceDispatcher
       const data = {
         bug: new Note({
           id: savedNote.id,
-          sequence,
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
@@ -477,14 +479,14 @@ export default class RepositoryServiceDispatcher
   /**
    * Edit the bug.
    * @param testResultId  ID of the test result associated with the bug to be edited.
-   * @param sequence  Sequence number of the test result associated with the target bug.
+   * @param testStepId  Test step id of the test result associated with the target bug.
    * @param index  bug index.
    * @param bug  Contents to update the bug.
    * @returns Updated bug information.
    */
   public async editBug(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     index: number,
     bug: {
       summary: string;
@@ -493,7 +495,9 @@ export default class RepositoryServiceDispatcher
   ): Promise<Reply<{ bug: Note; index: number }>> {
     try {
       const { bugs } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
       const noteId: string = bugs[index];
 
@@ -516,7 +520,6 @@ export default class RepositoryServiceDispatcher
 
       const data = {
         bug: new Note({
-          sequence,
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
@@ -552,24 +555,24 @@ export default class RepositoryServiceDispatcher
   public async moveBug(
     testResultId: string,
     from: {
-      sequence: number;
+      testStepId: string;
       index: number;
     },
     dest: {
-      sequence: number;
+      testStepId: string;
     }
   ): Promise<Reply<{ bug: Note; index: number }>> {
     try {
       // Break the link of the move source.
       const { bugs: fromBugs } = await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${from.sequence}`
+          `/test-results/${testResultId}/test-steps/${from.testStepId}`
         )
       );
       await (async () => {
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${from.sequence}`
+            `/test-results/${testResultId}/test-steps/${from.testStepId}`
           ),
           {
             bugs: fromBugs.filter(
@@ -582,12 +585,12 @@ export default class RepositoryServiceDispatcher
       // Link to the destination.
       const { bugs: destBugs } = await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.sequence}`
+          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
         )
       );
       await this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.sequence}`
+          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
         ),
         {
           bugs: [...destBugs, fromBugs[from.index]],
@@ -609,7 +612,6 @@ export default class RepositoryServiceDispatcher
 
       const data = {
         bug: new Note({
-          sequence: dest.sequence,
           value: note.value,
           details: note.details,
           imageFilePath: note.imageFileUrl
@@ -638,23 +640,25 @@ export default class RepositoryServiceDispatcher
   /**
    * Remove the bug.
    * @param testResultId  The id of the test result associated with the bug to be deleted.
-   * @param sequence  Sequence number of test results related to the target bug.
+   * @param testStepId  Test step id of test results related to the target bug.
    * @param index  Bug index.
    */
   public async deleteBug(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     index: number
   ): Promise<
     Reply<{
-      sequence: number;
+      testStepId: string;
       index: number;
     }>
   > {
     try {
       // Get noteId.
       const { bugs } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
       const noteId = bugs[index];
 
@@ -666,7 +670,7 @@ export default class RepositoryServiceDispatcher
       // Break the link.
       await this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${sequence}`
+          `/test-results/${testResultId}/test-steps/${testStepId}`
         ),
         {
           bugs: bugs.filter((_: unknown, i: number) => i !== index),
@@ -676,7 +680,7 @@ export default class RepositoryServiceDispatcher
       return {
         succeeded: true,
         data: {
-          sequence,
+          testStepId,
           index,
         },
       };
@@ -694,12 +698,12 @@ export default class RepositoryServiceDispatcher
   /**
    * Notice the test step with the specified sequence number and add information.
    * @param testResultId  Test result ID.
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    * @param notice  Notice information to add.
    */
   public async addNotice(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     notice: {
       summary: string;
       details: string;
@@ -733,13 +737,13 @@ export default class RepositoryServiceDispatcher
       } = await (async () => {
         const { notices } = await this.restClient.httpGet(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           )
         );
 
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           ),
           {
             notices: [...notices, savedNote.id],
@@ -750,7 +754,6 @@ export default class RepositoryServiceDispatcher
       const data = {
         notice: new Note({
           id: savedNote.id,
-          sequence,
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
@@ -779,14 +782,14 @@ export default class RepositoryServiceDispatcher
   /**
    * Edit Notice.
    * @param testResultId  ID of the test result associated with the notice to be edited.
-   * @param sequence  The sequence number of the test result associated with the target Notice.
+   * @param testStepId  Test step id of the test result associated with the target Notice.
    * @param index  Notice index
    * @param notice  Update contents of notice.
    * @returns Updated notice information.
    */
   public async editNotice(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     index: number,
     notice: {
       summary: string;
@@ -796,7 +799,9 @@ export default class RepositoryServiceDispatcher
   ): Promise<Reply<{ notice: Note; index: number }>> {
     try {
       const { notices } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
       const noteId: string = notices[index];
 
@@ -820,7 +825,6 @@ export default class RepositoryServiceDispatcher
 
       const data = {
         notice: new Note({
-          sequence,
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
@@ -856,24 +860,24 @@ export default class RepositoryServiceDispatcher
   public async moveNotice(
     testResultId: string,
     from: {
-      sequence: number;
+      testStepId: string;
       index: number;
     },
     dest: {
-      sequence: number;
+      testStepId: string;
     }
   ): Promise<Reply<{ notice: Note; index: number }>> {
     try {
       // Break the link of the move source.
       const { notices: fromNotices } = await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${from.sequence}`
+          `/test-results/${testResultId}/test-steps/${from.testStepId}`
         )
       );
       await (async () => {
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${from.sequence}`
+            `/test-results/${testResultId}/test-steps/${from.testStepId}`
           ),
           {
             notices: fromNotices.filter(
@@ -886,13 +890,13 @@ export default class RepositoryServiceDispatcher
       // Link to the destination.
       const { notices: destNotices } = await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.sequence}`
+          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
         )
       );
       await (async () => {
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${dest.sequence}`
+            `/test-results/${testResultId}/test-steps/${dest.testStepId}`
           ),
           {
             notices: [...destNotices, fromNotices[from.index]],
@@ -915,7 +919,6 @@ export default class RepositoryServiceDispatcher
 
       const data = {
         notice: new Note({
-          sequence: dest.sequence,
           value: note.value,
           details: note.details,
           imageFilePath: note.imageFileUrl
@@ -944,23 +947,25 @@ export default class RepositoryServiceDispatcher
   /**
    * Delete Notice.
    * @param testResultId  The id of the test result associated with the Notice to be deleted.
-   * @param sequence  The sequence number of the test result associated with the target Notice.
+   * @param testStepId  Test step id of the test result associated with the target Notice.
    * @param index  Notice index.
    */
   public async deleteNotice(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     index: number
   ): Promise<
     Reply<{
-      sequence: number;
+      testStepId: string;
       index: number;
     }>
   > {
     try {
       // Get noteId.
       const { notices } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
       const noteId = notices[index];
 
@@ -972,7 +977,7 @@ export default class RepositoryServiceDispatcher
       // Break the link.
       await this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${sequence}`
+          `/test-results/${testResultId}/test-steps/${testStepId}`
         ),
         {
           notices: notices.filter((_: unknown, i: number) => i !== index),
@@ -982,7 +987,7 @@ export default class RepositoryServiceDispatcher
       return {
         succeeded: true,
         data: {
-          sequence,
+          testStepId,
           index,
         },
       };
@@ -1000,12 +1005,12 @@ export default class RepositoryServiceDispatcher
   /**
    * Add intention information to the test step with the specified sequence number.
    * @param testResultId  Test result ID
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    * @param intention  Intention information to add
    */
   public async addIntention(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     intention: {
       summary: string;
       details: string;
@@ -1033,7 +1038,7 @@ export default class RepositoryServiceDispatcher
       await (async () => {
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           ),
           {
             intention: savedNote.id,
@@ -1044,7 +1049,6 @@ export default class RepositoryServiceDispatcher
       return {
         succeeded: true,
         data: new Note({
-          sequence,
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
@@ -1067,13 +1071,13 @@ export default class RepositoryServiceDispatcher
   /**
    * Edit the intention information of the specified sequence number.
    * @param testResultId  Test result ID.
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    * @param intention  Intention information to edit.
    * @returns Edited intention information.
    */
   public async editIntention(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     intention: {
       summary: string;
       details: string;
@@ -1082,7 +1086,9 @@ export default class RepositoryServiceDispatcher
     try {
       // Get noteId.
       const { intention: noteId } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
 
       // Note update.
@@ -1103,7 +1109,6 @@ export default class RepositoryServiceDispatcher
       );
 
       const data = new Note({
-        sequence,
         value: savedNote.value,
         details: savedNote.details,
         imageFilePath: savedNote.imageFileUrl
@@ -1130,26 +1135,26 @@ export default class RepositoryServiceDispatcher
   /**
    * Change the associated sequence number of the Intention information of the specified sequence number.
    * @param testResultId  Test result ID.
-   * @param fromSequence  Linking source sequence number.
-   * @param destSequence  Linked sequence number
+   * @param fromTestStepId  Linking source sequence number.
+   * @param destTestStepId  Linked sequence number
    * @returns Intention information after change.
    */
   public async moveIntention(
     testResultId: string,
-    fromSequence: number,
-    destSequence: number
+    fromTestStepId: string,
+    destTestStepId: string
   ): Promise<Reply<Note>> {
     try {
       const { intention: noteId } = await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${fromSequence}`
+          `/test-results/${testResultId}/test-steps/${fromTestStepId}`
         )
       );
 
       // Break the link of the move source.
       await this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${fromSequence}`
+          `/test-results/${testResultId}/test-steps/${fromTestStepId}`
         ),
         {
           intention: null,
@@ -1159,7 +1164,7 @@ export default class RepositoryServiceDispatcher
       // Link to the destination.
       await this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${destSequence}`
+          `/test-results/${testResultId}/test-steps/${destTestStepId}`
         ),
         {
           intention: noteId,
@@ -1177,7 +1182,6 @@ export default class RepositoryServiceDispatcher
       );
 
       const data = new Note({
-        sequence: destSequence,
         value: note.value,
         details: note.details,
         imageFilePath: note.imageFileUrl
@@ -1204,16 +1208,18 @@ export default class RepositoryServiceDispatcher
   /**
    * Delete the intention information of the specified sequence number.
    * @param testResultId  Test result ID.
-   * @param sequence  Sequence number of the target test step.
+   * @param testStepId  Test step id of the target test step.
    */
   public async deleteIntention(
     testResultId: string,
-    sequence: number
-  ): Promise<Reply<number>> {
+    testStepId: string
+  ): Promise<Reply<string>> {
     try {
       // Get noteId.
       const { intention } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps/${sequence}`)
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        )
       );
 
       // Delete note.
@@ -1225,7 +1231,7 @@ export default class RepositoryServiceDispatcher
       await (async () => {
         return this.restClient.httpPatch(
           this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${sequence}`
+            `/test-results/${testResultId}/test-steps/${testStepId}`
           ),
           {
             intention: null,
@@ -1235,7 +1241,7 @@ export default class RepositoryServiceDispatcher
 
       return {
         succeeded: true,
-        data: sequence,
+        data: testStepId,
       };
     } catch (error) {
       return {
@@ -1259,7 +1265,7 @@ export default class RepositoryServiceDispatcher
     Reply<{
       id: string;
       name: string;
-      operationHistoryItems: OperationHistoryItem[];
+      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
       coverageSources: CoverageSource[];
       inputElementInfos: InputElementInfo[];
       initialUrl: string;
@@ -1282,9 +1288,9 @@ export default class RepositoryServiceDispatcher
         data: {
           id: testResult.id,
           name: testResult.name,
-          operationHistoryItems: testResult.testSteps.map((testStep, index) => {
-            const sequence = index + 1;
+          operationHistoryItems: testResult.testSteps.map((testStep) => {
             return {
+              testStepId: testStep.id,
               operation: testStep.operation
                 ? Operation.createFromOtherOperation({
                     other: testStep.operation,
@@ -1299,18 +1305,12 @@ export default class RepositoryServiceDispatcher
                     },
                   })
                 : testStep.operation,
-              intention: testStep.intention
-                ? Note.createFromOtherNote({
-                    other: testStep.intention,
-                    overrideParams: { sequence },
-                  })
-                : testStep.intention,
+              intention: testStep.intention,
               bugs:
                 testStep.bugs?.map((bug: any) => {
                   return Note.createFromOtherNote({
                     other: bug,
                     overrideParams: {
-                      sequence,
                       imageFilePath: bug.imageFileUrl
                         ? new URL(bug.imageFileUrl, this._serviceUrl).toString()
                         : "",
@@ -1322,7 +1322,6 @@ export default class RepositoryServiceDispatcher
                   return Note.createFromOtherNote({
                     other: notice,
                     overrideParams: {
-                      sequence,
                       imageFilePath: notice.imageFileUrl
                         ? new URL(
                             notice.imageFileUrl,
@@ -1417,10 +1416,9 @@ export default class RepositoryServiceDispatcher
 
   /**
    * Read project data.
-   * @param projectId  ID of the project.
    * @returns Project data.
    */
-  public async readProject(projectId: string): Promise<Reply<any>> {
+  public async readProject(): Promise<Reply<any>> {
     let response;
     try {
       const projects: Array<{
@@ -1428,17 +1426,14 @@ export default class RepositoryServiceDispatcher
         name: string;
       }> = await this.restClient.httpGet(this.buildAPIURL(`/projects`));
 
-      const targetProjectId: string = projects
-        .map(({ id }) => id)
-        .includes(projectId)
-        ? projectId
-        : await (async () => {
-            const { id } = await this.restClient.httpPost(
-              this.buildAPIURL(`/projects`),
-              { name: "" }
-            );
-            return id;
-          })();
+      const targetProjectId =
+        projects.length === 0
+          ? (
+              await this.restClient.httpPost(this.buildAPIURL(`/projects`), {
+                name: "",
+              })
+            ).id
+          : projects[0].id;
 
       response = await this.restClient.httpGet(
         this.buildAPIURL(`/projects/${targetProjectId}`)

@@ -17,29 +17,47 @@
 <template>
   <v-app>
     <router-view></router-view>
-    <config-loader></config-loader>
     <progress-dialog></progress-dialog>
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
   </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ConfigLoader from "./ConfigLoader.vue";
+import ErrorMessageDialog from "./vue/pages/common/ErrorMessageDialog.vue";
 import ProgressDialog from "./vue/pages/common/ProgressDialog.vue";
 
 @Component({
   components: {
-    "config-loader": ConfigLoader,
     "progress-dialog": ProgressDialog,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class Root extends Vue {
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
+
   private mounted(): void {
-    if (this.$route.query.mode === "manage") {
-      this.$router.push({ name: "manageShowView" });
-    } else {
-      this.$router.push({ name: "configView" });
-    }
+    (async () => {
+      try {
+        await this.$store.dispatch("loadLocaleFromSettings");
+        await this.$store.dispatch("operationHistory/readSettings");
+        await this.$store.dispatch("captureControl/readDeviceSettings");
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      }
+
+      if (this.$route.query.mode === "manage") {
+        this.$router.push({ name: "manageShowView" });
+      } else {
+        this.$router.push({ name: "configView" });
+      }
+    })();
   }
 }
 </script>

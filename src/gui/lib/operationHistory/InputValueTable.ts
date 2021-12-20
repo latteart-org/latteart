@@ -15,8 +15,9 @@
  */
 
 import { Operation } from "./Operation";
-import { ElementInfo } from "./types";
+import { ElementInfo, OperationWithNotes } from "./types";
 import { normalizeXPath } from "../common/util";
+import { Note } from "./Note";
 
 export interface InputValueTableHeaderColumn {
   intention: string;
@@ -28,6 +29,8 @@ export interface InputValueTableHeaderColumn {
       elementText: string;
       eventType: string;
     };
+    notes: Note[];
+    operationHistory: OperationWithNotes[];
   }>;
 }
 
@@ -63,7 +66,17 @@ export default class InputValueTable {
           intention,
           screenTransitions: transitions.map((transition, index) => {
             const triggerOperation: Operation | undefined =
-              transition.history[transition.history.length - 1];
+              transition.history[transition.history.length - 1]?.operation;
+            const transitionNotes: Note[] = transition.history.flatMap(
+              (item) => {
+                return [...(item.notices ?? []), ...(item.bugs ?? [])];
+              }
+            );
+            const transitionHistory: OperationWithNotes[] = transition.history.filter(
+              (history) => {
+                return !!history.notices && history.notices.length > 0;
+              }
+            );
 
             return {
               index,
@@ -73,6 +86,8 @@ export default class InputValueTable {
                 elementText: triggerOperation?.elementInfo?.text ?? "",
                 eventType: triggerOperation?.type ?? "",
               },
+              notes: transitionNotes,
+              operationHistory: transitionHistory,
             };
           }),
         };
@@ -98,7 +113,7 @@ export default class InputValueTable {
       .map(({ name, elementInfo, sequence }) => {
         const inputs = [];
         for (const { history, inputElements } of transitions) {
-          const operationsOfTargetElement = history.filter((operation) => {
+          const operationsOfTargetElement = history.filter(({ operation }) => {
             if (operation.elementInfo === null) {
               return false;
             }
@@ -109,10 +124,11 @@ export default class InputValueTable {
             );
           });
 
-          const inputValues = operationsOfTargetElement.map(
-            (operation) => operation.inputValue
-          );
-
+          const inputValues = operationsOfTargetElement.map(({ operation }) => {
+            return {
+              inputValue: operation.inputValue,
+            };
+          });
           const targetElement = inputElements.find((inputElement) => {
             return (
               normalizeXPath(inputElement.xpath) ===
@@ -126,7 +142,7 @@ export default class InputValueTable {
 
           if (inputValues.length !== 0) {
             inputs.push({
-              value: inputValues.slice(-1)[0],
+              value: inputValues.slice(-1)[0]?.inputValue ?? "",
               isDefaultValue: false,
             });
           } else {
@@ -139,7 +155,7 @@ export default class InputValueTable {
         return {
           elementId: elementInfo.attributes.id ?? "",
           elementName: name,
-          elementType: elementInfo.attributes.type,
+          elementType: elementInfo.attributes.type ?? "",
           sequence,
           inputs,
         };
@@ -172,7 +188,7 @@ export default class InputValueTable {
     Array<{
       sourceScreenDef: string;
       targetScreenDef: string;
-      history: Operation[];
+      history: OperationWithNotes[];
       screenElements: ElementInfo[];
       inputElements: ElementInfo[];
     }>
@@ -188,7 +204,7 @@ export default class InputValueTable {
     ...screenTransition: Array<{
       sourceScreenDef: string;
       targetScreenDef: string;
-      history: Operation[];
+      history: OperationWithNotes[];
       screenElements: ElementInfo[];
       inputElements: ElementInfo[];
     }>
@@ -202,9 +218,9 @@ export default class InputValueTable {
       ?.push(...screenTransition);
   }
 
-  private collectInputOperations(operationHistory: Operation[]) {
+  private collectInputOperations(operationHistory: OperationWithNotes[]) {
     return operationHistory
-      .filter((operation) => {
+      .filter(({ operation }) => {
         // Excludes those without elementInfo.
         if (operation.elementInfo === null) {
           return false;
@@ -228,10 +244,10 @@ export default class InputValueTable {
       .filter((item, index, history) => {
         // Exclude duplicate input elements between OperationHistoryItems.
         return (
-          history.findIndex((oItem) => {
+          history.findIndex(({ operation }) => {
             return (
-              oItem.elementInfo!.attributes.name ===
-              item.elementInfo!.attributes.name
+              operation.elementInfo!.attributes.name ===
+              item.operation.elementInfo!.attributes.name
             );
           }) === index
         );
@@ -242,7 +258,7 @@ export default class InputValueTable {
     transitions: Array<{
       sourceScreenDef: string;
       targetScreenDef: string;
-      history: Operation[];
+      history: OperationWithNotes[];
       screenElements: ElementInfo[];
       inputElements: ElementInfo[];
     }>
@@ -265,7 +281,7 @@ export default class InputValueTable {
     for (const transition of transitions) {
       inputtedElements.push(
         ...this.collectInputOperations(transition.history)
-          .map((operation) => {
+          .map(({ operation }) => {
             return {
               sequence: operation.sequence,
               element: operation.elementInfo,
@@ -282,7 +298,7 @@ export default class InputValueTable {
       defaultElements.push(
         ...transition.inputElements.map((inputElement) => {
           return {
-            sequence: transition.history[0].sequence ?? 0,
+            sequence: transition.history[0]?.operation.sequence ?? 0,
             element: inputElement,
           };
         })

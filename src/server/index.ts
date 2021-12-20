@@ -27,6 +27,16 @@ app.use(history());
 const currentDirPath = process.env.NODE_ENV === "development" ? __dirname : ".";
 app.use(express.static(path.join(currentDirPath, "public")));
 
+const v1RootPath = "/api/v1";
+/**
+ * Get server name.
+ */
+app.get(`${v1RootPath}/server-name`, (req, res) => {
+  console.info("Get server name.");
+
+  res.json("latteart");
+});
+
 app.listen(port, () => {
   console.info(`Capture Tool: http://127.0.0.1:${port}`);
   console.info(`Test Management Tool: http://127.0.0.1:${port}?mode=manage`);

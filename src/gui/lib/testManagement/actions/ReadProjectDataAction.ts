@@ -33,9 +33,7 @@ export interface ProjectStoryConvertable {
 }
 
 export interface ProjectFetchable extends ProjectUpdatable {
-  readProject(
-    projectId: string
-  ): Promise<
+  readProject(): Promise<
     Reply<{
       testMatrices: TestMatrix[];
       progressDatas: ProgressData[];
@@ -51,8 +49,8 @@ export class ReadProjectDataAction {
     private dispatcher: ProjectFetchable
   ) {}
 
-  public async read(projectId: string): Promise<void> {
-    const reply = await this.dispatcher.readProject(projectId);
+  public async read(): Promise<void> {
+    const reply = await this.dispatcher.readProject();
     if (reply.error) {
       throw new Error(reply.error.code);
     }

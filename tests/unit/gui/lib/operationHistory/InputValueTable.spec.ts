@@ -1,18 +1,27 @@
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { Operation } from "@/lib/operationHistory/Operation";
-import { ElementInfo } from "@/lib/operationHistory/types";
+import { ElementInfo, OperationWithNotes } from "@/lib/operationHistory/types";
+import { operationHistory } from "@/store/operationHistory";
 
-function createTestOperation(sequence: number, elementInfo: ElementInfo) {
-  return new Operation(
-    sequence,
-    `input${sequence}`,
-    `eventType${sequence}`,
-    elementInfo,
-    "",
-    "",
-    "",
-    ""
-  );
+function createTestOperation(
+  sequence: number,
+  elementInfo: ElementInfo
+): OperationWithNotes {
+  return {
+    operation: new Operation(
+      sequence,
+      `input${sequence}`,
+      `eventType${sequence}`,
+      elementInfo,
+      "",
+      "",
+      "",
+      ""
+    ),
+    intention: null,
+    bugs: [],
+    notices: [],
+  };
 }
 
 function createElement(index: number): ElementInfo {
@@ -48,12 +57,17 @@ describe("InputValueTableは", () => {
 
       const operation1 = createTestOperation(1, element1);
       const operation2 = createTestOperation(2, element2);
-      const operation3 = Operation.createFromOtherOperation({
-        other: createTestOperation(3, element2),
-        overrideParams: {
-          input: "input2-2",
-        },
-      });
+      const operation3 = {
+        operation: Operation.createFromOtherOperation({
+          other: createTestOperation(3, element2).operation,
+          overrideParams: {
+            input: "input2-2",
+          },
+        }),
+        intention: null,
+        bugs: [],
+        notices: [],
+      };
 
       table.registerScreenTransitionToIntentions("intention1", {
         sourceScreenDef: "screen1",
@@ -74,6 +88,8 @@ describe("InputValueTableは", () => {
           screenTransitions: [
             {
               index: 0,
+              notes: [],
+              operationHistory: [],
               sourceScreenDef: "screen1",
               targetScreenDef: "screen2",
               trigger: {
@@ -110,12 +126,17 @@ describe("InputValueTableは", () => {
 
       const operation1 = createTestOperation(1, element1);
       const operation2 = createTestOperation(2, element2);
-      const operation3 = Operation.createFromOtherOperation({
-        other: createTestOperation(3, element2),
-        overrideParams: {
-          input: "input2-2",
-        },
-      });
+      const operation3 = {
+        operation: Operation.createFromOtherOperation({
+          other: createTestOperation(3, element2).operation,
+          overrideParams: {
+            input: "input2-2",
+          },
+        }),
+        intention: null,
+        bugs: [],
+        notices: [],
+      };
 
       table.registerScreenTransitionToIntentions("intention1", {
         sourceScreenDef: "screen1",
@@ -144,6 +165,8 @@ describe("InputValueTableは", () => {
           screenTransitions: [
             {
               index: 0,
+              notes: [],
+              operationHistory: [],
               sourceScreenDef: "screen1",
               targetScreenDef: "screen2",
               trigger: {
@@ -153,6 +176,8 @@ describe("InputValueTableは", () => {
             },
             {
               index: 1,
+              notes: [],
+              operationHistory: [],
               sourceScreenDef: "screen2",
               targetScreenDef: "screen3",
               trigger: {
@@ -214,6 +239,8 @@ describe("InputValueTableは", () => {
           screenTransitions: [
             {
               index: 0,
+              notes: [],
+              operationHistory: [],
               sourceScreenDef: "screen1",
               targetScreenDef: "screen2",
               trigger: {
@@ -228,6 +255,8 @@ describe("InputValueTableは", () => {
           screenTransitions: [
             {
               index: 0,
+              notes: [],
+              operationHistory: [],
               sourceScreenDef: "screen2",
               targetScreenDef: "screen3",
               trigger: {

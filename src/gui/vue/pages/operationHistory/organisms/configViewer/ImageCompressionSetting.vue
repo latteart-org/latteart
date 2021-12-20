@@ -51,9 +51,19 @@ export default class ImageCompressionSetting extends Vue {
     return this.$store.state.operationHistory.config.imageCompression.isEnabled;
   }
   private set isEnableCompression(isEnabled: boolean) {
-    this.$store.commit("operationHistory/setImageCompressionIsEnabled", {
-      isEnabled,
-    });
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          imageCompression: {
+            isEnabled,
+            isDeleteSrcImage: this.$store.state.operationHistory.config
+              .imageCompression.isDeleteSrcImage,
+            command: this.$store.state.operationHistory.config.imageCompression
+              .command,
+          },
+        },
+      });
+    })();
   }
 
   private get isDeleteSrcImage(): boolean {
@@ -61,9 +71,19 @@ export default class ImageCompressionSetting extends Vue {
       .isDeleteSrcImage;
   }
   private set isDeleteSrcImage(isDelete: boolean) {
-    this.$store.commit("operationHistory/setIsDeleteSrcImage", {
-      isDeleteSrcImage: isDelete,
-    });
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          imageCompression: {
+            isEnabled: this.$store.state.operationHistory.config
+              .imageCompression.isEnabled,
+            isDeleteSrcImage: isDelete,
+            command: this.$store.state.operationHistory.config.imageCompression
+              .command,
+          },
+        },
+      });
+    })();
   }
 }
 </script>

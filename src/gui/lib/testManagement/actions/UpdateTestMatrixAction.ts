@@ -75,13 +75,6 @@ export class UpdateTestMatrixAction {
             });
           });
 
-          addedViewPointsWithTestMatrixId.forEach((addedViewPoint) => {
-            const addedViewPointId = addedViewPoint.id as string;
-            testTarget.plans.push({
-              viewPointId: addedViewPointId,
-              value: 0,
-            });
-          });
           return testTarget;
         });
         return group;

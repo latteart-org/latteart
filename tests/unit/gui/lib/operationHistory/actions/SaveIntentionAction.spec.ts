@@ -14,6 +14,7 @@ describe("SaveIntentionAction", () => {
       observer = {
         recordIntention: jest.fn(),
         moveIntention: jest.fn(),
+        setUnassignedIntention: jest.fn(),
       };
     });
 
@@ -29,7 +30,7 @@ describe("SaveIntentionAction", () => {
         await new SaveIntentionAction(observer).save(
           testResultId,
           noteEditInfo,
-          []
+          [{ operation: { sequence: 0 } }]
         );
 
         expect(observer.recordIntention).toBeCalledWith({
@@ -40,20 +41,14 @@ describe("SaveIntentionAction", () => {
         });
       });
 
-      it("oldSequenceが指定されていない場合は履歴の最新の操作+1のシーケンス番号を使用する", async () => {
+      it("oldSequenceが指定されていない場合は履歴の最新の操作+1のシーケンス番号を使用し、未割り当てテスト目的として登録する", async () => {
         const noteEditInfo: IntentionInfo = {
           note: "summary",
           noteDetails: "details",
           newSequence: 0,
         };
 
-        const history = [
-          {
-            operation: {
-              sequence: 0,
-            },
-          },
-        ];
+        const history = [{ operation: { sequence: 0 } }];
 
         await new SaveIntentionAction(observer).save(
           testResultId,
@@ -61,15 +56,15 @@ describe("SaveIntentionAction", () => {
           history
         );
 
-        expect(observer.recordIntention).toBeCalledWith({
-          testResultId,
-          summary: noteEditInfo.note,
-          details: noteEditInfo.noteDetails,
+        expect(observer.setUnassignedIntention).toBeCalledWith({
           sequence: history[history.length - 1].operation.sequence + 1,
+          note: noteEditInfo.note,
+          noteDetails: noteEditInfo.noteDetails,
         });
+        expect(observer.recordIntention).not.toBeCalled();
       });
 
-      it("oldSequenceが指定されておらず、履歴も空の場合は対象シーケンス番号に1を使用する", async () => {
+      it("oldSequenceが指定されておらず、履歴も空の場合は対象シーケンス番号に1を使用し、未割り当てテスト目的として登録する", async () => {
         const noteEditInfo: IntentionInfo = {
           note: "summary",
           noteDetails: "details",
@@ -79,15 +74,15 @@ describe("SaveIntentionAction", () => {
         await new SaveIntentionAction(observer).save(
           testResultId,
           noteEditInfo,
-          []
+          [{ operation: { sequence: 0 } }]
         );
 
-        expect(observer.recordIntention).toBeCalledWith({
-          testResultId,
-          summary: noteEditInfo.note,
-          details: noteEditInfo.noteDetails,
+        expect(observer.setUnassignedIntention).toBeCalledWith({
           sequence: 1,
+          note: noteEditInfo.note,
+          noteDetails: noteEditInfo.noteDetails,
         });
+        expect(observer.recordIntention).not.toBeCalled();
       });
     });
 
@@ -107,7 +102,7 @@ describe("SaveIntentionAction", () => {
         await new SaveIntentionAction(observer).save(
           testResultId,
           noteEditInfo,
-          []
+          [{ operation: { sequence: 0 } }]
         );
 
         expect(observer.moveIntention).toHaveBeenLastCalledWith(
@@ -126,7 +121,7 @@ describe("SaveIntentionAction", () => {
             noteDetails: "details",
             newSequence: 0,
           },
-          []
+          [{ operation: { sequence: 0 } }]
         );
 
         await action.save(
@@ -136,7 +131,7 @@ describe("SaveIntentionAction", () => {
             noteDetails: "details",
             oldSequence: 0,
           },
-          []
+          [{ operation: { sequence: 0 } }]
         );
 
         expect(observer.moveIntention).not.toBeCalled();

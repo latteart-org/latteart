@@ -9,14 +9,16 @@ describe("ResumeAction", () => {
     it("渡されたテスト結果IDを用いてリジュームを実行し、その戻り値を加工してオブザーバに渡す", async () => {
       const observer: ResumeActionObserver = {
         setResumedData: jest.fn(),
+        registerTestStepId: jest.fn(),
+        clearTestStepIds: jest.fn(),
       };
 
       const data = {
         id: "id",
         name: "name",
-        operationHistoryItems: "operationHistoryItems",
-        coverageSources: "coverageSources",
-        inputElementInfos: "inputElementInfos",
+        operationHistoryItems: [],
+        coverageSources: [],
+        inputElementInfos: [],
         initialUrl: "url",
       };
 
@@ -42,6 +44,8 @@ describe("ResumeAction", () => {
     it("渡されたテスト結果IDを用いてリジュームを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
       const observer: ResumeActionObserver = {
         setResumedData: jest.fn(),
+        registerTestStepId: jest.fn(),
+        clearTestStepIds: jest.fn(),
       };
 
       const error = {

@@ -25,16 +25,20 @@
           <v-select
             :label="$store.getters.message('config-view.platform')"
             :items="platformNames"
-            v-model="selectedPlatformName"
+            :value="selectedPlatformName"
+            @change="selectPlatform"
           ></v-select>
           <v-select
             :label="$store.getters.message('config-view.browser')"
             :items="browsers"
-            v-model="selectedBrowser"
+            :value="selectedBrowser"
+            @change="selectBrowser"
           ></v-select>
           <number-field
             arrowOnly
-            @updateNumberFieldValue="updateNumberFieldValue"
+            @updateNumberFieldValue="
+              ({ value }) => updateWaitTimeForStartupReload(value)
+            "
             :value="waitTimeForStartupReload"
             :maxValue="60"
             :minValue="0"
@@ -48,7 +52,7 @@
               </template>
               <v-container>
                 <v-btn
-                  @click="connectDevices"
+                  @click="updateDevices"
                   :disabled="isDisabledDeviceConfig"
                   >{{
                     $store.getters.message("config-view.update-device")
@@ -56,7 +60,8 @@
                 >
                 <v-select
                   :label="$store.getters.message('config-view.select-device')"
-                  v-model="selectedDevice"
+                  :value="selectedDevice"
+                  @change="selectDevice"
                   :items="devices"
                   item-text="modelNumber"
                   item-value="deviceName"
@@ -139,16 +144,13 @@ export default class ConfigView extends Vue {
 
   private platformNames: string[] = Util.getEnumValues(PlatformName);
 
-  private get browsers(): string[] {
-    switch (this.selectedPlatformName) {
-      case PlatformName.Android:
-        return [Browser.Chrome];
-      case PlatformName.iOS:
-        return [Browser.Safari];
-      default:
-        return [Browser.Chrome];
-    }
-  }
+  private browsers: string[] = [];
+
+  private devices: {
+    deviceName: string;
+    modelNumber: string;
+    osVersion: string;
+  }[] = [];
 
   private get locale() {
     return this.$store.getters.getLocale();
@@ -163,6 +165,7 @@ export default class ConfigView extends Vue {
 
   private created() {
     this.updateWindowTitle();
+    this.selectPlatform(this.selectedPlatformName);
   }
 
   private get coverageOpened() {
@@ -173,39 +176,12 @@ export default class ConfigView extends Vue {
     return this.selectedPlatformName !== this.platformNames[0];
   }
 
-  private connectDevices() {
-    (async () => {
-      try {
-        await this.$store.dispatch("captureControl/updateDevices", {
-          platformName: this.selectedPlatformName,
-        });
-      } catch (error) {
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      }
-    })();
-  }
-
-  private get devices() {
-    return this.$store.getters["captureControl/getDevices"]();
-  }
-
   private get selectedPlatformName(): string {
     return this.$store.state.captureControl.config.platformName;
   }
 
-  private set selectedPlatformName(platformName: string) {
-    this.$store.commit("captureControl/setPlatformName", { platformName });
-    this.selectedBrowser = this.browsers[0];
-    this.connectDevices();
-  }
-
   private get selectedBrowser(): string {
     return this.$store.state.captureControl.config.browser;
-  }
-
-  private set selectedBrowser(browser: string) {
-    this.$store.commit("captureControl/setBrowser", { browser });
   }
 
   private get selectedDevice(): {
@@ -216,14 +192,6 @@ export default class ConfigView extends Vue {
     return this.$store.state.captureControl.config.device;
   }
 
-  private set selectedDevice(device: {
-    deviceName: string;
-    modelNumber: string;
-    osVersion: string;
-  }) {
-    this.$store.commit("captureControl/setDevice", { device });
-  }
-
   private get isDisabledDeviceConfig() {
     return this.selectedPlatformName === PlatformName.PC;
   }
@@ -232,18 +200,104 @@ export default class ConfigView extends Vue {
     return this.$store.state.captureControl.config.waitTimeForStartupReload;
   }
 
-  private set waitTimeForStartupReload(waitTimeForStartupReload: number) {
-    this.$store.commit("captureControl/setWaitTimeForStartupReload", {
-      waitTimeForStartupReload,
+  private get configureCaptureSettings() {
+    return this.$store.getters.getSetting("debug.configureCaptureSettings");
+  }
+
+  private async selectPlatform(platformName: string) {
+    this.browsers = [...this.collectBrowsers(platformName)];
+    const browser = this.browsers[0];
+
+    this.devices = [...(await this.recognizeDevices(platformName))];
+
+    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+      config: {
+        platformName,
+        browser,
+        device: this.getDefaultDevice(this.devices),
+      },
     });
   }
 
-  private updateNumberFieldValue(data: { id: string; value: number }) {
-    this.waitTimeForStartupReload = data.value;
+  private collectBrowsers(platformName: string) {
+    if (platformName === PlatformName.Android) return [Browser.Chrome];
+    if (platformName === PlatformName.iOS) return [Browser.Safari];
+
+    return [Browser.Chrome];
   }
 
-  private get configureCaptureSettings() {
-    return this.$store.getters.getSetting("debug.configureCaptureSettings");
+  private async selectBrowser(browser: string) {
+    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+      config: { browser },
+    });
+  }
+
+  private getDefaultDevice(
+    devices: {
+      deviceName: string;
+      modelNumber: string;
+      osVersion: string;
+    }[]
+  ) {
+    console.log(devices);
+    return devices.length > 0
+      ? devices[0]
+      : { deviceName: "", modelNumber: "", osVersion: "" };
+  }
+
+  private async updateDevices() {
+    try {
+      this.devices = [
+        ...(await this.recognizeDevices(this.selectedPlatformName)),
+      ];
+
+      await this.$store.dispatch("captureControl/writeDeviceSettings", {
+        config: {
+          device: this.getDefaultDevice(this.devices),
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+
+        return;
+      }
+
+      throw error;
+    }
+  }
+
+  private async recognizeDevices(
+    platformName: string
+  ): Promise<
+    {
+      deviceName: string;
+      modelNumber: string;
+      osVersion: string;
+    }[]
+  > {
+    return this.$store.dispatch("captureControl/recognizeDevices", {
+      platformName,
+    });
+  }
+
+  private async selectDevice(device: {
+    deviceName: string;
+    modelNumber: string;
+    osVersion: string;
+  }) {
+    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+      config: { device },
+    });
+  }
+
+  private async updateWaitTimeForStartupReload(
+    waitTimeForStartupReload: number
+  ) {
+    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+      config: { waitTimeForStartupReload },
+    });
   }
 }
 </script>

@@ -45,7 +45,7 @@ describe("ReadProjectDataActionの", () => {
           observer,
           storyDataConverter,
           dispatcher
-        ).read("1");
+        ).read();
 
         expect(observer.setManagedData).toBeCalledWith({
           testMatrices: [],

@@ -24,12 +24,10 @@ COPY tests/ ./tests/
 COPY templates/ ./templates/
 COPY public/ ./public/
 COPY yarn.lock ./
-COPY capture.vbs ./
-COPY manage.vbs ./
+COPY launch/ ./launch/
 RUN yarn install
 RUN yarn build:viewer
 RUN yarn build:viewer:history
-RUN yarn prepackage
 RUN yarn package:win
 # RUN yarn package:mac
 

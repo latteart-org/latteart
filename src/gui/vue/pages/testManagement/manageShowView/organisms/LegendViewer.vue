@@ -105,5 +105,5 @@ export default class LegendViewer extends Vue {
 .status-warn
   background-color: #FBE9E0
   color: #EA5F1A
-  fontWeight: bold
+  font-weight: bold
 </style>

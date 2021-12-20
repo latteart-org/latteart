@@ -21,15 +21,6 @@ import { PlatformName } from "@/lib/common/enum/SettingsEnum";
 
 const getters: GetterTree<CaptureControlState, RootState> = {
   /**
-   * Get selectable devices from the State.
-   * @param state State.
-   * @returns Devices.
-   */
-  getDevices: (state) => () => {
-    return state.config.devices;
-  },
-
-  /**
    * Get device config from the State.
    * @param state State.
    * @returns Device config.

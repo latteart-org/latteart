@@ -36,6 +36,7 @@ import {
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import { Operation } from "@/lib/operationHistory/Operation";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**
@@ -53,23 +54,20 @@ const mutations: MutationTree<OperationHistoryState> = {
       });
   },
 
+  addTestStepId(state, payload: { testStepId: string }) {
+    state.testStepIds.push(payload.testStepId);
+  },
+
+  clearTestStepIds(state) {
+    state.testStepIds.splice(0, state.testStepIds.length);
+  },
+
   /**
    * Add item to operation with note history in the State.
    * @param state State.
    * @param payload.entry Operation with note.
    */
   addHistory(state, payload: { entry: OperationWithNotes }) {
-    const unassignedIntentionIndex = state.unassignedIntentions.findIndex(
-      (item) => {
-        return item.sequence === payload.entry.operation.sequence;
-      }
-    );
-    if (unassignedIntentionIndex !== -1) {
-      payload.entry.intention =
-        state.unassignedIntentions[unassignedIntentionIndex];
-      state.unassignedIntentions.splice(unassignedIntentionIndex);
-    }
-
     // If there is specified element, override the operation.
     // If there is not, add a operation with note.
     const targetIndex = state.history.findIndex((item) => {
@@ -77,6 +75,22 @@ const mutations: MutationTree<OperationHistoryState> = {
     });
     if (targetIndex === -1) {
       state.history.push(payload.entry);
+      state.history.sort(
+        (a, b) =>
+          parseInt(a.operation.timestamp, 10) -
+          parseInt(b.operation.timestamp, 10)
+      );
+      state.history = [
+        ...state.history.map((item, index) => {
+          return {
+            ...item,
+            operation: Operation.createFromOtherOperation({
+              other: item.operation,
+              overrideParams: { sequence: index + 1 },
+            }),
+          };
+        }),
+      ];
       return;
     }
     state.history[targetIndex].operation = payload.entry.operation;
@@ -102,6 +116,40 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
+   * Set unassigned intentions to the State.
+   * @param state State
+   * @param payload.unassignedIntention target intention info
+   */
+  setUnassignedIntention(
+    state,
+    payload: {
+      unassignedIntention: {
+        sequence: number;
+        note: string;
+        noteDetails?: string;
+      };
+    }
+  ) {
+    const i = state.unassignedIntentions.findIndex((item) => {
+      return item.sequence === payload.unassignedIntention.sequence;
+    });
+    if (i === -1) {
+      state.unassignedIntentions.push(payload.unassignedIntention);
+    } else {
+      state.unassignedIntentions[i] = payload.unassignedIntention;
+    }
+  },
+
+  /**
+   * Remove unassigned intentions from the State.
+   * @param state State
+   * @param payload.index index of target unassigned intention
+   */
+  removeUnassignedIntention(state, payload: { index: number }) {
+    state.unassignedIntentions.splice(payload.index);
+  },
+
+  /**
    * Empty unassigned intentions in the State.
    * @param state State
    */
@@ -118,18 +166,11 @@ const mutations: MutationTree<OperationHistoryState> = {
     const targetIndex = state.history.findIndex((item) => {
       return item.operation.sequence === payload.intention.sequence;
     });
+
     if (targetIndex === -1) {
-      // If it is not found, add it as a unassigned intention.
-      const i = state.unassignedIntentions.findIndex((item) => {
-        return item.sequence === payload.intention.sequence;
-      });
-      if (i === -1) {
-        state.unassignedIntentions.push(payload.intention);
-      } else {
-        state.unassignedIntentions[i] = payload.intention;
-      }
       return;
     }
+
     state.history[targetIndex].intention = payload.intention;
   },
 
@@ -257,62 +298,8 @@ const mutations: MutationTree<OperationHistoryState> = {
     }
   },
 
-  /**
-   * Set exclusion tags for screen element coverage to the State.
-   * @param state State.
-   * @param payload.exclusionTags Exclusion tags for screen element coverage.
-   */
-  setExclusionTags(state: any, payload: { exclusionTags: string[] }) {
-    state.config.exclusionElements.tags = payload.exclusionTags;
-  },
-
-  /**
-   * Set screen definition type to the State.
-   * @param state State.
-   * @param payload.screenDefType Screen definition type.
-   */
-  setScreenDefType(state, payload: { screenDefType: ScreenDefType }) {
-    state.config.screenDefinition = {
-      screenDefType: payload.screenDefType,
-      conditionGroups: state.config.screenDefinition.conditionGroups,
-    };
-  },
-
-  /**
-   * Set screen definition settings to the State.
-   * @param state State.
-   * @param payload.screenDefinition Screen definition settings.
-   */
-  setScreenDefinition(state, payload: { screenDefinition: ScreenDefinition }) {
-    state.config.screenDefinition = payload.screenDefinition;
-  },
-
-  /**
-   * Set screen definition settings to the State.
-   * @param state State.
-   * @param payload.screenDefinition Screen definition settings.
-   */
-  setScreenDefinitionConditions(
-    state,
-    payload: {
-      conditionGroups: ScreenDefinitionConditionGroup[];
-    }
-  ) {
-    state.config.screenDefinition = {
-      screenDefType: state.config.screenDefinition.screenDefType,
-      conditionGroups: payload.conditionGroups,
-    };
-  },
-
-  /**
-   * Set exclusion elements for screen element coverage to the State.
-   * @param state State.
-   * @param payload.exclusionElements Exclusion elements for screen element coverage.
-   */
-  setCoverage(state, payload: { coverage: Coverage }) {
-    state.config.coverage = payload.coverage;
-    console.log("mutations");
-    console.log(state.config.coverage);
+  setConfig(state, payload: { config: OperationHistoryState["config"] }) {
+    Vue.set(state, "config", payload.config);
   },
 
   /**
@@ -345,33 +332,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       state.config.coverage.include.tags
     );
     state.displayInclusionList = Array.from(new Set(displayExclusionTagList));
-  },
-
-  /**
-   * Set screenshot image compression settings to the State.
-   * @param state State.
-   * @param payload.imageCompression Screenshot image compression settings to the State.
-   */
-  setImageCompression(state, payload: { imageCompression: ImageCompression }) {
-    state.config.imageCompression = payload.imageCompression;
-  },
-
-  /**
-   * Set whether to compress screenshot or not to the State.
-   * @param state State.
-   * @param payload.isEnabled Whether to compress screenshot or not.
-   */
-  setImageCompressionIsEnabled(state, payload: { isEnabled: boolean }) {
-    state.config.imageCompression.isEnabled = payload.isEnabled;
-  },
-
-  /**
-   * Set whether to delete original image or not when compressing screenshot to the State.
-   * @param state State.
-   * @param payload.isDeleteSrcImage Whether to remove the source file when compressing screenshots.
-   */
-  setIsDeleteSrcImage(state, payload: { isDeleteSrcImage: boolean }) {
-    state.config.imageCompression.isDeleteSrcImage = payload.isDeleteSrcImage;
   },
 
   /**

@@ -27,15 +27,25 @@
       v-model="shouldGrayOutNotInputValueCell"
       :label="message('input-value.gray-out-not-input-value-cell')"
     ></v-checkbox>
+
     <v-checkbox
       class="checkbox-hide-elements"
       v-model="shouldHideHiddenElements"
       :label="message('input-value.hide-hidden-elements')"
+      hide-details
     ></v-checkbox>
+
+    <v-text-field
+      v-model="search"
+      prepend-inner-icon="search"
+      :label="message('operation.query')"
+    ></v-text-field>
+
     <v-flex xs12 :style="{ height: '100%', 'overflow-y': 'scroll' }">
       <v-data-table
         disable-initial-sort
         :headers="headers"
+        :custom-filter="filterByWord"
         :items="inputValues"
         :search="search"
         class="elevation-1"
@@ -65,6 +75,18 @@
               :key="index"
             >
               {{ header.text }}
+              <v-icon
+                v-if="header.notes.length > 0"
+                :title="$store.getters.message('app.note')"
+                class="mx-1"
+                color="purple lighten-3"
+                @click="
+                  selectedColumnNotes = header.notes;
+                  selectedColumnTestSteps = header.operationHistory;
+                  opened = true;
+                "
+                >announcement</v-icon
+              >
             </th>
           </tr>
           <tr>
@@ -123,6 +145,11 @@
         </template>
       </v-data-table>
     </v-flex>
+    <note-list-dialog
+      :opened="opened"
+      :testSteps="selectedColumnTestSteps"
+      @close="opened = false"
+    />
   </v-layout>
 </template>
 
@@ -130,9 +157,21 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import NoteListDialog from "@/vue/molecules/NoteListDialog.vue";
+
+type InputValue = {
+  [key: string]:
+    | string
+    | {
+        value: string;
+        isDefaultValue: boolean;
+      };
+};
 
 @Component({
-  components: {},
+  components: {
+    "note-list-dialog": NoteListDialog,
+  },
 })
 export default class DecisionTable extends Vue {
   @Prop({ type: Function, default: -1 }) public readonly onSelectValueSet!: (
@@ -147,6 +186,9 @@ export default class DecisionTable extends Vue {
   private pagination: any = {
     rowsPerPage: -1,
   };
+  private opened = false;
+  private selectedColumnNotes = [];
+  private selectedColumnTestSteps = [];
 
   private get inputValueTable(): InputValueTable {
     return this.$store.state.operationHistory.inputValueTable;
@@ -170,6 +212,8 @@ export default class DecisionTable extends Vue {
               elementText: "",
               eventType: "",
             },
+            notes: [],
+            operationHistory: [],
           },
         ],
       },
@@ -185,6 +229,8 @@ export default class DecisionTable extends Vue {
               elementText: "",
               eventType: "",
             },
+            notes: [],
+            operationHistory: [],
           },
         ],
       },
@@ -200,6 +246,8 @@ export default class DecisionTable extends Vue {
               elementText: "",
               eventType: "",
             },
+            notes: [],
+            operationHistory: [],
           },
         ],
       },
@@ -215,6 +263,8 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
+              notes: screenTransition.notes,
+              operationHistory: screenTransition.operationHistory,
             };
           }),
         };
@@ -222,7 +272,7 @@ export default class DecisionTable extends Vue {
     ];
   }
 
-  private get inputValues() {
+  private get inputValues(): InputValue[] {
     return this.inputValueTable.rows.map(
       ({ inputs, elementName, elementId, elementType, sequence }) => {
         return inputs.reduce(
@@ -235,6 +285,26 @@ export default class DecisionTable extends Vue {
         );
       }
     );
+  }
+
+  private filterByWord(inputValues: InputValue[]) {
+    return inputValues.filter((inputValueTableRow) => {
+      if (!this.search) {
+        return true;
+      }
+      const columns = Object.entries(inputValueTableRow);
+      return columns
+        .filter(([columnName]) => {
+          return columnName !== "sequence";
+        })
+        .some(([_, columnValue]) => {
+          if (typeof columnValue === "string") {
+            return columnValue.includes(this.search);
+          } else {
+            return columnValue.value.includes(this.search);
+          }
+        });
+    });
   }
 
   private selectInputValueSet(index: number): void {

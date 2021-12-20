@@ -17,6 +17,8 @@
 import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
 import { CoverageSource, InputElementInfo } from "../types";
 import { Reply } from "@/lib/captureControl/Reply";
+import { Operation } from "../Operation";
+import { Note } from "../Note";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -26,6 +28,8 @@ export interface ResumeActionObserver {
     url: string;
     testResultInfo: { id: string; name: string };
   }) => Promise<void>;
+  registerTestStepId(testStepId: string): number;
+  clearTestStepIds(): void;
 }
 
 export interface TestResultResumable {
@@ -35,7 +39,7 @@ export interface TestResultResumable {
     Reply<{
       id: string;
       name: string;
-      operationHistoryItems: OperationHistoryItem[];
+      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
       coverageSources: CoverageSource[];
       inputElementInfos: InputElementInfo[];
       initialUrl: string;
@@ -59,10 +63,45 @@ export class ResumeAction {
     const data = reply.data;
 
     if (data) {
+      this.observer.clearTestStepIds();
+
+      const historyItems = data.operationHistoryItems.map((item) => {
+        const sequence = this.observer.registerTestStepId(item.testStepId);
+
+        return {
+          operation: item.operation
+            ? Operation.createFromOtherOperation({
+                other: item.operation,
+                overrideParams: { sequence },
+              })
+            : null,
+          intention: item.intention
+            ? Note.createFromOtherNote({
+                other: item.intention,
+                overrideParams: { sequence },
+              })
+            : null,
+          bugs:
+            item.bugs?.map((bug) => {
+              return Note.createFromOtherNote({
+                other: bug,
+                overrideParams: { sequence },
+              });
+            }) ?? [],
+          notices:
+            item.notices?.map((notice) => {
+              return Note.createFromOtherNote({
+                other: notice,
+                overrideParams: { sequence },
+              });
+            }) ?? [],
+        };
+      });
+
       await this.observer.setResumedData({
         coverageSources: data.coverageSources,
         inputElementInfos: data.inputElementInfos,
-        historyItems: data.operationHistoryItems,
+        historyItems,
         url: data.initialUrl,
         testResultInfo: { id: data.id, name: data.name },
       });

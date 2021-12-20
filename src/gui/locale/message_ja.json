@@ -154,6 +154,11 @@
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
     "hide-hidden-elements": "hidden要素は表示しない"
   },
+  "note-list-dialog": {
+    "note-list": "メモ一覧",
+    "note": "メモ",
+    "details": "詳細"
+  },
   "operation": {
     "query": "検索ワード",
     "reset": "フィルタリセット",
@@ -306,7 +311,6 @@
     "test": "実施されたテスト",
     "bug": "見つけたバグ",
     "bug-status": "起票状態",
-    "bug-number": "バグ票番号",
     "bug-unreported": "起票なし",
     "notice": "テスト中の気付き",
     "bug-details": "詳細",

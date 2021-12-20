@@ -162,7 +162,7 @@
     <v-layout id="operation-search" style="height: 50px">
       <v-text-field
         v-model="search"
-        append-icon="search"
+        prepend-inner-icon="search"
         :label="message('operation.query')"
       ></v-text-field>
     </v-layout>
@@ -282,8 +282,8 @@ export default class OperationList extends Vue {
     return false;
   }
 
-  private formatTimestamp(unixtime: string) {
-    return moment.unix(Number(unixtime)).format("HH:mm:ss");
+  private formatTimestamp(epochMilliseconds: string) {
+    return moment(Number(epochMilliseconds)).format("HH:mm:ss");
   }
 
   private filterBySequence(items: OperationHistory) {

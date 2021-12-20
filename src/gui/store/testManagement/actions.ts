@@ -132,7 +132,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       },
       new StoryDataConverter(),
       context.rootState.repositoryServiceDispatcher
-    ).read("1");
+    ).read();
   },
 
   /**
@@ -251,7 +251,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     });
   },
 
-  addNewGroup(
+  async addNewGroup(
     context,
     payload: {
       testMatrixId: string;
@@ -276,8 +276,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
         viewPoints: testMatrix.viewPoints,
       };
     });
+    console.log(newTestMatrices);
 
-    return context.dispatch("saveManagedData", {
+    return await context.dispatch("saveManagedData", {
       testMatrices: newTestMatrices,
       stories: context.state.stories,
     });
@@ -400,24 +401,24 @@ const actions: ActionTree<TestManagementState, RootState> = {
       stories: context.state.stories,
     });
 
-    const testTargets =
-      context.state.testMatrices
-        .find((testMatrix) => testMatrix.id === payload.testMatrixId)
-        ?.groups.find((group) => group.id === payload.groupId)?.testTargets ??
-      [];
+    // const testTargets =
+    //   context.state.testMatrices
+    //     .find((testMatrix) => testMatrix.id === payload.testMatrixId)
+    //     ?.groups.find((group) => group.id === payload.groupId)?.testTargets ??
+    //   [];
 
-    if (testTargets.length > 0) {
-      const testTarget = testTargets[testTargets.length - 1];
+    // if (testTargets.length > 0) {
+    //   const testTarget = testTargets[testTargets.length - 1];
 
-      for (const plan of testTarget.plans) {
-        await context.dispatch("addNewStory", {
-          testMatrixId: payload.testMatrixId,
-          groupId: payload.groupId,
-          testTargetId: testTarget.id,
-          viewPointId: plan.viewPointId,
-        });
-      }
-    }
+    //   for (const plan of testTarget.plans) {
+    //     await context.dispatch("addNewStory", {
+    //       testMatrixId: payload.testMatrixId,
+    //       groupId: payload.groupId,
+    //       testTargetId: testTarget.id,
+    //       viewPointId: plan.viewPointId,
+    //     });
+    //   }
+    // }
   },
 
   updateTestTarget(
@@ -528,8 +529,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
       stories: payload.stories,
     });
     const testManagementData = builder.build();
-
-    return context.dispatch("writeDataFile", {
+    console.log(testManagementData);
+    return await context.dispatch("writeDataFile", {
       testManagementData,
     });
   },
@@ -550,6 +551,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const newStory: Story = {
       id: story.id,
+      key: story.key,
       status: story.status,
       sessions: [
         ...story.sessions,
@@ -703,6 +705,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const newStory: Story = {
       id: story.id,
+      key: story.key,
       status: story.status,
       sessions: story.sessions.filter((session) => {
         return session.id !== payload.sessionId;
@@ -723,6 +726,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
   ): Promise<void> {
     const newStory: Story = {
       id: `${payload.testMatrixId}_${payload.viewPointId}_${payload.groupId}_${payload.testTargetId}`,
+      key: "",
       status: CHARTER_STATUS.OUT_OF_SCOPE.id,
       sessions: [],
     };
@@ -762,6 +766,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const newStory: Story = {
       id: story.id,
+      key: story.key,
       status: payload.params.status ?? story.status,
       sessions: story.sessions,
     };

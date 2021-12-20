@@ -39,10 +39,6 @@ export default class StoryDataConverter implements StoryConvertable {
    */
   private static async buildHistory(
     dispatcher: ProjectUpdatable,
-    issueSourceToStatusAndTicketId: Map<
-      string,
-      { status: string; ticketId: string }
-    >,
     testResultFiles?: {
       name: string;
       id: string;
@@ -96,9 +92,14 @@ export default class StoryDataConverter implements StoryConvertable {
           ];
 
           return noteWithTypes.map(({ type, note }, index) => {
-            const { status, ticketId } = issueSourceToStatusAndTicketId.get(
-              `${type}_${note.sequence}_${index}`
-            ) ?? { status: "", ticketId: "" };
+            const { status, ticketId } = {
+              status: note.tags.includes("reported")
+                ? "reported"
+                : note.tags.includes("invalid")
+                ? "invalid"
+                : "",
+              ticketId: "",
+            };
 
             return {
               status,
@@ -137,20 +138,6 @@ export default class StoryDataConverter implements StoryConvertable {
     dispatcher: ProjectUpdatable,
     oldSession?: Session
   ): Promise<Session> {
-    const newIssues = target.issues ?? oldSession?.issues ?? [];
-
-    const issueSourceToStatusAndTicketId: Map<
-      string,
-      { status: string; ticketId: string }
-    > = new Map(
-      newIssues.map((issue) => {
-        return [
-          `${issue.source.type}_${issue.source.sequence}_${issue.source.index}`,
-          { status: issue.status, ticketId: issue.ticketId },
-        ];
-      }) ?? []
-    );
-
     const {
       intentions,
       initialUrl,
@@ -158,7 +145,6 @@ export default class StoryDataConverter implements StoryConvertable {
       issues,
     } = await StoryDataConverter.buildHistory(
       dispatcher,
-      issueSourceToStatusAndTicketId,
       target.testResultFiles
     );
 
@@ -193,6 +179,7 @@ export default class StoryDataConverter implements StoryConvertable {
   ): Promise<Story> {
     return {
       id: target.id,
+      key: target.key,
       status: target.status,
       sessions: await Promise.all(
         target.sessions.map(async (session) => {
@@ -237,6 +224,7 @@ export default class StoryDataConverter implements StoryConvertable {
     return {
       storyData: {
         id: story.id,
+        key: story.key,
         status: story.status,
         sessions: story.sessions.map((session) => {
           return {

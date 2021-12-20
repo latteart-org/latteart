@@ -76,36 +76,54 @@ export default class ScreenDefUnitContainer extends Vue {
         },
       ],
     });
-    this.$store.commit("operationHistory/setScreenDefinitionConditions", {
-      conditionGroups: addConditions,
-    });
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      canUpdateModels: true,
-    });
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          screenDefinition: {
+            screenDefType: this.$store.state.operationHistory.config
+              .screenDefinition.screenDefType,
+            conditionGroups: addConditions,
+          },
+        },
+      });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    })();
   }
 
   private updateScreenDefinitionConditions(screenDefinitionConditionsWithindex: {
     conditionGroup?: ScreenDefinitionConditionGroup;
     index: number;
   }) {
-    this.$store.commit("operationHistory/setScreenDefinitionConditions", {
-      conditionGroups: screenDefinitionConditionsWithindex.conditionGroup
-        ? this.conditionGroups.map((def, index) => {
-            if (index === screenDefinitionConditionsWithindex.index) {
-              return screenDefinitionConditionsWithindex.conditionGroup;
-            }
-            return def;
-          })
-        : this.conditionGroups.filter((def, index) => {
-            if (index === screenDefinitionConditionsWithindex.index) {
-              return false;
-            }
-            return true;
-          }),
-    });
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      canUpdateModels: true,
-    });
+    const conditionGroups = screenDefinitionConditionsWithindex.conditionGroup
+      ? this.conditionGroups.map((def, index) => {
+          if (index === screenDefinitionConditionsWithindex.index) {
+            return screenDefinitionConditionsWithindex.conditionGroup;
+          }
+          return def;
+        })
+      : this.conditionGroups.filter((def, index) => {
+          if (index === screenDefinitionConditionsWithindex.index) {
+            return false;
+          }
+          return true;
+        });
+
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          screenDefinition: {
+            screenDefType: this.$store.state.operationHistory.config
+              .screenDefinition.screenDefType,
+            conditionGroups,
+          },
+        },
+      });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    })();
   }
 }
 </script>

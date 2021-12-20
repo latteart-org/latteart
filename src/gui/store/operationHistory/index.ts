@@ -20,7 +20,6 @@ import {
   ScreenTransition,
   InputElementInfo,
 } from "@/lib/operationHistory/types";
-import { Note } from "@/lib/operationHistory/Note";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
@@ -75,6 +74,11 @@ export interface OperationHistoryState {
   };
 
   /**
+   * Test step ids.
+   */
+  testStepIds: string[];
+
+  /**
    * Operation with notes history.
    */
   history: OperationWithNotes[];
@@ -87,7 +91,11 @@ export interface OperationHistoryState {
   /**
    * Intentions unassigned to any operation.
    */
-  unassignedIntentions: Note[];
+  unassignedIntentions: {
+    sequence: number;
+    note: string;
+    noteDetails?: string;
+  }[];
 
   /**
    * Selectable tags as exclusion elements for screen element coverage.
@@ -282,6 +290,7 @@ const state: OperationHistoryState = {
       command: "",
     },
   },
+  testStepIds: [],
   history: [],
   screenHistory: new ScreenHistory(),
   unassignedIntentions: [],
