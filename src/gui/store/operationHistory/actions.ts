@@ -45,6 +45,7 @@ import { SaveIntentionAction } from "@/lib/operationHistory/actions/SaveIntentio
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/MoveIntentionAction";
 import { TestScriptGeneratorImpl } from "@/lib/operationHistory/scriptGenerator/TestScriptGenerator";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
+import { Note } from "@/lib/operationHistory/Note";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -60,13 +61,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setDefaultTagList", {
       defaultTagList: payload.settings.defaultTagList,
     });
-    context.commit("setImageCompression", {
-      imageCompression: config.imageCompression,
-    });
-    context.commit("setCoverage", { coverage: config.coverage });
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
-    context.commit("setScreenDefinition", {
-      screenDefinition: config.screenDefinition,
+    await context.dispatch("writeSettings", {
+      config: {
+        screenDefinition: config.screenDefinition,
+        coverage: config.coverage,
+        imageCompression: config.imageCompression,
+      },
     });
   },
 
@@ -77,15 +78,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async writeSettings(
     context,
-    payload: { config: OperationHistoryState["config"] }
+    payload: { config: Partial<OperationHistoryState["config"]> }
   ) {
     const settings = {
       captureSettings:
         context.rootState.settingsProvider.settings.captureSettings,
       config: {
-        screenDefinition: payload.config.screenDefinition,
-        coverage: payload.config.coverage,
-        imageCompression: payload.config.imageCompression,
+        screenDefinition:
+          payload.config.screenDefinition ??
+          context.state.config.screenDefinition,
+        coverage: payload.config.coverage ?? context.state.config.coverage,
+        imageCompression:
+          payload.config.imageCompression ??
+          context.state.config.imageCompression,
       },
       debug: context.rootState.settingsProvider.settings.debug,
       defaultTagList:
@@ -101,7 +106,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (reply === null) {
       return;
     }
-    if (!reply.succeeded) {
+
+    if (reply.data) {
+      context.commit("setConfig", { config: reply.data.config });
+    } else {
       const errorMessage = context.rootGetters.message(
         `error.common.${reply.error!.code}`
       );
@@ -115,18 +123,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.settings Settings.
    */
-  async readSettings(context, payload: { settings?: Settings }) {
-    if (payload.settings) {
-      // In viewer mode
-      context.commit(
-        "setSettings",
-        { settings: payload.settings },
-        { root: true }
-      );
-      context.dispatch("setSettings", { settings: payload.settings });
-      return;
-    }
-
+  async readSettings(context) {
     const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
     if (reply.succeeded) {
       context.commit("setSettings", { settings: reply.data }, { root: true });
@@ -147,6 +144,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async saveIntention(context, payload: { noteEditInfo: NoteEditInfo }) {
     const recordIntentionAction = new RecordIntentionAction(
       {
+        getTestStepId: (sequence) => {
+          return context.state.testStepIds[sequence - 1];
+        },
         setIntention: (intention) => {
           context.commit("setIntention", { intention });
           context.commit("setCanUpdateModels", { canUpdateModels: true });
@@ -157,6 +157,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const moveIntentionAction = new MoveIntentionAction(
       {
+        getTestStepId: (sequence) => {
+          return context.state.testStepIds[sequence - 1];
+        },
         moveIntention: (oldSequence, newIntention) => {
           context.commit("deleteIntention", { sequence: oldSequence });
           context.commit("setIntention", { intention: newIntention });
@@ -177,6 +180,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           destSequence
         );
       },
+      setUnassignedIntention: async (unassignedIntention) => {
+        context.commit("setUnassignedIntention", {
+          unassignedIntention,
+        });
+      },
     }).save(
       context.state.testResultInfo.id,
       payload.noteEditInfo,
@@ -190,14 +198,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.sequence Sequence number of the test intention.
    */
   async deleteIntention(context, payload: { sequence: number }) {
-    const deletedIntentionSequence = (
-      await context.rootState.repositoryServiceDispatcher.deleteIntention(
-        context.state.testResultInfo.id,
-        payload.sequence
-      )
-    ).data!;
+    const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    context.commit("deleteIntention", { sequence: deletedIntentionSequence });
+    await context.rootState.repositoryServiceDispatcher.deleteIntention(
+      context.state.testResultInfo.id,
+      testStepId
+    );
+
+    context.commit("deleteIntention", { sequence: payload.sequence });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -269,13 +277,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         })
       : undefined;
 
+    const testStepId = context.state.testStepIds[payload.sequence - 1];
+
     const recordedNote = await (async () => {
       // update
       if (payload.index !== undefined) {
         return (
           await context.rootState.repositoryServiceDispatcher.editBug(
             context.state.testResultInfo.id,
-            payload.sequence,
+            testStepId,
             payload.index,
             {
               summary: payload.summary,
@@ -289,7 +299,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       return (
         await context.rootState.repositoryServiceDispatcher.addBug(
           context.state.testResultInfo.id,
-          payload.sequence,
+          testStepId,
           {
             summary: payload.summary,
             details: payload.details,
@@ -299,7 +309,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       ).data!;
     })();
 
-    context.commit("setBug", recordedNote);
+    context.commit("setBug", {
+      bug: Note.createFromOtherNote({
+        other: recordedNote.bug,
+        overrideParams: {
+          sequence: payload.sequence,
+        },
+      }),
+      index: recordedNote.index,
+    });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (context.state.config.imageCompression.isEnabled) {
@@ -344,14 +362,25 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const reply = await context.rootState.repositoryServiceDispatcher.moveBug(
       context.state.testResultInfo.id,
-      payload.from,
-      payload.dest
+      {
+        testStepId: context.state.testStepIds[payload.from.sequence - 1],
+        index: payload.from.index,
+      },
+      {
+        testStepId: context.state.testStepIds[payload.dest.sequence - 1],
+      }
     );
 
     const movedNote = reply.data!;
 
     context.commit("deleteBug", payload.from);
-    context.commit("setBug", movedNote);
+    context.commit("setBug", {
+      bug: Note.createFromOtherNote({
+        other: movedNote.bug,
+        overrideParams: { sequence: payload.dest.sequence },
+      }),
+      index: movedNote.index,
+    });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -362,15 +391,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.index Index for bugs related to the same operation.
    */
   async deleteBug(context, payload: { sequence: number; index: number }) {
+    const testStepId = context.state.testStepIds[payload.sequence - 1];
+
     const reply = await context.rootState.repositoryServiceDispatcher.deleteBug(
       context.state.testResultInfo.id,
-      payload.sequence,
+      testStepId,
       payload.index
     );
 
-    const { sequence, index } = reply.data!;
+    const { index } = reply.data!;
 
-    context.commit("deleteBug", { sequence, index });
+    context.commit("deleteBug", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -450,13 +481,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         })
       : undefined;
 
+    const testStepId = context.state.testStepIds[payload.sequence - 1];
+
     const recordedNote = await (async () => {
       // update
       if (payload.index !== undefined) {
         return (
           await context.rootState.repositoryServiceDispatcher.editNotice(
             context.state.testResultInfo.id,
-            payload.sequence,
+            testStepId,
             payload.index,
             {
               summary: payload.summary,
@@ -471,7 +504,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       return (
         await context.rootState.repositoryServiceDispatcher.addNotice(
           context.state.testResultInfo.id,
-          payload.sequence,
+          testStepId,
           {
             summary: payload.summary,
             details: payload.details,
@@ -482,7 +515,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       ).data!;
     })();
 
-    context.commit("setNotice", recordedNote);
+    context.commit("setNotice", {
+      notice: Note.createFromOtherNote({
+        other: recordedNote.notice,
+        overrideParams: { sequence: payload.sequence },
+      }),
+      index: recordedNote.index,
+    });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (
@@ -529,14 +568,25 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const reply = await context.rootState.repositoryServiceDispatcher.moveNotice(
       context.state.testResultInfo.id,
-      payload.from,
-      payload.dest
+      {
+        testStepId: context.state.testStepIds[payload.from.sequence - 1],
+        index: payload.from.index,
+      },
+      {
+        testStepId: context.state.testStepIds[payload.dest.sequence - 1],
+      }
     );
 
     const movedNote = reply.data!;
 
     context.commit("deleteNotice", payload.from);
-    context.commit("setNotice", movedNote);
+    context.commit("setNotice", {
+      notice: Note.createFromOtherNote({
+        other: movedNote.notice,
+        overrideParams: { sequence: payload.dest.sequence },
+      }),
+      index: movedNote.index,
+    });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -547,15 +597,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.index Index for notices related to the same operation.
    */
   async deleteNotice(context, payload: { sequence: number; index: number }) {
+    const testStepId = context.state.testStepIds[payload.sequence - 1];
+
     const reply = await context.rootState.repositoryServiceDispatcher.deleteNotice(
       context.state.testResultInfo.id,
-      payload.sequence,
+      testStepId,
       payload.index
     );
 
-    const { sequence, index } = reply.data!;
+    const { index } = reply.data!;
 
-    context.commit("deleteNotice", { sequence, index });
+    context.commit("deleteNotice", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -574,6 +626,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await new ResumeAction(
         {
+          clearTestStepIds: () => {
+            context.commit("clearTestStepIds");
+          },
+          registerTestStepId: (testStepId: string) => {
+            context.commit("addTestStepId", { testStepId });
+            const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
+            return sequence;
+          },
           setResumedData: async (data) => {
             context.commit("clearHistory");
             context.commit("clearModels");
@@ -637,6 +697,34 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("selectWindow", { windowHandle: "" });
     context.commit("clearInputValueTable");
     context.commit("setTestResultInfo", { id: "", name: "" });
+    context.commit("clearTestStepIds");
+  },
+
+  async saveUnassignedIntention(context, payload: { destSequence: number }) {
+    const unassignedIntentionIndex = context.state.unassignedIntentions.findIndex(
+      (item) => {
+        return item.sequence === payload.destSequence;
+      }
+    );
+
+    if (unassignedIntentionIndex !== -1) {
+      const unassignedIntention =
+        context.state.unassignedIntentions[unassignedIntentionIndex];
+
+      await context.dispatch("saveIntention", {
+        noteEditInfo: {
+          note: unassignedIntention.note,
+          noteDetails: unassignedIntention.noteDetails,
+          shouldTakeScreenshot: false,
+          oldSequence: unassignedIntention.sequence,
+          tags: [],
+        },
+      });
+
+      context.commit("removeUnassignedIntention", {
+        index: unassignedIntentionIndex,
+      });
+    }
   },
 
   /**
@@ -662,11 +750,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       capturedOperation
     );
 
-    const { operation, coverageSource, inputElementInfo } = reply.data!;
+    const { id, operation, coverageSource, inputElementInfo } = reply.data!;
+
+    context.commit("addTestStepId", { testStepId: id });
+    const sequence = context.state.testStepIds.indexOf(id) + 1;
+
+    operation.sequence = sequence;
     operation.inputElements = inputElementInfo?.inputElements ?? [];
 
     context.commit("addHistory", {
       entry: { operation, intention: null, bugs: null, notices: null },
+    });
+
+    await context.dispatch("saveUnassignedIntention", {
+      destSequence: operation.sequence,
     });
 
     context.commit("registerCoverageSource", { coverageSource });
@@ -685,9 +782,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       operation.imageFilePath
     ) {
       setTimeout(async () => {
+        const testStepId = context.state.testStepIds[operation.sequence - 1];
+
         const reply2 = await context.rootState.repositoryServiceDispatcher.compressTestStepImage(
           context.state.testResultInfo.id,
-          operation.sequence
+          testStepId
         );
         if (reply2.succeeded) {
           context.commit("replaceTestStepsImageFileUrl", {
@@ -847,7 +946,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           transitions: Array<{
             sourceScreenDef: string;
             targetScreenDef: string;
-            history: Operation[];
+            history: OperationWithNotes[];
             screenElements: ElementInfo[];
             inputElements: ElementInfo[];
           }>;
@@ -989,7 +1088,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     try {
       const imageUrlResolver = (url: string) => {
         return url.replace(
-          `${context.rootState.repositoryServiceDispatcher.serviceUrl}/test-results/`,
+          `${context.rootState.repositoryServiceDispatcher.serviceUrl}/`,
           ""
         );
       };

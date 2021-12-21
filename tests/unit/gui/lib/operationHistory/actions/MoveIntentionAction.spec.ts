@@ -19,6 +19,9 @@ describe("MoveIntentionAction", () => {
     beforeEach(() => {
       observer = {
         moveIntention: jest.fn(),
+        getTestStepId: jest.fn().mockImplementation((sequence) => {
+          return `id_of_${sequence}`;
+        }),
       };
     });
 
@@ -26,8 +29,8 @@ describe("MoveIntentionAction", () => {
       afterEach(() => {
         expect(dispatcher.moveIntention).toBeCalledWith(
           testResultId,
-          fromSequence,
-          destSequence
+          `id_of_${fromSequence}`,
+          `id_of_${destSequence}`
         );
       });
 

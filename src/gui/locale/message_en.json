@@ -148,6 +148,11 @@
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
     "hide-hidden-elements": "Don't Display Hidden Elements"
   },
+  "note-list-dialog": {
+    "note-list": "Note List",
+    "note": "Note",
+    "details": "Details"
+  },
   "operation": {
     "query": "Search Query",
     "reset": "Reset Filter",
@@ -273,6 +278,7 @@
   "group-edit-list": {
     "name": "Group Name",
     "delete-group-title": "Delete Group",
+    "delete-group-confirm": "Are you sure you want to delete this group?",
     "delete": "Delete",
     "add": "Add Group"
   },
@@ -299,7 +305,6 @@
     "test": "Test Purposes",
     "bug": "Bugs",
     "bug-status": "Issue Status",
-    "bug-number": "Issue Number",
     "bug-unreported": "Not Reported",
     "notice": "Findings",
     "bug-details": "Details",

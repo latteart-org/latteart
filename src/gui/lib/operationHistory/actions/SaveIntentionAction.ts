@@ -23,7 +23,14 @@ export interface SaveIntentionActionObserver {
     details: string;
     sequence: number;
   }): Promise<void>;
+
   moveIntention(fromSequence: number, destSequence: number): Promise<void>;
+
+  setUnassignedIntention(unassignedIntention: {
+    sequence: number;
+    note: string;
+    noteDetails?: string;
+  }): Promise<void>;
 }
 
 export interface IntentionInfo {
@@ -45,14 +52,27 @@ export class SaveIntentionAction {
   ): Promise<void> {
     const { oldSequence, newSequence, note, noteDetails } = noteEditInfo;
 
+    const sequence =
+      oldSequence !== undefined
+        ? oldSequence
+        : (history[history.length - 1]?.operation.sequence ?? 0) + 1;
+
+    if (!history.find((item) => item.operation.sequence === sequence)) {
+      // If dest operation is not found, add it as a unassigned intention.
+      await this.observer.setUnassignedIntention({
+        sequence,
+        note: noteEditInfo.note,
+        noteDetails: noteEditInfo.noteDetails,
+      });
+
+      return;
+    }
+
     await this.observer.recordIntention({
       testResultId,
       summary: note,
       details: noteDetails ?? "",
-      sequence:
-        oldSequence !== undefined
-          ? oldSequence
-          : (history[history.length - 1]?.operation.sequence ?? 0) + 1,
+      sequence,
     });
 
     if (oldSequence !== undefined && newSequence !== undefined) {

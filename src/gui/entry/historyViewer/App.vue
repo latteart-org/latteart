@@ -60,7 +60,7 @@ export default class App extends Vue {
   private created() {
     (async () => {
       this.$store.commit("setSettings", { settings: this.settings });
-      await this.$store.dispatch("operationHistory/setSettings", {
+      this.$store.dispatch("operationHistory/setSettings", {
         settings: this.settings,
       });
 

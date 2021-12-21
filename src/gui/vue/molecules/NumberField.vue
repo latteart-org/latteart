@@ -24,29 +24,34 @@
             :label="label"
             :suffix="suffix"
             :id="`numberField${id}_text`"
-            :value="value"
+            :value="internalValue"
             @input="(value) => update(parseInt(value))"
             :readonly="arrowOnly"
             :disabled="disabled"
           ></v-text-field>
         </div>
         <div class="button-wrap">
-          <v-btn
+          <button
             :id="`numberField${id}_increaseButton`"
-            icon
             class="py-0 my-0 px-0 mx-0"
             @click="increase"
+            @blur="onBlur"
+            @mousedown="onMouseDown"
             :disabled="disabled"
-            ><v-icon small>keyboard_arrow_up</v-icon></v-btn
           >
-          <v-btn
+            <v-icon small>keyboard_arrow_up</v-icon>
+          </button>
+          <button
             :id="`numberField${id}_decreaseButton`"
             icon
             class="py-0 my-0 px-0 mx-0"
             @click="decrease"
+            @blur="onBlur"
+            @mousedown="onMouseDown"
             :disabled="disabled"
-            ><v-icon small>keyboard_arrow_down</v-icon></v-btn
           >
+            <v-icon small>keyboard_arrow_down</v-icon>
+          </button>
         </div>
       </div>
     </v-flex>
@@ -54,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class NumberField extends Vue {
@@ -67,16 +72,35 @@ export default class NumberField extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly arrowOnly!: boolean;
   @Prop({ type: Boolean, default: false }) public readonly disabled!: boolean;
 
+  private internalValue = 0;
+  private clicking = false;
+
+  @Watch("value")
+  private setValue() {
+    this.internalValue = this.value;
+  }
+
   private get mask() {
     return Array(String(this.maxValue).length).fill("#").join("");
   }
 
+  private onBlur() {
+    if (!this.clicking) {
+      this.send();
+    }
+  }
+  private onMouseDown() {
+    this.clicking = true;
+  }
+
   private increase(): void {
-    !this.value ? this.update(1) : this.update(this.value + 1);
+    !this.internalValue ? this.update(1) : this.update(this.internalValue + 1);
+    this.clicking = false;
   }
 
   private decrease(): void {
-    !this.value ? this.update(-1) : this.update(this.value - 1);
+    !this.internalValue ? this.update(-1) : this.update(this.internalValue - 1);
+    this.clicking = false;
   }
 
   private update(value: number): void {
@@ -88,7 +112,14 @@ export default class NumberField extends Vue {
       val = this.minValue;
     }
 
-    this.$emit("updateNumberFieldValue", { id: this.id, value: val });
+    this.internalValue = val;
+  }
+
+  private send(): void {
+    this.$emit("updateNumberFieldValue", {
+      id: this.id,
+      value: this.internalValue,
+    });
   }
 }
 </script>
@@ -96,8 +127,11 @@ export default class NumberField extends Vue {
 <style lang="sass" scoped>
 button
   height: 18px !important
-  border-radius: 0% !important
+  border-radius: 10% !important
   display: block
+
+button:focus
+  background-color: #DDD
 
 .wrap
   display: table

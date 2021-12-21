@@ -41,6 +41,7 @@ describe("operationHistoryストアのmutationsは", () => {
           command: "",
         },
       },
+      testStepIds: [],
       history: [],
       screenHistory: new ScreenHistory(),
       unassignedIntentions: [],

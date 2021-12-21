@@ -69,6 +69,7 @@ export interface Issue {
 
 export interface Story {
   id: string;
+  key?: string;
   status: string;
   sessions: Session[];
 }

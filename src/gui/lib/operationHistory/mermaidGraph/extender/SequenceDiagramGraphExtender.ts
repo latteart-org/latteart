@@ -38,10 +38,6 @@ export default class SequenceDiagramGraphExtender
   private tooltipTextsOfNote: string[];
   private tooltipTextsOfLoopArea: string[];
   private nameMap: Map<number, string>;
-  private registeredEventElementList: Array<{
-    eventName: string;
-    element: d3.Selection<d3.BaseType, unknown, null, undefined>;
-  }> = [];
 
   /**
    * Constructor.
@@ -82,9 +78,6 @@ export default class SequenceDiagramGraphExtender
    * Clear the callback function bound to the graph.
    */
   public clearEvent(): void {
-    this.registeredEventElementList.forEach((item) => {
-      item.element.on(item.eventName, null);
-    });
     this.callback = {
       onClickEdge: () => {
         /* Do nothing. */
@@ -125,10 +118,6 @@ export default class SequenceDiagramGraphExtender
     svg.selectAll("text.messageText").each((_, i, nodes) => {
       const messageText = d3.select((nodes[i] as Node) as d3.BaseType);
 
-      this.registeredEventElementList.push({
-        eventName: "click",
-        element: messageText,
-      });
       messageText.on("click", () => {
         this.callback.onClickEdge(i);
       });
@@ -139,10 +128,6 @@ export default class SequenceDiagramGraphExtender
       const activationBoxArea = d3.select(
         (nodes[i] as Node).parentNode as d3.BaseType
       );
-      this.registeredEventElementList.push({
-        eventName: "click",
-        element: activationBoxArea,
-      });
       activationBoxArea.on("click", () => {
         this.callback.onClickEdge(i);
       });
@@ -155,37 +140,61 @@ export default class SequenceDiagramGraphExtender
         return (nodes[i] as Node).textContent === "alt";
       })
       .each((_, i, nodes) => {
-        const loopText = d3
+        const loopTexts = d3
           .select((nodes[i] as Node).parentNode as d3.BaseType)
-          .select("text.loopText");
+          .selectAll("text.loopText");
 
         if (this.tooltipTextsOfLoopArea.length > i) {
-          loopText.append("svg:title").text(this.tooltipTextsOfLoopArea[i]);
+          loopTexts.append("svg:title").text(this.tooltipTextsOfLoopArea[i]);
         }
 
-        this.registeredEventElementList.push({
-          eventName: "contextmenu",
-          element: loopText,
-        });
-        loopText.on("contextmenu", () => {
+        loopTexts.on("contextmenu", () => {
           const event = d3.event as MouseEvent;
           this.callback.onRightClickLoopArea(i, {
             clientX: event.clientX,
             clientY: event.clientY,
           });
         });
-        loopText.on("mouseover", () => {
-          loopText
+        loopTexts
+          .select("tspan")
+          .style("fill", "black")
+          .style("font-weight", null);
+
+        loopTexts.on("mouseover", () => {
+          loopTexts
             .select("tspan")
             .style("fill", "red")
             .style("font-weight", "bold");
         });
-        loopText.on("mouseout", () => {
-          loopText
+        loopTexts.on("mouseout", () => {
+          loopTexts
             .select("tspan")
-            .style("fill", null)
+            .style("fill", "black")
             .style("font-weight", null);
         });
+
+        const loopLines = d3
+          .select((nodes[i] as Node).parentNode as d3.BaseType)
+          .selectAll("line.loopLine");
+
+        loopLines.style("stroke-dasharray", 0).style("stroke-width", 2);
+      });
+
+    // When pressing the opt string.
+    svg
+      .selectAll("text.labelText")
+      .filter((_, i, nodes) => {
+        return (nodes[i] as Node).textContent === "opt";
+      })
+      .each((_, i, nodes) => {
+        const loopTexts = d3
+          .select((nodes[i] as Node).parentNode as d3.BaseType)
+          .selectAll("text.loopText");
+
+        loopTexts
+          .select("tspan")
+          .style("fill", "rgb(155 153 153)")
+          .style("font-weight", null);
       });
 
     // (Screen) When pressing the lifeline.
@@ -194,10 +203,6 @@ export default class SequenceDiagramGraphExtender
         (nodes[i] as Node).parentNode as d3.BaseType
       );
 
-      this.registeredEventElementList.push({
-        eventName: "click",
-        element: targetRectElement,
-      });
       targetRectElement.on("click", () => {
         const actorIndex = i % (nodes.length / 2);
         this.callback.onClickScreenRect(actorIndex);
@@ -226,18 +231,10 @@ export default class SequenceDiagramGraphExtender
         g.append("svg:title").text(this.tooltipTextsOfNote[i]);
       }
 
-      this.registeredEventElementList.push({
-        eventName: "click",
-        element: g,
-      });
       g.on("click", () => {
         this.callback.onClickNote(i);
       });
 
-      this.registeredEventElementList.push({
-        eventName: "contextmenu",
-        element: g,
-      });
       g.on("contextmenu", () => {
         const event = d3.event as MouseEvent;
         this.callback.onRightClickNote(i, {

@@ -211,8 +211,8 @@ export default class TestMatrixEditor extends Vue {
     this.confirmDialogOpened = true;
   }
 
-  private addNewGroup(): void {
-    this.$store.dispatch("testManagement/addNewGroup", {
+  private async addNewGroup(): Promise<void> {
+    await this.$store.dispatch("testManagement/addNewGroup", {
       testMatrixId: this.testMatrixId,
     });
   }

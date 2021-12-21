@@ -41,7 +41,7 @@
 
         <v-combobox
           :label="$store.getters.message('note-edit.tags')"
-          :items="['bug']"
+          :items="tagsItem"
           :search-input.sync="search"
           v-model="newTags"
           multiple
@@ -105,6 +105,7 @@ import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 
 @Component({
   components: {
@@ -116,6 +117,7 @@ import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 export default class NoticeEditDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
+  private search = "";
   private oldNote = "";
   private oldNoteDetails = "";
   private oldTags: string[] = [];
@@ -133,6 +135,10 @@ export default class NoticeEditDialog extends Vue {
   private errorMessage = "";
 
   private alertIsVisible = false;
+
+  private tagsItem = noteTagPreset.items.map((item) => {
+    return item.name;
+  });
 
   @Watch("opened")
   private initialize() {

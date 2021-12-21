@@ -177,12 +177,7 @@ const actions: ActionTree<RootState, RootState> = {
    * @param context Action context.
    * @param payload.settings Settings.
    */
-  async loadLocaleFromSettings(context, payload?: { settings?: Settings }) {
-    if (payload?.settings) {
-      context.commit("setLocale", { locale: payload.settings.locale });
-      return;
-    }
-
+  async loadLocaleFromSettings(context) {
     const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
     if (!reply.succeeded) {
       const errorMessage = context.rootGetters.message(

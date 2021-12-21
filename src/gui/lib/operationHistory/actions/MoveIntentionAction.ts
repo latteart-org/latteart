@@ -19,13 +19,14 @@ import { Reply } from "@/lib/captureControl/Reply";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
+  getTestStepId(sequence: number): string;
 }
 
 export interface IntentionMovable {
   moveIntention(
     testResultId: string,
-    fromSequence: number,
-    destSequence: number
+    fromTestStepId: string,
+    destTestStepId: string
   ): Promise<Reply<Note>>;
 }
 
@@ -40,16 +41,25 @@ export class MoveIntentionAction {
     fromSequence: number,
     destSequence: number
   ): Promise<void> {
+    const fromTestStepId = this.observer.getTestStepId(fromSequence);
+    const destTestStepId = this.observer.getTestStepId(destSequence);
+
     const movedNote = (
       await this.dispatcher.moveIntention(
         testResultId,
-        fromSequence,
-        destSequence
+        fromTestStepId,
+        destTestStepId
       )
     ).data;
 
     if (movedNote) {
-      this.observer.moveIntention(fromSequence, movedNote);
+      this.observer.moveIntention(
+        fromSequence,
+        Note.createFromOtherNote({
+          other: movedNote,
+          overrideParams: { sequence: destSequence },
+        })
+      );
     }
   }
 }

@@ -19,12 +19,13 @@ import { Reply } from "@/lib/captureControl/Reply";
 
 export interface RecordIntentionActionObserver {
   setIntention(value: Note): void;
+  getTestStepId(sequence: number): string;
 }
 
 export interface IntentionRecordable {
   editIntention(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     intention: {
       summary: string;
       details: string;
@@ -33,7 +34,7 @@ export interface IntentionRecordable {
 
   addIntention(
     testResultId: string,
-    sequence: number,
+    testStepId: string,
     intention: {
       summary: string;
       details: string;
@@ -66,10 +67,12 @@ export class RecordIntentionAction {
       return item.intention?.sequence === note.sequence;
     });
 
+    const testStepId = this.observer.getTestStepId(note.sequence);
+
     const reply = historyHasTargetIntention
       ? await this.repositoryServiceDispatcher.editIntention(
           note.testResultId,
-          note.sequence,
+          testStepId,
           {
             summary: note.summary,
             details: note.details,
@@ -77,7 +80,7 @@ export class RecordIntentionAction {
         )
       : await this.repositoryServiceDispatcher.addIntention(
           note.testResultId,
-          note.sequence,
+          testStepId,
           {
             summary: note.summary,
             details: note.details,
@@ -85,7 +88,12 @@ export class RecordIntentionAction {
         );
 
     if (reply.data) {
-      this.observer.setIntention(reply.data);
+      this.observer.setIntention(
+        Note.createFromOtherNote({
+          other: reply.data,
+          overrideParams: { sequence: note.sequence },
+        })
+      );
     }
   }
 }

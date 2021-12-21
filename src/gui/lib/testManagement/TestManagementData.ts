@@ -52,6 +52,7 @@ export interface ManagedGroup {
 
 export interface ManagedStory {
   id: string;
+  key?: string;
   status: string;
   sessions: Array<ManagedSession>;
 }

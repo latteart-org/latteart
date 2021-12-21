@@ -127,7 +127,7 @@
                   {{
                     `${$store.getters.message(
                       "session-list.session-name-base"
-                    )} ${session.id}`
+                    )} ${index + 1}`
                   }}
                 </div>
                 <div @click="$event.stopPropagation()">
@@ -284,15 +284,13 @@ export default class StoryView extends Vue {
 
     return reviewableSessions.map((session) => {
       const sessionNameSuffix =
-        session.name !== ""
-          ? session.name
-          : `${parseInt(session.id?.replace(/tmp-s/, "") ?? "0", 10) + 1}`;
+        this.story?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
 
       return {
         id: session.id,
-        displayName: `${this.$store.getters.message(
-          "story-view.session"
-        )}${sessionNameSuffix}`,
+        displayName: `${this.$store.getters.message("story-view.session")}${
+          sessionNameSuffix + 1
+        }`,
       };
     });
   }

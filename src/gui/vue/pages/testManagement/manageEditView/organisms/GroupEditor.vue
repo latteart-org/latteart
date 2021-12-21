@@ -24,7 +24,7 @@
       sort-icon=""
       hide-actions
       :pagination.sync="pagination"
-      grid-column-number="8"
+      :grid-column-number="8"
     >
       <template #headers="props">
         <tr>
@@ -275,8 +275,8 @@ export default class GroupEditor extends Vue {
     this.confirmDialogOpened = true;
   }
 
-  private addNewTestTarget(): void {
-    this.$store.dispatch("testManagement/addNewTestTarget", {
+  private async addNewTestTarget(): Promise<void> {
+    await this.$store.dispatch("testManagement/addNewTestTarget", {
       testMatrixId: this.testMatrixId,
       groupId: this.groupId,
       testTargetName: this.newTestTargetName,

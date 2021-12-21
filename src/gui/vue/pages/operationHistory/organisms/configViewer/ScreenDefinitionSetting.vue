@@ -68,10 +68,20 @@ import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
 })
 export default class ScreenDefinitionSetting extends Vue {
   private changeScreenDefType(screenDefType: string): void {
-    this.$store.commit("operationHistory/setScreenDefType", { screenDefType });
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      canUpdateModels: true,
-    });
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          screenDefinition: {
+            screenDefType,
+            conditionGroups: this.$store.state.operationHistory.config
+              .screenDefinition.conditionGroups,
+          },
+        },
+      });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    })();
   }
 
   private get screenDefType() {

@@ -18,8 +18,7 @@ import Vue from "vue";
 import { MutationTree } from "vuex";
 import { CaptureControlState } from ".";
 import { WindowHandle } from "@/lib/operationHistory/types";
-import { PlatformName, Browser } from "@/lib/common/enum/SettingsEnum";
-import { ExecutablePaths } from "@/lib/common/settings/DeviceSettings";
+import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
 
 const mutations: MutationTree<CaptureControlState> = {
   /**
@@ -39,92 +38,8 @@ const mutations: MutationTree<CaptureControlState> = {
     state.isCapturing = payload.isCapturing;
   },
 
-  /**
-   * Set test target platform name to the State.
-   * @param state State.
-   * @param payload.platformName Platform name.
-   */
-  setPlatformName(state, payload: { platformName: PlatformName }) {
-    state.config.platformName = payload.platformName;
-  },
-
-  /**
-   * Set test target platform version to the State.
-   * @param state State.
-   * @param payload.platformVersion Platform version.
-   */
-  setPlatformVersion(state, payload: { platformVersion: string }) {
-    state.config.platformVersion = payload.platformVersion;
-    state.config = Object.assign({}, state.config);
-  },
-
-  /**
-   * Set test target browser to the State.
-   * @param state State.
-   * @param payload.browser Browser.
-   */
-  setBrowser(state, payload: { browser: Browser }) {
-    state.config.browser = payload.browser;
-    state.config = Object.assign({}, state.config);
-  },
-
-  /**
-   * Set selectable devices to the State.
-   * @param state State.
-   * @param payload.devices Devices.
-   */
-  setDevices(
-    state,
-    payload: {
-      devices: Array<{
-        deviceName: string;
-        modelNumber: string;
-        osVersion: string;
-      }>;
-    }
-  ) {
-    state.config.devices.splice(
-      0,
-      state.config.devices.length,
-      ...payload.devices
-    );
-  },
-
-  /**
-   * Set test target device to the State.
-   * @param state State.
-   * @param payload.device Device.
-   */
-  setDevice(
-    state,
-    payload: {
-      device: { deviceName: string; modelNumber: string; osVersion: string };
-    }
-  ) {
-    state.config.device = payload.device;
-    state.config = Object.assign({}, state.config);
-  },
-
-  /**
-   * Set the time to reload at test start to the State.
-   * @param state State.
-   * @param payload The time to reload at test start.(s)
-   */
-  setWaitTimeForStartupReload(
-    state,
-    payload: { waitTimeForStartupReload: number }
-  ) {
-    state.config.waitTimeForStartupReload = payload.waitTimeForStartupReload;
-    state.config = Object.assign({}, state.config);
-  },
-
-  /**
-   * Set executable paths used for capture to the State.
-   * @param state State.
-   * @param payload.executablePaths Executable paths.
-   */
-  setExecutablePaths(state, payload: { executablePaths: ExecutablePaths }) {
-    state.config.executablePaths = payload.executablePaths;
+  setCaptureConfig(state, payload: { captureConfig: CaptureConfig }) {
+    Vue.set(state, "config", payload.captureConfig);
   },
 
   /**

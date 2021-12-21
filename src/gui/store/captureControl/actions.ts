@@ -39,20 +39,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: { deviceSettings: DeviceSettings }
   ) {
     const config = payload.deviceSettings.config;
-    context.commit("setBrowser", { browser: config.browser });
-    context.commit("setPlatformName", { platformName: config.platformName });
-    context.commit("setWaitTimeForStartupReload", {
-      waitTimeForStartupReload: config.waitTimeForStartupReload,
-    });
-    context.commit("setPlatformVersion", {
-      platformVersion: config.platformVersion,
-    });
-    context.commit("setExecutablePaths", {
-      executablePaths: config.executablePaths,
-    });
 
-    await context.dispatch("updateDevices", {
-      platformName: config.platformName,
+    await context.dispatch("writeDeviceSettings", {
+      config: {
+        browser: config.browser,
+        platformName: config.platformName,
+        waitTimeForStartupReload: config.waitTimeForStartupReload,
+        platformVersion: config.platformVersion,
+        executablePaths: config.executablePaths,
+      },
     });
   },
 
@@ -86,23 +81,26 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   },
 
   /**
-   * Recognize devices of the specified platform connected.
+   * Acquires a list of devices connected to the terminal where the recording agent is located.
    * @param context Action context.
    * @param payload.platformName Platform name.
    */
-  async updateDevices(context, payload: { platformName: string }) {
+  async recognizeDevices(
+    context,
+    payload: { platformName: string }
+  ): Promise<
+    {
+      deviceName: string;
+      modelNumber: string;
+      osVersion: string;
+    }[]
+  > {
     const dispatcher = context.rootState.clientSideCaptureServiceDispatcher;
 
     const reply = await dispatcher.recognizeDevices(payload.platformName);
 
     if (reply.succeeded) {
-      context.commit("setDevices", { devices: reply.data ?? [] });
-      context.commit("setDevice", {
-        device:
-          context.state.config.devices.length > 0
-            ? context.state.config.devices[0]
-            : { deviceName: "", modelNumber: "", osVersion: "" },
-      });
+      return reply.data ?? [];
     } else {
       const errorMessage = context.rootGetters.message(
         `error.capture_control.${reply.error!.code}`
@@ -139,15 +137,24 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.config Capture config.
    */
-  async writeDeviceSettings(context, payload: { config: CaptureConfig }) {
+  async writeDeviceSettings(
+    context,
+    payload: { config: Partial<CaptureConfig> }
+  ) {
     const deviceSettings: DeviceSettings = {
       config: {
-        platformName: payload.config.platformName,
-        browser: payload.config.browser,
-        device: payload.config.device,
-        platformVersion: payload.config.platformVersion,
-        waitTimeForStartupReload: payload.config.waitTimeForStartupReload,
-        executablePaths: payload.config.executablePaths,
+        platformName:
+          payload.config.platformName ?? context.state.config.platformName,
+        browser: payload.config.browser ?? context.state.config.browser,
+        device: payload.config.device ?? context.state.config.device,
+        platformVersion:
+          payload.config.platformVersion ?? context.state.config.platformName,
+        waitTimeForStartupReload:
+          payload.config.waitTimeForStartupReload ??
+          context.state.config.waitTimeForStartupReload,
+        executablePaths:
+          payload.config.executablePaths ??
+          context.state.config.executablePaths,
       },
     };
     const reply = await context.rootState.repositoryServiceDispatcher.saveDeviceSettings(
@@ -158,7 +165,22 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       return;
     }
 
-    if (!reply.succeeded) {
+    if (reply.data) {
+      const captureConfig: CaptureConfig = {
+        platformName: reply.data.config.platformName
+          ? reply.data.config.platformName
+          : context.state.config.platformName,
+        browser: reply.data.config.browser
+          ? reply.data.config.browser
+          : context.state.config.browser,
+        device: reply.data.config.device,
+        platformVersion: reply.data.config.platformVersion,
+        waitTimeForStartupReload: reply.data.config.waitTimeForStartupReload,
+        executablePaths: reply.data.config.executablePaths,
+      };
+
+      context.commit("setCaptureConfig", { captureConfig });
+    } else {
       const errorMessage = context.rootGetters.message(
         `error.capture_control.${reply.error!.code}`
       );

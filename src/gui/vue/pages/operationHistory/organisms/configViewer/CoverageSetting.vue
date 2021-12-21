@@ -66,12 +66,17 @@ export default class CoverageSetting extends Vue {
   }
 
   private set checkBoxList(list: string[]) {
-    this.$store.commit("operationHistory/setCoverage", {
-      coverage: { include: { tags: list } },
-    });
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      canUpdateModels: true,
-    });
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          coverage: { include: { tags: list } },
+        },
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    })();
   }
 
   @Watch("opened")

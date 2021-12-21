@@ -83,9 +83,11 @@ export class CalculateProgressDatasAction {
       return [...oldTestMatrixProgressDatas, testMatrixProgressData];
     } else {
       return oldTestMatrixProgressDatas.map((data, index) => {
-        return index === sameDayProgressDataIndex
-          ? testMatrixProgressData
-          : data;
+        if (index === sameDayProgressDataIndex) {
+          testMatrixProgressData.date = data.date;
+          return testMatrixProgressData;
+        }
+        return data;
       });
     }
   }

@@ -17,19 +17,13 @@
 <template>
   <v-app>
     <router-view></router-view>
-    <config-loader></config-loader>
   </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ConfigLoader from "./ConfigLoader.vue";
 
-@Component({
-  components: {
-    "config-loader": ConfigLoader,
-  },
-})
+@Component
 export default class Root extends Vue {
   private mounted(): void {
     this.$router.push({ name: "manageShowView" });

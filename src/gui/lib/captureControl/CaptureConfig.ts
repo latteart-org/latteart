@@ -32,15 +32,6 @@ export class CaptureConfig {
   public browser: Browser;
 
   /**
-   * All device information.
-   */
-  public devices: Array<{
-    deviceName: string;
-    modelNumber: string;
-    osVersion: string;
-  }>;
-
-  /**
    * Device information.
    */
   public device: { deviceName: string; modelNumber: string; osVersion: string };
@@ -66,7 +57,6 @@ export class CaptureConfig {
   constructor() {
     this.platformName = PlatformName.PC;
     this.browser = Browser.Chrome;
-    this.devices = [];
     this.device = {
       deviceName: "",
       modelNumber: "",

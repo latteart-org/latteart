@@ -23,6 +23,9 @@ describe("RecordIntentionAction", () => {
       beforeEach(() => {
         observer = {
           setIntention: jest.fn(),
+          getTestStepId: jest.fn().mockImplementation((sequence) => {
+            return `id_of_${sequence}`;
+          }),
         };
       });
 
@@ -39,10 +42,6 @@ describe("RecordIntentionAction", () => {
           };
         });
 
-        afterEach(() => {
-          expect(observer.setIntention).toBeCalledWith(reply.data);
-        });
-
         it("記録対象と同じシーケンス番号を持つテスト目的が渡されたテスト履歴内にない場合はテスト目的を追加する", async () => {
           const history = [{ intention: null }, { intention: { sequence: 0 } }];
 
@@ -53,7 +52,7 @@ describe("RecordIntentionAction", () => {
 
           expect(dispatcher.addIntention).toBeCalledWith(
             note.testResultId,
-            note.sequence,
+            `id_of_${note.sequence}`,
             { summary: note.summary, details: note.details }
           );
 
@@ -73,7 +72,7 @@ describe("RecordIntentionAction", () => {
 
           expect(dispatcher.editIntention).toBeCalledWith(
             note.testResultId,
-            note.sequence,
+            `id_of_${note.sequence}`,
             { summary: note.summary, details: note.details }
           );
 
