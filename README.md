@@ -30,8 +30,9 @@
        ├─ manage.bat  # batch file
        ├─ launch.config.json # batch execution configuration file
        ├─ launch.exe # executable file for Windows
-       ├─ public # contains index.html and favicon
-       └─ latteart.exe # executable file for Windows
+       └─ latteart
+                ├─ public # contains index.html and favicon
+                └─ latteart.exe # executable file for Windows
    ```
 
 ### Build Snapshot Viewer
@@ -89,6 +90,7 @@ Detect source code changes and rebuild LatteArt.
        ├─ manage.bat
        ├─ launch.config.json
        ├─ launch.exe
+       ├─ latteart
        ├─ latteart-capture-cl # put
        └─ latteart-repository # put
    ```

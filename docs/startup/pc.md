@@ -22,6 +22,7 @@ latteart
       ├─ manage.bat
       ├─ launch.config.json
       ├─ launch.exe
+      ├─ latteart
       ├─ latteart-capture-cl
       └─ latteart-repository
 ```

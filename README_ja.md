@@ -79,8 +79,8 @@ latteart
        ├─ launch.config.json # バッチ実行設定ファイル
        ├─ launch.exe # Windows用実行ファイル
        └─ latteart
-       ├─ public # index.htmlとfavicon
-       └─ latteart.exe # Windows用実行ファイル
+                ├─ public # index.htmlとfavicon
+                └─ latteart.exe # Windows用実行ファイル
    ```
 
 ## スナップショットビューアのビルド
