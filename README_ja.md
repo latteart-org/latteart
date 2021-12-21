@@ -127,7 +127,7 @@ latteart
 
 # コントリビューション
 
-[LatteArtへのコントリビューション](./docs/contributing_ja.md)をご参照ください。
+[LatteArt へのコントリビューション](./docs/contributing_ja.md)をご参照ください。
 
 # 問い合わせ
 

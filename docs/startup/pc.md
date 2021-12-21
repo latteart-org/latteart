@@ -12,7 +12,7 @@
 
 # インストール
 
-GitHub の [Releases](https://github.com/latteart-org/latteart/releases) から最新版をダウンロードして下さい。 
+GitHub の [Releases](https://github.com/latteart-org/latteart/releases) から最新版をダウンロードして下さい。
 
 ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
 
@@ -69,7 +69,7 @@ manage: http://127.0.0.1:3000?mode=manage
 
 - 記録ツール: http://127.0.0.1:3000
 - 管理ツール: http://127.0.0.1:3000?mode=manage
-  
+
 すぐにテストを開始する場合は「[LatteArt チュートリアル （操作記録編）](/docs/tutorial/capture/tutorial-capture.md)」をご参照ください。
 
 LatteArt を用いたテストの考え方、および実践については 「[LatteArt チュートリアル （テスト実践編）](/docs/tutorial/management/tutorial-management.md)」をご参照ください。
@@ -79,3 +79,23 @@ LatteArt を用いたテストの考え方、および実践については 「[
 起動時に立ち上がったコマンドプロンプトのウィンドウを閉じて終了します。
 
 :warning: ブラウザ上で LatteArt のタブを閉じるだけではサーバは終了しません。
+
+# Mac での利用（実験的）
+
+ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
+
+```bash
+latteart
+      ├─ latteart
+      ├─ latteart-capture-cl
+      └─ latteart-repository
+```
+
+3 つのディレクトリにそれぞれ同名の実行ファイルが格納されています。
+**実行ファイルのあるディレクトリに移動し**、 3 つの実行ファイル`latteart`、 `latteart-capture-cl`、 `latteart-repository` に `chmod` 等で実行権限を与えてから実行します。
+「ダウンロードしたアプリケーションの実行許可」を求められた場合は、「プライバシーとセキュリティ」から許可してください。
+
+3 つのサーバを起動後、以下にアクセスすると利用できます。
+
+- 記録ツール: http://127.0.0.1:3000
+- 管理ツール: http://127.0.0.1:3000?mode=manage
