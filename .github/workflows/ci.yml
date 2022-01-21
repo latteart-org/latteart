@@ -108,5 +108,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: latteart-${{ github.ref_name }}-${{ matrix.os }}
+          name: latteart-$(echo ${{ github.ref_name }} | sed "s/\//_/g")-${{ matrix.os }}
           path: artifact
