@@ -178,9 +178,7 @@ export default class StoryDataConverter implements StoryConvertable {
     oldStory?: Story
   ): Promise<Story> {
     return {
-      id: target.id,
-      key: target.key,
-      status: target.status,
+      ...target,
       sessions: await Promise.all(
         target.sessions.map(async (session) => {
           const oldSession = oldStory?.sessions.find((s) => {
@@ -223,9 +221,7 @@ export default class StoryDataConverter implements StoryConvertable {
   } {
     return {
       storyData: {
-        id: story.id,
-        key: story.key,
-        status: story.status,
+        ...story,
         sessions: story.sessions.map((session) => {
           return {
             name: session.name,

@@ -77,14 +77,14 @@
               <td class="icon-col">
                 <v-icon
                   v-if="hasIntention(props.item.intention)"
-                  :title="$store.getters.message('app.intention')"
+                  :title="message('app.intention')"
                   class="mx-1"
                   color="blue"
                   >event_note</v-icon
                 >
                 <v-icon
                   v-if="hasNote(props.item.notices, props.item.bugs)"
-                  :title="$store.getters.message('app.note')"
+                  :title="message('app.note')"
                   class="mx-1"
                   color="purple lighten-3"
                   >announcement</v-icon

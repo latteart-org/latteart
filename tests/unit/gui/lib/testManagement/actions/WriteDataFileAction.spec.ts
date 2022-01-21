@@ -32,9 +32,14 @@ describe("WriteDataActionの", () => {
       };
 
       const storyDataConverter: StoryConvertable = {
-        convertToStory: jest
-          .fn()
-          .mockResolvedValue({ id: "s1", status: "", sessions: [] }),
+        convertToStory: jest.fn().mockResolvedValue({
+          id: "s1",
+          testMatrixId: "",
+          testTargetId: "",
+          viewPointId: "",
+          status: "",
+          sessions: [],
+        }),
       };
 
       const projectId = "1";
@@ -43,7 +48,16 @@ describe("WriteDataActionの", () => {
         stories: [],
         progressDatas: [],
       };
-      const stories: Story[] = [{ id: "s1", status: "", sessions: [] }];
+      const stories: Story[] = [
+        {
+          id: "s1",
+          testMatrixId: "",
+          testTargetId: "",
+          viewPointId: "",
+          status: "",
+          sessions: [],
+        },
+      ];
 
       await new WriteDataFileAction(
         observer,

@@ -28,6 +28,9 @@ export interface Completable {
 
 export interface StoryAchievement {
   id: string;
+  testMatrixId: string;
+  testTargetId: string;
+  viewPointId: string;
   sessions: Completable[];
 }
 
@@ -105,7 +108,6 @@ export class CalculateProgressDatasAction {
           return this.buildTestTargetProgressData(
             testTarget,
             testMatrix.id,
-            group.id,
             stories
           );
         }),
@@ -121,17 +123,17 @@ export class CalculateProgressDatasAction {
   private buildTestTargetProgressData(
     currentTestTarget: TestTarget,
     testMatrixId: string,
-    groupId: string,
     stories: StoryAchievement[]
   ): TestTargetProgressData {
     return currentTestTarget.plans.reduce(
       (testTargetProgressData, plan) => {
         testTargetProgressData.progress.planNumber += plan.value;
 
-        const story = stories.find(({ id }) => {
+        const story = stories.find((story) => {
           return (
-            id ===
-            `${testMatrixId}_${plan.viewPointId}_${groupId}_${currentTestTarget.id}`
+            story.testMatrixId === testMatrixId &&
+            story.viewPointId === plan.viewPointId &&
+            story.testTargetId === currentTestTarget.id
           );
         });
 

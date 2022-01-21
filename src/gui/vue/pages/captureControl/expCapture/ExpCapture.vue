@@ -97,6 +97,44 @@
           <v-icon>folder_open</v-icon>
         </v-btn>
 
+        <v-btn
+          icon
+          flat
+          large
+          color="grey darken-3"
+          @click="getImportTestResults"
+          :loading="isImportTestResults"
+          :disabled="isImportTestResults"
+          :title="$store.getters.message('manage-header.import-option')"
+        >
+          <v-icon>file_upload</v-icon>
+        </v-btn>
+
+        <v-btn
+          icon
+          flat
+          large
+          color="grey darken-3"
+          @click="scriptGenerationOptionDialogIsOpened = true"
+          :loading="isGeneratingTestScripts"
+          :disabled="sequence === 0 || isGeneratingTestScripts"
+          :title="$store.getters.message('history-view.generate-testscript')"
+          ><v-icon>description</v-icon></v-btn
+        >
+
+        <v-btn
+          icon
+          flat
+          large
+          id="exportButton"
+          color="grey darken-3"
+          @click="exportData"
+          :loading="isExportingData"
+          :disabled="sequence === 0 || isExportingData"
+          :title="$store.getters.message('manage-header.export-option')"
+          ><v-icon>file_download</v-icon></v-btn
+        >
+
         <v-menu
           offset-y
           v-model="showMenu"
@@ -109,6 +147,25 @@
               v-for="(testResult, index) in testResults"
               :key="index"
               @click="resume(testResult.id)"
+              :disabled="!testResult.id"
+            >
+              <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+
+        <v-menu
+          offset-y
+          v-model="showImportData"
+          :position-x="dataX"
+          :position-y="dataY"
+          absolute
+        >
+          <v-list>
+            <v-list-tile
+              v-for="(testResult, index) in importTestResults"
+              :key="index"
+              @click="importData(testResult.id)"
               :disabled="!testResult.id"
             >
               <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
@@ -270,6 +327,28 @@
       @ok="startCapture"
     />
 
+    <information-message-dialog
+      :opened="informationMessageDialogOpened"
+      :title="$store.getters.message('import-export-dialog.import-title')"
+      :message="informationMessage"
+      @close="informationMessageDialogOpened = false"
+    />
+
+    <script-generation-option-dialog
+      :opened="scriptGenerationOptionDialogIsOpened"
+      @execute="generateTestScript"
+      @close="scriptGenerationOptionDialogIsOpened = false"
+    >
+    </script-generation-option-dialog>
+
+    <download-link-dialog
+      :opened="downloadLinkDialogOpened"
+      :title="downloadLinkDialogTitle"
+      :message="downloadLinkDialogMessage"
+      :linkUrl="downloadLinkDialogLinkUrl"
+      @close="downloadLinkDialogOpened = false"
+    />
+
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -290,7 +369,11 @@
 import { Component, Vue } from "vue-property-decorator";
 import NoteRegisterButton from "./organisms/NoteRegisterButton.vue";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
-import { OperationWithNotes, WindowHandle } from "@/lib/operationHistory/types";
+import {
+  OperationHistory,
+  OperationWithNotes,
+  WindowHandle,
+} from "@/lib/operationHistory/types";
 import { PlatformName } from "@/lib/common/enum/SettingsEnum";
 import ReplayHistoryButton from "./organisms/ReplayHistoryButton.vue";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
@@ -300,6 +383,9 @@ import NoticeEditDialog from "@/vue/pages/common/NoticeEditDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import TestOptionDialog from "../testOptionDialog/TestOptionDialog.vue";
+import InformationMessageDialog from "../../common/InformationMessageDialog.vue";
+import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDialog.vue";
+import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 
 @Component({
   components: {
@@ -312,6 +398,9 @@ import TestOptionDialog from "../testOptionDialog/TestOptionDialog.vue";
     "test-option-dialog": TestOptionDialog,
     "error-message-dialog": ErrorMessageDialog,
     "context-menu": ContextMenu,
+    "information-message-dialog": InformationMessageDialog,
+    "script-generation-option-dialog": ScriptGenerationOptionDialog,
+    "download-link-dialog": DownloadLinkDialog,
   },
 })
 export default class ExpCapture extends Vue {
@@ -375,6 +464,13 @@ export default class ExpCapture extends Vue {
     }
     return history[history.length - 1].operation.sequence;
   }
+
+  private get history(): OperationHistory {
+    return this.$store.getters[
+      "operationHistory/getHistory"
+    ]() as OperationWithNotes[];
+  }
+
   private get url(): string {
     return this.$store.state.captureControl.url;
   }
@@ -421,11 +517,24 @@ export default class ExpCapture extends Vue {
     this.$store.dispatch("operationHistory/changeCurrentTestResultName");
   }
 
+  private informationMessageDialogOpened = false;
+  private informationMessage = "";
+
+  private isGeneratingTestScripts = false;
+  private scriptGenerationOptionDialogIsOpened = false;
+  private isExportingData = false;
+  private isImportTestResults = false;
+
   private testResults: Array<{ id: string; name: string }> = [];
+  private importTestResults: Array<{ id: string; name: string }> = [];
 
   private showMenu = false;
   private menuX = 0;
   private menuY = 0;
+
+  private showImportData = false;
+  private dataX = 0;
+  private dataY = 0;
 
   private isHistoryMode = false;
   private locales: string[] = ["ja", "en"];
@@ -448,10 +557,115 @@ export default class ExpCapture extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private downloadLinkDialogOpened = false;
+  private downloadLinkDialogTitle = "";
+  private downloadLinkDialogMessage = "";
+  private downloadLinkDialogLinkUrl = "";
+
   private contextMenuOpened = false;
   private contextMenuX = -1;
   private contextMenuY = -1;
   private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
+
+  private importData(importFileName: string) {
+    this.isImportTestResults = true;
+    if (!importFileName) {
+      this.isImportTestResults = false;
+      return;
+    }
+
+    let returnName = "";
+
+    setTimeout(async () => {
+      try {
+        returnName = await this.$store.dispatch("operationHistory/importData", {
+          importFileName,
+        });
+        this.informationMessageDialogOpened = true;
+        this.informationMessage = this.$store.getters.message(
+          "import-export-dialog.import-data-succeeded",
+          {
+            returnName,
+          }
+        );
+      } catch (error) {
+        this.errorMessage = `${error.message}`;
+        this.errorMessageDialogOpened = true;
+      } finally {
+        this.isImportTestResults = false;
+      }
+    }, 300);
+  }
+
+  private exportData() {
+    (async () => {
+      this.isExportingData = true;
+      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
+
+      try {
+        const exportDataPath = await this.$store
+          .dispatch("operationHistory/exportData", { testResultId })
+          .catch((error) => {
+            console.error(error);
+          });
+        this.downloadLinkDialogTitle = this.$store.getters.message(
+          "common.confirm"
+        );
+        this.downloadLinkDialogMessage = this.$store.getters.message(
+          "import-export-dialog.create-export-data-succeeded"
+        );
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${exportDataPath}`;
+        this.downloadLinkDialogOpened = true;
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      } finally {
+        this.isExportingData = false;
+      }
+    })();
+  }
+
+  private generateTestScript(option: {
+    useDataDriven: boolean;
+    maxGeneration: number;
+  }) {
+    (async () => {
+      this.isGeneratingTestScripts = true;
+      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
+
+      const initialUrl = this.$store.state.captureControl.url;
+      try {
+        const testScriptPath = await this.$store.dispatch(
+          "operationHistory/generateTestScripts",
+          {
+            testResultId,
+            sources: [
+              {
+                initialUrl,
+                history: this.history.map(({ operation }) => operation),
+              },
+            ],
+            option,
+          }
+        );
+        this.downloadLinkDialogTitle = this.$store.getters.message(
+          "common.confirm"
+        );
+        this.downloadLinkDialogMessage = this.$store.getters.message(
+          "history-view.generate-testscript-succeeded"
+        );
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
+        this.scriptGenerationOptionDialogIsOpened = false;
+        this.downloadLinkDialogOpened = true;
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.scriptGenerationOptionDialogIsOpened = false;
+        this.errorMessageDialogOpened = true;
+      } finally {
+        this.isGeneratingTestScripts = false;
+      }
+    })();
+  }
 
   private updateTestResults(e: any) {
     e.preventDefault();
@@ -478,6 +692,38 @@ export default class ExpCapture extends Vue {
       }
 
       this.showMenu = true;
+    });
+  }
+
+  private getImportTestResults(e: any) {
+    e.preventDefault();
+
+    if (this.showImportData) {
+      this.showImportData = false;
+      return;
+    }
+
+    this.dataX = e.clientX;
+    this.dataY = e.clientY;
+    this.$nextTick(async () => {
+      const newImportTestResults = await this.$store.dispatch(
+        "operationHistory/getImportTestResults"
+      );
+
+      this.importTestResults.splice(
+        0,
+        this.importTestResults.length,
+        ...newImportTestResults
+      );
+
+      if (this.importTestResults.length === 0) {
+        this.importTestResults.push({
+          id: "",
+          name: "EMPTY",
+        });
+      }
+
+      this.showImportData = true;
     });
   }
 

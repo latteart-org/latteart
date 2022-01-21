@@ -1,0 +1,111 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ut:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.18.1]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: |
+          yarn install
+          yarn test:unit
+
+  package:
+    runs-on: ubuntu-latest
+
+    if: |
+      contains('refs/heads/main refs/heads/release/**', github.ref) ||
+      github.ref_type == 'tag'
+
+    needs: [ut]
+
+    strategy:
+      matrix:
+        node-version: [12.18.1]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout 'LatteArt' Repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          path: latteart
+
+      - name: Checkout 'LatteArt Capture CL' Repository
+        uses: actions/checkout@v2
+        with:
+          repository: "latteart-org/latteart-capture-cl"
+          ref: ${{ github.ref }}
+          path: latteart-capture-cl
+
+      - name: Checkout 'LatteArt Repository' Repository
+        uses: actions/checkout@v2
+        with:
+          repository: "latteart-org/latteart-repository"
+          ref: ${{ github.ref }}
+          path: latteart-repository
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Package 'LatteArt'
+        run: |
+          cd latteart
+          yarn install
+          yarn build:viewer
+          yarn build:viewer:history
+          yarn package:${{ matrix.os }}
+          mkdir -p latteart
+          mkdir -p latteart/latteart-repository
+          cp -rp dist/latteart/* latteart
+          cp -rp history-viewer latteart/latteart-repository
+          cp -rp snapshot-viewer latteart/latteart-repository
+          cd ..
+
+      - name: Package 'LatteArt Repository'
+        run: |
+          cd latteart-repository
+          yarn install
+          yarn typescript-json-validator src/lib/settings/Settings.ts
+          yarn typescript-json-validator src/lib/settings/DeviceSettings.ts
+          yarn package:${{ matrix.os }}
+          mkdir -p latteart
+          cp -rp dist/latteart-repository latteart
+          cd ..
+
+      - name: Package 'LatteArt Capture CL'
+        run: |
+          cd latteart-capture-cl
+          yarn install
+          yarn package:${{ matrix.os }}
+          mkdir -p latteart
+          cp -rp dist/latteart-capture-cl latteart
+          cd ..
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r latteart/latteart/* artifact
+          cp -r latteart-capture-cl/latteart/* artifact
+          cp -r latteart-repository/latteart/* artifact
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: latteart-${{ github.ref_name }}-${{ matrix.os }}
+          path: artifact

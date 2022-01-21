@@ -53,7 +53,13 @@
             class="py-0 px-2 my-0"
           >
             <sessions-status
-              :id="concat(testMatrixId, props.item.id, val.id)"
+              :id="
+                findStoryId({
+                  testMatrixId,
+                  testTargetId: props.item.id,
+                  viewPointId: val.id,
+                })
+              "
               :plan="props.item[val.id]"
             ></sessions-status>
           </td>
@@ -72,6 +78,7 @@ import {
   TestTarget,
   Plan,
   Session,
+  Story,
 } from "@/lib/testManagement/types";
 import FixedDataTable from "@/vue/molecules/FixedDataTable.vue";
 
@@ -86,7 +93,7 @@ export default class GroupViewer extends Vue {
   @Prop({ type: Array, default: [] }) public readonly viewPoints!: ViewPoint[];
   @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
 
-  public get headers(): any[] {
+  private get headers(): any[] {
     const headers: any = [];
     headers.push({
       value: "name",
@@ -108,11 +115,11 @@ export default class GroupViewer extends Vue {
     return headers;
   }
 
-  public pagination: any = {
+  private pagination: any = {
     rowsPerPage: -1,
   };
 
-  public get items(): any[] {
+  private get items(): any[] {
     const items: any[] = [];
     this.group.testTargets.forEach((testTarget: TestTarget) => {
       const item: any = {
@@ -127,7 +134,7 @@ export default class GroupViewer extends Vue {
     return items;
   }
 
-  public getTestTarget(item: any): TestTarget {
+  private getTestTarget(item: any): TestTarget {
     const targetTestTarget = this.group.testTargets.find(
       (testTarget: TestTarget) => {
         return item.id === testTarget.id;
@@ -143,11 +150,11 @@ export default class GroupViewer extends Vue {
     return targetTestTarget;
   }
 
-  public getNameText(item: any): string {
+  private getNameText(item: any): string {
     return this.getTestTarget(item).name;
   }
 
-  public getDoneAndPlan(item: any): string {
+  private getDoneAndPlan(item: any): string {
     let planNum = 0;
     let done = 0;
     const targetTestTarget = this.getTestTarget(item);
@@ -156,17 +163,17 @@ export default class GroupViewer extends Vue {
     }
     targetTestTarget.plans.forEach((plan: Plan) => {
       planNum += Number(plan.value);
-      const targetStory = this.$store.getters[
-        "testManagement/findStoryByTestTargetAndGroupAndViewPointId"
-      ](
-        targetTestTarget.id,
-        this.group.id,
-        plan.viewPointId,
-        this.testMatrixId
-      );
+
+      const targetStory = this.findStory({
+        testMatrixId: this.testMatrixId,
+        testTargetId: targetTestTarget.id,
+        viewPointId: plan.viewPointId,
+      });
+
       if (!targetStory) {
         return;
       }
+
       targetStory.sessions.forEach((session: Session) => {
         if (session.isDone) {
           done++;
@@ -176,12 +183,22 @@ export default class GroupViewer extends Vue {
     return done + " / " + planNum;
   }
 
-  public concat(
-    testMatrixId: string,
-    testTargetId: string,
-    viewPointId: string
-  ): string {
-    return `${testMatrixId}_${viewPointId}_${this.group.id}_${testTargetId}`;
+  private findStory(key: {
+    testMatrixId: string;
+    testTargetId: string;
+    viewPointId: string;
+  }): Story | undefined {
+    return this.$store.getters[
+      "testManagement/findStoryByTestTargetAndViewPointId"
+    ](key.testTargetId, key.viewPointId, key.testMatrixId);
+  }
+
+  private findStoryId(key: {
+    testMatrixId: string;
+    testTargetId: string;
+    viewPointId: string;
+  }): string {
+    return this.findStory(key)?.id ?? "";
   }
 }
 </script>

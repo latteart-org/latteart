@@ -258,18 +258,6 @@ export default class StoryView extends Vue {
     return this.$store.getters["testManagement/findStory"](this.storyId);
   }
 
-  private get variousIds(): {
-    matrixId: string;
-    viewPointId: string;
-    groupId: string;
-    testTargetId: string;
-  } {
-    const [matrixId, viewPointId, groupId, testTargetId] = this.storyId.split(
-      "_"
-    );
-    return { matrixId, viewPointId, groupId, testTargetId };
-  }
-
   public get reviewableSessions(): {
     id: string | undefined;
     displayName: string;
@@ -306,12 +294,17 @@ export default class StoryView extends Vue {
     if (!this.testMatrix) {
       return "";
     }
+
     const targetGroup = this.testMatrix.groups.find((group) => {
-      return group.id === this.variousIds.groupId;
+      return group.testTargets.some(
+        (testTarget) => testTarget.id === this.testTarget?.id
+      );
     });
+
     if (!targetGroup) {
       return "";
     }
+
     return targetGroup.name;
   }
 
@@ -375,25 +368,15 @@ export default class StoryView extends Vue {
   }
 
   private get testMatrix(): TestMatrix | undefined {
-    return this.$store.getters["testManagement/findTestMatrixByStoryId"](
-      this.storyId
+    return this.$store.getters["testManagement/findTestMatrix"](
+      this.story?.testMatrixId ?? ""
     );
   }
 
   private get testTarget(): TestTarget | undefined {
-    if (!this.testMatrix) {
-      return undefined;
-    }
-    const targetGroup = this.testMatrix.groups.find((group) => {
-      return this.variousIds.groupId === group.id;
-    });
-    if (!targetGroup) {
-      return undefined;
-    }
-
-    return targetGroup.testTargets.find((testTarget) => {
-      return this.variousIds.testTargetId === testTarget.id;
-    });
+    return this.testMatrix?.groups
+      .flatMap((group) => group.testTargets)
+      .find((testTarget) => this.story?.testTargetId === testTarget.id);
   }
 
   private get testTargetName(): string {
@@ -408,7 +391,7 @@ export default class StoryView extends Vue {
       return undefined;
     }
     return this.testMatrix.viewPoints.find((viewPoint) => {
-      return viewPoint.id === this.variousIds.viewPointId;
+      return viewPoint.id === this.story?.viewPointId;
     });
   }
 
@@ -424,7 +407,7 @@ export default class StoryView extends Vue {
       return undefined;
     }
     return this.testTarget.plans.find((plan: Plan) => {
-      return plan.viewPointId === this.variousIds.viewPointId;
+      return plan.viewPointId === this.story?.viewPointId;
     });
   }
 

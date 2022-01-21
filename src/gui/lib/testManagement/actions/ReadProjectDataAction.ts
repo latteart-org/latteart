@@ -20,6 +20,7 @@ import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
 import { ProjectUpdatable, StoryConvertable } from "./WriteDataFileAction";
 
 interface ReadDataFileMutationObserver {
+  setProjectId(data: { projectId: string }): void;
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
   setProgressDatas(data: { progressDatas: ProgressData[] }): void;
@@ -35,6 +36,7 @@ export interface ProjectStoryConvertable {
 export interface ProjectFetchable extends ProjectUpdatable {
   readProject(): Promise<
     Reply<{
+      projectId: string;
       testMatrices: TestMatrix[];
       progressDatas: ProgressData[];
       stories: ManagedStory[];
@@ -59,7 +61,9 @@ export class ReadProjectDataAction {
       return;
     }
 
-    const { testMatrices, stories, progressDatas } = reply.data;
+    const { projectId, testMatrices, stories, progressDatas } = reply.data;
+
+    this.observer.setProjectId({ projectId });
 
     this.observer.setManagedData({ testMatrices });
 

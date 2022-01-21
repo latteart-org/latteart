@@ -706,7 +706,7 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param payload.index  Index for notes related to the same operation.
    * @param payload.imageFileUrl  File name to replace.
    */
-  replaceNotesImageFileUrl(
+  replaceNoteImageFileUrl(
     state,
     payload: {
       type: string;

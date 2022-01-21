@@ -33,14 +33,6 @@
       <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
         message("history-view.there-are-updates-on-history")
       }}</span>
-      <v-btn
-        v-if="scriptGenerationEnabled"
-        @click="scriptGenerationOptionDialogIsOpened = true"
-        color="info"
-        :loading="isGeneratingTestScripts"
-        :disabled="history.length === 0 || isGeneratingTestScripts"
-        >{{ message("history-view.generate-testscript") }}</v-btn
-      >
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
           <v-flex xs12 wrap mb-0 pb-0 px-2>
@@ -106,19 +98,6 @@
         :message="message"
       ></decision-table>
     </pane>
-    <download-link-dialog
-      :opened="downloadLinkDialogOpened"
-      :title="downloadLinkDialogTitle"
-      :message="downloadLinkDialogMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
-      @close="downloadLinkDialogOpened = false"
-    />
-    <script-generation-option-dialog
-      :opened="scriptGenerationOptionDialogIsOpened"
-      @execute="generateTestScript"
-      @close="scriptGenerationOptionDialogIsOpened = false"
-    >
-    </script-generation-option-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -145,8 +124,6 @@ import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ElementCoverage from "@/vue/pages/operationHistory/organisms/ElementCoverage.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import DecisionTable from "./DecisionTable.vue";
-import ScriptGenerationOptionDialog from "@/vue/pages/common/ScriptGenerationOptionDialog.vue";
-import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 
 @Component({
   components: {
@@ -154,8 +131,6 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
     "operation-list": OperationList,
     "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
-    "script-generation-option-dialog": ScriptGenerationOptionDialog,
-    "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
     "decision-table": DecisionTable,
     Splitpanes,
@@ -226,18 +201,10 @@ export default class HistoryDisplay extends Vue {
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
   private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
 
-  private isGeneratingTestScripts = false;
-  private scriptGenerationOptionDialogIsOpened = false;
-
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogLinkUrl = "";
 
   private get selectedOperationSequence(): number {
     return this.$store.state.operationHistory.selectedOperationSequence;
@@ -380,51 +347,6 @@ export default class HistoryDisplay extends Vue {
           .mermaidGraphDisplay as Element).scrollHeight;
       });
     }
-  }
-
-  private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
-  }) {
-    (async () => {
-      this.isGeneratingTestScripts = true;
-      const testResultId =
-        this.testResultId !== ""
-          ? this.testResultId
-          : this.$store.state.operationHistory.testResultInfo.id;
-
-      const initialUrl = this.$store.state.captureControl.url;
-      try {
-        const testScriptPath = await this.$store.dispatch(
-          "operationHistory/generateTestScripts",
-          {
-            testResultId,
-            sources: [
-              {
-                initialUrl,
-                history: this.rawHistory.map(({ operation }) => operation),
-              },
-            ],
-            option,
-          }
-        );
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "common.confirm"
-        );
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "history-view.generate-testscript-succeeded"
-        );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.downloadLinkDialogOpened = true;
-      } catch (error) {
-        this.errorMessage = error.message;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.errorMessageDialogOpened = true;
-      } finally {
-        this.isGeneratingTestScripts = false;
-      }
-    })();
   }
 }
 </script>

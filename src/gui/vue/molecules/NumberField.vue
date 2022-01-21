@@ -75,6 +75,10 @@ export default class NumberField extends Vue {
   private internalValue = 0;
   private clicking = false;
 
+  private created() {
+    this.setValue();
+  }
+
   @Watch("value")
   private setValue() {
     this.internalValue = this.value;

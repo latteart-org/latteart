@@ -70,6 +70,20 @@
         >
         <v-btn
           v-if="!isViewerMode"
+          id="importButton"
+          color="primary"
+          @click="importOptionDialogIsOpened = true"
+          >{{ $store.getters.message("manage-header.import-option") }}</v-btn
+        >
+        <v-btn
+          v-if="!isViewerMode"
+          id="exportButton"
+          color="primary"
+          @click="exportOptionDialogIsOpened = true"
+          >{{ $store.getters.message("manage-header.export-option") }}</v-btn
+        >
+        <v-btn
+          v-if="!isViewerMode"
           id="viewerConfigButton"
           color="primary"
           @click="toViewerConfig"
@@ -99,6 +113,24 @@
       @close="scriptGenerationOptionDialogIsOpened = false"
     >
     </script-generation-option-dialog>
+    <import-option-dialog
+      :opened="importOptionDialogIsOpened"
+      @execute="importData"
+      @close="importOptionDialogIsOpened = false"
+    >
+    </import-option-dialog>
+    <information-message-dialog
+      :opened="informationMessageDialogOpened"
+      :title="$store.getters.message('import-export-dialog.import-title')"
+      :message="informationMessage"
+      @close="informationMessageDialogOpened = false"
+    />
+    <export-option-dialog
+      :opened="exportOptionDialogIsOpened"
+      @execute="exportData"
+      @close="exportOptionDialogIsOpened = false"
+    >
+    </export-option-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -112,12 +144,18 @@ import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/vue/pages/common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
+import ImportOptionDialog from "../common/ImportOptionDialog.vue";
+import ExportOptionDialog from "../common/ExportOptionDialog.vue";
+import InformationMessageDialog from "../common/InformationMessageDialog.vue";
 
 @Component({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
+    "import-option-dialog": ImportOptionDialog,
+    "export-option-dialog": ExportOptionDialog,
+    "information-message-dialog": InformationMessageDialog,
   },
 })
 export default class ManageView extends Vue {
@@ -128,11 +166,15 @@ export default class ManageView extends Vue {
     ? (this as any).$isViewerMode
     : false;
   public outputHtmlProcessing = false;
+  public exportDataProcessing = false;
+  public importDataProcessing = false;
   public tabNum = 0;
   public locales: string[] = ["ja", "en"];
 
   private isGeneratingTestScripts = false;
   private scriptGenerationOptionDialogIsOpened = false;
+  private importOptionDialogIsOpened = false;
+  private exportOptionDialogIsOpened = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -141,6 +183,9 @@ export default class ManageView extends Vue {
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogLinkUrl = "";
+
+  private informationMessageDialogOpened = false;
+  private informationMessage = "";
 
   private selectedTestMatrixId = "";
 
@@ -257,6 +302,98 @@ export default class ManageView extends Vue {
         this.errorMessageDialogOpened = true;
       }
       this.isGeneratingTestScripts = false;
+    })();
+  }
+
+  private importData(option: {
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+    selectedItem: string;
+  }): void {
+    this.importDataProcessing = true;
+    this.$store.dispatch("openProgressDialog", {
+      message: this.$store.getters.message(
+        "import-export-dialog.importing-data"
+      ),
+    });
+
+    if (!option.selectedItem) {
+      this.$store.dispatch("closeProgressDialog");
+      this.importDataProcessing = false;
+      return;
+    }
+
+    let returnItem: {
+      name: string;
+      id: string;
+    } = { name: "", id: "" };
+
+    setTimeout(async () => {
+      try {
+        returnItem = await this.$store.dispatch("testManagement/importData", {
+          option,
+        });
+        if (returnItem.id) {
+          await this.$store.dispatch("testManagement/readDataFile");
+        }
+
+        const returnName = returnItem.name;
+
+        this.informationMessageDialogOpened = true;
+        this.informationMessage = this.$store.getters.message(
+          "import-export-dialog.import-data-succeeded",
+          {
+            returnName,
+          }
+        );
+      } catch (error) {
+        this.errorMessage = `${error.message}`;
+        this.errorMessageDialogOpened = true;
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
+        this.importDataProcessing = false;
+      }
+    }, 300);
+  }
+
+  private exportData(option: {
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+  }) {
+    (async () => {
+      this.exportDataProcessing = true;
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "import-export-dialog.creating-export-data"
+        ),
+      });
+
+      const exportDataUrl = await this.$store
+        .dispatch("testManagement/exportData", { option })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.$store.dispatch("closeProgressDialog");
+        });
+
+      if (exportDataUrl) {
+        this.downloadLinkDialogOpened = true;
+        this.downloadLinkDialogTitle = this.$store.getters.message(
+          "import-export-dialog.export-title"
+        );
+        this.downloadLinkDialogMessage = this.$store.getters.message(
+          "import-export-dialog.create-export-data-succeeded"
+        );
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${exportDataUrl}`;
+      } else {
+        this.errorMessage = this.$store.getters.message(
+          "error.import_export.create-export-data-error"
+        );
+        this.errorMessageDialogOpened = true;
+      }
+
+      this.exportDataProcessing = false;
     })();
   }
 

@@ -36,15 +36,18 @@ describe("ManageQualityView.vueは", () => {
       id: "g001",
       name: "group1",
       testTargets: [
-        { id: "t000", name: "g1-testTarget0", plans },
-        { id: "t001", name: "g1-testTarget1", plans },
-        { id: "t002", name: "g1-testTarget2", plans },
+        { id: "t003", name: "g1-testTarget3", plans },
+        { id: "t004", name: "g1-testTarget4", plans },
+        { id: "t005", name: "g1-testTarget5", plans },
       ],
     },
   ];
   const stories = [
     {
-      id: "m000_s000_g000_t000",
+      id: "storyId1",
+      testMatrixId: "m000",
+      testTargetId: "t000",
+      viewPointId: "s000",
       sessions: [
         {
           id: "session00",
@@ -61,7 +64,10 @@ describe("ManageQualityView.vueは", () => {
       ],
     },
     {
-      id: "m000_s000_g000_t001",
+      id: "storyId2",
+      testMatrixId: "m000",
+      testTargetId: "t001",
+      viewPointId: "s000",
       sessions: [
         {
           id: "session00",
@@ -72,7 +78,10 @@ describe("ManageQualityView.vueは", () => {
       ],
     },
     {
-      id: "m000_s001_g000_t001",
+      id: "storyId3",
+      testMatrixId: "m000",
+      testTargetId: "t001",
+      viewPointId: "s001",
       sessions: [
         {
           id: "session00",
@@ -83,7 +92,10 @@ describe("ManageQualityView.vueは", () => {
       ],
     },
     {
-      id: "m000_s001_g001_t001",
+      id: "storyId4",
+      testMatrixId: "m000",
+      testTargetId: "t004",
+      viewPointId: "s001",
       sessions: [
         {
           id: "session00",
@@ -145,10 +157,18 @@ describe("ManageQualityView.vueは", () => {
           };
         },
         getLocale: jest.fn().mockReturnValue(jest.fn().mockReturnValue("ja")),
-        "testManagement/findStory": () => {
-          return (id: string) => {
+        "testManagement/findStoryByTestTargetAndViewPointId": () => {
+          return (
+            testTargetId: string,
+            viewPointId: string,
+            testMatrixId: string
+          ) => {
             return stories.find((story) => {
-              return story.id === id;
+              return (
+                story.testMatrixId === testMatrixId &&
+                story.testTargetId === testTargetId &&
+                story.viewPointId === viewPointId
+              );
             });
           };
         },
@@ -193,12 +213,12 @@ describe("ManageQualityView.vueは", () => {
 
       expect(vm.testTargets).toEqual([
         { id: "all", text: "manage-quality.all" },
-        { id: "g000-t000", text: "g0-testTarget0" },
-        { id: "g000-t001", text: "g0-testTarget1" },
-        { id: "g000-t002", text: "g0-testTarget2" },
-        { id: "g001-t000", text: "g1-testTarget0" },
-        { id: "g001-t001", text: "g1-testTarget1" },
-        { id: "g001-t002", text: "g1-testTarget2" },
+        { id: "g000_t000", text: "g0-testTarget0" },
+        { id: "g000_t001", text: "g0-testTarget1" },
+        { id: "g000_t002", text: "g0-testTarget2" },
+        { id: "g001_t003", text: "g1-testTarget3" },
+        { id: "g001_t004", text: "g1-testTarget4" },
+        { id: "g001_t005", text: "g1-testTarget5" },
       ]);
     });
 
@@ -217,9 +237,9 @@ describe("ManageQualityView.vueは", () => {
 
       expect(vm.testTargets).toEqual([
         { id: "all", text: "manage-quality.all" },
-        { id: "g001-t000", text: "g1-testTarget0" },
-        { id: "g001-t001", text: "g1-testTarget1" },
-        { id: "g001-t002", text: "g1-testTarget2" },
+        { id: "g001_t003", text: "g1-testTarget3" },
+        { id: "g001_t004", text: "g1-testTarget4" },
+        { id: "g001_t005", text: "g1-testTarget5" },
       ]);
     });
   });
@@ -286,20 +306,20 @@ describe("ManageQualityView.vueは", () => {
 
       expect(items[3]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget0",
+        testTarget: "g1-testTarget3",
         TOTAL: "0",
       });
 
       expect(items[4]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget1",
+        testTarget: "g1-testTarget4",
         s001: "1",
         TOTAL: "1",
       });
 
       expect(items[5]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget2",
+        testTarget: "g1-testTarget5",
         TOTAL: "0",
       });
 
@@ -349,20 +369,20 @@ describe("ManageQualityView.vueは", () => {
 
       expect(items[3]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget0",
+        testTarget: "g1-testTarget3",
         TOTAL: "0",
       });
 
       expect(items[4]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget1",
+        testTarget: "g1-testTarget4",
         s001: "1/2",
         TOTAL: "1/2",
       });
 
       expect(items[5]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget2",
+        testTarget: "g1-testTarget5",
         TOTAL: "0",
       });
 
@@ -431,13 +451,13 @@ describe("ManageQualityView.vueは", () => {
 
       vm.displayMode = "displayModeTimesPerSession";
       vm.selectedGroup = "all";
-      vm.selectedTestTarget = "g001-t001";
+      vm.selectedTestTarget = "g001_t004";
 
       const items = vm.items;
 
       expect(items[0]).toEqual({
         group: "group1",
-        testTarget: "g1-testTarget1",
+        testTarget: "g1-testTarget4",
         s001: "1/2",
         TOTAL: "1/2",
       });

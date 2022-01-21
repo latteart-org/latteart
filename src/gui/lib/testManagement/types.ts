@@ -69,7 +69,9 @@ export interface Issue {
 
 export interface Story {
   id: string;
-  key?: string;
+  testMatrixId: string;
+  testTargetId: string;
+  viewPointId: string;
   status: string;
   sessions: Session[];
 }

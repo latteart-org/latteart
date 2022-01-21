@@ -388,8 +388,8 @@ export default class GroupEditor extends Vue {
       });
 
       const story: Story | undefined = this.$store.getters[
-        "testManagement/findStoryByTestTargetAndGroupAndViewPointId"
-      ](args.testTargetId, this.groupId, args.viewPointId, this.testMatrixId);
+        "testManagement/findStoryByTestTargetAndViewPointId"
+      ](args.testTargetId, args.viewPointId, this.testMatrixId);
 
       if (
         story &&
