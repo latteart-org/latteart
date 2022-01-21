@@ -27,7 +27,8 @@ jobs:
     runs-on: ubuntu-latest
 
     if: |
-      contains('refs/heads/main refs/heads/release/**', github.ref) ||
+      github.ref == 'refs/heads/main' ||
+      startsWith(github.ref, 'refs/heads/release') ||
       github.ref_type == 'tag'
 
     needs: [ut]
