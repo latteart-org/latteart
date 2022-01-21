@@ -108,7 +108,7 @@ jobs:
       - name: Build Artifact Name
         id: build_artifact_name
         run: |
-          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//_/g")
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
