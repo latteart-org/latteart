@@ -105,8 +105,14 @@ jobs:
           cp -r latteart-capture-cl/latteart/* artifact
           cp -r latteart-repository/latteart/* artifact
 
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//_/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: latteart-$(echo ${{ github.ref_name }} | sed "s/\//_/g")-${{ matrix.os }}
+          name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
