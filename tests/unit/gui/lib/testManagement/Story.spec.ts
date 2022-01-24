@@ -29,6 +29,9 @@ describe("Storyの", () => {
       sessions: [session],
       status: "",
       id: "",
+      testMatrixId: "",
+      testTargetId: "",
+      viewPointId: "",
     };
 
     it("story内にsessionIdに一致するsessionが存在する場合、該当sessionを返す", () => {

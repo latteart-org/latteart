@@ -41,11 +41,17 @@ describe("CalculateProgressDatasAction", () => {
 
     const stories: StoryAchievement[] = [
       {
-        id: "matrixId1_viewPointId1_groupId1_testTargetId1",
+        id: "storyId1",
+        testMatrixId: "matrixId1",
+        testTargetId: "testTargetId1",
+        viewPointId: "viewPointId1",
         sessions: [{ isDone: true }, { isDone: false }],
       },
       {
-        id: "matrixId2_viewPointId1_groupId1_testTargetId1",
+        id: "storyId2",
+        testMatrixId: "matrixId2",
+        testTargetId: "testTargetId1",
+        viewPointId: "viewPointId1",
         sessions: [{ isDone: true }, { isDone: false }],
       },
     ];

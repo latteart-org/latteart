@@ -106,40 +106,34 @@ const getters: GetterTree<TestManagementState, RootState> = {
   },
 
   /**
-   * Searches the State for story that matches the specified test result ID, group ID,
+   * Searches the State for story that matches the specified test result ID,
    * viewPoint ID, and test matrix ID and returns the first story found.
    * Returns undefined if not found.
    * @param state State.
    * @returns Found story.
    */
-  findStoryByTestTargetAndGroupAndViewPointId: (state) => (
+  findStoryByTestTargetAndViewPointId: (state) => (
     testTargetId: string,
-    groupId: string,
     viewPointId: string,
     testMatrixId: string
   ) => {
-    const storyId = `${testMatrixId}_${viewPointId}_${groupId}_${testTargetId}`;
-    const found = state.stories.find((chater: Story) => {
-      return chater.id === storyId;
+    const found = state.stories.find((story: Story) => {
+      return (
+        story.testMatrixId === testMatrixId &&
+        story.testTargetId === testTargetId &&
+        story.viewPointId === viewPointId
+      );
     });
     return found === undefined ? undefined : JSON.parse(JSON.stringify(found));
   },
 
-  findTestMatrix: (state) => (testMatrixId: string) => {
-    return state.testMatrices.find((testMatrix) => {
-      return testMatrix.id === testMatrixId;
-    });
-  },
-
   /**
-   * Searches the State for test matrix that matches the specified story ID and returns the first test matrix found.
+   * Searches the State for test matrix that matches the specified test matrix ID and returns the first test matrix found.
    * Returns undefined if not found.
    * @param state State.
    * @returns Found test matrix.
    */
-  findTestMatrixByStoryId: (state) => (storyId: string) => {
-    const [testMatrixId] = storyId.split("_");
-
+  findTestMatrix: (state) => (testMatrixId: string) => {
     return state.testMatrices.find((testMatrix) => {
       return testMatrix.id === testMatrixId;
     });

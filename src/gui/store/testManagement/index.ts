@@ -26,6 +26,11 @@ import { TestMatrix, Story, ProgressData } from "@/lib/testManagement/types";
  */
 export interface TestManagementState {
   /**
+   * Current project id.
+   */
+  projectId: string;
+
+  /**
    * Test matrices.
    */
   testMatrices: TestMatrix[];
@@ -47,8 +52,9 @@ export interface TestManagementState {
 }
 
 const state: TestManagementState = {
+  projectId: "",
   testMatrices: Array<TestMatrix>(),
-  stories: Array<Story>(), // Story.id => {TestMatrix.id}_{ViewPoint.id}_{Group.id}_{TestTarget.Id}
+  stories: Array<Story>(),
   progressDatas: Array<ProgressData>(),
   tempStory: null,
 };

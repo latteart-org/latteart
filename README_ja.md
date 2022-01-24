@@ -48,6 +48,7 @@ latteart
       ├─ manage.bat
       ├─ launch.config.json
       ├─ launch.exe
+      ├─ latteart
       ├─ latteart-capture-cl # 追加
       └─ latteart-repository # 追加
 ```

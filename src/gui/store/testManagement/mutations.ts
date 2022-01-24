@@ -25,6 +25,20 @@ import {
 
 const mutations: MutationTree<TestManagementState> = {
   /**
+   * Set project id to the State.
+   * @param state State.
+   * @param payload.projectId Project id.
+   */
+  setProjectId(
+    state,
+    payload: {
+      projectId: string;
+    }
+  ) {
+    state.projectId = payload.projectId;
+  },
+
+  /**
    * Set a test management data to the State.
    * @param state State.
    * @param payload.stories Stories.

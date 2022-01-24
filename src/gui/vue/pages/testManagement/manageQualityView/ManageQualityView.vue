@@ -179,7 +179,7 @@ export default class ManageQualityView extends Vue {
       for (const testTarget of group.testTargets) {
         testTargets.push({
           text: testTarget.name,
-          id: `${group.id}-${testTarget.id}`,
+          id: `${group.id}_${testTarget.id}`,
         });
       }
     }
@@ -236,7 +236,7 @@ export default class ManageQualityView extends Vue {
       for (const testTarget of group.testTargets) {
         if (
           this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget !== `${group.id}-${testTarget.id}`
+          this.selectedTestTarget !== `${group.id}_${testTarget.id}`
         ) {
           continue;
         }
@@ -248,9 +248,9 @@ export default class ManageQualityView extends Vue {
         let rowTotalBugNum = 0;
         let rowTotalSessionNum = 0;
         for (const plan of testTarget.plans) {
-          const story: Story = this.$store.getters["testManagement/findStory"](
-            `${this.testMatrix.id}_${plan.viewPointId}_${group.id}_${testTarget.id}`
-          );
+          const story: Story = this.$store.getters[
+            "testManagement/findStoryByTestTargetAndViewPointId"
+          ](testTarget.id, plan.viewPointId, this.testMatrix.id);
           if (!story || !story.sessions) {
             continue;
           }
@@ -361,14 +361,14 @@ export default class ManageQualityView extends Vue {
       for (const testTarget of group.testTargets) {
         if (
           this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget !== `${group.id}-${testTarget.id}`
+          this.selectedTestTarget !== `${group.id}_${testTarget.id}`
         ) {
           continue;
         }
         for (const plan of testTarget.plans) {
-          const story: Story = this.$store.getters["testManagement/findStory"](
-            `${this.testMatrix.id}_${plan.viewPointId}_${group.id}_${testTarget.id}`
-          );
+          const story: Story = this.$store.getters[
+            "testManagement/findStoryByTestTargetAndViewPointId"
+          ](testTarget.id, plan.viewPointId, this.testMatrix.id);
           if (!story || !story.sessions) {
             continue;
           }
@@ -383,7 +383,7 @@ export default class ManageQualityView extends Vue {
               groupName: group.name,
               groupId: group.id,
               testTargetName: testTarget.name,
-              testTargetId: `${group.id}-${testTarget.id}`,
+              testTargetId: `${group.id}_${testTarget.id}`,
               doneDate: session.doneDate,
               reportedBugCount,
             });
@@ -414,7 +414,7 @@ export default class ManageQualityView extends Vue {
         }
         if (
           this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget.split("-")[0] !== group.id
+          this.selectedTestTarget.split("_")[0] !== group.id
         ) {
           continue;
         }

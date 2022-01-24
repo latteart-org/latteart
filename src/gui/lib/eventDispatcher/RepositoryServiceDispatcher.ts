@@ -23,7 +23,10 @@ import { CoverageSource, InputElementInfo } from "../operationHistory/types";
 import { Note } from "../operationHistory/Note";
 import Settings from "@/lib/common/settings/Settings";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
-import { ManagedSession } from "../testManagement/TestManagementData";
+import {
+  ManagedSession,
+  ManagedStory,
+} from "../testManagement/TestManagementData";
 import { TestResultResumable } from "../operationHistory/actions/ResumeAction";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
@@ -31,6 +34,11 @@ import { IntentionRecordable } from "../operationHistory/actions/RecordIntention
 import { TestScript } from "../operationHistory/scriptGenerator/TestScript";
 import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
 import { ProjectFetchable } from "../testManagement/actions/ReadProjectDataAction";
+import { Importable } from "../testManagement/actions/ImportAction";
+import { Exportable } from "../testManagement/actions/ExportAction";
+import { TestResultImportable } from "../operationHistory/actions/ImportAction";
+import { TestResultExportable } from "../operationHistory/actions/ExportAction";
+import { TestMatrix, ProgressData } from "../testManagement/types";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -42,7 +50,11 @@ export default class RepositoryServiceDispatcher
     ProjectFetchable,
     IntentionMovable,
     IntentionRecordable,
-    TestScriptExportable {
+    TestScriptExportable,
+    Importable,
+    Exportable,
+    TestResultImportable,
+    TestResultExportable {
   /**
    * Service URL.
    */
@@ -223,6 +235,66 @@ export default class RepositoryServiceDispatcher
         id: string;
         name: string;
       }> = await this.restClient.httpGet(this.buildAPIURL(`/test-results`));
+
+      return {
+        succeeded: true,
+        data,
+      };
+    } catch (error) {
+      return {
+        succeeded: false,
+        error: {
+          code: "repository_service_not_found",
+          message: "Repository service is not found.",
+        },
+      };
+    }
+  }
+
+  public async getImportTestResults(): Promise<
+    Reply<
+      Array<{
+        id: string;
+        name: string;
+      }>
+    >
+  > {
+    try {
+      const data: Array<{
+        id: string;
+        name: string;
+      }> = await this.restClient.httpGet(
+        this.buildAPIURL(`/imports/test-results`)
+      );
+
+      return {
+        succeeded: true,
+        data,
+      };
+    } catch (error) {
+      return {
+        succeeded: false,
+        error: {
+          code: "repository_service_not_found",
+          message: "Repository service is not found.",
+        },
+      };
+    }
+  }
+
+  public async getImportProjects(): Promise<
+    Reply<
+      Array<{
+        id: string;
+        name: string;
+      }>
+    >
+  > {
+    try {
+      const data: Array<{
+        id: string;
+        name: string;
+      }> = await this.restClient.httpGet(this.buildAPIURL(`/imports/projects`));
 
       return {
         succeeded: true,
@@ -1351,6 +1423,148 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
+   * Import project or testresult or all.
+   * @param importFileName  Import file name.
+   * @param selectOption  Select options.
+   */
+  public async importZipFile(
+    importFileName: string,
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<Reply<{ name: string; id: string }>> {
+    let response;
+    try {
+      response = await this.restClient.httpPost(
+        this.buildAPIURL(`/imports/projects/${importFileName}`),
+        selectOption
+      );
+
+      if (!response.name) {
+        return {
+          succeeded: false,
+          error: {
+            code: response.code,
+            message: response.code,
+          },
+        };
+      }
+
+      return {
+        succeeded: true,
+        data: response,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        succeeded: false,
+        error: {
+          code: "repository_service_not_found",
+          message: "Repository service is not found.",
+        },
+      };
+    }
+  }
+
+  /**
+   * Import test result.
+   * @param testResultFile  Test result FileName.
+   */
+  public async importTestResult(
+    testResultFile: string
+  ): Promise<Reply<{ name: string }>> {
+    let response;
+    try {
+      response = await this.restClient.httpPost(
+        this.buildAPIURL(`/imports/test-results/${testResultFile}`)
+      );
+
+      if (!response.name) {
+        return {
+          succeeded: false,
+          error: {
+            code: "code",
+            message: "message",
+          },
+        };
+      }
+
+      return {
+        succeeded: true,
+        data: response,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        succeeded: false,
+        error: {
+          code: "repository_service_not_found",
+          message: "Repository service is not found.",
+        },
+      };
+    }
+  }
+
+  /**
+   * Creates export project or testresult or all.
+   * @param projectId  Project ID.
+   * @param selectOption  Select option.
+   * @returns Export File URL.
+   */
+  public async exportZipFile(
+    projectId: string,
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<Reply<{ url: string }>> {
+    let response;
+    try {
+      response = await this.restClient.httpPost(
+        this.buildAPIURL(`/projects/${projectId}/export`),
+        selectOption
+      );
+    } catch (e) {
+      return {
+        succeeded: false,
+        error: {
+          code: "code",
+          message: "message",
+        },
+      };
+    }
+    return {
+      succeeded: true,
+      data: response,
+    };
+  }
+
+  /**
+   * Creates export data with the specified test results.
+   * @param testResultId  Test result ID.
+   * @param body.pageObjects  Page objects.
+   * @param body.testSuite  Test suite.
+   * @returns Test script URL.
+   */
+  public async exportTestResult(
+    testResultId: string
+  ): Promise<Reply<{ url: string }>> {
+    let response;
+    try {
+      response = await this.restClient.httpPost(
+        this.buildAPIURL(`/test-results/${testResultId}/export`)
+      );
+    } catch (e) {
+      return {
+        succeeded: false,
+        error: {
+          code: "code",
+          message: "message",
+        },
+      };
+    }
+    return {
+      succeeded: true,
+      data: response,
+    };
+  }
+
+  /**
    * Get a list of test results.
    * @returns List of test results
    */
@@ -1418,7 +1632,14 @@ export default class RepositoryServiceDispatcher
    * Read project data.
    * @returns Project data.
    */
-  public async readProject(): Promise<Reply<any>> {
+  public async readProject(): Promise<
+    Reply<{
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    }>
+  > {
     let response;
     try {
       const projects: Array<{
@@ -1433,7 +1654,7 @@ export default class RepositoryServiceDispatcher
                 name: "",
               })
             ).id
-          : projects[0].id;
+          : projects[projects.length - 1].id;
 
       response = await this.restClient.httpGet(
         this.buildAPIURL(`/projects/${targetProjectId}`)
@@ -1441,7 +1662,10 @@ export default class RepositoryServiceDispatcher
 
       return {
         succeeded: true,
-        data: response,
+        data: {
+          ...response,
+          projectId: targetProjectId,
+        },
       };
     } catch (e) {
       return {

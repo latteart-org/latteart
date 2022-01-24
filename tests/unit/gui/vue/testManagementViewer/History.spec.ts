@@ -54,6 +54,9 @@ describe("Historyは", () => {
 
     const story: Story = {
       id: "c1",
+      testMatrixId: "",
+      testTargetId: "",
+      viewPointId: "",
       status: "",
       sessions: [session1, session2, session3],
     };

@@ -52,7 +52,9 @@ export interface ManagedGroup {
 
 export interface ManagedStory {
   id: string;
-  key?: string;
+  testMatrixId: string;
+  testTargetId: string;
+  viewPointId: string;
   status: string;
   sessions: Array<ManagedSession>;
 }

@@ -15,7 +15,7 @@
     "pause-capturing": "Pause Capture",
     "resume-capturing": "Resume Capture",
     "reset": "Reset",
-    "import": "Import Test Result",
+    "import": "Load Past Test Results",
     "replay": "Replay",
     "stop-replay": "Stop Replay",
     "history": "Test History",
@@ -68,6 +68,17 @@
     "generate-testscript-succeeded": "Test script generation has finished.",
     "update-model-and-coverage": "Update Model/Coverage",
     "there-are-updates-on-history": "There is an update of operation history"
+  },
+  "import-export-dialog": {
+    "import-title": "Import",
+    "export-title": "Export",
+    "project-data": "Project Information",
+    "testresult-data": "Test Result Information",
+    "select-file": "Select the file to be imported",
+    "creating-export-data": "Creating export data",
+    "importing-data": "Importing data",
+    "create-export-data-succeeded": "Data export is complete.",
+    "import-data-succeeded": "{returnName} import is complete."
   },
   "config-view": {
     "window-title": "Capturing Tool [Config]",
@@ -198,7 +209,9 @@
     "manage-quality": "Quality Management",
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
-    "generate-script-succeeded": "Test script generation has finished."
+    "generate-script-succeeded": "Test script generation has finished.",
+    "import-option": "Data import",
+    "export-option": "Data export"
   },
   "manage-show": {
     "window-title": "Management Tool [top]",
@@ -411,7 +424,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
-      "resume_failed": "Failed to import a test result.",
+      "resume_failed": "Failed to load a test result.",
       "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
@@ -421,6 +434,12 @@
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
       "illegal_test_management_data": "Illegal format of test management data."
+    },
+    "import_export": {
+      "import-data-error": "Data import failed.",
+      "import-project-not-exist": "Project information does not exist.",
+      "import-test-result-not-exist": "Test result information does not exist.",
+      "create-export-data-error": "Data export failed."
     }
   }
 }

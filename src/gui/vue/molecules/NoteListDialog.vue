@@ -17,7 +17,7 @@
 <template>
   <scrollable-dialog :opened="opened" :maxWidth="800">
     <template v-slot:title>
-      <span>{{ $store.getters.message("note-list-dialog.note-list") }}</span>
+      <span>{{ message("note-list-dialog.note-list") }}</span>
     </template>
     <template v-slot:content>
       <v-card
@@ -32,7 +32,7 @@
           </h3>
           <v-spacer></v-spacer>
           <div>
-            {{ $store.getters.message("note-edit.target-sequence") }}
+            {{ message("note-edit.target-sequence") }}
             {{ note.sequence }}
           </div>
         </v-card-title>
@@ -48,7 +48,7 @@
             auto-grow
             v-if="note.details"
             :value="note.details"
-            :label="$store.getters.message('note-list-dialog.details')"
+            :label="message('note-list-dialog.details')"
             readonly
           >
           </v-textarea>
@@ -60,7 +60,7 @@
     <template v-slot:footer>
       <v-spacer></v-spacer>
       <v-btn color="blue" dark @click="close()">{{
-        $store.getters.message("common.ok")
+        message("common.ok")
       }}</v-btn>
     </template>
   </scrollable-dialog>
@@ -69,7 +69,10 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
-import { OperationWithNotes } from "@/lib/operationHistory/types";
+import {
+  MessageProvider,
+  OperationWithNotes,
+} from "@/lib/operationHistory/types";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 
 @Component({
@@ -80,6 +83,7 @@ import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
   @Prop({ type: Array, default: [] }) testSteps?: OperationWithNotes[];
+  @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private bugColor = "";
   private reportedColor = "";

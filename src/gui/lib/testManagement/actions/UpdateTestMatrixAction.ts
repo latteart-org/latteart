@@ -21,12 +21,7 @@ export interface UpdateTestMatrixMutationObserver {
     stories: Story[];
     testMatrices: TestMatrix[];
   }): Promise<TestMatrix[]>;
-  addNewStory(data: {
-    testMatrixId: string;
-    groupId: string;
-    testTargetId: string;
-    viewPointId: string;
-  }): Promise<void>;
+  addNewStory(): Promise<void>;
 }
 
 interface IaddedViewPointWithTestMatrixId {
@@ -95,7 +90,7 @@ export class UpdateTestMatrixAction {
         })
         .flat()
         .some((viewPoint) => {
-          return story.id.split("_")[1] === viewPoint.id;
+          return story.viewPointId === viewPoint.id;
         });
     });
     const updatedTestMatrices = await this.observer.saveManagedData({
@@ -131,12 +126,7 @@ export class UpdateTestMatrixAction {
       for (const group of testMatrix.groups) {
         for (const testTarget of group.testTargets) {
           for (const newViewPoint of newViewPoints) {
-            await this.observer.addNewStory({
-              testMatrixId: testMatrix.id,
-              groupId: group.id,
-              testTargetId: testTarget.id,
-              viewPointId: newViewPoint.id,
-            });
+            await this.observer.addNewStory();
           }
         }
       }

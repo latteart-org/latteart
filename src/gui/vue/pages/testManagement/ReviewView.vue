@@ -21,6 +21,12 @@
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn
+        id="scriptGenerateButton"
+        color="primary"
+        @click="scriptGenerationOptionDialogIsOpened = true"
+        >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
+      >
       <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
         $store.getters.message("manage-header.capture-config")
       }}</v-btn>
@@ -63,6 +69,21 @@
       </template>
     </scrollable-dialog>
 
+    <script-generation-option-dialog
+      :opened="scriptGenerationOptionDialogIsOpened"
+      @execute="generateTestScript"
+      @close="scriptGenerationOptionDialogIsOpened = false"
+    >
+    </script-generation-option-dialog>
+
+    <download-link-dialog
+      :opened="downloadLinkDialogOpened"
+      :title="downloadLinkDialogTitle"
+      :message="downloadLinkDialogMessage"
+      :linkUrl="downloadLinkDialogLinkUrl"
+      @close="downloadLinkDialogOpened = false"
+    />
+
     <error-message-dialog
       :opened="errorDialogOpened"
       :message="errorMessage"
@@ -84,6 +105,7 @@ import {
   MessageProvider,
   OperationWithNotes,
   CoverageSource,
+  OperationHistory,
 } from "@/lib/operationHistory/types";
 import { Story } from "@/lib/testManagement/types";
 import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
@@ -93,6 +115,8 @@ import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
+import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog.vue";
+import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 
 @Component({
   components: {
@@ -100,6 +124,8 @@ import ContextMenu from "@/vue/molecules/ContextMenu.vue";
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
     "context-menu": ContextMenu,
+    "script-generation-option-dialog": ScriptGenerationOptionDialog,
+    "download-link-dialog": DownloadLinkDialog,
   },
 })
 export default class ReviewView extends Vue {
@@ -114,6 +140,67 @@ export default class ReviewView extends Vue {
   private contextMenuX = -1;
   private contextMenuY = -1;
   private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
+
+  private isGeneratingTestScripts = false;
+  private scriptGenerationOptionDialogIsOpened = false;
+  private downloadLinkDialogOpened = false;
+  private downloadLinkDialogTitle = "";
+  private downloadLinkDialogMessage = "";
+  private downloadLinkDialogLinkUrl = "";
+
+  private get history(): OperationHistory {
+    return this.$store.getters[
+      "operationHistory/getHistory"
+    ]() as OperationWithNotes[];
+  }
+
+  private generateTestScript(option: {
+    useDataDriven: boolean;
+    maxGeneration: number;
+  }) {
+    (async () => {
+      this.isGeneratingTestScripts = true;
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "manage-header.generating-test-script"
+        ),
+      });
+      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
+
+      const initialUrl = this.$store.state.captureControl.url;
+      try {
+        const testScriptPath = await this.$store.dispatch(
+          "operationHistory/generateTestScripts",
+          {
+            testResultId,
+            sources: [
+              {
+                initialUrl,
+                history: this.history.map(({ operation }) => operation),
+              },
+            ],
+            option,
+          }
+        );
+        this.downloadLinkDialogTitle = this.$store.getters.message(
+          "common.confirm"
+        );
+        this.downloadLinkDialogMessage = this.$store.getters.message(
+          "history-view.generate-testscript-succeeded"
+        );
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
+        this.scriptGenerationOptionDialogIsOpened = false;
+        this.downloadLinkDialogOpened = true;
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.scriptGenerationOptionDialogIsOpened = false;
+        this.errorDialogOpened = true;
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
+        this.isGeneratingTestScripts = false;
+      }
+    })();
+  }
 
   private created() {
     const testResultId = this.$route.query.testResultId as string;

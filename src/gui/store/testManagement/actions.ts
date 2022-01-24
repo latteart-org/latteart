@@ -46,6 +46,8 @@ import {
   ProgressDataTimestamp,
 } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
 import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
+import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
+import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -71,7 +73,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    */
   async writeSnapshot(context): Promise<string> {
     const reply = await context.rootState.repositoryServiceDispatcher.postSnapshots(
-      "1"
+      context.state.projectId
     );
     return reply.data.url;
   },
@@ -116,6 +118,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
   async readDataFile(context) {
     await new ReadProjectDataAction(
       {
+        setProjectId: (data: { projectId: string }): void => {
+          context.commit("setProjectId", {
+            projectId: data.projectId,
+          });
+        },
         setManagedData: (data: { testMatrices: TestMatrix[] }): void => {
           context.commit("setManagedData", {
             testMatrices: data.testMatrices,
@@ -161,7 +168,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       },
       new StoryDataConverter(),
       context.rootState.repositoryServiceDispatcher
-    ).write("1", payload.testManagementData, context.state.stories);
+    ).write(
+      context.state.projectId,
+      payload.testManagementData,
+      context.state.stories
+    );
   },
 
   addNewTestMatrix(
@@ -212,18 +223,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
         });
         return context.state.testMatrices;
       },
-      addNewStory: async (data: {
-        testMatrixId: string;
-        groupId: string;
-        testTargetId: string;
-        viewPointId: string;
-      }): Promise<void> => {
-        await context.dispatch("addNewStory", {
-          testMatrixId: data.testMatrixId,
-          groupId: data.groupId,
-          testTargetId: data.testTargetId,
-          viewPointId: data.viewPointId,
-        });
+      addNewStory: async (): Promise<void> => {
+        await context.dispatch("addNewStory");
       },
     }).updateTestMatrix(
       context.state.testMatrices,
@@ -400,25 +401,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
       testMatrices: newTestMatrices,
       stories: context.state.stories,
     });
-
-    // const testTargets =
-    //   context.state.testMatrices
-    //     .find((testMatrix) => testMatrix.id === payload.testMatrixId)
-    //     ?.groups.find((group) => group.id === payload.groupId)?.testTargets ??
-    //   [];
-
-    // if (testTargets.length > 0) {
-    //   const testTarget = testTargets[testTargets.length - 1];
-
-    //   for (const plan of testTarget.plans) {
-    //     await context.dispatch("addNewStory", {
-    //       testMatrixId: payload.testMatrixId,
-    //       groupId: payload.groupId,
-    //       testTargetId: testTarget.id,
-    //       viewPointId: plan.viewPointId,
-    //     });
-    //   }
-    // }
   },
 
   updateTestTarget(
@@ -550,9 +532,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
 
     const newStory: Story = {
-      id: story.id,
-      key: story.key,
-      status: story.status,
+      ...story,
       sessions: [
         ...story.sessions,
         {
@@ -641,7 +621,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const updatedSession = (
       await context.rootState.repositoryServiceDispatcher.updateSession(
-        "1",
+        context.state.projectId,
         payload.sessionId,
         newSession
       )
@@ -704,9 +684,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
 
     const newStory: Story = {
-      id: story.id,
-      key: story.key,
-      status: story.status,
+      ...story,
       sessions: story.sessions.filter((session) => {
         return session.id !== payload.sessionId;
       }),
@@ -715,18 +693,12 @@ const actions: ActionTree<TestManagementState, RootState> = {
     await context.dispatch("saveStory", { story: newStory });
   },
 
-  async addNewStory(
-    context,
-    payload: {
-      testMatrixId: string;
-      groupId: string;
-      testTargetId: string;
-      viewPointId: string;
-    }
-  ): Promise<void> {
+  async addNewStory(context): Promise<void> {
     const newStory: Story = {
-      id: `${payload.testMatrixId}_${payload.viewPointId}_${payload.groupId}_${payload.testTargetId}`,
-      key: "",
+      id: "",
+      testMatrixId: "",
+      testTargetId: "",
+      viewPointId: "",
       status: CHARTER_STATUS.OUT_OF_SCOPE.id,
       sessions: [],
     };
@@ -765,8 +737,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
 
     const newStory: Story = {
-      id: story.id,
-      key: story.key,
+      ...story,
       status: payload.params.status ?? story.status,
       sessions: story.sessions,
     };
@@ -970,12 +941,83 @@ const actions: ActionTree<TestManagementState, RootState> = {
     return context.dispatch(
       "operationHistory/generateTestScripts",
       {
-        projectId: 1,
+        projectId: context.state.projectId,
         sources: initialUrlAndHistoryInEachStories,
         option: payload.option,
       },
       { root: true }
     );
+  },
+
+  /**
+   * Import Data.
+   * @param context Action context.
+   * @param payload option
+   * @returns id ,name
+   */
+  async importData(
+    context,
+    payload: {
+      option: {
+        selectedOptionProject: boolean;
+        selectedOptionTestresult: boolean;
+        selectedItem: string;
+      };
+    }
+  ): Promise<{
+    name: string;
+    id: string;
+  }> {
+    const importFileName = payload.option.selectedItem
+      ? payload.option.selectedItem
+      : "";
+
+    const selectOption = {
+      includeProject: payload.option.selectedOptionProject,
+      includeTestResults: payload.option.selectedOptionTestresult,
+    };
+
+    try {
+      return await new ImportAction(
+        context.rootState.repositoryServiceDispatcher
+      ).importZip(importFileName, selectOption);
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    }
+  },
+
+  /**
+   * Create export data.
+   * @param context Action context.
+   * @param payload option
+   * @returns URL
+   */
+  async exportData(
+    context,
+    payload: {
+      option: {
+        selectedOptionProject: boolean;
+        selectedOptionTestresult: boolean;
+      };
+    }
+  ): Promise<string> {
+    const exportProjectId = context.state.projectId;
+    const selectOption = {
+      includeProject: payload.option.selectedOptionProject,
+      includeTestResults: payload.option.selectedOptionTestresult,
+    };
+
+    try {
+      return await new ExportAction(
+        context.rootState.repositoryServiceDispatcher
+      ).exportZip(exportProjectId, selectOption);
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    }
   },
 };
 

@@ -24,7 +24,7 @@ const app = express();
 
 app.use(history());
 
-const currentDirPath = process.env.NODE_ENV === "development" ? __dirname : ".";
+const currentDirPath = path.relative(process.cwd(), path.dirname(__dirname));
 app.use(express.static(path.join(currentDirPath, "public")));
 
 const v1RootPath = "/api/v1";

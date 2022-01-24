@@ -17,7 +17,7 @@
     "pause-capturing": "記録の一時停止",
     "resume-capturing": "記録の再開",
     "reset": "履歴をリセット",
-    "import": "テスト結果のインポート",
+    "import": "過去のテスト結果の読み込み",
     "replay": "履歴を再生する",
     "stop-replay": "履歴再生を中止する",
     "history": "テスト履歴",
@@ -74,6 +74,17 @@
     "generate-testscript-succeeded": "テストスクリプトの生成が完了しました。",
     "update-model-and-coverage": "モデル・カバレッジの更新",
     "there-are-updates-on-history": "操作履歴の更新があります"
+  },
+  "import-export-dialog": {
+    "import-title": "データインポート",
+    "export-title": "データエクスポート",
+    "project-data": "プロジェクト情報",
+    "testresult-data": "テスト結果情報",
+    "select-file": "インポート対象のプロジェクトファイル選択",
+    "creating-export-data": "エクスポートデータ作成中",
+    "importing-data": "データインポート中",
+    "create-export-data-succeeded": "データエクスポートが完了しました。",
+    "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
   "config-view": {
     "window-title": "記録ツール [設定]",
@@ -204,7 +215,9 @@
     "manage-quality": "品質管理",
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
-    "generate-script-succeeded": "テストスクリプトの生成が完了しました。"
+    "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
+    "import-option": "データインポート",
+    "export-option": "データエクスポート"
   },
   "manage-show": {
     "window-title": "管理ツール [トップ]",
@@ -417,7 +430,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "resume_failed": "テスト結果のインポートに失敗しました。",
+      "resume_failed": "テスト結果の読み込みに失敗しました。",
       "illegal_test_result": "テスト結果のフォーマットが不正です。",
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
@@ -427,6 +440,12 @@
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
       "illegal_test_management_data": "テスト管理データのフォーマットが不正です。"
+    },
+    "import_export": {
+      "import-data-error": "データインポートに失敗しました。",
+      "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
+      "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
+      "create-export-data-error": "データエクスポートに失敗しました。"
     }
   }
 }

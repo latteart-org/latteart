@@ -77,7 +77,7 @@
               {{ header.text }}
               <v-icon
                 v-if="header.notes.length > 0"
-                :title="$store.getters.message('app.note')"
+                :title="message('app.note')"
                 class="mx-1"
                 color="purple lighten-3"
                 @click="
@@ -148,6 +148,7 @@
     <note-list-dialog
       :opened="opened"
       :testSteps="selectedColumnTestSteps"
+      :message="message"
       @close="opened = false"
     />
   </v-layout>

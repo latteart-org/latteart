@@ -80,6 +80,9 @@ describe("UpdateTestMatrixAction", () => {
       const stories: Story[] = [
         {
           id: "t1_v1_g1_t1",
+          testMatrixId: "",
+          testTargetId: "",
+          viewPointId: "v1",
           status: "status",
           sessions: [],
         },
@@ -127,12 +130,7 @@ describe("UpdateTestMatrixAction", () => {
         stories: stories,
       });
 
-      expect(observer.addNewStory).toBeCalledWith({
-        testMatrixId: "t1",
-        groupId: "g1",
-        testTargetId: "t1",
-        viewPointId: "v2",
-      });
+      expect(observer.addNewStory).toBeCalledWith();
     });
   });
 });

@@ -68,6 +68,70 @@
 登録された全てのセッションを元にテストスクリプトを生成します。
 詳細は「[テストスクリプト自動生成](../common/test-script-generation.md)」をご参照ください。
 
+### データインポートボタン
+
+<img src="images/data-import.png" />
+
+押下するとインポート対象ファイル選択ダイアログが表示されます。
+
+<img src="images/import-dialog.png" />
+
+`latteart-repository\public\imports`フォルダ配下の zip ファイル名一覧を取得してプルダウンリストに表示され、プロジェクト情報、テスト結果情報のチェックボックスでインポート対象を選択可能です。  
+OK ボタンを押下し、データがインポートされます。
+
+:bulb: プロジェクト情報とは、管理ツールで表示されている全てのテストマトリクスを指します。
+
+インポートファイル(zip)内の構成は以下の通り
+
+- project_YYYYDDMM_HHmmss.zip
+
+```
+  - projects/
+      └ プロジェクトID/
+        ├ ストーリーID/
+        │   └ セッションID/
+        │     └ attached/
+        │       └ 添付ファイル
+        └ プロジェクト情報(project.json)
+  - test-results/
+      └ テスト結果ID/
+        ├ スクリーンショット
+        └ テスト結果情報(log.json)
+```
+
+:bulb: zip ファイル名はエクスポート時は上記のように出力されるがファイル名の指定は自由となります。  
+:bulb: 過去バージョンからデータをインポートしたい場合は
+`latteart-repository\public`配下を選択し、zip にしたものをインポートする。
+
+### データエクスポートボタン
+
+<img src="images/data-export.png" />
+
+押下するとエクスポート対象選択ダイアログが表示される。
+
+<img src="images/export-dialog.png" />
+
+プロジェクト情報、テスト結果情報のチェックボックスでエクスポート対象を選択可能です。  
+OK ボタンを押下し、データがエクスポートされます。
+
+エクスポートファイル(zip)内の構成は以下の通り
+
+- project_YYYYDDMM_HHmmss.zip
+
+```
+  - projects/
+      └ プロジェクトID/
+        ├ ストーリーID/
+        │   └ セッションID/
+        │     └ attached/
+        │       └ 添付ファイル
+        └ プロジェクト情報(project.json)
+  - test-results/
+      └ テスト結果ID/
+        ├ スクリーンショット
+        └ テスト結果情報(log.json)
+```
+
 ### キャプチャ設定ボタン
 
 <img src="images/config-button.png" />
@@ -281,6 +345,13 @@
 <img src="images/back-to-story-button.png" />
 
 押下すると「[ストーリー編集画面](#ストーリー編集画面)」に戻ります。
+
+## テストスクリプト生成ボタン
+
+<img src="images/script-button.png" />
+
+レビュー画面で表示しているテスト結果のテストスクリプトを生成します。
+選択オプションや処理はメイン画面「[テストスクリプト生成ボタン](#テストスクリプト生成ボタン)」と同様。
 
 ## キャプチャ設定ボタン
 

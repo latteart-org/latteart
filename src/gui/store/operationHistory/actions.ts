@@ -46,6 +46,8 @@ import { MoveIntentionAction } from "@/lib/operationHistory/actions/MoveIntentio
 import { TestScriptGeneratorImpl } from "@/lib/operationHistory/scriptGenerator/TestScriptGenerator";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
+import { ImportAction } from "@/lib/operationHistory/actions/ImportAction";
+import { ExportAction } from "@/lib/operationHistory/actions/ExportAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -332,7 +334,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: "bug",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: reply2.data?.imageFileUrl,
+            imageFileUrl: `${context.rootState.repositoryServiceDispatcher.serviceUrl}/${reply2.data?.imageFileUrl}`,
           });
         } else {
           throw reply2.error;
@@ -538,7 +540,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: "notice",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: reply2.data?.imageFileUrl,
+            imageFileUrl: `${context.rootState.repositoryServiceDispatcher.serviceUrl}/${reply2.data?.imageFileUrl}`,
           });
         } else {
           throw reply2.error;
@@ -678,6 +680,56 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         "captureControl/setIsResuming",
         { isResuming: false },
         { root: true }
+      );
+    }
+  },
+
+  /**
+   * Import Data.
+   * @param context Action context.
+   * @param payload projectId,testResultId,option
+   * @return importFileName
+   */
+  async importData(
+    context,
+    payload: {
+      importFileName: string | undefined;
+    }
+  ): Promise<string> {
+    const importFileName = payload.importFileName ? payload.importFileName : "";
+
+    try {
+      return await new ImportAction(
+        context.rootState.repositoryServiceDispatcher
+      ).importWithTestResult(importFileName);
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    }
+  },
+
+  /**
+   * Create export data.
+   * @param context Action context.
+   * @param payload testResultId,option
+   * @return URL
+   */
+  async exportData(
+    context,
+    payload: {
+      testResultId: string | undefined;
+    }
+  ): Promise<string> {
+    const exportTestResultId = payload.testResultId ? payload.testResultId : "";
+
+    try {
+      return await new ExportAction(
+        context.rootState.repositoryServiceDispatcher
+      ).exportWithTestResult(exportTestResultId);
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.import_export.${error.message}`)
       );
     }
   },
@@ -1176,6 +1228,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async getTestResults(context) {
     const reply = await context.rootState.repositoryServiceDispatcher.getTestResults();
+    return reply.data!;
+  },
+
+  async getImportTestResults(context) {
+    const reply = await context.rootState.repositoryServiceDispatcher.getImportTestResults();
+    return reply.data!;
+  },
+
+  async getImportProjects(context) {
+    const reply = await context.rootState.repositoryServiceDispatcher.getImportProjects();
     return reply.data!;
   },
 
