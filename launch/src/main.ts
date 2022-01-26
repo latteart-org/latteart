@@ -28,6 +28,7 @@ import { sleep } from "./util";
 
   for (const serverConfig of config.servers) {
     console.info(`START ${serverConfig.name}`);
+
     const url = serverConfig.http?.url ? serverConfig.http.url : "";
 
     if (await serverIsReady(url, serverConfig.name)) {
@@ -61,15 +62,15 @@ import { sleep } from "./util";
     }
   }
 
-  const captureclUrl = config.servers.find(
+  const captureClUrl = config.servers.find(
     (server) => server.name === "latteart-capture-cl"
   )?.http?.url;
   const repositoryUrl = config.servers.find(
     (server) => server.name === "latteart-repository"
   )?.http?.url;
   const latteartServer = config.servers[config.servers.length - 1];
-  const captureUrl = `${latteartServer.http?.url}?capture=${captureclUrl}&repository=${repositoryUrl}`;
-  const manageUrl = `${latteartServer.http?.url}?mode=manage&capture=${captureclUrl}&repository=${repositoryUrl}`;
+  const captureUrl = `${latteartServer.http?.url}?capture=${captureClUrl}&repository=${repositoryUrl}`;
+  const manageUrl = `${latteartServer.http?.url}?mode=manage&capture=${captureClUrl}&repository=${repositoryUrl}`;
 
   console.info(`\
 
