@@ -16,7 +16,7 @@
 
 import moment from "moment";
 
-interface Timestamp {
+export interface Timestamp {
   unix(): number;
   format(format: string): string;
   epochMilliseconds(): number;

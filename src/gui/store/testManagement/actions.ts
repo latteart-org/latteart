@@ -40,14 +40,11 @@ import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestM
 import { TestStep } from "@/lib/operationHistory/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
-import {
-  CalculateProgressDatasAction,
-  ProgressDataTimestamp,
-} from "@/lib/testManagement/actions/CalculateProgressDatasAction";
+import { CalculateProgressDatasAction } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
 import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
-import { TimestampImpl } from "@/lib/common/Timestamp";
+import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -801,17 +798,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
       stories: Story[];
     }
   ) {
-    const now = new TimestampImpl();
-
-    const timestamp: ProgressDataTimestamp = {
-      value: now.unix(),
-      isSameDayAs: (other) => {
-        return now.isSameDayAs(other);
-      },
-    };
+    const now: Timestamp = new TimestampImpl();
 
     return new CalculateProgressDatasAction().calculate(
-      timestamp,
+      now,
       payload.testMatrices,
       payload.stories,
       context.state.progressDatas
