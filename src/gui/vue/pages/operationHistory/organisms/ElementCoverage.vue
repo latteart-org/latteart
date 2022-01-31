@@ -61,11 +61,7 @@
                   <div class="ellipsis">{{ props.item.text }}</div>
                 </td>
                 <td>
-                  <v-icon
-                    v-if="props.item.operated"
-                    small
-                    class="mr-2"
-                    @click="editItem(props.item)"
+                  <v-icon v-if="props.item.operated" small class="mr-2"
                     >done</v-icon
                   >
                 </td>
