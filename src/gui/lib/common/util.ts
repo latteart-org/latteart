@@ -74,9 +74,13 @@ export const calculateElapsedUnixTime = (
       ) {
         continue;
       }
-      endTime = lastHistory.operation.timestamp;
+      if (lastHistory.operation.timestamp.length > 10) {
+        endTime = Number(lastHistory.operation.timestamp) / 1000;
+      } else {
+        endTime = Number(lastHistory.operation.timestamp);
+      }
     }
-    testingTime = Number(endTime) - startTimeStamp;
+    testingTime = endTime - startTimeStamp;
   } else {
     testingTime = endTimeStamp - startTimeStamp;
   }
