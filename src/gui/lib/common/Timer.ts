@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import moment from "moment";
+import { TimestampImpl } from "./Timestamp";
 
 /**
  * Timer class that executes a function every second.
@@ -32,9 +32,7 @@ export default class Timer {
     this.startTime = startTime;
 
     this.intervalId = window.setInterval(() => {
-      const nowTime = moment(moment().diff(moment(this.startTime, "X")))
-        .utc()
-        .format("HH:mm:ss");
+      const nowTime = new TimestampImpl().diffFormat(this.startTime);
       onChangeTime(nowTime);
     }, 1000);
   }

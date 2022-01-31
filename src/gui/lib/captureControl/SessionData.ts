@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import moment from "moment";
+import { TimestampImpl } from "../common/Timestamp";
 
 /**
  * Session information.
@@ -44,7 +44,8 @@ export class SessionData {
       this.startTimeStamp = startTimeStamp;
       this.endTimeStamp = endTimeStamp;
     } else {
-      this.sessionId = `session_${moment().format("YYYYMMDD_HHmmss")}`;
+      const sessionTimestamp = new TimestampImpl().format("YYYYMMDD_HHmmss");
+      this.sessionId = `session_${sessionTimestamp}`;
       this.sequence = 0;
       this.startTimeStamp = 0;
       this.endTimeStamp = -1;
@@ -126,13 +127,13 @@ export class SessionData {
     // If it did not end normally last time, or when creating a new one.
     if (this.endTimeStamp <= 0) {
       if (!endOperationTimeStamp) {
-        this.startTimeStamp = moment().unix();
+        this.startTimeStamp = new TimestampImpl().unix();
         return this.startTimeStamp;
       }
       this.endTimeStamp = endOperationTimeStamp;
     }
     const timeDifference = this.endTimeStamp - this.startTimeStamp;
-    this.startTimeStamp = moment().unix() - timeDifference;
+    this.startTimeStamp = new TimestampImpl().unix() - timeDifference;
     this.endTimeStamp = -1;
 
     return this.startTimeStamp;
@@ -142,6 +143,6 @@ export class SessionData {
    * End session.
    */
   public endSession(): void {
-    this.endTimeStamp = moment().unix();
+    this.endTimeStamp = new TimestampImpl().unix();
   }
 }

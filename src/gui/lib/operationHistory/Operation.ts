@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import moment from "moment";
 import { ElementInfo } from "./types";
+import { TimestampImpl } from "../common/Timestamp";
 
 /**
  * Class that handles operation information.
@@ -274,7 +274,7 @@ export class Operation {
     this.url = url;
     this.screenDef = screenDef;
     this.imageFilePath = imageFilePath;
-    this.timestamp = moment().unix().toString();
+    this.timestamp = new TimestampImpl().unix().toString();
     this.windowHandle = windowHandle === undefined ? "" : windowHandle;
     this.keywordSet = keywordSet;
   }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import moment from "moment";
+import { TimestampImpl } from "../common/Timestamp";
 
 /**
  * Note class
@@ -122,7 +122,7 @@ export class Note {
     this.value = args.value ?? "";
     this.details = args.details ?? "";
     this.imageFilePath = args.imageFilePath ?? "";
-    this.timestamp = args.timestamp ?? moment().unix().toString();
+    this.timestamp = args.timestamp ?? new TimestampImpl().unix().toString();
     this.tags = args.tags ?? [];
 
     if (args !== undefined && args.compressedImageFilePath !== undefined) {
