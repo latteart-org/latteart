@@ -798,10 +798,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
       stories: Story[];
     }
   ) {
-    const now: Timestamp = new TimestampImpl();
+    const nowTimestamp: Timestamp = new TimestampImpl();
 
     return new CalculateProgressDatasAction().calculate(
-      now,
+      nowTimestamp,
       payload.testMatrices,
       payload.stories,
       context.state.progressDatas

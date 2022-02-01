@@ -73,7 +73,16 @@ export class TimestampImpl implements Timestamp {
   }
 
   private timestampTostring(timestamp: string | number): string {
-    return typeof timestamp === "number" ? String(timestamp) : timestamp;
+    const stringTimestamp =
+      typeof timestamp === "number" ? String(timestamp) : timestamp;
+
+    return this.suppressZero(stringTimestamp);
+  }
+
+  private suppressZero(value: string): string {
+    let idx = 0;
+    while (value.charAt(idx) === "0") idx++;
+    return value.slice(idx);
   }
 }
 
