@@ -73,7 +73,9 @@
     "generate-only-template": "※最大数が0の場合は雛形のみを生成します。",
     "generate-testscript-succeeded": "テストスクリプトの生成が完了しました。",
     "update-model-and-coverage": "モデル・カバレッジの更新",
-    "there-are-updates-on-history": "操作履歴の更新があります"
+    "there-are-updates-on-history": "操作履歴の更新があります",
+    "generate-alert-title": "注意",
+    "generate-alert-info": "スクリプト生成時、コード化対象外の操作が含まれています。"
   },
   "import-export-dialog": {
     "import-title": "データインポート",

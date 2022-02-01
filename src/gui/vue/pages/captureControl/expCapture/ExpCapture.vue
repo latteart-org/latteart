@@ -115,7 +115,7 @@
           flat
           large
           color="grey darken-3"
-          @click="scriptGenerationOptionDialogIsOpened = true"
+          @click="isNoOperation"
           :loading="isGeneratingTestScripts"
           :disabled="sequence === 0 || isGeneratingTestScripts"
           :title="$store.getters.message('history-view.generate-testscript')"
@@ -334,6 +334,16 @@
       @close="informationMessageDialogOpened = false"
     />
 
+    <alert-dialog
+      :opened="alertOpened"
+      :title="$store.getters.message('history-view.generate-alert-title')"
+      :message="$store.getters.message('history-view.generate-alert-info')"
+      :iconOpts="{ text: 'cancel', color: 'red' }"
+      @close="
+        (alertOpened = false), (scriptGenerationOptionDialogIsOpened = true)
+      "
+    />
+
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -386,6 +396,7 @@ import TestOptionDialog from "../testOptionDialog/TestOptionDialog.vue";
 import InformationMessageDialog from "../../common/InformationMessageDialog.vue";
 import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
+import AlertDialog from "../../common/AlertDialog.vue";
 
 @Component({
   components: {
@@ -401,6 +412,7 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
     "information-message-dialog": InformationMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
+    "alert-dialog": AlertDialog,
   },
 })
 export default class ExpCapture extends Vue {
@@ -557,6 +569,8 @@ export default class ExpCapture extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private alertOpened = false;
+
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
@@ -623,6 +637,22 @@ export default class ExpCapture extends Vue {
         this.isExportingData = false;
       }
     })();
+  }
+
+  private isNoOperation() {
+    for (const item of this.history) {
+      if (
+        item.operation.type.includes(
+          "browser_back" || "browser_forward" || "switch_window"
+        )
+      ) {
+        this.alertOpened = true;
+        break;
+      }
+    }
+    if (!this.alertOpened) {
+      this.scriptGenerationOptionDialogIsOpened = true;
+    }
   }
 
   private generateTestScript(option: {
