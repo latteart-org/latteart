@@ -20,17 +20,18 @@ export interface Timestamp {
   unix(): number;
   format(format: string): string;
   epochMilliseconds(): number;
-  diffFormat(value: string | number): string;
-  isBetween(start: string, end: string): boolean;
+  diff(from: Timestamp): number;
+  diffFormat(from: Timestamp, format?: string): string;
+  isBetween(start: Timestamp, end: Timestamp): boolean;
   isSameDayAs(other: number): boolean;
 }
 
 export class TimestampImpl implements Timestamp {
   private time: moment.Moment;
 
-  constructor(value?: string | number, option?: string) {
+  constructor(value?: string | number) {
     if (value) {
-      if (option === "date") {
+      if (this.isDateFormat(String(value))) {
         this.time = moment(value, "YYYY-MM-DD");
       } else {
         const stringTimestamp = this.timestampTostring(value);
@@ -58,17 +59,22 @@ export class TimestampImpl implements Timestamp {
     return this.time.valueOf();
   }
 
-  public diffFormat(value: string | number): string {
-    return moment(this.time.diff(moment(value, "x")))
-      .utc()
-      .format("HH:mm:ss");
+  public diff(from: Timestamp): number {
+    return this.time.diff(moment(from.epochMilliseconds(), "x"));
   }
 
-  public isBetween(start: string, end: string): boolean {
-    return this.time.isBetween(start, end, "day", "[]");
+  public diffFormat(from: Timestamp, format = "HH:mm:ss"): string {
+    return moment(this.diff(from), "x").utc().format(format);
+  }
+
+  public isBetween(start: Timestamp, end: Timestamp): boolean {
+    const startDate = start.format("YYYY-MM-DD");
+    const endDate = end.format("YYYY-MM-DD");
+    return this.time.isBetween(startDate, endDate, "day", "[]");
   }
 
   public isSameDayAs(other: number): boolean {
+    const a = moment.unix(other).diff(this.time, "days");
     return moment.unix(other).diff(this.time, "days") === 0;
   }
 
@@ -83,6 +89,22 @@ export class TimestampImpl implements Timestamp {
     let idx = 0;
     while (value.charAt(idx) === "0") idx++;
     return value.slice(idx);
+  }
+
+  private isDateFormat(value: string): boolean {
+    const stringDate = value.match(/^(\d+)-(\d+)-(\d+)$/);
+    if (stringDate) {
+      const y = Number(stringDate[1]);
+      const m = Number(stringDate[2]) - 1;
+      const d = Number(stringDate[3]);
+      const dateInfo = new Date(y, m, d);
+      return (
+        y == dateInfo.getFullYear() &&
+        m == dateInfo.getMonth() &&
+        d == dateInfo.getDate()
+      );
+    }
+    return false;
   }
 }
 

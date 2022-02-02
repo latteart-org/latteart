@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { TimestampImpl } from "./Timestamp";
+import { TimestampImpl, Timestamp } from "./Timestamp";
 
 /**
  * Timer class that executes a function every second.
  */
 export default class Timer {
-  private startTime = 0;
+  private startTime: Timestamp | null = null;
   private intervalId: number | null = null;
 
   /**
@@ -29,11 +29,11 @@ export default class Timer {
    * @param startTime  Start time.
    */
   public start(onChangeTime: (time: string) => void, startTime: number): void {
-    this.startTime = startTime;
+    this.startTime = new TimestampImpl(startTime);
 
     this.intervalId = window.setInterval(() => {
-      const nowTime = new TimestampImpl().diffFormat(this.startTime);
-      onChangeTime(nowTime);
+      const now = new TimestampImpl();
+      onChangeTime(now.diffFormat(this.startTime ?? now));
     }, 1000);
   }
 

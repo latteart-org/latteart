@@ -73,9 +73,22 @@ describe("Timestamp", () => {
     });
   });
 
+  describe("#diff", () => {
+    it("渡された時間の差分を返す", async () => {
+      const oldTimestamp = new TimestampImpl(1643335656000);
+      const nowTimestamp = 1643335657000;
+
+      const returnTime: number = new TimestampImpl(nowTimestamp).diff(
+        oldTimestamp
+      );
+
+      expect(returnTime).toEqual(1000);
+    });
+  });
+
   describe("#diffFormat", () => {
     it("渡された時間の差分を「HH:mm:ss」のフォーマットで値を返す", async () => {
-      const oldTimestamp = 1643335656000;
+      const oldTimestamp = new TimestampImpl(1643335656000);
       const nowTimestamp = 1643335657000;
 
       const returnTime: string = new TimestampImpl(nowTimestamp).diffFormat(
@@ -88,11 +101,9 @@ describe("Timestamp", () => {
 
   describe("#isBetween", () => {
     it("渡された年月日が範囲内かどうか判定する", async () => {
-      const start = new TimestampImpl("2022-01-26", "date").format(
-        "YYYY-MM-DD"
-      );
-      const end = new TimestampImpl("2022-01-29", "date").format("YYYY-MM-DD");
-      const now = new TimestampImpl(Number(1643252856000)).unix();
+      const start = new TimestampImpl("2022-01-26");
+      const end = new TimestampImpl("2022-01-29");
+      const now = 1643252856;
 
       const isBetweenDay: boolean = new TimestampImpl(now).isBetween(
         start,
@@ -100,6 +111,17 @@ describe("Timestamp", () => {
       );
 
       expect(isBetweenDay).toBeTruthy();
+    });
+  });
+
+  describe("#isSameDayAs", () => {
+    it("渡された年月日が同日かどうか判定する", async () => {
+      const timestamp = 1643311344;
+      const now = 1643358144;
+
+      const isSameDay: boolean = new TimestampImpl(now).isSameDayAs(timestamp);
+
+      expect(isSameDay).toBeTruthy();
     });
   });
 });

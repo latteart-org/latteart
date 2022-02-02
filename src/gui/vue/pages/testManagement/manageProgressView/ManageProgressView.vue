@@ -126,7 +126,7 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import ProgressChart from "./organisms/ProgressChart.vue";
 import { TestMatrixProgressData, TestMatrix } from "@/lib/testManagement/types";
 import Chart from "chart.js";
-import { TimestampImpl } from "@/lib/common/Timestamp";
+import { Timestamp, TimestampImpl } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -139,9 +139,9 @@ export default class ManageProgress extends Vue {
     : false;
   private rerender = true;
 
-  private startDate = new TimestampImpl().format("YYYY-MM-DD");
+  private innerStartDate: Timestamp | null = null;
   private startDateMenu = false;
-  private endDate = new TimestampImpl().format("YYYY-MM-DD");
+  private innerEndDate: Timestamp | null = null;
   private endDateMenu = false;
 
   private selectedGroupId = "all";
@@ -184,8 +184,28 @@ export default class ManageProgress extends Vue {
     const minDate = dates.reduce((first, second) => Math.min(first, second));
     const maxDate = dates.reduce((first, second) => Math.max(first, second));
 
-    this.startDate = new TimestampImpl(minDate).format("YYYY-MM-DD");
-    this.endDate = new TimestampImpl(maxDate).format("YYYY-MM-DD");
+    this.innerStartDate = new TimestampImpl(minDate);
+    this.innerEndDate = new TimestampImpl(maxDate);
+  }
+
+  private get startDate() {
+    return this.innerStartDate
+      ? this.innerStartDate.format("YYYY-MM-DD")
+      : new TimestampImpl().format("YYYY-MM-DD");
+  }
+
+  private set startDate(value: string) {
+    this.innerStartDate = new TimestampImpl(value);
+  }
+
+  private get endDate() {
+    return this.innerEndDate
+      ? this.innerEndDate.format("YYYY-MM-DD")
+      : new TimestampImpl().format("YYYY-MM-DD");
+  }
+
+  private set endDate(value: string) {
+    this.innerEndDate = new TimestampImpl(value);
   }
 
   private get originalProgressDatas(): TestMatrixProgressData[] {
@@ -264,14 +284,11 @@ export default class ManageProgress extends Vue {
 
     const filteredProgressDatas = allProgressDatas
       .filter((data) => {
-        const start = new TimestampImpl(this.startDate, "date").format(
-          "YYYY-MM-DD"
-        );
-        const end = new TimestampImpl(this.endDate, "date").format(
-          "YYYY-MM-DD"
-        );
-        const unixDate = new TimestampImpl(Number(data.date)).unix();
-        return new TimestampImpl(unixDate).isBetween(start, end);
+        const start = this.innerStartDate
+          ? this.innerStartDate
+          : new TimestampImpl();
+        const end = this.innerEndDate ? this.innerEndDate : new TimestampImpl();
+        return new TimestampImpl(data.date).isBetween(start, end);
       })
       .map((data) => {
         const groups = data.groups
@@ -305,9 +322,7 @@ export default class ManageProgress extends Vue {
             return progressData;
           },
           {
-            date: new TimestampImpl(new TimestampImpl(data.date).unix()).format(
-              "YYYY-MM-DD"
-            ),
+            date: new TimestampImpl(data.date).format("YYYY-MM-DD"),
             planNumber: 0,
             completedNumber: 0,
             incompletedNumber: 0,
