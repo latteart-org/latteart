@@ -28,13 +28,14 @@ export interface Timestamp {
 
 export class TimestampImpl implements Timestamp {
   private time: moment.Moment;
+  private static dateFormat = "YYYY-MM-DD";
 
   constructor(value?: string | number) {
     if (value) {
       if (this.isDateFormat(String(value))) {
-        this.time = moment(value, "YYYY-MM-DD");
+        this.time = moment(value, TimestampImpl.dateFormat);
       } else {
-        const stringTimestamp = this.timestampTostring(value);
+        const stringTimestamp = this.timestampToString(value);
 
         if (stringTimestamp.length > 10) {
           this.time = moment(value, "x");
@@ -68,17 +69,16 @@ export class TimestampImpl implements Timestamp {
   }
 
   public isBetween(start: Timestamp, end: Timestamp): boolean {
-    const startDate = start.format("YYYY-MM-DD");
-    const endDate = end.format("YYYY-MM-DD");
+    const startDate = start.format(TimestampImpl.dateFormat);
+    const endDate = end.format(TimestampImpl.dateFormat);
     return this.time.isBetween(startDate, endDate, "day", "[]");
   }
 
   public isSameDayAs(other: number): boolean {
-    const a = moment.unix(other).diff(this.time, "days");
     return moment.unix(other).diff(this.time, "days") === 0;
   }
 
-  private timestampTostring(timestamp: string | number): string {
+  private timestampToString(timestamp: string | number): string {
     const stringTimestamp =
       typeof timestamp === "number" ? String(timestamp) : timestamp;
 
@@ -108,6 +108,6 @@ export class TimestampImpl implements Timestamp {
   }
 }
 
-export function TestingTime(testingTime: number): string {
-  return moment(testingTime, "x").utc().format("HH:mm:ss");
+export function formatTime(milliseconds: number): string {
+  return moment(milliseconds, "x").utc().format("HH:mm:ss");
 }

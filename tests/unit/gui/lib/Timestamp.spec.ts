@@ -1,16 +1,16 @@
-import { TestingTime, TimestampImpl } from "@/lib/common/Timestamp";
+import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
+
+describe("#formatTime", () => {
+  it("渡された経過時間を「HH:mm:ss」のフォーマットで値を返す", async () => {
+    const time = 30474;
+
+    const returnTime: string = formatTime(time);
+
+    expect(returnTime).toEqual("00:00:30");
+  });
+});
 
 describe("Timestamp", () => {
-  describe("#TestingTime", () => {
-    it("渡された経過時間を「HH:mm:ss」のフォーマットで値を返す", async () => {
-      const testingTime = 30474;
-
-      const returnTime: string = TestingTime(testingTime);
-
-      expect(returnTime).toEqual("00:00:30");
-    });
-  });
-
   describe("#unix", () => {
     it("渡された時間(秒)をunixで値を返す", async () => {
       const timestamp = 1643335656;

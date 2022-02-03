@@ -364,7 +364,7 @@ import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
-import { TestingTime } from "@/lib/common/Timestamp";
+import { formatTime } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -597,7 +597,7 @@ export default class SessionInfo extends Vue {
   }
 
   private millisecondsToHHmmss(millisecondsTime: number) {
-    return TestingTime(millisecondsTime);
+    return formatTime(millisecondsTime);
   }
 
   private async updateSession(params: {
