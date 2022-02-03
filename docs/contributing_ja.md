@@ -22,6 +22,7 @@ GitHubの [Discussions](https://github.com/latteart-org/latteart/discussions) �
     - DCOに同意していることを示すため、全てのコミットに対して、コミットメッセージに以下を記入してください。
         - `Signed-off-by: Random J Developer <random@developer.example.org>`
             - 氏名の部分は、本名を使用してください。
+            - GitHubのProfileのNameにも同じ名前を設定する必要があります。
             - `git commit -s` でコミットに署名を追加できます。
 - Pull Request を発行する際は、対応する Issue に紐づけてください。
     - 対応する Issue がない場合は Pull Request の発行前に作成してください。
