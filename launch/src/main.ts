@@ -62,9 +62,15 @@ import { sleep } from "./util";
     }
   }
 
+  const captureClUrl = config.servers.find(
+    (server) => server.name === "latteart-capture-cl"
+  )?.http?.url;
+  const repositoryUrl = config.servers.find(
+    (server) => server.name === "latteart-repository"
+  )?.http?.url;
   const latteartServer = config.servers[config.servers.length - 1];
-  const captureUrl = `${latteartServer.http?.url}`;
-  const manageUrl = `${latteartServer.http?.url}?mode=manage`;
+  const captureUrl = `${latteartServer.http?.url}?capture=${captureClUrl}&repository=${repositoryUrl}`;
+  const manageUrl = `${latteartServer.http?.url}?mode=manage&capture=${captureClUrl}&repository=${repositoryUrl}`;
 
   console.info(`\
 

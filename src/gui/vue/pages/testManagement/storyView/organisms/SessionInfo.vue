@@ -221,7 +221,9 @@
                     </td>
 
                     <td class="px-2 py-0 ellipsis_short">
-                      {{ props.item.value }}
+                      <span :title="props.item.value">{{
+                        props.item.value
+                      }}</span>
                     </td>
 
                     <td class="px-2 py-0">
