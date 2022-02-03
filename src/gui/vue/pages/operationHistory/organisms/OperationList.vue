@@ -34,7 +34,11 @@
       fill-height
       style="height: calc(100% - 90px)"
     >
-      <v-flex xs12 :style="{ height: '100%', 'overflow-y': 'scroll' }">
+      <v-flex
+        xs12
+        :style="{ height: '100%', 'overflow-y': 'scroll' }"
+        ref="tableWrapper"
+      >
         <v-data-table
           :headers="headers"
           :custom-filter="filterBySequence"
@@ -69,7 +73,8 @@
                 ),
               }"
               :key="props.index"
-              :id="`operationListRow${props.item.operation.sequence}`"
+              :id="`operation-list-row-${props.item.operation.sequence}`"
+              :ref="'rows_' + props.index + '_' + props.item.operation.sequence"
             >
               <td class="seq-col">
                 {{ props.item.operation.sequence }}
@@ -210,7 +215,60 @@ export default class OperationList extends Vue {
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;
 
-  private get headers(): any[] {
+  private rowsInfo: { index: number; sequence: number }[] = [];
+  private beforeTableOperationAtPageDownOrPageUp:
+    | null
+    | "ArrowUp"
+    | "ArrowDown"
+    | "ArrowLeft"
+    | "ArrowRight" = null;
+  private pageDownOrPageUpByTableOperation: null | "pageUp" | "pageDown" = null;
+  private beforeIndex = -1;
+
+  private search = "";
+  private selectedSequences: number[] = [];
+  private pagination: {
+    descending: boolean;
+    page: number;
+    rowsPerPage: number;
+    sortBy: string;
+    totalItems?: number;
+  } = {
+    sortBy: "operation.sequence",
+    descending: true,
+    page: 1,
+    rowsPerPage: 10,
+  };
+  private contextMenuOpened = false;
+  private contextMenuX = -1;
+  private contextMenuY = -1;
+  private contextMenuInfo: { sequence: number; selectedSequences: number[] } = {
+    sequence: -1,
+    selectedSequences: [],
+  };
+
+  mounted(): void {
+    document.addEventListener("keydown", this.keyDown);
+  }
+
+  beforeDestroy(): void {
+    document.removeEventListener("keydown", this.keyDown);
+  }
+
+  updated(): void {
+    this.$nextTick().then(() => {
+      this.setRowsInfo();
+      this.setSelectedOperationSequenceAtChangingPage();
+    });
+  }
+
+  private get headers(): {
+    text: string;
+    value: string;
+    class?: string;
+    width?: string;
+    sortable?: boolean;
+  }[] {
     return [
       {
         text: this.message("operation.sequence"),
@@ -246,26 +304,209 @@ export default class OperationList extends Vue {
       },
     ];
   }
-  private search = "";
-  private selectedSequences: number[] = [];
-  private pagination: any = {
-    sortBy: "operation.sequence",
-    descending: true,
-    page: 1,
-    rowsPerPage: 10,
-  };
-  private contextMenuOpened = false;
-  private contextMenuX = -1;
-  private contextMenuY = -1;
-  private contextMenuInfo: { sequence: number; selectedSequences: number[] } = {
-    sequence: -1,
-    selectedSequences: [],
-  };
 
   @Watch("displayedOperations")
   private onChagneDisplayedOperations() {
     // If the displayed operation is narrowed down, be sure to view the first page.
     this.pagination.page = 1;
+  }
+
+  private setRowsInfo(): void {
+    const result = [];
+    for (const key in this.$refs) {
+      if (this.$refs[key] && key.startsWith("rows_")) {
+        const indexAndSeq = key.split("_");
+        result.push({
+          index: Number(indexAndSeq[1]),
+          sequence: Number(indexAndSeq[2]),
+        });
+      }
+    }
+    this.rowsInfo = result;
+  }
+
+  private setSelectedOperationSequenceAtChangingPage(): void {
+    const current = this.rowsInfo.find((rowInfo) => {
+      return rowInfo.sequence === this.selectedOperationSequence;
+    });
+    if (current) {
+      return;
+    }
+    let target;
+    switch (this.beforeTableOperationAtPageDownOrPageUp) {
+      case "ArrowUp":
+        target = this.rowsInfo[this.rowsInfo.length - 1].sequence;
+        break;
+      case "ArrowDown":
+        target = this.rowsInfo[0].sequence;
+        break;
+      case "ArrowLeft":
+        target = this.rowsInfo[this.beforeIndex].sequence;
+        break;
+      case "ArrowRight":
+        target = this.rowsInfo[this.beforeIndex]
+          ? this.rowsInfo[this.beforeIndex].sequence
+          : this.rowsInfo[this.rowsInfo.length - 1].sequence;
+        break;
+      default:
+        return;
+    }
+    if (!target) {
+      return;
+    }
+
+    this.$store.commit("operationHistory/selectOperation", {
+      sequence: target,
+    });
+
+    this.$nextTick(() => {
+      const tableWrapper = this.$refs.tableWrapper as HTMLElement;
+      const row = document.getElementById(
+        `operation-list-row-${this.selectedOperationSequence}`
+      );
+      if (!row) {
+        return;
+      }
+
+      switch (this.beforeTableOperationAtPageDownOrPageUp) {
+        case "ArrowUp":
+          if (this.pageDownOrPageUpByTableOperation === "pageDown") {
+            this.showRowBottom(tableWrapper, row);
+          } else {
+            if (!this.appearCurrentRow(tableWrapper, row)) {
+              this.showRowTop(tableWrapper, row);
+            }
+          }
+          break;
+        case "ArrowDown":
+          if (this.pageDownOrPageUpByTableOperation === "pageUp") {
+            this.showRowTop(tableWrapper, row);
+          } else {
+            if (!this.appearCurrentRow(tableWrapper, row)) {
+              this.showRowBottom(tableWrapper, row);
+            }
+          }
+          break;
+        case "ArrowLeft":
+          // none
+          break;
+        case "ArrowRight":
+          if (!this.rowsInfo[this.beforeIndex]) {
+            this.showRowBottom(tableWrapper, row);
+          }
+          break;
+        default:
+          return;
+      }
+      this.beforeIndex = -1;
+      this.beforeTableOperationAtPageDownOrPageUp = null;
+      this.pageDownOrPageUpByTableOperation = null;
+    });
+  }
+
+  private appearCurrentRow(
+    tableWrapper: HTMLElement,
+    row: HTMLElement
+  ): boolean {
+    const showedTopLine = tableWrapper.scrollTop;
+    const showedBottomLine = showedTopLine + tableWrapper.clientHeight;
+
+    const rowTopline = row.offsetTop;
+    const rowBottomLine = rowTopline + row.clientHeight;
+
+    return showedTopLine <= rowTopline && rowBottomLine <= showedBottomLine;
+  }
+
+  private showRowTop(tableWrapper: HTMLElement, row: HTMLElement): void {
+    tableWrapper.scrollTop = row.offsetTop;
+  }
+
+  private showRowBottom(tableWrapper: HTMLElement, row: HTMLElement): void {
+    tableWrapper.scrollTop =
+      row.offsetTop - (tableWrapper.clientHeight - row.clientHeight);
+  }
+
+  private pageUp() {
+    if (!this.pagination.totalItems) {
+      return;
+    }
+    if (
+      Math.ceil(this.pagination.totalItems / this.pagination.rowsPerPage) <=
+      this.pagination.page
+    ) {
+      return;
+    }
+    this.pagination = { ...this.pagination, page: this.pagination.page + 1 };
+    this.pageDownOrPageUpByTableOperation = "pageUp";
+  }
+
+  private pageDown() {
+    if (this.pagination.page <= 1) {
+      return;
+    }
+    this.pagination = { ...this.pagination, page: this.pagination.page - 1 };
+    this.pageDownOrPageUpByTableOperation = "pageDown";
+  }
+
+  private keyDown(event: KeyboardEvent): void {
+    event.preventDefault();
+    const getIndex = (rowInfo: { index: number; sequence: number }) => {
+      return rowInfo.sequence === this.selectedOperationSequence;
+    };
+
+    let target;
+    if (event.key === "ArrowUp") {
+      this.beforeTableOperationAtPageDownOrPageUp = "ArrowUp";
+      const currentIndex = this.rowsInfo.findIndex(getIndex);
+      if (this.rowsInfo[currentIndex - 1]) {
+        target = this.rowsInfo[currentIndex - 1].sequence;
+      } else {
+        this.pageDown();
+        return;
+      }
+    } else if (event.key === "ArrowDown") {
+      this.beforeTableOperationAtPageDownOrPageUp = "ArrowDown";
+      const currentIndex = this.rowsInfo.findIndex(getIndex);
+      if (this.rowsInfo[currentIndex + 1]) {
+        target = this.rowsInfo[currentIndex + 1].sequence;
+      } else {
+        this.pageUp();
+        return;
+      }
+    } else if (event.key === "ArrowLeft") {
+      this.beforeTableOperationAtPageDownOrPageUp = "ArrowLeft";
+      this.beforeIndex = this.rowsInfo.findIndex(getIndex);
+      this.pageDown();
+      return;
+    } else if (event.key === "ArrowRight") {
+      this.beforeTableOperationAtPageDownOrPageUp = "ArrowRight";
+      this.beforeIndex = this.rowsInfo.findIndex(getIndex);
+      this.pageUp();
+      return;
+    } else {
+      return;
+    }
+
+    this.$store.commit("operationHistory/selectOperation", {
+      sequence: target,
+    });
+    this.$nextTick().then(() => {
+      const tableWrapper = this.$refs.tableWrapper as HTMLElement;
+      const row = document.getElementById(
+        `operation-list-row-${this.selectedOperationSequence}`
+      );
+
+      if (row && !this.appearCurrentRow(tableWrapper, row)) {
+        if (this.beforeTableOperationAtPageDownOrPageUp === "ArrowUp") {
+          this.showRowTop(tableWrapper, row);
+        } else if (
+          this.beforeTableOperationAtPageDownOrPageUp === "ArrowDown"
+        ) {
+          this.showRowBottom(tableWrapper, row);
+        }
+      }
+      this.beforeTableOperationAtPageDownOrPageUp = null;
+    });
   }
 
   private hasIntention(intention: Note | null): boolean {
@@ -441,6 +682,9 @@ export default class OperationList extends Vue {
 </script>
 
 <style lang="sass" scoped>
+table tr
+  transition: background 0s !important
+
 td
   height: 30px !important
 
