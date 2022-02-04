@@ -15,6 +15,7 @@
  */
 
 import { OperationWithNotes } from "@/lib/operationHistory/types";
+import { TimestampImpl } from "./Timestamp";
 
 /**
  * Determine if type contains value.
@@ -59,6 +60,10 @@ export const calculateElapsedUnixTime = (
 ): number => {
   let testingTime;
   let endTime;
+  const startEpochMilliseconds = new TimestampImpl(
+    startTimeStamp
+  ).epochMilliseconds();
+
   if (endTimeStamp <= 0) {
     let seq = history.length - 1;
     while (!endTime) {
@@ -74,15 +79,14 @@ export const calculateElapsedUnixTime = (
       ) {
         continue;
       }
-      if (lastHistory.operation.timestamp.length > 10) {
-        endTime = Number(lastHistory.operation.timestamp) / 1000;
-      } else {
-        endTime = Number(lastHistory.operation.timestamp);
-      }
+      endTime = new TimestampImpl(
+        lastHistory.operation.timestamp
+      ).epochMilliseconds();
     }
-    testingTime = endTime - startTimeStamp;
+
+    testingTime = endTime - startEpochMilliseconds;
   } else {
-    testingTime = endTimeStamp - startTimeStamp;
+    testingTime = endTimeStamp - startEpochMilliseconds;
   }
   return testingTime;
 };

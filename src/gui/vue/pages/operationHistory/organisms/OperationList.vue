@@ -185,10 +185,10 @@ import {
   MessageProvider,
   ElementInfo,
 } from "@/lib/operationHistory/types";
-import moment from "moment";
 import OperationContextMenu from "@/vue/pages/captureControl/historyView/OperationContextMenu.vue";
 import { Note } from "@/lib/operationHistory/Note";
 import { Operation } from "@/lib/operationHistory/Operation";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -283,7 +283,7 @@ export default class OperationList extends Vue {
   }
 
   private formatTimestamp(epochMilliseconds: string) {
-    return moment(Number(epochMilliseconds)).format("HH:mm:ss");
+    return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
   }
 
   private filterBySequence(items: OperationHistory) {
