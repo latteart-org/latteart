@@ -8,7 +8,7 @@
     "watch": "webpack -w",
     "package": "yarn package:win & yarn package:mac",
     "package:win": "nexe dist/main.js -o dist/win/launch --target windows-x64-12.18.1 && cpx \"*.bat\" dist && cpx launch.config.json dist",
-    "package:mac": "nexe dist/main.js -o dist/mac/launch --target macos-x64-12.18.1 && cpx launch.config.json dist",
+    "package:mac": "nexe dist/main.js -o dist/mac/launch --target macos-x64-12.18.1 && cpx \"*.sh\" dist && cpx launch.config.json dist",
     "prepackage:win": "yarn build",
     "prepackage:mac": "yarn build"
   },

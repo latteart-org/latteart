@@ -4,14 +4,6 @@
 
 ### LatteArt がインストールされている Mac 側の設定
 
-1. `latteart`、`latteart-capture-cl`、`latteart-repository`に実行権限を付与します。
-
-   ```bash
-   chmod +x latteart/latteart
-   chmod +x latteart-capture-cl/latteart-capture-cl
-   chmod +x latteart-repository/latteart-repository
-   ```
-
 1. `ios-webkit-debug-proxy`をインストールします。
    - 公式サイト(https://github.com/google/ios-webkit-debug-proxy)
 1. `Appium`をインストールします。
