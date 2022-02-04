@@ -863,7 +863,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
         useDataDriven: boolean;
       };
     }
-  ): Promise<string> {
+  ): Promise<{
+    outputUrl: string;
+    isNoOperationType: boolean;
+  }> {
     const screenDefinitionConfig = context.rootGetters[
       "operationHistory/getConfig"
     ]().screenDefinition;

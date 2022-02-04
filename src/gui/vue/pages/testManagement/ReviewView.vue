@@ -80,6 +80,7 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
+      :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
@@ -146,6 +147,7 @@ export default class ReviewView extends Vue {
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
+  private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
 
   private get history(): OperationHistory {
@@ -169,7 +171,7 @@ export default class ReviewView extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
-        const testScriptPath = await this.$store.dispatch(
+        const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
             testResultId,
@@ -188,7 +190,13 @@ export default class ReviewView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
+        if (testScriptInfo.isNoOperationType) {
+          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
+            "history-view.generate-alert-info"
+          );
+        }
+
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {

@@ -1134,7 +1134,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       sources: { initialUrl: string; history: Operation[] }[];
       option: { useDataDriven: boolean; maxGeneration: number };
     }
-  ): Promise<string> {
+  ): Promise<{
+    outputUrl: string;
+    isNoOperationType: boolean;
+  }> {
     const optimize = true;
 
     try {

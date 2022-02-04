@@ -41,12 +41,32 @@ export class GenerateTestScriptsAction {
     testResultId: string | undefined;
     projectId: string | undefined;
     sources: { initialUrl: string; history: Operation[] }[];
-  }): Promise<string> {
+  }): Promise<{
+    outputUrl: string;
+    isNoOperationType: boolean;
+  }> {
     const testScript = this.scriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
       throw new Error(`generate_test_suite_failed`);
     }
+
+    const untargetedOperations = [
+      "accept_alert",
+      "dismiss_alert",
+      "browser_back",
+      "browser_forward",
+    ];
+
+    const isNoOperationList = params.sources.flatMap((session) => {
+      return session.history.map((operation) => {
+        return untargetedOperations.includes(operation.type);
+      });
+    });
+
+    const isNoOperationType = isNoOperationList.some(
+      (isNoOperation) => isNoOperation === true
+    );
 
     if (params.projectId) {
       const reply = await this.dispatcher.postTestscriptsWithProjectId(
@@ -60,7 +80,7 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return outputUrl;
+      return { outputUrl, isNoOperationType };
     }
 
     if (params.testResultId) {
@@ -75,7 +95,7 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return outputUrl;
+      return { outputUrl, isNoOperationType };
     }
 
     throw new Error(`save_test_scripts_no_operation_error`);

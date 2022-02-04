@@ -115,7 +115,7 @@
           flat
           large
           color="grey darken-3"
-          @click="isNoOperation"
+          @click="scriptGenerationOptionDialogIsOpened = true"
           :loading="isGeneratingTestScripts"
           :disabled="sequence === 0 || isGeneratingTestScripts"
           :title="$store.getters.message('history-view.generate-testscript')"
@@ -334,16 +334,6 @@
       @close="informationMessageDialogOpened = false"
     />
 
-    <alert-dialog
-      :opened="alertOpened"
-      :title="$store.getters.message('history-view.generate-alert-title')"
-      :message="$store.getters.message('history-view.generate-alert-info')"
-      :iconOpts="{ text: 'cancel', color: 'red' }"
-      @close="
-        (alertOpened = false), (scriptGenerationOptionDialogIsOpened = true)
-      "
-    />
-
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -355,6 +345,7 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
+      :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
@@ -396,7 +387,6 @@ import TestOptionDialog from "../testOptionDialog/TestOptionDialog.vue";
 import InformationMessageDialog from "../../common/InformationMessageDialog.vue";
 import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
-import AlertDialog from "../../common/AlertDialog.vue";
 
 @Component({
   components: {
@@ -412,7 +402,6 @@ import AlertDialog from "../../common/AlertDialog.vue";
     "information-message-dialog": InformationMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
-    "alert-dialog": AlertDialog,
   },
 })
 export default class ExpCapture extends Vue {
@@ -569,11 +558,10 @@ export default class ExpCapture extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private alertOpened = false;
-
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
+  private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
 
   private contextMenuOpened = false;
@@ -639,22 +627,6 @@ export default class ExpCapture extends Vue {
     })();
   }
 
-  private isNoOperation() {
-    for (const item of this.history) {
-      if (
-        item.operation.type.includes(
-          "browser_back" || "browser_forward" || "switch_window"
-        )
-      ) {
-        this.alertOpened = true;
-        break;
-      }
-    }
-    if (!this.alertOpened) {
-      this.scriptGenerationOptionDialogIsOpened = true;
-    }
-  }
-
   private generateTestScript(option: {
     useDataDriven: boolean;
     maxGeneration: number;
@@ -665,7 +637,7 @@ export default class ExpCapture extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
-        const testScriptPath = await this.$store.dispatch(
+        const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
             testResultId,
@@ -684,7 +656,12 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
+        if (testScriptInfo.isNoOperationType) {
+          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
+            "history-view.generate-alert-info"
+          );
+        }
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {

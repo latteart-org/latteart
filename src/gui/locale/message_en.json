@@ -67,7 +67,8 @@
     "generate-only-template": "*If the maximum number is 0, only the template is generated.",
     "generate-testscript-succeeded": "Test script generation has finished.",
     "update-model-and-coverage": "Update Model/Coverage",
-    "there-are-updates-on-history": "There is an update of operation history"
+    "there-are-updates-on-history": "There is an update of operation history",
+    "generate-alert-info": "* Contains operations that are not coded. Please check the output file."
   },
   "import-export-dialog": {
     "import-title": "Import",
