@@ -92,7 +92,7 @@ class name_of_PageObject1 {
   get param1() { return $('#param1'); }
 
   name_of_method1() {
-    // no operation (browser back/forward or record error)
+    // no operation
 
     return new name_of_PageObject1();
   }
