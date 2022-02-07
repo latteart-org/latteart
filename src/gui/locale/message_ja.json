@@ -74,7 +74,7 @@
     "generate-testscript-succeeded": "テストスクリプトの生成が完了しました。",
     "update-model-and-coverage": "モデル・カバレッジの更新",
     "there-are-updates-on-history": "操作履歴の更新があります",
-    "generate-alert-info": "※コード化対象外の操作が含まれています。出力ファイルをご確認ください。"
+    "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。"
   },
   "import-export-dialog": {
     "import-title": "データインポート",

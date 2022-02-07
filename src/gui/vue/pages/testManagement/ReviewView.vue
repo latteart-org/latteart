@@ -190,7 +190,7 @@ export default class ReviewView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
-        if (testScriptInfo.isNoOperationType) {
+        if (testScriptInfo.invaridOperationTypeExists) {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );

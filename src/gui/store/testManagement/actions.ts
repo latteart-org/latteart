@@ -855,7 +855,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ): Promise<{
     outputUrl: string;
-    isNoOperationType: boolean;
+    invaridOperationTypeExists: boolean;
   }> {
     const screenDefinitionConfig = context.rootGetters[
       "operationHistory/getConfig"

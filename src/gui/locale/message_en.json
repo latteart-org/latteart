@@ -68,7 +68,7 @@
     "generate-testscript-succeeded": "Test script generation has finished.",
     "update-model-and-coverage": "Update Model/Coverage",
     "there-are-updates-on-history": "There is an update of operation history",
-    "generate-alert-info": "* Contains operations that are not coded. Please check the output file."
+    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip."
   },
   "import-export-dialog": {
     "import-title": "Import",

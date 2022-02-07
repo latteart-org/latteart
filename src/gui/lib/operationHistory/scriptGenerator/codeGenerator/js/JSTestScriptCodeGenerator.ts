@@ -28,6 +28,8 @@ import { TestScript } from "../../TestScript";
 import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
+import { PageObjectMethod } from "../../model/pageObject/method/PageObjectMethod";
+import { OperationType } from "../../model/pageObject/method/operation/PageObjectOperation";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
@@ -94,11 +96,17 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
                 return [testSuite.name, testSuite.topPageUrl];
               })
             ),
-            new Map(
-              model.pageObjects.map(({ id }) => {
-                return [id, this.nameGenerator.pageObject.generate(id)];
-              })
-            )
+            model.pageObjects.map(({ id, methods }) => {
+              const invalidTypeExists = this.invalidOperationTypeExists(
+                methods
+              );
+
+              return {
+                name: id,
+                alias: this.nameGenerator.pageObject.generate(id),
+                invalidTypeExists: invalidTypeExists,
+              };
+            })
           ),
         },
       ],
@@ -146,5 +154,22 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
       });
 
     return new ScreenTransitionGraphImpl(screenTransitionPaths.flat());
+  }
+
+  private invalidOperationTypeExists(methods: PageObjectMethod[]): boolean {
+    const untargetedOperations = [
+      OperationType.AcceptAlert,
+      OperationType.DismissAlert,
+      OperationType.BrowserBack,
+      OperationType.BrowserForward,
+    ];
+    const invaridOperationTypeList = methods.flatMap((method) => {
+      return method.operations.map((operation) => {
+        return untargetedOperations.includes(operation.type);
+      });
+    });
+    return invaridOperationTypeList.some(
+      (invaridOperation) => invaridOperation === true
+    );
   }
 }

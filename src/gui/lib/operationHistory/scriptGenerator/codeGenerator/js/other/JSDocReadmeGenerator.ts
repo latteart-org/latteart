@@ -17,7 +17,11 @@
 export class JSDocReadmeGenerator {
   public generate(
     testSuiteNameToTopPageUrl: Map<string, string>,
-    pageObjectNameToAlias: Map<string, string>
+    pageObjectNameToAlias: {
+      name: string;
+      alias: string;
+      invalidTypeExists: boolean;
+    }[]
   ): string {
     return `\
 ${this.buildTestSuiteTable(testSuiteNameToTopPageUrl)}
@@ -46,19 +50,30 @@ ${this.buildPageObjectTable(pageObjectNameToAlias)}
 ## Test suites${rows.length > 0 ? header : ""}${rows}`;
   }
 
-  private buildPageObjectTable(pageObjectNameToAlias: Map<string, string>) {
+  private buildPageObjectTable(
+    pageObjectNameToAlias: {
+      name: string;
+      alias: string;
+      invalidTypeExists: boolean;
+    }[]
+  ) {
     const header = `\
 
 
-|#|name|source|
-|:--|:--|:--|
+|#|name|source|warning|
+|:--|:--|:--|:--|
 `;
 
-    const rows = [...pageObjectNameToAlias.entries()]
-      .map(([name, alias], index) => {
+    const rows = pageObjectNameToAlias
+      .map(({ name, alias, invalidTypeExists }, index) => {
+        if (name === "" && alias === "") {
+          return "";
+        }
         const href = encodeURI(encodeURI(`./${alias}.html`));
 
-        return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|`;
+        return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|${
+          invalidTypeExists ? "There are types that are not coded." : ""
+        }|`;
       })
       .join("\n");
 

@@ -198,6 +198,22 @@ set_${identifier}(isClick) {
             return [`browser.switchWindow("${operation.input}");`];
           }
 
+          if (operation.type === OperationType.AcceptAlert) {
+            return [`// accept_alert`];
+          }
+
+          if (operation.type === OperationType.DismissAlert) {
+            return [`// dismiss_alert`];
+          }
+
+          if (operation.type === OperationType.BrowserBack) {
+            return [`// browser_back`];
+          }
+
+          if (operation.type === OperationType.BrowserForward) {
+            return [`// browser_forward`];
+          }
+
           return [];
         })
         .join("\n");
@@ -214,9 +230,7 @@ ${CodeFormatter.prependTextToAllLines(method.comment, " * ")}
       return `\
 ${methodComment}${methodName}(${argsString}) {
 ${CodeFormatter.indentToAllLines(
-  operationsString
-    ? operationsString
-    : "// no operation (browser back/forward or record error)",
+  operationsString ? operationsString : "// no operation",
   2
 )}
 

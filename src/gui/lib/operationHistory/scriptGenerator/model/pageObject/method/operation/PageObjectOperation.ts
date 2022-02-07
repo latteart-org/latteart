@@ -26,6 +26,10 @@ export enum OperationType {
   Click,
   Change,
   SwitchWindow,
+  AcceptAlert,
+  DismissAlert,
+  BrowserBack,
+  BrowserForward,
   Other,
 }
 

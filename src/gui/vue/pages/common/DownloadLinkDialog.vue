@@ -27,9 +27,7 @@
       <a :href="linkUrl" class="px-2" download>{{
         $store.getters.message("common.download-link")
       }}</a>
-      <p class="pre-wrap break-word alert-message">
-        {{ alertMessage }}
-      </p>
+      <p class="pre-wrap break-word alert-message">{{ alertMessage }}</p>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>

@@ -15,7 +15,7 @@
  */
 
 import { OperationFilter } from "./OperationFilter";
-import { PageObjectOperation, OperationType } from "./PageObjectOperation";
+import { PageObjectOperation } from "./PageObjectOperation";
 
 export class DuplicateElementOperationFilter implements OperationFilter {
   /**
@@ -26,12 +26,8 @@ export class DuplicateElementOperationFilter implements OperationFilter {
     return operations
       .reverse()
       .filter((operation: PageObjectOperation, index: number, array) => {
-        if (operation.type === OperationType.SwitchWindow) {
-          return true;
-        }
-
         if (operation.target.identifier === "") {
-          return false;
+          return true;
         }
 
         const foundIndex = array.findIndex(({ target }) => {

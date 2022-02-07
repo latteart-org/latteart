@@ -43,7 +43,7 @@ export class GenerateTestScriptsAction {
     sources: { initialUrl: string; history: Operation[] }[];
   }): Promise<{
     outputUrl: string;
-    isNoOperationType: boolean;
+    invaridOperationTypeExists: boolean;
   }> {
     const testScript = this.scriptGenerator.generate(params.sources);
 
@@ -58,14 +58,14 @@ export class GenerateTestScriptsAction {
       "browser_forward",
     ];
 
-    const isNoOperationList = params.sources.flatMap((session) => {
+    const invaridOperationTypeList = params.sources.flatMap((session) => {
       return session.history.map((operation) => {
         return untargetedOperations.includes(operation.type);
       });
     });
 
-    const isNoOperationType = isNoOperationList.some(
-      (isNoOperation) => isNoOperation === true
+    const invaridOperationTypeExists = invaridOperationTypeList.some(
+      (invaridOperation) => invaridOperation === true
     );
 
     if (params.projectId) {
@@ -80,7 +80,10 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return { outputUrl, isNoOperationType };
+      return {
+        outputUrl,
+        invaridOperationTypeExists: invaridOperationTypeExists,
+      };
     }
 
     if (params.testResultId) {
@@ -95,7 +98,10 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return { outputUrl, isNoOperationType };
+      return {
+        outputUrl,
+        invaridOperationTypeExists: invaridOperationTypeExists,
+      };
     }
 
     throw new Error(`save_test_scripts_no_operation_error`);

@@ -28,6 +28,22 @@ export class UnnecessaryOperationFilter implements OperationFilter {
         return true;
       }
 
+      if (operation.type === OperationType.AcceptAlert) {
+        return true;
+      }
+
+      if (operation.type === OperationType.DismissAlert) {
+        return true;
+      }
+
+      if (operation.type === OperationType.BrowserBack) {
+        return true;
+      }
+
+      if (operation.type === OperationType.BrowserForward) {
+        return true;
+      }
+
       if (operation.target.identifier === "") {
         return false;
       }

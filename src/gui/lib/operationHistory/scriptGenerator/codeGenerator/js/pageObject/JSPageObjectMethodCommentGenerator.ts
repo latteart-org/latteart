@@ -42,7 +42,13 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      return `<li>${this.getOperationTypeString(type)}${
+      const invalidTypeExists = this.invalidOperationTypeExists(type);
+
+      return `<li>${
+        invalidTypeExists
+          ? `<span style="color:red">Invalid operation type : `
+          : ""
+      }${this.getOperationTypeString(type)}</span>${
         targetName ? ` [ ${targetName} ]` : ""
       }</li>`;
     });
@@ -70,7 +76,23 @@ ${paramsText}`;
     }
 
     if (type === OperationType.SwitchWindow) {
-      return "SwitchWindow";
+      return "Switch window to";
+    }
+
+    if (type === OperationType.AcceptAlert) {
+      return "Accept alert";
+    }
+
+    if (type === OperationType.DismissAlert) {
+      return "Dismiss alert";
+    }
+
+    if (type === OperationType.BrowserBack) {
+      return "Browser back";
+    }
+
+    if (type === OperationType.BrowserForward) {
+      return "Browser forward";
     }
 
     if (type === OperationType.Other) {
@@ -78,5 +100,17 @@ ${paramsText}`;
     }
 
     return "";
+  }
+
+  private invalidOperationTypeExists(type: OperationType): boolean {
+    if (
+      type === OperationType.Click ||
+      type === OperationType.Change ||
+      type === OperationType.SwitchWindow
+    ) {
+      return false;
+    }
+
+    return true;
   }
 }

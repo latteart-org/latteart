@@ -61,6 +61,22 @@ export class PageObjectOperationFactoryImpl
       return OperationType.SwitchWindow;
     }
 
+    if (operationType === "accept_alert") {
+      return OperationType.AcceptAlert;
+    }
+
+    if (operationType === "dismiss_alert") {
+      return OperationType.DismissAlert;
+    }
+
+    if (operationType === "browser_back") {
+      return OperationType.BrowserBack;
+    }
+
+    if (operationType === "browser_forward") {
+      return OperationType.BrowserForward;
+    }
+
     return OperationType.Other;
   }
 }
