@@ -58,7 +58,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 - 記録ツール: `capture.bat`
 - 管理ツール: `manage.bat`
 
-すると、以下のメッセージが表示されたコマンドプロンプトと共に LatteArt を動作させるための Web サーバが立ち上がり、ブラウザ上で記録ツールの画面が表示されます。
+すると、以下のメッセージが表示されたコマンドプロンプトと共に LatteArt を動作させるための Web サーバが立ち上がり、ブラウザ上でツールの画面が表示されます。
 
 ```
 capture: http://127.0.0.1:3000
@@ -85,17 +85,32 @@ LatteArt を用いたテストの考え方、および実践については 「[
 ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
 
 ```bash
-latteart
-      ├─ latteart
-      ├─ latteart-capture-cl
-      └─ latteart-repository
+latteart/
+      ├─ capture.command
+      ├─ manage.command
+      ├─ launch.config.json
+      ├─ launch
+      ├─ latteart/
+      ├─ latteart-capture-cl/
+      └─ latteart-repository/
 ```
 
-3 つのディレクトリにそれぞれ同名の実行ファイルが格納されています。
-**実行ファイルのあるディレクトリに移動し**、 3 つの実行ファイル`latteart`、 `latteart-capture-cl`、 `latteart-repository` に `chmod` 等で実行権限を与えてから実行します。
-「ダウンロードしたアプリケーションの実行許可」を求められた場合は、「プライバシーとセキュリティ」から許可してください。
+以下のファイルに実行権限を付与します。
 
-3 つのサーバを起動後、以下にアクセスすると利用できます。
+```bash
+chmod +x ./capture.command
+chmod +x ./manage.command
+chmod +x ./launch
+chmod +x latteart/latteart
+chmod +x latteart-capture-cl/latteart-capture-cl
+chmod +x latteart-repository/latteart-repository
+```
 
-- 記録ツール: http://127.0.0.1:3000
-- 管理ツール: http://127.0.0.1:3000?mode=manage
+以下起動用スクリプトを実行すると LatteArt が起動し、Windows 版と同様に利用できます。
+
+- 記録ツール: `capture.command`
+- 管理ツール: `manage.command`
+
+:bulb: 「ダウンロードしたアプリケーションの実行許可」を求められた場合は、「システム環境設定の」の「セキュリティとプライバシー」から許可してください。
+:bulb: `開発元を検証できないため開けません`というメッセージのダイアログが表示された場合は、一旦「キャンセル」を選択し、「システム環境設定の」の「セキュリティとプライバシー」から許可してください。
+:bulb: `開発元を検証できません。開いてもよろしいですか?`というメッセージのダイアログが表示された場合は、「開く」を選択してください。
