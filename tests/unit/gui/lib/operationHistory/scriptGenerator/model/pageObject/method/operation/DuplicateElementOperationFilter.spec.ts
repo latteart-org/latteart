@@ -24,7 +24,7 @@ describe("DuplicateElementOperationFilter", () => {
       expect(operations).toEqual([operation1]);
     });
 
-    it("操作対象要素の識別子が空の操作は除外する", () => {
+    it("操作対象要素の識別子が空の操作は除外しない", () => {
       const operation1: PageObjectOperation = {
         target: {
           identifier: "",
@@ -39,7 +39,7 @@ describe("DuplicateElementOperationFilter", () => {
         operation1,
       ]);
 
-      expect(operations).toEqual([]);
+      expect(operations).toEqual([operation1]);
     });
 
     it("画面遷移するまでに同一の要素への操作が複数ある場合は最後のもの以外を除外する", () => {
