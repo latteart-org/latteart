@@ -19,8 +19,8 @@ import {
   PageObjectOperation,
   ElementType,
   OperationType,
+  invalidOperationTypeExists,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
-import { invalidOperationTypeExists } from "../../InvalidOperationTypeExists";
 
 export class JSPageObjectMethodCommentGenerator
   implements PageObjectMethodCommentGenerator {

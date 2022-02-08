@@ -47,3 +47,21 @@ export interface PageObjectOperation {
   readonly type: OperationType;
   readonly input: string;
 }
+
+export function invalidOperationTypeExists(
+  type: OperationType | string
+): boolean {
+  return typeof type === "string"
+    ? [
+        "accept_alert",
+        "dismiss_alert",
+        "browser_back",
+        "browser_forward",
+      ].includes(type)
+    : [
+        OperationType.AcceptAlert,
+        OperationType.DismissAlert,
+        OperationType.BrowserBack,
+        OperationType.BrowserForward,
+      ].includes(type);
+}

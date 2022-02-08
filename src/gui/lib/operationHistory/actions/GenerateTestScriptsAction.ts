@@ -18,7 +18,7 @@ import { TestScript } from "../scriptGenerator/TestScript";
 import { Reply } from "@/lib/captureControl/Reply";
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
-import { invalidOperationTypeExists } from "../scriptGenerator/codeGenerator/InvalidOperationTypeExists";
+import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
 export interface TestScriptExportable {
   postTestscriptsWithProjectId(

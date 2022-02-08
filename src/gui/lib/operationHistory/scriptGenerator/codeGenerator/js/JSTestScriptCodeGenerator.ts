@@ -28,7 +28,7 @@ import { TestScript } from "../../TestScript";
 import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
-import { invalidOperationTypeExists } from "../InvalidOperationTypeExists";
+import { invalidOperationTypeExists } from "../../model/pageObject/method/operation/PageObjectOperation";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
