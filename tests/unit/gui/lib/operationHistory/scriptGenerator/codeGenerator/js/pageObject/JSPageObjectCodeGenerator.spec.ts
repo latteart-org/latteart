@@ -5,7 +5,6 @@ import {
   PageObjectElement,
   ElementType,
   PageObjectOperation,
-  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
 describe("JSPageObjectCodeGenerator", () => {
@@ -19,19 +18,19 @@ describe("JSPageObjectCodeGenerator", () => {
 
       const operation: PageObjectOperation = {
         target: element,
-        type: OperationType.Change,
+        type: "change",
         input: "",
       };
 
       const operation2: PageObjectOperation = {
         target: element,
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
       const operation3: PageObjectOperation = {
         target: element,
-        type: OperationType.SwitchWindow,
+        type: "switch_window",
         input: "targetUrl",
       };
 

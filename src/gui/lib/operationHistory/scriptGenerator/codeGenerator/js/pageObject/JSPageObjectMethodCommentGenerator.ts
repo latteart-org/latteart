@@ -43,7 +43,7 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      const invalidTypeExists = invalidOperationTypeExists(type);
+      const invalidTypeExists = invalidOperationTypeExists(type as string);
 
       return `<li>${
         invalidTypeExists
@@ -68,35 +68,35 @@ ${paramsText}`;
   }
 
   private getOperationTypeString(type: OperationType) {
-    if (type === OperationType.Click) {
+    if (type === "click") {
       return "Click";
     }
 
-    if (type === OperationType.Change) {
+    if (type === "change") {
       return "Change";
     }
 
-    if (type === OperationType.SwitchWindow) {
+    if (type === "switch_window") {
       return "Switch window to";
     }
 
-    if (type === OperationType.AcceptAlert) {
+    if (type === "accept_alert") {
       return "Accept alert";
     }
 
-    if (type === OperationType.DismissAlert) {
+    if (type === "dismiss_alert") {
       return "Dismiss alert";
     }
 
-    if (type === OperationType.BrowserBack) {
+    if (type === "browser_back") {
       return "Browser back";
     }
 
-    if (type === OperationType.BrowserForward) {
+    if (type === "browser_forward") {
       return "Browser forward";
     }
 
-    if (type === OperationType.Other) {
+    if (type === "other") {
       return "Operate";
     }
 

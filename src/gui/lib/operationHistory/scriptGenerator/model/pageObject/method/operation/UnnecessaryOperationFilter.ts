@@ -15,32 +15,28 @@
  */
 
 import { OperationFilter } from "./OperationFilter";
-import {
-  PageObjectOperation,
-  OperationType,
-  ElementType,
-} from "./PageObjectOperation";
+import { PageObjectOperation, ElementType } from "./PageObjectOperation";
 
 export class UnnecessaryOperationFilter implements OperationFilter {
   public filter(operations: PageObjectOperation[]): PageObjectOperation[] {
     return operations.filter((operation) => {
-      if (operation.type === OperationType.SwitchWindow) {
+      if (operation.type === "switch_window") {
         return true;
       }
 
-      if (operation.type === OperationType.AcceptAlert) {
+      if (operation.type === "accept_alert") {
         return true;
       }
 
-      if (operation.type === OperationType.DismissAlert) {
+      if (operation.type === "dismiss_alert") {
         return true;
       }
 
-      if (operation.type === OperationType.BrowserBack) {
+      if (operation.type === "browser_back") {
         return true;
       }
 
-      if (operation.type === OperationType.BrowserForward) {
+      if (operation.type === "browser_forward") {
         return true;
       }
 
@@ -48,12 +44,12 @@ export class UnnecessaryOperationFilter implements OperationFilter {
         return false;
       }
 
-      if (operation.type === OperationType.Change) {
+      if (operation.type === "change") {
         return true;
       }
 
       return (
-        operation.type === OperationType.Click &&
+        operation.type === "click" &&
         [
           ElementType.RadioButton,
           ElementType.CheckBox,

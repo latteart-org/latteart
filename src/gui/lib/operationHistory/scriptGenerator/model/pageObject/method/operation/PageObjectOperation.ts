@@ -22,16 +22,15 @@ export enum ElementType {
   Other,
 }
 
-export enum OperationType {
-  Click,
-  Change,
-  SwitchWindow,
-  AcceptAlert,
-  DismissAlert,
-  BrowserBack,
-  BrowserForward,
-  Other,
-}
+export type OperationType =
+  | "click"
+  | "change"
+  | "switch_window"
+  | "accept_alert"
+  | "dismiss_alert"
+  | "browser_back"
+  | "browser_forward"
+  | "other";
 
 export interface PageObjectElement {
   readonly identifier: string;
@@ -48,20 +47,11 @@ export interface PageObjectOperation {
   readonly input: string;
 }
 
-export function invalidOperationTypeExists(
-  type: OperationType | string
-): boolean {
-  return typeof type === "string"
-    ? [
-        "accept_alert",
-        "dismiss_alert",
-        "browser_back",
-        "browser_forward",
-      ].includes(type)
-    : [
-        OperationType.AcceptAlert,
-        OperationType.DismissAlert,
-        OperationType.BrowserBack,
-        OperationType.BrowserForward,
-      ].includes(type);
+export function invalidOperationTypeExists(type: string): boolean {
+  return [
+    "accept_alert",
+    "dismiss_alert",
+    "browser_back",
+    "browser_forward",
+  ].includes(type);
 }

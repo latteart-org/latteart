@@ -2,7 +2,6 @@ import { DuplicateElementOperationFilter } from "@/lib/operationHistory/scriptGe
 import {
   PageObjectOperation,
   ElementType,
-  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 describe("DuplicateElementOperationFilter", () => {
   describe("#filter", () => {
@@ -13,7 +12,7 @@ describe("DuplicateElementOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.SwitchWindow,
+        type: "switch_window",
         input: "",
       };
 
@@ -31,7 +30,7 @@ describe("DuplicateElementOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Change,
+        type: "change",
         input: "",
       };
 
@@ -51,13 +50,13 @@ describe("DuplicateElementOperationFilter", () => {
 
       const operation1: PageObjectOperation = {
         target: element,
-        type: OperationType.Change,
+        type: "change",
         input: "aaa",
       };
 
       const operation2: PageObjectOperation = {
         target: element,
-        type: OperationType.Change,
+        type: "change",
         input: "bbb",
       };
 

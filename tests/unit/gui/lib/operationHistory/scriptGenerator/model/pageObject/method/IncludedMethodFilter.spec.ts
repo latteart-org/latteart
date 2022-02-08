@@ -1,7 +1,6 @@
 import {
   PageObjectOperation,
   ElementType,
-  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 import { IncludedMethodFilter } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/IncludedMethodFilter";
 import { PageObjectMethod } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/PageObjectMethod";
@@ -15,7 +14,7 @@ describe("IncludedMethodFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Other,
+        type: "other",
         input: "",
       };
 

@@ -1,6 +1,5 @@
 import { UnnecessaryOperationFilter } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/UnnecessaryOperationFilter";
 import {
-  OperationType,
   PageObjectOperation,
   ElementType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
@@ -14,7 +13,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.SwitchWindow,
+        type: "switch_window",
         input: "",
       };
 
@@ -30,7 +29,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Change,
+        type: "change",
         input: "",
       };
 
@@ -46,7 +45,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Change,
+        type: "change",
         input: "",
       };
 
@@ -56,7 +55,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.Link,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -66,7 +65,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.RadioButton,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -76,7 +75,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.CheckBox,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -87,7 +86,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.SelectBox,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -98,7 +97,7 @@ describe("UnnecessaryOperationFilter", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Other,
+        type: "other",
         input: "",
       };
 

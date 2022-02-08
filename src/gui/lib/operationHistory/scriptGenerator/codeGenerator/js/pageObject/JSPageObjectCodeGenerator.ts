@@ -18,7 +18,6 @@ import { PageObject } from "../../../model/pageObject/PageObject";
 import {
   PageObjectElement,
   ElementType,
-  OperationType,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
 import { PageObjectMethod } from "../../../model/pageObject/method/PageObjectMethod";
 import { JSRadioButtonAccessorCodeGenerator } from "./JSRadioButtonAccessorCodeGenerator";
@@ -177,7 +176,7 @@ set_${identifier}(isClick) {
 
       const operationsString = method.operations
         .flatMap((operation) => {
-          if (operation.type === OperationType.Click) {
+          if (operation.type === "click") {
             const clickEventOperationString = JSPageObjectCodeGenerator.generateClickEventOperationString(
               operation.target,
               radioButtons
@@ -186,7 +185,7 @@ set_${identifier}(isClick) {
             return clickEventOperationString ? [clickEventOperationString] : [];
           }
 
-          if (operation.type === OperationType.Change) {
+          if (operation.type === "change") {
             const changeEventOperationString = JSPageObjectCodeGenerator.generateChangeEventOperationString(
               operation.target
             );
@@ -194,23 +193,23 @@ set_${identifier}(isClick) {
             return [changeEventOperationString];
           }
 
-          if (operation.type === OperationType.SwitchWindow) {
+          if (operation.type === "switch_window") {
             return [`browser.switchWindow("${operation.input}");`];
           }
 
-          if (operation.type === OperationType.AcceptAlert) {
+          if (operation.type === "accept_alert") {
             return [`// invalid operation: accept_alert`];
           }
 
-          if (operation.type === OperationType.DismissAlert) {
+          if (operation.type === "dismiss_alert") {
             return [`// invalid operation: dismiss_alert`];
           }
 
-          if (operation.type === OperationType.BrowserBack) {
+          if (operation.type === "browser_back") {
             return [`// invalid operation: browser_back`];
           }
 
-          if (operation.type === OperationType.BrowserForward) {
+          if (operation.type === "browser_forward") {
             return [`// invalid operation: browser_forward`];
           }
 
