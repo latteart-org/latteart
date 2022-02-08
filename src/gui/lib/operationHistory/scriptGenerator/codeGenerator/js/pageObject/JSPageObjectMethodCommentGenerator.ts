@@ -43,7 +43,7 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      const invalidTypeExists = invalidOperationTypeExists(type as string);
+      const invalidTypeExists = invalidOperationTypeExists(type);
       const operationTypeStr = this.getOperationTypeString(type);
       const operationStr = invalidTypeExists
         ? `<span style="color:red">Do '${operationTypeStr}'</span><span style="color:gray"># Please implement it manually</span>`

@@ -841,7 +841,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
   /**
    * Generate test scripts of all sessions.
    * @param context Action context.
-   * @returns URL of generated test scripts.
+   * @returns URL of generated test scripts and whether test scripts contain invalid operation.
    */
   async generateAllSessionTestScripts(
     context,

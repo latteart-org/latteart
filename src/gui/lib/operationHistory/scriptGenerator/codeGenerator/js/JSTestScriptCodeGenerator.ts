@@ -98,7 +98,7 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
             model.pageObjects.map(({ id, methods }) => {
               const invalidTypeExists = methods.some((method) => {
                 return method.operations.some((operation) => {
-                  return invalidOperationTypeExists(operation.type as string);
+                  return invalidOperationTypeExists(operation.type);
                 });
               });
               return {
