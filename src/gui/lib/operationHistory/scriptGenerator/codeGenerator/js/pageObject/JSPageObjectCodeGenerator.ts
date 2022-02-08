@@ -198,19 +198,19 @@ set_${identifier}(isClick) {
           }
 
           if (operation.type === "accept_alert") {
-            return [`// invalid operation: accept_alert`];
+            return [`// Please add codes of 'accept_alert'.`];
           }
 
           if (operation.type === "dismiss_alert") {
-            return [`// invalid operation: dismiss_alert`];
+            return [`// Please add codes of 'dismiss_alert'.`];
           }
 
           if (operation.type === "browser_back") {
-            return [`// invalid operation: browser_back`];
+            return [`// Please add codes of 'browser_back'.`];
           }
 
           if (operation.type === "browser_forward") {
-            return [`// invalid operation: browser_forward`];
+            return [`// Please add codes of 'browser_forward'.`];
           }
 
           return [];

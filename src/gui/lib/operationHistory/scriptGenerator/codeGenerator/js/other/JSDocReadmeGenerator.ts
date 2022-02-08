@@ -17,7 +17,7 @@
 export class JSDocReadmeGenerator {
   public generate(
     testSuiteNameToTopPageUrl: Map<string, string>,
-    pageObjectNamesToAliases: {
+    pageObjectInfos: {
       name: string;
       alias: string;
       invalidTypeExists: boolean;
@@ -26,7 +26,7 @@ export class JSDocReadmeGenerator {
     return `\
 ${this.buildTestSuiteTable(testSuiteNameToTopPageUrl)}
 
-${this.buildPageObjectTable(pageObjectNamesToAliases)}
+${this.buildPageObjectTable(pageObjectInfos)}
 `;
   }
 
@@ -51,7 +51,7 @@ ${this.buildPageObjectTable(pageObjectNamesToAliases)}
   }
 
   private buildPageObjectTable(
-    pageObjectNamesToAliases: {
+    pageObjectInfos: {
       name: string;
       alias: string;
       invalidTypeExists: boolean;
@@ -60,19 +60,18 @@ ${this.buildPageObjectTable(pageObjectNamesToAliases)}
     const header = `\
 
 
-|#|name|source|warning|
+|#|name|source|remarks|
 |:--|:--|:--|:--|
 `;
 
-    const rows = pageObjectNamesToAliases
+    const rows = pageObjectInfos
       .map(({ name, alias, invalidTypeExists }, index) => {
-        if (name === "" && alias === "") {
-          return "";
-        }
         const href = encodeURI(encodeURI(`./${alias}.html`));
 
         return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|${
-          invalidTypeExists ? "There are types that are not coded." : ""
+          invalidTypeExists
+            ? `<span style="color:red">Some operation was not generated. Please read details using the left link.</span>`
+            : ""
         }|`;
       })
       .join("\n");

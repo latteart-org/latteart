@@ -44,14 +44,14 @@ export class JSPageObjectMethodCommentGenerator
           : name;
 
       const invalidTypeExists = invalidOperationTypeExists(type as string);
+      const operationTypeStr = this.getOperationTypeString(type);
+      const operationStr = invalidTypeExists
+        ? `<span style="color:red">Do '${operationTypeStr}'</span><span style="color:gray"># Please implement it manually</span>`
+        : operationTypeStr;
 
-      return `<li>${
-        invalidTypeExists
-          ? `<span style="color:red">Invalid operation type :`
-          : ""
-      }${this.getOperationTypeString(type)}</span>${
-        targetName ? ` [ ${targetName} ]` : ""
-      }</li>`;
+      const targetStr = targetName ? ` [ ${targetName} ]` : "";
+
+      return `<li>${operationStr}${targetStr}</li>`;
     });
 
     const moveOperationLine = `<li>Move to [ <a href="${destPageObject.imageUrl}">${destPageObject.name}</a> ]</li>`;

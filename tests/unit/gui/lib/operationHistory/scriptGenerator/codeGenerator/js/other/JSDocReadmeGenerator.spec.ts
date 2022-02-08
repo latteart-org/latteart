@@ -36,13 +36,10 @@ describe("JSDocReadmeGenerator", () => {
 
     it("空の場合はテーブルを表示しない", () => {
       const testSuiteNameToTopPageUrl = new Map<string, string>([]);
-      const pageObjectIdToAlias = [
-        { name: "", alias: "", invalidTypeExists: false },
-      ];
 
       const markdown = new JSDocReadmeGenerator().generate(
         testSuiteNameToTopPageUrl,
-        pageObjectIdToAlias
+        []
       );
 
       expect(markdown).toEqual(`\
@@ -54,13 +51,13 @@ describe("JSDocReadmeGenerator", () => {
 
     it("JSDocのページとリンクできるようにページオブジェクトのエイリアスに日本語名が含まれている場合はhrefを2回URLエンコードする", () => {
       const testSuiteNameToTopPageUrl = new Map<string, string>([]);
-      const pageObjectIdToAlias = [
+      const pageObjectInfos = [
         { name: "PageObject1", alias: "あ", invalidTypeExists: false },
       ];
 
       const markdown = new JSDocReadmeGenerator().generate(
         testSuiteNameToTopPageUrl,
-        pageObjectIdToAlias
+        pageObjectInfos
       );
 
       expect(markdown).toEqual(`\
