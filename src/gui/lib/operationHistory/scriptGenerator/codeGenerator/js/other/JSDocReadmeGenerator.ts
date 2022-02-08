@@ -17,12 +17,16 @@
 export class JSDocReadmeGenerator {
   public generate(
     testSuiteNameToTopPageUrl: Map<string, string>,
-    pageObjectNameToAlias: Map<string, string>
+    pageObjectInfos: {
+      name: string;
+      alias: string;
+      invalidTypeExists: boolean;
+    }[]
   ): string {
     return `\
 ${this.buildTestSuiteTable(testSuiteNameToTopPageUrl)}
 
-${this.buildPageObjectTable(pageObjectNameToAlias)}
+${this.buildPageObjectTable(pageObjectInfos)}
 `;
   }
 
@@ -46,19 +50,29 @@ ${this.buildPageObjectTable(pageObjectNameToAlias)}
 ## Test suites${rows.length > 0 ? header : ""}${rows}`;
   }
 
-  private buildPageObjectTable(pageObjectNameToAlias: Map<string, string>) {
+  private buildPageObjectTable(
+    pageObjectInfos: {
+      name: string;
+      alias: string;
+      invalidTypeExists: boolean;
+    }[]
+  ) {
     const header = `\
 
 
-|#|name|source|
-|:--|:--|:--|
+|#|name|source|remarks|
+|:--|:--|:--|:--|
 `;
 
-    const rows = [...pageObjectNameToAlias.entries()]
-      .map(([name, alias], index) => {
+    const rows = pageObjectInfos
+      .map(({ name, alias, invalidTypeExists }, index) => {
         const href = encodeURI(encodeURI(`./${alias}.html`));
 
-        return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|`;
+        return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|${
+          invalidTypeExists
+            ? `<span style="color:red">Some operation was not generated. Please read details using the left link.</span>`
+            : ""
+        }|`;
       })
       .join("\n");
 

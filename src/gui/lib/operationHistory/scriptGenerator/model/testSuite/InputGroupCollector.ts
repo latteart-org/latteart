@@ -16,7 +16,6 @@
 
 import {
   PageObjectOperation,
-  OperationType,
   ElementType,
 } from "../pageObject/method/operation/PageObjectOperation";
 
@@ -28,7 +27,7 @@ export class InputGroupCollector {
     const map = operations.reduce((acc: Map<string, string>, op) => {
       const elem = op.target;
 
-      if (op.type === OperationType.Change) {
+      if (op.type === "change") {
         acc.set(elem.identifier, `${this.escapeNewlineCharacters(op.input)}`);
 
         return acc;

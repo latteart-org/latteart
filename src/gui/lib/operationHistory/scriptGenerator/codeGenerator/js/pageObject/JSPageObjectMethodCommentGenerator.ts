@@ -19,6 +19,7 @@ import {
   PageObjectOperation,
   ElementType,
   OperationType,
+  invalidOperationTypeExists,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
 
 export class JSPageObjectMethodCommentGenerator
@@ -42,9 +43,15 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      return `<li>${this.getOperationTypeString(type)}${
-        targetName ? ` [ ${targetName} ]` : ""
-      }</li>`;
+      const invalidTypeExists = invalidOperationTypeExists(type);
+      const operationTypeStr = this.getOperationTypeString(type);
+      const operationStr = invalidTypeExists
+        ? `<span style="color:red">Do '${operationTypeStr}'</span><span style="color:gray"># Please implement it manually</span>`
+        : operationTypeStr;
+
+      const targetStr = targetName ? ` [ ${targetName} ]` : "";
+
+      return `<li>${operationStr}${targetStr}</li>`;
     });
 
     const moveOperationLine = `<li>Move to [ <a href="${destPageObject.imageUrl}">${destPageObject.name}</a> ]</li>`;
@@ -61,19 +68,35 @@ ${paramsText}`;
   }
 
   private getOperationTypeString(type: OperationType) {
-    if (type === OperationType.Click) {
+    if (type === "click") {
       return "Click";
     }
 
-    if (type === OperationType.Change) {
+    if (type === "change") {
       return "Change";
     }
 
-    if (type === OperationType.SwitchWindow) {
-      return "SwitchWindow";
+    if (type === "switch_window") {
+      return "Switch window to";
     }
 
-    if (type === OperationType.Other) {
+    if (type === "accept_alert") {
+      return "Accept alert";
+    }
+
+    if (type === "dismiss_alert") {
+      return "Dismiss alert";
+    }
+
+    if (type === "browser_back") {
+      return "Browser back";
+    }
+
+    if (type === "browser_forward") {
+      return "Browser forward";
+    }
+
+    if (type === "other") {
       return "Operate";
     }
 
