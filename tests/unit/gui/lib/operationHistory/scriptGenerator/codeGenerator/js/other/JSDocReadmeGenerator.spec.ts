@@ -27,7 +27,7 @@ describe("JSDocReadmeGenerator", () => {
 
 ## Page objects
 
-|#|name|source|warning|
+|#|name|source|remarks|
 |:--|:--|:--|:--|
 |1|<a href="./Alias1.html">Alias1</a>|PageObject1||
 |2|<a href="./Alias2.html">Alias2</a>|PageObject2||
@@ -65,7 +65,7 @@ describe("JSDocReadmeGenerator", () => {
 
 ## Page objects
 
-|#|name|source|warning|
+|#|name|source|remarks|
 |:--|:--|:--|:--|
 |1|<a href="./%25E3%2581%2582.html">あ</a>|PageObject1||
 `);
