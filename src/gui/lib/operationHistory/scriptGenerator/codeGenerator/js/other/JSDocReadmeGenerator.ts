@@ -17,7 +17,7 @@
 export class JSDocReadmeGenerator {
   public generate(
     testSuiteNameToTopPageUrl: Map<string, string>,
-    pageObjectNameToAlias: {
+    pageObjectNamesToAliases: {
       name: string;
       alias: string;
       invalidTypeExists: boolean;
@@ -26,7 +26,7 @@ export class JSDocReadmeGenerator {
     return `\
 ${this.buildTestSuiteTable(testSuiteNameToTopPageUrl)}
 
-${this.buildPageObjectTable(pageObjectNameToAlias)}
+${this.buildPageObjectTable(pageObjectNamesToAliases)}
 `;
   }
 
@@ -51,7 +51,7 @@ ${this.buildPageObjectTable(pageObjectNameToAlias)}
   }
 
   private buildPageObjectTable(
-    pageObjectNameToAlias: {
+    pageObjectNamesToAliases: {
       name: string;
       alias: string;
       invalidTypeExists: boolean;
@@ -64,7 +64,7 @@ ${this.buildPageObjectTable(pageObjectNameToAlias)}
 |:--|:--|:--|:--|
 `;
 
-    const rows = pageObjectNameToAlias
+    const rows = pageObjectNamesToAliases
       .map(({ name, alias, invalidTypeExists }, index) => {
         if (name === "" && alias === "") {
           return "";

@@ -18,6 +18,7 @@ import { TestScript } from "../scriptGenerator/TestScript";
 import { Reply } from "@/lib/captureControl/Reply";
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
+import { invalidOperationTypeExists } from "../scriptGenerator/codeGenerator/InvalidOperationTypeExists";
 
 export interface TestScriptExportable {
   postTestscriptsWithProjectId(
@@ -43,7 +44,7 @@ export class GenerateTestScriptsAction {
     sources: { initialUrl: string; history: Operation[] }[];
   }): Promise<{
     outputUrl: string;
-    invaridOperationTypeExists: boolean;
+    invalidOperationTypeExists: boolean;
   }> {
     const testScript = this.scriptGenerator.generate(params.sources);
 
@@ -51,22 +52,11 @@ export class GenerateTestScriptsAction {
       throw new Error(`generate_test_suite_failed`);
     }
 
-    const untargetedOperations = [
-      "accept_alert",
-      "dismiss_alert",
-      "browser_back",
-      "browser_forward",
-    ];
-
-    const invaridOperationTypeList = params.sources.flatMap((session) => {
-      return session.history.map((operation) => {
-        return untargetedOperations.includes(operation.type);
+    const invalidTypeExists = params.sources.some((session) => {
+      return session.history.some((operation) => {
+        return invalidOperationTypeExists(operation.type);
       });
     });
-
-    const invaridOperationTypeExists = invaridOperationTypeList.some(
-      (invaridOperation) => invaridOperation === true
-    );
 
     if (params.projectId) {
       const reply = await this.dispatcher.postTestscriptsWithProjectId(
@@ -82,7 +72,7 @@ export class GenerateTestScriptsAction {
 
       return {
         outputUrl,
-        invaridOperationTypeExists: invaridOperationTypeExists,
+        invalidOperationTypeExists: invalidTypeExists,
       };
     }
 
@@ -100,7 +90,7 @@ export class GenerateTestScriptsAction {
 
       return {
         outputUrl,
-        invaridOperationTypeExists: invaridOperationTypeExists,
+        invalidOperationTypeExists: invalidTypeExists,
       };
     }
 

@@ -656,7 +656,7 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
-        if (testScriptInfo.invaridOperationTypeExists) {
+        if (testScriptInfo.invalidOperationTypeExists) {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );

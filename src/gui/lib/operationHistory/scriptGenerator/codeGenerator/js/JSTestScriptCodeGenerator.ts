@@ -28,8 +28,7 @@ import { TestScript } from "../../TestScript";
 import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
-import { PageObjectMethod } from "../../model/pageObject/method/PageObjectMethod";
-import { OperationType } from "../../model/pageObject/method/operation/PageObjectOperation";
+import { invalidOperationTypeExists } from "../InvalidOperationTypeExists";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
@@ -97,10 +96,11 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
               })
             ),
             model.pageObjects.map(({ id, methods }) => {
-              const invalidTypeExists = this.invalidOperationTypeExists(
-                methods
-              );
-
+              const invalidTypeExists = methods.some((method) => {
+                return method.operations.some((operation) => {
+                  return invalidOperationTypeExists(operation.type);
+                });
+              });
               return {
                 name: id,
                 alias: this.nameGenerator.pageObject.generate(id),
@@ -154,22 +154,5 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
       });
 
     return new ScreenTransitionGraphImpl(screenTransitionPaths.flat());
-  }
-
-  private invalidOperationTypeExists(methods: PageObjectMethod[]): boolean {
-    const untargetedOperations = [
-      OperationType.AcceptAlert,
-      OperationType.DismissAlert,
-      OperationType.BrowserBack,
-      OperationType.BrowserForward,
-    ];
-    const invaridOperationTypeList = methods.flatMap((method) => {
-      return method.operations.map((operation) => {
-        return untargetedOperations.includes(operation.type);
-      });
-    });
-    return invaridOperationTypeList.some(
-      (invaridOperation) => invaridOperation === true
-    );
   }
 }

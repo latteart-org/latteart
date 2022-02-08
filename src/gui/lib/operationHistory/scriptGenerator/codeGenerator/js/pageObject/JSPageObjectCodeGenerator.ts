@@ -199,19 +199,19 @@ set_${identifier}(isClick) {
           }
 
           if (operation.type === OperationType.AcceptAlert) {
-            return [`// accept_alert`];
+            return [`// invalid operation: accept_alert`];
           }
 
           if (operation.type === OperationType.DismissAlert) {
-            return [`// dismiss_alert`];
+            return [`// invalid operation: dismiss_alert`];
           }
 
           if (operation.type === OperationType.BrowserBack) {
-            return [`// browser_back`];
+            return [`// invalid operation: browser_back`];
           }
 
           if (operation.type === OperationType.BrowserForward) {
-            return [`// browser_forward`];
+            return [`// invalid operation: browser_forward`];
           }
 
           return [];

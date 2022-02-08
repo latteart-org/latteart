@@ -20,6 +20,7 @@ import {
   ElementType,
   OperationType,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
+import { invalidOperationTypeExists } from "../../InvalidOperationTypeExists";
 
 export class JSPageObjectMethodCommentGenerator
   implements PageObjectMethodCommentGenerator {
@@ -42,11 +43,11 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      const invalidTypeExists = this.invalidOperationTypeExists(type);
+      const invalidTypeExists = invalidOperationTypeExists(type);
 
       return `<li>${
         invalidTypeExists
-          ? `<span style="color:red">Invalid operation type : `
+          ? `<span style="color:red">Invalid operation type :`
           : ""
       }${this.getOperationTypeString(type)}</span>${
         targetName ? ` [ ${targetName} ]` : ""
@@ -100,17 +101,5 @@ ${paramsText}`;
     }
 
     return "";
-  }
-
-  private invalidOperationTypeExists(type: OperationType): boolean {
-    if (
-      type === OperationType.Click ||
-      type === OperationType.Change ||
-      type === OperationType.SwitchWindow
-    ) {
-      return false;
-    }
-
-    return true;
   }
 }

@@ -1136,7 +1136,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ): Promise<{
     outputUrl: string;
-    invaridOperationTypeExists: boolean;
+    invalidOperationTypeExists: boolean;
   }> {
     const optimize = true;
 
