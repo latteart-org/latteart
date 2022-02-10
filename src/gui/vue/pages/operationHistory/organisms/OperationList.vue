@@ -39,128 +39,101 @@
         :style="{ height: '100%', 'overflow-y': 'scroll' }"
         ref="tableWrapper"
       >
-        <v-data-table
+        <selectable-data-table
+          @selectItems="onSelectOperations"
+          @contextmenu="openOperationContextMenu"
+          :selected-item-indexes="selectedOperationIndexes"
+          :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
-          :custom-filter="filterBySequence"
-          :search="search"
           :items="displayedHistory"
-          :pagination.sync="pagination"
+          :filtering-predicates="[operationIsDisplayed, operationContainsText]"
+          :search="search"
         >
-          <template v-slot:items="props">
-            <tr
-              @click.exact="
-                onSelectOperation(props.item.operation.sequence);
-                selectedSequences = [];
+          <template v-slot:row="{ columns }">
+            <td class="seq-col">
+              {{ columns.operation.sequence }}
+            </td>
+            <td class="icon-col">
+              <v-icon
+                v-if="hasIntention(columns.intention)"
+                :title="message('app.intention')"
+                class="mx-1"
+                color="blue"
+                >event_note</v-icon
+              >
+              <v-icon
+                v-if="hasNote(columns.notices, columns.bugs)"
+                :title="message('app.note')"
+                class="mx-1"
+                color="purple lighten-3"
+                >announcement</v-icon
+              >
+            </td>
+            <td :title="columns.operation.title" class="ellipsis">
+              {{
+                columns.operation.title
+                  ? columns.operation.title.substring(0, 60)
+                  : ""
+              }}
+            </td>
+            <td
+              :title="
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.tagname
+                  : ''
               "
-              @click.shift="
-                onSelectOperationRange(props.item.operation.sequence)
-              "
-              @contextmenu="
-                openOperationContextMenu(
-                  props.item.operation.sequence,
-                  selectedSequences,
-                  $event
-                )
-              "
-              :class="{
-                selected:
-                  selectedOperationSequence === props.item.operation.sequence ||
-                  selectedSequences.includes(props.item.operation.sequence),
-                'py-0': true,
-                'my-0': true,
-                'disabled-operation': operationIsDisabled(
-                  props.item.operation.sequence
-                ),
-              }"
-              :key="props.index"
-              :id="`operation-list-row-${props.item.operation.sequence}`"
-              :ref="'rows_' + props.index + '_' + props.item.operation.sequence"
+              class="ellipsis"
             >
-              <td class="seq-col">
-                {{ props.item.operation.sequence }}
-              </td>
-              <td class="icon-col">
-                <v-icon
-                  v-if="hasIntention(props.item.intention)"
-                  :title="message('app.intention')"
-                  class="mx-1"
-                  color="blue"
-                  >event_note</v-icon
-                >
-                <v-icon
-                  v-if="hasNote(props.item.notices, props.item.bugs)"
-                  :title="message('app.note')"
-                  class="mx-1"
-                  color="purple lighten-3"
-                  >announcement</v-icon
-                >
-              </td>
-              <td :title="props.item.operation.title" class="ellipsis">
-                {{
-                  props.item.operation.title
-                    ? props.item.operation.title.substring(0, 60)
+              {{
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.tagname
+                  : ""
+              }}
+            </td>
+            <td
+              :title="
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.attributes.name || ''
+                  : ''
+              "
+              class="ellipsis"
+            >
+              {{
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.attributes.name || ""
+                  : ""
+              }}
+            </td>
+            <td
+              :title="
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.text || ''
+                  : ''
+              "
+              class="ellipsis"
+            >
+              {{
+                !!columns.operation.elementInfo
+                  ? columns.operation.elementInfo.text
+                    ? columns.operation.elementInfo.text.substring(0, 60)
                     : ""
-                }}
-              </td>
-              <td
-                :title="
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.tagname
-                    : ''
-                "
-                class="ellipsis"
-              >
-                {{
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.tagname
-                    : ""
-                }}
-              </td>
-              <td
-                :title="
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.attributes.name || ''
-                    : ''
-                "
-                class="ellipsis"
-              >
-                {{
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.attributes.name || ""
-                    : ""
-                }}
-              </td>
-              <td
-                :title="
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.text || ''
-                    : ''
-                "
-                class="ellipsis"
-              >
-                {{
-                  !!props.item.operation.elementInfo
-                    ? props.item.operation.elementInfo.text
-                      ? props.item.operation.elementInfo.text.substring(0, 60)
-                      : ""
-                    : ""
-                }}
-              </td>
-              <td :title="props.item.operation.type" class="ellipsis">
-                {{ props.item.operation.type }}
-              </td>
-              <td :title="props.item.operation.inputValue" class="ellipsis">
-                {{ props.item.operation.inputValue.substring(0, 60) }}
-              </td>
-              <td
-                :title="formatTimestamp(props.item.operation.timestamp)"
-                class="ellipsis"
-              >
-                {{ formatTimestamp(props.item.operation.timestamp) }}
-              </td>
-            </tr>
+                  : ""
+              }}
+            </td>
+            <td :title="columns.operation.type" class="ellipsis">
+              {{ columns.operation.type }}
+            </td>
+            <td :title="columns.operation.inputValue" class="ellipsis">
+              {{ columns.operation.inputValue.substring(0, 60) }}
+            </td>
+            <td
+              :title="formatTimestamp(columns.operation.timestamp)"
+              class="ellipsis"
+            >
+              {{ formatTimestamp(columns.operation.timestamp) }}
+            </td>
           </template>
-        </v-data-table>
+        </selectable-data-table>
       </v-flex>
     </v-layout>
 
@@ -194,10 +167,12 @@ import moment from "moment";
 import OperationContextMenu from "@/vue/pages/captureControl/historyView/OperationContextMenu.vue";
 import { Note } from "@/lib/operationHistory/Note";
 import { Operation } from "@/lib/operationHistory/Operation";
+import SelectableDataTable from "@/vue/molecules/SelectableDataTable.vue";
 
 @Component({
   components: {
     "operation-context-menu": OperationContextMenu,
+    "selectable-data-table": SelectableDataTable,
   },
 })
 export default class OperationList extends Vue {
@@ -205,9 +180,13 @@ export default class OperationList extends Vue {
   public readonly history!: OperationHistory;
   @Prop({ type: Number, default: -1 })
   public readonly selectedOperationSequence!: number;
-  @Prop({ type: Function, default: -1 }) public readonly onSelectOperation!: (
-    sequence: string
-  ) => void;
+  @Prop({
+    type: Function,
+    default: () => {
+      /* Do nothing */
+    },
+  })
+  public readonly onSelectOperation!: (sequence: number) => void;
   @Prop({ type: Array, default: [] })
   public readonly displayedOperations!: number[];
   @Prop({ type: Function }) public readonly onResetFilter!: () => void;
@@ -215,30 +194,9 @@ export default class OperationList extends Vue {
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;
 
-  private rowsInfo: { index: number; sequence: number }[] = [];
-  private beforeTableOperationAtPageDownOrPageUp:
-    | null
-    | "ArrowUp"
-    | "ArrowDown"
-    | "ArrowLeft"
-    | "ArrowRight" = null;
-  private pageDownOrPageUpByTableOperation: null | "pageUp" | "pageDown" = null;
-  private beforeIndex = -1;
-
   private search = "";
   private selectedSequences: number[] = [];
-  private pagination: {
-    descending: boolean;
-    page: number;
-    rowsPerPage: number;
-    sortBy: string;
-    totalItems?: number;
-  } = {
-    sortBy: "operation.sequence",
-    descending: true,
-    page: 1,
-    rowsPerPage: 10,
-  };
+
   private contextMenuOpened = false;
   private contextMenuX = -1;
   private contextMenuY = -1;
@@ -246,21 +204,6 @@ export default class OperationList extends Vue {
     sequence: -1,
     selectedSequences: [],
   };
-
-  mounted(): void {
-    document.addEventListener("keydown", this.keyDown);
-  }
-
-  beforeDestroy(): void {
-    document.removeEventListener("keydown", this.keyDown);
-  }
-
-  updated(): void {
-    this.$nextTick().then(() => {
-      this.setRowsInfo();
-      this.setSelectedOperationSequenceAtChangingPage();
-    });
-  }
 
   private get headers(): {
     text: string;
@@ -305,208 +248,13 @@ export default class OperationList extends Vue {
     ];
   }
 
-  @Watch("displayedOperations")
-  private onChagneDisplayedOperations() {
-    // If the displayed operation is narrowed down, be sure to view the first page.
-    this.pagination.page = 1;
+  private created() {
+    this.initializeSelectedSequences();
   }
 
-  private setRowsInfo(): void {
-    const result = [];
-    for (const key in this.$refs) {
-      if (this.$refs[key] && key.startsWith("rows_")) {
-        const indexAndSeq = key.split("_");
-        result.push({
-          index: Number(indexAndSeq[1]),
-          sequence: Number(indexAndSeq[2]),
-        });
-      }
-    }
-    this.rowsInfo = result;
-  }
-
-  private setSelectedOperationSequenceAtChangingPage(): void {
-    const current = this.rowsInfo.find((rowInfo) => {
-      return rowInfo.sequence === this.selectedOperationSequence;
-    });
-    if (current) {
-      return;
-    }
-    let target;
-    switch (this.beforeTableOperationAtPageDownOrPageUp) {
-      case "ArrowUp":
-        target = this.rowsInfo[this.rowsInfo.length - 1].sequence;
-        break;
-      case "ArrowDown":
-        target = this.rowsInfo[0].sequence;
-        break;
-      case "ArrowLeft":
-        target = this.rowsInfo[this.beforeIndex].sequence;
-        break;
-      case "ArrowRight":
-        target = this.rowsInfo[this.beforeIndex]
-          ? this.rowsInfo[this.beforeIndex].sequence
-          : this.rowsInfo[this.rowsInfo.length - 1].sequence;
-        break;
-      default:
-        return;
-    }
-    if (!target) {
-      return;
-    }
-
-    this.$store.commit("operationHistory/selectOperation", {
-      sequence: target,
-    });
-
-    this.$nextTick(() => {
-      const tableWrapper = this.$refs.tableWrapper as HTMLElement;
-      const row = document.getElementById(
-        `operation-list-row-${this.selectedOperationSequence}`
-      );
-      if (!row) {
-        return;
-      }
-
-      switch (this.beforeTableOperationAtPageDownOrPageUp) {
-        case "ArrowUp":
-          if (this.pageDownOrPageUpByTableOperation === "pageDown") {
-            this.showRowBottom(tableWrapper, row);
-          } else {
-            if (!this.appearCurrentRow(tableWrapper, row)) {
-              this.showRowTop(tableWrapper, row);
-            }
-          }
-          break;
-        case "ArrowDown":
-          if (this.pageDownOrPageUpByTableOperation === "pageUp") {
-            this.showRowTop(tableWrapper, row);
-          } else {
-            if (!this.appearCurrentRow(tableWrapper, row)) {
-              this.showRowBottom(tableWrapper, row);
-            }
-          }
-          break;
-        case "ArrowLeft":
-          // none
-          break;
-        case "ArrowRight":
-          if (!this.rowsInfo[this.beforeIndex]) {
-            this.showRowBottom(tableWrapper, row);
-          }
-          break;
-        default:
-          return;
-      }
-      this.beforeIndex = -1;
-      this.beforeTableOperationAtPageDownOrPageUp = null;
-      this.pageDownOrPageUpByTableOperation = null;
-    });
-  }
-
-  private appearCurrentRow(
-    tableWrapper: HTMLElement,
-    row: HTMLElement
-  ): boolean {
-    const showedTopLine = tableWrapper.scrollTop;
-    const showedBottomLine = showedTopLine + tableWrapper.clientHeight;
-
-    const rowTopline = row.offsetTop;
-    const rowBottomLine = rowTopline + row.clientHeight;
-
-    return showedTopLine <= rowTopline && rowBottomLine <= showedBottomLine;
-  }
-
-  private showRowTop(tableWrapper: HTMLElement, row: HTMLElement): void {
-    tableWrapper.scrollTop = row.offsetTop;
-  }
-
-  private showRowBottom(tableWrapper: HTMLElement, row: HTMLElement): void {
-    tableWrapper.scrollTop =
-      row.offsetTop - (tableWrapper.clientHeight - row.clientHeight);
-  }
-
-  private pageUp() {
-    if (!this.pagination.totalItems) {
-      return;
-    }
-    if (
-      Math.ceil(this.pagination.totalItems / this.pagination.rowsPerPage) <=
-      this.pagination.page
-    ) {
-      return;
-    }
-    this.pagination = { ...this.pagination, page: this.pagination.page + 1 };
-    this.pageDownOrPageUpByTableOperation = "pageUp";
-  }
-
-  private pageDown() {
-    if (this.pagination.page <= 1) {
-      return;
-    }
-    this.pagination = { ...this.pagination, page: this.pagination.page - 1 };
-    this.pageDownOrPageUpByTableOperation = "pageDown";
-  }
-
-  private keyDown(event: KeyboardEvent): void {
-    event.preventDefault();
-    const getIndex = (rowInfo: { index: number; sequence: number }) => {
-      return rowInfo.sequence === this.selectedOperationSequence;
-    };
-
-    let target;
-    if (event.key === "ArrowUp") {
-      this.beforeTableOperationAtPageDownOrPageUp = "ArrowUp";
-      const currentIndex = this.rowsInfo.findIndex(getIndex);
-      if (this.rowsInfo[currentIndex - 1]) {
-        target = this.rowsInfo[currentIndex - 1].sequence;
-      } else {
-        this.pageDown();
-        return;
-      }
-    } else if (event.key === "ArrowDown") {
-      this.beforeTableOperationAtPageDownOrPageUp = "ArrowDown";
-      const currentIndex = this.rowsInfo.findIndex(getIndex);
-      if (this.rowsInfo[currentIndex + 1]) {
-        target = this.rowsInfo[currentIndex + 1].sequence;
-      } else {
-        this.pageUp();
-        return;
-      }
-    } else if (event.key === "ArrowLeft") {
-      this.beforeTableOperationAtPageDownOrPageUp = "ArrowLeft";
-      this.beforeIndex = this.rowsInfo.findIndex(getIndex);
-      this.pageDown();
-      return;
-    } else if (event.key === "ArrowRight") {
-      this.beforeTableOperationAtPageDownOrPageUp = "ArrowRight";
-      this.beforeIndex = this.rowsInfo.findIndex(getIndex);
-      this.pageUp();
-      return;
-    } else {
-      return;
-    }
-
-    this.$store.commit("operationHistory/selectOperation", {
-      sequence: target,
-    });
-    this.$nextTick().then(() => {
-      const tableWrapper = this.$refs.tableWrapper as HTMLElement;
-      const row = document.getElementById(
-        `operation-list-row-${this.selectedOperationSequence}`
-      );
-
-      if (row && !this.appearCurrentRow(tableWrapper, row)) {
-        if (this.beforeTableOperationAtPageDownOrPageUp === "ArrowUp") {
-          this.showRowTop(tableWrapper, row);
-        } else if (
-          this.beforeTableOperationAtPageDownOrPageUp === "ArrowDown"
-        ) {
-          this.showRowBottom(tableWrapper, row);
-        }
-      }
-      this.beforeTableOperationAtPageDownOrPageUp = null;
-    });
+  @Watch("selectedOperationSequence")
+  private initializeSelectedSequences() {
+    this.selectedSequences = [this.selectedOperationSequence];
   }
 
   private hasIntention(intention: Note | null): boolean {
@@ -527,27 +275,20 @@ export default class OperationList extends Vue {
     return moment(Number(epochMilliseconds)).format("HH:mm:ss");
   }
 
-  private filterBySequence(items: OperationHistory) {
+  private operationIsDisplayed(item: OperationWithNotes) {
     if (this.displayedOperations.length === 0) {
-      return items.filter((item) => {
-        if (this.isTextContains(this.search, item)) {
-          return true;
-        }
-        return false;
-      });
+      return true;
     }
-    return items.filter((item) => {
-      if (this.displayedOperations.indexOf(item.operation.sequence) !== -1) {
-        if (this.isTextContains(this.search, item)) {
-          return true;
-        }
-      }
-      return false;
-    });
+
+    return this.displayedOperations.includes(item.operation.sequence);
   }
 
-  private isTextContains(search: string, item: OperationWithNotes): boolean {
-    if (item.operation.sequence.toString().indexOf(search) !== -1) {
+  private operationContainsText(item: OperationWithNotes): boolean {
+    const search = this.search;
+
+    if (
+      item.operation.sequence.toString().toLowerCase().indexOf(search) !== -1
+    ) {
       return true;
     }
     if (item.operation.title.indexOf(search) !== -1) {
@@ -581,67 +322,62 @@ export default class OperationList extends Vue {
     this.onResetFilter();
   }
 
-  private onSelectOperationRange(sequence: string) {
-    this.selectedSequences = [];
-    if (
-      !this.selectedOperationSequence ||
-      this.selectedOperationSequence <= 0
-    ) {
-      this.onSelectOperation(sequence);
-      return;
-    }
-    const currentSequence = Number(sequence);
-    if (currentSequence < this.selectedOperationSequence) {
-      for (let i = currentSequence; i <= this.selectedOperationSequence; i++) {
-        this.selectedSequences.push(i);
-      }
-    } else if (this.selectedOperationSequence < currentSequence) {
-      for (let i = this.selectedOperationSequence; i <= currentSequence; i++) {
-        this.selectedSequences.push(i);
-      }
-    }
+  private onSelectOperations(...indexes: number[]) {
+    this.selectedSequences = indexes.map((index) => index + 1);
+
+    this.onSelectOperation(this.selectedSequences[0]);
   }
 
-  private openOperationContextMenu(
-    sequence: number,
-    selectedSequences: number[],
-    e: MouseEvent
-  ) {
+  private openOperationContextMenu(target: {
+    itemIndex: number;
+    x: number;
+    y: number;
+  }) {
     if ((this as any).$isViewerMode || !this.operationContextEnabled) {
       return;
     }
 
-    e.preventDefault();
     this.contextMenuOpened = false;
 
     // for close and  open animation.
     this.$nextTick(() => {
       setTimeout(() => {
-        this.contextMenuX = e.clientX;
-        this.contextMenuY = e.clientY;
-        this.contextMenuInfo = { sequence, selectedSequences };
+        this.contextMenuX = target.x;
+        this.contextMenuY = target.y;
+        this.contextMenuInfo = {
+          sequence: target.itemIndex + 1,
+          selectedSequences: this.selectedSequences,
+        };
         this.contextMenuOpened = true;
       }, 100);
     });
   }
 
-  private operationIsDisabled(sequence: number) {
-    return this.history
-      .filter(({ operation }) => {
-        return ["pause_capturing", "resume_capturing"].includes(operation.type);
-      })
-      .reduce((acc: number[][], { operation }) => {
-        if (operation.type === "pause_capturing") {
-          acc.push([]);
-        }
+  private get selectedOperationIndexes() {
+    return this.selectedSequences.map((sequence) => sequence - 1);
+  }
 
-        acc[acc.length - 1].push(operation.sequence);
+  private get disabledOperationIndexes() {
+    const disabledIndexes = [];
+    let isCounting = false;
 
-        return acc;
-      }, [])
-      .some(([begin, end]) => {
-        return sequence > begin && (end === undefined || sequence < end);
-      });
+    for (const [index, { operation }] of this.history.entries()) {
+      if (operation.type === "pause_capturing") {
+        isCounting = true;
+        continue;
+      }
+
+      if (operation.type === "resume_capturing") {
+        isCounting = false;
+        continue;
+      }
+
+      if (isCounting) {
+        disabledIndexes.push(index);
+      }
+    }
+
+    return disabledIndexes;
   }
 
   private get displayedHistory(): OperationHistory {
@@ -682,9 +418,6 @@ export default class OperationList extends Vue {
 </script>
 
 <style lang="sass" scoped>
-table tr
-  transition: background 0s !important
-
 td
   height: 30px !important
 
@@ -693,23 +426,16 @@ td
   white-space: nowrap
   text-overflow: ellipsis
   max-width: 150px
-.selected
-  background-color: lemonchiffon !important
 
+.selected
   td
-    font-weight: bold
-    color: chocolate
+    font-weight: inherit
 
 #operation-list
   position: relative
 
 #operation-search
   position: relative
-
-.disabled-operation
-  color: #888
-  font-style: italic
-  background-color: rgba(0,0,0,0.12)
 
 .icon-col
   padding: 0 !important
