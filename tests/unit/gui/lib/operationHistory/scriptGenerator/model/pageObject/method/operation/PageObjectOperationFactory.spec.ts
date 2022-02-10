@@ -2,10 +2,7 @@ import {
   PageObjectOperationFactory,
   PageObjectOperationFactoryImpl,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperationFactory";
-import {
-  OperationType,
-  ElementType,
-} from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
+import { ElementType } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 import { PageObjectElementFactory } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectElementFactory";
 import { Operation } from "@/lib/operationHistory/Operation";
 
@@ -44,7 +41,7 @@ describe("PageObjectOperationFactoryImpl", () => {
         )
       ).toEqual({
         target,
-        type: OperationType.Click,
+        type: "click",
         input: "input",
       });
 
@@ -58,7 +55,7 @@ describe("PageObjectOperationFactoryImpl", () => {
         )
       ).toEqual({
         target,
-        type: OperationType.Change,
+        type: "change",
         input: "input",
       });
 
@@ -71,7 +68,7 @@ describe("PageObjectOperationFactoryImpl", () => {
         )
       ).toEqual({
         target,
-        type: OperationType.SwitchWindow,
+        type: "switch_window",
         input: "destinationUrl",
       });
 
@@ -85,7 +82,7 @@ describe("PageObjectOperationFactoryImpl", () => {
         )
       ).toEqual({
         target,
-        type: OperationType.Other,
+        type: "other",
         input: "input",
       });
     });

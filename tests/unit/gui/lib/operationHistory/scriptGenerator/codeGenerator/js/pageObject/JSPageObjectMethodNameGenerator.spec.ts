@@ -1,8 +1,8 @@
 import { JSPageObjectMethodNameGenerator } from "@/lib/operationHistory/scriptGenerator/codeGenerator/js/pageObject/JSPageObjectMethodNameGenerator";
 import { NameGenerator } from "@/lib/operationHistory/scriptGenerator/codeGenerator/NameGenerator";
 import {
-  OperationType,
   ElementType,
+  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
 describe("JSPageObjectMethodNameGenerator", () => {
@@ -27,7 +27,7 @@ describe("JSPageObjectMethodNameGenerator", () => {
               type: ElementType.Link,
               locator: "",
             },
-            type: OperationType.Other,
+            type: "other" as OperationType,
             input: "",
           },
         ],
@@ -45,7 +45,7 @@ describe("JSPageObjectMethodNameGenerator", () => {
               type: ElementType.Other,
               locator: "",
             },
-            type: OperationType.Other,
+            type: "other" as OperationType,
             input: "",
           },
         ],

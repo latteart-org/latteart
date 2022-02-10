@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  PageObjectOperation,
-  OperationType,
-  ElementType,
-} from "./PageObjectOperation";
+import { PageObjectOperation, ElementType } from "./PageObjectOperation";
 
 export class FormalArgumentCollector {
   /**
@@ -31,7 +27,7 @@ export class FormalArgumentCollector {
       const elem = op.target;
       const identifier = elem.identifier;
 
-      if (op.type === OperationType.Change) {
+      if (op.type === "change") {
         args.add(identifier);
       } else if (elem.type === ElementType.RadioButton && elem.name) {
         args.add(elem.name);

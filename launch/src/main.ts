@@ -17,9 +17,12 @@
 import { readConfig, mergeEnv } from "./setting";
 import { launchServer, serverIsReady, openPage } from "./server";
 import { sleep } from "./util";
+import path from "path";
 
 (async () => {
-  const configFilePath = "launch.config.json";
+  const appRootPath = path.relative(process.cwd(), path.dirname(__dirname));
+
+  const configFilePath = path.join(appRootPath, "launch.config.json");
   const config = await readConfig(configFilePath);
 
   if (!config) {
@@ -34,7 +37,11 @@ import { sleep } from "./util";
     if (await serverIsReady(url, serverConfig.name)) {
       console.info("This server is already started.");
     } else {
-      launchServer(serverConfig.binaryFilePath, mergeEnv(serverConfig.env));
+      const binaryFilePath = path.join(
+        appRootPath,
+        serverConfig.binaryFilePath
+      );
+      launchServer(binaryFilePath, mergeEnv(serverConfig.env));
 
       if (!serverConfig.http?.connectionCheck) {
         await sleep(1000);

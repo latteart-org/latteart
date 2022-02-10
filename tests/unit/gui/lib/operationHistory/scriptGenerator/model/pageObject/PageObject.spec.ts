@@ -51,19 +51,19 @@ describe("PageObjectImpl", () => {
         method1.operations.push(
           {
             target: element1,
-            type: OperationType.Change,
+            type: "change",
             input: "aaa",
           },
           {
             target: element2,
-            type: OperationType.Change,
+            type: "change",
             input: "bbb",
           }
         );
 
         method2.operations.push({
           target: element1,
-          type: OperationType.Change,
+          type: "change",
           input: "aaa2",
         });
 
@@ -90,12 +90,12 @@ describe("PageObjectImpl", () => {
         const operations1 = [
           {
             target: element1,
-            type: OperationType.Change,
+            type: "change" as OperationType,
             input: "aaa",
           },
           {
             target: element2,
-            type: OperationType.Change,
+            type: "change" as OperationType,
             input: "bbb",
           },
         ];
@@ -104,12 +104,12 @@ describe("PageObjectImpl", () => {
         const operations2 = [
           {
             target: element2,
-            type: OperationType.Change,
+            type: "change" as OperationType,
             input: "bbb",
           },
           {
             target: element1,
-            type: OperationType.Change,
+            type: "change" as OperationType,
             input: "aaa",
           },
         ];

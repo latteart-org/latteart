@@ -76,7 +76,7 @@
                 >
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
-                      unixTimeToHHmmss(session.testingTime)
+                      millisecondsToHHmmss(session.testingTime)
                     }})<v-btn
                       flat
                       icon7
@@ -356,7 +356,6 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import moment from "moment";
 import {
   Session,
   AttachedFile,
@@ -367,6 +366,7 @@ import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
+import { formatTime } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -598,8 +598,8 @@ export default class SessionInfo extends Vue {
     this.confirmDialogOpened = true;
   }
 
-  private unixTimeToHHmmss(unixTime: number) {
-    return moment(unixTime, "X").utc().format("HH:mm:ss");
+  private millisecondsToHHmmss(millisecondsTime: number) {
+    return formatTime(millisecondsTime);
   }
 
   private async updateSession(params: {

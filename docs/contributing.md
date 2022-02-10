@@ -24,6 +24,7 @@ Use [discussions](https://github.com/latteart-org/latteart/discussions) feature 
     - Add the following signature to the commit message to indicate that you agree with the DCO.
         - `Signed-off-by: Random J Developer <random@developer.example.org>`
             - Use your real name in the signature.
+            - You need to set the same name in GitHub Profile.
             - `git commit -s` can add the signature.
 - Associate a pull request with the corresponding Issue.
     - If there is no corresponding issue, create a new one before creating a pull request.

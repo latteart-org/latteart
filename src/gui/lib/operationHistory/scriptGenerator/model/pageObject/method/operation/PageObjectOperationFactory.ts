@@ -49,18 +49,20 @@ export class PageObjectOperationFactoryImpl
   }
 
   private createType(operationType: string) {
-    if (operationType === "click") {
-      return OperationType.Click;
+    const operationTypeList = [
+      "click",
+      "change",
+      "switch_window",
+      "accept_alert",
+      "dismiss_alert",
+      "browser_back",
+      "browser_forward",
+    ];
+
+    if (operationTypeList.includes(operationType)) {
+      return operationType as OperationType;
     }
 
-    if (operationType === "change") {
-      return OperationType.Change;
-    }
-
-    if (operationType === "switch_window") {
-      return OperationType.SwitchWindow;
-    }
-
-    return OperationType.Other;
+    return "other";
   }
 }

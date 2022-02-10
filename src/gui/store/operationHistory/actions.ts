@@ -1124,7 +1124,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.projectId Project ID.
    * @param payload.initialUrl Initial page URL.
    * @param payload.sources Informations for generating test scripts.
-   * @returns URL of generated test scripts.
+   * @returns URL of generated test scripts and whether test scripts contain invalid operation.
    */
   async generateTestScripts(
     context,
@@ -1134,7 +1134,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       sources: { initialUrl: string; history: Operation[] }[];
       option: { useDataDriven: boolean; maxGeneration: number };
     }
-  ): Promise<string> {
+  ): Promise<{
+    outputUrl: string;
+    invalidOperationTypeExists: boolean;
+  }> {
     const optimize = true;
 
     try {
