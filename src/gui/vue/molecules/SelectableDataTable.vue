@@ -15,39 +15,45 @@
 -->
 
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="visibleItems"
-    :pagination.sync="pagination"
-  >
-    <template v-slot:items="{ item }">
-      <tr
-        :key="item.index"
-        :class="{
-          selected: selectedItemIndexes.includes(item.index),
-          'py-0': true,
-          'my-0': true,
-          disabled: disabledItemIndexes.includes(item.index),
-        }"
-        @click.exact="selectItems(item.index)"
-        @click.shift="
-          selectItems(
-            ...getIndexesFromRange(
-              selectedItemIndexes[0] || item.index,
-              item.index
+  <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
+    <v-data-table
+      :headers="tableHeaders"
+      :items="visibleItems"
+      :pagination.sync="pagination"
+      :hide-headers="hideHeaders"
+      :hide-actions="hideFooters"
+      must-sort
+    >
+      <template v-slot:items="{ index, item }">
+        <tr
+          :key="index"
+          :class="{
+            selected: selectedItemIndexes.includes(item.index),
+            'py-0': true,
+            'my-0': true,
+            disabled: disabledItemIndexes.includes(item.index),
+          }"
+          @click.exact="selectItems(item.index)"
+          @click.shift="
+            selectItems(
+              ...getIndexesFromRange(
+                selectedItemIndexes[0] || item.index,
+                item.index
+              )
             )
-          )
-        "
-        @contextmenu="contextmenu(item.index, $event)"
-      >
-        <slot name="row" :columns="item.columns"></slot>
-      </tr>
-    </template>
-  </v-data-table>
+          "
+          @contextmenu="contextmenu(item.index, $event)"
+        >
+          <slot name="row" :columns="item.columns"></slot>
+        </tr>
+      </template>
+    </v-data-table>
+  </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { filterTableRows, sortTableRows } from "@/lib/common/table";
 
 @Component
 export default class SelectableDataTable<T> extends Vue {
@@ -65,34 +71,85 @@ export default class SelectableDataTable<T> extends Vue {
   @Prop({ type: Array, default: () => [] }) private readonly items!: T[];
   @Prop({ type: Array, default: () => [] })
   private readonly filteringPredicates!: ((item: T) => boolean)[];
+  @Prop({ type: Boolean, default: true }) private readonly shortcut!: boolean;
+  @Prop({ type: Boolean, default: false })
+  private readonly descending!: boolean;
+  @Prop({ type: Number, default: 1 })
+  private readonly page!: number;
+  @Prop({ type: Number, default: -1 })
+  private readonly rowsPerPage!: number;
+  @Prop({ type: String, default: "" })
+  private readonly sortBy!: string;
+  @Prop({ type: Boolean, default: false })
+  private readonly hideHeaders!: boolean;
+  @Prop({ type: Boolean, default: false })
+  private readonly hideFooters!: boolean;
 
   private pagination: {
-    descending: boolean;
+    descending?: boolean;
     page: number;
     rowsPerPage: number;
     sortBy?: string;
-    totalItems?: number;
   } = {
-    descending: true,
-    page: 1,
-    rowsPerPage: 10,
+    descending: this.descending,
+    page: this.page,
+    rowsPerPage: this.rowsPerPage,
+    sortBy: this.sortBy,
   };
+
+  @Watch("pagination.descending")
+  private notifyDescendingChange() {
+    this.$emit("changeDescending", this.pagination.descending);
+  }
+
+  @Watch("pagination.page")
+  private notifyPageChange() {
+    this.$emit("changePage", this.pagination.page);
+  }
+
+  @Watch("pagination.rowsPerPage")
+  private notifyRowsPerPageChange() {
+    this.$emit("changeRowsPerPage", this.pagination.rowsPerPage);
+  }
+
+  @Watch("pagination.sortBy")
+  private notifySortByChange() {
+    this.$emit("changeSortBy", this.pagination.sortBy);
+  }
+
+  private get tableHeaders() {
+    return this.headers.map((header) => {
+      return {
+        ...header,
+        value: header.value,
+      };
+    });
+  }
 
   private get visibleItems() {
     const tableItems = this.items.map((columns, index) => {
       return { index, columns };
     });
 
-    return tableItems.filter(({ columns }) => {
-      return this.filteringPredicates.every((filteringPredicate) => {
-        return filteringPredicate(columns);
-      });
-    });
+    const filteredItems = filterTableRows(tableItems, this.filteringPredicates);
+
+    const sortedItems = sortTableRows(
+      filteredItems,
+      `${this.pagination.sortBy}`
+    );
+
+    return this.pagination.descending
+      ? sortedItems.slice().reverse()
+      : sortedItems;
+  }
+
+  private get visibleItemsStr() {
+    return JSON.stringify(this.visibleItems);
   }
 
   created(): void {
     this.$nextTick(() => {
-      this.switchPage();
+      this.resetPosition();
     });
   }
 
@@ -106,7 +163,8 @@ export default class SelectableDataTable<T> extends Vue {
 
   @Watch("pagination.rowsPerPage")
   @Watch("selectedItemIndexes")
-  private switchPage() {
+  @Watch("visibleItemsStr")
+  private resetPosition() {
     const currentItemIndex = this.selectedItemIndexes[0];
 
     const rowIndex = this.visibleItems.findIndex(
@@ -114,9 +172,25 @@ export default class SelectableDataTable<T> extends Vue {
     );
 
     if (rowIndex !== -1) {
-      this.pagination.page =
-        Math.floor(rowIndex / this.pagination.rowsPerPage) + 1;
+      const rowsPerPage =
+        this.pagination.rowsPerPage > 0
+          ? this.pagination.rowsPerPage
+          : this.visibleItems.length;
+
+      this.switchTablePage(rowIndex, rowsPerPage);
+      this.scrollToTableRow(rowIndex, rowsPerPage);
     }
+  }
+
+  private switchTablePage(rowIndex: number, rowsPerPage: number) {
+    this.pagination.page = Math.floor(rowIndex / rowsPerPage) + 1;
+  }
+
+  private scrollToTableRow(rowIndex: number, rowsPerPage: number) {
+    this.$vuetify.goTo(30 * Math.floor(rowIndex % rowsPerPage), {
+      container: ".scroll-y",
+      duration: 100,
+    });
   }
 
   private selectItems(...indexes: number[]) {
@@ -150,6 +224,10 @@ export default class SelectableDataTable<T> extends Vue {
   }
 
   private keyDown(event: KeyboardEvent): void {
+    if (!this.shortcut) {
+      return;
+    }
+
     const currentItemIndex = this.visibleItems.findIndex(
       ({ index }) => index === this.selectedItemIndexes[0]
     );
@@ -198,6 +276,7 @@ export default class SelectableDataTable<T> extends Vue {
 <style lang="sass" scoped>
 table tr
   transition: background 0s !important
+  height: 30px !important
 
 .selected
   background-color: lemonchiffon !important

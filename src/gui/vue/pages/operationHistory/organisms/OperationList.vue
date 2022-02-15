@@ -34,11 +34,7 @@
       fill-height
       style="height: calc(100% - 90px)"
     >
-      <v-flex
-        xs12
-        :style="{ height: '100%', 'overflow-y': 'scroll' }"
-        ref="tableWrapper"
-      >
+      <v-flex xs12 :style="{ height: '100%' }">
         <selectable-data-table
           @selectItems="onSelectOperations"
           @contextmenu="openOperationContextMenu"
@@ -47,7 +43,10 @@
           :headers="headers"
           :items="displayedHistory"
           :filtering-predicates="[operationIsDisplayed, operationContainsText]"
-          :search="search"
+          :shortcut="shortcutEnabled"
+          sortBy="operation.sequence"
+          descending
+          :rowsPerPage="10"
         >
           <template v-slot:row="{ columns }">
             <td class="seq-col">
@@ -142,6 +141,8 @@
         v-model="search"
         prepend-inner-icon="search"
         :label="message('operation.query')"
+        @focus="shortcutEnabled = false"
+        @blur="shortcutEnabled = true"
       ></v-text-field>
     </v-layout>
 
@@ -204,6 +205,8 @@ export default class OperationList extends Vue {
     sequence: -1,
     selectedSequences: [],
   };
+
+  private shortcutEnabled = true;
 
   private get headers(): {
     text: string;
@@ -419,7 +422,7 @@ export default class OperationList extends Vue {
 
 <style lang="sass" scoped>
 td
-  height: 30px !important
+  height: inherit !important
 
 .ellipsis
   overflow: hidden
