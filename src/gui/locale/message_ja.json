@@ -341,7 +341,8 @@
     "result-list": "実行結果取り込み",
     "result-import": "取り込む",
     "call-test-results": "実行結果一覧を取得中",
-    "import-test-result": "実行結果読込中"
+    "import-test-result": "実行結果読込中",
+    "start-capture-tool": "記録ツール起動"
   },
   "session-list": {
     "complete": "セッションを完了にする",

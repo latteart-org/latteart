@@ -77,9 +77,18 @@
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
                       millisecondsToHHmmss(session.testingTime)
-                    }})<v-btn
+                    }})
+                    <v-btn
+                      class="mr-0"
                       flat
-                      icon7
+                      icon
+                      v-if="!isViewerMode"
+                      @click="importTestResult(file)"
+                      ><v-icon>refresh</v-icon></v-btn
+                    >
+                    <v-btn
+                      flat
+                      icon
                       color="error"
                       v-if="!isViewerMode"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
@@ -91,6 +100,14 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
+                <v-btn
+                  v-if="!isViewerMode"
+                  @click="openCaptureTool(session.testResultFiles)"
+                  id="openCaptureToolButton"
+                  >{{
+                    $store.getters.message("session-info.start-capture-tool")
+                  }}</v-btn
+                >
                 <v-btn
                   v-if="!isViewerMode"
                   @click="openTestResultSelectionDialog"
@@ -673,6 +690,32 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogOpened = true;
+  }
+
+  private async openCaptureTool(testResultFiles: TestResultFile[]) {
+    const host = location.host;
+
+    if (testResultFiles.length > 0) {
+      const testResultId = testResultFiles[0].id;
+      window.open(
+        `http://${host}/capture/config/?testResultId=${testResultId}`,
+        "_blank"
+      );
+    } else {
+      await this.$store.dispatch("operationHistory/createTestResult", {
+        initialUrl: "",
+        name: "",
+      });
+
+      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+
+      this.importTestResult(newTestResult);
+
+      window.open(
+        `http://${host}/capture/config/?testResultId=${newTestResult.id}`,
+        "_blank"
+      );
+    }
   }
 }
 </script>

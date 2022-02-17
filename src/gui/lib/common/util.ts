@@ -68,7 +68,7 @@ export const calculateElapsedUnixTime = (
     let seq = history.length - 1;
     while (!endTime) {
       if (seq <= 0) {
-        endTime = 0;
+        endTime = startEpochMilliseconds;
         break;
       }
       const lastHistory = history[seq--];

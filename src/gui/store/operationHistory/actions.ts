@@ -1210,9 +1210,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { initialUrl: string; name: string }
   ) {
+    const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
     const reply = await context.rootState.repositoryServiceDispatcher.createEmptyTestResult(
-      payload.initialUrl,
+      initialUrl,
       name
     );
 

@@ -166,6 +166,22 @@ export default class ConfigView extends Vue {
   private created() {
     this.updateWindowTitle();
     this.selectPlatform(this.selectedPlatformName);
+
+    const testResultId = this.$route.query.testResultId as string;
+
+    if (testResultId) {
+      (async () => {
+        try {
+          await this.$store.dispatch("operationHistory/resume", {
+            testResultId,
+          });
+        } catch (error) {
+          console.error(error);
+          this.errorMessageDialogOpened = true;
+          this.errorMessage = error.message;
+        }
+      })();
+    }
   }
 
   private get coverageOpened() {
