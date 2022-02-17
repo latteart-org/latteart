@@ -317,7 +317,7 @@ export default class RepositoryServiceDispatcher
    * @returns  Created test result information.
    */
   public async createEmptyTestResult(
-    initialUrl: string,
+    initialUrl?: string,
     name?: string
   ): Promise<Reply<{ id: string; name: string }>> {
     try {
