@@ -693,12 +693,12 @@ export default class SessionInfo extends Vue {
   }
 
   private async openCaptureTool(testResultFiles: TestResultFile[]) {
-    const host = location.host;
+    const origin = location.origin;
 
     if (testResultFiles.length > 0) {
       const testResultId = testResultFiles[0].id;
       window.open(
-        `http://${host}/capture/config/?testResultId=${testResultId}`,
+        `${origin}/capture/config/?testResultId=${testResultId}`,
         "_blank"
       );
     } else {
@@ -712,7 +712,7 @@ export default class SessionInfo extends Vue {
       this.importTestResult(newTestResult);
 
       window.open(
-        `http://${host}/capture/config/?testResultId=${newTestResult.id}`,
+        `${origin}/capture/config/?testResultId=${newTestResult.id}`,
         "_blank"
       );
     }
