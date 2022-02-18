@@ -39,6 +39,8 @@ import { Exportable } from "../testManagement/actions/ExportAction";
 import { TestResultImportable } from "../operationHistory/actions/ImportAction";
 import { TestResultExportable } from "../operationHistory/actions/ExportAction";
 import { TestMatrix, ProgressData } from "../testManagement/types";
+import { TestResultUploadable } from "../operationHistory/actions/UploadTestResultAction";
+import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -54,16 +56,25 @@ export default class RepositoryServiceDispatcher
     Importable,
     Exportable,
     TestResultImportable,
-    TestResultExportable {
+    TestResultExportable,
+    TestResultUploadable,
+    TestResultDeletable {
+  constructor(
+    private config: {
+      url: string;
+      isRemote: boolean;
+    }
+  ) {}
+
   /**
    * Service URL.
    */
   get serviceUrl(): string {
-    return this._serviceUrl;
+    return this.config.url;
   }
 
-  set serviceUrl(value: string) {
-    this._serviceUrl = value;
+  get isRemote(): boolean {
+    return this.config.isRemote;
   }
 
   /**
@@ -77,7 +88,6 @@ export default class RepositoryServiceDispatcher
     this._proxyUrl = value;
   }
 
-  private _serviceUrl = "http://127.0.0.1:3002";
   private _proxyUrl = "";
   private restClient: RESTClient = new RESTClient();
 
@@ -445,7 +455,7 @@ export default class RepositoryServiceDispatcher
             other: operation,
             overrideParams: {
               imageFilePath: operation.imageFileUrl
-                ? new URL(operation.imageFileUrl, this._serviceUrl).toString()
+                ? new URL(operation.imageFileUrl, this.serviceUrl).toString()
                 : operation.imageFileUrl,
               keywordSet: new Set(operation.keywordTexts),
             },
@@ -526,7 +536,7 @@ export default class RepositoryServiceDispatcher
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: savedNote.tags,
         }),
@@ -595,7 +605,7 @@ export default class RepositoryServiceDispatcher
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: savedNote.tags,
         }),
@@ -687,7 +697,7 @@ export default class RepositoryServiceDispatcher
           value: note.value,
           details: note.details,
           imageFilePath: note.imageFileUrl
-            ? new URL(note.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(note.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: note.tags,
         }),
@@ -829,7 +839,7 @@ export default class RepositoryServiceDispatcher
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: savedNote.tags,
         }),
@@ -900,7 +910,7 @@ export default class RepositoryServiceDispatcher
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: savedNote.tags,
         }),
@@ -994,7 +1004,7 @@ export default class RepositoryServiceDispatcher
           value: note.value,
           details: note.details,
           imageFilePath: note.imageFileUrl
-            ? new URL(note.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(note.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: note.tags,
         }),
@@ -1124,7 +1134,7 @@ export default class RepositoryServiceDispatcher
           value: savedNote.value,
           details: savedNote.details,
           imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
             : "",
           tags: savedNote.tags,
         }),
@@ -1184,7 +1194,7 @@ export default class RepositoryServiceDispatcher
         value: savedNote.value,
         details: savedNote.details,
         imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, this._serviceUrl).toString()
+          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
           : "",
         tags: savedNote.tags,
       });
@@ -1257,7 +1267,7 @@ export default class RepositoryServiceDispatcher
         value: note.value,
         details: note.details,
         imageFilePath: note.imageFileUrl
-          ? new URL(note.imageFileUrl, this._serviceUrl).toString()
+          ? new URL(note.imageFileUrl, this.serviceUrl).toString()
           : "",
         tags: note.tags,
       });
@@ -1370,7 +1380,7 @@ export default class RepositoryServiceDispatcher
                       imageFilePath: testStep.operation.imageFileUrl
                         ? new URL(
                             testStep.operation.imageFileUrl,
-                            this._serviceUrl
+                            this.serviceUrl
                           ).toString()
                         : "",
                       keywordSet: new Set(testStep.operation.keywordTexts),
@@ -1384,7 +1394,7 @@ export default class RepositoryServiceDispatcher
                     other: bug,
                     overrideParams: {
                       imageFilePath: bug.imageFileUrl
-                        ? new URL(bug.imageFileUrl, this._serviceUrl).toString()
+                        ? new URL(bug.imageFileUrl, this.serviceUrl).toString()
                         : "",
                     },
                   });
@@ -1397,7 +1407,7 @@ export default class RepositoryServiceDispatcher
                       imageFilePath: notice.imageFileUrl
                         ? new URL(
                             notice.imageFileUrl,
-                            this._serviceUrl
+                            this.serviceUrl
                           ).toString()
                         : "",
                     },
@@ -1415,7 +1425,7 @@ export default class RepositoryServiceDispatcher
       return {
         succeeded: false,
         error: {
-          code: "repository_service_not_found",
+          code: "resume_failed",
           message: "Repository service is not found.",
         },
       };
@@ -1466,23 +1476,40 @@ export default class RepositoryServiceDispatcher
 
   /**
    * Import test result.
-   * @param testResultFile  Test result FileName.
+   * @param source.importFileUrl Source import file url.
+   * @param dest.testResultId Destination local test result id.
+   * @param dest.shouldSaveTemporary Whether to save temporary.
    */
   public async importTestResult(
-    testResultFile: string
-  ): Promise<Reply<{ name: string }>> {
-    let response;
+    source: { repositoryUrl: string; fileName: string },
+    dest: { testResultId?: string; shouldSaveTemporary?: boolean }
+  ): Promise<Reply<{ name: string; id: string; beforeId: string }>> {
     try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/imports/test-results/${testResultFile}`)
-      );
+      const body = {
+        fileName: source.fileName,
+        repositoryUrl:
+          source.repositoryUrl !== this.serviceUrl
+            ? source.repositoryUrl
+            : undefined,
+        temp: dest.shouldSaveTemporary,
+      };
 
-      if (!response.name) {
+      const response = dest.testResultId
+        ? await this.restClient.httpPut(
+            this.buildAPIURL(`/imports/test-results/${dest.testResultId}`),
+            body
+          )
+        : await this.restClient.httpPost(
+            this.buildAPIURL(`/imports/test-results`),
+            body
+          );
+
+      if (!response) {
         return {
           succeeded: false,
           error: {
-            code: "code",
-            message: "message",
+            code: response.code,
+            message: response.code,
           },
         };
       }
@@ -1537,17 +1564,18 @@ export default class RepositoryServiceDispatcher
   /**
    * Creates export data with the specified test results.
    * @param testResultId  Test result ID.
-   * @param body.pageObjects  Page objects.
-   * @param body.testSuite  Test suite.
+   * @param shouldSaveTemporary Whether to save temporary.
    * @returns Test script URL.
    */
   public async exportTestResult(
-    testResultId: string
+    testResultId: string,
+    shouldSaveTemporary: boolean
   ): Promise<Reply<{ url: string }>> {
     let response;
     try {
       response = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/export`)
+        this.buildAPIURL(`/test-results/${testResultId}/export`),
+        { temp: shouldSaveTemporary }
       );
     } catch (e) {
       return {
@@ -1849,11 +1877,94 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
+   * Upload test result.
+   * @param targetExportFileUrl Target test result export file url.
+   * @param destRepositoryUrl Destination repository url.
+   */
+  public async uploadTestResult(
+    targetExportFileUrl: string,
+    destRepositoryUrl: string,
+    testResultId?: string
+  ): Promise<Reply<{ id: string }>> {
+    let response;
+    const body = {
+      file: {
+        name: targetExportFileUrl.split("/").pop(),
+        path: targetExportFileUrl,
+      },
+      url: destRepositoryUrl,
+      id: testResultId,
+    };
+    try {
+      response = await this.restClient.httpPost(
+        this.buildAPIURL(`/upload-request/test-result`),
+        body
+      );
+    } catch (e) {
+      return {
+        succeeded: false,
+        error: {
+          code: "code",
+          message: "message",
+        },
+      };
+    }
+    return {
+      succeeded: true,
+      data: response,
+    };
+  }
+
+  /**
+   * Delete temporary file.
+   * @param fileName  File Name.
+   */
+  public async deleteTempFile(fileName: string): Promise<Reply<void>> {
+    try {
+      await this.restClient.httpDelete(this.buildAPIURL(`/temp/${fileName}`));
+    } catch (e) {
+      return {
+        succeeded: false,
+        error: {
+          code: "code",
+          message: "message",
+        },
+      };
+    }
+    return {
+      succeeded: true,
+    };
+  }
+
+  /**
+   * Delete local test result.
+   * @param testResultId  Test result id.
+   */
+  public async deleteTestResult(testResultId: string): Promise<Reply<void>> {
+    try {
+      await this.restClient.httpDelete(
+        this.buildAPIURL(`/test-results/${testResultId}`)
+      );
+    } catch (e) {
+      return {
+        succeeded: false,
+        error: {
+          code: "code",
+          message: "message",
+        },
+      };
+    }
+    return {
+      succeeded: true,
+    };
+  }
+
+  /**
    * Generate API URL.
    * @param url  URL after the fixed value.
    * @returns  URL
    */
   private buildAPIURL(url: string) {
-    return new URL(`api/v1${url}`, this._serviceUrl).toString();
+    return new URL(`api/v1${url}`, this.serviceUrl).toString();
   }
 }

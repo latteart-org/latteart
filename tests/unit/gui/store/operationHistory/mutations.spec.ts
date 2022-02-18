@@ -22,6 +22,7 @@ describe("operationHistoryストアのmutationsは", () => {
   beforeEach(() => {
     state = {
       testResultInfo: {
+        repositoryUrl: "",
         id: "",
         name: "",
       },
@@ -38,7 +39,6 @@ describe("operationHistoryストアのmutationsは", () => {
         imageCompression: {
           isEnabled: false,
           isDeleteSrcImage: false,
-          command: "",
         },
       },
       testStepIds: [],

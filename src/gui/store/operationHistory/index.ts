@@ -43,6 +43,11 @@ export interface OperationHistoryState {
    */
   testResultInfo: {
     /**
+     * Repository URL.
+     */
+    repositoryUrl: string;
+
+    /**
      * Test result ID.
      */
     id: string;
@@ -271,6 +276,7 @@ export interface OperationHistoryState {
 
 const state: OperationHistoryState = {
   testResultInfo: {
+    repositoryUrl: "",
     id: "",
     name: "",
   },
@@ -287,7 +293,6 @@ const state: OperationHistoryState = {
     imageCompression: {
       isEnabled: false,
       isDeleteSrcImage: false,
-      command: "",
     },
   },
   testStepIds: [],

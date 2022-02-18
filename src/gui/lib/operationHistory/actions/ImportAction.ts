@@ -17,21 +17,25 @@
 import { Reply } from "@/lib/captureControl/Reply";
 
 export interface TestResultImportable {
-  importTestResult(importFileName: string): Promise<Reply<{ name: string }>>;
+  importTestResult(
+    source: { repositoryUrl: string; fileName: string },
+    dest: { testResultId?: string; shouldSaveTemporary?: boolean }
+  ): Promise<Reply<{ name: string; id: string; beforeId: string }>>;
 }
 
 export class ImportAction {
   constructor(private dispatcher: TestResultImportable) {}
 
-  public async importWithTestResult(importFileName: string): Promise<string> {
-    const reply = await this.dispatcher.importTestResult(importFileName);
+  public async importWithTestResult(
+    source: { repositoryUrl: string; fileName: string },
+    dest: { testResultId?: string; shouldSaveTemporary?: boolean } = {}
+  ): Promise<{ name: string; id: string; beforeId: string }> {
+    const reply = await this.dispatcher.importTestResult(source, dest);
 
     if (!reply.data) {
       throw new Error(`import-data-error`);
     }
 
-    const outputName: string = reply.data.name;
-
-    return outputName;
+    return reply.data;
   }
 }

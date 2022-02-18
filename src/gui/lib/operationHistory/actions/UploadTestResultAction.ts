@@ -16,31 +16,32 @@
 
 import { Reply } from "@/lib/captureControl/Reply";
 
-export interface TestResultExportable {
-  exportTestResult(
-    testResultId: string,
-    shouldSaveTemporary: boolean
-  ): Promise<Reply<{ url: string }>>;
+export interface TestResultUploadable {
+  uploadTestResult(
+    exportFileUrl: string,
+    serviceUrl: string,
+    testResultId?: string
+  ): Promise<Reply<{ id: string }>>;
 }
 
-export class ExportAction {
-  constructor(private dispatcher: TestResultExportable) {}
+export class UploadTestResultAction {
+  constructor(private dispatcher: TestResultUploadable) {}
 
-  public async exportWithTestResult(
-    testResultId: string,
-    shouldSaveTemporary = false
+  public async uploadTestResult(
+    exportFileUrl: string,
+    serviceUrl: string,
+    testResultId?: string
   ): Promise<string> {
-    const reply = await this.dispatcher.exportTestResult(
-      testResultId,
-      shouldSaveTemporary
+    const reply = await this.dispatcher.uploadTestResult(
+      exportFileUrl,
+      serviceUrl,
+      testResultId
     );
 
     if (!reply.data) {
-      throw new Error(`create-export-data-error`);
+      throw new Error(`upload-request-error`);
     }
 
-    const outputUrl: string = reply.data.url;
-
-    return outputUrl;
+    return reply.data.id;
   }
 }

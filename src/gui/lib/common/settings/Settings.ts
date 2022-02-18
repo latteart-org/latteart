@@ -103,7 +103,6 @@ export default class Settings {
       imageCompression: {
         isEnabled: true,
         isDeleteSrcImage: true,
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       },
     };
     this.captureSettings = {
@@ -126,5 +125,4 @@ export interface Coverage {
 export interface ImageCompression {
   isEnabled: boolean;
   isDeleteSrcImage: boolean;
-  command: string;
 }

@@ -58,8 +58,6 @@ export default class ImageCompressionSetting extends Vue {
             isEnabled,
             isDeleteSrcImage: this.$store.state.operationHistory.config
               .imageCompression.isDeleteSrcImage,
-            command: this.$store.state.operationHistory.config.imageCompression
-              .command,
           },
         },
       });
@@ -78,8 +76,6 @@ export default class ImageCompressionSetting extends Vue {
             isEnabled: this.$store.state.operationHistory.config
               .imageCompression.isEnabled,
             isDeleteSrcImage: isDelete,
-            command: this.$store.state.operationHistory.config.imageCompression
-              .command,
           },
         },
       });

@@ -20,83 +20,95 @@
       <v-toolbar-title height="40">{{
         $store.getters.message("manage-header.tool-name")
       }}</v-toolbar-title>
-      <v-spacer></v-spacer>
       <template v-slot:extension>
-        <v-tabs v-model="tabNum" color="latteart-main" align-with-title>
-          <v-tabs-slider color="yellow"></v-tabs-slider>
-          <v-tab
-            id="manageShowViewButton"
-            @click="toOtherManagePage('manageShowView')"
-            >{{ $store.getters.message("manage-header.top") }}</v-tab
-          >
-          <v-tab
-            id="manageProgressViewButton"
-            :disabled="!isTestMatrixSelected"
-            @click="toOtherManagePage('manageProgressView')"
-            >{{
-              $store.getters.message("manage-header.manage-progress")
-            }}</v-tab
-          >
-          <v-tab
-            id="manageQualityViewButton"
-            :disabled="!isTestMatrixSelected"
-            @click="toOtherManagePage('manageQualityView')"
-            >{{ $store.getters.message("manage-header.manage-quality") }}</v-tab
-          >
-        </v-tabs>
-        <v-btn
-          v-if="!isViewerMode"
-          id="editPlanButton"
-          color="primary"
-          @click="toManageEdit"
-          >{{ $store.getters.message("manage-header.edit-plan") }}</v-btn
-        >
-        <v-btn
-          v-if="!isViewerMode"
-          id="outputHtmlButton"
-          color="primary"
-          @click="outputHtml"
-          :disabled="!hasAnyTestMatrix"
-          >{{ $store.getters.message("manage-header.output-html") }}</v-btn
-        >
-        <v-btn
-          v-if="!isViewerMode"
-          id="generateTestScriptButton"
-          color="primary"
-          :loading="isGeneratingTestScripts"
-          :disabled="!anySessionHasHistory() || isGeneratingTestScripts"
-          @click="scriptGenerationOptionDialogIsOpened = true"
-          >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
-        >
-        <v-btn
-          v-if="!isViewerMode"
-          id="importButton"
-          color="primary"
-          @click="importOptionDialogIsOpened = true"
-          >{{ $store.getters.message("manage-header.import-option") }}</v-btn
-        >
-        <v-btn
-          v-if="!isViewerMode"
-          id="exportButton"
-          color="primary"
-          @click="exportOptionDialogIsOpened = true"
-          >{{ $store.getters.message("manage-header.export-option") }}</v-btn
-        >
-        <v-btn
-          v-if="!isViewerMode"
-          id="viewerConfigButton"
-          color="primary"
-          @click="toViewerConfig"
-          >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
-        >
-        <v-flex shrink pa-1 v-if="!isViewerMode">
-          <v-select
-            label="locale"
-            :items="locales"
-            :value="initLocale"
-            v-on:change="changeLocale"
-          ></v-select>
-        </v-flex>
+        <v-layout row>
+          <v-flex>
+            <v-layout row>
+              <v-tabs v-model="tabNum" color="latteart-main" align-with-title>
+                <v-tabs-slider color="yellow"></v-tabs-slider>
+                <v-tab
+                  id="manageShowViewButton"
+                  @click="toOtherManagePage('manageShowView')"
+                  >{{ $store.getters.message("manage-header.top") }}</v-tab
+                >
+                <v-tab
+                  id="manageProgressViewButton"
+                  :disabled="!isTestMatrixSelected"
+                  @click="toOtherManagePage('manageProgressView')"
+                  >{{
+                    $store.getters.message("manage-header.manage-progress")
+                  }}</v-tab
+                >
+                <v-tab
+                  id="manageQualityViewButton"
+                  :disabled="!isTestMatrixSelected"
+                  @click="toOtherManagePage('manageQualityView')"
+                  >{{
+                    $store.getters.message("manage-header.manage-quality")
+                  }}</v-tab
+                >
+              </v-tabs>
+              <v-btn
+                v-if="!isViewerMode"
+                id="editPlanButton"
+                color="primary"
+                @click="toManageEdit"
+                >{{ $store.getters.message("manage-header.edit-plan") }}</v-btn
+              >
+              <v-btn
+                v-if="!isViewerMode"
+                id="viewerConfigButton"
+                color="primary"
+                @click="toViewerConfig"
+                >{{
+                  $store.getters.message("manage-header.capture-config")
+                }}</v-btn
+              >
+              <v-menu offset-y>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-if="!isViewerMode"
+                    id="optionMenuButton"
+                    color="primary"
+                    dark
+                    @click="getOptionMenuList"
+                    v-on="on"
+                    >{{
+                      $store.getters.message("manage-header.optional-function")
+                    }}</v-btn
+                  >
+                </template>
+                <v-list>
+                  <v-list-tile
+                    v-for="(menu, index) in optionMenuList"
+                    :key="index"
+                    @click="getMenuMethod(menu.method)"
+                  >
+                    <v-list-tile-title>{{ menu.title }}</v-list-tile-title>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
+            </v-layout>
+          </v-flex>
+          <v-flex xs1 pl-3 v-if="!isViewerMode">
+            <v-select
+              hide-details
+              :label="$store.getters.message('manage-header.locale')"
+              :items="locales"
+              :value="initLocale"
+              v-on:change="changeLocale"
+            ></v-select>
+          </v-flex>
+          <v-flex xs2 pl-3 v-if="!isViewerMode">
+            <remote-access-field
+              :url="currentRepositoryUrl"
+              color="primary"
+              hide-details
+              :urls="repositoryUrls"
+              @execute="startRemoteConnection"
+            ></remote-access-field
+          ></v-flex>
+        </v-layout>
       </template>
     </v-toolbar>
     <router-view @selectTestMatrix="changeMatrixId"></router-view>
@@ -122,7 +134,7 @@
     </import-option-dialog>
     <information-message-dialog
       :opened="informationMessageDialogOpened"
-      :title="$store.getters.message('import-export-dialog.import-title')"
+      :title="informationTitle"
       :message="informationMessage"
       @close="informationMessageDialogOpened = false"
     />
@@ -148,6 +160,7 @@ import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ImportOptionDialog from "../common/ImportOptionDialog.vue";
 import ExportOptionDialog from "../common/ExportOptionDialog.vue";
 import InformationMessageDialog from "../common/InformationMessageDialog.vue";
+import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 
 @Component({
   components: {
@@ -157,6 +170,7 @@ import InformationMessageDialog from "../common/InformationMessageDialog.vue";
     "import-option-dialog": ImportOptionDialog,
     "export-option-dialog": ExportOptionDialog,
     "information-message-dialog": InformationMessageDialog,
+    "remote-access-field": RemoteAccessField,
   },
 })
 export default class ManageView extends Vue {
@@ -187,9 +201,13 @@ export default class ManageView extends Vue {
   private downloadLinkDialogLinkUrl = "";
 
   private informationMessageDialogOpened = false;
+  private informationTitle = "";
   private informationMessage = "";
 
   private selectedTestMatrixId = "";
+
+  private optionMenuList: Array<{ title: string; method: string }> = [];
+  private remoteUrl = "";
 
   private get hasAnyTestMatrix(): boolean {
     return this.$store.state.testManagement.testMatrices.length > 0;
@@ -248,7 +266,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "manage.print-html-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${snapshotUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
           "manage.print-html-error"
@@ -301,7 +319,7 @@ export default class ManageView extends Vue {
             "history-view.generate-alert-info"
           );
         }
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } else {
@@ -347,6 +365,9 @@ export default class ManageView extends Vue {
         const returnName = returnItem.name;
 
         this.informationMessageDialogOpened = true;
+        this.informationTitle = this.$store.getters.message(
+          "import-export-dialog.import-title"
+        );
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
@@ -392,7 +413,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${exportDataUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
           "error.import_export.create-export-data-error"
@@ -410,6 +431,106 @@ export default class ManageView extends Vue {
 
   private changeMatrixId(testMatrixId: string): void {
     this.selectedTestMatrixId = testMatrixId;
+  }
+
+  private getMenuMethod(method: string) {
+    if (method === "outputHtml") {
+      this.outputHtml();
+    }
+    if (method === "scriptGenerate") {
+      this.scriptGenerationOptionDialogIsOpened = true;
+    }
+    if (method === "import") {
+      this.importOptionDialogIsOpened = true;
+    }
+    if (method === "export") {
+      this.exportOptionDialogIsOpened = true;
+    }
+  }
+
+  private getOptionMenuList() {
+    const optionMenus = [
+      {
+        title: this.$store.getters.message("manage-header.output-html"),
+        method: "outputHtml",
+      },
+      {
+        title: this.$store.getters.message("manage-header.generate-script"),
+        method: "scriptGenerate",
+      },
+      {
+        title: this.$store.getters.message("manage-header.import-option"),
+        method: "import",
+      },
+      {
+        title: this.$store.getters.message("manage-header.export-option"),
+        method: "export",
+      },
+    ];
+
+    for (const menu of optionMenus) {
+      if (menu.method === "outputHtml" && !this.hasAnyTestMatrix) {
+        return;
+      }
+      if (menu.method === "scriptGenerate" && !this.anySessionHasHistory()) {
+        return;
+      }
+      this.optionMenuList.push({
+        title: menu.title,
+        method: menu.method,
+      });
+    }
+  }
+
+  private startRemoteConnection(targetUrl: string) {
+    (async () => {
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "remote-access.connecting-remote-url"
+        ),
+      });
+
+      const url = await this.$store
+        .dispatch("connectRemoteUrl", {
+          targetUrl,
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.$store.dispatch("closeProgressDialog");
+        });
+
+      if (url) {
+        this.$store.dispatch("operationHistory/resetHistory");
+        await this.$store.dispatch("testManagement/readDataFile");
+
+        this.informationMessageDialogOpened = true;
+        this.informationTitle = this.$store.getters.message("common.confirm");
+        this.informationMessage = this.$store.getters.message(
+          "remote-access.connect-remote-url-succeeded",
+          {
+            url,
+          }
+        );
+        this.remoteUrl = url;
+      } else {
+        this.errorMessage = this.$store.getters.message(
+          "remote-access.connect-remote-url-error"
+        );
+        this.errorMessageDialogOpened = true;
+      }
+    })();
+  }
+
+  private get currentRepositoryUrl() {
+    return this.$store.state.repositoryServiceDispatcher.serviceUrl;
+  }
+
+  private get repositoryUrls(): string[] {
+    const localUrl = this.$store.state.localRepositoryServiceUrl;
+    const remoteUrls = this.$store.state.remoteRepositoryUrls;
+    return [localUrl, ...remoteUrls];
   }
 }
 </script>
