@@ -38,7 +38,6 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { collectKeyword } from "@/lib/common/util";
 import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/SaveIntentionAction";
@@ -787,14 +786,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async registerOperation(context, payload: { operation: CapturedOperation }) {
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
-      const parser = new DOMParser();
-      const document = parser.parseFromString(
-        capturedOperation.pageSource,
-        "text/html"
-      );
-      const keywordSet: Set<string> = new Set();
-      collectKeyword(document.children[0] as HTMLElement, keywordSet);
-      capturedOperation.keywordTexts = Array.from(keywordSet);
+      capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
     const reply = await context.rootState.repositoryServiceDispatcher.registerOperation(

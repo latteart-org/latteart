@@ -224,29 +224,3 @@ const extractKeywordsFromInnerText = (element: HTMLElement): string | null => {
   }
   return null;
 };
-
-export const collectKeyword = (
-  element: HTMLElement,
-  textSet: Set<string>
-): void => {
-  if (ignoreTags.includes(element.tagName.toUpperCase())) {
-    return;
-  }
-  const elements = element.children;
-  if (elements.length === 0) {
-    const inputInKeywords = extractKeywordsFromInputAndTextareaTag(element);
-    inputInKeywords?.forEach((keyword: string) => {
-      textSet.add(keyword);
-    });
-
-    const innerTextkeyword = extractKeywordsFromInnerText(element);
-    if (innerTextkeyword) {
-      textSet.add(innerTextkeyword);
-    }
-
-    return;
-  }
-  for (let cnt = 0; elements.length > cnt; cnt++) {
-    collectKeyword(elements[cnt] as HTMLElement, textSet);
-  }
-};
