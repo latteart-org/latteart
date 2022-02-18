@@ -218,7 +218,9 @@
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
     "import-option": "データインポート",
-    "export-option": "データエクスポート"
+    "export-option": "データエクスポート",
+    "optional-function": "オプション機能",
+    "locale": "言語"
   },
   "manage-show": {
     "window-title": "管理ツール [トップ]",
@@ -406,6 +408,21 @@
     "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
     "settings": "設定"
   },
+  "remote-access": {
+    "remote-connection-url": "リポジトリURL",
+    "connect": "接続",
+    "connecting-remote-url": "リポジトリに接続中",
+    "connect-remote-url-succeeded": "{url}に接続しました。",
+    "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
+    "register-confirm": "リモートリポジトリに接続されています。\nテスト結果をリモートリポジトリに登録しますか？",
+    "registering-testresults": "テスト結果登録中",
+    "registering-testresults-error": "テスト結果の登録に失敗しました。",
+    "delete-warning": "登録したテスト結果をローカルリポジトリから削除しますか？",
+    "delete-testresults": "テスト結果削除中",
+    "delete-error": "テスト結果の削除に失敗しました。",
+    "register-delete-succeeded": "リモートリポジトリへのテスト結果登録・ローカルリポジトリのテスト結果の削除が完了致しました。",
+    "load": "読み込み中"
+  },
   "error": {
     "common": {
       "fatal": "不明なエラーが発生しました。",
@@ -448,6 +465,10 @@
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
+    },
+    "remote_access": {
+      "upload-request-error": "テスト結果の登録に失敗しました。",
+      "testresult-delete-error": "テスト結果の削除に失敗しました。"
     }
   }
 }

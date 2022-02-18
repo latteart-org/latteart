@@ -24,6 +24,7 @@
 
 <script lang="ts">
 import ErrorHandler from "@/ErrorHandler.vue";
+import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -40,8 +41,15 @@ export default class App extends Vue {
     }
 
     if (this.$route.query.repository) {
-      this.$store.commit("setRepositoryServiceDispatcherConfig", {
-        serviceUrl: this.$route.query.repository,
+      const serviceDispatcher = new RepositoryServiceDispatcher({
+        url: this.$route.query.repository as string,
+        isRemote: false,
+      });
+      this.$store.commit("setRepositoryServiceDispatcher", {
+        serviceDispatcher,
+      });
+      this.$store.commit("setlocalRepositoryServiceUrl", {
+        url: this.$route.query.repository,
       });
     }
   }

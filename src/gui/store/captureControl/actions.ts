@@ -27,6 +27,7 @@ import {
 } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
+import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -157,7 +158,14 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           context.state.config.executablePaths,
       },
     };
-    const reply = await context.rootState.repositoryServiceDispatcher.saveDeviceSettings(
+
+    const localUrl = context.rootState.localRepositoryServiceUrl;
+    const localServiceDispatcher = new RepositoryServiceDispatcher({
+      url: localUrl,
+      isRemote: false,
+    });
+
+    const reply = await localServiceDispatcher.saveDeviceSettings(
       deviceSettings
     );
 

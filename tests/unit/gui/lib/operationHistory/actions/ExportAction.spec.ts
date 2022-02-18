@@ -21,7 +21,7 @@ describe("ExportAction", () => {
         testResultId
       );
 
-      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId);
+      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId, false);
       expect(returnUrl).toEqual(reply.data.url);
     });
 
@@ -44,7 +44,7 @@ describe("ExportAction", () => {
         new ExportAction(dispatcher).exportWithTestResult(testResultId)
       ).rejects.toThrowError("create-export-data-error");
 
-      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId);
+      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId, false);
     });
   });
 });
