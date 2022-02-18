@@ -337,7 +337,8 @@
     "result-list": "Import Test Result",
     "result-import": "Import",
     "call-test-results": "Getting test results",
-    "import-test-result": "Importing the test result"
+    "import-test-result": "Importing the test result",
+    "start-capture-tool": "Start capture tool"
   },
   "session-list": {
     "complete": "Check as Complete",
