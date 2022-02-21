@@ -266,6 +266,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "manage.print-html-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
@@ -318,6 +319,8 @@ export default class ManageView extends Vue {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );
+        } else {
+          this.downloadLinkDialogAlertMessage = "";
         }
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
@@ -413,6 +416,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
