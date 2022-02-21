@@ -617,12 +617,9 @@ export default class ExpCapture extends Vue {
           fileName: importFileName,
         };
 
-        const { name } = await this.$store.dispatch(
-          "operationHistory/importData",
-          {
-            source,
-          }
-        );
+        await this.$store.dispatch("operationHistory/importData", {
+          source,
+        });
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -631,7 +628,7 @@ export default class ExpCapture extends Vue {
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName: name,
+            returnName: importFileName,
           }
         );
       } catch (error) {
