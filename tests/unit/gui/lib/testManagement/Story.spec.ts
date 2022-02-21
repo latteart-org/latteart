@@ -85,7 +85,13 @@ describe("Storyの", () => {
       testerName: "",
       memo: "",
       attachedFiles: [],
-      testResultFiles: [{ name: "logJsonStory.json", id: "testResult01" }],
+      testResultFiles: [
+        {
+          name: "logJsonStory.json",
+          id: "testResult01",
+          repositoryUrl: "http://127.0.0.1:3002",
+        },
+      ],
       initialUrl: "",
       issues: [],
       intentions: [],
