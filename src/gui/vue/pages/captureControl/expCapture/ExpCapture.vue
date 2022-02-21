@@ -660,6 +660,7 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
@@ -704,6 +705,8 @@ export default class ExpCapture extends Vue {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );
+        } else {
+          this.downloadLinkDialogAlertMessage = "";
         }
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
