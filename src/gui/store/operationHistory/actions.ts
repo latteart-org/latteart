@@ -671,24 +671,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         isRemote: false,
       });
 
-      const exportFileUrl = await new ExportAction(
-        localServiceDispatcher
-      ).exportWithTestResult(payload.localTestResultId, true);
-
       const newTestResultId = await new UploadTestResultAction(
         localServiceDispatcher
       ).uploadTestResult(
-        exportFileUrl,
-        context.rootState.repositoryServiceDispatcher.serviceUrl,
-        payload.remoteTestResultId
+        { testResultId: payload.localTestResultId },
+        {
+          repositoryUrl:
+            context.rootState.repositoryServiceDispatcher.serviceUrl,
+          testResultId: payload.remoteTestResultId,
+        }
       );
-
-      const exportFileName = exportFileUrl.split("/").pop();
-      if (exportFileName) {
-        await new DeleteTestResultAction(localServiceDispatcher).deleteTempFile(
-          exportFileName
-        );
-      }
 
       return newTestResultId;
     } catch (error) {
