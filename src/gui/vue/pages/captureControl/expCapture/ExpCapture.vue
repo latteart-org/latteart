@@ -408,6 +408,7 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -538,7 +539,10 @@ export default class ExpCapture extends Vue {
   }
 
   private changeCurrentTestResultName() {
-    this.$store.dispatch("operationHistory/changeCurrentTestResultName");
+    this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+      startTime: null,
+      initialUrl: "",
+    });
   }
 
   private informationMessageDialogOpened = false;
@@ -942,6 +946,17 @@ export default class ExpCapture extends Vue {
             initialUrl: this.url,
             name: this.testResultName,
           });
+        }
+
+        // startTime更新処理
+        if (this.$store.state.operationHistory.history.length === 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime: new TimestampImpl().epochMilliseconds(),
+              initialUrl: this.url,
+            }
+          );
         }
 
         await this.$store.dispatch("captureControl/startCapture", {

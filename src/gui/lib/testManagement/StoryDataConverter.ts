@@ -147,6 +147,10 @@ export default class StoryDataConverter implements StoryConvertable {
       dispatcher,
       target.testResultFiles
     );
+    const totalTestingTime = this.calculateTestingTime(
+      testingTime,
+      oldSession?.testingTime
+    );
 
     return {
       name: target.id ?? oldSession?.id ?? "",
@@ -162,7 +166,7 @@ export default class StoryDataConverter implements StoryConvertable {
       initialUrl: initialUrl ?? oldSession?.initialUrl ?? "",
       intentions: intentions ?? oldSession?.intentions ?? [],
       issues: issues ?? target.issues ?? [],
-      testingTime: testingTime ?? oldSession?.testingTime ?? 0,
+      testingTime: totalTestingTime,
     };
   }
 
@@ -252,5 +256,19 @@ export default class StoryDataConverter implements StoryConvertable {
         }),
       },
     };
+  }
+
+  private calculateTestingTime(newtime?: number, oldtime?: number): number {
+    if (newtime && oldtime) {
+      return newtime + oldtime;
+    }
+    if (newtime) {
+      return newtime;
+    }
+    if (oldtime) {
+      return oldtime;
+    }
+
+    return 0;
   }
 }
