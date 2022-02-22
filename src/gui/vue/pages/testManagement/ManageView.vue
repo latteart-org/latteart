@@ -457,7 +457,6 @@ export default class ManageView extends Vue {
   }
 
   private getOptionMenuList() {
-    this.optionMenuList = [];
     const optionMenus = [
       {
         title: this.$store.getters.message("manage-header.output-html"),
