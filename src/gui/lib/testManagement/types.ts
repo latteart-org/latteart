@@ -104,7 +104,6 @@ export interface AttachedFile {
 export interface TestResultFile {
   name: string;
   id: string;
-  repositoryUrl: string;
 }
 
 export interface DeleteDialogObj {
