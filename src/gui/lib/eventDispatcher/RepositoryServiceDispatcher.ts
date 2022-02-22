@@ -264,14 +264,14 @@ export default class RepositoryServiceDispatcher
   public async getImportTestResults(): Promise<
     Reply<
       Array<{
-        id: string;
+        url: string;
         name: string;
       }>
     >
   > {
     try {
       const data: Array<{
-        id: string;
+        url: string;
         name: string;
       }> = await this.restClient.httpGet(
         this.buildAPIURL(`/imports/test-results`)
@@ -279,7 +279,12 @@ export default class RepositoryServiceDispatcher
 
       return {
         succeeded: true,
-        data,
+        data: data.map(({ url, name }) => {
+          return {
+            url: `${this.serviceUrl}/${url}`,
+            name,
+          };
+        }),
       };
     } catch (error) {
       return {
@@ -1481,28 +1486,19 @@ export default class RepositoryServiceDispatcher
    * @param dest.shouldSaveTemporary Whether to save temporary.
    */
   public async importTestResult(
-    source: { repositoryUrl: string; fileName: string },
-    dest: { testResultId?: string; shouldSaveTemporary?: boolean }
-  ): Promise<Reply<{ name: string; id: string; beforeId: string }>> {
+    source: { testResultFileUrl: string },
+    dest?: { testResultId?: string }
+  ): Promise<Reply<{ testResultId: string }>> {
     try {
       const body = {
-        fileName: source.fileName,
-        repositoryUrl:
-          source.repositoryUrl !== this.serviceUrl
-            ? source.repositoryUrl
-            : undefined,
-        temp: dest.shouldSaveTemporary,
+        source,
+        dest,
       };
 
-      const response = dest.testResultId
-        ? await this.restClient.httpPut(
-            this.buildAPIURL(`/imports/test-results/${dest.testResultId}`),
-            body
-          )
-        : await this.restClient.httpPost(
-            this.buildAPIURL(`/imports/test-results`),
-            body
-          );
+      const response = await this.restClient.httpPost(
+        this.buildAPIURL(`/imports/test-results`),
+        body
+      );
 
       if (!response) {
         return {
