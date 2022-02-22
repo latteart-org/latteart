@@ -453,6 +453,7 @@ export default class ManageView extends Vue {
   }
 
   private getOptionMenuList() {
+    this.optionMenuList = [];
     const optionMenus = [
       {
         title: this.$store.getters.message("manage-header.output-html"),
@@ -473,16 +474,24 @@ export default class ManageView extends Vue {
     ];
 
     for (const menu of optionMenus) {
-      if (menu.method === "outputHtml" && !this.hasAnyTestMatrix) {
-        return;
+      if (menu.method === "outputHtml" && this.hasAnyTestMatrix) {
+        this.optionMenuList.push({
+          title: menu.title,
+          method: menu.method,
+        });
       }
-      if (menu.method === "scriptGenerate" && !this.anySessionHasHistory()) {
-        return;
+      if (menu.method === "scriptGenerate" && this.anySessionHasHistory()) {
+        this.optionMenuList.push({
+          title: menu.title,
+          method: menu.method,
+        });
       }
-      this.optionMenuList.push({
-        title: menu.title,
-        method: menu.method,
-      });
+      if (menu.method === "import" || menu.method === "export") {
+        this.optionMenuList.push({
+          title: menu.title,
+          method: menu.method,
+        });
+      }
     }
   }
 

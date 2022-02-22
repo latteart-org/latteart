@@ -709,7 +709,7 @@ export default class SessionInfo extends Vue {
 
       const newTestResult = this.$store.state.operationHistory.testResultInfo;
 
-      this.importTestResult(newTestResult);
+      this.importTestResult({ id: newTestResult.id, name: newTestResult.name });
 
       window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
     }
