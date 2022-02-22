@@ -948,7 +948,6 @@ export default class ExpCapture extends Vue {
           });
         }
 
-        // startTime更新処理
         if (this.$store.state.operationHistory.history.length === 0) {
           await this.$store.dispatch(
             "operationHistory/changeCurrentTestResult",
