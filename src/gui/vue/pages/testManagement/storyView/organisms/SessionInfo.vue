@@ -694,13 +694,13 @@ export default class SessionInfo extends Vue {
 
   private async openCaptureTool(testResultFiles: TestResultFile[]) {
     const origin = location.origin;
+    const repositoryUrl = this.$store.state.repositoryServiceDispatcher
+      .serviceUrl;
+    const url = `${origin}/capture/config/?repository=${repositoryUrl}`;
 
     if (testResultFiles.length > 0) {
       const testResultId = testResultFiles[0].id;
-      window.open(
-        `${origin}/capture/config/?testResultId=${testResultId}`,
-        "_blank"
-      );
+      window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
@@ -711,10 +711,7 @@ export default class SessionInfo extends Vue {
 
       this.importTestResult(newTestResult);
 
-      window.open(
-        `${origin}/capture/config/?testResultId=${newTestResult.id}`,
-        "_blank"
-      );
+      window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
     }
   }
 }
