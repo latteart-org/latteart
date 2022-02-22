@@ -72,7 +72,7 @@ export interface ManagedSession {
     fileUrl?: string;
     fileData?: string;
   }>;
-  testResultFiles?: Array<{ name: string; id: string; repositoryUrl: string }>;
+  testResultFiles?: Array<{ name: string; id: string }>;
   issues: Array<{
     type: string;
     value: string;

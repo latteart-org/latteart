@@ -91,7 +91,9 @@ export default class ManageShow extends Vue {
     return this.testMatrices.length >= 1;
   }
 
-  private created() {
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
     this.updateWindowTitle();
 
     const testMatrixId =
