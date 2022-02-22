@@ -184,7 +184,7 @@
         </div>
         <v-flex shrink pa-1 pl-3>
           <v-select
-            label="locale"
+            :label="$store.getters.message('manage-header.locale')"
             :items="locales"
             :value="initLocale"
             v-on:change="changeLocale"
