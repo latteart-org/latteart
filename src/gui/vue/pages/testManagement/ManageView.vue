@@ -206,7 +206,11 @@ export default class ManageView extends Vue {
 
   private selectedTestMatrixId = "";
 
-  private optionMenuList: Array<{ title: string; method: string }> = [];
+  private optionMenuList: Array<{
+    title: string;
+    method: string;
+    isEnabled: boolean;
+  }> = [];
   private remoteUrl = "";
 
   private get hasAnyTestMatrix(): boolean {
@@ -458,41 +462,25 @@ export default class ManageView extends Vue {
       {
         title: this.$store.getters.message("manage-header.output-html"),
         method: "outputHtml",
+        isEnabled: this.hasAnyTestMatrix,
       },
       {
         title: this.$store.getters.message("manage-header.generate-script"),
         method: "scriptGenerate",
+        isEnabled: this.anySessionHasHistory(),
       },
       {
         title: this.$store.getters.message("manage-header.import-option"),
         method: "import",
+        isEnabled: true,
       },
       {
         title: this.$store.getters.message("manage-header.export-option"),
         method: "export",
+        isEnabled: true,
       },
     ];
-
-    for (const menu of optionMenus) {
-      if (menu.method === "outputHtml" && this.hasAnyTestMatrix) {
-        this.optionMenuList.push({
-          title: menu.title,
-          method: menu.method,
-        });
-      }
-      if (menu.method === "scriptGenerate" && this.anySessionHasHistory()) {
-        this.optionMenuList.push({
-          title: menu.title,
-          method: menu.method,
-        });
-      }
-      if (menu.method === "import" || menu.method === "export") {
-        this.optionMenuList.push({
-          title: menu.title,
-          method: menu.method,
-        });
-      }
-    }
+    this.optionMenuList = [...optionMenus.filter((menu) => menu.isEnabled)];
   }
 
   private startRemoteConnection(targetUrl: string) {
