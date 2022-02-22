@@ -141,175 +141,188 @@ describe("ManageProgressView.vueは", () => {
     });
   });
 
-  it("groupsプロパティのgetterが呼ばれたとき、フィルタ用プルダウンリストに表示するためのグループ情報を返す", () => {
+  it("groupsプロパティのgetterが呼ばれたとき、フィルタ用プルダウンリストに表示するためのグループ情報を返す", async () => {
     const testMatrixId = "m000";
     const $route = { params: { testMatrixId } };
-    const vm = shallowMount(ManageProgressView, {
-      localVue,
-      router,
-      store,
-      mocks: { $route },
-    }).vm as any;
-
-    expect(vm.groups).toEqual([
-      {
-        id: "all",
-        name: "manage-progress.all",
-      },
-      {
-        id: "groupId1",
-        name: "groupName1",
-      },
-      {
-        id: "groupId2",
-        name: "groupName2",
-      },
-    ]);
-  });
-
-  describe("testTargetsプロパティのgetterが呼ばれたとき、フィルタ用プルダウンリストに表示するためのテスト対象情報を返す", () => {
-    it("グループでフィルタされていない場合は全てのテスト対象情報を返す", () => {
-      const testMatrixId = "m000";
-      const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+    const vm = (
+      await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      })
+    ).vm as any;
 
-      expect(vm.testTargets).toEqual([
+    vm.$nextTick(() => {
+      expect(vm.groups).toEqual([
         {
           id: "all",
           name: "manage-progress.all",
         },
         {
-          id: "groupId1-testTargetId1",
-          name: "testTargetName1",
+          id: "groupId1",
+          name: "groupName1",
         },
         {
-          id: "groupId1-testTargetId2",
-          name: "testTargetName2",
-        },
-        {
-          id: "groupId2-testTargetId3",
-          name: "testTargetName3",
-        },
-        {
-          id: "groupId2-testTargetId4",
-          name: "testTargetName4",
+          id: "groupId2",
+          name: "groupName2",
         },
       ]);
     });
+  });
 
-    it("グループでフィルタされている場合は絞り込まれたグループ内から抽出されたテスト対象情報を返す", () => {
+  describe("testTargetsプロパティのgetterが呼ばれたとき、フィルタ用プルダウンリストに表示するためのテスト対象情報を返す", () => {
+    it("グループでフィルタされていない場合は全てのテスト対象情報を返す", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      vm.selectedGroupId = "groupId1";
+      vm.$nextTick(() => {
+        expect(vm.testTargets).toEqual([
+          {
+            id: "all",
+            name: "manage-progress.all",
+          },
+          {
+            id: "groupId1-testTargetId1",
+            name: "testTargetName1",
+          },
+          {
+            id: "groupId1-testTargetId2",
+            name: "testTargetName2",
+          },
+          {
+            id: "groupId2-testTargetId3",
+            name: "testTargetName3",
+          },
+          {
+            id: "groupId2-testTargetId4",
+            name: "testTargetName4",
+          },
+        ]);
+      });
+    });
 
-      expect(vm.testTargets).toEqual([
-        {
-          id: "all",
-          name: "manage-progress.all",
-        },
-        {
-          id: "groupId1-testTargetId1",
-          name: "testTargetName1",
-        },
-        {
-          id: "groupId1-testTargetId2",
-          name: "testTargetName2",
-        },
-      ]);
+    it("グループでフィルタされている場合は絞り込まれたグループ内から抽出されたテスト対象情報を返す", async () => {
+      const testMatrixId = "m000";
+      const $route = { params: { testMatrixId } };
+      const vm = (await shallowMount(ManageProgressView, {
+        localVue,
+        router,
+        store,
+        mocks: { $route },
+      }).vm) as any;
+
+      vm.$nextTick(() => {
+        vm.selectedGroupId = "groupId1";
+
+        expect(vm.testTargets).toEqual([
+          {
+            id: "all",
+            name: "manage-progress.all",
+          },
+          {
+            id: "groupId1-testTargetId1",
+            name: "testTargetName1",
+          },
+          {
+            id: "groupId1-testTargetId2",
+            name: "testTargetName2",
+          },
+        ]);
+      });
     });
   });
 
   describe("filteredProgressDatasプロパティのgetterが呼ばれたとき、storeから取得した進捗データに対してフィルタリングを実施して返す", () => {
-    it("フィルタリングなし", () => {
+    it("フィルタリングなし", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      expect(vm.filteredProgressDatas).toEqual([
-        {
-          date: "2019-07-24",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-        {
-          date: "2019-07-25",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-        {
-          date: "2019-07-26",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-        {
-          date: "2019-07-27",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-      ]);
+      vm.$nextTick(() => {
+        expect(vm.filteredProgressDatas).toEqual([
+          {
+            date: "2019-07-24",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+          {
+            date: "2019-07-25",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+          {
+            date: "2019-07-26",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+          {
+            date: "2019-07-27",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+        ]);
+      });
     });
 
-    it("日付でフィルタリング", () => {
+    it("日付でフィルタリング", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      vm.startDate = "2019-07-25";
-      vm.endDate = "2019-07-26";
+      vm.$nextTick(() => {
+        vm.startDate = "2019-07-25";
+        vm.endDate = "2019-07-26";
 
-      expect(vm.filteredProgressDatas).toEqual([
-        {
-          date: "2019-07-25",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-        {
-          date: "2019-07-26",
-          planNumber: 6,
-          completedNumber: 6,
-          incompletedNumber: 6,
-        },
-      ]);
+        expect(vm.filteredProgressDatas).toEqual([
+          {
+            date: "2019-07-25",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+          {
+            date: "2019-07-26",
+            planNumber: 6,
+            completedNumber: 6,
+            incompletedNumber: 6,
+          },
+        ]);
+      });
     });
 
-    it("グループでフィルタリング", () => {
+    it("グループでフィルタリング", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      (vm.selectedGroupId = "groupId1"),
+      vm.$nextTick(() => {
+        vm.selectedGroupId = "groupId1";
         expect(vm.filteredProgressDatas).toEqual([
           {
             date: "2019-07-24",
@@ -336,19 +349,21 @@ describe("ManageProgressView.vueは", () => {
             incompletedNumber: 2,
           },
         ]);
+      });
     });
 
-    it("テスト対象でフィルタリング", () => {
+    it("テスト対象でフィルタリング", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      (vm.selectedTestTargetId = "groupId1-testTargetId1"),
+      vm.$nextTick(() => {
+        vm.selectedTestTargetId = "groupId1-testTargetId1";
         expect(vm.filteredProgressDatas).toEqual([
           {
             date: "2019-07-24",
@@ -375,22 +390,24 @@ describe("ManageProgressView.vueは", () => {
             incompletedNumber: 1,
           },
         ]);
+      });
     });
 
-    it("日付とグループとテスト対象でフィルタリング", () => {
+    it("日付とグループとテスト対象でフィルタリング", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = shallowMount(ManageProgressView, {
+      const vm = (await shallowMount(ManageProgressView, {
         localVue,
         router,
         store,
         mocks: { $route },
-      }).vm as any;
+      }).vm) as any;
 
-      vm.startDate = "2019-07-25";
-      vm.endDate = "2019-07-26";
-      (vm.selectedGroupId = "groupId1"),
-        (vm.selectedTestTargetId = "groupId1-testTargetId1"),
+      vm.$nextTick(() => {
+        vm.startDate = "2019-07-25";
+        vm.endDate = "2019-07-26";
+        vm.selectedGroupId = "groupId1";
+        vm.selectedTestTargetId = "groupId1-testTargetId1";
         expect(vm.filteredProgressDatas).toEqual([
           {
             date: "2019-07-25",
@@ -405,6 +422,7 @@ describe("ManageProgressView.vueは", () => {
             incompletedNumber: 1,
           },
         ]);
+      });
     });
   });
 });
