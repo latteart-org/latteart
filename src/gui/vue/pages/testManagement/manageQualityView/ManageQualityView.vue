@@ -318,7 +318,9 @@ export default class ManageQualityView extends Vue {
     });
   }
 
-  private created() {
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
     this.updateWindowTitle();
 
     const targetTestMatrix = this.$store.state.testManagement.testMatrices.find(
