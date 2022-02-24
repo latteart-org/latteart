@@ -124,7 +124,11 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ProgressChart from "./organisms/ProgressChart.vue";
-import { TestMatrixProgressData, TestMatrix } from "@/lib/testManagement/types";
+import {
+  TestMatrixProgressData,
+  TestMatrix,
+  ProgressData,
+} from "@/lib/testManagement/types";
 import Chart from "chart.js";
 import { Timestamp, TimestampImpl } from "@/lib/common/Timestamp";
 
@@ -211,9 +215,8 @@ export default class ManageProgress extends Vue {
   }
 
   private get originalProgressDatas(): TestMatrixProgressData[] {
-    const allProgressDatas: any[] = this.$store.getters[
-      "testManagement/collectProgressDatas"
-    ]();
+    const allProgressDatas: ProgressData[] =
+      this.$store.getters["testManagement/collectProgressDatas"]() ?? [];
     const targetProgressData = allProgressDatas.find((progressData) => {
       return progressData.testMatrixId === this.testMatrix.id;
     });

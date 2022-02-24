@@ -780,9 +780,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload.importFileUrl Source import file url.
-   * @param payload.testResultId Destination local test result id.
-   * @param payload.shouldSaveTemporary Whether to save temporary.
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.dest.testResultId Destination local test result id.
    * @return new test result ID.
    */
   async importData(
@@ -792,14 +791,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       dest?: { testResultId?: string };
     }
   ): Promise<{ testResultId: string }> {
-    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-
     try {
       return await new ImportAction(
-        localRepositoryServiceDispatcher
+        context.rootState.repositoryServiceDispatcher
       ).importWithTestResult(payload.source, payload.dest);
     } catch (error) {
       throw new Error(
@@ -1349,14 +1343,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return reply.data!;
   },
 
-  async changeCurrentTestResultName(context) {
+  async changeCurrentTestResult(
+    context,
+    payload: { startTime?: number | null; initialUrl?: string }
+  ) {
     if (!context.state.testResultInfo.id) {
       return;
     }
+    const name = payload.startTime
+      ? undefined
+      : context.state.testResultInfo.name;
+    const startTimeStamp = payload.startTime ?? undefined;
+    const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResultName(
+    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
       context.state.testResultInfo.id,
-      context.state.testResultInfo.name
+      name,
+      startTimeStamp,
+      url
     );
 
     if (!reply.succeeded) {

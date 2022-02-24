@@ -78,6 +78,10 @@ export class TimestampImpl implements Timestamp {
     return moment.unix(other).diff(this.time, "days") === 0;
   }
 
+  public offset(epochMilliseconds: number): Timestamp {
+    return new TimestampImpl(this.epochMilliseconds() + epochMilliseconds);
+  }
+
   private timestampToString(timestamp: string | number): string {
     const stringTimestamp =
       typeof timestamp === "number" ? String(timestamp) : timestamp;

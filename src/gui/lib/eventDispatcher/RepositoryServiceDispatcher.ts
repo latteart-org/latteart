@@ -300,20 +300,25 @@ export default class RepositoryServiceDispatcher
   public async getImportProjects(): Promise<
     Reply<
       Array<{
-        id: string;
+        url: string;
         name: string;
       }>
     >
   > {
     try {
       const data: Array<{
-        id: string;
+        url: string;
         name: string;
       }> = await this.restClient.httpGet(this.buildAPIURL(`/imports/projects`));
 
       return {
         succeeded: true,
-        data,
+        data: data.map(({ url, name }) => {
+          return {
+            url: `${this.serviceUrl}/${url}`,
+            name,
+          };
+        }),
       };
     } catch (error) {
       return {
@@ -1443,17 +1448,21 @@ export default class RepositoryServiceDispatcher
    * @param selectOption  Select options.
    */
   public async importZipFile(
-    importFileName: string,
+    source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ name: string; id: string }>> {
+  ): Promise<Reply<{ projectId: string }>> {
     let response;
     try {
       response = await this.restClient.httpPost(
-        this.buildAPIURL(`/imports/projects/${importFileName}`),
-        selectOption
+        this.buildAPIURL(`/imports/projects`),
+        {
+          source,
+          includeTestResults: selectOption.includeTestResults,
+          includeProject: selectOption.includeProject,
+        }
       );
 
-      if (!response.name) {
+      if (!response.projectId) {
         return {
           succeeded: false,
           error: {
@@ -1847,14 +1856,16 @@ export default class RepositoryServiceDispatcher
     };
   }
 
-  public async changeTestResultName(
+  public async changeTestResult(
     testResultId: string,
-    name: string
+    name?: string,
+    startTime?: number,
+    initialUrl?: string
   ): Promise<Reply<string>> {
     try {
       const data = await this.restClient.httpPatch(
         this.buildAPIURL(`/test-results/${testResultId}`),
-        { name }
+        { name, startTime, initialUrl }
       );
 
       return {

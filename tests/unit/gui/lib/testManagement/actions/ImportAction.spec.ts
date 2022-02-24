@@ -15,18 +15,15 @@ describe("ImportAction", () => {
         importZipFile: jest.fn().mockResolvedValue(reply),
       };
 
-      const importFileName = "importFileName";
+      const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
       const returnData = await new ImportAction(dispatcher).importZip(
-        importFileName,
+        source,
         selectOption
       );
 
-      expect(dispatcher.importZipFile).toBeCalledWith(
-        importFileName,
-        selectOption
-      );
+      expect(dispatcher.importZipFile).toBeCalledWith(source, selectOption);
       expect(returnData).toEqual(reply.data);
     });
 
@@ -43,17 +40,14 @@ describe("ImportAction", () => {
         importZipFile: jest.fn().mockResolvedValue(reply),
       };
 
-      const importFileName = "importFileName";
+      const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
       await expect(
-        new ImportAction(dispatcher).importZip(importFileName, selectOption)
+        new ImportAction(dispatcher).importZip(source, selectOption)
       ).rejects.toThrowError("import-data-error");
 
-      expect(dispatcher.importZipFile).toBeCalledWith(
-        importFileName,
-        selectOption
-      );
+      expect(dispatcher.importZipFile).toBeCalledWith(source, selectOption);
     });
   });
 });
