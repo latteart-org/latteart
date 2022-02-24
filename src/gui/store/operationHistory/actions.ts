@@ -780,9 +780,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload.importFileUrl Source import file url.
-   * @param payload.testResultId Destination local test result id.
-   * @param payload.shouldSaveTemporary Whether to save temporary.
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.dest.testResultId Destination local test result id.
    * @return new test result ID.
    */
   async importData(
