@@ -948,12 +948,22 @@ export default class ExpCapture extends Vue {
           });
         }
 
-        if (this.$store.state.operationHistory.history.length === 0) {
+        const history = this.$store.state.operationHistory.history;
+
+        if (history.length === 0) {
           await this.$store.dispatch(
             "operationHistory/changeCurrentTestResult",
             {
               startTime: new TimestampImpl().epochMilliseconds(),
               initialUrl: this.url,
+            }
+          );
+        } else if (history.length > 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime: new TimestampImpl().epochMilliseconds(),
+              initialUrl: "",
             }
           );
         }

@@ -20,7 +20,7 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import { OperationWithNotes } from "../operationHistory/types";
-import { calculateElapsedUnixTime } from "../common/util";
+import { calculateElapsedEpochMillis } from "../common/util";
 import { Note } from "../operationHistory/Note";
 import {
   ProjectUpdatable,
@@ -67,16 +67,10 @@ export default class StoryDataConverter implements StoryConvertable {
         return {};
       }
 
-      const {
-        testSteps,
-        initialUrl,
-        startTimeStamp,
-        endTimeStamp,
-      } = readResultData;
+      const { testSteps, initialUrl, startTimeStamp } = readResultData;
 
-      const testingTime = calculateElapsedUnixTime(
+      const testingTime = calculateElapsedEpochMillis(
         startTimeStamp,
-        endTimeStamp,
         testSteps
       );
 
@@ -147,8 +141,6 @@ export default class StoryDataConverter implements StoryConvertable {
       dispatcher,
       target.testResultFiles
     );
-    const totalTestingTime =
-      (testingTime ?? 0) + (oldSession?.testingTime ?? 0);
 
     return {
       name: target.id ?? oldSession?.id ?? "",
@@ -164,7 +156,7 @@ export default class StoryDataConverter implements StoryConvertable {
       initialUrl: initialUrl ?? oldSession?.initialUrl ?? "",
       intentions: intentions ?? oldSession?.intentions ?? [],
       issues: issues ?? target.issues ?? [],
-      testingTime: totalTestingTime,
+      testingTime: testingTime ?? 0,
     };
   }
 

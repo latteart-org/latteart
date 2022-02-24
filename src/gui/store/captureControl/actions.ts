@@ -28,6 +28,8 @@ import {
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { getlastTestingTime } from "@/lib/common/util";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -313,10 +315,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         config,
         {
           onStart: async (startTime: number) => {
+            const history: OperationWithNotes[] = context.rootGetters[
+              "operationHistory/getHistory"
+            ]();
+            const lastTestingTime = getlastTestingTime(history);
+            const newStartTime = new TimestampImpl(startTime)
+              .offset(lastTestingTime * -1)
+              .epochMilliseconds();
             context.dispatch("stopTimer");
             context.dispatch("startTimer", {
               onChangeTime: payload.callbacks.onChangeTime,
-              startTime,
+              startTime: newStartTime,
             });
 
             context.commit("setCapturing", { isCapturing: true });
