@@ -29,8 +29,8 @@ export class FormalArgumentCollector {
 
       if (op.type === "change") {
         args.add(identifier);
-      } else if (elem.type === ElementType.RadioButton && elem.name) {
-        args.add(elem.name);
+      } else if (elem.type === ElementType.RadioButton) {
+        args.add(elem.identifier);
       } else if (elem.type === ElementType.CheckBox) {
         args.add(identifier);
       }
