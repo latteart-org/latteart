@@ -1343,14 +1343,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return reply.data!;
   },
 
-  async changeCurrentTestResultName(context) {
+  async changeCurrentTestResult(
+    context,
+    payload: { startTime?: number | null; initialUrl?: string }
+  ) {
     if (!context.state.testResultInfo.id) {
       return;
     }
+    const name = payload.startTime
+      ? undefined
+      : context.state.testResultInfo.name;
+    const startTimeStamp = payload.startTime ?? undefined;
+    const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResultName(
+    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
       context.state.testResultInfo.id,
-      context.state.testResultInfo.name
+      name,
+      startTimeStamp,
+      url
     );
 
     if (!reply.succeeded) {

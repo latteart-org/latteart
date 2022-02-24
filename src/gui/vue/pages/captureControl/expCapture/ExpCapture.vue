@@ -184,7 +184,7 @@
         </div>
         <v-flex shrink pa-1 pl-3>
           <v-select
-            label="locale"
+            :label="$store.getters.message('manage-header.locale')"
             :items="locales"
             :value="initLocale"
             v-on:change="changeLocale"
@@ -408,6 +408,8 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 @Component({
   components: {
@@ -538,7 +540,10 @@ export default class ExpCapture extends Vue {
   }
 
   private changeCurrentTestResultName() {
-    this.$store.dispatch("operationHistory/changeCurrentTestResultName");
+    this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+      startTime: null,
+      initialUrl: "",
+    });
   }
 
   private informationMessageDialogOpened = false;
@@ -941,9 +946,38 @@ export default class ExpCapture extends Vue {
           });
         }
 
+        const history = this.$store.state.operationHistory.history;
+        const startTime = new TimestampImpl().epochMilliseconds();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+
+        if (history.length === 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: this.url,
+            }
+          );
+        } else if (history.length > 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: "",
+            }
+          );
+        }
+
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           config: this.config,
+          startTime,
+          lastStartTime: readResultData?.startTimeStamp ?? 0,
           callbacks: {
             onChangeTime: (time: string) => {
               this.nowTime = time;
@@ -1073,6 +1107,7 @@ export default class ExpCapture extends Vue {
 
   private resetHistory(): void {
     this.$store.dispatch("operationHistory/resetHistory");
+    this.nowTime = "00:00:00";
   }
 
   private endCapture(): void {
@@ -1091,6 +1126,18 @@ export default class ExpCapture extends Vue {
         });
 
         await this.$store.dispatch("operationHistory/resume", { testResultId });
+        const history = this.$store.getters["operationHistory/getHistory"]();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+        const testingTime = calculateElapsedEpochMillis(
+          readResultData?.startTimeStamp ?? 0,
+          history
+        );
+        this.nowTime = formatTime(testingTime);
       } catch (error) {
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;

@@ -1856,14 +1856,16 @@ export default class RepositoryServiceDispatcher
     };
   }
 
-  public async changeTestResultName(
+  public async changeTestResult(
     testResultId: string,
-    name: string
+    name?: string,
+    startTime?: number,
+    initialUrl?: string
   ): Promise<Reply<string>> {
     try {
       const data = await this.restClient.httpPatch(
         this.buildAPIURL(`/test-results/${testResultId}`),
-        { name }
+        { name, startTime, initialUrl }
       );
 
       return {
