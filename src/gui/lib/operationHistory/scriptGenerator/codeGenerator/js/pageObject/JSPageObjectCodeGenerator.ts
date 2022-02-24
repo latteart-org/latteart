@@ -100,18 +100,14 @@ export default ${pageObjectName};
 
     const radioButtonGenerator = new JSRadioButtonAccessorCodeGenerator(
       elements.reduce((radioNameToValues, element) => {
-        if (
-          element.type === ElementType.RadioButton &&
-          element.name &&
-          element.value
-        ) {
-          const name = element.name;
+        if (element.type === ElementType.RadioButton && element.value) {
+          const identifier = element.identifier;
 
-          if (!radioNameToValues.has(name)) {
-            radioNameToValues.set(name, new Set());
+          if (!radioNameToValues.has(identifier)) {
+            radioNameToValues.set(identifier, new Set());
           }
 
-          radioNameToValues.get(name)?.add(element.value);
+          radioNameToValues.get(identifier)?.add(element.value);
         }
 
         return radioNameToValues;
@@ -123,15 +119,18 @@ export default ${pageObjectName};
     return Array.from(identifierToElement).map(
       ([identifier, elem]: [string, PageObjectElement]) => {
         if (elem.type === ElementType.RadioButton && elem.name) {
-          const name = elem.name;
+          const identifier = elem.identifier;
 
-          if (radioButtonNames.has(name)) {
+          if (radioButtonNames.has(identifier)) {
             return "";
           }
 
-          radioButtonNames.add(name);
+          radioButtonNames.add(identifier);
 
-          return radioButtonGenerator.generateRadioButtonString(name);
+          return radioButtonGenerator.generateRadioButtonString(
+            identifier,
+            elem.name
+          );
         }
 
         if (elem.type === ElementType.CheckBox) {
@@ -261,14 +260,14 @@ ${Array.from(args)
     element: PageObjectElement,
     radioButtons: Set<string>
   ) {
-    if (element.type === ElementType.RadioButton && element.name) {
-      if (radioButtons.has(element.name)) {
-        radioButtons.add(element.name);
+    if (element.type === ElementType.RadioButton && element.identifier) {
+      if (radioButtons.has(element.identifier)) {
+        radioButtons.add(element.identifier);
 
         return "";
       }
 
-      return `this.set_${element.name}(${element.name});`;
+      return `this.set_${element.identifier}(${element.identifier});`;
     }
 
     const identifier = element.identifier;

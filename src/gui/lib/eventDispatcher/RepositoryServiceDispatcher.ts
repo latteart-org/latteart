@@ -264,14 +264,14 @@ export default class RepositoryServiceDispatcher
   public async getImportTestResults(): Promise<
     Reply<
       Array<{
-        id: string;
+        url: string;
         name: string;
       }>
     >
   > {
     try {
       const data: Array<{
-        id: string;
+        url: string;
         name: string;
       }> = await this.restClient.httpGet(
         this.buildAPIURL(`/imports/test-results`)
@@ -279,7 +279,12 @@ export default class RepositoryServiceDispatcher
 
       return {
         succeeded: true,
-        data,
+        data: data.map(({ url, name }) => {
+          return {
+            url: `${this.serviceUrl}/${url}`,
+            name,
+          };
+        }),
       };
     } catch (error) {
       return {
@@ -1481,28 +1486,19 @@ export default class RepositoryServiceDispatcher
    * @param dest.shouldSaveTemporary Whether to save temporary.
    */
   public async importTestResult(
-    source: { repositoryUrl: string; fileName: string },
-    dest: { testResultId?: string; shouldSaveTemporary?: boolean }
-  ): Promise<Reply<{ name: string; id: string; beforeId: string }>> {
+    source: { testResultFileUrl: string },
+    dest?: { testResultId?: string }
+  ): Promise<Reply<{ testResultId: string }>> {
     try {
       const body = {
-        fileName: source.fileName,
-        repositoryUrl:
-          source.repositoryUrl !== this.serviceUrl
-            ? source.repositoryUrl
-            : undefined,
-        temp: dest.shouldSaveTemporary,
+        source,
+        dest,
       };
 
-      const response = dest.testResultId
-        ? await this.restClient.httpPut(
-            this.buildAPIURL(`/imports/test-results/${dest.testResultId}`),
-            body
-          )
-        : await this.restClient.httpPost(
-            this.buildAPIURL(`/imports/test-results`),
-            body
-          );
+      const response = await this.restClient.httpPost(
+        this.buildAPIURL(`/imports/test-results`),
+        body
+      );
 
       if (!response) {
         return {
@@ -1880,50 +1876,24 @@ export default class RepositoryServiceDispatcher
 
   /**
    * Upload test result.
-   * @param targetExportFileUrl Target test result export file url.
-   * @param destRepositoryUrl Destination repository url.
+   * @param source.testResultId Source test result ID.
+   * @param dest.repositoryUrl Destination repository url.
+   * @param dest.testResultId Destination test result ID.
    */
   public async uploadTestResult(
-    targetExportFileUrl: string,
-    destRepositoryUrl: string,
-    testResultId?: string
+    source: { testResultId: string },
+    dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<Reply<{ id: string }>> {
-    let response;
-    const body = {
-      file: {
-        name: targetExportFileUrl.split("/").pop(),
-        path: targetExportFileUrl,
-      },
-      url: destRepositoryUrl,
-      id: testResultId,
-    };
     try {
-      response = await this.restClient.httpPost(
+      const response = await this.restClient.httpPost(
         this.buildAPIURL(`/upload-request/test-result`),
-        body
+        { source, dest }
       );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
-  }
 
-  /**
-   * Delete temporary file.
-   * @param fileName  File Name.
-   */
-  public async deleteTempFile(fileName: string): Promise<Reply<void>> {
-    try {
-      await this.restClient.httpDelete(this.buildAPIURL(`/temp/${fileName}`));
+      return {
+        succeeded: true,
+        data: response,
+      };
     } catch (e) {
       return {
         succeeded: false,
@@ -1933,9 +1903,6 @@ export default class RepositoryServiceDispatcher
         },
       };
     }
-    return {
-      succeeded: true,
-    };
   }
 
   /**
