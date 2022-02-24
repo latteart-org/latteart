@@ -92,8 +92,9 @@ export default class ManageShow extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readDataFile");
-
+    if (!this.$store.state.progressDialog.opened) {
+      await this.$store.dispatch("testManagement/readDataFile");
+    }
     this.updateWindowTitle();
 
     const testMatrixId =

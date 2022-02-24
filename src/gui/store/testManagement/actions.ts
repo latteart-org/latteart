@@ -113,6 +113,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    */
   async readDataFile(context) {
+    if (Vue.prototype.$snapshot) {
+      return;
+    }
     await new ReadProjectDataAction(
       {
         setProjectId: (data: { projectId: string }): void => {
