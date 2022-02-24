@@ -17,22 +17,11 @@
 import { Reply } from "@/lib/captureControl/Reply";
 
 export interface TestResultDeletable {
-  deleteTempFile(uploadFileName: string): Promise<Reply<void>>;
   deleteTestResult(testResultId: string): Promise<Reply<void>>;
 }
 
 export class DeleteTestResultAction {
   constructor(private dispatcher: TestResultDeletable) {}
-
-  public async deleteTempFile(fileName: string): Promise<string> {
-    const reply = await this.dispatcher.deleteTempFile(fileName);
-
-    if (reply.error) {
-      throw new Error(`testresult-delete-error`);
-    }
-
-    return fileName;
-  }
 
   public async deleteTestResult(testResultId: string): Promise<string> {
     const reply = await this.dispatcher.deleteTestResult(testResultId);

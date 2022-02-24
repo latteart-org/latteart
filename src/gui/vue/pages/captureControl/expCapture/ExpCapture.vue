@@ -168,8 +168,8 @@
                 <v-list-tile
                   v-for="(testResult, index) in importTestResults"
                   :key="index"
-                  @click="importData(testResult.id)"
-                  :disabled="!testResult.id"
+                  @click="importData(testResult)"
+                  :disabled="!testResult.url"
                 >
                   <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
                 </v-list-tile>
@@ -552,7 +552,7 @@ export default class ExpCapture extends Vue {
   private remoteUrl = "";
 
   private testResults: Array<{ id: string; name: string }> = [];
-  private importTestResults: Array<{ id: string; name: string }> = [];
+  private importTestResults: Array<{ url: string; name: string }> = [];
 
   private showMenu = false;
   private menuX = 0;
@@ -603,22 +603,17 @@ export default class ExpCapture extends Vue {
   private contextMenuY = -1;
   private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
 
-  private importData(importFileName: string) {
+  private importData(importTestResult: { url: string; name: string }) {
     this.isImportTestResults = true;
-    if (!importFileName) {
+    if (!importTestResult.url) {
       this.isImportTestResults = false;
       return;
     }
 
     setTimeout(async () => {
       try {
-        const source = {
-          repositoryUrl: this.$store.state.localRepositoryServiceUrl,
-          fileName: importFileName,
-        };
-
         await this.$store.dispatch("operationHistory/importData", {
-          source,
+          source: { testResultFileUrl: importTestResult.url },
         });
 
         this.informationMessageDialogOpened = true;
@@ -628,7 +623,7 @@ export default class ExpCapture extends Vue {
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName: importFileName,
+            returnName: importTestResult.name,
           }
         );
       } catch (error) {
@@ -757,9 +752,10 @@ export default class ExpCapture extends Vue {
     this.dataX = e.clientX;
     this.dataY = e.clientY;
     this.$nextTick(async () => {
-      const newImportTestResults = await this.$store.dispatch(
-        "operationHistory/getImportTestResults"
-      );
+      const newImportTestResults: {
+        url: string;
+        name: string;
+      }[] = await this.$store.dispatch("operationHistory/getImportTestResults");
 
       this.importTestResults.splice(
         0,
@@ -769,7 +765,7 @@ export default class ExpCapture extends Vue {
 
       if (this.importTestResults.length === 0) {
         this.importTestResults.push({
-          id: "",
+          url: "",
           name: "EMPTY",
         });
       }
@@ -915,12 +911,9 @@ export default class ExpCapture extends Vue {
           const id: string =
             (
               await this.$store.dispatch(
-                "operationHistory/importTestResultFromRemoteRepository",
-                {
-                  destTestResultId: testResultInfo.id,
-                }
+                "operationHistory/importTestResultFromRemoteRepository"
               )
-            ).id ?? "";
+            ).testResultId ?? "";
 
           return id;
         })();
@@ -941,6 +934,10 @@ export default class ExpCapture extends Vue {
           await this.$store.dispatch("operationHistory/createTestResult", {
             initialUrl: this.url,
             name: this.testResultName,
+          });
+        } else {
+          await this.$store.dispatch("operationHistory/resume", {
+            testResultId,
           });
         }
 

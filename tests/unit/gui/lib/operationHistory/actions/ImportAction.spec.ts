@@ -15,8 +15,8 @@ describe("ImportAction", () => {
         importTestResult: jest.fn().mockResolvedValue(expectedReply),
       };
 
-      const source = { repositoryUrl: "repositoryUrl", fileName: "fileName" };
-      const dest = { testResultId: "testResultId", shouldSaveTemporary: true };
+      const source = { testResultFileUrl: "testResultFileUrl" };
+      const dest = { testResultId: "testResultId" };
       const response = await new ImportAction(dispatcher).importWithTestResult(
         source,
         dest
@@ -39,8 +39,8 @@ describe("ImportAction", () => {
         importTestResult: jest.fn().mockResolvedValue(reply),
       };
 
-      const source = { repositoryUrl: "repositoryUrl", fileName: "fileName" };
-      const dest = { testResultId: "testResultId", shouldSaveTemporary: true };
+      const source = { testResultFileUrl: "testResultFileUrl" };
+      const dest = { testResultId: "testResultId" };
 
       await expect(
         new ImportAction(dispatcher).importWithTestResult(source, dest)

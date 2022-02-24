@@ -624,32 +624,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async importTestResultFromRemoteRepository(
     context,
-    payload: { destTestResultId: string }
+    payload?: { destTestResultId?: string }
   ) {
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
-        testResultId: payload.destTestResultId,
+        testResultId: context.state.testResultInfo.id,
         shouldSaveTemporary: true,
       });
 
-      const fileName = exportFileUrl.split("/").pop() ?? "";
-
-      const source = {
-        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
-        fileName,
-      };
-      const dest = {
-        testResultId: payload.destTestResultId,
-        shouldSaveTemporary: true,
-      };
-
       const result: {
-        name: string;
-        id: string;
-        beforeId: string;
+        testResultId: string;
       } = await context.dispatch("importData", {
-        source,
-        dest,
+        source: {
+          testResultFileUrl: new URL(
+            exportFileUrl,
+            context.state.testResultInfo.repositoryUrl
+          ).toString(),
+        },
+        dest: { testResultId: payload?.destTestResultId },
       });
 
       return result;
@@ -671,24 +663,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         isRemote: false,
       });
 
-      const exportFileUrl = await new ExportAction(
-        localServiceDispatcher
-      ).exportWithTestResult(payload.localTestResultId, true);
-
       const newTestResultId = await new UploadTestResultAction(
         localServiceDispatcher
       ).uploadTestResult(
-        exportFileUrl,
-        context.rootState.repositoryServiceDispatcher.serviceUrl,
-        payload.remoteTestResultId
+        { testResultId: payload.localTestResultId },
+        {
+          repositoryUrl:
+            context.rootState.repositoryServiceDispatcher.serviceUrl,
+          testResultId: payload.remoteTestResultId,
+        }
       );
-
-      const exportFileName = exportFileUrl.split("/").pop();
-      if (exportFileName) {
-        await new DeleteTestResultAction(localServiceDispatcher).deleteTempFile(
-          exportFileName
-        );
-      }
 
       return newTestResultId;
     } catch (error) {
@@ -799,15 +783,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.importFileUrl Source import file url.
    * @param payload.testResultId Destination local test result id.
    * @param payload.shouldSaveTemporary Whether to save temporary.
-   * @return importFileName
+   * @return new test result ID.
    */
   async importData(
     context,
     payload: {
-      source: { repositoryUrl: string; fileName: string };
-      dest?: { testResultId?: string; shouldSaveTemporary?: boolean };
+      source: { testResultFileUrl: string };
+      dest?: { testResultId?: string };
     }
-  ): Promise<{ name: string; id: string; beforeId: string }> {
+  ): Promise<{ testResultId: string }> {
     const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
