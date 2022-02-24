@@ -340,7 +340,7 @@ export default class ManageView extends Vue {
   private importData(option: {
     selectedOptionProject: boolean;
     selectedOptionTestresult: boolean;
-    selectedItem: string;
+    selectedItem: { url: string; name: string };
   }): void {
     this.importDataProcessing = true;
     this.$store.dispatch("openProgressDialog", {
@@ -349,27 +349,25 @@ export default class ManageView extends Vue {
       ),
     });
 
-    if (!option.selectedItem) {
+    if (!option.selectedItem.url) {
       this.$store.dispatch("closeProgressDialog");
       this.importDataProcessing = false;
       return;
     }
 
-    let returnItem: {
-      name: string;
-      id: string;
-    } = { name: "", id: "" };
-
     setTimeout(async () => {
       try {
-        returnItem = await this.$store.dispatch("testManagement/importData", {
-          option,
-        });
-        if (returnItem.id) {
+        const source = { projectFileUrl: option.selectedItem.url };
+        const { projectId } = await this.$store.dispatch(
+          "testManagement/importData",
+          {
+            source,
+            option,
+          }
+        );
+        if (projectId) {
           await this.$store.dispatch("testManagement/readDataFile");
         }
-
-        const returnName = returnItem.name;
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -378,7 +376,7 @@ export default class ManageView extends Vue {
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName,
+            returnName: option.selectedItem.name,
           }
         );
       } catch (error) {
