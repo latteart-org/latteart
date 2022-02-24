@@ -47,91 +47,55 @@ export function getEnumValues(type: any): any[] {
 }
 
 /**
- * Calculate session execution time.
- * @param startTimeStamp  Session start time.
- * @param endTimeStamp  Session end time.
- * @param history  Operation history.
+ * Calculate total elapsed time of all tests in a test result.
+ * @param startTimeStamp  Last test start time.
+ * @param history  All test operation history.
  * @returns Elapsed time.
  */
 export const calculateElapsedEpochMillis = (
   startTimeStamp: number,
   history: OperationWithNotes[]
 ): number => {
-  let firstTestingTime;
-  const startEpochMilliseconds = new TimestampImpl(
+  const lastTestStartTime = new TimestampImpl(
     startTimeStamp
   ).epochMilliseconds();
 
-  const firstHistory = history.filter((item) => {
+  const lastTestingTime = (() => {
+    const lastOperationTimestamp =
+      history
+        .slice()
+        .reverse()
+        .find((historyItem) => {
+          return historyItem.operation.timestamp;
+        })?.operation.timestamp ?? lastTestStartTime;
+
     return (
-      new TimestampImpl(item.operation.timestamp).epochMilliseconds() <
-      startEpochMilliseconds
+      new TimestampImpl(lastOperationTimestamp).epochMilliseconds() -
+      lastTestStartTime
     );
-  });
-  if (firstHistory.length > 0) {
-    const firstStartTime = new TimestampImpl(
-      firstHistory[0].operation.timestamp
-    ).epochMilliseconds();
-    const firstEndTime = new TimestampImpl(
-      firstHistory[firstHistory.length - 1].operation.timestamp
-    ).epochMilliseconds();
-    firstTestingTime = firstEndTime - firstStartTime;
-  }
+  })();
 
-  let endTime;
-
-  let seq = history.length - 1;
-  while (!endTime) {
-    if (seq <= 0) {
-      endTime = startEpochMilliseconds;
-      break;
+  const otherTestingTime = (() => {
+    const otherHistory = history.filter((item) => {
+      return (
+        new TimestampImpl(item.operation.timestamp).epochMilliseconds() <
+        lastTestStartTime
+      );
+    });
+    if (otherHistory.length > 0) {
+      const otherStartTime = new TimestampImpl(
+        otherHistory[0].operation.timestamp
+      ).epochMilliseconds();
+      const otherEndTime = new TimestampImpl(
+        otherHistory[otherHistory.length - 1].operation.timestamp
+      ).epochMilliseconds();
+      return otherEndTime - otherStartTime;
+    } else {
+      return 0;
     }
-    const lastHistory = history[seq--];
-    if (
-      !lastHistory ||
-      !lastHistory.operation ||
-      !lastHistory.operation.timestamp
-    ) {
-      continue;
-    }
-    endTime = new TimestampImpl(
-      lastHistory.operation.timestamp
-    ).epochMilliseconds();
-  }
-  const secondTestingTime = endTime - startEpochMilliseconds;
+  })();
 
-  return (firstTestingTime ?? 0) + secondTestingTime;
-};
-
-export const getlastTestingTime = (history: OperationWithNotes[]): number => {
-  let startTime;
-  let endTime;
-  let seq = history.length - 1;
-
-  const startHistory = history[0];
-  while (!endTime) {
-    if (seq <= 0) {
-      startTime = 0;
-      endTime = 0;
-      break;
-    }
-    const lastHistory = history[seq--];
-    if (
-      !lastHistory ||
-      !lastHistory.operation ||
-      !lastHistory.operation.timestamp
-    ) {
-      continue;
-    }
-    startTime = new TimestampImpl(
-      startHistory.operation.timestamp
-    ).epochMilliseconds();
-    endTime = new TimestampImpl(
-      lastHistory.operation.timestamp
-    ).epochMilliseconds();
-  }
-
-  return endTime - (startTime ?? 0);
+  return lastTestingTime + otherTestingTime;
 };
 
 /**

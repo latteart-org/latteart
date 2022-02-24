@@ -28,7 +28,7 @@ import {
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
-import { getlastTestingTime } from "@/lib/common/util";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
@@ -298,6 +298,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
+      startTime: number;
+      lastStartTime: number;
       callbacks: {
         onChangeTime: (time: string) => void;
         onChangeNumberOfWindows: () => void;
@@ -314,14 +316,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         payload.url,
         config,
         {
-          onStart: async (startTime: number) => {
+          onStart: async () => {
             const history: OperationWithNotes[] = context.rootGetters[
               "operationHistory/getHistory"
             ]();
-            const lastTestingTime = getlastTestingTime(history);
-            const newStartTime = new TimestampImpl(startTime)
+
+            const lastTestingTime = calculateElapsedEpochMillis(
+              payload.lastStartTime,
+              history
+            );
+            const newStartTime = new TimestampImpl(payload.startTime)
               .offset(lastTestingTime * -1)
               .epochMilliseconds();
+
             context.dispatch("stopTimer");
             context.dispatch("startTimer", {
               onChangeTime: payload.callbacks.onChangeTime,
@@ -516,6 +523,28 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     }
 
     return await context.rootState.clientSideCaptureServiceDispatcher.takeScreenshot();
+  },
+
+  async getTestResult(
+    context,
+    payload: { testResultId: string }
+  ): Promise<
+    | {
+        id: string;
+        name: string;
+        startTimeStamp: number;
+        endTimeStamp: number;
+        initialUrl: string;
+      }
+    | undefined
+  > {
+    const reply = await context.rootState.repositoryServiceDispatcher.getTestResult(
+      payload.testResultId
+    );
+
+    console.log(reply);
+
+    return reply.data;
   },
 };
 

@@ -239,7 +239,7 @@ export default class ClientSideCaptureServiceDispatcher {
     url: string,
     config: CaptureConfig,
     eventListeners: {
-      onStart: (startTime: number) => Promise<void>;
+      onStart: () => Promise<void>;
       onGetOperation: (capturedOperation: CapturedOperation) => Promise<void>;
       onGetScreenTransition: (
         capturedScreenTransition: CapturedScreenTransition
@@ -281,10 +281,7 @@ export default class ClientSideCaptureServiceDispatcher {
       const onStart = (data?: unknown) => {
         console.info(`onStart: ${JSON.stringify(data)}`);
 
-        // TODO: Type check
-        const startTime = data as number;
-
-        eventListeners.onStart(startTime);
+        eventListeners.onStart();
       };
 
       const onGetOperation = (data?: unknown) => {
