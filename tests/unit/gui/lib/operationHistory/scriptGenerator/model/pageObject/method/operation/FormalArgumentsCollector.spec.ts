@@ -56,7 +56,7 @@ describe("FormalArgumentsCollector", () => {
         operation6,
       ]);
 
-      const expect = new Set(["name4", "id5", "id6"]);
+      const expect = new Set(["id4", "id5", "id6"]);
 
       deepStrictEqual(actual, expect);
     });
