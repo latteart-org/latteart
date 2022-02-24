@@ -33,8 +33,8 @@ export class InputGroupCollector {
         return acc;
       }
 
-      if (elem.type === ElementType.RadioButton && elem.name) {
-        acc.set(elem.name, `${this.escapeNewlineCharacters(op.input)}`);
+      if (elem.type === ElementType.RadioButton) {
+        acc.set(elem.identifier, `${this.escapeNewlineCharacters(op.input)}`);
 
         return acc;
       }

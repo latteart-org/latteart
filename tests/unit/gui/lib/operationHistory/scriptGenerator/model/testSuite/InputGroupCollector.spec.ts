@@ -64,7 +64,7 @@ describe("InputGroupCollector", () => {
 
         expect(result).toEqual({
           other: "input1\\ninput1\\ninput1",
-          radioName: "input2\\ninput2\\ninput2",
+          radio: "input2\\ninput2\\ninput2",
           checkbox: "true",
         });
       });
