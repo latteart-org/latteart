@@ -792,14 +792,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       dest?: { testResultId?: string };
     }
   ): Promise<{ testResultId: string }> {
-    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-
     try {
       return await new ImportAction(
-        localRepositoryServiceDispatcher
+        context.rootState.repositoryServiceDispatcher
       ).importWithTestResult(payload.source, payload.dest);
     } catch (error) {
       throw new Error(
