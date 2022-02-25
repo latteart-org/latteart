@@ -624,11 +624,27 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload?: { destTestResultId?: string }
   ) {
+    const {
+      serviceUrl,
+      isRemote,
+    } = context.rootState.repositoryServiceDispatcher;
+
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
         testResultId: context.state.testResultInfo.id,
         shouldSaveTemporary: true,
       });
+
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: context.rootState.localRepositoryServiceUrl,
+            isRemote: false,
+          }),
+        },
+        { root: true }
+      );
 
       const result: {
         testResultId: string;
@@ -646,6 +662,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    } finally {
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: serviceUrl,
+            isRemote,
+          }),
+        },
+        { root: true }
       );
     }
   },
