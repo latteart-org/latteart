@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class RemoteAccessField extends Vue {
@@ -49,6 +49,11 @@ export default class RemoteAccessField extends Vue {
   public readonly disabled!: boolean;
 
   private targetUrl = this.url;
+
+  @Watch("url")
+  private updateUrl() {
+    this.targetUrl = this.url;
+  }
 
   private connect(): void {
     (this.$refs.urlField as any).blur();
