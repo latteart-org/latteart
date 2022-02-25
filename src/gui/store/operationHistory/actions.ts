@@ -106,8 +106,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     };
 
     if (context.rootState.repositoryServiceDispatcher.isRemote) {
-      context.commit("setConfig", { config: settings.config });
-
       return;
     }
 
