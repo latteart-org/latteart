@@ -946,9 +946,11 @@ export default class ExpCapture extends Vue {
             name: this.testResultName,
           });
         } else {
+          const tmpUrl = this.url;
           await this.$store.dispatch("operationHistory/resume", {
             testResultId,
           });
+          this.url = tmpUrl;
         }
 
         const history = this.$store.state.operationHistory.history;
