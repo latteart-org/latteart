@@ -178,6 +178,12 @@ export default class ConfigView extends Vue {
     if (testResultId) {
       (async () => {
         try {
+          if (this.$route.query.remoteRepository) {
+            await this.$store.dispatch("connectRemoteUrl", {
+              targetUrl: this.$route.query.remoteRepository,
+            });
+          }
+
           await this.$store.dispatch("operationHistory/resume", {
             testResultId,
           });
