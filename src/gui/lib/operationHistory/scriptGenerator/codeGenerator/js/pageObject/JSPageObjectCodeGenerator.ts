@@ -198,19 +198,19 @@ set_${identifier}(isClick) {
           }
 
           if (operation.type === "accept_alert") {
-            return [`// Please add code of 'accept_alert'.`];
+            return [`// Please insert code for 'accept_alert' here.`];
           }
 
           if (operation.type === "dismiss_alert") {
-            return [`// Please add code of 'dismiss_alert'.`];
+            return [`// Please insert code for 'dismiss_alert' here.`];
           }
 
           if (operation.type === "browser_back") {
-            return [`// Please add code of 'browser_back'.`];
+            return [`// Please insert code for 'browser_back' here.`];
           }
 
           if (operation.type === "browser_forward") {
-            return [`// Please add code of 'browser_forward'.`];
+            return [`// Please insert code for 'browser_forward' here.`];
           }
 
           return [];
