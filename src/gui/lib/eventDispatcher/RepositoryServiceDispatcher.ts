@@ -1462,7 +1462,7 @@ export default class RepositoryServiceDispatcher
         }
       );
 
-      if (!response.projectId) {
+      if (response.code) {
         return {
           succeeded: false,
           error: {
