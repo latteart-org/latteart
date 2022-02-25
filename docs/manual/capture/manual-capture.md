@@ -175,6 +175,8 @@
 リポジトリ URL に記載された URL に接続することができます。  
 リポジトリ URL 入力欄に URL を入力すると接続ボタンが押下可能となります。
 
+:bulb:他者のリポジトリ URL（latteart-repositoryURL）を指定することで、他者の環境のデータへアクセス、更新することができます。
+
 # フッター
 
 <img src="./images/footer.png"/>
