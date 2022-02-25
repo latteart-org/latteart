@@ -188,6 +188,7 @@
             :items="locales"
             :value="initLocale"
             v-on:change="changeLocale"
+            :disabled="isConnectedToRemote"
           ></v-select>
         </v-flex>
         <remote-access-field
@@ -529,6 +530,10 @@ export default class ExpCapture extends Vue {
 
   private get pauseButtonColor() {
     return this.isPaused ? "yellow" : "grey darken-3";
+  }
+
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryServiceDispatcher.isRemote;
   }
 
   private pushPauseButton() {
@@ -1263,6 +1268,9 @@ export default class ExpCapture extends Vue {
         });
 
       if (url) {
+        await this.$store.dispatch("loadLocaleFromSettings");
+        await this.$store.dispatch("operationHistory/readSettings");
+
         this.resetHistory();
 
         this.informationMessageDialogOpened = true;
