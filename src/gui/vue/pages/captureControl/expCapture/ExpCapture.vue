@@ -928,6 +928,9 @@ export default class ExpCapture extends Vue {
           return id;
         })();
 
+        const remoteTestResultId =
+          this.$store.state.operationHistory.testResultInfo.id ?? "";
+
         // switch to local
         this.$store.commit(
           "setRepositoryServiceDispatcher",
@@ -1009,8 +1012,6 @@ export default class ExpCapture extends Vue {
         if (currentRepositoryInfo.isRemote) {
           const localTestResultId = this.$store.state.operationHistory
             .testResultInfo.id;
-          const remoteTestResultId =
-            testResultId !== "" ? testResultId : undefined;
 
           this.uploadHistory(
             { localId: localTestResultId, remoteId: remoteTestResultId },
