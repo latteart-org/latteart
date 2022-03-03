@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -58,8 +58,6 @@ export default class ImageCompressionSetting extends Vue {
             isEnabled,
             isDeleteSrcImage: this.$store.state.operationHistory.config
               .imageCompression.isDeleteSrcImage,
-            command: this.$store.state.operationHistory.config.imageCompression
-              .command,
           },
         },
       });
@@ -78,8 +76,6 @@ export default class ImageCompressionSetting extends Vue {
             isEnabled: this.$store.state.operationHistory.config
               .imageCompression.isEnabled,
             isDeleteSrcImage: isDelete,
-            command: this.$store.state.operationHistory.config.imageCompression
-              .command,
           },
         },
       });

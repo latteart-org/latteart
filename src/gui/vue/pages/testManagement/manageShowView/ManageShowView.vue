@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -91,7 +91,10 @@ export default class ManageShow extends Vue {
     return this.testMatrices.length >= 1;
   }
 
-  private created() {
+  private async created() {
+    if (!this.$store.state.progressDialog.opened) {
+      await this.$store.dispatch("testManagement/readDataFile");
+    }
     this.updateWindowTitle();
 
     const testMatrixId =

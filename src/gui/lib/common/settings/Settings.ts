@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,6 @@ export default class Settings {
       imageCompression: {
         isEnabled: true,
         isDeleteSrcImage: true,
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       },
     };
     this.captureSettings = {
@@ -126,5 +125,4 @@ export interface Coverage {
 export interface ImageCompression {
   isEnabled: boolean;
   isDeleteSrcImage: boolean;
-  command: string;
 }

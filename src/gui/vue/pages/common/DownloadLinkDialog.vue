@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
       <a :href="linkUrl" class="px-2" download>{{
         $store.getters.message("common.download-link")
       }}</a>
+      <p class="pre-wrap break-word alert-message">{{ alertMessage }}</p>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
@@ -50,6 +51,7 @@ export default class DownloadLinkDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: String, default: "" }) public readonly title!: string;
   @Prop({ type: String, default: "" }) public readonly message!: string;
+  @Prop({ type: String, default: "" }) public readonly alertMessage?: string;
   @Prop({ type: String, default: "" }) public readonly linkUrl!: string;
   @Prop({ type: Object, default: null }) public readonly iconOpts!: {
     text: string;
@@ -79,3 +81,9 @@ export default class DownloadLinkDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass">
+.alert-message
+  color: red
+  font-size: small
+</style>

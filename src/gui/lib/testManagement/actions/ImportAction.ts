@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,21 @@ import { Reply } from "@/lib/captureControl/Reply";
 
 export interface Importable {
   importZipFile(
-    importFileName: string,
+    source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ name: string; id: string }>>;
+  ): Promise<Reply<{ projectId: string }>>;
 }
 
 export class ImportAction {
   constructor(private dispatcher: Importable) {}
 
   public async importZip(
-    importFileName: string,
+    source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<{
-    name: string;
-    id: string;
+    projectId: string;
   }> {
-    const reply = await this.dispatcher.importZipFile(
-      importFileName,
-      selectOption
-    );
+    const reply = await this.dispatcher.importZipFile(source, selectOption);
 
     if (reply.error?.code === "import_test_result_not_exist") {
       throw new Error(`import-test-result-not-exist`);
@@ -50,11 +46,6 @@ export class ImportAction {
       throw new Error(`import-data-error`);
     }
 
-    const outputItem = {
-      name: reply.data.name,
-      id: reply.data.id,
-    };
-
-    return outputItem;
+    return reply.data;
   }
 }

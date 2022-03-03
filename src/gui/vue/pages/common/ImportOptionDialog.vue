@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
       <v-container class="px-0 pt-0" fluid id="import-option-dialog">
         <v-select
           item-text="name"
+          item-value="url"
           :items="importZipFiles"
           :label="$store.getters.message('import-export-dialog.select-file')"
           @change="updateImportOption"
@@ -73,16 +74,19 @@ import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 export default class ImportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private importItems: Array<{ id: string; name: string }> = [];
+  private importItems: Array<{ url: string; name: string }> = [];
 
   private importOption = {
     selectedOptionProject: false,
     selectedOptionTestresult: false,
-    selectedItem: "",
+    selectedItem: {
+      url: "",
+      name: "",
+    },
   };
 
   private get okButtonIsDisabled() {
-    if (this.importOption.selectedItem === "") {
+    if (this.importOption.selectedItem.url === "") {
       return true;
     }
 
@@ -109,12 +113,21 @@ export default class ImportOptionDialog extends Vue {
     }
   }
 
-  private updateImportOption(data: string) {
-    this.importOption.selectedItem = data;
+  private updateImportOption(url: string) {
+    const selectedItem = this.importItems.find((item) => item.url === url);
+    if (selectedItem) {
+      this.importOption.selectedItem = { ...selectedItem };
+    }
   }
 
   private execute(): void {
-    this.$emit("execute", this.importOption);
+    this.$emit("execute", {
+      ...this.importOption,
+      selectedItem: {
+        url: this.importOption.selectedItem.url,
+        name: this.importOption.selectedItem.name,
+      },
+    });
     this.close();
   }
 

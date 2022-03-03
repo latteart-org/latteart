@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import Vue from "vue";
 import { ActionTree } from "vuex";
 import { TestManagementState } from ".";
 import { RootState } from "..";
-import moment from "moment";
 import { Operation } from "@/lib/operationHistory/Operation";
 import {
   Story,
@@ -41,13 +40,11 @@ import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestM
 import { TestStep } from "@/lib/operationHistory/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
-import {
-  CalculateProgressDatasAction,
-  ProgressDataTimestamp,
-} from "@/lib/testManagement/actions/CalculateProgressDatasAction";
+import { CalculateProgressDatasAction } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
 import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
+import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -116,6 +113,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    */
   async readDataFile(context) {
+    if (Vue.prototype.$snapshot) {
+      return;
+    }
     await new ReadProjectDataAction(
       {
         setProjectId: (data: { projectId: string }): void => {
@@ -599,7 +599,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     const newSession: Partial<ManagedSession> = {
       isDone: payload.params.isDone,
       doneDate: payload.params.isDone
-        ? moment().format("YYYYMMDDHHmmss")
+        ? new TimestampImpl().format("YYYYMMDDHHmmss")
         : undefined,
       testItem: payload.params.testItem,
       testerName: payload.params.testerName,
@@ -801,17 +801,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
       stories: Story[];
     }
   ) {
-    const now = moment();
-
-    const timestamp: ProgressDataTimestamp = {
-      value: now.unix(),
-      isSameDayAs: (other) => {
-        return moment.unix(other).diff(now, "days") === 0;
-      },
-    };
+    const nowTimestamp: Timestamp = new TimestampImpl();
 
     return new CalculateProgressDatasAction().calculate(
-      timestamp,
+      nowTimestamp,
       payload.testMatrices,
       payload.stories,
       context.state.progressDatas
@@ -851,7 +844,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
   /**
    * Generate test scripts of all sessions.
    * @param context Action context.
-   * @returns URL of generated test scripts.
+   * @returns URL of generated test scripts and whether test scripts contain invalid operation.
    */
   async generateAllSessionTestScripts(
     context,
@@ -863,7 +856,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
         useDataDriven: boolean;
       };
     }
-  ): Promise<string> {
+  ): Promise<{
+    outputUrl: string;
+    invalidOperationTypeExists: boolean;
+  }> {
     const screenDefinitionConfig = context.rootGetters[
       "operationHistory/getConfig"
     ]().screenDefinition;
@@ -952,26 +948,23 @@ const actions: ActionTree<TestManagementState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload option
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.option.selectedOptionProject Whether to import project management data.
+   * @param payload.option.selectedOptionTestresult Whether to import project test result data.
    * @returns id ,name
    */
   async importData(
     context,
     payload: {
+      source: { projectFileUrl: string };
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
-        selectedItem: string;
       };
     }
   ): Promise<{
-    name: string;
-    id: string;
+    projectId: string;
   }> {
-    const importFileName = payload.option.selectedItem
-      ? payload.option.selectedItem
-      : "";
-
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
@@ -980,7 +973,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     try {
       return await new ImportAction(
         context.rootState.repositoryServiceDispatcher
-      ).importZip(importFileName, selectOption);
+      ).importZip(payload.source, selectOption);
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)

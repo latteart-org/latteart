@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,11 @@ export interface OperationHistoryState {
    * Test result.
    */
   testResultInfo: {
+    /**
+     * Repository URL.
+     */
+    repositoryUrl: string;
+
     /**
      * Test result ID.
      */
@@ -271,6 +276,7 @@ export interface OperationHistoryState {
 
 const state: OperationHistoryState = {
   testResultInfo: {
+    repositoryUrl: "",
     id: "",
     name: "",
   },
@@ -287,7 +293,6 @@ const state: OperationHistoryState = {
     imageCompression: {
       isEnabled: false,
       isDeleteSrcImage: false,
-      command: "",
     },
   },
   testStepIds: [],

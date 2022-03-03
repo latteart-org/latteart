@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -35,157 +35,169 @@
           :disabled="!canDoChangeDirectory"
           id="outputDirectoryTextField"
         ></v-text-field>
-
-        <v-btn
-          v-if="!isCapturing"
-          :disabled="!url || isReplaying || isResuming || !urlIsValid"
-          icon
-          flat
-          large
-          color="grey darken-3"
-          @click="testOptionDialogOpened = true"
-          :title="$store.getters.message('app.start')"
-          id="startButton"
-        >
-          <v-icon>fiber_manual_record</v-icon>
-        </v-btn>
-        <v-btn
-          v-else
-          icon
-          flat
-          large
-          color="red"
-          @click="endCapture"
-          :title="$store.getters.message('app.finish')"
-          id="endButton"
-        >
-          <v-icon>fiber_manual_record</v-icon>
-        </v-btn>
-        <v-btn
-          :disabled="!isCapturing"
-          @click="pushPauseButton"
-          icon
-          flat
-          large
-          :title="pauseButtonTooltip"
-          :color="pauseButtonColor"
-        >
-          <v-icon>pause</v-icon>
-        </v-btn>
-
-        <v-btn
-          :disabled="isCapturing || isReplaying || isResuming"
-          icon
-          flat
-          large
-          color="grey darken-3"
-          @click="resetHistory"
-          :title="$store.getters.message('app.reset')"
-        >
-          <v-icon>refresh</v-icon>
-        </v-btn>
-
-        <v-btn
-          icon
-          flat
-          large
-          color="grey darken-3"
-          @click="updateTestResults"
-          :disabled="isCapturing || isReplaying || isResuming"
-          :title="$store.getters.message('app.import')"
-        >
-          <v-icon>folder_open</v-icon>
-        </v-btn>
-
-        <v-btn
-          icon
-          flat
-          large
-          color="grey darken-3"
-          @click="getImportTestResults"
-          :loading="isImportTestResults"
-          :disabled="isImportTestResults"
-          :title="$store.getters.message('manage-header.import-option')"
-        >
-          <v-icon>file_upload</v-icon>
-        </v-btn>
-
-        <v-btn
-          icon
-          flat
-          large
-          color="grey darken-3"
-          @click="scriptGenerationOptionDialogIsOpened = true"
-          :loading="isGeneratingTestScripts"
-          :disabled="sequence === 0 || isGeneratingTestScripts"
-          :title="$store.getters.message('history-view.generate-testscript')"
-          ><v-icon>description</v-icon></v-btn
-        >
-
-        <v-btn
-          icon
-          flat
-          large
-          id="exportButton"
-          color="grey darken-3"
-          @click="exportData"
-          :loading="isExportingData"
-          :disabled="sequence === 0 || isExportingData"
-          :title="$store.getters.message('manage-header.export-option')"
-          ><v-icon>file_download</v-icon></v-btn
-        >
-
-        <v-menu
-          offset-y
-          v-model="showMenu"
-          :position-x="menuX"
-          :position-y="menuY"
-          absolute
-        >
-          <v-list>
-            <v-list-tile
-              v-for="(testResult, index) in testResults"
-              :key="index"
-              @click="resume(testResult.id)"
-              :disabled="!testResult.id"
+        <div>
+          <v-layout>
+            <v-btn
+              v-if="!isCapturing"
+              :disabled="!url || isReplaying || isResuming || !urlIsValid"
+              icon
+              flat
+              large
+              color="grey darken-3"
+              @click="testOptionDialogOpened = true"
+              :title="$store.getters.message('app.start')"
+              id="startButton"
             >
-              <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-
-        <v-menu
-          offset-y
-          v-model="showImportData"
-          :position-x="dataX"
-          :position-y="dataY"
-          absolute
-        >
-          <v-list>
-            <v-list-tile
-              v-for="(testResult, index) in importTestResults"
-              :key="index"
-              @click="importData(testResult.id)"
-              :disabled="!testResult.id"
+              <v-icon>fiber_manual_record</v-icon>
+            </v-btn>
+            <v-btn
+              v-else
+              icon
+              flat
+              large
+              color="red"
+              @click="endCapture"
+              :title="$store.getters.message('app.finish')"
+              id="endButton"
             >
-              <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
+              <v-icon>fiber_manual_record</v-icon>
+            </v-btn>
+            <v-btn
+              :disabled="!isCapturing"
+              @click="pushPauseButton"
+              icon
+              flat
+              large
+              :title="pauseButtonTooltip"
+              :color="pauseButtonColor"
+            >
+              <v-icon>pause</v-icon>
+            </v-btn>
 
-        <replay-history-button
-          :disabled="isCapturing || isResuming"
-          :isReplaying="isReplaying"
-        ></replay-history-button>
+            <v-btn
+              :disabled="isCapturing || isReplaying || isResuming"
+              icon
+              flat
+              large
+              color="grey darken-3"
+              @click="resetHistory"
+              :title="$store.getters.message('app.reset')"
+            >
+              <v-icon>refresh</v-icon>
+            </v-btn>
 
+            <v-btn
+              icon
+              flat
+              large
+              color="grey darken-3"
+              @click="updateTestResults"
+              :disabled="isCapturing || isReplaying || isResuming"
+              :title="$store.getters.message('app.import')"
+            >
+              <v-icon>folder_open</v-icon>
+            </v-btn>
+
+            <v-btn
+              icon
+              flat
+              large
+              color="grey darken-3"
+              @click="getImportTestResults"
+              :loading="isImportTestResults"
+              :disabled="isImportTestResults"
+              :title="$store.getters.message('manage-header.import-option')"
+            >
+              <v-icon>file_upload</v-icon>
+            </v-btn>
+
+            <v-btn
+              icon
+              flat
+              large
+              color="grey darken-3"
+              @click="scriptGenerationOptionDialogIsOpened = true"
+              :loading="isGeneratingTestScripts"
+              :disabled="sequence === 0 || isGeneratingTestScripts"
+              :title="
+                $store.getters.message('history-view.generate-testscript')
+              "
+              ><v-icon>description</v-icon></v-btn
+            >
+
+            <v-btn
+              icon
+              flat
+              large
+              id="exportButton"
+              color="grey darken-3"
+              @click="exportData"
+              :loading="isExportingData"
+              :disabled="sequence === 0 || isExportingData"
+              :title="$store.getters.message('manage-header.export-option')"
+              ><v-icon>file_download</v-icon></v-btn
+            >
+
+            <v-menu
+              offset-y
+              v-model="showMenu"
+              :position-x="menuX"
+              :position-y="menuY"
+              absolute
+            >
+              <v-list>
+                <v-list-tile
+                  v-for="(testResult, index) in testResults"
+                  :key="index"
+                  @click="resume(testResult.id)"
+                  :disabled="!testResult.id"
+                >
+                  <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-menu>
+
+            <v-menu
+              offset-y
+              v-model="showImportData"
+              :position-x="dataX"
+              :position-y="dataY"
+              absolute
+            >
+              <v-list>
+                <v-list-tile
+                  v-for="(testResult, index) in importTestResults"
+                  :key="index"
+                  @click="importData(testResult)"
+                  :disabled="!testResult.url"
+                >
+                  <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-menu>
+
+            <replay-history-button
+              :disabled="isCapturing || isResuming"
+              :isReplaying="isReplaying"
+            ></replay-history-button>
+          </v-layout>
+        </div>
         <v-flex shrink pa-1 pl-3>
           <v-select
-            label="locale"
+            :label="$store.getters.message('manage-header.locale')"
             :items="locales"
             :value="initLocale"
             v-on:change="changeLocale"
+            :disabled="isConnectedToRemote"
           ></v-select>
         </v-flex>
+        <remote-access-field
+          :url="currentRepositoryUrl"
+          color="inherit"
+          :urls="repositoryUrls"
+          @execute="startRemoteConnection"
+          :disabled="isCapturing"
+        ></remote-access-field>
       </v-layout>
     </v-toolbar>
 
@@ -329,7 +341,7 @@
 
     <information-message-dialog
       :opened="informationMessageDialogOpened"
-      :title="$store.getters.message('import-export-dialog.import-title')"
+      :title="informationTitle"
       :message="informationMessage"
       @close="informationMessageDialogOpened = false"
     />
@@ -345,6 +357,7 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
+      :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
@@ -361,6 +374,13 @@
       :y="contextMenuY"
       :items="contextMenuItems"
       @contextMenuClose="contextMenuOpened = false"
+    />
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
+      :onAccept="confirmDialogAccept"
+      @close="confirmDialogOpened = false"
     />
   </v-app>
 </template>
@@ -386,6 +406,11 @@ import TestOptionDialog from "../testOptionDialog/TestOptionDialog.vue";
 import InformationMessageDialog from "../../common/InformationMessageDialog.vue";
 import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
+import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
+import ConfirmDialog from "../../common/ConfirmDialog.vue";
+import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 @Component({
   components: {
@@ -401,6 +426,8 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
     "information-message-dialog": InformationMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
+    "remote-access-field": RemoteAccessField,
+    "confirm-dialog": ConfirmDialog,
   },
 })
 export default class ExpCapture extends Vue {
@@ -505,6 +532,10 @@ export default class ExpCapture extends Vue {
     return this.isPaused ? "yellow" : "grey darken-3";
   }
 
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryServiceDispatcher.isRemote;
+  }
+
   private pushPauseButton() {
     if (this.isPaused) {
       this.$store.dispatch("captureControl/resumeCapturing");
@@ -514,19 +545,24 @@ export default class ExpCapture extends Vue {
   }
 
   private changeCurrentTestResultName() {
-    this.$store.dispatch("operationHistory/changeCurrentTestResultName");
+    this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+      startTime: null,
+      initialUrl: "",
+    });
   }
 
   private informationMessageDialogOpened = false;
+  private informationTitle = "";
   private informationMessage = "";
 
   private isGeneratingTestScripts = false;
   private scriptGenerationOptionDialogIsOpened = false;
   private isExportingData = false;
   private isImportTestResults = false;
+  private remoteUrl = "";
 
   private testResults: Array<{ id: string; name: string }> = [];
-  private importTestResults: Array<{ id: string; name: string }> = [];
+  private importTestResults: Array<{ url: string; name: string }> = [];
 
   private showMenu = false;
   private menuX = 0;
@@ -560,32 +596,44 @@ export default class ExpCapture extends Vue {
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
+  private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
+
+  private confirmDialogOpened = false;
+  private confirmDialogTitle = "";
+  private confirmDialogMessage = "";
+  private confirmDialogAccept() {
+    /* Do nothing */
+  }
+
+  private remoteTestResultId = "";
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
   private contextMenuY = -1;
   private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
 
-  private importData(importFileName: string) {
+  private importData(importTestResult: { url: string; name: string }) {
     this.isImportTestResults = true;
-    if (!importFileName) {
+    if (!importTestResult.url) {
       this.isImportTestResults = false;
       return;
     }
 
-    let returnName = "";
-
     setTimeout(async () => {
       try {
-        returnName = await this.$store.dispatch("operationHistory/importData", {
-          importFileName,
+        await this.$store.dispatch("operationHistory/importData", {
+          source: { testResultFileUrl: importTestResult.url },
         });
+
         this.informationMessageDialogOpened = true;
+        this.informationTitle = this.$store.getters.message(
+          "import-export-dialog.import-title"
+        );
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName,
+            returnName: importTestResult.name,
           }
         );
       } catch (error) {
@@ -614,7 +662,8 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${exportDataPath}`;
+        this.downloadLinkDialogAlertMessage = "";
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
         this.errorMessage = error.message;
@@ -635,7 +684,7 @@ export default class ExpCapture extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
-        const testScriptPath = await this.$store.dispatch(
+        const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
             testResultId,
@@ -654,7 +703,14 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptPath}`;
+        if (testScriptInfo.invalidOperationTypeExists) {
+          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
+            "history-view.generate-alert-info"
+          );
+        } else {
+          this.downloadLinkDialogAlertMessage = "";
+        }
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
@@ -706,9 +762,10 @@ export default class ExpCapture extends Vue {
     this.dataX = e.clientX;
     this.dataY = e.clientY;
     this.$nextTick(async () => {
-      const newImportTestResults = await this.$store.dispatch(
-        "operationHistory/getImportTestResults"
-      );
+      const newImportTestResults: {
+        url: string;
+        name: string;
+      }[] = await this.$store.dispatch("operationHistory/getImportTestResults");
 
       this.importTestResults.splice(
         0,
@@ -718,7 +775,7 @@ export default class ExpCapture extends Vue {
 
       if (this.importTestResults.length === 0) {
         this.importTestResults.push({
-          id: "",
+          url: "",
           name: "EMPTY",
         });
       }
@@ -837,16 +894,100 @@ export default class ExpCapture extends Vue {
 
     (async () => {
       try {
-        if (this.$store.state.operationHistory.testResultInfo.id === "") {
+        const currentRepositoryInfo = (() => {
+          const currentRepository: RepositoryServiceDispatcher = this.$store
+            .state.repositoryServiceDispatcher;
+
+          return {
+            url: currentRepository.serviceUrl,
+            isRemote: currentRepository.isRemote,
+          };
+        })();
+
+        const testResultId = await (async () => {
+          const testResultInfo: {
+            repositoryUrl: string;
+            id: string;
+          } = this.$store.state.operationHistory.testResultInfo;
+
+          if (
+            !testResultInfo.repositoryUrl ||
+            testResultInfo.repositoryUrl ===
+              this.$store.state.localRepositoryServiceUrl
+          ) {
+            return testResultInfo.id;
+          }
+
+          const id: string =
+            (
+              await this.$store.dispatch(
+                "operationHistory/importTestResultFromRemoteRepository"
+              )
+            ).testResultId ?? "";
+
+          return id;
+        })();
+
+        const remoteTestResultId =
+          this.$store.state.operationHistory.testResultInfo.id ?? "";
+
+        // switch to local
+        this.$store.commit(
+          "setRepositoryServiceDispatcher",
+          {
+            serviceDispatcher: new RepositoryServiceDispatcher({
+              url: this.$store.state.localRepositoryServiceUrl,
+              isRemote: false,
+            }),
+          },
+          { root: true }
+        );
+
+        if (testResultId === "") {
           await this.$store.dispatch("operationHistory/createTestResult", {
             initialUrl: this.url,
             name: this.testResultName,
           });
+        } else {
+          const tmpUrl = this.url;
+          await this.$store.dispatch("operationHistory/resume", {
+            testResultId,
+          });
+          this.url = tmpUrl;
+        }
+
+        const history = this.$store.state.operationHistory.history;
+        const startTime = new TimestampImpl().epochMilliseconds();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+
+        if (history.length === 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: this.url,
+            }
+          );
+        } else if (history.length > 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: "",
+            }
+          );
         }
 
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           config: this.config,
+          startTime,
+          lastStartTime: readResultData?.startTimeStamp ?? 0,
           callbacks: {
             onChangeTime: (time: string) => {
               this.nowTime = time;
@@ -856,6 +997,31 @@ export default class ExpCapture extends Vue {
             },
           },
         });
+
+        // switch to before repository
+        this.$store.commit(
+          "setRepositoryServiceDispatcher",
+          {
+            serviceDispatcher: new RepositoryServiceDispatcher(
+              currentRepositoryInfo
+            ),
+          },
+          { root: true }
+        );
+
+        if (currentRepositoryInfo.isRemote) {
+          const localTestResultId = this.$store.state.operationHistory
+            .testResultInfo.id;
+
+          this.uploadHistory(
+            { localId: localTestResultId, remoteId: remoteTestResultId },
+            async (testResultId: string) => {
+              await this.$store.dispatch("operationHistory/resume", {
+                testResultId,
+              });
+            }
+          );
+        }
       } catch (error) {
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
@@ -863,8 +1029,93 @@ export default class ExpCapture extends Vue {
     })();
   }
 
+  private uploadHistory(
+    testResult: { localId: string; remoteId?: string },
+    postOperation: (testResultId: string) => Promise<void>
+  ): void {
+    this.confirmDialogTitle = this.$store.getters.message("common.confirm");
+    this.confirmDialogMessage = this.$store.getters.message(
+      "remote-access.register-confirm"
+    );
+
+    this.confirmDialogAccept = () => {
+      this.confirmDialogOpened = false;
+
+      (async () => {
+        try {
+          this.$store.dispatch("openProgressDialog", {
+            message: this.$store.getters.message(
+              "remote-access.registering-testresults"
+            ),
+          });
+
+          const newTestResultId = await this.$store
+            .dispatch("operationHistory/uploadTestResultsToRemote", {
+              localTestResultId: testResult.localId,
+              remoteTestResultId: testResult.remoteId,
+            })
+            .finally(() => {
+              this.$store.dispatch("closeProgressDialog");
+            });
+
+          await postOperation(newTestResultId);
+
+          this.deleteLocalTestResult(testResult.localId);
+        } catch (error) {
+          this.errorMessage = this.$store.getters.message(
+            "remote-access.registering-testresults-error"
+          );
+          this.errorMessageDialogOpened = true;
+        }
+      })();
+    };
+
+    this.confirmDialogOpened = true;
+  }
+
+  private deleteLocalTestResult(testResultId: string): void {
+    this.confirmDialogTitle = this.$store.getters.message("common.confirm");
+    this.confirmDialogMessage = this.$store.getters.message(
+      "remote-access.delete-warning"
+    );
+
+    this.confirmDialogAccept = async () => {
+      this.confirmDialogOpened = false;
+
+      try {
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message(
+            "remote-access.delete-testresults"
+          ),
+        });
+
+        await this.$store
+          .dispatch("operationHistory/deleteLocalTestResult", {
+            testResultId,
+          })
+          .finally(() => {
+            this.$store.dispatch("closeProgressDialog");
+          });
+
+        this.informationMessageDialogOpened = true;
+        this.informationTitle = this.$store.getters.message("common.confirm");
+        this.informationMessage = this.$store.getters.message(
+          "remote-access.register-delete-succeeded"
+        );
+      } catch (error) {
+        this.errorMessage = this.$store.getters.message(
+          "remote-access.delete-error"
+        );
+        this.errorMessageDialogOpened = true;
+      }
+    };
+
+    this.confirmDialogOpened = true;
+  }
+
   private resetHistory(): void {
     this.$store.dispatch("operationHistory/resetHistory");
+    this.nowTime = "00:00:00";
   }
 
   private endCapture(): void {
@@ -878,10 +1129,28 @@ export default class ExpCapture extends Vue {
 
     setTimeout(async () => {
       try {
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message("remote-access.load"),
+        });
+
         await this.$store.dispatch("operationHistory/resume", { testResultId });
+        const history = this.$store.getters["operationHistory/getHistory"]();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+        const testingTime = calculateElapsedEpochMillis(
+          readResultData?.startTimeStamp ?? 0,
+          history
+        );
+        this.nowTime = formatTime(testingTime);
       } catch (error) {
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
       }
     }, 300);
   }
@@ -980,6 +1249,59 @@ export default class ExpCapture extends Vue {
       ...this.$store.state.captureControl.capturingWindowInfo.availableWindows
     );
     this.windowSelectorOpened = true;
+  }
+
+  private startRemoteConnection(targetUrl: string) {
+    (async () => {
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "remote-access.connecting-remote-url"
+        ),
+      });
+
+      const url = await this.$store
+        .dispatch("connectRemoteUrl", {
+          targetUrl,
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.$store.dispatch("closeProgressDialog");
+        });
+
+      if (url) {
+        await this.$store.dispatch("loadLocaleFromSettings");
+        await this.$store.dispatch("operationHistory/readSettings");
+
+        this.resetHistory();
+
+        this.informationMessageDialogOpened = true;
+        this.informationTitle = this.$store.getters.message("common.confirm");
+        this.informationMessage = this.$store.getters.message(
+          "remote-access.connect-remote-url-succeeded",
+          {
+            url,
+          }
+        );
+        this.remoteUrl = url;
+      } else {
+        this.errorMessage = this.$store.getters.message(
+          "remote-access.connect-remote-url-error"
+        );
+        this.errorMessageDialogOpened = true;
+      }
+    })();
+  }
+
+  private get currentRepositoryUrl(): string {
+    return this.$store.state.repositoryServiceDispatcher.serviceUrl;
+  }
+
+  private get repositoryUrls(): string[] {
+    const localUrl = this.$store.state.localRepositoryServiceUrl;
+    const remoteUrls = this.$store.state.remoteRepositoryUrls;
+    return [localUrl, ...remoteUrls];
   }
 }
 </script>

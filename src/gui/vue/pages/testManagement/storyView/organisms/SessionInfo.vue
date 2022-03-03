@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -76,10 +76,19 @@
                 >
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
-                      unixTimeToHHmmss(session.testingTime)
-                    }})<v-btn
+                      millisecondsToHHmmss(session.testingTime)
+                    }})
+                    <v-btn
+                      class="mr-0"
                       flat
-                      icon7
+                      icon
+                      v-if="!isViewerMode"
+                      @click="reload()"
+                      ><v-icon>refresh</v-icon></v-btn
+                    >
+                    <v-btn
+                      flat
+                      icon
                       color="error"
                       v-if="!isViewerMode"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
@@ -91,6 +100,14 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
+                <v-btn
+                  v-if="!isViewerMode"
+                  @click="openCaptureTool(session.testResultFiles)"
+                  id="openCaptureToolButton"
+                  >{{
+                    $store.getters.message("session-info.start-capture-tool")
+                  }}</v-btn
+                >
                 <v-btn
                   v-if="!isViewerMode"
                   @click="openTestResultSelectionDialog"
@@ -356,7 +373,6 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import moment from "moment";
 import {
   Session,
   AttachedFile,
@@ -367,6 +383,7 @@ import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
+import { formatTime } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -531,6 +548,10 @@ export default class SessionInfo extends Vue {
     };
   }
 
+  private async reload() {
+    await this.$store.dispatch("testManagement/readDataFile");
+  }
+
   private async importTestResult(testResult: TestResultFile): Promise<void> {
     this.testResultSelectionDialogOpened = false;
     this.$store.dispatch("openProgressDialog", {
@@ -598,8 +619,8 @@ export default class SessionInfo extends Vue {
     this.confirmDialogOpened = true;
   }
 
-  private unixTimeToHHmmss(unixTime: number) {
-    return moment(unixTime, "X").utc().format("HH:mm:ss");
+  private millisecondsToHHmmss(millisecondsTime: number) {
+    return formatTime(millisecondsTime);
   }
 
   private async updateSession(params: {
@@ -673,6 +694,32 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogOpened = true;
+  }
+
+  private async openCaptureTool(testResultFiles: TestResultFile[]) {
+    const origin = location.origin;
+    const captureClUrl = this.$store.state.clientSideCaptureServiceDispatcher
+      .serviceUrl;
+    const localRepositoryUrl = this.$store.state.localRepositoryServiceUrl;
+    const repositoryUrl = this.$store.state.repositoryServiceDispatcher
+      .serviceUrl;
+    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${localRepositoryUrl}&remoteRepository=${repositoryUrl}`;
+
+    if (testResultFiles.length > 0) {
+      const testResultId = testResultFiles[0].id;
+      window.open(`${url}&testResultId=${testResultId}`, "_blank");
+    } else {
+      await this.$store.dispatch("operationHistory/createTestResult", {
+        initialUrl: "",
+        name: "",
+      });
+
+      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+
+      this.importTestResult({ id: newTestResult.id, name: newTestResult.name });
+
+      window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
+    }
   }
 }
 </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import { PageObject } from "../../../model/pageObject/PageObject";
 import {
   PageObjectElement,
   ElementType,
-  OperationType,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
 import { PageObjectMethod } from "../../../model/pageObject/method/PageObjectMethod";
 import { JSRadioButtonAccessorCodeGenerator } from "./JSRadioButtonAccessorCodeGenerator";
@@ -101,18 +100,14 @@ export default ${pageObjectName};
 
     const radioButtonGenerator = new JSRadioButtonAccessorCodeGenerator(
       elements.reduce((radioNameToValues, element) => {
-        if (
-          element.type === ElementType.RadioButton &&
-          element.name &&
-          element.value
-        ) {
-          const name = element.name;
+        if (element.type === ElementType.RadioButton && element.value) {
+          const identifier = element.identifier;
 
-          if (!radioNameToValues.has(name)) {
-            radioNameToValues.set(name, new Set());
+          if (!radioNameToValues.has(identifier)) {
+            radioNameToValues.set(identifier, new Set());
           }
 
-          radioNameToValues.get(name)?.add(element.value);
+          radioNameToValues.get(identifier)?.add(element.value);
         }
 
         return radioNameToValues;
@@ -124,15 +119,18 @@ export default ${pageObjectName};
     return Array.from(identifierToElement).map(
       ([identifier, elem]: [string, PageObjectElement]) => {
         if (elem.type === ElementType.RadioButton && elem.name) {
-          const name = elem.name;
+          const identifier = elem.identifier;
 
-          if (radioButtonNames.has(name)) {
+          if (radioButtonNames.has(identifier)) {
             return "";
           }
 
-          radioButtonNames.add(name);
+          radioButtonNames.add(identifier);
 
-          return radioButtonGenerator.generateRadioButtonString(name);
+          return radioButtonGenerator.generateRadioButtonString(
+            identifier,
+            elem.name
+          );
         }
 
         if (elem.type === ElementType.CheckBox) {
@@ -177,7 +175,7 @@ set_${identifier}(isClick) {
 
       const operationsString = method.operations
         .flatMap((operation) => {
-          if (operation.type === OperationType.Click) {
+          if (operation.type === "click") {
             const clickEventOperationString = JSPageObjectCodeGenerator.generateClickEventOperationString(
               operation.target,
               radioButtons
@@ -186,7 +184,7 @@ set_${identifier}(isClick) {
             return clickEventOperationString ? [clickEventOperationString] : [];
           }
 
-          if (operation.type === OperationType.Change) {
+          if (operation.type === "change") {
             const changeEventOperationString = JSPageObjectCodeGenerator.generateChangeEventOperationString(
               operation.target
             );
@@ -194,8 +192,24 @@ set_${identifier}(isClick) {
             return [changeEventOperationString];
           }
 
-          if (operation.type === OperationType.SwitchWindow) {
+          if (operation.type === "switch_window") {
             return [`browser.switchWindow("${operation.input}");`];
+          }
+
+          if (operation.type === "accept_alert") {
+            return [`// Please insert code for 'accept_alert' here.`];
+          }
+
+          if (operation.type === "dismiss_alert") {
+            return [`// Please insert code for 'dismiss_alert' here.`];
+          }
+
+          if (operation.type === "browser_back") {
+            return [`// Please insert code for 'browser_back' here.`];
+          }
+
+          if (operation.type === "browser_forward") {
+            return [`// Please insert code for 'browser_forward' here.`];
           }
 
           return [];
@@ -214,9 +228,7 @@ ${CodeFormatter.prependTextToAllLines(method.comment, " * ")}
       return `\
 ${methodComment}${methodName}(${argsString}) {
 ${CodeFormatter.indentToAllLines(
-  operationsString
-    ? operationsString
-    : "// no operation (browser back/forward or record error)",
+  operationsString ? operationsString : "// no operation",
   2
 )}
 
@@ -248,14 +260,14 @@ ${Array.from(args)
     element: PageObjectElement,
     radioButtons: Set<string>
   ) {
-    if (element.type === ElementType.RadioButton && element.name) {
-      if (radioButtons.has(element.name)) {
-        radioButtons.add(element.name);
+    if (element.type === ElementType.RadioButton && element.identifier) {
+      if (radioButtons.has(element.identifier)) {
+        radioButtons.add(element.identifier);
 
         return "";
       }
 
-      return `this.set_${element.name}(${element.name});`;
+      return `this.set_${element.identifier}(${element.identifier});`;
     }
 
     const identifier = element.identifier;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,15 @@ export enum ElementType {
   Other,
 }
 
-export enum OperationType {
-  Click,
-  Change,
-  SwitchWindow,
-  Other,
-}
+export type OperationType =
+  | "click"
+  | "change"
+  | "switch_window"
+  | "accept_alert"
+  | "dismiss_alert"
+  | "browser_back"
+  | "browser_forward"
+  | "other";
 
 export interface PageObjectElement {
   readonly identifier: string;
@@ -42,4 +45,13 @@ export interface PageObjectOperation {
   readonly target: PageObjectElement;
   readonly type: OperationType;
   readonly input: string;
+}
+
+export function invalidOperationTypeExists(type: string): boolean {
+  return [
+    "accept_alert",
+    "dismiss_alert",
+    "browser_back",
+    "browser_forward",
+  ].includes(type);
 }

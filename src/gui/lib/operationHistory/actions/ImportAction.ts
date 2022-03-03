@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,25 @@
 import { Reply } from "@/lib/captureControl/Reply";
 
 export interface TestResultImportable {
-  importTestResult(importFileName: string): Promise<Reply<{ name: string }>>;
+  importTestResult(
+    source: { testResultFileUrl: string },
+    dest?: { testResultId?: string }
+  ): Promise<Reply<{ testResultId: string }>>;
 }
 
 export class ImportAction {
   constructor(private dispatcher: TestResultImportable) {}
 
-  public async importWithTestResult(importFileName: string): Promise<string> {
-    const reply = await this.dispatcher.importTestResult(importFileName);
+  public async importWithTestResult(
+    source: { testResultFileUrl: string },
+    dest?: { testResultId?: string }
+  ): Promise<{ testResultId: string }> {
+    const reply = await this.dispatcher.importTestResult(source, dest);
 
     if (!reply.data) {
       throw new Error(`import-data-error`);
     }
 
-    const outputName: string = reply.data.name;
-
-    return outputName;
+    return reply.data;
   }
 }

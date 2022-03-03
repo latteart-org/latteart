@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -275,8 +275,8 @@ export default class HistoryDisplay extends Vue {
 
   @Watch("history")
   private onChangeHistory(newValue: [], oldValue: []) {
-    this.selectLastOperation();
     if (newValue.length !== oldValue.length) {
+      this.selectLastOperation();
       this.scrollGraphArea();
     }
   }

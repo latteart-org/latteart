@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -124,9 +124,13 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ProgressChart from "./organisms/ProgressChart.vue";
-import { TestMatrixProgressData, TestMatrix } from "@/lib/testManagement/types";
-import moment from "moment";
+import {
+  TestMatrixProgressData,
+  TestMatrix,
+  ProgressData,
+} from "@/lib/testManagement/types";
 import Chart from "chart.js";
+import { Timestamp, TimestampImpl } from "@/lib/common/Timestamp";
 
 @Component({
   components: {
@@ -139,9 +143,9 @@ export default class ManageProgress extends Vue {
     : false;
   private rerender = true;
 
-  private startDate = moment().format("YYYY-MM-DD");
+  private innerStartDate: Timestamp | null = null;
   private startDateMenu = false;
-  private endDate = moment().format("YYYY-MM-DD");
+  private innerEndDate: Timestamp | null = null;
   private endDateMenu = false;
 
   private selectedGroupId = "all";
@@ -165,7 +169,9 @@ export default class ManageProgress extends Vue {
     });
   }
 
-  private created() {
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
     this.updateWindowTitle();
 
     const targetTestMatrix = this.$store.state.testManagement.testMatrices.find(
@@ -179,17 +185,38 @@ export default class ManageProgress extends Vue {
     }
 
     const dates = this.originalProgressDatas.map((data) => {
-      return moment.unix(Number(data.date));
+      return new TimestampImpl(data.date).unix();
     });
+    const minDate = dates.reduce((first, second) => Math.min(first, second));
+    const maxDate = dates.reduce((first, second) => Math.max(first, second));
 
-    this.startDate = moment.min(dates).format("YYYY-MM-DD");
-    this.endDate = moment.max(dates).format("YYYY-MM-DD");
+    this.innerStartDate = new TimestampImpl(minDate);
+    this.innerEndDate = new TimestampImpl(maxDate);
+  }
+
+  private get startDate() {
+    return this.innerStartDate
+      ? this.innerStartDate.format("YYYY-MM-DD")
+      : new TimestampImpl().format("YYYY-MM-DD");
+  }
+
+  private set startDate(value: string) {
+    this.innerStartDate = new TimestampImpl(value);
+  }
+
+  private get endDate() {
+    return this.innerEndDate
+      ? this.innerEndDate.format("YYYY-MM-DD")
+      : new TimestampImpl().format("YYYY-MM-DD");
+  }
+
+  private set endDate(value: string) {
+    this.innerEndDate = new TimestampImpl(value);
   }
 
   private get originalProgressDatas(): TestMatrixProgressData[] {
-    const allProgressDatas: any[] = this.$store.getters[
-      "testManagement/collectProgressDatas"
-    ]();
+    const allProgressDatas: ProgressData[] =
+      this.$store.getters["testManagement/collectProgressDatas"]() ?? [];
     const targetProgressData = allProgressDatas.find((progressData) => {
       return progressData.testMatrixId === this.testMatrix.id;
     });
@@ -262,11 +289,11 @@ export default class ManageProgress extends Vue {
 
     const filteredProgressDatas = allProgressDatas
       .filter((data) => {
-        const start = moment(this.startDate, "YYYY-MM-DD");
-        const end = moment(this.endDate, "YYYY-MM-DD");
-        return moment
-          .unix(Number(data.date))
-          .isBetween(start, end, "day", "[]");
+        const start = this.innerStartDate
+          ? this.innerStartDate
+          : new TimestampImpl();
+        const end = this.innerEndDate ? this.innerEndDate : new TimestampImpl();
+        return new TimestampImpl(data.date).isBetween(start, end);
       })
       .map((data) => {
         const groups = data.groups
@@ -300,7 +327,7 @@ export default class ManageProgress extends Vue {
             return progressData;
           },
           {
-            date: moment.unix(Number(data.date)).format("YYYY-MM-DD"),
+            date: new TimestampImpl(data.date).format("YYYY-MM-DD"),
             planNumber: 0,
             completedNumber: 0,
             incompletedNumber: 0,

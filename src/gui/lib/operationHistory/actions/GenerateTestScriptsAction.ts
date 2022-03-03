@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import { TestScript } from "../scriptGenerator/TestScript";
 import { Reply } from "@/lib/captureControl/Reply";
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
+import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
 export interface TestScriptExportable {
   postTestscriptsWithProjectId(
@@ -41,12 +42,21 @@ export class GenerateTestScriptsAction {
     testResultId: string | undefined;
     projectId: string | undefined;
     sources: { initialUrl: string; history: Operation[] }[];
-  }): Promise<string> {
+  }): Promise<{
+    outputUrl: string;
+    invalidOperationTypeExists: boolean;
+  }> {
     const testScript = this.scriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
       throw new Error(`generate_test_suite_failed`);
     }
+
+    const invalidTypeExists = params.sources.some((session) => {
+      return session.history.some((operation) => {
+        return invalidOperationTypeExists(operation.type);
+      });
+    });
 
     if (params.projectId) {
       const reply = await this.dispatcher.postTestscriptsWithProjectId(
@@ -60,7 +70,10 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return outputUrl;
+      return {
+        outputUrl,
+        invalidOperationTypeExists: invalidTypeExists,
+      };
     }
 
     if (params.testResultId) {
@@ -75,7 +88,10 @@ export class GenerateTestScriptsAction {
 
       const outputUrl: string = reply.data.url;
 
-      return outputUrl;
+      return {
+        outputUrl,
+        invalidOperationTypeExists: invalidTypeExists,
+      };
     }
 
     throw new Error(`save_test_scripts_no_operation_error`);

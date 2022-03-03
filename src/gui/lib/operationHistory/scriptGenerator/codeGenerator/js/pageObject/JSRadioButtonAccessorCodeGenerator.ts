@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,30 +23,30 @@ export class JSRadioButtonAccessorCodeGenerator {
     this._radioNameToValues = radioNameToValues;
   }
 
-  public generateRadioButtonString(name: string): string {
+  public generateRadioButtonString(identifier: string, name: string): string {
     const valuesString = JSRadioButtonAccessorCodeGenerator.generateRadioValuesString(
-      name,
+      identifier,
       this._radioNameToValues
     );
 
     return `\
-static get ${name}() {
+static get ${identifier}() {
   return {
 ${CodeFormatter.indentToAllLines(valuesString, 4)}
   }
 }
 
-set_${name}(value) {
+set_${identifier}(value) {
   $("//input[@name='${name}' and @value='" + value + "']").click();
 }`;
   }
 
   // not generate values that is not operated.
   private static generateRadioValuesString(
-    name: string,
+    identifier: string,
     radioNameToValues: Map<string, Set<string>>
   ) {
-    const values = Array.from(radioNameToValues.get(name) ?? []);
+    const values = Array.from(radioNameToValues.get(identifier) ?? []);
 
     const radioValuesString = values
       .map((value: string) => `${value}: '${value}'`)

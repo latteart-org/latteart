@@ -1,6 +1,6 @@
 {
   "name": "latteart",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3000",
@@ -20,7 +20,7 @@
     "package:launch:win": "cd launch && yarn install && yarn prepackage:win && yarn package:win",
     "package:launch:mac": "cd launch && yarn install && yarn prepackage:mac &&  yarn package:mac",
     "copy:launch:win": "cpx \"launch/dist/launch.config.json\" dist/latteart && cpx \"launch/dist/*.bat\" dist/latteart && cpx \"launch/dist/win/launch.exe\" dist/latteart",
-    "copy:launch:mac": "cpx \"launch/dist/launch.config.json\" dist/latteart && cpx \"launch/dist/mac/launch\" dist/latteart",
+    "copy:launch:mac": "cpx \"launch/dist/launch.config.json\" dist/latteart && cpx \"launch/dist/*.sh\" dist/latteart && cpx \"launch/dist/mac/launch\" dist/latteart",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint src/gui/**/*.ts src/gui/**/*.vue",

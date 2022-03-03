@@ -2,7 +2,6 @@ import { deepStrictEqual } from "assert";
 import {
   PageObjectOperation,
   ElementType,
-  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 import { FormalArgumentCollector } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/FormalArgumentsCollector";
 
@@ -15,7 +14,7 @@ describe("FormalArgumentsCollector", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -26,7 +25,7 @@ describe("FormalArgumentsCollector", () => {
           name: "name4",
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -36,7 +35,7 @@ describe("FormalArgumentsCollector", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Change,
+        type: "change",
         input: "",
       };
 
@@ -46,7 +45,7 @@ describe("FormalArgumentsCollector", () => {
           type: ElementType.CheckBox,
           locator: "",
         },
-        type: OperationType.Click,
+        type: "click",
         input: "",
       };
 
@@ -57,7 +56,7 @@ describe("FormalArgumentsCollector", () => {
         operation6,
       ]);
 
-      const expect = new Set(["name4", "id5", "id6"]);
+      const expect = new Set(["id4", "id5", "id6"]);
 
       deepStrictEqual(actual, expect);
     });

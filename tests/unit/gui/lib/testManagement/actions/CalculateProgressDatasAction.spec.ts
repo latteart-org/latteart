@@ -1,9 +1,9 @@
 import {
   CalculateProgressDatasAction,
   StoryAchievement,
-  ProgressDataTimestamp,
 } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
 import { ProgressData, TestMatrix } from "@/lib/testManagement/types";
+import { Timestamp } from "@/lib/common/Timestamp";
 
 describe("CalculateProgressDatasAction", () => {
   describe("#calculate", () => {
@@ -89,18 +89,23 @@ describe("CalculateProgressDatasAction", () => {
     };
 
     it("既存の進捗がないテストマトリクスは新規の日付として進捗を追加する", () => {
-      const timestamp: ProgressDataTimestamp = {
-        value: 0,
+      const timestamp: Timestamp = {
+        unix: jest.fn().mockReturnValue(0),
+        format: jest.fn(),
+        epochMilliseconds: jest.fn(),
+        diff: jest.fn(),
+        diffFormat: jest.fn(),
+        isBetween: jest.fn(),
         isSameDayAs: jest.fn().mockReturnValue(true),
       };
 
       const oldProgressData = {
-        date: timestamp.value.toString(),
+        date: timestamp.unix().toString(),
         groups: [groupProgressData2],
       };
 
       const newProgressData = {
-        date: timestamp.value.toString(),
+        date: timestamp.unix().toString(),
         groups: [groupProgressData1],
       };
 
@@ -127,7 +132,7 @@ describe("CalculateProgressDatasAction", () => {
           testMatrixId: "matrixId2",
           testMatrixProgressDatas: [
             {
-              date: timestamp.value.toString(),
+              date: timestamp.unix().toString(),
               groups: [groupProgressData1],
             },
           ],
@@ -137,18 +142,23 @@ describe("CalculateProgressDatasAction", () => {
 
     describe("既存の進捗があるテストマトリクスの場合", () => {
       it("既存の進捗が同日の場合はその日の進捗を更新する", () => {
-        const timestamp: ProgressDataTimestamp = {
-          value: 0,
+        const timestamp: Timestamp = {
+          unix: jest.fn().mockReturnValue(0),
+          format: jest.fn(),
+          epochMilliseconds: jest.fn(),
+          diff: jest.fn(),
+          diffFormat: jest.fn(),
+          isBetween: jest.fn(),
           isSameDayAs: jest.fn().mockReturnValue(true),
         };
 
         const oldProgressData = {
-          date: timestamp.value.toString(),
+          date: timestamp.unix().toString(),
           groups: [groupProgressData2],
         };
 
         const newProgressData = {
-          date: timestamp.value.toString(),
+          date: timestamp.unix().toString(),
           groups: [groupProgressData1],
         };
 
@@ -183,18 +193,23 @@ describe("CalculateProgressDatasAction", () => {
       });
 
       it("既存の進捗が別日の場合は新規の日付として追加する", () => {
-        const timestamp: ProgressDataTimestamp = {
-          value: 0,
+        const timestamp: Timestamp = {
+          unix: jest.fn().mockReturnValue(0),
+          format: jest.fn(),
+          epochMilliseconds: jest.fn(),
+          diff: jest.fn(),
+          diffFormat: jest.fn(),
+          isBetween: jest.fn(),
           isSameDayAs: jest.fn().mockReturnValue(false),
         };
 
         const oldProgressData = {
-          date: timestamp.value.toString(),
+          date: timestamp.unix().toString(),
           groups: [groupProgressData2],
         };
 
         const newProgressData = {
-          date: timestamp.value.toString(),
+          date: timestamp.unix().toString(),
           groups: [groupProgressData1],
         };
 

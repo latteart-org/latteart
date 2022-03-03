@@ -1,7 +1,6 @@
 import { InputGroupCollector } from "@/lib/operationHistory/scriptGenerator/model/testSuite/InputGroupCollector";
 import {
   ElementType,
-  OperationType,
   PageObjectOperation,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
@@ -31,28 +30,28 @@ describe("InputGroupCollector", () => {
         // type: changeの操作
         const operation1: PageObjectOperation = {
           target: other,
-          type: OperationType.Change,
+          type: "change",
           input: "input1\ninput1\ninput1", // 改行はエスケープされること
         };
 
         // ラジオボタンに対する操作
         const operation2: PageObjectOperation = {
           target: radio,
-          type: OperationType.Click,
+          type: "click",
           input: "input2\ninput2\ninput2", // 改行はエスケープされること
         };
 
         // チェックボックスに対する操作
         const operation3: PageObjectOperation = {
           target: checkbox,
-          type: OperationType.Click,
+          type: "click",
           input: "on",
         };
 
         // それ以外(無視されること)
         const operation4: PageObjectOperation = {
           target: other,
-          type: OperationType.Other,
+          type: "other",
           input: "",
         };
 
@@ -65,7 +64,7 @@ describe("InputGroupCollector", () => {
 
         expect(result).toEqual({
           other: "input1\\ninput1\\ninput1",
-          radioName: "input2\\ninput2\\ninput2",
+          radio: "input2\\ninput2\\ninput2",
           checkbox: "true",
         });
       });

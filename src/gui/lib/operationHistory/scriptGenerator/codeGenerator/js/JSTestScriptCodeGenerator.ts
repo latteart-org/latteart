@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import { TestScript } from "../../TestScript";
 import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
+import { invalidOperationTypeExists } from "../../model/pageObject/method/operation/PageObjectOperation";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
@@ -94,11 +95,18 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
                 return [testSuite.name, testSuite.topPageUrl];
               })
             ),
-            new Map(
-              model.pageObjects.map(({ id }) => {
-                return [id, this.nameGenerator.pageObject.generate(id)];
-              })
-            )
+            model.pageObjects.map(({ id, methods }) => {
+              const invalidTypeExists = methods.some((method) => {
+                return method.operations.some((operation) => {
+                  return invalidOperationTypeExists(operation.type);
+                });
+              });
+              return {
+                name: id,
+                alias: this.nameGenerator.pageObject.generate(id),
+                invalidTypeExists: invalidTypeExists,
+              };
+            })
           ),
         },
       ],

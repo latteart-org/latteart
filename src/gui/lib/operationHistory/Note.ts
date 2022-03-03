@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import moment from "moment";
+import { TimestampImpl } from "../common/Timestamp";
 
 /**
  * Note class
@@ -122,7 +122,7 @@ export class Note {
     this.value = args.value ?? "";
     this.details = args.details ?? "";
     this.imageFilePath = args.imageFilePath ?? "";
-    this.timestamp = args.timestamp ?? moment().unix().toString();
+    this.timestamp = args.timestamp ?? new TimestampImpl().unix().toString();
     this.tags = args.tags ?? [];
 
     if (args !== undefined && args.compressedImageFilePath !== undefined) {

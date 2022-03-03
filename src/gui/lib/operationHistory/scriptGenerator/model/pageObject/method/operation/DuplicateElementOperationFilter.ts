@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import { OperationFilter } from "./OperationFilter";
-import { PageObjectOperation, OperationType } from "./PageObjectOperation";
+import { PageObjectOperation } from "./PageObjectOperation";
 
 export class DuplicateElementOperationFilter implements OperationFilter {
   /**
@@ -26,12 +26,8 @@ export class DuplicateElementOperationFilter implements OperationFilter {
     return operations
       .reverse()
       .filter((operation: PageObjectOperation, index: number, array) => {
-        if (operation.type === OperationType.SwitchWindow) {
-          return true;
-        }
-
         if (operation.target.identifier === "") {
-          return false;
+          return true;
         }
 
         const foundIndex = array.findIndex(({ target }) => {

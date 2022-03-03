@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import {
   TestMatrixProgressData,
   TestTarget,
 } from "../types";
+import { Timestamp } from "@/lib/common/Timestamp";
 
 export interface Completable {
   isDone: boolean;
@@ -36,21 +37,16 @@ export interface StoryAchievement {
 
 export type Unixtime = number;
 
-export interface ProgressDataTimestamp {
-  value: Unixtime;
-  isSameDayAs(other: Unixtime): boolean;
-}
-
 export class CalculateProgressDatasAction {
   public calculate(
-    timestamp: ProgressDataTimestamp,
+    timestamp: Timestamp,
     testMatrices: TestMatrix[],
     stories: StoryAchievement[],
     oldProgressDatas: ProgressData[]
   ): ProgressData[] {
     return testMatrices.map((testMatrix) => {
       const testMatrixProgressData = this.buildTestMatrixProgressData(
-        timestamp.value.toString(),
+        timestamp.unix().toString(),
         testMatrix,
         stories
       );
@@ -72,7 +68,7 @@ export class CalculateProgressDatasAction {
   }
 
   private updateTestMatrixProgressDatas(
-    timestamp: ProgressDataTimestamp,
+    timestamp: Timestamp,
     testMatrixProgressData: TestMatrixProgressData,
     oldTestMatrixProgressDatas: TestMatrixProgressData[]
   ) {

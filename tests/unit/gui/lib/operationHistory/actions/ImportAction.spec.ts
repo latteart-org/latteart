@@ -5,27 +5,28 @@ import {
 
 describe("ImportAction", () => {
   describe("#importWithTestResult", () => {
-    it("渡されたファイル名を用いてインポートを実行し、その戻り値を返す", async () => {
-      const reply = {
+    it("渡されたインポート元、インポート先を用いてインポートを実行し、その戻り値を返す", async () => {
+      const expectedReply = {
         succeeded: true,
-        data: { name: "importFileName" },
+        data: { name: "name", id: "id", beforeId: "beforeId" },
       };
 
       const dispatcher: TestResultImportable = {
-        importTestResult: jest.fn().mockResolvedValue(reply),
+        importTestResult: jest.fn().mockResolvedValue(expectedReply),
       };
 
-      const importFileName = "importFileName";
+      const source = { testResultFileUrl: "testResultFileUrl" };
+      const dest = { testResultId: "testResultId" };
+      const response = await new ImportAction(dispatcher).importWithTestResult(
+        source,
+        dest
+      );
 
-      const returnName = await new ImportAction(
-        dispatcher
-      ).importWithTestResult(importFileName);
-
-      expect(dispatcher.importTestResult).toBeCalledWith(importFileName);
-      expect(returnName).toEqual(importFileName);
+      expect(dispatcher.importTestResult).toBeCalledWith(source, dest);
+      expect(response).toEqual(expectedReply.data);
     });
 
-    it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
+    it("渡されたインポート元、インポート先を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
       const reply = {
         succeeded: false,
         error: {
@@ -38,13 +39,14 @@ describe("ImportAction", () => {
         importTestResult: jest.fn().mockResolvedValue(reply),
       };
 
-      const importFileName = "importFileName";
+      const source = { testResultFileUrl: "testResultFileUrl" };
+      const dest = { testResultId: "testResultId" };
 
       await expect(
-        new ImportAction(dispatcher).importWithTestResult(importFileName)
+        new ImportAction(dispatcher).importWithTestResult(source, dest)
       ).rejects.toThrowError("import-data-error");
 
-      expect(dispatcher.importTestResult).toBeCalledWith(importFileName);
+      expect(dispatcher.importTestResult).toBeCalledWith(source, dest);
     });
   });
 });

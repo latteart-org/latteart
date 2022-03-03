@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 <script lang="ts">
 import ErrorHandler from "@/ErrorHandler.vue";
+import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -40,8 +41,15 @@ export default class App extends Vue {
     }
 
     if (this.$route.query.repository) {
-      this.$store.commit("setRepositoryServiceDispatcherConfig", {
-        serviceUrl: this.$route.query.repository,
+      const serviceDispatcher = new RepositoryServiceDispatcher({
+        url: this.$route.query.repository as string,
+        isRemote: false,
+      });
+      this.$store.commit("setRepositoryServiceDispatcher", {
+        serviceDispatcher,
+      });
+      this.$store.commit("setlocalRepositoryServiceUrl", {
+        url: this.$route.query.repository,
       });
     }
   }

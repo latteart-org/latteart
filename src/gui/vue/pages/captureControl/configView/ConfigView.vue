@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@
               </v-container>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content>
+            <v-expansion-panel-content :disabled="isConnectedToRemote">
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message(
@@ -91,7 +91,10 @@
               <image-compression-setting> </image-compression-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content
+              v-if="configureCaptureSettings"
+              :disabled="isConnectedToRemote"
+            >
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message("config-view.setting-inclusion-tags")
@@ -100,7 +103,10 @@
               <coverage-setting :opened="coverageOpened"> </coverage-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content
+              v-if="configureCaptureSettings"
+              :disabled="isConnectedToRemote"
+            >
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
@@ -166,6 +172,32 @@ export default class ConfigView extends Vue {
   private created() {
     this.updateWindowTitle();
     this.selectPlatform(this.selectedPlatformName);
+
+    const testResultId = this.$route.query.testResultId as string;
+
+    if (testResultId) {
+      (async () => {
+        try {
+          if (this.$route.query.remoteRepository) {
+            await this.$store.dispatch("connectRemoteUrl", {
+              targetUrl: this.$route.query.remoteRepository,
+            });
+          }
+
+          await this.$store.dispatch("operationHistory/resume", {
+            testResultId,
+          });
+        } catch (error) {
+          console.error(error);
+          this.errorMessageDialogOpened = true;
+          this.errorMessage = error.message;
+        }
+      })();
+    }
+  }
+
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryServiceDispatcher.isRemote;
   }
 
   private get coverageOpened() {

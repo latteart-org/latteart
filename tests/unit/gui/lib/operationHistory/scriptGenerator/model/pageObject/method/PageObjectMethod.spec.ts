@@ -2,7 +2,6 @@ import { PageObjectMethodImpl } from "@/lib/operationHistory/scriptGenerator/mod
 import {
   PageObjectOperation,
   ElementType,
-  OperationType,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 
 describe("PageObjectMethodImpl", () => {
@@ -14,7 +13,7 @@ describe("PageObjectMethodImpl", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Other,
+        type: "other",
         input: "",
       };
       const operation2: PageObjectOperation = {
@@ -23,7 +22,7 @@ describe("PageObjectMethodImpl", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Other,
+        type: "other",
         input: "",
       };
       const operation3: PageObjectOperation = {
@@ -32,7 +31,7 @@ describe("PageObjectMethodImpl", () => {
           type: ElementType.Other,
           locator: "",
         },
-        type: OperationType.Other,
+        type: "other",
         input: "",
       };
 

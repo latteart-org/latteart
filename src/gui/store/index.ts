@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import { captureControl } from "./captureControl";
 import { testManagement } from "./testManagement";
 import ClientSideCaptureServiceDispatcher from "../lib/eventDispatcher/ClientSideCaptureServiceDispatcher";
 import RepositoryServiceDispatcher from "../lib/eventDispatcher/RepositoryServiceDispatcher";
+import RESTClient from "@/lib/eventDispatcher/RESTClient";
 
 Vue.use(Vuex);
 
@@ -58,9 +59,16 @@ export interface RootState {
   clientSideCaptureServiceDispatcher: ClientSideCaptureServiceDispatcher;
 
   /**
-   * The service that performs processing involving communication to the repository.
+   * The service that performs processing involving communication to the local repository.
    */
   repositoryServiceDispatcher: RepositoryServiceDispatcher;
+
+  /**
+   * The service that performs processing involving communication to the remote repository.
+   */
+  localRepositoryServiceUrl: string;
+
+  remoteRepositoryUrls: string[];
 }
 
 const getters: GetterTree<RootState, RootState> = {
@@ -106,8 +114,30 @@ const mutations: MutationTree<RootState> = {
     state.clientSideCaptureServiceDispatcher.serviceUrl = payload.serviceUrl;
   },
 
-  setRepositoryServiceDispatcherConfig(state, payload: { serviceUrl: string }) {
-    state.repositoryServiceDispatcher.serviceUrl = payload.serviceUrl;
+  setRepositoryServiceDispatcher(
+    state,
+    payload: { serviceDispatcher: RepositoryServiceDispatcher }
+  ) {
+    state.repositoryServiceDispatcher = payload.serviceDispatcher;
+  },
+
+  registerRemoteRepositoryServiceUrl(state, payload: { url: string }) {
+    if (payload.url === state.localRepositoryServiceUrl) {
+      return;
+    }
+
+    const oldUrls = state.remoteRepositoryUrls;
+
+    if (!oldUrls.includes(payload.url)) {
+      const newUrls = [...oldUrls, payload.url];
+      setRemoteRepositoryUrlsToLocalStorage(newUrls);
+
+      state.remoteRepositoryUrls = [...newUrls];
+    }
+  },
+
+  setlocalRepositoryServiceUrl(state, payload: { url: string }) {
+    state.localRepositoryServiceUrl = payload.url;
   },
 
   /**
@@ -237,7 +267,50 @@ const actions: ActionTree<RootState, RootState> = {
     context.commit("setProgressDialogOpened", { opened: false });
     context.commit("setProgressDialogMessage", { message: "" });
   },
+
+  async connectRemoteUrl(context, payload: { targetUrl: string }) {
+    const serverUrl = payload.targetUrl;
+
+    const serverName = await new RESTClient().httpGet(
+      `${serverUrl}/api/v1/server-name`
+    );
+
+    if (serverName === "latteart-repository") {
+      const isRemote =
+        payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
+      const serviceDispatcher = new RepositoryServiceDispatcher({
+        url: serverUrl,
+        isRemote,
+      });
+
+      context.commit("setRepositoryServiceDispatcher", { serviceDispatcher });
+
+      if (isRemote) {
+        context.commit("registerRemoteRepositoryServiceUrl", {
+          url: serverUrl,
+        });
+      }
+
+      return serverUrl;
+    }
+
+    console.error(`'${serverUrl}' is not latteart-repository.`);
+
+    return "";
+  },
 };
+
+const defaultLocalRepositoryServiceUrl = "http://127.0.0.1:3002";
+
+function getRemoteRepositoryUrlsFromLocalStorage(): string[] {
+  const repositoryUrlsStr =
+    localStorage.getItem("remoteRepositoryUrls") ?? "[]";
+  return JSON.parse(repositoryUrlsStr);
+}
+
+function setRemoteRepositoryUrlsToLocalStorage(urls: string[]) {
+  localStorage.setItem("remoteRepositoryUrls", JSON.stringify(urls));
+}
 
 const store: StoreOptions<RootState> = {
   state: {
@@ -249,7 +322,12 @@ const store: StoreOptions<RootState> = {
       message: "",
     },
     clientSideCaptureServiceDispatcher: new ClientSideCaptureServiceDispatcher(),
-    repositoryServiceDispatcher: new RepositoryServiceDispatcher(),
+    repositoryServiceDispatcher: new RepositoryServiceDispatcher({
+      url: defaultLocalRepositoryServiceUrl,
+      isRemote: false,
+    }),
+    localRepositoryServiceUrl: defaultLocalRepositoryServiceUrl,
+    remoteRepositoryUrls: getRemoteRepositoryUrlsFromLocalStorage(),
   },
   getters,
   mutations,

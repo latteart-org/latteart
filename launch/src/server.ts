@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import path from "path";
 import { exec, ExecOptions } from "child_process";
 import http from "http";
 import { bufferToString } from "./util";
@@ -24,14 +23,12 @@ export function launchServer(
   serverBinaryFilePath: string,
   env: NodeJS.ProcessEnv
 ): void {
-  const dirPath = path.dirname(serverBinaryFilePath);
-  const exePath = path.basename(serverBinaryFilePath);
   const option: { encoding: "buffer" } & ExecOptions = {
     encoding: "buffer",
     env,
   };
 
-  exec(`cd ${dirPath} && ${exePath}`, option, (err, stdout, stderr) => {
+  exec(serverBinaryFilePath, option, (err, stdout, stderr) => {
     if (err) {
       console.error(bufferToString(stderr));
       return;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  PageObjectOperation,
-  OperationType,
-  ElementType,
-} from "./PageObjectOperation";
+import { PageObjectOperation, ElementType } from "./PageObjectOperation";
 
 export class FormalArgumentCollector {
   /**
@@ -31,10 +27,10 @@ export class FormalArgumentCollector {
       const elem = op.target;
       const identifier = elem.identifier;
 
-      if (op.type === OperationType.Change) {
+      if (op.type === "change") {
         args.add(identifier);
-      } else if (elem.type === ElementType.RadioButton && elem.name) {
-        args.add(elem.name);
+      } else if (elem.type === ElementType.RadioButton) {
+        args.add(elem.identifier);
       } else if (elem.type === ElementType.CheckBox) {
         args.add(identifier);
       }

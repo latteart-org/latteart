@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import moment from "moment";
+import { TimestampImpl, Timestamp } from "./Timestamp";
 
 /**
  * Timer class that executes a function every second.
  */
 export default class Timer {
-  private startTime = 0;
+  private startTime: Timestamp | null = null;
   private intervalId: number | null = null;
 
   /**
@@ -29,13 +29,11 @@ export default class Timer {
    * @param startTime  Start time.
    */
   public start(onChangeTime: (time: string) => void, startTime: number): void {
-    this.startTime = startTime;
+    this.startTime = new TimestampImpl(startTime);
 
     this.intervalId = window.setInterval(() => {
-      const nowTime = moment(moment().diff(moment(this.startTime, "X")))
-        .utc()
-        .format("HH:mm:ss");
-      onChangeTime(nowTime);
+      const now = new TimestampImpl();
+      onChangeTime(now.diffFormat(this.startTime ?? now));
     }, 1000);
   }
 

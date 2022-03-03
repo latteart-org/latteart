@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { collectKeyword } from "@/lib/common/util";
 import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/SaveIntentionAction";
@@ -48,6 +47,9 @@ import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/Genera
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportAction } from "@/lib/operationHistory/actions/ImportAction";
 import { ExportAction } from "@/lib/operationHistory/actions/ExportAction";
+import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { UploadTestResultAction } from "@/lib/operationHistory/actions/UploadTestResultAction";
+import { DeleteTestResultAction } from "@/lib/operationHistory/actions/DeleteTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -82,7 +84,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { config: Partial<OperationHistoryState["config"]> }
   ) {
-    const settings = {
+    const settings: Settings = {
       captureSettings:
         context.rootState.settingsProvider.settings.captureSettings,
       config: {
@@ -102,6 +104,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       viewPointsPreset:
         context.rootState.settingsProvider.settings.viewPointsPreset,
     };
+
+    if (context.rootState.repositoryServiceDispatcher.isRemote) {
+      return;
+    }
+
     const reply = await context.rootState.repositoryServiceDispatcher.saveSettings(
       settings
     );
@@ -613,6 +620,113 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
+  async importTestResultFromRemoteRepository(
+    context,
+    payload?: { destTestResultId?: string }
+  ) {
+    const {
+      serviceUrl,
+      isRemote,
+    } = context.rootState.repositoryServiceDispatcher;
+
+    try {
+      const exportFileUrl: string = await context.dispatch("exportData", {
+        testResultId: context.state.testResultInfo.id,
+        shouldSaveTemporary: true,
+      });
+
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: context.rootState.localRepositoryServiceUrl,
+            isRemote: false,
+          }),
+        },
+        { root: true }
+      );
+
+      const result: {
+        testResultId: string;
+      } = await context.dispatch("importData", {
+        source: {
+          testResultFileUrl: new URL(
+            exportFileUrl,
+            context.state.testResultInfo.repositoryUrl
+          ).toString(),
+        },
+        dest: { testResultId: payload?.destTestResultId },
+      });
+
+      return result;
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    } finally {
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: serviceUrl,
+            isRemote,
+          }),
+        },
+        { root: true }
+      );
+    }
+  },
+
+  async uploadTestResultsToRemote(
+    context,
+    payload: { localTestResultId: string; remoteTestResultId?: string }
+  ) {
+    try {
+      const localUrl = context.rootState.localRepositoryServiceUrl;
+      const localServiceDispatcher = new RepositoryServiceDispatcher({
+        url: localUrl,
+        isRemote: false,
+      });
+
+      const newTestResultId = await new UploadTestResultAction(
+        localServiceDispatcher
+      ).uploadTestResult(
+        { testResultId: payload.localTestResultId },
+        {
+          repositoryUrl:
+            context.rootState.repositoryServiceDispatcher.serviceUrl,
+          testResultId: payload.remoteTestResultId,
+        }
+      );
+
+      return newTestResultId;
+    } catch (error) {
+      console.error(error);
+
+      throw new Error(
+        context.rootGetters.message(`error.remote_access.upload-request-error`)
+      );
+    }
+  },
+
+  async deleteLocalTestResult(context, payload: { testResultId: string }) {
+    try {
+      const localUrl = context.rootState.localRepositoryServiceUrl;
+      const localServiceDispatcher = new RepositoryServiceDispatcher({
+        url: localUrl,
+        isRemote: false,
+      });
+
+      await new DeleteTestResultAction(localServiceDispatcher).deleteTestResult(
+        payload.testResultId
+      );
+    } catch (error) {
+      throw new Error(
+        context.rootGetters.message(`error.remote_access.${error.message}`)
+      );
+    }
+  },
+
   /**
    * Load a test result from the repository and restore history in the State.
    * @param context Action context.
@@ -656,7 +770,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               { url: data.url },
               { root: true }
             );
-            context.commit("setTestResultInfo", data.testResultInfo);
+            context.commit("setTestResultInfo", {
+              repositoryUrl:
+                context.rootState.repositoryServiceDispatcher.serviceUrl,
+              ...data.testResultInfo,
+            });
 
             await context.dispatch(
               "captureControl/resumeWindowHandles",
@@ -687,21 +805,21 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload projectId,testResultId,option
-   * @return importFileName
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.dest.testResultId Destination local test result id.
+   * @return new test result ID.
    */
   async importData(
     context,
     payload: {
-      importFileName: string | undefined;
+      source: { testResultFileUrl: string };
+      dest?: { testResultId?: string };
     }
-  ): Promise<string> {
-    const importFileName = payload.importFileName ? payload.importFileName : "";
-
+  ): Promise<{ testResultId: string }> {
     try {
       return await new ImportAction(
         context.rootState.repositoryServiceDispatcher
-      ).importWithTestResult(importFileName);
+      ).importWithTestResult(payload.source, payload.dest);
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)
@@ -718,15 +836,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async exportData(
     context,
     payload: {
-      testResultId: string | undefined;
+      testResultId: string;
+      shouldSaveTemporary?: boolean;
     }
   ): Promise<string> {
-    const exportTestResultId = payload.testResultId ? payload.testResultId : "";
-
     try {
       return await new ExportAction(
         context.rootState.repositoryServiceDispatcher
-      ).exportWithTestResult(exportTestResultId);
+      ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)
@@ -748,7 +865,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearModels");
     context.commit("selectWindow", { windowHandle: "" });
     context.commit("clearInputValueTable");
-    context.commit("setTestResultInfo", { id: "", name: "" });
+    context.commit("setTestResultInfo", {
+      repositoryUrl: "",
+      id: "",
+      name: "",
+    });
     context.commit("clearTestStepIds");
   },
 
@@ -787,14 +908,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async registerOperation(context, payload: { operation: CapturedOperation }) {
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
-      const parser = new DOMParser();
-      const document = parser.parseFromString(
-        capturedOperation.pageSource,
-        "text/html"
-      );
-      const keywordSet: Set<string> = new Set();
-      collectKeyword(document.children[0] as HTMLElement, keywordSet);
-      capturedOperation.keywordTexts = Array.from(keywordSet);
+      capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
     const reply = await context.rootState.repositoryServiceDispatcher.registerOperation(
@@ -1124,7 +1238,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.projectId Project ID.
    * @param payload.initialUrl Initial page URL.
    * @param payload.sources Informations for generating test scripts.
-   * @returns URL of generated test scripts.
+   * @returns URL of generated test scripts and whether test scripts contain invalid operation.
    */
   async generateTestScripts(
     context,
@@ -1134,7 +1248,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       sources: { initialUrl: string; history: Operation[] }[];
       option: { useDataDriven: boolean; maxGeneration: number };
     }
-  ): Promise<string> {
+  ): Promise<{
+    outputUrl: string;
+    invalidOperationTypeExists: boolean;
+  }> {
     const optimize = true;
 
     try {
@@ -1207,15 +1324,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { initialUrl: string; name: string }
   ) {
+    const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
     const reply = await context.rootState.repositoryServiceDispatcher.createEmptyTestResult(
-      payload.initialUrl,
+      initialUrl,
       name
     );
 
     const testResultInfo = reply.data!;
 
     context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
     });
@@ -1232,23 +1351,41 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async getImportTestResults(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getImportTestResults();
+    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
+      url: context.rootState.localRepositoryServiceUrl,
+      isRemote: false,
+    });
+    const reply = await localRepositoryServiceDispatcher.getImportTestResults();
     return reply.data!;
   },
 
   async getImportProjects(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getImportProjects();
+    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
+      url: context.rootState.localRepositoryServiceUrl,
+      isRemote: false,
+    });
+    const reply = await localRepositoryServiceDispatcher.getImportProjects();
     return reply.data!;
   },
 
-  async changeCurrentTestResultName(context) {
+  async changeCurrentTestResult(
+    context,
+    payload: { startTime?: number | null; initialUrl?: string }
+  ) {
     if (!context.state.testResultInfo.id) {
       return;
     }
+    const name = payload.startTime
+      ? undefined
+      : context.state.testResultInfo.name;
+    const startTimeStamp = payload.startTime ?? undefined;
+    const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResultName(
+    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
       context.state.testResultInfo.id,
-      context.state.testResultInfo.name
+      name,
+      startTimeStamp,
+      url
     );
 
     if (!reply.succeeded) {
