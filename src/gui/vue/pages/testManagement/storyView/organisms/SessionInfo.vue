@@ -83,7 +83,7 @@
                       flat
                       icon
                       v-if="!isViewerMode"
-                      @click="importTestResult(file)"
+                      @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
                     <v-btn
@@ -546,6 +546,10 @@ export default class SessionInfo extends Vue {
         ],
       });
     };
+  }
+
+  private async reload() {
+    await this.$store.dispatch("testManagement/readDataFile");
   }
 
   private async importTestResult(testResult: TestResultFile): Promise<void> {
