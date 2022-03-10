@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import { OperationWithNotes } from "../operationHistory/types";
-import { calculateElapsedUnixTime } from "../common/util";
+import { calculateElapsedEpochMillis } from "../common/util";
 import { Note } from "../operationHistory/Note";
 import {
   ProjectUpdatable,
@@ -67,16 +67,10 @@ export default class StoryDataConverter implements StoryConvertable {
         return {};
       }
 
-      const {
-        testSteps,
-        initialUrl,
-        startTimeStamp,
-        endTimeStamp,
-      } = readResultData;
+      const { testSteps, initialUrl, startTimeStamp } = readResultData;
 
-      const testingTime = calculateElapsedUnixTime(
+      const testingTime = calculateElapsedEpochMillis(
         startTimeStamp,
-        endTimeStamp,
         testSteps
       );
 
@@ -162,7 +156,7 @@ export default class StoryDataConverter implements StoryConvertable {
       initialUrl: initialUrl ?? oldSession?.initialUrl ?? "",
       intentions: intentions ?? oldSession?.intentions ?? [],
       issues: issues ?? target.issues ?? [],
-      testingTime: testingTime ?? oldSession?.testingTime ?? 0,
+      testingTime: testingTime ?? 0,
     };
   }
 

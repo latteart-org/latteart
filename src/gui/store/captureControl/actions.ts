@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import {
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -296,6 +298,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
+      startTime: number;
+      lastStartTime: number;
       callbacks: {
         onChangeTime: (time: string) => void;
         onChangeNumberOfWindows: () => void;
@@ -312,11 +316,23 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         payload.url,
         config,
         {
-          onStart: async (startTime: number) => {
+          onStart: async () => {
+            const history: OperationWithNotes[] = context.rootGetters[
+              "operationHistory/getHistory"
+            ]();
+
+            const lastTestingTime = calculateElapsedEpochMillis(
+              payload.lastStartTime,
+              history
+            );
+            const newStartTime = new TimestampImpl(payload.startTime)
+              .offset(lastTestingTime * -1)
+              .epochMilliseconds();
+
             context.dispatch("stopTimer");
             context.dispatch("startTimer", {
               onChangeTime: payload.callbacks.onChangeTime,
-              startTime,
+              startTime: newStartTime,
             });
 
             context.commit("setCapturing", { isCapturing: true });
@@ -507,6 +523,28 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     }
 
     return await context.rootState.clientSideCaptureServiceDispatcher.takeScreenshot();
+  },
+
+  async getTestResult(
+    context,
+    payload: { testResultId: string }
+  ): Promise<
+    | {
+        id: string;
+        name: string;
+        startTimeStamp: number;
+        endTimeStamp: number;
+        initialUrl: string;
+      }
+    | undefined
+  > {
+    const reply = await context.rootState.repositoryServiceDispatcher.getTestResult(
+      payload.testResultId
+    );
+
+    console.log(reply);
+
+    return reply.data;
   },
 };
 

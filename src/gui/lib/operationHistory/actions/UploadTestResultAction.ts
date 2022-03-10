@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ import { Reply } from "@/lib/captureControl/Reply";
 
 export interface TestResultUploadable {
   uploadTestResult(
-    exportFileUrl: string,
-    serviceUrl: string,
-    testResultId?: string
+    source: { testResultId: string },
+    dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<Reply<{ id: string }>>;
 }
 
@@ -28,15 +27,10 @@ export class UploadTestResultAction {
   constructor(private dispatcher: TestResultUploadable) {}
 
   public async uploadTestResult(
-    exportFileUrl: string,
-    serviceUrl: string,
-    testResultId?: string
+    source: { testResultId: string },
+    dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<string> {
-    const reply = await this.dispatcher.uploadTestResult(
-      exportFileUrl,
-      serviceUrl,
-      testResultId
-    );
+    const reply = await this.dispatcher.uploadTestResult(source, dest);
 
     if (!reply.data) {
       throw new Error(`upload-request-error`);

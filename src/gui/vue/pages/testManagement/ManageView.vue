@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@
                 id="viewerConfigButton"
                 color="primary"
                 @click="toViewerConfig"
+                :disabled="isConnectedToRemote"
                 >{{
                   $store.getters.message("manage-header.capture-config")
                 }}</v-btn
@@ -97,6 +98,7 @@
               :items="locales"
               :value="initLocale"
               v-on:change="changeLocale"
+              :disabled="isConnectedToRemote"
             ></v-select>
           </v-flex>
           <v-flex xs2 pl-3 v-if="!isViewerMode">
@@ -206,7 +208,11 @@ export default class ManageView extends Vue {
 
   private selectedTestMatrixId = "";
 
-  private optionMenuList: Array<{ title: string; method: string }> = [];
+  private optionMenuList: Array<{
+    title: string;
+    method: string;
+    isEnabled: boolean;
+  }> = [];
   private remoteUrl = "";
 
   private get hasAnyTestMatrix(): boolean {
@@ -215,6 +221,10 @@ export default class ManageView extends Vue {
 
   private get isTestMatrixSelected(): boolean {
     return this.selectedTestMatrixId !== "";
+  }
+
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryServiceDispatcher.isRemote;
   }
 
   public toManageEdit(): void {
@@ -266,6 +276,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "manage.print-html-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
@@ -318,6 +329,8 @@ export default class ManageView extends Vue {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );
+        } else {
+          this.downloadLinkDialogAlertMessage = "";
         }
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
@@ -333,7 +346,7 @@ export default class ManageView extends Vue {
   private importData(option: {
     selectedOptionProject: boolean;
     selectedOptionTestresult: boolean;
-    selectedItem: string;
+    selectedItem: { url: string; name: string };
   }): void {
     this.importDataProcessing = true;
     this.$store.dispatch("openProgressDialog", {
@@ -342,27 +355,25 @@ export default class ManageView extends Vue {
       ),
     });
 
-    if (!option.selectedItem) {
+    if (!option.selectedItem.url) {
       this.$store.dispatch("closeProgressDialog");
       this.importDataProcessing = false;
       return;
     }
 
-    let returnItem: {
-      name: string;
-      id: string;
-    } = { name: "", id: "" };
-
     setTimeout(async () => {
       try {
-        returnItem = await this.$store.dispatch("testManagement/importData", {
-          option,
-        });
-        if (returnItem.id) {
+        const source = { projectFileUrl: option.selectedItem.url };
+        const { projectId } = await this.$store.dispatch(
+          "testManagement/importData",
+          {
+            source,
+            option,
+          }
+        );
+        if (projectId) {
           await this.$store.dispatch("testManagement/readDataFile");
         }
-
-        const returnName = returnItem.name;
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -371,7 +382,7 @@ export default class ManageView extends Vue {
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName,
+            returnName: option.selectedItem.name,
           }
         );
       } catch (error) {
@@ -413,6 +424,7 @@ export default class ManageView extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
       } else {
         this.errorMessage = this.$store.getters.message(
@@ -453,33 +465,25 @@ export default class ManageView extends Vue {
       {
         title: this.$store.getters.message("manage-header.output-html"),
         method: "outputHtml",
+        isEnabled: this.hasAnyTestMatrix,
       },
       {
         title: this.$store.getters.message("manage-header.generate-script"),
         method: "scriptGenerate",
+        isEnabled: this.anySessionHasHistory(),
       },
       {
         title: this.$store.getters.message("manage-header.import-option"),
         method: "import",
+        isEnabled: true,
       },
       {
         title: this.$store.getters.message("manage-header.export-option"),
         method: "export",
+        isEnabled: true,
       },
     ];
-
-    for (const menu of optionMenus) {
-      if (menu.method === "outputHtml" && !this.hasAnyTestMatrix) {
-        return;
-      }
-      if (menu.method === "scriptGenerate" && !this.anySessionHasHistory()) {
-        return;
-      }
-      this.optionMenuList.push({
-        title: menu.title,
-        method: menu.method,
-      });
-    }
+    this.optionMenuList = [...optionMenus.filter((menu) => menu.isEnabled)];
   }
 
   private startRemoteConnection(targetUrl: string) {
@@ -502,6 +506,9 @@ export default class ManageView extends Vue {
         });
 
       if (url) {
+        await this.$store.dispatch("loadLocaleFromSettings");
+        await this.$store.dispatch("operationHistory/readSettings");
+
         this.$store.dispatch("operationHistory/resetHistory");
         await this.$store.dispatch("testManagement/readDataFile");
 

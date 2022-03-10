@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -124,7 +124,11 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ProgressChart from "./organisms/ProgressChart.vue";
-import { TestMatrixProgressData, TestMatrix } from "@/lib/testManagement/types";
+import {
+  TestMatrixProgressData,
+  TestMatrix,
+  ProgressData,
+} from "@/lib/testManagement/types";
 import Chart from "chart.js";
 import { Timestamp, TimestampImpl } from "@/lib/common/Timestamp";
 
@@ -165,7 +169,9 @@ export default class ManageProgress extends Vue {
     });
   }
 
-  private created() {
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
     this.updateWindowTitle();
 
     const targetTestMatrix = this.$store.state.testManagement.testMatrices.find(
@@ -209,9 +215,8 @@ export default class ManageProgress extends Vue {
   }
 
   private get originalProgressDatas(): TestMatrixProgressData[] {
-    const allProgressDatas: any[] = this.$store.getters[
-      "testManagement/collectProgressDatas"
-    ]();
+    const allProgressDatas: ProgressData[] =
+      this.$store.getters["testManagement/collectProgressDatas"]() ?? [];
     const targetProgressData = allProgressDatas.find((progressData) => {
       return progressData.testMatrixId === this.testMatrix.id;
     });

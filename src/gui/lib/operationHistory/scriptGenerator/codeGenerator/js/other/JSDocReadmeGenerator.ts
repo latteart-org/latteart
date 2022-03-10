@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ ${this.buildPageObjectTable(pageObjectInfos)}
 
         return `|${index + 1}|<a href="${href}">${alias}</a>|${name}|${
           invalidTypeExists
-            ? `<span style="color:red">Some operation was not generated. Please read details using the left link.</span>`
+            ? `<span style="color:red">Code for some operations is not generated. Please click the link on the left for more information.</span>`
             : ""
         }|`;
       })

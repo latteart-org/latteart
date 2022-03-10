@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -168,8 +168,8 @@
                 <v-list-tile
                   v-for="(testResult, index) in importTestResults"
                   :key="index"
-                  @click="importData(testResult.id)"
-                  :disabled="!testResult.id"
+                  @click="importData(testResult)"
+                  :disabled="!testResult.url"
                 >
                   <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
                 </v-list-tile>
@@ -184,10 +184,11 @@
         </div>
         <v-flex shrink pa-1 pl-3>
           <v-select
-            label="locale"
+            :label="$store.getters.message('manage-header.locale')"
             :items="locales"
             :value="initLocale"
             v-on:change="changeLocale"
+            :disabled="isConnectedToRemote"
           ></v-select>
         </v-flex>
         <remote-access-field
@@ -408,6 +409,8 @@ import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 @Component({
   components: {
@@ -529,6 +532,10 @@ export default class ExpCapture extends Vue {
     return this.isPaused ? "yellow" : "grey darken-3";
   }
 
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryServiceDispatcher.isRemote;
+  }
+
   private pushPauseButton() {
     if (this.isPaused) {
       this.$store.dispatch("captureControl/resumeCapturing");
@@ -538,7 +545,10 @@ export default class ExpCapture extends Vue {
   }
 
   private changeCurrentTestResultName() {
-    this.$store.dispatch("operationHistory/changeCurrentTestResultName");
+    this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+      startTime: null,
+      initialUrl: "",
+    });
   }
 
   private informationMessageDialogOpened = false;
@@ -552,7 +562,7 @@ export default class ExpCapture extends Vue {
   private remoteUrl = "";
 
   private testResults: Array<{ id: string; name: string }> = [];
-  private importTestResults: Array<{ id: string; name: string }> = [];
+  private importTestResults: Array<{ url: string; name: string }> = [];
 
   private showMenu = false;
   private menuX = 0;
@@ -603,26 +613,18 @@ export default class ExpCapture extends Vue {
   private contextMenuY = -1;
   private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
 
-  private importData(importFileName: string) {
+  private importData(importTestResult: { url: string; name: string }) {
     this.isImportTestResults = true;
-    if (!importFileName) {
+    if (!importTestResult.url) {
       this.isImportTestResults = false;
       return;
     }
 
     setTimeout(async () => {
       try {
-        const source = {
-          repositoryUrl: this.$store.state.localRepositoryServiceUrl,
-          fileName: importFileName,
-        };
-
-        const { name } = await this.$store.dispatch(
-          "operationHistory/importData",
-          {
-            source,
-          }
-        );
+        await this.$store.dispatch("operationHistory/importData", {
+          source: { testResultFileUrl: importTestResult.url },
+        });
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -631,7 +633,7 @@ export default class ExpCapture extends Vue {
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName: name,
+            returnName: importTestResult.name,
           }
         );
       } catch (error) {
@@ -660,6 +662,7 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
+        this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
@@ -704,6 +707,8 @@ export default class ExpCapture extends Vue {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
             "history-view.generate-alert-info"
           );
+        } else {
+          this.downloadLinkDialogAlertMessage = "";
         }
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
@@ -757,9 +762,10 @@ export default class ExpCapture extends Vue {
     this.dataX = e.clientX;
     this.dataY = e.clientY;
     this.$nextTick(async () => {
-      const newImportTestResults = await this.$store.dispatch(
-        "operationHistory/getImportTestResults"
-      );
+      const newImportTestResults: {
+        url: string;
+        name: string;
+      }[] = await this.$store.dispatch("operationHistory/getImportTestResults");
 
       this.importTestResults.splice(
         0,
@@ -769,7 +775,7 @@ export default class ExpCapture extends Vue {
 
       if (this.importTestResults.length === 0) {
         this.importTestResults.push({
-          id: "",
+          url: "",
           name: "EMPTY",
         });
       }
@@ -915,15 +921,15 @@ export default class ExpCapture extends Vue {
           const id: string =
             (
               await this.$store.dispatch(
-                "operationHistory/importTestResultFromRemoteRepository",
-                {
-                  destTestResultId: testResultInfo.id,
-                }
+                "operationHistory/importTestResultFromRemoteRepository"
               )
-            ).id ?? "";
+            ).testResultId ?? "";
 
           return id;
         })();
+
+        const remoteTestResultId =
+          this.$store.state.operationHistory.testResultInfo.id ?? "";
 
         // switch to local
         this.$store.commit(
@@ -942,11 +948,46 @@ export default class ExpCapture extends Vue {
             initialUrl: this.url,
             name: this.testResultName,
           });
+        } else {
+          const tmpUrl = this.url;
+          await this.$store.dispatch("operationHistory/resume", {
+            testResultId,
+          });
+          this.url = tmpUrl;
+        }
+
+        const history = this.$store.state.operationHistory.history;
+        const startTime = new TimestampImpl().epochMilliseconds();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+
+        if (history.length === 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: this.url,
+            }
+          );
+        } else if (history.length > 0) {
+          await this.$store.dispatch(
+            "operationHistory/changeCurrentTestResult",
+            {
+              startTime,
+              initialUrl: "",
+            }
+          );
         }
 
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           config: this.config,
+          startTime,
+          lastStartTime: readResultData?.startTimeStamp ?? 0,
           callbacks: {
             onChangeTime: (time: string) => {
               this.nowTime = time;
@@ -971,8 +1012,6 @@ export default class ExpCapture extends Vue {
         if (currentRepositoryInfo.isRemote) {
           const localTestResultId = this.$store.state.operationHistory
             .testResultInfo.id;
-          const remoteTestResultId =
-            testResultId !== "" ? testResultId : undefined;
 
           this.uploadHistory(
             { localId: localTestResultId, remoteId: remoteTestResultId },
@@ -1076,6 +1115,7 @@ export default class ExpCapture extends Vue {
 
   private resetHistory(): void {
     this.$store.dispatch("operationHistory/resetHistory");
+    this.nowTime = "00:00:00";
   }
 
   private endCapture(): void {
@@ -1094,6 +1134,18 @@ export default class ExpCapture extends Vue {
         });
 
         await this.$store.dispatch("operationHistory/resume", { testResultId });
+        const history = this.$store.getters["operationHistory/getHistory"]();
+        const readResultData = await this.$store.dispatch(
+          "captureControl/getTestResult",
+          {
+            testResultId,
+          }
+        );
+        const testingTime = calculateElapsedEpochMillis(
+          readResultData?.startTimeStamp ?? 0,
+          history
+        );
+        this.nowTime = formatTime(testingTime);
       } catch (error) {
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
@@ -1219,6 +1271,9 @@ export default class ExpCapture extends Vue {
         });
 
       if (url) {
+        await this.$store.dispatch("loadLocaleFromSettings");
+        await this.$store.dispatch("operationHistory/readSettings");
+
         this.resetHistory();
 
         this.informationMessageDialogOpened = true;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,10 @@ export class TimestampImpl implements Timestamp {
 
   public isSameDayAs(other: number): boolean {
     return moment.unix(other).diff(this.time, "days") === 0;
+  }
+
+  public offset(epochMilliseconds: number): Timestamp {
+    return new TimestampImpl(this.epochMilliseconds() + epochMilliseconds);
   }
 
   private timestampToString(timestamp: string | number): string {

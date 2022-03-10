@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -239,7 +239,7 @@ export default class ClientSideCaptureServiceDispatcher {
     url: string,
     config: CaptureConfig,
     eventListeners: {
-      onStart: (startTime: number) => Promise<void>;
+      onStart: () => Promise<void>;
       onGetOperation: (capturedOperation: CapturedOperation) => Promise<void>;
       onGetScreenTransition: (
         capturedScreenTransition: CapturedScreenTransition
@@ -281,10 +281,7 @@ export default class ClientSideCaptureServiceDispatcher {
       const onStart = (data?: unknown) => {
         console.info(`onStart: ${JSON.stringify(data)}`);
 
-        // TODO: Type check
-        const startTime = data as number;
-
-        eventListeners.onStart(startTime);
+        eventListeners.onStart();
       };
 
       const onGetOperation = (data?: unknown) => {

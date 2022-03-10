@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ export class FormalArgumentCollector {
 
       if (op.type === "change") {
         args.add(identifier);
-      } else if (elem.type === ElementType.RadioButton && elem.name) {
-        args.add(elem.name);
+      } else if (elem.type === ElementType.RadioButton) {
+        args.add(elem.identifier);
       } else if (elem.type === ElementType.CheckBox) {
         args.add(identifier);
       }

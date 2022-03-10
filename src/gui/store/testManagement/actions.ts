@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    */
   async readDataFile(context) {
+    if (Vue.prototype.$snapshot) {
+      return;
+    }
     await new ReadProjectDataAction(
       {
         setProjectId: (data: { projectId: string }): void => {
@@ -945,26 +948,23 @@ const actions: ActionTree<TestManagementState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload option
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.option.selectedOptionProject Whether to import project management data.
+   * @param payload.option.selectedOptionTestresult Whether to import project test result data.
    * @returns id ,name
    */
   async importData(
     context,
     payload: {
+      source: { projectFileUrl: string };
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
-        selectedItem: string;
       };
     }
   ): Promise<{
-    name: string;
-    id: string;
+    projectId: string;
   }> {
-    const importFileName = payload.option.selectedItem
-      ? payload.option.selectedItem
-      : "";
-
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
@@ -973,7 +973,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     try {
       return await new ImportAction(
         context.rootState.repositoryServiceDispatcher
-      ).importZip(importFileName, selectOption);
+      ).importZip(payload.source, selectOption);
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)

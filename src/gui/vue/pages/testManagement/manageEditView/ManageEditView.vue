@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -132,7 +132,9 @@ export default class ManageEditView extends Vue {
     return this.testMatrices.length >= 1;
   }
 
-  private created() {
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
     this.$store.dispatch("changeWindowTitle", {
       title: this.$store.getters.message("manage-edit-view.window-title"),
     });

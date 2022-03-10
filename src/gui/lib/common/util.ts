@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,48 +47,55 @@ export function getEnumValues(type: any): any[] {
 }
 
 /**
- * Calculate session execution time.
- * @param startTimeStamp  Session start time.
- * @param endTimeStamp  Session end time.
- * @param history  Operation history.
+ * Calculate total elapsed time of all tests in a test result.
+ * @param startTimeStamp  Last test start time.
+ * @param history  All test operation history.
  * @returns Elapsed time.
  */
-export const calculateElapsedUnixTime = (
+export const calculateElapsedEpochMillis = (
   startTimeStamp: number,
-  endTimeStamp: number,
   history: OperationWithNotes[]
 ): number => {
-  let testingTime;
-  let endTime;
-  const startEpochMilliseconds = new TimestampImpl(
+  const lastTestStartTime = new TimestampImpl(
     startTimeStamp
   ).epochMilliseconds();
 
-  if (endTimeStamp <= 0) {
-    let seq = history.length - 1;
-    while (!endTime) {
-      if (seq <= 0) {
-        endTime = startEpochMilliseconds;
-        break;
-      }
-      const lastHistory = history[seq--];
-      if (
-        !lastHistory ||
-        !lastHistory.operation ||
-        !lastHistory.operation.timestamp
-      ) {
-        continue;
-      }
-      endTime = new TimestampImpl(
-        lastHistory.operation.timestamp
-      ).epochMilliseconds();
-    }
+  const lastTestingTime = (() => {
+    const lastOperationTimestamp =
+      history
+        .slice()
+        .reverse()
+        .find((historyItem) => {
+          return historyItem.operation.timestamp;
+        })?.operation.timestamp ?? lastTestStartTime;
 
-    testingTime = endTime - startEpochMilliseconds;
-  } else {
-    testingTime = endTimeStamp - startEpochMilliseconds;
-  }
-  return testingTime;
+    return (
+      new TimestampImpl(lastOperationTimestamp).epochMilliseconds() -
+      lastTestStartTime
+    );
+  })();
+
+  const otherTestingTime = (() => {
+    const otherHistory = history.filter((item) => {
+      return (
+        new TimestampImpl(item.operation.timestamp).epochMilliseconds() <
+        lastTestStartTime
+      );
+    });
+    if (otherHistory.length > 0) {
+      const otherStartTime = new TimestampImpl(
+        otherHistory[0].operation.timestamp
+      ).epochMilliseconds();
+      const otherEndTime = new TimestampImpl(
+        otherHistory[otherHistory.length - 1].operation.timestamp
+      ).epochMilliseconds();
+      return otherEndTime - otherStartTime;
+    } else {
+      return 0;
+    }
+  })();
+
+  return lastTestingTime + otherTestingTime;
 };
 
 /**

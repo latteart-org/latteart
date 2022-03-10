@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,8 +106,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     };
 
     if (context.rootState.repositoryServiceDispatcher.isRemote) {
-      context.commit("setConfig", { config: settings.config });
-
       return;
     }
 
@@ -624,38 +622,57 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async importTestResultFromRemoteRepository(
     context,
-    payload: { destTestResultId: string }
+    payload?: { destTestResultId?: string }
   ) {
+    const {
+      serviceUrl,
+      isRemote,
+    } = context.rootState.repositoryServiceDispatcher;
+
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
-        testResultId: payload.destTestResultId,
+        testResultId: context.state.testResultInfo.id,
         shouldSaveTemporary: true,
       });
 
-      const fileName = exportFileUrl.split("/").pop() ?? "";
-
-      const source = {
-        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
-        fileName,
-      };
-      const dest = {
-        testResultId: payload.destTestResultId,
-        shouldSaveTemporary: true,
-      };
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: context.rootState.localRepositoryServiceUrl,
+            isRemote: false,
+          }),
+        },
+        { root: true }
+      );
 
       const result: {
-        name: string;
-        id: string;
-        beforeId: string;
+        testResultId: string;
       } = await context.dispatch("importData", {
-        source,
-        dest,
+        source: {
+          testResultFileUrl: new URL(
+            exportFileUrl,
+            context.state.testResultInfo.repositoryUrl
+          ).toString(),
+        },
+        dest: { testResultId: payload?.destTestResultId },
       });
 
       return result;
     } catch (error) {
       throw new Error(
         context.rootGetters.message(`error.import_export.${error.message}`)
+      );
+    } finally {
+      context.commit(
+        "setRepositoryServiceDispatcher",
+        {
+          serviceDispatcher: new RepositoryServiceDispatcher({
+            url: serviceUrl,
+            isRemote,
+          }),
+        },
+        { root: true }
       );
     }
   },
@@ -671,24 +688,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         isRemote: false,
       });
 
-      const exportFileUrl = await new ExportAction(
-        localServiceDispatcher
-      ).exportWithTestResult(payload.localTestResultId, true);
-
       const newTestResultId = await new UploadTestResultAction(
         localServiceDispatcher
       ).uploadTestResult(
-        exportFileUrl,
-        context.rootState.repositoryServiceDispatcher.serviceUrl,
-        payload.remoteTestResultId
+        { testResultId: payload.localTestResultId },
+        {
+          repositoryUrl:
+            context.rootState.repositoryServiceDispatcher.serviceUrl,
+          testResultId: payload.remoteTestResultId,
+        }
       );
-
-      const exportFileName = exportFileUrl.split("/").pop();
-      if (exportFileName) {
-        await new DeleteTestResultAction(localServiceDispatcher).deleteTempFile(
-          exportFileName
-        );
-      }
 
       return newTestResultId;
     } catch (error) {
@@ -796,26 +805,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Import Data.
    * @param context Action context.
-   * @param payload.importFileUrl Source import file url.
-   * @param payload.testResultId Destination local test result id.
-   * @param payload.shouldSaveTemporary Whether to save temporary.
-   * @return importFileName
+   * @param payload.source.testResultFileUrl Source import file url.
+   * @param payload.dest.testResultId Destination local test result id.
+   * @return new test result ID.
    */
   async importData(
     context,
     payload: {
-      source: { repositoryUrl: string; fileName: string };
-      dest?: { testResultId?: string; shouldSaveTemporary?: boolean };
+      source: { testResultFileUrl: string };
+      dest?: { testResultId?: string };
     }
-  ): Promise<{ name: string; id: string; beforeId: string }> {
-    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-
+  ): Promise<{ testResultId: string }> {
     try {
       return await new ImportAction(
-        localRepositoryServiceDispatcher
+        context.rootState.repositoryServiceDispatcher
       ).importWithTestResult(payload.source, payload.dest);
     } catch (error) {
       throw new Error(
@@ -1365,14 +1368,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return reply.data!;
   },
 
-  async changeCurrentTestResultName(context) {
+  async changeCurrentTestResult(
+    context,
+    payload: { startTime?: number | null; initialUrl?: string }
+  ) {
     if (!context.state.testResultInfo.id) {
       return;
     }
+    const name = payload.startTime
+      ? undefined
+      : context.state.testResultInfo.name;
+    const startTimeStamp = payload.startTime ?? undefined;
+    const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResultName(
+    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
       context.state.testResultInfo.id,
-      context.state.testResultInfo.name
+      name,
+      startTimeStamp,
+      url
     );
 
     if (!reply.succeeded) {

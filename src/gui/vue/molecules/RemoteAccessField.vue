@@ -1,5 +1,5 @@
 <!--
- Copyright 2021 NTT Corporation.
+ Copyright 2022 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class RemoteAccessField extends Vue {
@@ -49,6 +49,11 @@ export default class RemoteAccessField extends Vue {
   public readonly disabled!: boolean;
 
   private targetUrl = this.url;
+
+  @Watch("url")
+  private updateUrl() {
+    this.targetUrl = this.url;
+  }
 
   private connect(): void {
     (this.$refs.urlField as any).blur();

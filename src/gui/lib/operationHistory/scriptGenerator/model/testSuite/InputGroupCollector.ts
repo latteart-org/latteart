@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 NTT Corporation.
+ * Copyright 2022 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ export class InputGroupCollector {
         return acc;
       }
 
-      if (elem.type === ElementType.RadioButton && elem.name) {
-        acc.set(elem.name, `${this.escapeNewlineCharacters(op.input)}`);
+      if (elem.type === ElementType.RadioButton) {
+        acc.set(elem.identifier, `${this.escapeNewlineCharacters(op.input)}`);
 
         return acc;
       }
