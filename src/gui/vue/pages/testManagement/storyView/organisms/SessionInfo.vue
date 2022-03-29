@@ -221,20 +221,13 @@
                 >
                   <template v-slot:items="props">
                     <td class="px-2 py-0">
-                      <v-select
-                        v-bind:value="props.item.status"
-                        item-text="text"
-                        item-value="value"
-                        @change="
-                          (value) =>
-                            updateIssue(props.item.source, { status: value })
-                        "
+                      <v-text-field
+                        v-bind:value="issueOptions[props.item.status]"
                         :placeholder="
                           $store.getters.message('session-info.bug-status')
                         "
-                        :items="issueOptions"
-                        :disabled="true"
-                      ></v-select>
+                        readonly
+                      ></v-text-field>
                     </td>
 
                     <td class="px-2 py-0 ellipsis_short">
@@ -423,16 +416,20 @@ export default class SessionInfo extends Vue {
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
 
-  private issueOptions = [
-    {
-      text: this.$store.getters.message("session-info.bug-reported"),
-      value: "reported",
-    },
-    {
-      text: this.$store.getters.message("session-info.bug-unreported"),
-      value: "invalid",
-    },
-  ];
+  private issueOptions = {
+    reported: this.$store.getters.message("session-info.bug-reported"),
+    invalid: this.$store.getters.message("session-info.bug-unreported"),
+  };
+  // private issueOptions = [
+  //   {
+  //     text: this.$store.getters.message("session-info.bug-reported"),
+  //     value: "reported",
+  //   },
+  //   {
+  //     text: this.$store.getters.message("session-info.bug-unreported"),
+  //     value: "invalid",
+  //   },
+  // ];
 
   private testResultBugHeaders = [
     {
