@@ -1,6 +1,6 @@
 {
   "name": "latteart",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3000",
@@ -98,6 +98,9 @@
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.4.3",
     "wdio-chromedriver-service": "^6.0.3"
+  },
+  "resolutions": {
+    "node-ipc": "9.1.3"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
