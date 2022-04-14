@@ -44,6 +44,7 @@
       :screenDefinitionConfig="screenDefinitionConfig"
       :scriptGenerationEnabled="!$isViewerMode"
       :testResultId="testResultId"
+      operationContextEnabled
     ></history-display>
 
     <scrollable-dialog :opened="dialogOpened">

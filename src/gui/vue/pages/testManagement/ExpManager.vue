@@ -25,6 +25,18 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
+    <intention-edit-dialog
+      :opened="intentionEditDialogOpened"
+      @close="intentionEditDialogOpened = false"
+    />
+    <bug-edit-dialog
+      :opened="bugEditDialogOpened"
+      @close="bugEditDialogOpened = false"
+    />
+    <notice-edit-dialog
+      :opened="noticeEditDialogOpened"
+      @close="noticeEditDialogOpened = false"
+    />
   </v-app>
 </template>
 
@@ -33,12 +45,19 @@ import { Component, Vue } from "vue-property-decorator";
 import ConfigViewer from "@/vue/pages/operationHistory/organisms/configViewer/ConfigViewer.vue";
 import AlertDialog from "@/vue/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import { OperationWithNotes } from "@/lib/operationHistory/types";
+import IntentionEditDialog from "../common/IntentionEditDialog.vue";
+import BugEditDialog from "../common/BugEditDialog.vue";
+import NoticeEditDialog from "../common/NoticeEditDialog.vue";
 
 @Component({
   components: {
     "config-viewer": ConfigViewer,
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "intention-edit-dialog": IntentionEditDialog,
+    "bug-edit-dialog": BugEditDialog,
+    "notice-edit-dialog": NoticeEditDialog,
   },
 })
 export default class Manager extends Vue {
@@ -46,6 +65,9 @@ export default class Manager extends Vue {
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
+  private intentionEditDialogOpened = false;
+  private bugEditDialogOpened = false;
+  private noticeEditDialogOpened = false;
 
   public created(): void {
     (async () => {
@@ -62,6 +84,56 @@ export default class Manager extends Vue {
         });
       }
     })();
+  }
+
+  private mounted() {
+    this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
+      openNoteEditDialog: this.openNoteEditDialog,
+    });
+  }
+
+  private openNoteEditDialog(
+    noteType: string,
+    sequence: number,
+    index?: number
+  ) {
+    const historyItem: OperationWithNotes = this.$store.getters[
+      "operationHistory/findHistoryItem"
+    ](sequence);
+    if (historyItem === undefined) {
+      return;
+    }
+    switch (noteType) {
+      case "intention":
+        this.$store.commit("operationHistory/selectOperationNote", {
+          selectedOperationNote: {
+            sequence: sequence ?? null,
+            index: index ?? null,
+          },
+        });
+        this.intentionEditDialogOpened = true;
+        return;
+      case "bug":
+        this.$store.commit("operationHistory/selectOperationNote", {
+          selectedOperationNote: {
+            sequence: sequence ?? null,
+            index: index ?? null,
+          },
+        });
+        this.bugEditDialogOpened = true;
+        return;
+      case "notice":
+        this.$store.commit("operationHistory/selectOperationNote", {
+          selectedOperationNote: {
+            sequence: sequence ?? null,
+            index: index ?? null,
+          },
+        });
+        this.noticeEditDialogOpened = true;
+        return;
+      default:
+        return;
+    }
   }
 }
 </script>
