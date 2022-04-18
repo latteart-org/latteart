@@ -22,6 +22,7 @@ import { AliasGenerator } from "../../AliasGenerator";
 
 export class JSPageObjectMethodNameGenerator implements NameGenerator {
   private methodIdToName: Map<string, string>;
+  private methodNameDuplicateCount: Map<string, number> = new Map();
 
   constructor(
     pageObjects: Pick<PageObject, "methods">[],
@@ -56,14 +57,24 @@ export class JSPageObjectMethodNameGenerator implements NameGenerator {
       method.returnPageObjectId
     );
 
-    if (!lastOperatedElement) {
-      return `go${destination}Empty`;
-    }
+    const methodNameCandidate = !lastOperatedElement
+      ? `go${destination}Empty`
+      : lastOperatedElement.type === ElementType.Link
+      ? `go${destination}`
+      : `do${lastOperatedElement.identifier}`;
 
-    if (lastOperatedElement.type === ElementType.Link) {
-      return `go${destination}`;
+    if (this.methodNameDuplicateCount.has(methodNameCandidate)) {
+      const methodNameCount = this.methodNameDuplicateCount.get(
+        methodNameCandidate
+      )!;
+      this.methodNameDuplicateCount.set(
+        methodNameCandidate,
+        methodNameCount + 1
+      );
+      return methodNameCandidate + (methodNameCount + 1).toString();
+    } else {
+      this.methodNameDuplicateCount.set(methodNameCandidate, 1);
+      return methodNameCandidate;
     }
-
-    return `do${lastOperatedElement.identifier}`;
   }
 }
