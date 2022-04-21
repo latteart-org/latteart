@@ -41,7 +41,7 @@ export class TestScriptGeneratorImpl implements TestScriptGenerator {
   constructor(
     private imageUrlResolver: (url: string) => string,
     private option: {
-      optimize: boolean;
+      testScript: { isSimple: boolean };
       testData: {
         useDataDriven: boolean;
         maxGeneration: number;
@@ -52,9 +52,9 @@ export class TestScriptGeneratorImpl implements TestScriptGenerator {
   public generate(
     sources: { initialUrl: string; history: Operation[] }[]
   ): TestScript {
-    const modelGeneratorType = this.option.optimize
-      ? TestScriptModelGeneratorType.Optimize
-      : TestScriptModelGeneratorType.Simple;
+    const modelGeneratorType = this.option.testScript.isSimple
+      ? TestScriptModelGeneratorType.Simple
+      : TestScriptModelGeneratorType.Optimize;
 
     const modelGenerator = new TestScriptModelGeneratorFactory(
       this.imageUrlResolver
@@ -78,6 +78,7 @@ export class TestScriptGeneratorImpl implements TestScriptGenerator {
     );
 
     const codeGenerator = new TestScriptCodeGeneratorFactory(
+      this.option.testScript.isSimple,
       this.option.testData,
       testCaseIdToDataSet,
       pageObjectIdToDataSets,

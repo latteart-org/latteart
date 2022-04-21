@@ -27,6 +27,7 @@ import { NameGenerator } from "../../NameGenerator";
 
 export class JSTestSuiteCodeGenerator implements TestSuiteCodeGenerator {
   constructor(
+    private isSimple: boolean,
     private nameGenerator: {
       pageObject: NameGenerator;
       method: NameGenerator;
@@ -163,12 +164,7 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
           ? `// ${methodCall.comment}\n`
           : "";
 
-        const argsString = argumentGroupString
-          ? `\
-{
-${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
-}`
-          : "";
+        const argsString = this.generateArgsString(argumentGroupString);
 
         const methodName = this.nameGenerator.method.generate(
           methodCall.methodId
@@ -178,6 +174,16 @@ ${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
 ${methodComment}.${methodName}(${argsString})`;
       })
       .join("\n");
+  }
+
+  private generateArgsString(argumentGroupString: string) {
+    if (this.isSimple) return "";
+    return argumentGroupString
+      ? `\
+{
+${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
+}`
+      : "";
   }
 
   private generateArgumentGroupString(
