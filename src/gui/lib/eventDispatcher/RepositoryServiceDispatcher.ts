@@ -15,11 +15,16 @@
  */
 
 import RESTClient from "./RESTClient";
-import { Reply } from "../captureControl/Reply";
+import { Reply, ReplyImpl } from "../captureControl/Reply";
 import { CapturedOperation } from "../operationHistory/CapturedOperation";
 import { Operation } from "../operationHistory/Operation";
 import { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
-import { CoverageSource, InputElementInfo } from "../operationHistory/types";
+import {
+  CoverageSource,
+  InputElementInfo,
+  TestStepOperation,
+  TestResult,
+} from "../operationHistory/types";
 import { Note } from "../operationHistory/Note";
 import Settings from "@/lib/common/settings/Settings";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
@@ -96,24 +101,14 @@ export default class RepositoryServiceDispatcher
    * @returns Setting information.
    */
   public async getSettings(): Promise<Reply<Settings>> {
-    try {
-      const data: Settings = await this.restClient.httpGet(
-        this.buildAPIURL(`/projects/1/configs`)
-      );
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects/1/configs`)
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Settings,
+    });
   }
 
   /**
@@ -122,25 +117,15 @@ export default class RepositoryServiceDispatcher
    * @returns Saved setting information.
    */
   public async saveSettings(settings: Settings): Promise<Reply<Settings>> {
-    try {
-      const data: Settings = await this.restClient.httpPut(
-        this.buildAPIURL(`/projects/1/configs`),
-        settings
-      );
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/projects/1/configs`),
+      settings
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Settings,
+    });
   }
 
   /**
@@ -148,30 +133,21 @@ export default class RepositoryServiceDispatcher
    * @param locale  Locale value after change.
    */
   public async changeLocale(locale: string): Promise<Reply<void>> {
-    try {
-      const settings: Settings = await this.restClient.httpGet(
-        this.buildAPIURL(`/projects/1/configs`)
-      );
+    const settings = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects/1/configs`)
+    );
 
-      settings.locale = locale as any;
+    (settings.data as Settings).locale = locale as any;
 
-      await this.restClient.httpPut(
-        this.buildAPIURL(`/projects/1/configs`),
-        settings
-      );
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/projects/1/configs`),
+      settings
+    );
 
-      return {
-        succeeded: true,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as void,
+    });
   }
 
   /**
@@ -179,24 +155,14 @@ export default class RepositoryServiceDispatcher
    * @returns Device settings information
    */
   public async getDeviceSettings(): Promise<Reply<DeviceSettings>> {
-    try {
-      const data: DeviceSettings = await this.restClient.httpGet(
-        this.buildAPIURL(`/projects/1/device-configs`)
-      );
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects/1/device-configs`)
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as DeviceSettings,
+    });
   }
 
   /**
@@ -207,25 +173,15 @@ export default class RepositoryServiceDispatcher
   public async saveDeviceSettings(
     deviceSettings: DeviceSettings
   ): Promise<Reply<DeviceSettings>> {
-    try {
-      const data: DeviceSettings = await this.restClient.httpPut(
-        this.buildAPIURL(`/projects/1/device-configs`),
-        deviceSettings
-      );
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/projects/1/device-configs`),
+      deviceSettings
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as DeviceSettings,
+    });
   }
 
   /**
@@ -240,25 +196,17 @@ export default class RepositoryServiceDispatcher
       }>
     >
   > {
-    try {
-      const data: Array<{
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Array<{
         id: string;
         name: string;
-      }> = await this.restClient.httpGet(this.buildAPIURL(`/test-results`));
-
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+      }>,
+    });
   }
 
   public async getImportTestResults(): Promise<
@@ -269,32 +217,24 @@ export default class RepositoryServiceDispatcher
       }>
     >
   > {
-    try {
-      const data: Array<{
-        url: string;
-        name: string;
-      }> = await this.restClient.httpGet(
-        this.buildAPIURL(`/imports/test-results`)
-      );
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/imports/test-results`)
+    );
 
+    const data = (response.data as Array<{
+      url: string;
+      name: string;
+    }>).map(({ url, name }) => {
       return {
-        succeeded: true,
-        data: data.map(({ url, name }) => {
-          return {
-            url: `${this.serviceUrl}/${url}`,
-            name,
-          };
-        }),
+        url: `${this.serviceUrl}/${url}`,
+        name,
       };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    });
+
+    return new ReplyImpl({
+      status: response.status,
+      data: data,
+    });
   }
 
   public async getImportProjects(): Promise<
@@ -305,30 +245,22 @@ export default class RepositoryServiceDispatcher
       }>
     >
   > {
-    try {
-      const data: Array<{
-        url: string;
-        name: string;
-      }> = await this.restClient.httpGet(this.buildAPIURL(`/imports/projects`));
-
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/imports/projects`)
+    );
+    const data = (response.data as Array<{
+      url: string;
+      name: string;
+    }>).map(({ url, name }) => {
       return {
-        succeeded: true,
-        data: data.map(({ url, name }) => {
-          return {
-            url: `${this.serviceUrl}/${url}`,
-            name,
-          };
-        }),
+        url: `${this.serviceUrl}/${url}`,
+        name,
       };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    });
+    return new ReplyImpl({
+      status: response.status,
+      data: data,
+    });
   }
 
   /**
@@ -340,25 +272,13 @@ export default class RepositoryServiceDispatcher
     initialUrl?: string,
     name?: string
   ): Promise<Reply<{ id: string; name: string }>> {
-    try {
-      const url = this.buildAPIURL(`/test-results`);
-      const res = await this.restClient.httpPost(url, { initialUrl, name });
+    const url = this.buildAPIURL(`/test-results`);
+    const response = await this.restClient.httpPost(url, { initialUrl, name });
 
-      const createdTestResult: { id: string; name: string } = res;
-
-      return {
-        succeeded: true,
-        data: createdTestResult,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { id: string; name: string },
+    });
   }
 
   /**
@@ -371,27 +291,19 @@ export default class RepositoryServiceDispatcher
     testResultId: string,
     noteId: number
   ): Promise<Reply<{ imageFileUrl: string }>> {
-    try {
-      const { imageFileUrl } = await this.restClient.httpPost(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/notes/${noteId}/compressed-image`
-        ),
-        null
-      );
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/notes/${noteId}/compressed-image`
+      ),
+      null
+    );
 
-      return {
-        succeeded: true,
-        data: { imageFileUrl },
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "error.operation_history.compress_note_screenshot_failed",
-          message: "Compression error.",
-        },
-      };
-    }
+    const { imageFileUrl } = response.data as { imageFileUrl: string };
+
+    return new ReplyImpl({
+      status: response.status,
+      data: { imageFileUrl },
+    });
   }
 
   /**
@@ -404,30 +316,23 @@ export default class RepositoryServiceDispatcher
     testResultId: string,
     testStepId: string
   ): Promise<Reply<{ imageFileUrl: string }>> {
-    try {
-      const { imageFileUrl } = await this.restClient.httpPost(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`
-        ),
-        null
-      );
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`
+      ),
+      null
+    );
 
-      if (!imageFileUrl) {
-        throw new Error();
-      }
-      return {
-        succeeded: true,
-        data: { imageFileUrl },
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "error.operation_history.compress_operation_screenshot_failed",
-          message: "Compression error.",
-        },
-      };
+    const { imageFileUrl } = response.data as { imageFileUrl: string };
+
+    if (!imageFileUrl) {
+      throw new Error();
     }
+
+    return new ReplyImpl({
+      status: response.status,
+      data: { imageFileUrl },
+    });
   }
 
   /**
@@ -447,42 +352,54 @@ export default class RepositoryServiceDispatcher
       inputElementInfo: InputElementInfo;
     }>
   > {
-    try {
-      const {
-        id,
-        operation,
-        coverageSource,
-        inputElementInfo,
-      } = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps`),
-        capturedOperation
-      );
-      return {
-        succeeded: true,
-        data: {
-          id,
-          operation: Operation.createFromOtherOperation({
-            other: operation,
-            overrideParams: {
-              imageFilePath: operation.imageFileUrl
-                ? new URL(operation.imageFileUrl, this.serviceUrl).toString()
-                : operation.imageFileUrl,
-              keywordSet: new Set(operation.keywordTexts),
-            },
-          }),
-          coverageSource,
-          inputElementInfo,
-        },
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/test-steps`),
+      capturedOperation
+    );
+
+    const {
+      id,
+      operation: testStepOperation,
+      coverageSource,
+      inputElementInfo,
+    } = response.data as {
+      id: string;
+      operation: TestStepOperation;
+      coverageSource: CoverageSource;
+      inputElementInfo?: InputElementInfo;
+    };
+
+    const operation = Operation.createOperation({
+      input: testStepOperation.input,
+      type: testStepOperation.type,
+      elementInfo: testStepOperation.elementInfo,
+      title: testStepOperation.title,
+      url: testStepOperation.url,
+      imageFilePath: testStepOperation.imageFileUrl
+        ? new URL(testStepOperation.imageFileUrl, this.serviceUrl).toString()
+        : testStepOperation.imageFileUrl,
+      windowHandle: testStepOperation.windowHandle,
+      timestamp: testStepOperation.timestamp,
+      inputElements: testStepOperation.inputElements,
+      keywordSet: new Set(testStepOperation.keywordTexts),
+    });
+
+    const data = {
+      id,
+      operation,
+      coverageSource,
+      inputElementInfo,
+    };
+
+    return new ReplyImpl({
+      status: response.status,
+      data: data as {
+        id: string;
+        operation: Operation;
+        coverageSource: CoverageSource;
+        inputElementInfo: InputElementInfo;
+      },
+    });
   }
 
   /**
@@ -501,71 +418,69 @@ export default class RepositoryServiceDispatcher
       imageData?: string;
     }
   ): Promise<Reply<{ bug: Note; index: number }>> {
-    try {
-      // New registration of note.
-      const savedNote: {
-        id: number;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/notes`),
-        {
-          type: "bug",
-          value: bug.summary,
-          details: bug.details,
-          imageData: bug.imageData,
-        }
-      );
+    // New registration of note.
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/notes`),
+      {
+        type: "bug",
+        value: bug.summary,
+        details: bug.details,
+        imageData: bug.imageData,
+      }
+    );
+    const savedNote = response.data as {
+      id: number;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
-      // Linking with testStep.
-      const savedTestStep: {
-        bugs: string[];
-      } = await (async () => {
-        const { bugs } = await this.restClient.httpGet(
+    // Linking with testStep.
+    const linkTestStep = await (async () => {
+      const { bugs } = (
+        await this.restClient.httpGet(
           this.buildAPIURL(
             `/test-results/${testResultId}/test-steps/${testStepId}`
           )
-        );
-
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${testStepId}`
-          ),
-          {
-            bugs: [...bugs, savedNote.id],
-          }
-        );
-      })();
-
-      const data = {
-        bug: new Note({
-          id: savedNote.id,
-          value: savedNote.value,
-          details: savedNote.details,
-          imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: savedNote.tags,
-        }),
-        index: savedTestStep.bugs.length - 1,
+        )
+      ).data as {
+        id: string;
+        operation: TestStepOperation;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
       };
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+      return this.restClient.httpPatch(
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        ),
+        {
+          bugs: [...bugs, savedNote.id],
+        }
+      );
+    })();
+
+    const savedTestStep = linkTestStep.data as {
+      bugs: string[];
+    };
+
+    const data = {
+      bug: new Note({
+        id: savedNote.id,
+        value: savedNote.value,
+        details: savedNote.details,
+        imageFilePath: savedNote.imageFileUrl
+          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: savedNote.tags,
+      }),
+      index: savedTestStep.bugs.length - 1,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -585,56 +500,53 @@ export default class RepositoryServiceDispatcher
       details: string;
     }
   ): Promise<Reply<{ bug: Note; index: number }>> {
-    try {
-      const { bugs } = await this.restClient.httpGet(
+    const { bugs } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
-      );
-      const noteId: string = bugs[index];
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+    const noteId: string = bugs[index];
 
-      // note update
-      const savedNote: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPut(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-        {
-          type: "bug",
-          value: bug.summary,
-          details: bug.details,
-        }
-      );
+    // note update
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
+      {
+        type: "bug",
+        value: bug.summary,
+        details: bug.details,
+      }
+    );
 
-      const data = {
-        bug: new Note({
-          value: savedNote.value,
-          details: savedNote.details,
-          imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: savedNote.tags,
-        }),
-        index,
-      };
+    const savedNote = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const data = {
+      bug: new Note({
+        value: savedNote.value,
+        details: savedNote.details,
+        imageFilePath: savedNote.imageFileUrl
+          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: savedNote.tags,
+      }),
+      index,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -654,79 +566,86 @@ export default class RepositoryServiceDispatcher
       testStepId: string;
     }
   ): Promise<Reply<{ bug: Note; index: number }>> {
-    try {
-      // Break the link of the move source.
-      const { bugs: fromBugs } = await this.restClient.httpGet(
+    // Break the link of the move source.
+    const { bugs: fromBugs } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${from.testStepId}`
         )
-      );
-      await (async () => {
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${from.testStepId}`
-          ),
-          {
-            bugs: fromBugs.filter(
-              (_: unknown, index: number) => index !== from.index
-            ),
-          }
-        );
-      })();
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
 
-      // Link to the destination.
-      const { bugs: destBugs } = await this.restClient.httpGet(
+    await (async () => {
+      return this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
-        )
-      );
-      await this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
+          `/test-results/${testResultId}/test-steps/${from.testStepId}`
         ),
         {
-          bugs: [...destBugs, fromBugs[from.index]],
+          bugs: fromBugs.filter(
+            (_: unknown, index: number) => index !== from.index
+          ),
         }
       );
+    })();
 
-      const note: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpGet(
+    // Link to the destination.
+    const { bugs: destBugs } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
-          `/test-results/${testResultId}/notes/${fromBugs[from.index]}`
+          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
         )
-      );
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
 
-      const data = {
-        bug: new Note({
-          value: note.value,
-          details: note.details,
-          imageFilePath: note.imageFileUrl
-            ? new URL(note.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: note.tags,
-        }),
-        index: destBugs.length,
-      };
+    await this.restClient.httpPatch(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/test-steps/${dest.testStepId}`
+      ),
+      {
+        bugs: [...destBugs, fromBugs[from.index]],
+      }
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/notes/${fromBugs[from.index]}`
+      )
+    );
+
+    const note = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    const data = {
+      bug: new Note({
+        value: note.value,
+        details: note.details,
+        imageFilePath: note.imageFileUrl
+          ? new URL(note.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: note.tags,
+      }),
+      index: destBugs.length,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -745,46 +664,44 @@ export default class RepositoryServiceDispatcher
       index: number;
     }>
   > {
-    try {
-      // Get noteId.
-      const { bugs } = await this.restClient.httpGet(
+    // Get noteId.
+    const { bugs } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
-      );
-      const noteId = bugs[index];
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+    const noteId = bugs[index];
 
-      // Delete note.
-      await this.restClient.httpDelete(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
-      );
+    // Delete note.
+    const response = await this.restClient.httpDelete(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
+    );
 
-      // Break the link.
-      await this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        ),
-        {
-          bugs: bugs.filter((_: unknown, i: number) => i !== index),
-        }
-      );
+    // Break the link.
+    await this.restClient.httpPatch(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/test-steps/${testStepId}`
+      ),
+      {
+        bugs: bugs.filter((_: unknown, i: number) => i !== index),
+      }
+    );
 
-      return {
-        succeeded: true,
-        data: {
-          testStepId,
-          index,
-        },
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: {
+        testStepId,
+        index,
+      },
+    });
   }
 
   /**
@@ -803,72 +720,70 @@ export default class RepositoryServiceDispatcher
       imageData?: string;
     }
   ): Promise<Reply<{ notice: Note; index: number }>> {
-    try {
-      // New registration of note.
-      const savedNote: {
-        id: number;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/notes`),
-        {
-          type: "notice",
-          value: notice.summary,
-          details: notice.details,
-          tags: notice.tags,
-          imageData: notice.imageData,
-        }
-      );
+    // New registration of note.
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/notes`),
+      {
+        type: "notice",
+        value: notice.summary,
+        details: notice.details,
+        tags: notice.tags,
+        imageData: notice.imageData,
+      }
+    );
+    const savedNote = response.data as {
+      id: number;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
-      // Linking with testStep.
-      const savedTestStep: {
-        notices: string[];
-      } = await (async () => {
-        const { notices } = await this.restClient.httpGet(
+    // Linking with testStep.
+    const linkTestStep = await (async () => {
+      const { notices } = (
+        await this.restClient.httpGet(
           this.buildAPIURL(
             `/test-results/${testResultId}/test-steps/${testStepId}`
           )
-        );
-
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${testStepId}`
-          ),
-          {
-            notices: [...notices, savedNote.id],
-          }
-        );
-      })();
-
-      const data = {
-        notice: new Note({
-          id: savedNote.id,
-          value: savedNote.value,
-          details: savedNote.details,
-          imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: savedNote.tags,
-        }),
-        index: savedTestStep.notices.length - 1,
+        )
+      ).data as {
+        id: string;
+        operation: TestStepOperation;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
       };
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+      return this.restClient.httpPatch(
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        ),
+        {
+          notices: [...notices, savedNote.id],
+        }
+      );
+    })();
+
+    const savedTestStep = linkTestStep.data as {
+      notices: string[];
+    };
+
+    const data = {
+      notice: new Note({
+        id: savedNote.id,
+        value: savedNote.value,
+        details: savedNote.details,
+        imageFilePath: savedNote.imageFileUrl
+          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: savedNote.tags,
+      }),
+      index: savedTestStep.notices.length - 1,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -889,57 +804,53 @@ export default class RepositoryServiceDispatcher
       tags: string[];
     }
   ): Promise<Reply<{ notice: Note; index: number }>> {
-    try {
-      const { notices } = await this.restClient.httpGet(
+    const { notices } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
-      );
-      const noteId: string = notices[index];
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+    const noteId: string = notices[index];
 
-      // Note update
-      const savedNote: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPut(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-        {
-          type: "notice",
-          value: notice.summary,
-          details: notice.details,
-          tags: notice.tags,
-        }
-      );
+    // Note update
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
+      {
+        type: "notice",
+        value: notice.summary,
+        details: notice.details,
+        tags: notice.tags,
+      }
+    );
+    const savedNote = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
-      const data = {
-        notice: new Note({
-          value: savedNote.value,
-          details: savedNote.details,
-          imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: savedNote.tags,
-        }),
-        index,
-      };
+    const data = {
+      notice: new Note({
+        value: savedNote.value,
+        details: savedNote.details,
+        imageFilePath: savedNote.imageFileUrl
+          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: savedNote.tags,
+      }),
+      index,
+    };
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -959,81 +870,88 @@ export default class RepositoryServiceDispatcher
       testStepId: string;
     }
   ): Promise<Reply<{ notice: Note; index: number }>> {
-    try {
-      // Break the link of the move source.
-      const { notices: fromNotices } = await this.restClient.httpGet(
+    // Break the link of the move source.
+    const { notices: fromNotices } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${from.testStepId}`
         )
-      );
-      await (async () => {
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${from.testStepId}`
-          ),
-          {
-            notices: fromNotices.filter(
-              (_: unknown, index: number) => index !== from.index
-            ),
-          }
-        );
-      })();
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
 
-      // Link to the destination.
-      const { notices: destNotices } = await this.restClient.httpGet(
+    await (async () => {
+      return this.restClient.httpPatch(
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${from.testStepId}`
+        ),
+        {
+          notices: fromNotices.filter(
+            (_: unknown, index: number) => index !== from.index
+          ),
+        }
+      );
+    })();
+
+    // Link to the destination.
+    const { notices: destNotices } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${dest.testStepId}`
         )
-      );
-      await (async () => {
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${dest.testStepId}`
-          ),
-          {
-            notices: [...destNotices, fromNotices[from.index]],
-          }
-        );
-      })();
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
 
-      const note: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpGet(
+    await (async () => {
+      return this.restClient.httpPatch(
         this.buildAPIURL(
-          `/test-results/${testResultId}/notes/${fromNotices[from.index]}`
-        )
+          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
+        ),
+        {
+          notices: [...destNotices, fromNotices[from.index]],
+        }
       );
+    })();
 
-      const data = {
-        notice: new Note({
-          value: note.value,
-          details: note.details,
-          imageFilePath: note.imageFileUrl
-            ? new URL(note.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: note.tags,
-        }),
-        index: destNotices.length,
-      };
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/notes/${fromNotices[from.index]}`
+      )
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const note = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    const data = {
+      notice: new Note({
+        value: note.value,
+        details: note.details,
+        imageFilePath: note.imageFileUrl
+          ? new URL(note.imageFileUrl, this.serviceUrl).toString()
+          : "",
+        tags: note.tags,
+      }),
+      index: destNotices.length,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -1052,46 +970,44 @@ export default class RepositoryServiceDispatcher
       index: number;
     }>
   > {
-    try {
-      // Get noteId.
-      const { notices } = await this.restClient.httpGet(
+    // Get noteId.
+    const { notices } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
-      );
-      const noteId = notices[index];
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+    const noteId = notices[index];
 
-      // Delete note.
-      await this.restClient.httpDelete(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
-      );
+    // Delete note.
+    const response = await this.restClient.httpDelete(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
+    );
 
-      // Break the link.
-      await this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        ),
-        {
-          notices: notices.filter((_: unknown, i: number) => i !== index),
-        }
-      );
+    // Break the link.
+    await this.restClient.httpPatch(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/test-steps/${testStepId}`
+      ),
+      {
+        notices: notices.filter((_: unknown, i: number) => i !== index),
+      }
+    );
 
-      return {
-        succeeded: true,
-        data: {
-          testStepId,
-          index,
-        },
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: {
+        testStepId,
+        index,
+      },
+    });
   }
 
   /**
@@ -1108,56 +1024,46 @@ export default class RepositoryServiceDispatcher
       details: string;
     }
   ): Promise<Reply<Note>> {
-    try {
-      // New note registration
-      const savedNote: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/notes`),
+    // New note registration
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/notes`),
+      {
+        type: "intention",
+        value: intention.summary,
+        details: intention.details,
+      }
+    );
+    const savedNote = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    // Linking with test steps.
+    await (async () => {
+      return this.restClient.httpPatch(
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        ),
         {
-          type: "intention",
-          value: intention.summary,
-          details: intention.details,
+          intention: savedNote.id,
         }
       );
+    })();
 
-      // Linking with test steps.
-      await (async () => {
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${testStepId}`
-          ),
-          {
-            intention: savedNote.id,
-          }
-        );
-      })();
+    const data = new Note({
+      value: savedNote.value,
+      details: savedNote.details,
+      imageFilePath: savedNote.imageFileUrl
+        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+        : "",
+      tags: savedNote.tags,
+    });
 
-      return {
-        succeeded: true,
-        data: new Note({
-          value: savedNote.value,
-          details: savedNote.details,
-          imageFilePath: savedNote.imageFileUrl
-            ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-            : "",
-          tags: savedNote.tags,
-        }),
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -1175,126 +1081,140 @@ export default class RepositoryServiceDispatcher
       details: string;
     }
   ): Promise<Reply<Note>> {
-    try {
-      // Get noteId.
-      const { intention: noteId } = await this.restClient.httpGet(
+    // Get noteId.
+    const { intention: noteId } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
-      );
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
 
-      // Note update.
-      const savedNote: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpPut(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-        {
-          type: "intention",
-          value: intention.summary,
-          details: intention.details,
-        }
-      );
+    // Note update.
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
+      {
+        type: "intention",
+        value: intention.summary,
+        details: intention.details,
+      }
+    );
 
-      const data = new Note({
-        value: savedNote.value,
-        details: savedNote.details,
-        imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-          : "",
-        tags: savedNote.tags,
-      });
+    const savedNote = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const data = new Note({
+      value: savedNote.value,
+      details: savedNote.details,
+      imageFilePath: savedNote.imageFileUrl
+        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
+        : "",
+      tags: savedNote.tags,
+    });
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
-  /**
-   * Change the associated sequence number of the Intention information of the specified sequence number.
-   * @param testResultId  Test result ID.
-   * @param fromTestStepId  Linking source sequence number.
-   * @param destTestStepId  Linked sequence number
-   * @returns Intention information after change.
-   */
-  public async moveIntention(
+  public async getTestSteps(
     testResultId: string,
-    fromTestStepId: string,
-    destTestStepId: string
-  ): Promise<Reply<Note>> {
-    try {
-      const { intention: noteId } = await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${fromTestStepId}`
-        )
-      );
+    testStepId: string
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  > {
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results/${testResultId}/test-steps/${testStepId}`)
+    );
 
-      // Break the link of the move source.
-      await this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${fromTestStepId}`
-        ),
-        {
-          intention: null,
-        }
-      );
-
-      // Link to the destination.
-      await this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${destTestStepId}`
-        ),
-        {
-          intention: noteId,
-        }
-      );
-      const note: {
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as {
         id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
-      );
+        operation: TestStepOperation;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
+      },
+    });
+  }
 
-      const data = new Note({
-        value: note.value,
-        details: note.details,
-        imageFilePath: note.imageFileUrl
-          ? new URL(note.imageFileUrl, this.serviceUrl).toString()
-          : "",
-        tags: note.tags,
-      });
+  public async patchTestSteps(
+    testResultId: string,
+    testStepId: string,
+    noteId: string | null
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  > {
+    const response = await this.restClient.httpPatch(
+      this.buildAPIURL(
+        `/test-results/${testResultId}/test-steps/${testStepId}`
+      ),
+      {
+        intention: noteId,
+      }
+    );
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as {
+        id: string;
+        operation: TestStepOperation;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
+      },
+    });
+  }
+
+  public async getNotes(
+    testResultId: string,
+    noteId: string | null
+  ): Promise<Reply<Note>> {
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
+    );
+    const note = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    const data = new Note({
+      value: note.value,
+      details: note.details,
+      imageFilePath: note.imageFileUrl
+        ? new URL(note.imageFileUrl, this.serviceUrl).toString()
+        : "",
+      tags: note.tags,
+    });
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -1306,44 +1226,39 @@ export default class RepositoryServiceDispatcher
     testResultId: string,
     testStepId: string
   ): Promise<Reply<string>> {
-    try {
-      // Get noteId.
-      const { intention } = await this.restClient.httpGet(
+    // Get noteId.
+    const { intention } = (
+      await this.restClient.httpGet(
         this.buildAPIURL(
           `/test-results/${testResultId}/test-steps/${testStepId}`
         )
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+
+    // Delete note.
+    const response = await this.restClient.httpDelete(
+      this.buildAPIURL(`/test-results/${testResultId}/notes/${intention}`)
+    );
+
+    // Break the link.
+    await (async () => {
+      return this.restClient.httpPatch(
+        this.buildAPIURL(
+          `/test-results/${testResultId}/test-steps/${testStepId}`
+        ),
+        {
+          intention: null,
+        }
       );
+    })();
 
-      // Delete note.
-      await this.restClient.httpDelete(
-        this.buildAPIURL(`/test-results/${testResultId}/notes/${intention}`)
-      );
-
-      // Break the link.
-      await (async () => {
-        return this.restClient.httpPatch(
-          this.buildAPIURL(
-            `/test-results/${testResultId}/test-steps/${testStepId}`
-          ),
-          {
-            intention: null,
-          }
-        );
-      })();
-
-      return {
-        succeeded: true,
-        data: testStepId,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({ status: response.status, data: testStepId });
   }
 
   /**
@@ -1363,83 +1278,70 @@ export default class RepositoryServiceDispatcher
       initialUrl: string;
     }>
   > {
-    try {
-      const testResult: {
-        id: string;
-        name: string;
-        testSteps: any[];
-        coverageSources: CoverageSource[];
-        inputElementInfos: InputElementInfo[];
-        initialUrl: string;
-      } = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}`)
-      );
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results/${testResultId}`)
+    );
 
-      return {
-        succeeded: true,
-        data: {
-          id: testResult.id,
-          name: testResult.name,
-          operationHistoryItems: testResult.testSteps.map((testStep) => {
-            return {
-              testStepId: testStep.id,
-              operation: testStep.operation
-                ? Operation.createFromOtherOperation({
-                    other: testStep.operation,
-                    overrideParams: {
-                      imageFilePath: testStep.operation.imageFileUrl
-                        ? new URL(
-                            testStep.operation.imageFileUrl,
-                            this.serviceUrl
-                          ).toString()
-                        : "",
-                      keywordSet: new Set(testStep.operation.keywordTexts),
-                    },
-                  })
-                : testStep.operation,
-              intention: testStep.intention,
-              bugs:
-                testStep.bugs?.map((bug: any) => {
-                  return Note.createFromOtherNote({
-                    other: bug,
-                    overrideParams: {
-                      imageFilePath: bug.imageFileUrl
-                        ? new URL(bug.imageFileUrl, this.serviceUrl).toString()
-                        : "",
-                    },
-                  });
-                }) ?? null,
-              notices:
-                testStep.notices?.map((notice: any) => {
-                  return Note.createFromOtherNote({
-                    other: notice,
-                    overrideParams: {
-                      imageFilePath: notice.imageFileUrl
-                        ? new URL(
-                            notice.imageFileUrl,
-                            this.serviceUrl
-                          ).toString()
-                        : "",
-                    },
-                  });
-                }) ?? null,
-            };
-          }),
-          coverageSources: testResult.coverageSources,
-          inputElementInfos: testResult.inputElementInfos,
-          initialUrl: testResult.initialUrl,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        succeeded: false,
-        error: {
-          code: "resume_failed",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    const testResult = response.data as {
+      id: string;
+      name: string;
+      testSteps: any[];
+      coverageSources: CoverageSource[];
+      inputElementInfos: InputElementInfo[];
+      initialUrl: string;
+    };
+
+    const data = {
+      id: testResult.id,
+      name: testResult.name,
+      operationHistoryItems: testResult.testSteps.map((testStep) => {
+        return {
+          testStepId: testStep.id,
+          operation: testStep.operation
+            ? Operation.createFromOtherOperation({
+                other: testStep.operation,
+                overrideParams: {
+                  imageFilePath: testStep.operation.imageFileUrl
+                    ? new URL(
+                        testStep.operation.imageFileUrl,
+                        this.serviceUrl
+                      ).toString()
+                    : "",
+                  keywordSet: new Set(testStep.operation.keywordTexts),
+                },
+              })
+            : testStep.operation,
+          intention: testStep.intention,
+          bugs:
+            testStep.bugs?.map((bug: any) => {
+              return Note.createFromOtherNote({
+                other: bug,
+                overrideParams: {
+                  imageFilePath: bug.imageFileUrl
+                    ? new URL(bug.imageFileUrl, this.serviceUrl).toString()
+                    : "",
+                },
+              });
+            }) ?? null,
+          notices:
+            testStep.notices?.map((notice: any) => {
+              return Note.createFromOtherNote({
+                other: notice,
+                overrideParams: {
+                  imageFilePath: notice.imageFileUrl
+                    ? new URL(notice.imageFileUrl, this.serviceUrl).toString()
+                    : "",
+                },
+              });
+            }) ?? null,
+        };
+      }),
+      coverageSources: testResult.coverageSources,
+      inputElementInfos: testResult.inputElementInfos,
+      initialUrl: testResult.initialUrl,
+    };
+
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -1451,41 +1353,19 @@ export default class RepositoryServiceDispatcher
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<Reply<{ projectId: string }>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/imports/projects`),
-        {
-          source,
-          includeTestResults: selectOption.includeTestResults,
-          includeProject: selectOption.includeProject,
-        }
-      );
-
-      if (response.code) {
-        return {
-          succeeded: false,
-          error: {
-            code: response.code,
-            message: response.code,
-          },
-        };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/imports/projects`),
+      {
+        source,
+        includeTestResults: selectOption.includeTestResults,
+        includeProject: selectOption.includeProject,
       }
+    );
 
-      return {
-        succeeded: true,
-        data: response,
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { projectId: string },
+    });
   }
 
   /**
@@ -1498,41 +1378,20 @@ export default class RepositoryServiceDispatcher
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<Reply<{ testResultId: string }>> {
-    try {
-      const body = {
-        source,
-        dest,
-      };
+    const body = {
+      source,
+      dest,
+    };
 
-      const response = await this.restClient.httpPost(
-        this.buildAPIURL(`/imports/test-results`),
-        body
-      );
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/imports/test-results`),
+      body
+    );
 
-      if (!response) {
-        return {
-          succeeded: false,
-          error: {
-            code: response.code,
-            message: response.code,
-          },
-        };
-      }
-
-      return {
-        succeeded: true,
-        data: response,
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { testResultId: string },
+    });
   }
 
   /**
@@ -1545,25 +1404,15 @@ export default class RepositoryServiceDispatcher
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<Reply<{ url: string }>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/projects/${projectId}/export`),
-        selectOption
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/projects/${projectId}/export`),
+      selectOption
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { url: string },
+    });
   }
 
   /**
@@ -1576,25 +1425,15 @@ export default class RepositoryServiceDispatcher
     testResultId: string,
     shouldSaveTemporary: boolean
   ): Promise<Reply<{ url: string }>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/export`),
-        { temp: shouldSaveTemporary }
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/export`),
+      { temp: shouldSaveTemporary }
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { url: string },
+    });
   }
 
   /**
@@ -1604,24 +1443,14 @@ export default class RepositoryServiceDispatcher
   public async getTestResultList(): Promise<
     Reply<Array<{ name: string; id: string }>>
   > {
-    let response;
-    try {
-      response = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results`)
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "error",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Array<{ name: string; id: string }>,
+    });
   }
 
   /**
@@ -1640,25 +1469,21 @@ export default class RepositoryServiceDispatcher
       testSteps: any;
     }>
   > {
-    let response;
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results/${testResultId}`)
+    );
 
-    try {
-      response = await this.restClient.httpGet(
-        this.buildAPIURL(`/test-results/${testResultId}`)
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "error",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as {
+        id: string;
+        name: string;
+        startTimeStamp: number;
+        endTimeStamp: number;
+        initialUrl: string;
+        testSteps: any;
+      },
+    });
   }
 
   /**
@@ -1673,42 +1498,40 @@ export default class RepositoryServiceDispatcher
       stories: ManagedStory[];
     }>
   > {
-    let response;
-    try {
-      const projects: Array<{
-        id: string;
-        name: string;
-      }> = await this.restClient.httpGet(this.buildAPIURL(`/projects`));
+    const projects = (
+      await this.restClient.httpGet(this.buildAPIURL(`/projects`))
+    ).data as Array<{
+      id: string;
+      name: string;
+    }>;
 
-      const targetProjectId =
-        projects.length === 0
-          ? (
-              await this.restClient.httpPost(this.buildAPIURL(`/projects`), {
-                name: "",
-              })
-            ).id
-          : projects[projects.length - 1].id;
+    const targetProjectId =
+      projects.length === 0
+        ? ((
+            await this.restClient.httpPost(this.buildAPIURL(`/projects`), {
+              name: "",
+            })
+          ).data as { id: string; name: string }).id
+        : projects[projects.length - 1].id;
 
-      response = await this.restClient.httpGet(
-        this.buildAPIURL(`/projects/${targetProjectId}`)
-      );
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects/${targetProjectId}`)
+    );
 
-      return {
-        succeeded: true,
-        data: {
-          ...response,
-          projectId: targetProjectId,
-        },
-      };
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "error",
-        },
-      };
-    }
+    const data = {
+      ...(response.data as any),
+      projectId: targetProjectId,
+    };
+
+    return new ReplyImpl({
+      status: response.status,
+      data: data as {
+        projectId: string;
+        testMatrices: TestMatrix[];
+        progressDatas: ProgressData[];
+        stories: ManagedStory[];
+      },
+    });
   }
 
   /**
@@ -1718,25 +1541,15 @@ export default class RepositoryServiceDispatcher
    * @returns Updated project information.
    */
   public async putProject(projectId: string, body: any): Promise<Reply<any>> {
-    let response;
-    try {
-      response = await this.restClient.httpPut(
-        this.buildAPIURL(`/projects/${projectId}`),
-        body
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "error",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/projects/${projectId}`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as any,
+    });
   }
 
   public async updateSession(
@@ -1744,25 +1557,15 @@ export default class RepositoryServiceDispatcher
     sessionId: string,
     body: Partial<ManagedSession>
   ): Promise<Reply<ManagedSession>> {
-    let response;
-    try {
-      response = await this.restClient.httpPatch(
-        this.buildAPIURL(`/projects/${projectId}/sessions/${sessionId}`),
-        body
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "error",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPatch(
+      this.buildAPIURL(`/projects/${projectId}/sessions/${sessionId}`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as ManagedSession,
+    });
   }
 
   /**
@@ -1771,25 +1574,15 @@ export default class RepositoryServiceDispatcher
    * @returns URL of the snapshot.
    */
   public async postSnapshots(projectId: string): Promise<Reply<any>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/projects/${projectId}/snapshots`),
-        null
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/projects/${projectId}/snapshots`),
+      null
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as any,
+    });
   }
 
   /**
@@ -1803,25 +1596,15 @@ export default class RepositoryServiceDispatcher
     projectId: string,
     body: TestScript
   ): Promise<Reply<{ url: string }>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/projects/${projectId}/test-scripts`),
-        body
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/projects/${projectId}/test-scripts`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { url: string },
+    });
   }
 
   /**
@@ -1835,25 +1618,15 @@ export default class RepositoryServiceDispatcher
     testResultId: string,
     body: TestScript
   ): Promise<Reply<{ url: string }>> {
-    let response;
-    try {
-      response = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/test-scripts`),
-        body
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-      data: response,
-    };
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/test-results/${testResultId}/test-scripts`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { url: string },
+    });
   }
 
   public async changeTestResult(
@@ -1862,25 +1635,15 @@ export default class RepositoryServiceDispatcher
     startTime?: number,
     initialUrl?: string
   ): Promise<Reply<string>> {
-    try {
-      const data = await this.restClient.httpPatch(
-        this.buildAPIURL(`/test-results/${testResultId}`),
-        { name, startTime, initialUrl }
-      );
+    const response = await this.restClient.httpPatch(
+      this.buildAPIURL(`/test-results/${testResultId}`),
+      { name, startTime, initialUrl }
+    );
 
-      return {
-        succeeded: true,
-        data: data.name,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "repository_service_not_found",
-          message: "Repository service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: (response.data as TestResult).name,
+    });
   }
 
   /**
@@ -1893,25 +1656,15 @@ export default class RepositoryServiceDispatcher
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<Reply<{ id: string }>> {
-    try {
-      const response = await this.restClient.httpPost(
-        this.buildAPIURL(`/upload-request/test-result`),
-        { source, dest }
-      );
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/upload-request/test-result`),
+      { source, dest }
+    );
 
-      return {
-        succeeded: true,
-        data: response,
-      };
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { id: string },
+    });
   }
 
   /**
@@ -1919,22 +1672,14 @@ export default class RepositoryServiceDispatcher
    * @param testResultId  Test result id.
    */
   public async deleteTestResult(testResultId: string): Promise<Reply<void>> {
-    try {
-      await this.restClient.httpDelete(
-        this.buildAPIURL(`/test-results/${testResultId}`)
-      );
-    } catch (e) {
-      return {
-        succeeded: false,
-        error: {
-          code: "code",
-          message: "message",
-        },
-      };
-    }
-    return {
-      succeeded: true,
-    };
+    const response = await this.restClient.httpDelete(
+      this.buildAPIURL(`/test-results/${testResultId}`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as void,
+    });
   }
 
   /**

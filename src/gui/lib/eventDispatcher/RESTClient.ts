@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+export interface RESTClientResponse {
+  status: number;
+  data: unknown;
+}
+
 /**
  * A client for communication using the REST API.
  */
@@ -22,17 +27,10 @@ export default class RESTClient {
    * Make a GET request.
    * @param url
    */
-  public async httpGet(url: string): Promise<any> {
-    console.log(`GET ${url}`);
-    const res = await fetch(url, {
+  public async httpGet(url: string): Promise<RESTClientResponse> {
+    return this.httpRequest(url, {
       method: "GET",
     });
-
-    if (res.status === 204) {
-      return;
-    }
-
-    return JSON.parse(await res.text());
   }
 
   /**
@@ -40,9 +38,8 @@ export default class RESTClient {
    * @param url
    * @param body
    */
-  public async httpPost<T>(url: string, body?: T): Promise<any> {
-    console.log(`POST ${url}`);
-    const res = await fetch(url, {
+  public async httpPost<T>(url: string, body?: T): Promise<RESTClientResponse> {
+    return this.httpRequest(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
@@ -50,12 +47,6 @@ export default class RESTClient {
       cache: "no-cache",
       body: body ? JSON.stringify(body) : undefined,
     });
-
-    if (res.status === 204) {
-      return;
-    }
-
-    return JSON.parse(await res.text());
   }
 
   /**
@@ -63,9 +54,8 @@ export default class RESTClient {
    * @param url
    * @param body
    */
-  public async httpPut<T>(url: string, body: T): Promise<any> {
-    console.log(`PUT ${url}`);
-    const res = await fetch(url, {
+  public async httpPut<T>(url: string, body: T): Promise<RESTClientResponse> {
+    return this.httpRequest(url, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
@@ -73,18 +63,6 @@ export default class RESTClient {
       cache: "no-cache",
       body: body ? JSON.stringify(body) : undefined,
     });
-
-    if (res.status >= 400) {
-      throw new Error(
-        `Request error. status: ${res.status}, message: ${res.body}`
-      );
-    }
-
-    if (res.status === 204) {
-      return;
-    }
-
-    return JSON.parse(await res.text());
   }
 
   /**
@@ -92,8 +70,8 @@ export default class RESTClient {
    * @param url
    * @param body
    */
-  public async httpPatch<T>(url: string, body: T): Promise<any> {
-    const res = await fetch(url, {
+  public async httpPatch<T>(url: string, body: T): Promise<RESTClientResponse> {
+    return this.httpRequest(url, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
@@ -101,27 +79,24 @@ export default class RESTClient {
       cache: "no-cache",
       body: body ? JSON.stringify(body) : undefined,
     });
-
-    if (res.status === 204) {
-      return;
-    }
-
-    return JSON.parse(await res.text());
   }
 
   /**
    * Make a DELETE request.
    * @param url
    */
-  public async httpDelete(url: string): Promise<any> {
-    const res = await fetch(url, {
+  public async httpDelete(url: string): Promise<RESTClientResponse> {
+    return this.httpRequest(url, {
       method: "DELETE",
     });
+  }
 
-    if (res.status === 204) {
-      return;
-    }
-
-    return JSON.parse(await res.text());
+  private async httpRequest(url: string, init?: RequestInit) {
+    console.log(`${init?.method} ${url}`);
+    const res = await fetch(url, init);
+    return {
+      status: res.status,
+      data: res.status === 204 ? undefined : JSON.parse(await res.text()),
+    };
   }
 }

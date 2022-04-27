@@ -271,9 +271,9 @@ const actions: ActionTree<RootState, RootState> = {
   async connectRemoteUrl(context, payload: { targetUrl: string }) {
     const serverUrl = payload.targetUrl;
 
-    const serverName = await new RESTClient().httpGet(
-      `${serverUrl}/api/v1/server-name`
-    );
+    const serverName = (
+      await new RESTClient().httpGet(`${serverUrl}/api/v1/server-name`)
+    ).data as string;
 
     if (serverName === "latteart-repository") {
       const isRemote =

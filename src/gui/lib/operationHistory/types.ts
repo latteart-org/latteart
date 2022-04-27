@@ -16,6 +16,7 @@
 
 import { Operation } from "./Operation";
 import { Note } from "./Note";
+import { ProgressData, Story } from "../testManagement/types";
 
 /**
  * Operation history and Notes information.
@@ -132,4 +133,110 @@ export interface ScreenDefinitionConditionGroup {
     matchType: "contains" | "equals" | "regex";
     word: string;
   }>;
+}
+
+export interface TestStepOperation {
+  input: string;
+  type: string;
+  elementInfo: ElementInfo | null;
+  title: string;
+  url: string;
+  imageFileUrl: string;
+  timestamp: string;
+  inputElements: ElementInfo[];
+  windowHandle: string;
+  keywordTexts?: string[];
+}
+
+export interface TestResult {
+  id: string;
+  name: string;
+  startTimeStamp: number;
+  endTimeStamp: number;
+  initialUrl: string;
+  testSteps: {
+    id: string;
+    operation: {
+      input: string;
+      type: string;
+      elementInfo: {
+        tagname: string;
+        text: string;
+        xpath: string;
+        value: string;
+        checked: boolean;
+        attributes: {
+          [key: string]: string;
+        };
+      };
+      title: string;
+      url: string;
+      imageFileUrl: string;
+      timestamp: string;
+      windowHandle: string;
+      inputElements: {
+        tagname: string;
+        text: string;
+        xpath: string;
+        value: string;
+        checked: boolean;
+        attributes: {
+          [key: string]: string;
+        };
+      }[];
+      keywordTexts?: string[];
+    };
+    intention: {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl: string;
+      tags: string[];
+    } | null;
+    bugs: {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl: string;
+      tags: string[];
+    }[];
+    notices: {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl: string;
+      tags: string[];
+    }[];
+  }[];
+  coverageSources: {
+    title: string;
+    url: string;
+    screenElements: {
+      tagname: string;
+      text: string;
+      xpath: string;
+      value: string;
+      checked: boolean;
+      attributes: {
+        [key: string]: string;
+      };
+    }[];
+  }[];
+  inputElementInfos: {
+    title: string;
+    url: string;
+    inputElements: {
+      tagname: string;
+      text: string;
+      xpath: string;
+      value: string;
+      checked: boolean;
+      attributes: {
+        [key: string]: string;
+      };
+    };
+  }[];
 }

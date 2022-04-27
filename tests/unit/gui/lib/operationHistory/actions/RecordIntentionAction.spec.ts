@@ -4,7 +4,7 @@ import {
   IntentionRecordable,
 } from "@/lib/operationHistory/actions/RecordIntentionAction";
 import { Note } from "@/lib/operationHistory/Note";
-import { Reply } from "@/lib/captureControl/Reply";
+import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 describe("RecordIntentionAction", () => {
   describe("#record", () => {
@@ -31,10 +31,7 @@ describe("RecordIntentionAction", () => {
 
       describe("記録に成功した場合は結果をオブザーバに渡す", () => {
         beforeEach(() => {
-          reply = {
-            succeeded: true,
-            data: new Note({}),
-          };
+          reply = new ReplyImpl({ status: 200, data: new Note({}) });
 
           dispatcher = {
             editIntention: jest.fn().mockResolvedValue(reply),
@@ -82,13 +79,13 @@ describe("RecordIntentionAction", () => {
 
       describe("記録に失敗した場合は結果をオブザーバに渡さない", () => {
         beforeEach(() => {
-          reply = {
-            succeeded: false,
+          reply = new ReplyImpl({
+            status: 500,
             error: {
               code: "errorCode",
               message: "errorMessage",
             },
-          };
+          });
 
           dispatcher = {
             editIntention: jest.fn().mockResolvedValue(reply),

@@ -16,6 +16,7 @@
 
 import { Note } from "../Note";
 import { Reply } from "@/lib/captureControl/Reply";
+import { TestStepOperation } from "../types";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
@@ -23,11 +24,32 @@ export interface MoveIntentionActionObserver {
 }
 
 export interface IntentionMovable {
-  moveIntention(
+  getTestSteps(
     testResultId: string,
-    fromTestStepId: string,
-    destTestStepId: string
-  ): Promise<Reply<Note>>;
+    testStepId: string
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  >;
+  patchTestSteps(
+    testResultId: string,
+    testStepId: string,
+    noteId: string | null
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  >;
+  getNotes(testResultId: string, noteId: string | null): Promise<Reply<Note>>;
 }
 
 export class MoveIntentionAction {
@@ -44,13 +66,18 @@ export class MoveIntentionAction {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
-    const movedNote = (
-      await this.dispatcher.moveIntention(
-        testResultId,
-        fromTestStepId,
-        destTestStepId
-      )
-    ).data;
+    const noteId =
+      (await this.dispatcher.getTestSteps(testResultId, fromTestStepId)).data
+        ?.intention ?? null;
+
+    // Break the link of the move source.
+    await this.dispatcher.patchTestSteps(testResultId, fromTestStepId, null);
+
+    // Link to the destination.
+    await this.dispatcher.patchTestSteps(testResultId, destTestStepId, noteId);
+
+    const movedNote = (await this.dispatcher.getNotes(testResultId, noteId))
+      .data;
 
     if (movedNote) {
       this.observer.moveIntention(
