@@ -255,7 +255,7 @@ export default class ConfigView extends Vue {
     if (platformName === PlatformName.Android) return [Browser.Chrome];
     if (platformName === PlatformName.iOS) return [Browser.Safari];
 
-    return [Browser.Chrome];
+    return [Browser.Chrome, Browser.Edge];
   }
 
   private async selectBrowser(browser: string) {
