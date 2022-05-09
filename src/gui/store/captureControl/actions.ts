@@ -130,7 +130,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         deviceSettings: reply,
       });
     } catch (error) {
-      context.rootGetters.message(`error.capture_control.${error.code}`);
+      throw new Error(
+        context.rootGetters.message(`error.capture_control.${error.message}`)
+      );
     }
   },
 
@@ -190,7 +192,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       context.commit("setCaptureConfig", { captureConfig });
     } catch (error) {
-      context.rootGetters.message(`error.capture_control.${error.code}`);
+      throw new Error(
+        context.rootGetters.message(`error.capture_control.${error.message}`)
+      );
     }
   },
 

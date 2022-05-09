@@ -121,7 +121,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
       context.commit("setConfig", { config: reply.config });
     } catch (error) {
-      context.rootGetters.message(`error.common.${error.code}`);
+      throw new Error(
+        context.rootGetters.message(`error.common.${error.message}`)
+      );
     }
   },
 
@@ -139,7 +141,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit("setSettings", { settings: reply }, { root: true });
       context.dispatch("setSettings", { settings: reply });
     } catch (error) {
-      context.rootGetters.message(`error.common.${error.code}`);
+      throw new Error(
+        context.rootGetters.message(`error.common.${error.message}`)
+      );
     }
   },
 
