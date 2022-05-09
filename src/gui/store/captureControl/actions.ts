@@ -30,6 +30,8 @@ import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWi
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/ReadDeviceSettingAction";
+import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/SaveDeviceSettingAction";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -117,21 +119,18 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   async readDeviceSettings(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getDeviceSettings();
-
-    if (reply === null) {
-      return;
-    }
-
-    if (reply.succeeded) {
+    try {
+      const reply = await new ReadDeviceSettingAction(
+        context.rootState.repositoryServiceDispatcher
+      ).readDeviceSettings();
+      if (reply === null) {
+        return;
+      }
       await context.dispatch("setDeviceSettings", {
-        deviceSettings: reply.data,
+        deviceSettings: reply,
       });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
-      );
-      throw new Error(errorMessage);
+    } catch (error) {
+      context.rootGetters.message(`error.capture_control.${error.code}`);
     }
   },
 
@@ -167,34 +166,31 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       isRemote: false,
     });
 
-    const reply = await localServiceDispatcher.saveDeviceSettings(
-      deviceSettings
-    );
+    try {
+      const reply = await new SaveDeviceSettingAction(
+        localServiceDispatcher
+      ).saveDeviceSettings(deviceSettings);
 
-    if (reply === null) {
-      return;
-    }
+      if (reply === null) {
+        return;
+      }
 
-    if (reply.data) {
       const captureConfig: CaptureConfig = {
-        platformName: reply.data.config.platformName
-          ? reply.data.config.platformName
+        platformName: reply.config.platformName
+          ? reply.config.platformName
           : context.state.config.platformName,
-        browser: reply.data.config.browser
-          ? reply.data.config.browser
+        browser: reply.config.browser
+          ? reply.config.browser
           : context.state.config.browser,
-        device: reply.data.config.device,
-        platformVersion: reply.data.config.platformVersion,
-        waitTimeForStartupReload: reply.data.config.waitTimeForStartupReload,
-        executablePaths: reply.data.config.executablePaths,
+        device: reply.config.device,
+        platformVersion: reply.config.platformVersion,
+        waitTimeForStartupReload: reply.config.waitTimeForStartupReload,
+        executablePaths: reply.config.executablePaths,
       };
 
       context.commit("setCaptureConfig", { captureConfig });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
-      );
-      throw new Error(errorMessage);
+    } catch (error) {
+      context.rootGetters.message(`error.capture_control.${error.code}`);
     }
   },
 

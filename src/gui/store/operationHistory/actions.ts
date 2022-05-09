@@ -51,6 +51,8 @@ import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryService
 import { UploadTestResultAction } from "@/lib/operationHistory/actions/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/DeleteTestResultAction";
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/DeleteIntentionAction";
+import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
+import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -110,20 +112,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       return;
     }
 
-    const reply = await context.rootState.repositoryServiceDispatcher.saveSettings(
-      settings
-    );
-    if (reply === null) {
-      return;
-    }
-
-    if (reply.data) {
-      context.commit("setConfig", { config: reply.data.config });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
-      );
-      throw new Error(errorMessage);
+    try {
+      const reply = await new SaveSettingAction(
+        context.rootState.repositoryServiceDispatcher
+      ).saveSettings(settings);
+      if (reply === null) {
+        return;
+      }
+      context.commit("setConfig", { config: reply.config });
+    } catch (error) {
+      context.rootGetters.message(`error.common.${error.code}`);
     }
   },
 
@@ -134,15 +132,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.settings Settings.
    */
   async readSettings(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
-    if (reply.succeeded) {
-      context.commit("setSettings", { settings: reply.data }, { root: true });
-      context.dispatch("setSettings", { settings: reply.data });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
-      );
-      throw new Error(errorMessage);
+    try {
+      const reply = await new ReadSettingAction(
+        context.rootState.repositoryServiceDispatcher
+      ).readSettings();
+      context.commit("setSettings", { settings: reply }, { root: true });
+      context.dispatch("setSettings", { settings: reply });
+    } catch (error) {
+      context.rootGetters.message(`error.common.${error.code}`);
     }
   },
 

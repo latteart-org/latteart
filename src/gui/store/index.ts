@@ -26,6 +26,8 @@ import { testManagement } from "./testManagement";
 import ClientSideCaptureServiceDispatcher from "../lib/eventDispatcher/ClientSideCaptureServiceDispatcher";
 import RepositoryServiceDispatcher from "../lib/eventDispatcher/RepositoryServiceDispatcher";
 import RESTClient from "@/lib/eventDispatcher/RESTClient";
+import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
+import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
 
 Vue.use(Vuex);
 
@@ -208,15 +210,14 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.settings Settings.
    */
   async loadLocaleFromSettings(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
-    if (!reply.succeeded) {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
-      );
-      throw new Error(errorMessage);
+    try {
+      const reply = await new ReadSettingAction(
+        context.rootState.repositoryServiceDispatcher
+      ).readSettings();
+      context.commit("setLocale", { locale: reply.locale });
+    } catch (error) {
+      context.rootGetters.message(`error.common.${error.code}`);
     }
-
-    context.commit("setLocale", { locale: reply.data!.locale });
   },
 
   /**
@@ -225,17 +226,20 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    const reply = await context.rootState.repositoryServiceDispatcher.changeLocale(
-      payload.locale
-    );
-    if (!reply.succeeded) {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
+    try {
+      const dispatcher = context.rootState.repositoryServiceDispatcher;
+      const settings = await new ReadSettingAction(dispatcher).readSettings();
+      settings.locale = payload.locale as any;
+      const reply = await new SaveSettingAction(dispatcher).saveSettings(
+        settings
       );
-      throw new Error(errorMessage);
+      if (reply === null) {
+        return;
+      }
+      context.commit("setLocale", payload);
+    } catch (error) {
+      context.rootGetters.message(`error.common.${error.code}`);
     }
-
-    context.commit("setLocale", payload);
   },
 
   /**

@@ -49,6 +49,8 @@ import { TestStepRepository } from "./repositoryService/TestStepRepository";
 import { NoteRepository } from "./repositoryService/NoteRepository";
 import { TestResultRepository } from "./repositoryService/TestResultRepository";
 import { TestScriptRepository } from "./repositoryService/TestScriptRepository";
+import { SettingGettable } from "../operationHistory/actions/ReadSettingAction";
+import { SettingRepository } from "./repositoryService/SettingRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -66,7 +68,8 @@ export default class RepositoryServiceDispatcher
     TestResultImportable,
     TestResultExportable,
     TestResultUploadable,
-    TestResultDeletable {
+    TestResultDeletable,
+    SettingGettable {
   constructor(
     private config: {
       url: string;
@@ -87,6 +90,10 @@ export default class RepositoryServiceDispatcher
       buildAPIURL
     );
     this._testScriptRepository = new TestScriptRepository(
+      this.restClient,
+      buildAPIURL
+    );
+    this._settingRepository = new SettingRepository(
       this.restClient,
       buildAPIURL
     );
@@ -120,6 +127,7 @@ export default class RepositoryServiceDispatcher
   private _noteRepository: NoteRepository;
   private _testResultRepository: TestResultRepository;
   private _testScriptRepository: TestScriptRepository;
+  private _settingRepository: SettingRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -136,92 +144,9 @@ export default class RepositoryServiceDispatcher
   public get testScriptRepository(): TestScriptRepository {
     return this._testScriptRepository;
   }
-  /**
-   * Get setting information.
-   * @returns Setting information.
-   */
-  public async getSettings(): Promise<Reply<Settings>> {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/1/configs`)
-    );
 
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as Settings,
-    });
-  }
-
-  /**
-   * Save the setting information.
-   * @param settings  Setting information.
-   * @returns Saved setting information.
-   */
-  public async saveSettings(settings: Settings): Promise<Reply<Settings>> {
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/1/configs`),
-      settings
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as Settings,
-    });
-  }
-
-  /**
-   * Change locale.
-   * @param locale  Locale value after change.
-   */
-  public async changeLocale(locale: string): Promise<Reply<void>> {
-    const settings = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/1/configs`)
-    );
-
-    (settings.data as Settings).locale = locale as any;
-
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/1/configs`),
-      settings
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as void,
-    });
-  }
-
-  /**
-   * Get device settings information.
-   * @returns Device settings information
-   */
-  public async getDeviceSettings(): Promise<Reply<DeviceSettings>> {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/1/device-configs`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as DeviceSettings,
-    });
-  }
-
-  /**
-   * Save device settings information.
-   * @param deviceSettings  Device settings information.
-   * @returns  Saved device settings information.
-   */
-  public async saveDeviceSettings(
-    deviceSettings: DeviceSettings
-  ): Promise<Reply<DeviceSettings>> {
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/1/device-configs`),
-      deviceSettings
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as DeviceSettings,
-    });
+  public get settingRepository(): SettingRepository {
+    return this._settingRepository;
   }
 
   /**
