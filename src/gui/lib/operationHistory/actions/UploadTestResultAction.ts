@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 
 export interface TestResultUploadable {
-  uploadTestResult(
-    source: { testResultId: string },
-    dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<Reply<{ id: string }>>;
+  readonly testResultRepository: TestResultRepository;
 }
 
 export class UploadTestResultAction {
@@ -30,7 +27,10 @@ export class UploadTestResultAction {
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<string> {
-    const reply = await this.dispatcher.uploadTestResult(source, dest);
+    const reply = await this.dispatcher.testResultRepository.postTestResultForUpload(
+      source,
+      dest
+    );
 
     if (!reply.data) {
       throw new Error(`upload-request-error`);

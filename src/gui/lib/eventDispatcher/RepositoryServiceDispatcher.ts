@@ -36,7 +36,6 @@ import { TestResultResumable } from "../operationHistory/actions/ResumeAction";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
-import { TestScript } from "../operationHistory/scriptGenerator/TestScript";
 import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
 import { ProjectFetchable } from "../testManagement/actions/ReadProjectDataAction";
 import { Importable } from "../testManagement/actions/ImportAction";
@@ -1342,27 +1341,6 @@ export default class RepositoryServiceDispatcher
     return new ReplyImpl({
       status: response.status,
       data: (response.data as TestResult).name,
-    });
-  }
-
-  /**
-   * Upload test result.
-   * @param source.testResultId Source test result ID.
-   * @param dest.repositoryUrl Destination repository url.
-   * @param dest.testResultId Destination test result ID.
-   */
-  public async uploadTestResult(
-    source: { testResultId: string },
-    dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<Reply<{ id: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/upload-request/test-result`),
-      { source, dest }
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as { id: string },
     });
   }
 

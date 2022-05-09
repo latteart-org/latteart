@@ -1,5 +1,6 @@
 import RESTClient from "../RESTClient";
 import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
+import { TestResult } from "@/lib/operationHistory/types";
 
 export class TestResultRepository {
   constructor(
@@ -66,6 +67,27 @@ export class TestResultRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as { testResultId: string },
+    });
+  }
+
+  /**
+   * Upload test result.
+   * @param source.testResultId Source test result ID.
+   * @param dest.repositoryUrl Destination repository url.
+   * @param dest.testResultId Destination test result ID.
+   */
+  public async postTestResultForUpload(
+    source: { testResultId: string },
+    dest: { repositoryUrl: string; testResultId?: string }
+  ): Promise<Reply<{ id: string }>> {
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/upload-request/test-result`),
+      { source, dest }
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { id: string },
     });
   }
 }
