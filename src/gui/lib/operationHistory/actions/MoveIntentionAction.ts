@@ -15,8 +15,8 @@
  */
 
 import { Note } from "../Note";
-import { Reply } from "@/lib/captureControl/Reply";
-import { TestStepOperation } from "../types";
+import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
+import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
@@ -24,32 +24,9 @@ export interface MoveIntentionActionObserver {
 }
 
 export interface IntentionMovable {
-  getTestSteps(
-    testResultId: string,
-    testStepId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  >;
-  patchTestSteps(
-    testResultId: string,
-    testStepId: string,
-    noteId: string | null
-  ): Promise<
-    Reply<{
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  >;
-  getNotes(testResultId: string, noteId: string | null): Promise<Reply<Note>>;
+  readonly testStepRepository: TestStepRepository;
+  readonly noteRepository: NoteRepository;
+  readonly serviceUrl: string;
 }
 
 export class MoveIntentionAction {
@@ -66,18 +43,50 @@ export class MoveIntentionAction {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
-    const noteId =
-      (await this.dispatcher.getTestSteps(testResultId, fromTestStepId)).data
-        ?.intention ?? null;
+    const noteId = (
+      await this.dispatcher.testStepRepository.getTestSteps(
+        testResultId,
+        fromTestStepId
+      )
+    ).data!.intention;
 
     // Break the link of the move source.
-    await this.dispatcher.patchTestSteps(testResultId, fromTestStepId, null);
+    await this.dispatcher.testStepRepository.patchTestSteps(
+      testResultId,
+      fromTestStepId,
+      null
+    );
 
     // Link to the destination.
-    await this.dispatcher.patchTestSteps(testResultId, destTestStepId, noteId);
+    await this.dispatcher.testStepRepository.patchTestSteps(
+      testResultId,
+      destTestStepId,
+      noteId
+    );
 
-    const movedNote = (await this.dispatcher.getNotes(testResultId, noteId))
-      .data;
+    const response = await this.dispatcher.noteRepository.getNotes(
+      testResultId,
+      noteId
+    );
+
+    const note = response.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    const serviceUrl = this.dispatcher.serviceUrl;
+    const movedNote = new Note({
+      value: note.value,
+      details: note.details,
+      imageFilePath: note.imageFileUrl
+        ? new URL(note.imageFileUrl, serviceUrl).toString()
+        : "",
+      tags: note.tags,
+    });
 
     if (movedNote) {
       this.observer.moveIntention(

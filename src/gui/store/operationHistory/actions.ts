@@ -50,6 +50,7 @@ import { ExportAction } from "@/lib/operationHistory/actions/ExportAction";
 import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
 import { UploadTestResultAction } from "@/lib/operationHistory/actions/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/DeleteTestResultAction";
+import { DeleteIntentionAction } from "@/lib/operationHistory/actions/DeleteIntentionAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -209,10 +210,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async deleteIntention(context, payload: { sequence: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    await context.rootState.repositoryServiceDispatcher.deleteIntention(
-      context.state.testResultInfo.id,
-      testStepId
-    );
+    await new DeleteIntentionAction(
+      context.rootState.repositoryServiceDispatcher
+    ).deleteIntention(context.state.testResultInfo.id, testStepId);
 
     context.commit("deleteIntention", { sequence: payload.sequence });
     context.commit("setCanUpdateModels", { canUpdateModels: true });

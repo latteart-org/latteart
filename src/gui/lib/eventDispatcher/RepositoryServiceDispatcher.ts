@@ -46,6 +46,8 @@ import { TestResultExportable } from "../operationHistory/actions/ExportAction";
 import { TestMatrix, ProgressData } from "../testManagement/types";
 import { TestResultUploadable } from "../operationHistory/actions/UploadTestResultAction";
 import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
+import { TestStepRepository } from "./repositoryService/TestStepRepository";
+import { NoteRepository } from "./repositoryService/NoteRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -69,7 +71,17 @@ export default class RepositoryServiceDispatcher
       url: string;
       isRemote: boolean;
     }
-  ) {}
+  ) {
+    const buildAPIURL = (url: string) => {
+      return new URL(`api/v1${url}`, this.serviceUrl).toString();
+    };
+    this.restClient = new RESTClient();
+    this._testStepRepository = new TestStepRepository(
+      this.restClient,
+      buildAPIURL
+    );
+    this._noteRepository = new NoteRepository(this.restClient, buildAPIURL);
+  }
 
   /**
    * Service URL.
@@ -94,8 +106,17 @@ export default class RepositoryServiceDispatcher
   }
 
   private _proxyUrl = "";
-  private restClient: RESTClient = new RESTClient();
+  private restClient: RESTClient;
+  private _testStepRepository: TestStepRepository;
+  private _noteRepository: NoteRepository;
 
+  public get testStepRepository(): TestStepRepository {
+    return this._testStepRepository;
+  }
+
+  public get noteRepository(): NoteRepository {
+    return this._noteRepository;
+  }
   /**
    * Get setting information.
    * @returns Setting information.
@@ -1008,257 +1029,6 @@ export default class RepositoryServiceDispatcher
         index,
       },
     });
-  }
-
-  /**
-   * Add intention information to the test step with the specified sequence number.
-   * @param testResultId  Test result ID
-   * @param testStepId  Test step id of the target test step.
-   * @param intention  Intention information to add
-   */
-  public async addIntention(
-    testResultId: string,
-    testStepId: string,
-    intention: {
-      summary: string;
-      details: string;
-    }
-  ): Promise<Reply<Note>> {
-    // New note registration
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/test-results/${testResultId}/notes`),
-      {
-        type: "intention",
-        value: intention.summary,
-        details: intention.details,
-      }
-    );
-    const savedNote = response.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
-
-    // Linking with test steps.
-    await (async () => {
-      return this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        ),
-        {
-          intention: savedNote.id,
-        }
-      );
-    })();
-
-    const data = new Note({
-      value: savedNote.value,
-      details: savedNote.details,
-      imageFilePath: savedNote.imageFileUrl
-        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-        : "",
-      tags: savedNote.tags,
-    });
-
-    return new ReplyImpl({ status: response.status, data: data });
-  }
-
-  /**
-   * Edit the intention information of the specified sequence number.
-   * @param testResultId  Test result ID.
-   * @param testStepId  Test step id of the target test step.
-   * @param intention  Intention information to edit.
-   * @returns Edited intention information.
-   */
-  public async editIntention(
-    testResultId: string,
-    testStepId: string,
-    intention: {
-      summary: string;
-      details: string;
-    }
-  ): Promise<Reply<Note>> {
-    // Get noteId.
-    const { intention: noteId } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-
-    // Note update.
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-      {
-        type: "intention",
-        value: intention.summary,
-        details: intention.details,
-      }
-    );
-
-    const savedNote = response.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
-
-    const data = new Note({
-      value: savedNote.value,
-      details: savedNote.details,
-      imageFilePath: savedNote.imageFileUrl
-        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-        : "",
-      tags: savedNote.tags,
-    });
-
-    return new ReplyImpl({ status: response.status, data: data });
-  }
-
-  public async getTestSteps(
-    testResultId: string,
-    testStepId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}/test-steps/${testStepId}`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        operation: TestStepOperation;
-        intention: string | null;
-        bugs: string[];
-        notices: string[];
-      },
-    });
-  }
-
-  public async patchTestSteps(
-    testResultId: string,
-    testStepId: string,
-    noteId: string | null
-  ): Promise<
-    Reply<{
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  > {
-    const response = await this.restClient.httpPatch(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/test-steps/${testStepId}`
-      ),
-      {
-        intention: noteId,
-      }
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        operation: TestStepOperation;
-        intention: string | null;
-        bugs: string[];
-        notices: string[];
-      },
-    });
-  }
-
-  public async getNotes(
-    testResultId: string,
-    noteId: string | null
-  ): Promise<Reply<Note>> {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
-    );
-    const note = response.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
-
-    const data = new Note({
-      value: note.value,
-      details: note.details,
-      imageFilePath: note.imageFileUrl
-        ? new URL(note.imageFileUrl, this.serviceUrl).toString()
-        : "",
-      tags: note.tags,
-    });
-
-    return new ReplyImpl({ status: response.status, data: data });
-  }
-
-  /**
-   * Delete the intention information of the specified sequence number.
-   * @param testResultId  Test result ID.
-   * @param testStepId  Test step id of the target test step.
-   */
-  public async deleteIntention(
-    testResultId: string,
-    testStepId: string
-  ): Promise<Reply<string>> {
-    // Get noteId.
-    const { intention } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-
-    // Delete note.
-    const response = await this.restClient.httpDelete(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${intention}`)
-    );
-
-    // Break the link.
-    await (async () => {
-      return this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        ),
-        {
-          intention: null,
-        }
-      );
-    })();
-
-    return new ReplyImpl({ status: response.status, data: testStepId });
   }
 
   /**
