@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 
 export interface TestResultExportable {
-  exportTestResult(
-    testResultId: string,
-    shouldSaveTemporary: boolean
-  ): Promise<Reply<{ url: string }>>;
+  readonly testResultRepository: TestResultRepository;
 }
 
 export class ExportAction {
@@ -30,7 +27,7 @@ export class ExportAction {
     testResultId: string,
     shouldSaveTemporary = false
   ): Promise<string> {
-    const reply = await this.dispatcher.exportTestResult(
+    const reply = await this.dispatcher.testResultRepository.postTestResultForExport(
       testResultId,
       shouldSaveTemporary
     );
