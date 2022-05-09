@@ -48,6 +48,7 @@ import { TestResultUploadable } from "../operationHistory/actions/UploadTestResu
 import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
 import { TestStepRepository } from "./repositoryService/TestStepRepository";
 import { NoteRepository } from "./repositoryService/NoteRepository";
+import { TestResultRepository } from "./repositoryService/TestResultRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -81,6 +82,10 @@ export default class RepositoryServiceDispatcher
       buildAPIURL
     );
     this._noteRepository = new NoteRepository(this.restClient, buildAPIURL);
+    this._testResultRepository = new TestResultRepository(
+      this.restClient,
+      buildAPIURL
+    );
   }
 
   /**
@@ -109,6 +114,7 @@ export default class RepositoryServiceDispatcher
   private restClient: RESTClient;
   private _testStepRepository: TestStepRepository;
   private _noteRepository: NoteRepository;
+  private _testResultRepository: TestResultRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -116,6 +122,10 @@ export default class RepositoryServiceDispatcher
 
   public get noteRepository(): NoteRepository {
     return this._noteRepository;
+  }
+
+  public get testResultRepository(): TestResultRepository {
+    return this._testResultRepository;
   }
   /**
    * Get setting information.
@@ -1434,21 +1444,6 @@ export default class RepositoryServiceDispatcher
     return new ReplyImpl({
       status: response.status,
       data: response.data as { id: string },
-    });
-  }
-
-  /**
-   * Delete local test result.
-   * @param testResultId  Test result id.
-   */
-  public async deleteTestResult(testResultId: string): Promise<Reply<void>> {
-    const response = await this.restClient.httpDelete(
-      this.buildAPIURL(`/test-results/${testResultId}`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as void,
     });
   }
 

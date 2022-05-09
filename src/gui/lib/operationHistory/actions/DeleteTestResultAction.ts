@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 
 export interface TestResultDeletable {
-  deleteTestResult(testResultId: string): Promise<Reply<void>>;
+  readonly testResultRepository: TestResultRepository;
 }
 
 export class DeleteTestResultAction {
   constructor(private dispatcher: TestResultDeletable) {}
 
+  /**
+   * Delete local test result.
+   * @param testResultId  Test result id.
+   */
   public async deleteTestResult(testResultId: string): Promise<string> {
-    const reply = await this.dispatcher.deleteTestResult(testResultId);
+    const reply = await this.dispatcher.testResultRepository.deleteTestResult(
+      testResultId
+    );
 
     if (reply.error) {
       throw new Error(`testresult-delete-error`);
