@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-import { TestScript } from "../scriptGenerator/TestScript";
-import { Reply } from "@/lib/captureControl/Reply";
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
 import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
+import { TestScriptRepository } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
 
 export interface TestScriptExportable {
-  postTestscriptsWithProjectId(
-    projectId: string,
-    body: TestScript
-  ): Promise<Reply<{ url: string }>>;
-
-  postTestscriptsWithTestResultId(
-    testResultId: string,
-    body: TestScript
-  ): Promise<Reply<{ url: string }>>;
+  readonly testScriptRepository: TestScriptRepository;
 }
 
 export class GenerateTestScriptsAction {
@@ -59,7 +50,7 @@ export class GenerateTestScriptsAction {
     });
 
     if (params.projectId) {
-      const reply = await this.dispatcher.postTestscriptsWithProjectId(
+      const reply = await this.dispatcher.testScriptRepository.postTestscriptsWithProjectId(
         params.projectId,
         testScript
       );
@@ -77,7 +68,7 @@ export class GenerateTestScriptsAction {
     }
 
     if (params.testResultId) {
-      const reply = await this.dispatcher.postTestscriptsWithTestResultId(
+      const reply = await this.dispatcher.testScriptRepository.postTestscriptsWithTestResultId(
         params.testResultId,
         testScript
       );
