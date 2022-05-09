@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 
 export interface TestResultImportable {
-  importTestResult(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<Reply<{ testResultId: string }>>;
+  readonly testResultRepository: TestResultRepository;
 }
 
 export class ImportAction {
@@ -30,7 +27,10 @@ export class ImportAction {
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<{ testResultId: string }> {
-    const reply = await this.dispatcher.importTestResult(source, dest);
+    const reply = await this.dispatcher.testResultRepository.postTestResultForImport(
+      source,
+      dest
+    );
 
     if (!reply.data) {
       throw new Error(`import-data-error`);

@@ -42,4 +42,30 @@ export class TestResultRepository {
       data: response.data as { url: string },
     });
   }
+
+  /**
+   * Import test result.
+   * @param source.importFileUrl Source import file url.
+   * @param dest.testResultId Destination local test result id.
+   * @param dest.shouldSaveTemporary Whether to save temporary.
+   */
+  public async postTestResultForImport(
+    source: { testResultFileUrl: string },
+    dest?: { testResultId?: string }
+  ): Promise<Reply<{ testResultId: string }>> {
+    const body = {
+      source,
+      dest,
+    };
+
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/imports/test-results`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { testResultId: string },
+    });
+  }
 }
