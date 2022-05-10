@@ -210,13 +210,16 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.settings Settings.
    */
   async loadLocaleFromSettings(context) {
-    try {
-      const reply = await new ReadSettingAction(
-        context.rootState.repositoryServiceDispatcher
-      ).readSettings();
-      context.commit("setLocale", { locale: reply.locale });
-    } catch (error) {
-      context.rootGetters.message(`error.common.${error.code}`);
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryServiceDispatcher
+    ).readSettings();
+    if (result.data) {
+      context.commit("setLocale", { locale: result.data.locale });
+    }
+    if (result.error) {
+      throw new Error(
+        context.rootGetters.message(`error.common.${result.error.code}`)
+      );
     }
   },
 
@@ -226,20 +229,26 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    try {
-      const dispatcher = context.rootState.repositoryServiceDispatcher;
-      const settings = await new ReadSettingAction(dispatcher).readSettings();
-      settings.locale = payload.locale as any;
-      const reply = await new SaveSettingAction(dispatcher).saveSettings(
-        settings
-      );
-      if (reply === null) {
-        return;
-      }
-      context.commit("setLocale", payload);
-    } catch (error) {
-      context.rootGetters.message(`error.common.${error.code}`);
+    const dispatcher = context.rootState.repositoryServiceDispatcher;
+    const settings = await new ReadSettingAction(dispatcher).readSettings();
+    if (!settings.data?.locale) {
+      return;
     }
+    settings.data.locale = payload.locale as any;
+    const result = await new SaveSettingAction(dispatcher).saveSettings(
+      settings.data
+    );
+    if (result.data === null) {
+      return;
+    } else if (result.data) {
+      context.commit("setLocale", payload);
+    }
+    if (result.error) {
+      throw new Error(
+        context.rootGetters.message(`error.common.${result.error.code}`)
+      );
+    }
+    context.commit("setLocale", payload);
   },
 
   /**

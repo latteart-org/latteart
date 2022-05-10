@@ -15,6 +15,7 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultDeletable {
   readonly testResultRepository: TestResultRepository;
@@ -27,15 +28,18 @@ export class DeleteTestResultAction {
    * Delete local test result.
    * @param testResultId  Test result id.
    */
-  public async deleteTestResult(testResultId: string): Promise<string> {
+  public async deleteTestResult(
+    testResultId: string
+  ): Promise<ActionResult<string>> {
     const reply = await this.dispatcher.testResultRepository.deleteTestResult(
       testResultId
     );
+    const error = reply.error ? { code: "testresult-delete-error" } : undefined;
+    const result = {
+      data: testResultId,
+      error,
+    };
 
-    if (reply.error) {
-      throw new Error(`testresult-delete-error`);
-    }
-
-    return testResultId;
+    return result;
   }
 }

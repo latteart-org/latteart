@@ -116,17 +116,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       return;
     }
 
-    try {
-      const reply = await new SaveSettingAction(
-        context.rootState.repositoryServiceDispatcher
-      ).saveSettings(settings);
-      if (reply === null) {
-        return;
-      }
-      context.commit("setConfig", { config: reply.config });
-    } catch (error) {
+    const result = await new SaveSettingAction(
+      context.rootState.repositoryServiceDispatcher
+    ).saveSettings(settings);
+    if (result.data === null) {
+      return;
+    } else if (result.data) {
+      context.commit("setConfig", { config: result.data.config });
+    }
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.common.${error.message}`)
+        context.rootGetters.message(`error.common.${result.error.code}`)
       );
     }
   },
@@ -138,15 +138,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.settings Settings.
    */
   async readSettings(context) {
-    try {
-      const reply = await new ReadSettingAction(
-        context.rootState.repositoryServiceDispatcher
-      ).readSettings();
-      context.commit("setSettings", { settings: reply }, { root: true });
-      context.dispatch("setSettings", { settings: reply });
-    } catch (error) {
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryServiceDispatcher
+    ).readSettings();
+
+    if (result.data) {
+      context.commit("setSettings", { settings: result.data }, { root: true });
+      context.dispatch("setSettings", { settings: result.data });
+    }
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.common.${error.message}`)
+        context.rootGetters.message(`error.common.${result.error.code}`)
       );
     }
   },
@@ -715,19 +718,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async deleteLocalTestResult(context, payload: { testResultId: string }) {
-    try {
-      const localUrl = context.rootState.localRepositoryServiceUrl;
-      const localServiceDispatcher = new RepositoryServiceDispatcher({
-        url: localUrl,
-        isRemote: false,
-      });
+    const localUrl = context.rootState.localRepositoryServiceUrl;
+    const localServiceDispatcher = new RepositoryServiceDispatcher({
+      url: localUrl,
+      isRemote: false,
+    });
 
-      await new DeleteTestResultAction(localServiceDispatcher).deleteTestResult(
-        payload.testResultId
-      );
-    } catch (error) {
+    const result = await new DeleteTestResultAction(
+      localServiceDispatcher
+    ).deleteTestResult(payload.testResultId);
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.remote_access.${error.message}`)
+        context.rootGetters.message(`error.remote_access.${result.error.code}`)
       );
     }
   },

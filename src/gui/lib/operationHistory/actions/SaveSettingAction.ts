@@ -16,6 +16,7 @@
 
 import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
 import Settings from "@/lib/common/settings/Settings";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface SettingSaveable {
   readonly settingRepository: SettingRepository;
@@ -24,13 +25,11 @@ export interface SettingSaveable {
 export class SaveSettingAction {
   constructor(private dispatcher: SettingSaveable) {}
 
-  public async saveSettings(settings: Settings): Promise<Settings | null> {
+  public async saveSettings(
+    settings: Settings
+  ): Promise<ActionResult<Settings>> {
     const reply = await this.dispatcher.settingRepository.putSettings(settings);
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
-
-    return reply.data ?? null;
+    return reply;
   }
 }

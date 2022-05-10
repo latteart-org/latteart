@@ -18,7 +18,6 @@ import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/Te
 
 export interface TestResultCreatable {
   readonly testResultRepository: TestResultRepository;
-  readonly serviceUrl: string;
 }
 
 export class CreateTestResultAction {
