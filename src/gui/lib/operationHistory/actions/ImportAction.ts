@@ -15,6 +15,7 @@
  */
 
 import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultImportable {
   readonly importTestResultRepository: ImportTestResultRepository;
@@ -26,16 +27,18 @@ export class ImportAction {
   public async importWithTestResult(
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
-  ): Promise<{ testResultId: string }> {
+  ): Promise<ActionResult<{ testResultId: string }>> {
     const reply = await this.dispatcher.importTestResultRepository.postTestResult(
       source,
       dest
     );
 
-    if (!reply.data) {
-      throw new Error(`import-data-error`);
-    }
+    const error = reply.error ? { code: "import-data-error" } : undefined;
+    const result = {
+      data: reply.data,
+      error,
+    };
 
-    return reply.data;
+    return result;
   }
 }

@@ -38,7 +38,7 @@ export class ImportTestResultRepository {
    * @returns List of test results for import.
    */
   public async getTestResults(): Promise<
-    Reply<Array<{ id: string; name: string }>>
+    Reply<Array<{ url: string; name: string }>>
   > {
     const response = await this.restClient.httpGet(
       this.buildAPIURL(`/imports/test-results`)
@@ -47,7 +47,7 @@ export class ImportTestResultRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as Array<{
-        id: string;
+        url: string;
         name: string;
       }>,
     });

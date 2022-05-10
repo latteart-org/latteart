@@ -822,14 +822,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       source: { testResultFileUrl: string };
       dest?: { testResultId?: string };
     }
-  ): Promise<{ testResultId: string }> {
-    try {
-      return await new ImportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).importWithTestResult(payload.source, payload.dest);
-    } catch (error) {
+  ) {
+    const result = await new ImportAction(
+      context.rootState.repositoryServiceDispatcher
+    ).importWithTestResult(payload.source, payload.dest);
+    if (result.data) {
+      return result.data;
+    }
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
     }
   },
