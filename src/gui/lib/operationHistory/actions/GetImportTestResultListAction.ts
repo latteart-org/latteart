@@ -16,26 +16,27 @@
 
 import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
 
-export interface TestResultImportable {
+export interface ImportTestResultsGettable {
   readonly importTestResultRepository: ImportTestResultRepository;
+  readonly serviceUrl: string;
 }
 
-export class ImportAction {
-  constructor(private dispatcher: TestResultImportable) {}
+export class GetImportTestResultListAction {
+  constructor(private dispatcher: ImportTestResultsGettable) {}
 
-  public async importWithTestResult(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<{ testResultId: string }> {
-    const reply = await this.dispatcher.importTestResultRepository.postTestResult(
-      source,
-      dest
-    );
+  public async getImportTestResults(): Promise<
+    Array<{ url: string; name: string }> | undefined
+  > {
+    const reply = await this.dispatcher.importTestResultRepository.getTestResults();
+    const serviceUrl = this.dispatcher.serviceUrl;
 
-    if (!reply.data) {
-      throw new Error(`import-data-error`);
-    }
+    const data = reply.data!.map(({ id, name }) => {
+      return {
+        url: `${serviceUrl}/${id}`,
+        name,
+      };
+    });
 
-    return reply.data;
+    return data;
   }
 }

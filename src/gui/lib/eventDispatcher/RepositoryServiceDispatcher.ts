@@ -26,8 +26,6 @@ import {
   TestResult,
 } from "../operationHistory/types";
 import { Note } from "../operationHistory/Note";
-import Settings from "@/lib/common/settings/Settings";
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import {
   ManagedSession,
   ManagedStory,
@@ -51,6 +49,8 @@ import { TestResultRepository } from "./repositoryService/TestResultRepository";
 import { TestScriptRepository } from "./repositoryService/TestScriptRepository";
 import { SettingGettable } from "../operationHistory/actions/ReadSettingAction";
 import { SettingRepository } from "./repositoryService/SettingRepository";
+import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
+import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -86,6 +86,14 @@ export default class RepositoryServiceDispatcher
     );
     this._noteRepository = new NoteRepository(this.restClient, buildAPIURL);
     this._testResultRepository = new TestResultRepository(
+      this.restClient,
+      buildAPIURL
+    );
+    this._importTestResultRepository = new ImportTestResultRepository(
+      this.restClient,
+      buildAPIURL
+    );
+    this._importProjectRepository = new ImportProjectRepository(
       this.restClient,
       buildAPIURL
     );
@@ -126,6 +134,8 @@ export default class RepositoryServiceDispatcher
   private _testStepRepository: TestStepRepository;
   private _noteRepository: NoteRepository;
   private _testResultRepository: TestResultRepository;
+  private _importTestResultRepository: ImportTestResultRepository;
+  private _importProjectRepository: ImportProjectRepository;
   private _testScriptRepository: TestScriptRepository;
   private _settingRepository: SettingRepository;
 
@@ -141,109 +151,20 @@ export default class RepositoryServiceDispatcher
     return this._testResultRepository;
   }
 
+  public get importTestResultRepository(): ImportTestResultRepository {
+    return this._importTestResultRepository;
+  }
+
+  public get importProjectRepository(): ImportProjectRepository {
+    return this._importProjectRepository;
+  }
+
   public get testScriptRepository(): TestScriptRepository {
     return this._testScriptRepository;
   }
 
   public get settingRepository(): SettingRepository {
     return this._settingRepository;
-  }
-
-  /**
-   * Get a list of test results.
-   * @returns List of test results.
-   */
-  public async getTestResults(): Promise<
-    Reply<
-      Array<{
-        id: string;
-        name: string;
-      }>
-    >
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as Array<{
-        id: string;
-        name: string;
-      }>,
-    });
-  }
-
-  public async getImportTestResults(): Promise<
-    Reply<
-      Array<{
-        url: string;
-        name: string;
-      }>
-    >
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/imports/test-results`)
-    );
-
-    const data = (response.data as Array<{
-      url: string;
-      name: string;
-    }>).map(({ url, name }) => {
-      return {
-        url: `${this.serviceUrl}/${url}`,
-        name,
-      };
-    });
-
-    return new ReplyImpl({
-      status: response.status,
-      data: data,
-    });
-  }
-
-  public async getImportProjects(): Promise<
-    Reply<
-      Array<{
-        url: string;
-        name: string;
-      }>
-    >
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/imports/projects`)
-    );
-    const data = (response.data as Array<{
-      url: string;
-      name: string;
-    }>).map(({ url, name }) => {
-      return {
-        url: `${this.serviceUrl}/${url}`,
-        name,
-      };
-    });
-    return new ReplyImpl({
-      status: response.status,
-      data: data,
-    });
-  }
-
-  /**
-   * Create an empty test result.
-   * @param name  Test result name.
-   * @returns  Created test result information.
-   */
-  public async createEmptyTestResult(
-    initialUrl?: string,
-    name?: string
-  ): Promise<Reply<{ id: string; name: string }>> {
-    const url = this.buildAPIURL(`/test-results`);
-    const response = await this.restClient.httpPost(url, { initialUrl, name });
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as { id: string; name: string },
-    });
   }
 
   /**
@@ -1100,23 +1021,6 @@ export default class RepositoryServiceDispatcher
     return new ReplyImpl({
       status: response.status,
       data: response.data as { url: string },
-    });
-  }
-
-  /**
-   * Get a list of test results.
-   * @returns List of test results
-   */
-  public async getTestResultList(): Promise<
-    Reply<Array<{ name: string; id: string }>>
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as Array<{ name: string; id: string }>,
     });
   }
 

@@ -45,6 +45,7 @@ import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectD
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
+import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -101,11 +102,13 @@ const actions: ActionTree<TestManagementState, RootState> = {
       id: string;
     }[]
   > {
-    const reply = await context.rootState.repositoryServiceDispatcher.getTestResultList();
+    const reply = await new GetTestResultListAction(
+      context.rootState.repositoryServiceDispatcher
+    ).getTestResults();
 
     console.log(reply);
 
-    return reply.data ?? [];
+    return reply ?? [];
   },
 
   /**

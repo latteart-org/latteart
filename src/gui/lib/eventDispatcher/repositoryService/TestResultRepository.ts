@@ -1,6 +1,5 @@
 import RESTClient from "../RESTClient";
 import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
-import { TestResult } from "@/lib/operationHistory/types";
 
 export class TestResultRepository {
   constructor(
@@ -45,32 +44,6 @@ export class TestResultRepository {
   }
 
   /**
-   * Import test result.
-   * @param source.importFileUrl Source import file url.
-   * @param dest.testResultId Destination local test result id.
-   * @param dest.shouldSaveTemporary Whether to save temporary.
-   */
-  public async postTestResultForImport(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<Reply<{ testResultId: string }>> {
-    const body = {
-      source,
-      dest,
-    };
-
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/imports/test-results`),
-      body
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as { testResultId: string },
-    });
-  }
-
-  /**
    * Upload test result.
    * @param source.testResultId Source test result ID.
    * @param dest.repositoryUrl Destination repository url.
@@ -88,6 +61,44 @@ export class TestResultRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as { id: string },
+    });
+  }
+
+  /**
+   * Create an empty test result.
+   * @param name  Test result name.
+   * @returns  Created test result information.
+   */
+  public async postEmptyTestResult(
+    initialUrl?: string,
+    name?: string
+  ): Promise<Reply<{ id: string; name: string }>> {
+    const url = this.buildAPIURL(`/test-results`);
+    const response = await this.restClient.httpPost(url, { initialUrl, name });
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { id: string; name: string },
+    });
+  }
+
+  /**
+   * Get a list of test results.
+   * @returns List of test results.
+   */
+  public async getTestResults(): Promise<
+    Reply<Array<{ id: string; name: string }>>
+  > {
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/test-results`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Array<{
+        id: string;
+        name: string;
+      }>,
     });
   }
 }

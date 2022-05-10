@@ -53,6 +53,10 @@ import { DeleteTestResultAction } from "@/lib/operationHistory/actions/DeleteTes
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/DeleteIntentionAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
+import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
+import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/GetImportTestResultListAction";
+import { GetImportProjectListAction } from "@/lib/operationHistory/actions/GetImportProjectListAction";
+import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -1327,12 +1331,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
-    const reply = await context.rootState.repositoryServiceDispatcher.createEmptyTestResult(
-      initialUrl,
-      name
-    );
+    const reply = await new CreateTestResultAction(
+      context.rootState.repositoryServiceDispatcher
+    ).createTestResult(initialUrl, name);
 
-    const testResultInfo = reply.data!;
+    const testResultInfo = reply;
 
     context.commit("setTestResultInfo", {
       repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
@@ -1347,8 +1350,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @returns Test results.
    */
   async getTestResults(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getTestResults();
-    return reply.data!;
+    const reply = await new GetTestResultListAction(
+      context.rootState.repositoryServiceDispatcher
+    ).getTestResults();
+    return reply!;
   },
 
   async getImportTestResults(context) {
@@ -1356,8 +1361,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
-    const reply = await localRepositoryServiceDispatcher.getImportTestResults();
-    return reply.data!;
+    const reply = await new GetImportTestResultListAction(
+      localRepositoryServiceDispatcher
+    ).getImportTestResults();
+
+    return reply;
   },
 
   async getImportProjects(context) {
@@ -1365,8 +1373,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
-    const reply = await localRepositoryServiceDispatcher.getImportProjects();
-    return reply.data!;
+    const reply = await new GetImportProjectListAction(
+      localRepositoryServiceDispatcher
+    ).getImportProjects();
+
+    return reply;
   },
 
   async changeCurrentTestResult(
