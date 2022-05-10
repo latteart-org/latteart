@@ -18,6 +18,7 @@ import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
 import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 import { TestScriptRepository } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestScriptExportable {
   readonly testScriptRepository: TestScriptRepository;
@@ -33,14 +34,16 @@ export class GenerateTestScriptsAction {
     testResultId: string | undefined;
     projectId: string | undefined;
     sources: { initialUrl: string; history: Operation[] }[];
-  }): Promise<{
-    outputUrl: string;
-    invalidOperationTypeExists: boolean;
-  }> {
+  }): Promise<
+    ActionResult<{
+      outputUrl: string;
+      invalidOperationTypeExists: boolean;
+    }>
+  > {
     const testScript = this.scriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
-      throw new Error(`generate_test_suite_failed`);
+      return { error: { code: "generate_test_suite_failed" } };
     }
 
     const invalidTypeExists = params.sources.some((session) => {
@@ -55,16 +58,18 @@ export class GenerateTestScriptsAction {
         testScript
       );
 
-      if (!reply.data) {
-        throw reply.error;
-      }
-
-      const outputUrl: string = reply.data.url;
-
-      return {
+      const outputUrl = reply.data!.url;
+      const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
+      const error = reply.error ?? undefined;
+      const result = {
+        data,
+        error,
+      };
+
+      return result;
     }
 
     if (params.testResultId) {
@@ -72,19 +77,19 @@ export class GenerateTestScriptsAction {
         params.testResultId,
         testScript
       );
-
-      if (!reply.data) {
-        throw reply.error;
-      }
-
-      const outputUrl: string = reply.data.url;
-
-      return {
+      const outputUrl = reply.data!.url;
+      const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
-    }
+      const error = reply.error ?? undefined;
+      const result = {
+        data,
+        error,
+      };
 
-    throw new Error(`save_test_scripts_no_operation_error`);
+      return result;
+    }
+    return { error: { code: "save_test_scripts_no_operation_error" } };
   }
 }

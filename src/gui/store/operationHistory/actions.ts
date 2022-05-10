@@ -1259,41 +1259,36 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       sources: { initialUrl: string; history: Operation[] }[];
       option: { useDataDriven: boolean; maxGeneration: number };
     }
-  ): Promise<{
-    outputUrl: string;
-    invalidOperationTypeExists: boolean;
-  }> {
+  ) {
     const optimize = true;
-
-    try {
-      const imageUrlResolver = (url: string) => {
-        return url.replace(
-          `${context.rootState.repositoryServiceDispatcher.serviceUrl}/`,
-          ""
-        );
-      };
-
-      const testScriptGenerator = new TestScriptGeneratorImpl(
-        imageUrlResolver,
-        {
-          optimize,
-          testData: {
-            useDataDriven: payload.option.useDataDriven,
-            maxGeneration: payload.option.maxGeneration,
-          },
-        }
+    const imageUrlResolver = (url: string) => {
+      return url.replace(
+        `${context.rootState.repositoryServiceDispatcher.serviceUrl}/`,
+        ""
       );
+    };
 
-      return await new GenerateTestScriptsAction(
-        context.rootState.repositoryServiceDispatcher,
-        testScriptGenerator
-      ).generate({
-        testResultId: payload.testResultId,
-        projectId: payload.projectId,
-        sources: payload.sources,
-      });
-    } catch (error) {
-      if (error.message === `generate_test_suite_failed`) {
+    const testScriptGenerator = new TestScriptGeneratorImpl(imageUrlResolver, {
+      optimize,
+      testData: {
+        useDataDriven: payload.option.useDataDriven,
+        maxGeneration: payload.option.maxGeneration,
+      },
+    });
+    const result = await new GenerateTestScriptsAction(
+      context.rootState.repositoryServiceDispatcher,
+      testScriptGenerator
+    ).generate({
+      testResultId: payload.testResultId,
+      projectId: payload.projectId,
+      sources: payload.sources,
+    });
+
+    if (result.data) {
+      return result.data;
+    }
+    if (result.error) {
+      if (result.error.code === `generate_test_suite_failed`) {
         const errorCode = optimize
           ? `save_test_scripts_no_section_error`
           : `save_test_scripts_no_operation_error`;
@@ -1302,9 +1297,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.rootGetters.message(`error.operation_history.${errorCode}`)
         );
       }
-
       throw new Error(
-        context.rootGetters.message(`error.operation_history.${error.message}`)
+        context.rootGetters.message(
+          `error.operation_history.${result.error.code}`
+        )
       );
     }
   },
