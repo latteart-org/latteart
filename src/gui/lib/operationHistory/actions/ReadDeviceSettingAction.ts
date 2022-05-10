@@ -16,6 +16,7 @@
 
 import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface DeviceSettingGettable {
   readonly settingRepository: SettingRepository;
@@ -24,13 +25,9 @@ export interface DeviceSettingGettable {
 export class ReadDeviceSettingAction {
   constructor(private dispatcher: DeviceSettingGettable) {}
 
-  public async readDeviceSettings(): Promise<DeviceSettings | null> {
+  public async readDeviceSettings(): Promise<ActionResult<DeviceSettings>> {
     const reply = await this.dispatcher.settingRepository.getDeviceSettings();
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
-
-    return reply.data ?? null;
+    return reply;
   }
 }

@@ -119,19 +119,21 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   async readDeviceSettings(context) {
-    try {
-      const reply = await new ReadDeviceSettingAction(
-        context.rootState.repositoryServiceDispatcher
-      ).readDeviceSettings();
-      if (reply === null) {
-        return;
-      }
+    const result = await new ReadDeviceSettingAction(
+      context.rootState.repositoryServiceDispatcher
+    ).readDeviceSettings();
+    if (result.data === null) {
+      return;
+    } else if (result.data) {
       await context.dispatch("setDeviceSettings", {
-        deviceSettings: reply,
+        deviceSettings: result.data,
       });
-    } catch (error) {
+    }
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.capture_control.${error.message}`)
+        context.rootGetters.message(
+          `error.capture_control.${result.error.code}`
+        )
       );
     }
   },
@@ -168,32 +170,36 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       isRemote: false,
     });
 
-    try {
-      const reply = await new SaveDeviceSettingAction(
-        localServiceDispatcher
-      ).saveDeviceSettings(deviceSettings);
+    const result = await new SaveDeviceSettingAction(
+      localServiceDispatcher
+    ).saveDeviceSettings(deviceSettings);
 
-      if (reply === null) {
-        return;
-      }
+    if (result === null) {
+      return;
+    }
 
+    if (result.data) {
       const captureConfig: CaptureConfig = {
-        platformName: reply.config.platformName
-          ? reply.config.platformName
+        platformName: result.data.config.platformName
+          ? result.data.config.platformName
           : context.state.config.platformName,
-        browser: reply.config.browser
-          ? reply.config.browser
+        browser: result.data.config.browser
+          ? result.data.config.browser
           : context.state.config.browser,
-        device: reply.config.device,
-        platformVersion: reply.config.platformVersion,
-        waitTimeForStartupReload: reply.config.waitTimeForStartupReload,
-        executablePaths: reply.config.executablePaths,
+        device: result.data.config.device,
+        platformVersion: result.data.config.platformVersion,
+        waitTimeForStartupReload: result.data.config.waitTimeForStartupReload,
+        executablePaths: result.data.config.executablePaths,
       };
 
       context.commit("setCaptureConfig", { captureConfig });
-    } catch (error) {
+    }
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.capture_control.${error.message}`)
+        context.rootGetters.message(
+          `error.capture_control.${result.error.code}`
+        )
       );
     }
   },
