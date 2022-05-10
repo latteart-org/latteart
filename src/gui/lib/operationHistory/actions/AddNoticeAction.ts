@@ -15,27 +15,24 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { ActionResult } from "@/lib/common/ActionResult";
 
-export interface TestResultDeletable {
+export interface TestResultCreatable {
   readonly testResultRepository: TestResultRepository;
+  readonly serviceUrl: string;
 }
 
-export class DeleteTestResultAction {
-  constructor(private dispatcher: TestResultDeletable) {}
+export class CreateTestResultAction {
+  constructor(private dispatcher: TestResultCreatable) {}
 
-  public async deleteTestResult(
-    testResultId: string
-  ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.deleteTestResult(
-      testResultId
+  public async createTestResult(
+    initialUrl?: string,
+    name?: string
+  ): Promise<{ id: string; name: string }> {
+    const reply = await this.dispatcher.testResultRepository.postEmptyTestResult(
+      initialUrl,
+      name
     );
-    const error = reply.error ? { code: "testresult-delete-error" } : undefined;
-    const result = {
-      data: testResultId,
-      error,
-    };
 
-    return result;
+    return reply.data!;
   }
 }

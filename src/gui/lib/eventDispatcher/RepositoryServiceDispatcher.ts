@@ -51,6 +51,7 @@ import { SettingGettable } from "../operationHistory/actions/ReadSettingAction";
 import { SettingRepository } from "./repositoryService/SettingRepository";
 import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
 import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
+import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -105,6 +106,10 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
+    this._compressedImageRepository = new CompressedImageRepository(
+      this.restClient,
+      buildAPIURL
+    );
   }
 
   /**
@@ -138,6 +143,7 @@ export default class RepositoryServiceDispatcher
   private _importProjectRepository: ImportProjectRepository;
   private _testScriptRepository: TestScriptRepository;
   private _settingRepository: SettingRepository;
+  private _compressedImageRepository: CompressedImageRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -167,29 +173,8 @@ export default class RepositoryServiceDispatcher
     return this._settingRepository;
   }
 
-  /**
-   * Compress screenshot of note.
-   * @param testResultId  Test result id.
-   * @param noteId  Note id.
-   * @returns File path after compression.
-   */
-  public async compressNoteImage(
-    testResultId: string,
-    noteId: number
-  ): Promise<Reply<{ imageFileUrl: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/notes/${noteId}/compressed-image`
-      ),
-      null
-    );
-
-    const { imageFileUrl } = response.data as { imageFileUrl: string };
-
-    return new ReplyImpl({
-      status: response.status,
-      data: { imageFileUrl },
-    });
+  public get compressedImageRepository(): CompressedImageRepository {
+    return this._compressedImageRepository;
   }
 
   /**

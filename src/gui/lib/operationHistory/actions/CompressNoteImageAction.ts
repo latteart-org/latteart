@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
+import { CompressedImageRepository } from "@/lib/eventDispatcher/repositoryService/CompressedImageRepository";
 
-export interface TestResultDeletable {
-  readonly testResultRepository: TestResultRepository;
+export interface NoteImageCompressible {
+  readonly compressedImageRepository: CompressedImageRepository;
 }
 
-export class DeleteTestResultAction {
-  constructor(private dispatcher: TestResultDeletable) {}
+export class CompressNoteImageAction {
+  constructor(private dispatcher: NoteImageCompressible) {}
 
-  public async deleteTestResult(
-    testResultId: string
-  ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.deleteTestResult(
-      testResultId
+  public async compressNoteImage(
+    testResultId: string,
+    noteId: number
+  ): Promise<ActionResult<{ imageFileUrl: string }>> {
+    const reply = await this.dispatcher.compressedImageRepository.postNoteImage(
+      testResultId,
+      noteId
     );
-    const error = reply.error ? { code: "testresult-delete-error" } : undefined;
-    const result = {
-      data: testResultId,
-      error,
-    };
 
-    return result;
+    return reply;
   }
 }

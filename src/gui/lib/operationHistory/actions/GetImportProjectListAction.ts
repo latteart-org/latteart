@@ -31,9 +31,9 @@ export class GetImportProjectListAction {
     const reply = await this.dispatcher.importProjectRepository.getProjects();
     const serviceUrl = this.dispatcher.serviceUrl;
 
-    const data = reply.data!.map(({ id, name }) => {
+    const data = reply.data!.map(({ url, name }) => {
       return {
-        url: `${serviceUrl}/${id}`,
+        url: `${serviceUrl}/${url}`,
         name,
       };
     });

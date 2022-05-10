@@ -12,7 +12,7 @@ export class ImportProjectRepository {
    * @returns List of projects for import.
    */
   public async getProjects(): Promise<
-    Reply<Array<{ id: string; name: string }>>
+    Reply<Array<{ url: string; name: string }>>
   > {
     const response = await this.restClient.httpGet(
       this.buildAPIURL(`/imports/projects`)
@@ -21,7 +21,7 @@ export class ImportProjectRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as Array<{
-        id: string;
+        url: string;
         name: string;
       }>,
     });

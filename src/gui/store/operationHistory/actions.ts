@@ -57,6 +57,7 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestR
 import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/GetImportTestResultListAction";
 import { GetImportProjectListAction } from "@/lib/operationHistory/actions/GetImportProjectListAction";
 import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTestResultAction";
+import { CompressNoteImageAction } from "@/lib/operationHistory/actions/CompressNoteImageAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -295,6 +296,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           root: true,
         })
       : undefined;
+    const dispatcher = context.rootState.repositoryServiceDispatcher;
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
@@ -302,7 +304,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       // update
       if (payload.index !== undefined) {
         return (
-          await context.rootState.repositoryServiceDispatcher.editBug(
+          await dispatcher.editBug(
             context.state.testResultInfo.id,
             testStepId,
             payload.index,
@@ -316,15 +318,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await context.rootState.repositoryServiceDispatcher.addBug(
-          context.state.testResultInfo.id,
-          testStepId,
-          {
-            summary: payload.summary,
-            details: payload.details,
-            imageData,
-          }
-        )
+        await dispatcher.addBug(context.state.testResultInfo.id, testStepId, {
+          summary: payload.summary,
+          details: payload.details,
+          imageData,
+        })
       ).data!;
     })();
 
@@ -342,19 +340,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (context.state.config.imageCompression.isEnabled) {
       console.log("== bug ==");
       setTimeout(async () => {
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressNoteImage(
+        const result = await new CompressNoteImageAction(
+          dispatcher
+        ).compressNoteImage(
           context.state.testResultInfo.id,
           recordedNote.bug.id as number
         );
-        if (reply2.succeeded) {
+        if (result.data) {
           context.commit("replaceNoteImageFileUrl", {
             type: "bug",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: `${context.rootState.repositoryServiceDispatcher.serviceUrl}/${reply2.data?.imageFileUrl}`,
+            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
           });
-        } else {
-          throw reply2.error;
+        }
+        if (result.error) {
+          throw result.error;
         }
       }, 1);
     }
@@ -499,6 +500,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           root: true,
         })
       : undefined;
+    const dispatcher = context.rootState.repositoryServiceDispatcher;
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
@@ -506,7 +508,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       // update
       if (payload.index !== undefined) {
         return (
-          await context.rootState.repositoryServiceDispatcher.editNotice(
+          await dispatcher.editNotice(
             context.state.testResultInfo.id,
             testStepId,
             payload.index,
@@ -521,7 +523,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await context.rootState.repositoryServiceDispatcher.addNotice(
+        await dispatcher.addNotice(
           context.state.testResultInfo.id,
           testStepId,
           {
@@ -548,19 +550,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.state.config.imageCompression.isEnabled
     ) {
       setTimeout(async () => {
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressNoteImage(
+        const result = await new CompressNoteImageAction(
+          dispatcher
+        ).compressNoteImage(
           context.state.testResultInfo.id,
           recordedNote.notice.id as number
         );
-        if (reply2.succeeded) {
+        if (result.data) {
           context.commit("replaceNoteImageFileUrl", {
             type: "notice",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: `${context.rootState.repositoryServiceDispatcher.serviceUrl}/${reply2.data?.imageFileUrl}`,
+            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
           });
-        } else {
-          throw reply2.error;
+        }
+        if (result.error) {
+          throw result.error;
         }
       }, 1);
     }
