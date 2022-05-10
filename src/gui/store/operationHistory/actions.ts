@@ -691,30 +691,28 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { localTestResultId: string; remoteTestResultId?: string }
   ) {
-    try {
-      const localUrl = context.rootState.localRepositoryServiceUrl;
-      const localServiceDispatcher = new RepositoryServiceDispatcher({
-        url: localUrl,
-        isRemote: false,
-      });
-
-      const newTestResultId = await new UploadTestResultAction(
-        localServiceDispatcher
-      ).uploadTestResult(
-        { testResultId: payload.localTestResultId },
-        {
-          repositoryUrl:
-            context.rootState.repositoryServiceDispatcher.serviceUrl,
-          testResultId: payload.remoteTestResultId,
-        }
-      );
-
-      return newTestResultId;
-    } catch (error) {
-      console.error(error);
+    const localUrl = context.rootState.localRepositoryServiceUrl;
+    const localServiceDispatcher = new RepositoryServiceDispatcher({
+      url: localUrl,
+      isRemote: false,
+    });
+    const result = await new UploadTestResultAction(
+      localServiceDispatcher
+    ).uploadTestResult(
+      { testResultId: payload.localTestResultId },
+      {
+        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
+        testResultId: payload.remoteTestResultId,
+      }
+    );
+    if (result.data) {
+      return result.data;
+    }
+    if (result.error) {
+      console.error(result.error);
 
       throw new Error(
-        context.rootGetters.message(`error.remote_access.upload-request-error`)
+        context.rootGetters.message(`error.remote_access.${result.error.code}`)
       );
     }
   },

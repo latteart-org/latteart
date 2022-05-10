@@ -15,6 +15,7 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultUploadable {
   readonly testResultRepository: TestResultRepository;
@@ -26,16 +27,18 @@ export class UploadTestResultAction {
   public async uploadTestResult(
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<string> {
+  ): Promise<ActionResult<string>> {
     const reply = await this.dispatcher.testResultRepository.postTestResultForUpload(
       source,
       dest
     );
 
-    if (!reply.data) {
-      throw new Error(`upload-request-error`);
-    }
+    const error = reply.error ? { code: "upload-request-error" } : undefined;
+    const result = {
+      data: reply.data?.id,
+      error,
+    };
 
-    return reply.data.id;
+    return result;
   }
 }
