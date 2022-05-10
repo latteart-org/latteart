@@ -15,6 +15,7 @@
  */
 
 import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface ImportProjectsGettable {
   readonly importProjectRepository: ImportProjectRepository;
@@ -25,7 +26,7 @@ export class GetImportProjectListAction {
   constructor(private dispatcher: ImportProjectsGettable) {}
 
   public async getImportProjects(): Promise<
-    Array<{ url: string; name: string }> | undefined
+    ActionResult<Array<{ url: string; name: string }>>
   > {
     const reply = await this.dispatcher.importProjectRepository.getProjects();
     const serviceUrl = this.dispatcher.serviceUrl;
@@ -37,6 +38,11 @@ export class GetImportProjectListAction {
       };
     });
 
-    return data;
+    const result = {
+      data,
+      error: reply.error ?? undefined,
+    };
+
+    return result;
   }
 }

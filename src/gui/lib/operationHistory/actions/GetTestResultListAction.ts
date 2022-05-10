@@ -15,6 +15,7 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultsGettable {
   readonly testResultRepository: TestResultRepository;
@@ -24,13 +25,10 @@ export class GetTestResultListAction {
   constructor(private dispatcher: TestResultsGettable) {}
 
   public async getTestResults(): Promise<
-    Array<{ id: string; name: string }> | undefined
+    ActionResult<Array<{ id: string; name: string }>>
   > {
     const reply = await this.dispatcher.testResultRepository.getTestResults();
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
 
-    return reply.data;
+    return reply;
   }
 }

@@ -15,6 +15,7 @@
  */
 
 import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface ImportTestResultsGettable {
   readonly importTestResultRepository: ImportTestResultRepository;
@@ -25,7 +26,7 @@ export class GetImportTestResultListAction {
   constructor(private dispatcher: ImportTestResultsGettable) {}
 
   public async getImportTestResults(): Promise<
-    Array<{ url: string; name: string }> | undefined
+    ActionResult<Array<{ url: string; name: string }>>
   > {
     const reply = await this.dispatcher.importTestResultRepository.getTestResults();
     const serviceUrl = this.dispatcher.serviceUrl;
@@ -37,6 +38,11 @@ export class GetImportTestResultListAction {
       };
     });
 
-    return data;
+    const result = {
+      data,
+      error: reply.error ?? undefined,
+    };
+
+    return result;
   }
 }

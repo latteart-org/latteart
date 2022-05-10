@@ -106,9 +106,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryServiceDispatcher
     ).getTestResults();
 
-    console.log(reply);
+    console.log(reply.data);
 
-    return reply ?? [];
+    return reply.data ?? [];
   },
 
   /**

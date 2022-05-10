@@ -1361,7 +1361,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const reply = await new GetTestResultListAction(
       context.rootState.repositoryServiceDispatcher
     ).getTestResults();
-    return reply!;
+    return reply.data!;
   },
 
   async getImportTestResults(context) {
@@ -1373,7 +1373,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       localRepositoryServiceDispatcher
     ).getImportTestResults();
 
-    return reply;
+    return reply.data;
   },
 
   async getImportProjects(context) {
@@ -1385,7 +1385,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       localRepositoryServiceDispatcher
     ).getImportProjects();
 
-    return reply;
+    return reply.data;
   },
 
   async changeCurrentTestResult(
