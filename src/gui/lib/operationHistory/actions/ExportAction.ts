@@ -15,6 +15,7 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultExportable {
   readonly testResultRepository: TestResultRepository;
@@ -26,18 +27,21 @@ export class ExportAction {
   public async exportWithTestResult(
     testResultId: string,
     shouldSaveTemporary = false
-  ): Promise<string> {
+  ): Promise<ActionResult<string>> {
     const reply = await this.dispatcher.testResultRepository.postTestResultForExport(
       testResultId,
       shouldSaveTemporary
     );
 
-    if (!reply.data) {
-      throw new Error(`create-export-data-error`);
-    }
+    const outputUrl = reply.data ? reply.data.url : undefined;
+    const error = reply.error
+      ? { code: "create-export-data-error" }
+      : undefined;
+    const result = {
+      data: outputUrl,
+      error,
+    };
 
-    const outputUrl: string = reply.data.url;
-
-    return outputUrl;
+    return result;
   }
 }

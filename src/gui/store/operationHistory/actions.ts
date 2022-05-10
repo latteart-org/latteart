@@ -218,12 +218,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async deleteIntention(context, payload: { sequence: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    await new DeleteIntentionAction(
+    const result = await new DeleteIntentionAction(
       context.rootState.repositoryServiceDispatcher
     ).deleteIntention(context.state.testResultInfo.id, testStepId);
 
-    context.commit("deleteIntention", { sequence: payload.sequence });
-    context.commit("setCanUpdateModels", { canUpdateModels: true });
+    if (result.data) {
+      context.commit("deleteIntention", { sequence: payload.sequence });
+      context.commit("setCanUpdateModels", { canUpdateModels: true });
+    }
   },
 
   /**
@@ -846,14 +848,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       testResultId: string;
       shouldSaveTemporary?: boolean;
     }
-  ): Promise<string> {
-    try {
-      return await new ExportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
-    } catch (error) {
+  ) {
+    const result = await new ExportAction(
+      context.rootState.repositoryServiceDispatcher
+    ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
+    if (result.data) {
+      return result.data;
+    }
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
     }
   },
@@ -1333,17 +1337,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
-    const reply = await new CreateTestResultAction(
+    const result = await new CreateTestResultAction(
       context.rootState.repositoryServiceDispatcher
     ).createTestResult(initialUrl, name);
 
-    const testResultInfo = reply;
+    if (result.data) {
+      const testResultInfo = result.data;
 
-    context.commit("setTestResultInfo", {
-      repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
-      id: testResultInfo.id,
-      name: testResultInfo.name,
-    });
+      context.commit("setTestResultInfo", {
+        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
+        id: testResultInfo.id,
+        name: testResultInfo.name,
+      });
+    }
   },
 
   /**

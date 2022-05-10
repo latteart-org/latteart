@@ -17,6 +17,7 @@
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { TestStepOperation } from "../types";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface IntentionDeletable {
   readonly testStepRepository: TestStepRepository;
@@ -35,7 +36,7 @@ export class DeleteIntentionAction {
   public async deleteIntention(
     testResultId: string,
     testStepId: string
-  ): Promise<string> {
+  ): Promise<ActionResult<string>> {
     const { intention: noteId } = (
       await this.dispatcher.testStepRepository.getTestSteps(
         testResultId,
@@ -49,7 +50,7 @@ export class DeleteIntentionAction {
       notices: string[];
     };
 
-    await this.dispatcher.noteRepository.deleteNotes(
+    const reply = await this.dispatcher.noteRepository.deleteNotes(
       testResultId,
       noteId as string
     );
@@ -63,6 +64,14 @@ export class DeleteIntentionAction {
       );
     })();
 
-    return testStepId;
+    const error = reply.error
+      ? { code: "registering-testresults-error" }
+      : undefined;
+    const result = {
+      data: testStepId,
+      error,
+    };
+
+    return result;
   }
 }

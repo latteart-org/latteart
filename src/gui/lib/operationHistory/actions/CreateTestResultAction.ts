@@ -15,6 +15,7 @@
  */
 
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface TestResultCreatable {
   readonly testResultRepository: TestResultRepository;
@@ -26,12 +27,12 @@ export class CreateTestResultAction {
   public async createTestResult(
     initialUrl?: string,
     name?: string
-  ): Promise<{ id: string; name: string }> {
+  ): Promise<ActionResult<{ id: string; name: string }>> {
     const reply = await this.dispatcher.testResultRepository.postEmptyTestResult(
       initialUrl,
       name
     );
 
-    return reply.data!;
+    return reply;
   }
 }
