@@ -64,6 +64,7 @@ import { AddBugAction } from "@/lib/operationHistory/actions/AddBugAction";
 import { EditBugAction } from "@/lib/operationHistory/actions/EditBugAction";
 import { MoveBugAction } from "@/lib/operationHistory/actions/MoveBugAction";
 import { DeleteBugAction } from "@/lib/operationHistory/actions/DeleteBugAction";
+import { DeleteNoticeAction } from "@/lib/operationHistory/actions/DeleteNoticeAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -633,13 +634,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async deleteNotice(context, payload: { sequence: number; index: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const reply = await context.rootState.repositoryServiceDispatcher.deleteNotice(
-      context.state.testResultInfo.id,
-      testStepId,
-      payload.index
-    );
+    const result = await new DeleteNoticeAction(
+      context.rootState.repositoryServiceDispatcher
+    ).deleteNotice(context.state.testResultInfo.id, testStepId, payload.index);
 
-    const { index } = reply.data!;
+    const { index } = result.data!;
 
     context.commit("deleteNotice", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });

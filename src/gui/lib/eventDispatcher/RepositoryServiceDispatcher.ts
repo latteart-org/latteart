@@ -420,62 +420,6 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
-   * Delete Notice.
-   * @param testResultId  The id of the test result associated with the Notice to be deleted.
-   * @param testStepId  Test step id of the test result associated with the target Notice.
-   * @param index  Notice index.
-   */
-  public async deleteNotice(
-    testResultId: string,
-    testStepId: string,
-    index: number
-  ): Promise<
-    Reply<{
-      testStepId: string;
-      index: number;
-    }>
-  > {
-    // Get noteId.
-    const { notices } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-    const noteId = notices[index];
-
-    // Delete note.
-    const response = await this.restClient.httpDelete(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
-    );
-
-    // Break the link.
-    await this.restClient.httpPatch(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/test-steps/${testStepId}`
-      ),
-      {
-        notices: notices.filter((_: unknown, i: number) => i !== index),
-      }
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: {
-        testStepId,
-        index,
-      },
-    });
-  }
-
-  /**
    * Import project or testresult or all.
    * @param importFileName  Import file name.
    * @param selectOption  Select options.
