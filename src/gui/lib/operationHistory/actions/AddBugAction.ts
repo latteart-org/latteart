@@ -52,7 +52,14 @@ export class AddBugAction {
       bug
     );
 
-    const savedNote = reply.data!;
+    const savedNote = reply.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
 
     // Linking with testStep.
     const linkTestStep = await (async () => {

@@ -20,36 +20,32 @@ import { Note } from "../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../types";
 
-export interface BugEditable {
+export interface BugMovable {
   readonly noteRepository: NoteRepository;
   readonly testStepRepository: TestStepRepository;
   readonly serviceUrl: string;
 }
 
-export class EditBugAction {
-  constructor(private dispatcher: BugEditable) {}
+export class MoveBugAction {
+  constructor(private dispatcher: BugMovable) {}
 
   /**
-   * Edit the bug.
-   * @param testResultId  ID of the test result associated with the bug to be edited.
-   * @param testStepId  Test step id of the test result associated with the target bug.
-   * @param index  bug index.
-   * @param bug  Contents to update the bug.
+   * Update the position where the bug is associated.
+   * @param testResultId  ID of the test result associated with the bug.
+   * @param from  Location of test results related to the bug.
+   * @param dest  The position of the test result where you want to link the bug.
    * @returns Updated bug information.
    */
-  public async editBug(
+  public async moveBug(
     testResultId: string,
-    testStepId: string,
-    index: number,
-    bug: {
-      summary: string;
-      details: string;
-    }
+    from: { testStepId: string; index: number },
+    dest: { testStepId: string }
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
-    const { bugs } = (
+    // Break the link of the move source.
+    const { bugs: fromBugs } = (
       await this.dispatcher.testStepRepository.getTestSteps(
         testResultId,
-        testStepId
+        from.testStepId
       )
     ).data as {
       id: string;
@@ -59,17 +55,48 @@ export class EditBugAction {
       notices: string[];
     };
 
-    const noteId: string = bugs[index];
-
-    // note update
-    const reply = await this.dispatcher.noteRepository.putNotes(
-      testResultId,
-      noteId,
-      undefined,
-      bug
+    const filteredBugs = fromBugs.filter(
+      (_: unknown, index: number) => index !== from.index
     );
 
-    const savedNote = reply.data as {
+    await (async () => {
+      return this.dispatcher.testStepRepository.patchTestSteps(
+        testResultId,
+        from.testStepId,
+        undefined,
+        filteredBugs
+      );
+    })();
+
+    // Link to the destination.
+    const { bugs: destBugs } = (
+      await this.dispatcher.testStepRepository.getTestSteps(
+        testResultId,
+        dest.testStepId
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+
+    const bugs = [...destBugs, fromBugs[from.index]];
+
+    await this.dispatcher.testStepRepository.patchTestSteps(
+      testResultId,
+      dest.testStepId,
+      undefined,
+      bugs
+    );
+
+    const reply = await this.dispatcher.noteRepository.getNotes(
+      testResultId,
+      fromBugs[from.index]
+    );
+
+    const note = reply.data as {
       id: string;
       type: string;
       value: string;
@@ -81,14 +108,14 @@ export class EditBugAction {
     const serviceUrl = this.dispatcher.serviceUrl;
     const data = {
       bug: new Note({
-        value: savedNote.value,
-        details: savedNote.details,
-        imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, serviceUrl).toString()
+        value: note.value,
+        details: note.details,
+        imageFilePath: note.imageFileUrl
+          ? new URL(note.imageFileUrl, serviceUrl).toString()
           : "",
-        tags: savedNote.tags,
+        tags: note.tags,
       }),
-      index,
+      index: destBugs.length,
     };
 
     const result = {
