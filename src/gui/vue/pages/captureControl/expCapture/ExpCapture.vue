@@ -675,8 +675,13 @@ export default class ExpCapture extends Vue {
   }
 
   private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
+    testScript: {
+      isSimple: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;

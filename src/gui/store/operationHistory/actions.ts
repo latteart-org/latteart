@@ -1246,14 +1246,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       testResultId: string | undefined;
       projectId: string | undefined;
       sources: { initialUrl: string; history: Operation[] }[];
-      option: { useDataDriven: boolean; maxGeneration: number };
+      option: {
+        testScript: { isSimple: boolean };
+        testData: { useDataDriven: boolean; maxGeneration: number };
+      };
     }
   ): Promise<{
     outputUrl: string;
     invalidOperationTypeExists: boolean;
   }> {
-    const optimize = true;
-
     try {
       const imageUrlResolver = (url: string) => {
         return url.replace(
@@ -1265,10 +1266,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       const testScriptGenerator = new TestScriptGeneratorImpl(
         imageUrlResolver,
         {
-          optimize,
+          testScript: {
+            isSimple: payload.option.testScript.isSimple,
+          },
           testData: {
-            useDataDriven: payload.option.useDataDriven,
-            maxGeneration: payload.option.maxGeneration,
+            useDataDriven: payload.option.testData.useDataDriven,
+            maxGeneration: payload.option.testData.maxGeneration,
           },
         }
       );
@@ -1283,7 +1286,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
     } catch (error) {
       if (error.message === `generate_test_suite_failed`) {
-        const errorCode = optimize
+        const errorCode = !payload.option.testScript.isSimple
           ? `save_test_scripts_no_section_error`
           : `save_test_scripts_no_operation_error`;
 

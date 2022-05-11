@@ -16,7 +16,6 @@
 
 import { TestSuite } from "../../model/testSuite/TestSuite";
 import { TestScriptCodeGenerator } from "../TestScriptCodeGenerator";
-import { JSPageObjectCodeGenerator } from "./pageObject/JSPageObjectCodeGenerator";
 import { JSTestDataCodeGenerator } from "./testData/JSTestDataCodeGenerator";
 import { JSTestSuiteCommentAttacher } from "./testSuite/JSTestSuiteCommentAttacher";
 import { JSPageObjectCommentAttacher } from "./pageObject/JSPageObjectCommentAttacher";
@@ -29,11 +28,12 @@ import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
 import { invalidOperationTypeExists } from "../../model/pageObject/method/operation/PageObjectOperation";
+import { PageObjectCodeGenerator } from "../PageObjectCodeGenerator";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
     private codeGenerator: {
-      pageObject: JSPageObjectCodeGenerator;
+      pageObject: PageObjectCodeGenerator;
       testSuite: TestSuiteCodeGenerator;
       testData: JSTestDataCodeGenerator | null;
     },

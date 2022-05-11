@@ -24,6 +24,7 @@ import { TestDataSet } from "../testDataRepository/TestDataSet";
 import { PageObject } from "../model/pageObject/PageObject";
 import { JSPageObjectNameGenerator } from "./js/pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./js/pageObject/JSPageObjectMethodNameGenerator";
+import { JSSimplePageObjectCodeGenerator } from "./js/pageObject/JSSimplePageObjectCodeGenerator";
 
 export enum TestScriptCodeLanguage {
   JavaScript,
@@ -31,6 +32,7 @@ export enum TestScriptCodeLanguage {
 
 export class TestScriptCodeGeneratorFactory {
   constructor(
+    private isSimple: boolean,
     private testDataOption: {
       useDataDriven: boolean;
     },
@@ -53,26 +55,44 @@ export class TestScriptCodeGeneratorFactory {
           ),
         };
 
-        return new JSTestScriptCodeGenerator(
-          {
-            pageObject: new JSPageObjectCodeGenerator(jsNameGenerator),
-            testSuite: this.testDataOption.useDataDriven
-              ? new JSDataDrivenTestSuiteCodeGenerator(
-                  jsNameGenerator,
-                  this.testCaseIdToDataSet
-                )
-              : new JSTestSuiteCodeGenerator(
-                  jsNameGenerator,
-                  this.testCaseIdToDataSet
-                ),
-            testData: this.testDataOption.useDataDriven
-              ? new JSTestDataCodeGenerator(jsNameGenerator)
-              : null,
-          },
-          jsNameGenerator,
-          this.testCaseIdToDataSet,
-          this.pageObjectIdToDataSets
-        );
+        if (this.isSimple) {
+          return new JSTestScriptCodeGenerator(
+            {
+              pageObject: new JSSimplePageObjectCodeGenerator(jsNameGenerator),
+              testSuite: new JSTestSuiteCodeGenerator(
+                this.isSimple,
+                jsNameGenerator,
+                this.testCaseIdToDataSet
+              ),
+              testData: null,
+            },
+            jsNameGenerator,
+            this.testCaseIdToDataSet,
+            this.pageObjectIdToDataSets
+          );
+        } else {
+          return new JSTestScriptCodeGenerator(
+            {
+              pageObject: new JSPageObjectCodeGenerator(jsNameGenerator),
+              testSuite: this.testDataOption.useDataDriven
+                ? new JSDataDrivenTestSuiteCodeGenerator(
+                    jsNameGenerator,
+                    this.testCaseIdToDataSet
+                  )
+                : new JSTestSuiteCodeGenerator(
+                    this.isSimple,
+                    jsNameGenerator,
+                    this.testCaseIdToDataSet
+                  ),
+              testData: this.testDataOption.useDataDriven
+                ? new JSTestDataCodeGenerator(jsNameGenerator)
+                : null,
+            },
+            jsNameGenerator,
+            this.testCaseIdToDataSet,
+            this.pageObjectIdToDataSets
+          );
+        }
       }
     }
   }
