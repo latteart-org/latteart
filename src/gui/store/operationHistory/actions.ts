@@ -59,6 +59,7 @@ import { GetImportProjectListAction } from "@/lib/operationHistory/actions/GetIm
 import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTestResultAction";
 import { CompressNoteImageAction } from "@/lib/operationHistory/actions/CompressNoteImageAction";
 import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/CompressTestStepImageAction";
+import { RegisterOperationAction } from "@/lib/operationHistory/actions/RegisterOperationAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -929,12 +930,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
-    const reply = await dispatcher.registerOperation(
-      context.state.testResultInfo.id,
-      capturedOperation
-    );
+    const result = await new RegisterOperationAction(
+      dispatcher
+    ).registerOperation(context.state.testResultInfo.id, capturedOperation);
 
-    const { id, operation, coverageSource, inputElementInfo } = reply.data!;
+    const { id, operation, coverageSource, inputElementInfo } = result.data!;
 
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
@@ -967,17 +967,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     ) {
       setTimeout(async () => {
         const testStepId = context.state.testStepIds[operation.sequence - 1];
-        const result = await new CompressTestStepImageAction(
+        const result2 = await new CompressTestStepImageAction(
           dispatcher
         ).compressNoteImage(context.state.testResultInfo.id, testStepId);
-        if (result.data) {
+        if (result2.data) {
           context.commit("replaceTestStepsImageFileUrl", {
             sequence: operation.sequence,
-            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
+            imageFileUrl: `${dispatcher.serviceUrl}/${result2.data.imageFileUrl}`,
           });
         }
-        if (result.error) {
-          throw result.error;
+        if (result2.error) {
+          throw result2.error;
         }
       }, 1);
     }
