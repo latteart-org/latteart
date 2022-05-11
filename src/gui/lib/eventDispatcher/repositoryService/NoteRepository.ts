@@ -63,6 +63,12 @@ export class NoteRepository {
       summary: string;
       details: string;
       imageData?: string;
+    },
+    notice?: {
+      summary: string;
+      details: string;
+      tags: string[];
+      imageData?: string;
     }
   ): Promise<
     Reply<{
@@ -80,11 +86,19 @@ export class NoteRepository {
           value: intention.summary,
           details: intention.details,
         }
-      : {
+      : bug
+      ? {
           type: "bug",
-          value: bug!.summary,
-          details: bug!.details,
-          imageData: bug!.imageData,
+          value: bug.summary,
+          details: bug.details,
+          imageData: bug.imageData,
+        }
+      : {
+          type: "notice",
+          value: notice!.summary,
+          details: notice!.details,
+          tags: notice!.tags,
+          imageData: notice!.imageData,
         };
     const response = await this.restClient.httpPost(
       this.buildAPIURL(`/test-results/${testResultId}/notes`),

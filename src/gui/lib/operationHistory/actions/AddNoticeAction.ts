@@ -14,25 +14,107 @@
  * limitations under the License.
  */
 
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
+import { Note } from "../Note";
+import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
+import { TestStepOperation } from "../types";
 
-export interface TestResultCreatable {
-  readonly testResultRepository: TestResultRepository;
+export interface NoticeAddable {
+  readonly noteRepository: NoteRepository;
+  readonly testStepRepository: TestStepRepository;
   readonly serviceUrl: string;
 }
 
-export class CreateTestResultAction {
-  constructor(private dispatcher: TestResultCreatable) {}
+export class AddNoticeAction {
+  constructor(private dispatcher: NoticeAddable) {}
 
-  public async createTestResult(
-    initialUrl?: string,
-    name?: string
-  ): Promise<{ id: string; name: string }> {
-    const reply = await this.dispatcher.testResultRepository.postEmptyTestResult(
-      initialUrl,
-      name
+  /**
+   * Notice the test step with the specified sequence number and add information.
+   * @param testResultId  Test result ID.
+   * @param testStepId  Test step id of the target test step.
+   * @param notice  Notice information to add.
+   */
+  public async addNotice(
+    testResultId: string,
+    testStepId: string,
+    notice: {
+      summary: string;
+      details: string;
+      tags: string[];
+      imageData?: string;
+    }
+  ): Promise<ActionResult<{ notice: Note; index: number }>> {
+    // New registration of note.
+    const intention = undefined;
+    const bug = undefined;
+
+    const reply = await this.dispatcher.noteRepository.postNotes(
+      testResultId,
+      intention,
+      bug,
+      notice
     );
 
-    return reply.data!;
+    const savedNote = reply.data as {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    };
+
+    // Linking with testStep.
+    const linkTestStep = await (async () => {
+      const { notices: replyNotices } = (
+        await this.dispatcher.testStepRepository.getTestSteps(
+          testResultId,
+          testStepId
+        )
+      ).data as {
+        id: string;
+        operation: TestStepOperation;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
+      };
+
+      const notices = [...replyNotices, savedNote.id];
+      const noteId = undefined;
+
+      return await this.dispatcher.testStepRepository.patchTestSteps(
+        testResultId,
+        testStepId,
+        noteId,
+        bug,
+        notices
+      );
+    })();
+
+    const savedTestStep = linkTestStep.data as {
+      notices: string[];
+    };
+
+    const serviceUrl = this.dispatcher.serviceUrl;
+    const data = {
+      notice: new Note({
+        id: savedNote.id,
+        value: savedNote.value,
+        details: savedNote.details,
+        imageFilePath: savedNote.imageFileUrl
+          ? new URL(savedNote.imageFileUrl, serviceUrl).toString()
+          : "",
+        tags: savedNote.tags,
+      }),
+      index: savedTestStep.notices.length - 1,
+    };
+
+    const result = {
+      data,
+      error: reply.error ?? undefined,
+    };
+
+    return result;
   }
 }

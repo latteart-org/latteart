@@ -65,6 +65,7 @@ import { EditBugAction } from "@/lib/operationHistory/actions/EditBugAction";
 import { MoveBugAction } from "@/lib/operationHistory/actions/MoveBugAction";
 import { DeleteBugAction } from "@/lib/operationHistory/actions/DeleteBugAction";
 import { DeleteNoticeAction } from "@/lib/operationHistory/actions/DeleteNoticeAction";
+import { AddNoticeAction } from "@/lib/operationHistory/actions/AddNoticeAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -534,7 +535,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await dispatcher.addNotice(
+        await new AddNoticeAction(dispatcher).addNotice(
           context.state.testResultInfo.id,
           testStepId,
           {
