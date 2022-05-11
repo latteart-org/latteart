@@ -60,6 +60,7 @@ import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTes
 import { CompressNoteImageAction } from "@/lib/operationHistory/actions/CompressNoteImageAction";
 import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/CompressTestStepImageAction";
 import { RegisterOperationAction } from "@/lib/operationHistory/actions/RegisterOperationAction";
+import { AddBugAction } from "@/lib/operationHistory/actions/AddBugAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -320,11 +321,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await dispatcher.addBug(context.state.testResultInfo.id, testStepId, {
-          summary: payload.summary,
-          details: payload.details,
-          imageData,
-        })
+        await new AddBugAction(dispatcher).addBug(
+          context.state.testResultInfo.id,
+          testStepId,
+          {
+            summary: payload.summary,
+            details: payload.details,
+            imageData,
+          }
+        )
       ).data!;
     })();
 

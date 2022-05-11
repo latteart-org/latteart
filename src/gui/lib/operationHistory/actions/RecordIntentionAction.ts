@@ -93,11 +93,11 @@ export class RecordIntentionAction {
     }
   ): Promise<Reply<Note>> {
     // New note registration
-    const response = await this.dispatcher.noteRepository.postNotes(
+    const reply = await this.dispatcher.noteRepository.postNotes(
       testResultId,
       intention
     );
-    const savedNote = response.data!;
+    const savedNote = reply.data!;
 
     await this.dispatcher.testStepRepository.patchTestSteps(
       testResultId,
@@ -115,7 +115,7 @@ export class RecordIntentionAction {
       tags: savedNote.tags,
     });
 
-    return new ReplyImpl({ status: response.status, data: data });
+    return new ReplyImpl({ status: reply.status, data: data });
   }
 
   /**
@@ -148,13 +148,13 @@ export class RecordIntentionAction {
     };
 
     // Note update.
-    const response = await this.dispatcher.noteRepository.putNotes(
+    const reply = await this.dispatcher.noteRepository.putNotes(
       testResultId,
       noteId as string,
       intention
     );
 
-    const savedNote = response.data as {
+    const savedNote = reply.data as {
       id: string;
       type: string;
       value: string;
@@ -173,6 +173,6 @@ export class RecordIntentionAction {
       tags: savedNote.tags,
     });
 
-    return new ReplyImpl({ status: response.status, data: data });
+    return new ReplyImpl({ status: reply.status, data: data });
   }
 }

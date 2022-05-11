@@ -45,7 +45,7 @@ export class RegisterOperationAction {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const response = await this.dispatcher.testStepRepository.postTestSteps(
+    const reply = await this.dispatcher.testStepRepository.postTestSteps(
       testResultId,
       capturedOperation
     );
@@ -55,7 +55,7 @@ export class RegisterOperationAction {
       operation: testStepOperation,
       coverageSource,
       inputElementInfo,
-    } = response.data as {
+    } = reply.data as {
       id: string;
       operation: TestStepOperation;
       coverageSource: CoverageSource;
@@ -92,7 +92,7 @@ export class RegisterOperationAction {
         coverageSource: CoverageSource;
         inputElementInfo: InputElementInfo;
       },
-      error: response.error ?? undefined,
+      error: reply.error ?? undefined,
     };
 
     return result;

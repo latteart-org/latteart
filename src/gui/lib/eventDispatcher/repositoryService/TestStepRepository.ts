@@ -60,7 +60,8 @@ export class TestStepRepository {
   public async patchTestSteps(
     testResultId: string,
     testStepId: string,
-    noteId: string | null
+    noteId?: string | null,
+    bugs?: string[]
   ): Promise<
     Reply<{
       id: string;
@@ -70,13 +71,12 @@ export class TestStepRepository {
       notices: string[];
     }>
   > {
+    const body = bugs ? { bugs } : { intention: noteId };
     const response = await this.restClient.httpPatch(
       this.buildAPIURL(
         `/test-results/${testResultId}/test-steps/${testStepId}`
       ),
-      {
-        intention: noteId,
-      }
+      body
     );
 
     return new ReplyImpl({

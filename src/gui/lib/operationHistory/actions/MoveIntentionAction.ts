@@ -64,12 +64,12 @@ export class MoveIntentionAction {
       noteId
     );
 
-    const response = await this.dispatcher.noteRepository.getNotes(
+    const reply = await this.dispatcher.noteRepository.getNotes(
       testResultId,
       noteId
     );
 
-    const note = response.data as {
+    const note = reply.data as {
       id: string;
       type: string;
       value: string;
