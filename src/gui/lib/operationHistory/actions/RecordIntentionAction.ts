@@ -19,6 +19,7 @@ import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { TestStepOperation } from "../types";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface RecordIntentionActionObserver {
   setIntention(value: Note): void;
@@ -51,7 +52,7 @@ export class RecordIntentionAction {
       summary: string;
       details: string;
     }
-  ): Promise<void> {
+  ): Promise<ActionResult<void>> {
     const historyHasTargetIntention = history.find((item) => {
       return item.intention?.sequence === note.sequence;
     });
@@ -76,6 +77,7 @@ export class RecordIntentionAction {
         })
       );
     }
+    return {};
   }
   /**
    * Add intention information to the test step with the specified sequence number.

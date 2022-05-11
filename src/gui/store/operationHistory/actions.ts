@@ -351,7 +351,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           dispatcher
         ).compressNoteImage(
           context.state.testResultInfo.id,
-          recordedNote.bug.id as number
+          recordedNote.bug.id as string
         );
         if (result.data) {
           context.commit("replaceNoteImageFileUrl", {
@@ -561,7 +561,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           dispatcher
         ).compressNoteImage(
           context.state.testResultInfo.id,
-          recordedNote.notice.id as number
+          recordedNote.notice.id as string
         );
         if (result.data) {
           context.commit("replaceNoteImageFileUrl", {
@@ -752,72 +752,72 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.testResultId Test result ID.
    */
   async resume(context, payload: { testResultId: string }) {
-    try {
-      context.commit(
-        "captureControl/setIsResuming",
-        { isResuming: true },
-        { root: true }
-      );
+    context.commit(
+      "captureControl/setIsResuming",
+      { isResuming: true },
+      { root: true }
+    );
 
-      await new ResumeAction(
-        {
-          clearTestStepIds: () => {
-            context.commit("clearTestStepIds");
-          },
-          registerTestStepId: (testStepId: string) => {
-            context.commit("addTestStepId", { testStepId });
-            const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
-            return sequence;
-          },
-          setResumedData: async (data) => {
-            context.commit("clearHistory");
-            context.commit("clearModels");
-            context.commit("clearInputValueTable");
-            context.commit("selectWindow", { windowHandle: "" });
-
-            context.commit("resetAllCoverageSources", {
-              coverageSources: data.coverageSources,
-            });
-            context.commit("resetInputElementInfos", {
-              inputElementInfos: data.inputElementInfos,
-            });
-            context.commit("resetHistory", {
-              historyItems: data.historyItems,
-            });
-            context.commit(
-              "captureControl/setUrl",
-              { url: data.url },
-              { root: true }
-            );
-            context.commit("setTestResultInfo", {
-              repositoryUrl:
-                context.rootState.repositoryServiceDispatcher.serviceUrl,
-              ...data.testResultInfo,
-            });
-
-            await context.dispatch(
-              "captureControl/resumeWindowHandles",
-              { history: context.state.history },
-              { root: true }
-            );
-
-            await context.dispatch("updateScreenHistory");
-          },
+    const result = await new ResumeAction(
+      {
+        clearTestStepIds: () => {
+          context.commit("clearTestStepIds");
         },
-        context.rootState.repositoryServiceDispatcher
-      ).resume(payload.testResultId);
-    } catch (error) {
+        registerTestStepId: (testStepId: string) => {
+          context.commit("addTestStepId", { testStepId });
+          const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
+          return sequence;
+        },
+        setResumedData: async (data) => {
+          context.commit("clearHistory");
+          context.commit("clearModels");
+          context.commit("clearInputValueTable");
+          context.commit("selectWindow", { windowHandle: "" });
+
+          context.commit("resetAllCoverageSources", {
+            coverageSources: data.coverageSources,
+          });
+          context.commit("resetInputElementInfos", {
+            inputElementInfos: data.inputElementInfos,
+          });
+          context.commit("resetHistory", {
+            historyItems: data.historyItems,
+          });
+          context.commit(
+            "captureControl/setUrl",
+            { url: data.url },
+            { root: true }
+          );
+          context.commit("setTestResultInfo", {
+            repositoryUrl:
+              context.rootState.repositoryServiceDispatcher.serviceUrl,
+            ...data.testResultInfo,
+          });
+
+          await context.dispatch(
+            "captureControl/resumeWindowHandles",
+            { history: context.state.history },
+            { root: true }
+          );
+
+          await context.dispatch("updateScreenHistory");
+        },
+      },
+      context.rootState.repositoryServiceDispatcher
+    ).resume(payload.testResultId);
+
+    context.commit(
+      "captureControl/setIsResuming",
+      { isResuming: false },
+      { root: true }
+    );
+
+    if (result.error) {
       const errorMessage = context.rootGetters.message(
-        `error.operation_history.${error.message}`
+        `error.operation_history.${result.error.code}`
       );
 
       throw new Error(errorMessage);
-    } finally {
-      context.commit(
-        "captureControl/setIsResuming",
-        { isResuming: false },
-        { root: true }
-      );
     }
   },
 

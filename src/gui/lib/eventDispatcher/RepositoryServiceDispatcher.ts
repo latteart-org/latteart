@@ -426,7 +426,7 @@ export default class RepositoryServiceDispatcher
       }
     );
     const savedNote = response.data as {
-      id: number;
+      id: string;
       type: string;
       value: string;
       details: string;
@@ -702,89 +702,6 @@ export default class RepositoryServiceDispatcher
         index,
       },
     });
-  }
-
-  /**
-   * Restore the operation history of the specified test result ID
-   * @param testResultId  Test result ID.
-   * @returns Restored operation history information.
-   */
-  public async resume(
-    testResultId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    }>
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}`)
-    );
-
-    const testResult = response.data as {
-      id: string;
-      name: string;
-      testSteps: any[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    };
-
-    const data = {
-      id: testResult.id,
-      name: testResult.name,
-      operationHistoryItems: testResult.testSteps.map((testStep) => {
-        return {
-          testStepId: testStep.id,
-          operation: testStep.operation
-            ? Operation.createFromOtherOperation({
-                other: testStep.operation,
-                overrideParams: {
-                  imageFilePath: testStep.operation.imageFileUrl
-                    ? new URL(
-                        testStep.operation.imageFileUrl,
-                        this.serviceUrl
-                      ).toString()
-                    : "",
-                  keywordSet: new Set(testStep.operation.keywordTexts),
-                },
-              })
-            : testStep.operation,
-          intention: testStep.intention,
-          bugs:
-            testStep.bugs?.map((bug: any) => {
-              return Note.createFromOtherNote({
-                other: bug,
-                overrideParams: {
-                  imageFilePath: bug.imageFileUrl
-                    ? new URL(bug.imageFileUrl, this.serviceUrl).toString()
-                    : "",
-                },
-              });
-            }) ?? null,
-          notices:
-            testStep.notices?.map((notice: any) => {
-              return Note.createFromOtherNote({
-                other: notice,
-                overrideParams: {
-                  imageFilePath: notice.imageFileUrl
-                    ? new URL(notice.imageFileUrl, this.serviceUrl).toString()
-                    : "",
-                },
-              });
-            }) ?? null,
-        };
-      }),
-      coverageSources: testResult.coverageSources,
-      inputElementInfos: testResult.inputElementInfos,
-      initialUrl: testResult.initialUrl,
-    };
-
-    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**

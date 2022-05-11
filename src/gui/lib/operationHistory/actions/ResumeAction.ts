@@ -16,9 +16,10 @@
 
 import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
 import { CoverageSource, InputElementInfo } from "../types";
-import { Reply } from "@/lib/captureControl/Reply";
 import { Operation } from "../Operation";
 import { Note } from "../Note";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -33,18 +34,8 @@ export interface ResumeActionObserver {
 }
 
 export interface TestResultResumable {
-  resume(
-    testResultId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    }>
-  >;
+  readonly testResultRepository: TestResultRepository;
+  readonly serviceUrl: string;
 }
 
 export class ResumeAction {
@@ -53,14 +44,76 @@ export class ResumeAction {
     private repositoryServiceDispatcher: TestResultResumable
   ) {}
 
-  public async resume(testResultId: string): Promise<void> {
-    const reply = await this.repositoryServiceDispatcher.resume(testResultId);
+  /**
+   * Restore the operation history of the specified test result ID
+   * @param testResultId  Test result ID.
+   * @returns Restored operation history information.
+   */
+  public async resume(testResultId: string): Promise<ActionResult<void>> {
+    const reply = await this.repositoryServiceDispatcher.testResultRepository.getTestResult(
+      testResultId
+    );
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
+    const testResult = reply.data!;
 
-    const data = reply.data;
+    const serviceUrl = this.repositoryServiceDispatcher.serviceUrl;
+
+    const data = {
+      id: testResult.id,
+      name: testResult.name,
+      operationHistoryItems: testResult.testSteps.map((testStep) => {
+        const operation = testStep.operation
+          ? Operation.createOperation({
+              input: testStep.operation.input,
+              type: testStep.operation.type,
+              elementInfo: testStep.operation.elementInfo,
+              title: testStep.operation.title,
+              url: testStep.operation.url,
+              imageFilePath: testStep.operation.imageFileUrl
+                ? new URL(
+                    testStep.operation.imageFileUrl,
+                    serviceUrl
+                  ).toString()
+                : testStep.operation.imageFileUrl,
+              windowHandle: testStep.operation.windowHandle,
+              timestamp: testStep.operation.timestamp,
+              inputElements: testStep.operation.inputElements,
+              keywordSet: new Set(testStep.operation.keywordTexts),
+            })
+          : testStep.operation;
+
+        return {
+          testStepId: testStep.id,
+          operation,
+          intention: testStep.intention,
+          bugs:
+            testStep.bugs?.map((bug: any) => {
+              return Note.createFromOtherNote({
+                other: bug,
+                overrideParams: {
+                  imageFilePath: bug.imageFileUrl
+                    ? new URL(bug.imageFileUrl, serviceUrl).toString()
+                    : "",
+                },
+              });
+            }) ?? null,
+          notices:
+            testStep.notices?.map((notice: any) => {
+              return Note.createFromOtherNote({
+                other: notice,
+                overrideParams: {
+                  imageFilePath: notice.imageFileUrl
+                    ? new URL(notice.imageFileUrl, serviceUrl).toString()
+                    : "",
+                },
+              });
+            }) ?? null,
+        };
+      }),
+      coverageSources: testResult.coverageSources,
+      inputElementInfos: testResult.inputElementInfos,
+      initialUrl: testResult.initialUrl,
+    };
 
     if (data) {
       this.observer.clearTestStepIds();
@@ -68,33 +121,43 @@ export class ResumeAction {
       const historyItems = data.operationHistoryItems.map((item) => {
         const sequence = this.observer.registerTestStepId(item.testStepId);
 
+        const operation = item.operation
+          ? Operation.createFromOtherOperation({
+              other: item.operation,
+              overrideParams: { sequence },
+            })
+          : null;
+
+        const otherNote = new Note({
+          id: item.intention?.id,
+          sequence: sequence,
+          value: item.intention?.value,
+          details: item.intention?.details,
+          tags: item.intention?.tags,
+        });
+        const intention = item.intention ? otherNote : null;
+
+        const bugs =
+          item.bugs?.map((bug) => {
+            return Note.createFromOtherNote({
+              other: bug,
+              overrideParams: { sequence },
+            });
+          }) ?? [];
+
+        const notices =
+          item.notices?.map((notice) => {
+            return Note.createFromOtherNote({
+              other: notice,
+              overrideParams: { sequence },
+            });
+          }) ?? [];
+
         return {
-          operation: item.operation
-            ? Operation.createFromOtherOperation({
-                other: item.operation,
-                overrideParams: { sequence },
-              })
-            : null,
-          intention: item.intention
-            ? Note.createFromOtherNote({
-                other: item.intention,
-                overrideParams: { sequence },
-              })
-            : null,
-          bugs:
-            item.bugs?.map((bug) => {
-              return Note.createFromOtherNote({
-                other: bug,
-                overrideParams: { sequence },
-              });
-            }) ?? [],
-          notices:
-            item.notices?.map((notice) => {
-              return Note.createFromOtherNote({
-                other: notice,
-                overrideParams: { sequence },
-              });
-            }) ?? [],
+          operation: operation,
+          intention: intention,
+          bugs: bugs,
+          notices: notices,
         };
       });
 
@@ -106,5 +169,6 @@ export class ResumeAction {
         testResultInfo: { id: data.id, name: data.name },
       });
     }
+    return { data: reply.data as void, error: reply.error ?? undefined };
   }
 }

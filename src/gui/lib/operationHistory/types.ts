@@ -237,6 +237,6 @@ export interface TestResult {
       attributes: {
         [key: string]: string;
       };
-    };
+    }[];
   }[];
 }

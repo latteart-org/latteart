@@ -17,6 +17,7 @@
 import { Note } from "../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
@@ -39,7 +40,7 @@ export class MoveIntentionAction {
     testResultId: string,
     fromSequence: number,
     destSequence: number
-  ): Promise<void> {
+  ): Promise<ActionResult<void>> {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
@@ -97,5 +98,7 @@ export class MoveIntentionAction {
         })
       );
     }
+
+    return {};
   }
 }

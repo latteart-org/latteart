@@ -15,6 +15,7 @@
  */
 
 import { Sequential } from "./RecordIntentionAction";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface SaveIntentionActionObserver {
   recordIntention(intention: {
@@ -49,7 +50,7 @@ export class SaveIntentionAction {
     history: {
       operation: Sequential;
     }[]
-  ): Promise<void> {
+  ): Promise<ActionResult<void>> {
     const { oldSequence, newSequence, note, noteDetails } = noteEditInfo;
 
     const sequence =
@@ -65,7 +66,7 @@ export class SaveIntentionAction {
         noteDetails: noteEditInfo.noteDetails,
       });
 
-      return;
+      return {};
     }
 
     await this.observer.recordIntention({
@@ -78,5 +79,7 @@ export class SaveIntentionAction {
     if (oldSequence !== undefined && newSequence !== undefined) {
       await this.observer.moveIntention(oldSequence, newSequence);
     }
+
+    return {};
   }
 }

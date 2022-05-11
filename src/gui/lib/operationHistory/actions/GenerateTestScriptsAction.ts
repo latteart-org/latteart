@@ -43,7 +43,7 @@ export class GenerateTestScriptsAction {
     const testScript = this.scriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
-      return { error: { code: "generate_test_suite_failed" } };
+      return { data: undefined, error: { code: "generate_test_suite_failed" } };
     }
 
     const invalidTypeExists = params.sources.some((session) => {
@@ -90,6 +90,9 @@ export class GenerateTestScriptsAction {
 
       return result;
     }
-    return { error: { code: "save_test_scripts_no_operation_error" } };
+    return {
+      data: undefined,
+      error: { code: "save_test_scripts_no_operation_error" },
+    };
   }
 }

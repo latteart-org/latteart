@@ -26,7 +26,7 @@ export class CompressNoteImageAction {
 
   public async compressNoteImage(
     testResultId: string,
-    noteId: number
+    noteId: string
   ): Promise<ActionResult<{ imageFileUrl: string }>> {
     const reply = await this.dispatcher.compressedImageRepository.postNoteImage(
       testResultId,

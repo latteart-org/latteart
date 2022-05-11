@@ -107,7 +107,11 @@ export class NoteRepository {
   public async putNotes(
     testResultId: string,
     noteId: string,
-    intention: {
+    intention?: {
+      summary: string;
+      details: string;
+    },
+    bug?: {
       summary: string;
       details: string;
     }
@@ -121,13 +125,20 @@ export class NoteRepository {
       tags?: string[];
     }>
   > {
+    const body = intention
+      ? {
+          type: "intention",
+          value: intention.summary,
+          details: intention.details,
+        }
+      : {
+          type: "bug",
+          value: bug!.summary,
+          details: bug!.details,
+        };
     const response = await this.restClient.httpPut(
       this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-      {
-        type: "intention",
-        value: intention.summary,
-        details: intention.details,
-      }
+      body
     );
 
     return new ReplyImpl({

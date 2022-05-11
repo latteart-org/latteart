@@ -15,7 +15,7 @@ export class CompressedImageRepository {
    */
   public async postNoteImage(
     testResultId: string,
-    noteId: number
+    noteId: string
   ): Promise<Reply<{ imageFileUrl: string }>> {
     const response = await this.restClient.httpPost(
       this.buildAPIURL(
