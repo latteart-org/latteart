@@ -58,6 +58,7 @@ import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/Ge
 import { GetImportProjectListAction } from "@/lib/operationHistory/actions/GetImportProjectListAction";
 import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTestResultAction";
 import { CompressNoteImageAction } from "@/lib/operationHistory/actions/CompressNoteImageAction";
+import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/CompressTestStepImageAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -922,12 +923,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.operation Operation.
    */
   async registerOperation(context, payload: { operation: CapturedOperation }) {
+    const dispatcher = context.rootState.repositoryServiceDispatcher;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
-    const reply = await context.rootState.repositoryServiceDispatcher.registerOperation(
+    const reply = await dispatcher.registerOperation(
       context.state.testResultInfo.id,
       capturedOperation
     );
@@ -965,18 +967,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     ) {
       setTimeout(async () => {
         const testStepId = context.state.testStepIds[operation.sequence - 1];
-
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressTestStepImage(
-          context.state.testResultInfo.id,
-          testStepId
-        );
-        if (reply2.succeeded) {
+        const result = await new CompressTestStepImageAction(
+          dispatcher
+        ).compressNoteImage(context.state.testResultInfo.id, testStepId);
+        if (result.data) {
           context.commit("replaceTestStepsImageFileUrl", {
             sequence: operation.sequence,
-            imageFileUrl: `${context.rootState.repositoryServiceDispatcher.serviceUrl}/${reply2.data?.imageFileUrl}`,
+            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
           });
-        } else {
-          throw reply2.error;
+        }
+        if (result.error) {
+          throw result.error;
         }
       }, 1);
     }

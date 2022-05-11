@@ -178,35 +178,6 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
-   * Compress screenshot of test step.
-   * @param testResultId  Test result id.
-   * @param testStepId  Test step id of the target test step.
-   * @returns File path after compression.
-   */
-  public async compressTestStepImage(
-    testResultId: string,
-    testStepId: string
-  ): Promise<Reply<{ imageFileUrl: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`
-      ),
-      null
-    );
-
-    const { imageFileUrl } = response.data as { imageFileUrl: string };
-
-    if (!imageFileUrl) {
-      throw new Error();
-    }
-
-    return new ReplyImpl({
-      status: response.status,
-      data: { imageFileUrl },
-    });
-  }
-
-  /**
    * Register the operation information in the repository.
    * @param testResultId  Test result ID.
    * @param capturedOperation  Operation information to register.
