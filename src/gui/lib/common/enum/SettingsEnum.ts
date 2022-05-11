@@ -16,6 +16,7 @@
 
 enum Browser {
   Chrome = "Chrome",
+  Edge = "Edge",
   Safari = "Safari",
 }
 
