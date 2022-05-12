@@ -32,6 +32,7 @@ import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/SaveDeviceSettingAction";
+import { GetTestResultAction } from "@/lib/operationHistory/actions/GetTestResultAction";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -534,23 +535,28 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   async getTestResult(
     context,
     payload: { testResultId: string }
-  ): Promise<
-    | {
-        id: string;
-        name: string;
-        startTimeStamp: number;
-        endTimeStamp: number;
-        initialUrl: string;
-      }
-    | undefined
-  > {
-    const reply = await context.rootState.repositoryServiceDispatcher.getTestResult(
-      payload.testResultId
-    );
+  ): Promise<{
+    id: string;
+    name: string;
+    startTimeStamp: number;
+    endTimeStamp: number;
+    initialUrl: string;
+  }> {
+    const result = await new GetTestResultAction(
+      context.rootState.repositoryServiceDispatcher
+    ).getTestResult(payload.testResultId);
 
-    console.log(reply);
+    console.log(result);
 
-    return reply.data;
+    const data = result.data as {
+      id: string;
+      name: string;
+      startTimeStamp: number;
+      endTimeStamp: number;
+      initialUrl: string;
+    };
+
+    return data;
   },
 };
 

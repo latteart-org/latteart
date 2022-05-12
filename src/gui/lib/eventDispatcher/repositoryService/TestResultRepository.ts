@@ -119,6 +119,10 @@ export class TestResultRepository {
     });
   }
 
+  /**
+   * Get the test result of the specified test result ID.
+   * @param testResultId  Test result ID.
+   */
   public async getTestResult(testResultId: string): Promise<Reply<TestResult>> {
     const response = await this.restClient.httpGet(
       this.buildAPIURL(`/test-results/${testResultId}`)

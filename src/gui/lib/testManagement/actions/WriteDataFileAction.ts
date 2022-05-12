@@ -22,6 +22,7 @@ import {
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
 import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 
 interface WriteDataFileMutationObserver {
   setManagedData(data: {
@@ -40,18 +41,7 @@ export interface StoryConvertable {
 }
 
 export interface ProjectUpdatable {
-  getTestResult(
-    testResultId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-      testSteps: any;
-    }>
-  >;
+  readonly testResultRepository: TestResultRepository;
   readonly projectRepository: ProjectRepository;
 }
 

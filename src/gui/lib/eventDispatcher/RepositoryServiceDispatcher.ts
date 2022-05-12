@@ -272,39 +272,6 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
-   * Get the test result of the specified test result ID.
-   * @param testResultId  Test result ID.
-   */
-  public async getTestResult(
-    testResultId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-      testSteps: any;
-    }>
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}`)
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        name: string;
-        startTimeStamp: number;
-        endTimeStamp: number;
-        initialUrl: string;
-        testSteps: any;
-      },
-    });
-  }
-
-  /**
    * Generate API URL.
    * @param url  URL after the fixed value.
    * @returns  URL

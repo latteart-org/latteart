@@ -26,6 +26,7 @@ import {
   ProjectUpdatable,
   StoryConvertable,
 } from "./actions/WriteDataFileAction";
+import { GetTestResultAction } from "../operationHistory/actions/GetTestResultAction";
 
 /**
  * Convert story information.
@@ -59,72 +60,70 @@ export default class StoryDataConverter implements StoryConvertable {
 
     const testResultFile = testResultFiles[0];
 
-    try {
-      const readResultData = (await dispatcher.getTestResult(testResultFile.id))
-        .data;
+    const result = await new GetTestResultAction(dispatcher).getTestResult(
+      testResultFile.id
+    );
 
-      if (!readResultData) {
-        return {};
-      }
-
-      const { testSteps, initialUrl, startTimeStamp } = readResultData;
-
-      const testingTime = calculateElapsedEpochMillis(
-        startTimeStamp,
-        testSteps
-      );
-
-      const issues: Issue[] = (testSteps as OperationWithNotes[]).flatMap(
-        (testStep) => {
-          const noteWithTypes = [
-            ...(testStep.bugs?.map((bug) => {
-              return { type: "bug", note: bug };
-            }) ?? []),
-            ...(testStep.notices?.map((notice) => {
-              return { type: "notice", note: notice };
-            }) ?? []),
-          ];
-
-          return noteWithTypes.map(({ type, note }, index) => {
-            const { status, ticketId } = {
-              status: note.tags.includes("reported")
-                ? "reported"
-                : note.tags.includes("invalid")
-                ? "invalid"
-                : "",
-              ticketId: "",
-            };
-
-            return {
-              status,
-              ticketId,
-              source: {
-                type,
-                sequence: note.sequence,
-                index,
-              },
-              value: note.value,
-              details: note.details,
-            };
-          });
-        }
-      );
-
-      const intentions = (testSteps as OperationWithNotes[]).flatMap(
-        ({ intention }) => {
-          if (!intention) {
-            return [];
-          }
-
-          return [intention];
-        }
-      );
-
-      return { intentions, initialUrl, testingTime, issues };
-    } catch (error) {
-      console.log(error);
+    if (!result.data) {
       return {};
     }
+    if (result.error) {
+      console.log(result.error);
+      return {};
+    }
+
+    const {
+      testSteps: operationWithNotes,
+      initialUrl,
+      startTimeStamp,
+    } = result.data;
+    const testSteps: OperationWithNotes[] = operationWithNotes as any;
+
+    const testingTime = calculateElapsedEpochMillis(startTimeStamp, testSteps);
+
+    const issues: Issue[] = testSteps.flatMap((testStep) => {
+      const noteWithTypes = [
+        ...(testStep.bugs?.map((bug) => {
+          return { type: "bug", note: bug };
+        }) ?? []),
+        ...(testStep.notices?.map((notice) => {
+          return { type: "notice", note: notice };
+        }) ?? []),
+      ];
+
+      return noteWithTypes.map(({ type, note }, index) => {
+        const { status, ticketId } = {
+          status: note.tags.includes("reported")
+            ? "reported"
+            : note.tags.includes("invalid")
+            ? "invalid"
+            : "",
+          ticketId: "",
+        };
+
+        return {
+          status,
+          ticketId,
+          source: {
+            type,
+            sequence: note.sequence,
+            index,
+          },
+          value: note.value,
+          details: note.details,
+        };
+      });
+    });
+
+    const intentions = testSteps.flatMap(({ intention }) => {
+      if (!intention) {
+        return [];
+      }
+
+      return [intention];
+    });
+
+    return { intentions, initialUrl, testingTime, issues };
   }
 
   public async convertToSession(
