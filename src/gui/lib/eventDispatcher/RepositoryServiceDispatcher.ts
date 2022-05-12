@@ -21,18 +21,13 @@ import {
   CoverageSource,
   InputElementInfo,
 } from "../operationHistory/types";
-import {
-  ManagedSession,
-  ManagedStory,
-} from "../testManagement/TestManagementData";
+import { ManagedSession } from "../testManagement/TestManagementData";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
 import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
-import { ProjectFetchable } from "../testManagement/actions/ReadProjectDataAction";
 import { TestResultImportable } from "../operationHistory/actions/ImportAction";
 import { TestResultExportable } from "../operationHistory/actions/ExportAction";
-import { TestMatrix, ProgressData } from "../testManagement/types";
 import { TestResultUploadable } from "../operationHistory/actions/UploadTestResultAction";
 import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
 import { TestStepRepository } from "./repositoryService/TestStepRepository";
@@ -55,7 +50,6 @@ import { ProjectRepository } from "./repositoryService/ProjectRepository";
 export default class RepositoryServiceDispatcher
   implements
     ProjectUpdatable,
-    ProjectFetchable,
     IntentionMovable,
     IntentionRecordable,
     TestScriptExportable,
@@ -291,54 +285,6 @@ export default class RepositoryServiceDispatcher
         endTimeStamp: number;
         initialUrl: string;
         testSteps: any;
-      },
-    });
-  }
-
-  /**
-   * Read project data.
-   * @returns Project data.
-   */
-  public async readProject(): Promise<
-    Reply<{
-      projectId: string;
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  > {
-    const projects = (
-      await this.restClient.httpGet(this.buildAPIURL(`/projects`))
-    ).data as Array<{
-      id: string;
-      name: string;
-    }>;
-
-    const targetProjectId =
-      projects.length === 0
-        ? ((
-            await this.restClient.httpPost(this.buildAPIURL(`/projects`), {
-              name: "",
-            })
-          ).data as { id: string; name: string }).id
-        : projects[projects.length - 1].id;
-
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/${targetProjectId}`)
-    );
-
-    const data = {
-      ...(response.data as any),
-      projectId: targetProjectId,
-    };
-
-    return new ReplyImpl({
-      status: response.status,
-      data: data as {
-        projectId: string;
-        testMatrices: TestMatrix[];
-        progressDatas: ProgressData[];
-        stories: ManagedStory[];
       },
     });
   }

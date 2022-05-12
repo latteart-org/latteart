@@ -16,6 +16,7 @@
 
 import RESTClient from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import { Project } from "@/lib/testManagement/types";
 
 export class ProjectRepository {
   constructor(
@@ -41,6 +42,54 @@ export class ProjectRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as { url: string },
+    });
+  }
+
+  public async getProjects(): Promise<
+    Reply<
+      Array<{
+        id: string;
+        name: string;
+        createdAt: string;
+      }>
+    >
+  > {
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Array<{
+        id: string;
+        name: string;
+        createdAt: string;
+      }>,
+    });
+  }
+
+  public async getProject(projectId: string): Promise<Reply<Project>> {
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/projects/${projectId}`)
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Project,
+    });
+  }
+
+  public async postProject(): Promise<Reply<{ id: string; name: string }>> {
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/projects`),
+      {
+        name: "",
+      }
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { id: string; name: string },
     });
   }
 }

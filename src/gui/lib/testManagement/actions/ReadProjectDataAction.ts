@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
 import { ProjectUpdatable, StoryConvertable } from "./WriteDataFileAction";
+import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
@@ -34,14 +36,7 @@ export interface ProjectStoryConvertable {
 }
 
 export interface ProjectFetchable extends ProjectUpdatable {
-  readProject(): Promise<
-    Reply<{
-      projectId: string;
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
+  readonly projectRepository: ProjectRepository;
 }
 
 export class ReadProjectDataAction {
@@ -51,14 +46,15 @@ export class ReadProjectDataAction {
     private dispatcher: ProjectFetchable
   ) {}
 
-  public async read(): Promise<void> {
-    const reply = await this.dispatcher.readProject();
+  public async read(): Promise<ActionResult<void>> {
+    const reply = await this.readProject();
+
     if (reply.error) {
-      throw new Error(reply.error.code);
+      return { data: undefined, error: reply.error };
     }
 
     if (!reply.data) {
-      return;
+      return {};
     }
 
     const { projectId, testMatrices, stories, progressDatas } = reply.data;
@@ -79,5 +75,50 @@ export class ReadProjectDataAction {
     });
 
     this.observer.setProgressDatas({ progressDatas });
+
+    return {};
+  }
+
+  /**
+   * Read project data.
+   * @returns Project data.
+   */
+  private async readProject(): Promise<
+    Reply<{
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    }>
+  > {
+    const projects = (await this.dispatcher.projectRepository.getProjects())
+      .data as Array<{
+      id: string;
+      name: string;
+    }>;
+
+    const targetProjectId =
+      projects.length === 0
+        ? ((await this.dispatcher.projectRepository.postProject()).data as {
+            id: string;
+            name: string;
+          }).id
+        : projects[projects.length - 1].id;
+
+    const reply = await this.dispatcher.projectRepository.getProject(
+      targetProjectId
+    );
+
+    const data = {
+      ...reply.data,
+      projectId: targetProjectId,
+    } as {
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    };
+
+    return new ReplyImpl({ status: reply.status, data: data });
   }
 }
