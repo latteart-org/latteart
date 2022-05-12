@@ -46,6 +46,7 @@ import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
+import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -622,13 +623,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       testingTime: payload.params.testingTime,
     };
 
-    const updatedSession = (
-      await context.rootState.repositoryServiceDispatcher.updateSession(
-        context.state.projectId,
-        payload.sessionId,
-        newSession
-      )
-    ).data!;
+    const result = await new UpdateSessionAction(
+      context.rootState.repositoryServiceDispatcher
+    ).updateSession(context.state.projectId, payload.sessionId, newSession);
+
+    const updatedSession = result.data!;
 
     const parsedSession = await new StoryDataConverter().convertToSession(
       {

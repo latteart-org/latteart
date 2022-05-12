@@ -16,11 +16,7 @@
 
 import RESTClient from "./RESTClient";
 import { Reply, ReplyImpl } from "../captureControl/Reply";
-import {
-  TestResult,
-  CoverageSource,
-  InputElementInfo,
-} from "../operationHistory/types";
+import { CoverageSource, InputElementInfo } from "../operationHistory/types";
 import { ManagedSession } from "../testManagement/TestManagementData";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
@@ -43,6 +39,7 @@ import { Operation } from "../operationHistory/Operation";
 import { Note } from "../operationHistory/Note";
 import { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import { ProjectRepository } from "./repositoryService/ProjectRepository";
+import { SessionRepository } from "./repositoryService/SessionRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -101,6 +98,10 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
+    this._sessionRepository = new SessionRepository(
+      this.restClient,
+      buildAPIURL
+    );
   }
 
   /**
@@ -136,6 +137,7 @@ export default class RepositoryServiceDispatcher
   private _settingRepository: SettingRepository;
   private _compressedImageRepository: CompressedImageRepository;
   private _projectRepository: ProjectRepository;
+  private _sessionRepository: SessionRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -171,6 +173,10 @@ export default class RepositoryServiceDispatcher
 
   public get projectRepository(): ProjectRepository {
     return this._projectRepository;
+  }
+
+  public get sessionRepository(): SessionRepository {
+    return this._sessionRepository;
   }
 
   /**
@@ -304,22 +310,6 @@ export default class RepositoryServiceDispatcher
     return new ReplyImpl({
       status: response.status,
       data: response.data as any,
-    });
-  }
-
-  public async updateSession(
-    projectId: string,
-    sessionId: string,
-    body: Partial<ManagedSession>
-  ): Promise<Reply<ManagedSession>> {
-    const response = await this.restClient.httpPatch(
-      this.buildAPIURL(`/projects/${projectId}/sessions/${sessionId}`),
-      body
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as ManagedSession,
     });
   }
 
