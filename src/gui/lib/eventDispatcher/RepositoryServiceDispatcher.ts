@@ -340,23 +340,6 @@ export default class RepositoryServiceDispatcher
     });
   }
 
-  public async changeTestResult(
-    testResultId: string,
-    name?: string,
-    startTime?: number,
-    initialUrl?: string
-  ): Promise<Reply<string>> {
-    const response = await this.restClient.httpPatch(
-      this.buildAPIURL(`/test-results/${testResultId}`),
-      { name, startTime, initialUrl }
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: (response.data as TestResult).name,
-    });
-  }
-
   /**
    * Generate API URL.
    * @param url  URL after the fixed value.

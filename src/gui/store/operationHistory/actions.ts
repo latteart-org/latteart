@@ -68,6 +68,7 @@ import { DeleteNoticeAction } from "@/lib/operationHistory/actions/DeleteNoticeA
 import { AddNoticeAction } from "@/lib/operationHistory/actions/AddNoticeAction";
 import { EditNoticeAction } from "@/lib/operationHistory/actions/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/MoveNoticeAction";
+import { ChangeTestResultAction } from "@/lib/operationHistory/actions/ChangeTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -1415,23 +1416,27 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const startTimeStamp = payload.startTime ?? undefined;
     const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
+    const result = await new ChangeTestResultAction(
+      context.rootState.repositoryServiceDispatcher
+    ).changeTestResult(
       context.state.testResultInfo.id,
       name,
       startTimeStamp,
       url
     );
 
-    if (!reply.succeeded) {
+    if (result.error) {
       const errorMessage = context.rootGetters.message(
-        `error.operation_history.${reply.error!.code}`
+        `error.operation_history.${result.error.code}`
       );
       throw new Error(errorMessage);
     }
 
-    const changedName = reply.data!;
+    if (result.data) {
+      const changedName = result.data;
 
-    context.commit("setTestResultName", { name: changedName });
+      context.commit("setTestResultName", { name: changedName });
+    }
   },
 };
 

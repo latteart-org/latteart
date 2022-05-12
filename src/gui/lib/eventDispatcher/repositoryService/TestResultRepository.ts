@@ -129,4 +129,21 @@ export class TestResultRepository {
       data: response.data as TestResult,
     });
   }
+
+  public async patchTestResult(
+    testResultId: string,
+    name?: string,
+    startTime?: number,
+    initialUrl?: string
+  ): Promise<Reply<string>> {
+    const response = await this.restClient.httpPatch(
+      this.buildAPIURL(`/test-results/${testResultId}`),
+      { name, startTime, initialUrl }
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: (response.data as TestResult).name,
+    });
+  }
 }
