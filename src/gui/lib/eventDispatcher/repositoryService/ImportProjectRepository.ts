@@ -26,4 +26,28 @@ export class ImportProjectRepository {
       }>,
     });
   }
+
+  /**
+   * Import project or testresult or all.
+   * @param importFileName  Import file name.
+   * @param selectOption  Select options.
+   */
+  public async postProjects(
+    source: { projectFileUrl: string },
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<Reply<{ projectId: string }>> {
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/imports/projects`),
+      {
+        source,
+        includeTestResults: selectOption.includeTestResults,
+        includeProject: selectOption.includeProject,
+      }
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { projectId: string },
+    });
+  }
 }

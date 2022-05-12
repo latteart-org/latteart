@@ -965,22 +965,24 @@ const actions: ActionTree<TestManagementState, RootState> = {
         selectedOptionTestresult: boolean;
       };
     }
-  ): Promise<{
-    projectId: string;
-  }> {
+  ) {
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    try {
-      return await new ImportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).importZip(payload.source, selectOption);
-    } catch (error) {
+    const result = await new ImportAction(
+      context.rootState.repositoryServiceDispatcher
+    ).importZip(payload.source, selectOption);
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
+    }
+
+    if (result.data) {
+      return result.data;
     }
   },
 
