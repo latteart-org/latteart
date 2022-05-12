@@ -30,7 +30,6 @@ import { IntentionMovable } from "../operationHistory/actions/MoveIntentionActio
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
 import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
 import { ProjectFetchable } from "../testManagement/actions/ReadProjectDataAction";
-import { Exportable } from "../testManagement/actions/ExportAction";
 import { TestResultImportable } from "../operationHistory/actions/ImportAction";
 import { TestResultExportable } from "../operationHistory/actions/ExportAction";
 import { TestMatrix, ProgressData } from "../testManagement/types";
@@ -48,6 +47,7 @@ import { CompressedImageRepository } from "./repositoryService/CompressedImageRe
 import { Operation } from "../operationHistory/Operation";
 import { Note } from "../operationHistory/Note";
 import { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
+import { ProjectRepository } from "./repositoryService/ProjectRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -59,7 +59,6 @@ export default class RepositoryServiceDispatcher
     IntentionMovable,
     IntentionRecordable,
     TestScriptExportable,
-    Exportable,
     TestResultImportable,
     TestResultExportable,
     TestResultUploadable,
@@ -104,6 +103,10 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
+    this._projectRepository = new ProjectRepository(
+      this.restClient,
+      buildAPIURL
+    );
   }
 
   /**
@@ -138,6 +141,7 @@ export default class RepositoryServiceDispatcher
   private _testScriptRepository: TestScriptRepository;
   private _settingRepository: SettingRepository;
   private _compressedImageRepository: CompressedImageRepository;
+  private _projectRepository: ProjectRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -169,6 +173,10 @@ export default class RepositoryServiceDispatcher
 
   public get compressedImageRepository(): CompressedImageRepository {
     return this._compressedImageRepository;
+  }
+
+  public get projectRepository(): ProjectRepository {
+    return this._projectRepository;
   }
 
   /**
@@ -252,27 +260,6 @@ export default class RepositoryServiceDispatcher
     };
 
     return new ReplyImpl({ status: response.status, data: data });
-  }
-
-  /**
-   * Creates export project or testresult or all.
-   * @param projectId  Project ID.
-   * @param selectOption  Select option.
-   * @returns Export File URL.
-   */
-  public async exportZipFile(
-    projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ url: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects/${projectId}/export`),
-      selectOption
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as { url: string },
-    });
   }
 
   /**

@@ -1000,21 +1000,25 @@ const actions: ActionTree<TestManagementState, RootState> = {
         selectedOptionTestresult: boolean;
       };
     }
-  ): Promise<string> {
+  ) {
     const exportProjectId = context.state.projectId;
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    try {
-      return await new ExportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).exportZip(exportProjectId, selectOption);
-    } catch (error) {
+    const result = await new ExportAction(
+      context.rootState.repositoryServiceDispatcher
+    ).exportZip(exportProjectId, selectOption);
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
+    }
+
+    if (result.data) {
+      return result.data;
     }
   },
 };

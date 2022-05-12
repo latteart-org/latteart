@@ -14,34 +14,33 @@
  * limitations under the License.
  */
 
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
-import { ActionResult } from "@/lib/common/ActionResult";
+import RESTClient from "../RESTClient";
+import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
-export interface Exportable {
-  readonly projectRepository: ProjectRepository;
-}
+export class ProjectRepository {
+  constructor(
+    private restClient: RESTClient,
+    private buildAPIURL: (url: string) => string
+  ) {}
 
-export class ExportAction {
-  constructor(private dispatcher: Exportable) {}
-
-  public async exportZip(
+  /**
+   * Creates export project or testresult or all.
+   * @param projectId  Project ID.
+   * @param selectOption  Select option.
+   * @returns Export File URL.
+   */
+  public async postProjectForExport(
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.projectRepository.postProjectForExport(
-      projectId,
+  ): Promise<Reply<{ url: string }>> {
+    const response = await this.restClient.httpPost(
+      this.buildAPIURL(`/projects/${projectId}/export`),
       selectOption
     );
 
-    const error = !reply.data
-      ? { code: "create-export-data-error" }
-      : undefined;
-    const outputUrl = reply.data ? reply.data.url : undefined;
-    const result = {
-      data: outputUrl,
-      error,
-    };
-
-    return result;
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as { url: string },
+    });
   }
 }
