@@ -295,7 +295,7 @@ export default class ReviewView extends Vue {
   }
 
   private openNoteMenu(
-    note: { id: number; sequence: number; index: number; type: string },
+    note: { id: string; sequence: number; index: number; type: string },
     eventInfo: { clientX: number; clientY: number }
   ) {
     if ((this as any).$isViewerMode) {

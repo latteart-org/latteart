@@ -109,7 +109,7 @@ describe("Historyは", () => {
     it("対象Issueが存在する場合、Issueを返す", () => {
       expect(
         History.getTargetIssue(session, {
-          id: 1,
+          id: "1",
           sequence: 1,
           index: 1,
           type: "bug",
@@ -120,7 +120,7 @@ describe("Historyは", () => {
     it("対象Issueが存在しない場合、nullを返す", () => {
       expect(
         History.getTargetIssue(session, {
-          id: 1,
+          id: "1",
           sequence: 1,
           index: 1,
           type: "notice",

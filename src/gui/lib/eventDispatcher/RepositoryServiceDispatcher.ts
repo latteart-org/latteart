@@ -17,7 +17,6 @@
 import RESTClient from "./RESTClient";
 import { Reply, ReplyImpl } from "../captureControl/Reply";
 import { CoverageSource, InputElementInfo } from "../operationHistory/types";
-import { ManagedSession } from "../testManagement/TestManagementData";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
@@ -40,6 +39,7 @@ import { Note } from "../operationHistory/Note";
 import { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import { ProjectRepository } from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
+import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -102,6 +102,10 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
+    this._snapshotRepository = new SnapshotRepository(
+      this.restClient,
+      buildAPIURL
+    );
   }
 
   /**
@@ -138,6 +142,7 @@ export default class RepositoryServiceDispatcher
   private _compressedImageRepository: CompressedImageRepository;
   private _projectRepository: ProjectRepository;
   private _sessionRepository: SessionRepository;
+  private _snapshotRepository: SnapshotRepository;
 
   public get testStepRepository(): TestStepRepository {
     return this._testStepRepository;
@@ -177,6 +182,10 @@ export default class RepositoryServiceDispatcher
 
   public get sessionRepository(): SessionRepository {
     return this._sessionRepository;
+  }
+
+  public get snapshotRepository(): SnapshotRepository {
+    return this._snapshotRepository;
   }
 
   /**
@@ -305,23 +314,6 @@ export default class RepositoryServiceDispatcher
     const response = await this.restClient.httpPut(
       this.buildAPIURL(`/projects/${projectId}`),
       body
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as any,
-    });
-  }
-
-  /**
-   * Create a snapshot of the specified project ID.
-   * @param projectId  Project ID.
-   * @returns URL of the snapshot.
-   */
-  public async postSnapshots(projectId: string): Promise<Reply<any>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects/${projectId}/snapshots`),
-      null
     );
 
     return new ReplyImpl({

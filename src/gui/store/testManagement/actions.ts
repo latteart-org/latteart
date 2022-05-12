@@ -47,6 +47,7 @@ import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
+import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -71,10 +72,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @returns URL of the output snapshot.
    */
   async writeSnapshot(context): Promise<string> {
-    const reply = await context.rootState.repositoryServiceDispatcher.postSnapshots(
-      context.state.projectId
-    );
-    return reply.data.url;
+    const result = await new WriteSnapshotAction(
+      context.rootState.repositoryServiceDispatcher
+    ).writeSnapshot(context.state.projectId);
+
+    return result.data!.url;
   },
 
   /**
