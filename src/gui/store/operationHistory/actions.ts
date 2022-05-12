@@ -66,6 +66,8 @@ import { MoveBugAction } from "@/lib/operationHistory/actions/MoveBugAction";
 import { DeleteBugAction } from "@/lib/operationHistory/actions/DeleteBugAction";
 import { DeleteNoticeAction } from "@/lib/operationHistory/actions/DeleteNoticeAction";
 import { AddNoticeAction } from "@/lib/operationHistory/actions/AddNoticeAction";
+import { EditNoticeAction } from "@/lib/operationHistory/actions/EditNoticeAction";
+import { MoveNoticeAction } from "@/lib/operationHistory/actions/MoveNoticeAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -520,7 +522,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       // update
       if (payload.index !== undefined) {
         return (
-          await dispatcher.editNotice(
+          await new EditNoticeAction(dispatcher).editNotice(
             context.state.testResultInfo.id,
             testStepId,
             payload.index,
@@ -602,7 +604,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
     }
   ) {
-    const reply = await context.rootState.repositoryServiceDispatcher.moveNotice(
+    const result = await new MoveNoticeAction(
+      context.rootState.repositoryServiceDispatcher
+    ).moveNotice(
       context.state.testResultInfo.id,
       {
         testStepId: context.state.testStepIds[payload.from.sequence - 1],
@@ -613,7 +617,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
     );
 
-    const movedNote = reply.data!;
+    const movedNote = result.data!;
 
     context.commit("deleteNotice", payload.from);
     context.commit("setNotice", {

@@ -16,13 +16,11 @@
 
 import RESTClient from "./RESTClient";
 import { Reply, ReplyImpl } from "../captureControl/Reply";
-import { TestStepOperation, TestResult } from "../operationHistory/types";
-import { Note } from "../operationHistory/Note";
+import { TestResult } from "../operationHistory/types";
 import {
   ManagedSession,
   ManagedStory,
 } from "../testManagement/TestManagementData";
-import { TestResultResumable } from "../operationHistory/actions/ResumeAction";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
@@ -50,7 +48,6 @@ import { CompressedImageRepository } from "./repositoryService/CompressedImageRe
  */
 export default class RepositoryServiceDispatcher
   implements
-    TestResultResumable,
     ProjectUpdatable,
     ProjectFetchable,
     IntentionMovable,
@@ -167,174 +164,6 @@ export default class RepositoryServiceDispatcher
 
   public get compressedImageRepository(): CompressedImageRepository {
     return this._compressedImageRepository;
-  }
-
-  /**
-   * Edit Notice.
-   * @param testResultId  ID of the test result associated with the notice to be edited.
-   * @param testStepId  Test step id of the test result associated with the target Notice.
-   * @param index  Notice index
-   * @param notice  Update contents of notice.
-   * @returns Updated notice information.
-   */
-  public async editNotice(
-    testResultId: string,
-    testStepId: string,
-    index: number,
-    notice: {
-      summary: string;
-      details: string;
-      tags: string[];
-    }
-  ): Promise<Reply<{ notice: Note; index: number }>> {
-    const { notices } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-    const noteId: string = notices[index];
-
-    // Note update
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
-      {
-        type: "notice",
-        value: notice.summary,
-        details: notice.details,
-        tags: notice.tags,
-      }
-    );
-    const savedNote = response.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
-
-    const data = {
-      notice: new Note({
-        value: savedNote.value,
-        details: savedNote.details,
-        imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-          : "",
-        tags: savedNote.tags,
-      }),
-      index,
-    };
-
-    return new ReplyImpl({ status: response.status, data: data });
-  }
-
-  /**
-   * Update the position associated with the Notice.
-   * @param testResultId  ID of the test result associated with the Notice.
-   * @param from  Position of test result associated with Notice.
-   * @param dest  Position of the test result to which you want to link the Notice.
-   * @returns Updated notice information.
-   */
-  public async moveNotice(
-    testResultId: string,
-    from: {
-      testStepId: string;
-      index: number;
-    },
-    dest: {
-      testStepId: string;
-    }
-  ): Promise<Reply<{ notice: Note; index: number }>> {
-    // Break the link of the move source.
-    const { notices: fromNotices } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${from.testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-
-    await (async () => {
-      return this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${from.testStepId}`
-        ),
-        {
-          notices: fromNotices.filter(
-            (_: unknown, index: number) => index !== from.index
-          ),
-        }
-      );
-    })();
-
-    // Link to the destination.
-    const { notices: destNotices } = (
-      await this.restClient.httpGet(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
-        )
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-
-    await (async () => {
-      return this.restClient.httpPatch(
-        this.buildAPIURL(
-          `/test-results/${testResultId}/test-steps/${dest.testStepId}`
-        ),
-        {
-          notices: [...destNotices, fromNotices[from.index]],
-        }
-      );
-    })();
-
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/notes/${fromNotices[from.index]}`
-      )
-    );
-
-    const note = response.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
-
-    const data = {
-      notice: new Note({
-        value: note.value,
-        details: note.details,
-        imageFilePath: note.imageFileUrl
-          ? new URL(note.imageFileUrl, this.serviceUrl).toString()
-          : "",
-        tags: note.tags,
-      }),
-      index: destNotices.length,
-    };
-
-    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**

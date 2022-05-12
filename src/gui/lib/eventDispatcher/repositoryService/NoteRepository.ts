@@ -128,6 +128,11 @@ export class NoteRepository {
     bug?: {
       summary: string;
       details: string;
+    },
+    notice?: {
+      summary: string;
+      details: string;
+      tags: string[];
     }
   ): Promise<
     Reply<{
@@ -145,10 +150,17 @@ export class NoteRepository {
           value: intention.summary,
           details: intention.details,
         }
-      : {
+      : bug
+      ? {
           type: "bug",
-          value: bug!.summary,
-          details: bug!.details,
+          value: bug.summary,
+          details: bug.details,
+        }
+      : {
+          type: "notice",
+          value: notice!.summary,
+          details: notice!.details,
+          tags: notice!.tags,
         };
     const response = await this.restClient.httpPut(
       this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
