@@ -305,24 +305,6 @@ export default class RepositoryServiceDispatcher
   }
 
   /**
-   * Update the project with the specified project ID.
-   * @param projectId  Project ID.
-   * @param body  Project information to update.
-   * @returns Updated project information.
-   */
-  public async putProject(projectId: string, body: any): Promise<Reply<any>> {
-    const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/${projectId}`),
-      body
-    );
-
-    return new ReplyImpl({
-      status: response.status,
-      data: response.data as any,
-    });
-  }
-
-  /**
    * Generate API URL.
    * @param url  URL after the fixed value.
    * @returns  URL

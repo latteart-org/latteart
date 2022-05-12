@@ -17,6 +17,7 @@
 import RESTClient from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { Project } from "@/lib/testManagement/types";
+import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 
 export class ProjectRepository {
   constructor(
@@ -90,6 +91,27 @@ export class ProjectRepository {
     return new ReplyImpl({
       status: response.status,
       data: response.data as { id: string; name: string },
+    });
+  }
+
+  /**
+   * Update the project with the specified project ID.
+   * @param projectId  Project ID.
+   * @param body  Project information to update.
+   * @returns Updated project information.
+   */
+  public async putProject(
+    projectId: string,
+    body: TestManagementData
+  ): Promise<Reply<Project>> {
+    const response = await this.restClient.httpPut(
+      this.buildAPIURL(`/projects/${projectId}`),
+      body
+    );
+
+    return new ReplyImpl({
+      status: response.status,
+      data: response.data as Project,
     });
   }
 }

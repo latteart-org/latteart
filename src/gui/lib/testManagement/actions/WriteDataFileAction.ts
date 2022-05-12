@@ -20,6 +20,8 @@ import {
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
+import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { ActionResult } from "@/lib/common/ActionResult";
 
 interface WriteDataFileMutationObserver {
   setManagedData(data: {
@@ -38,16 +40,6 @@ export interface StoryConvertable {
 }
 
 export interface ProjectUpdatable {
-  putProject(
-    projectId: string,
-    testManagementData: TestManagementData
-  ): Promise<
-    Reply<{
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
   getTestResult(
     testResultId: string
   ): Promise<
@@ -60,6 +52,7 @@ export interface ProjectUpdatable {
       testSteps: any;
     }>
   >;
+  readonly projectRepository: ProjectRepository;
 }
 
 export class WriteDataFileAction {
@@ -73,18 +66,14 @@ export class WriteDataFileAction {
     projectId: string,
     testManagementData: TestManagementData,
     stories: Story[]
-  ): Promise<void> {
-    const reply = await this.dispatcher.putProject(
+  ): Promise<ActionResult<void>> {
+    const reply = await this.dispatcher.projectRepository.putProject(
       projectId,
       testManagementData
     );
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
-
     if (!reply.data) {
-      return;
+      return {};
     }
 
     const data = reply.data;
@@ -100,7 +89,7 @@ export class WriteDataFileAction {
         });
 
         return this.storyDataConverter.convertToStory(
-          story,
+          story as ManagedStory,
           this.dispatcher,
           oldStory
         );
@@ -108,6 +97,6 @@ export class WriteDataFileAction {
     );
     this.observer.setStoriesData({ stories: parsedStories });
 
-    return;
+    return {};
   }
 }
