@@ -15,8 +15,6 @@
  */
 
 import RESTClient from "./RESTClient";
-import { Reply, ReplyImpl } from "../captureControl/Reply";
-import { CoverageSource, InputElementInfo } from "../operationHistory/types";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
@@ -34,9 +32,6 @@ import { SettingRepository } from "./repositoryService/SettingRepository";
 import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
 import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
-import { Operation } from "../operationHistory/Operation";
-import { Note } from "../operationHistory/Note";
-import { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import { ProjectRepository } from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
@@ -186,89 +181,6 @@ export default class RepositoryServiceDispatcher
 
   public get snapshotRepository(): SnapshotRepository {
     return this._snapshotRepository;
-  }
-
-  /**
-   * Restore the operation history of the specified test result ID
-   * @param testResultId  Test result ID.
-   * @returns Restored operation history information.
-   */
-  public async resume(
-    testResultId: string
-  ): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    }>
-  > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}`)
-    );
-
-    const testResult = response.data as {
-      id: string;
-      name: string;
-      testSteps: any[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    };
-
-    const data = {
-      id: testResult.id,
-      name: testResult.name,
-      operationHistoryItems: testResult.testSteps.map((testStep) => {
-        return {
-          testStepId: testStep.id,
-          operation: testStep.operation
-            ? Operation.createFromOtherOperation({
-                other: testStep.operation,
-                overrideParams: {
-                  imageFilePath: testStep.operation.imageFileUrl
-                    ? new URL(
-                        testStep.operation.imageFileUrl,
-                        this.serviceUrl
-                      ).toString()
-                    : "",
-                  keywordSet: new Set(testStep.operation.keywordTexts),
-                },
-              })
-            : testStep.operation,
-          intention: testStep.intention,
-          bugs:
-            testStep.bugs?.map((bug: any) => {
-              return Note.createFromOtherNote({
-                other: bug,
-                overrideParams: {
-                  imageFilePath: bug.imageFileUrl
-                    ? new URL(bug.imageFileUrl, this.serviceUrl).toString()
-                    : "",
-                },
-              });
-            }) ?? null,
-          notices:
-            testStep.notices?.map((notice: any) => {
-              return Note.createFromOtherNote({
-                other: notice,
-                overrideParams: {
-                  imageFilePath: notice.imageFileUrl
-                    ? new URL(notice.imageFileUrl, this.serviceUrl).toString()
-                    : "",
-                },
-              });
-            }) ?? null,
-        };
-      }),
-      coverageSources: testResult.coverageSources,
-      inputElementInfos: testResult.inputElementInfos,
-      initialUrl: testResult.initialUrl,
-    };
-
-    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**

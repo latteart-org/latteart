@@ -48,6 +48,7 @@ import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
+import { GenerateAllSessionTestScriptsAction } from "@/lib/testManagement/actions/GenerateAllSessionTestScriptsAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -868,85 +869,27 @@ const actions: ActionTree<TestManagementState, RootState> = {
       "operationHistory/getConfig"
     ]().screenDefinition;
 
-    const initialUrlAndHistoryInEachStories = (
-      await Promise.all(
-        context.state.stories.map(async (story) => {
-          const initialUrlAndTestResultIds = story.sessions
-            .map((session) => {
-              return {
-                initialUrl: session.initialUrl,
-                testResultFiles: session.testResultFiles ?? [],
-              };
-            })
-            .filter(({ testResultFiles }) => testResultFiles.length > 0)
-            .map(({ initialUrl, testResultFiles }) => {
-              return {
-                initialUrl,
-                testResultId: testResultFiles[0].id,
-              };
-            });
-
-          const initialUrlAndTestSteps = await Promise.all(
-            initialUrlAndTestResultIds.map(
-              async ({ initialUrl, testResultId }) => {
-                const testSteps: TestStep[] =
-                  (
-                    await this.state.repositoryServiceDispatcher.resume(
-                      testResultId
-                    )
-                  ).data?.operationHistoryItems ?? [];
-
-                return { initialUrl, testSteps };
-              }
-            )
-          );
-
-          const initialUrlAndHistoryInEachSessions = initialUrlAndTestSteps.map(
-            ({ initialUrl, testSteps }) => {
-              const history = testSteps.flatMap((testStep: TestStep) => {
-                if (!testStep.operation) {
-                  return [];
-                }
-
-                const screenDef = new ScreenDefFactory(
-                  screenDefinitionConfig
-                ).createFrom(
-                  testStep.operation.title,
-                  testStep.operation.url,
-                  testStep.operation.keywordSet
-                );
-
-                const operation = Operation.createFromOtherOperation({
-                  other: testStep.operation,
-                  overrideParams: {
-                    screenDef,
-                  },
-                });
-
-                return [operation];
-              });
-
-              return {
-                initialUrl,
-                history,
-              };
-            }
-          );
-
-          return initialUrlAndHistoryInEachSessions;
-        })
-      )
-    ).flat();
-
-    return context.dispatch(
-      "operationHistory/generateTestScripts",
+    const result = await new GenerateAllSessionTestScriptsAction(
       {
-        projectId: context.state.projectId,
-        sources: initialUrlAndHistoryInEachStories,
-        option: payload.option,
+        generateTestScripts: (sources) => {
+          return context.dispatch(
+            "operationHistory/generateTestScripts",
+            {
+              projectId: context.state.projectId,
+              sources,
+              option: payload.option,
+            },
+            { root: true }
+          );
+        },
       },
-      { root: true }
+      context.rootState.repositoryServiceDispatcher
+    ).generateAllSessionTestScripts(
+      screenDefinitionConfig,
+      context.state.stories
     );
+
+    return result.data!;
   },
 
   /**
