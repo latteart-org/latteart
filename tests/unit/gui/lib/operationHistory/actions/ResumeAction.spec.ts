@@ -16,26 +16,46 @@ describe("ResumeAction", () => {
       const data = {
         id: "id",
         name: "name",
-        operationHistoryItems: [],
+        startTimeStamp: "0",
+        endTimeStamp: "0",
+        initialUrl: "url",
+        testSteps: [],
         coverageSources: [],
         inputElementInfos: [],
-        initialUrl: "url",
+      };
+
+      const reply = {
+        status: 200,
+        data,
+      };
+
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn(),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn().mockResolvedValue(reply),
+        patchTestResult: jest.fn(),
       };
 
       const dispatcher: TestResultResumable = {
-        resume: jest.fn().mockResolvedValue({ data }),
+        testResultRepository,
+        serviceUrl: "serviceUrl",
       };
 
       const testResultId = "testResultId";
 
       await new ResumeAction(observer, dispatcher).resume(testResultId);
 
-      expect(dispatcher.resume).toBeCalledWith(testResultId);
+      expect(dispatcher.testResultRepository.getTestResult).toBeCalledWith(
+        testResultId
+      );
 
       expect(observer.setResumedData).toBeCalledWith({
         coverageSources: data.coverageSources,
         inputElementInfos: data.inputElementInfos,
-        historyItems: data.operationHistoryItems,
+        historyItems: data.testSteps,
         url: data.initialUrl,
         testResultInfo: { id: data.id, name: data.name },
       });
@@ -48,23 +68,44 @@ describe("ResumeAction", () => {
         clearTestStepIds: jest.fn(),
       };
 
-      const error = {
-        code: "errorCode",
+      const reply = {
+        status: 500,
+        error: {
+          code: "errorCode",
+          message: "errorMessage",
+        },
+      };
+
+      const receivedError = {
+        data: undefined,
+        error: { code: "errorCode" },
+      };
+
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn(),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn().mockResolvedValue(reply),
+        patchTestResult: jest.fn(),
       };
 
       const dispatcher: TestResultResumable = {
-        resume: jest.fn().mockResolvedValue({ error }),
+        testResultRepository,
+        serviceUrl: "serviceUrl",
       };
 
       const testResultId = "testResultId";
 
-      await expect(
-        new ResumeAction(observer, dispatcher).resume(testResultId)
-      ).rejects.toThrowError(error.code);
+      const result = await new ResumeAction(observer, dispatcher).resume(
+        testResultId
+      );
 
-      expect(dispatcher.resume).toBeCalledWith(testResultId);
-
-      expect(observer.setResumedData).not.toBeCalled();
+      expect(dispatcher.testResultRepository.getTestResult).toBeCalledWith(
+        testResultId
+      );
+      expect(result).toEqual(receivedError);
     });
   });
 });

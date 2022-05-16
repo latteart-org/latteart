@@ -110,9 +110,10 @@ export class AddNoticeAction {
       index: savedTestStep.notices.length - 1,
     };
 
+    const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {
       data,
-      error: reply.error ?? undefined,
+      error: error,
     };
 
     return result;

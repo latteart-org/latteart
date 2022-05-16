@@ -85,6 +85,7 @@ export class RegisterOperationAction {
       inputElementInfo,
     };
 
+    const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {
       data: data as {
         id: string;
@@ -92,7 +93,7 @@ export class RegisterOperationAction {
         coverageSource: CoverageSource;
         inputElementInfo: InputElementInfo;
       },
-      error: reply.error ?? undefined,
+      error,
     };
 
     return result;

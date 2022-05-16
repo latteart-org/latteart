@@ -54,7 +54,13 @@ export class ResumeAction {
       testResultId
     );
 
-    const testResult = reply.data!;
+    const error = reply.error ? { code: reply.error.code } : undefined;
+
+    const testResult = reply.data ?? undefined;
+
+    if (!testResult) {
+      return { data: undefined, error };
+    }
 
     const serviceUrl = this.repositoryServiceDispatcher.serviceUrl;
 
@@ -169,6 +175,6 @@ export class ResumeAction {
         testResultInfo: { id: data.id, name: data.name },
       });
     }
-    return { data: reply.data as void, error: reply.error ?? undefined };
+    return { data: reply.data as void, error };
   }
 }

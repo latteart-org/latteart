@@ -37,9 +37,10 @@ export class ChangeTestResultAction {
       initialUrl
     );
 
+    const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {
       data: reply.data ?? undefined,
-      error: reply.error ?? undefined,
+      error,
     };
 
     return result;

@@ -91,9 +91,10 @@ export class EditBugAction {
       index,
     };
 
+    const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {
       data,
-      error: reply.error ?? undefined,
+      error,
     };
 
     return result;
