@@ -66,14 +66,13 @@ const getters: GetterTree<TestManagementState, RootState> = {
    * @param state State.
    * @returns Session.
    */
-  findSession: (state) => (
-    storyId: string,
-    sessionId: string
-  ): Session | undefined => {
-    return state.stories
-      .find((story) => story.id === storyId)
-      ?.sessions.find((session) => session.id === sessionId);
-  },
+  findSession:
+    (state) =>
+    (storyId: string, sessionId: string): Session | undefined => {
+      return state.stories
+        .find((story) => story.id === storyId)
+        ?.sessions.find((session) => session.id === sessionId);
+    },
 
   /**
    * Get the story being edited from the State.
@@ -112,20 +111,20 @@ const getters: GetterTree<TestManagementState, RootState> = {
    * @param state State.
    * @returns Found story.
    */
-  findStoryByTestTargetAndViewPointId: (state) => (
-    testTargetId: string,
-    viewPointId: string,
-    testMatrixId: string
-  ) => {
-    const found = state.stories.find((story: Story) => {
-      return (
-        story.testMatrixId === testMatrixId &&
-        story.testTargetId === testTargetId &&
-        story.viewPointId === viewPointId
-      );
-    });
-    return found === undefined ? undefined : JSON.parse(JSON.stringify(found));
-  },
+  findStoryByTestTargetAndViewPointId:
+    (state) =>
+    (testTargetId: string, viewPointId: string, testMatrixId: string) => {
+      const found = state.stories.find((story: Story) => {
+        return (
+          story.testMatrixId === testMatrixId &&
+          story.testTargetId === testTargetId &&
+          story.viewPointId === viewPointId
+        );
+      });
+      return found === undefined
+        ? undefined
+        : JSON.parse(JSON.stringify(found));
+    },
 
   /**
    * Searches the State for test matrix that matches the specified test matrix ID and returns the first test matrix found.

@@ -26,7 +26,8 @@ import { TestDataSet } from "../../../testDataRepository/TestDataSet";
 import { NameGenerator } from "../../NameGenerator";
 
 export class JSDataDrivenTestSuiteCodeGenerator
-  implements TestSuiteCodeGenerator {
+  implements TestSuiteCodeGenerator
+{
   constructor(
     private nameGenerator: {
       pageObject: NameGenerator;
@@ -181,9 +182,8 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
               return methodId === methodCall.methodId;
             }
           ) ?? { methodId: "", pageObjectId: "" };
-          const pageObjectName = this.nameGenerator.pageObject.generate(
-            pageObjectId
-          );
+          const pageObjectName =
+            this.nameGenerator.pageObject.generate(pageObjectId);
           const methodName = this.nameGenerator.method.generate(methodId);
 
           return methodId && pageObjectId

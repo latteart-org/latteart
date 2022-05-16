@@ -195,9 +195,8 @@ export default class OperationContextMenu extends Vue {
   private initializeReplayMenu(): void {
     this.replayItems = [];
 
-    const operations: Operation[] = this.$store.getters[
-      "operationHistory/getOperations"
-    ]();
+    const operations: Operation[] =
+      this.$store.getters["operationHistory/getOperations"]();
     const disabled = !!(
       this.$store.state.captureControl.isReplaying ||
       this.$store.state.captureControl.isCapturing ||
@@ -263,9 +262,10 @@ export default class OperationContextMenu extends Vue {
       this.operationInfo.selectedSequences.includes(this.operationInfo.sequence)
     ) {
       const from = this.operationInfo.selectedSequences[0];
-      const to = this.operationInfo.selectedSequences[
-        this.operationInfo.selectedSequences.length - 1
-      ];
+      const to =
+        this.operationInfo.selectedSequences[
+          this.operationInfo.selectedSequences.length - 1
+        ];
       this.replayItems.push({
         label: this.$store.getters.message("history-view.auto-play-from-to", {
           value1: from,

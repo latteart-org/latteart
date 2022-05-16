@@ -117,61 +117,63 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
    * @param getHistory The function to get operation with notes history from the State.
    * @returns Screen transition informations that transition from selected screen.
    */
-  getSelectedScreenTransitions: (state, { getHistory }) => () => {
-    const operationHistory: OperationWithNotes[] = getHistory();
-    const coverageSources = state.coverageSources;
+  getSelectedScreenTransitions:
+    (state, { getHistory }) =>
+    () => {
+      const operationHistory: OperationWithNotes[] = getHistory();
+      const coverageSources = state.coverageSources;
 
-    const groupedHistory = new OperationHistorySelector(
-      operationHistory
-    ).groupByIntention();
+      const groupedHistory = new OperationHistorySelector(
+        operationHistory
+      ).groupByIntention();
 
-    return groupedHistory.map((item) => {
-      const screenHistory = ScreenHistory.createFromOperationHistory(
-        item.history,
-        coverageSources
-      );
-      const transitions = screenHistory
-        .collectScreenTransitions(state.selectedScreenDef)
-        .map((transition) => {
-          return {
-            sourceScreenDef: transition.source.screenDef,
-            targetScreenDef: transition.target.screenDef,
-            history: transition.history.filter(({ operation }) => {
-              return operation.windowHandle === state.selectedWindowHandle;
-            }),
-            screenElements: transition.screenElements,
-            inputElements: transition.inputElements,
-          };
-        })
-        .filter((transition) => {
-          return transition.history.length > 0;
-        })
-        .filter((transition) => {
-          if (state.selectedScreenTransition) {
-            if (
-              transition.sourceScreenDef !==
-              state.selectedScreenTransition.source.screenDef
-            ) {
-              return false;
+      return groupedHistory.map((item) => {
+        const screenHistory = ScreenHistory.createFromOperationHistory(
+          item.history,
+          coverageSources
+        );
+        const transitions = screenHistory
+          .collectScreenTransitions(state.selectedScreenDef)
+          .map((transition) => {
+            return {
+              sourceScreenDef: transition.source.screenDef,
+              targetScreenDef: transition.target.screenDef,
+              history: transition.history.filter(({ operation }) => {
+                return operation.windowHandle === state.selectedWindowHandle;
+              }),
+              screenElements: transition.screenElements,
+              inputElements: transition.inputElements,
+            };
+          })
+          .filter((transition) => {
+            return transition.history.length > 0;
+          })
+          .filter((transition) => {
+            if (state.selectedScreenTransition) {
+              if (
+                transition.sourceScreenDef !==
+                state.selectedScreenTransition.source.screenDef
+              ) {
+                return false;
+              }
+
+              if (
+                transition.targetScreenDef !==
+                state.selectedScreenTransition.target.screenDef
+              ) {
+                return false;
+              }
             }
 
-            if (
-              transition.targetScreenDef !==
-              state.selectedScreenTransition.target.screenDef
-            ) {
-              return false;
-            }
-          }
+            return true;
+          });
 
-          return true;
-        });
-
-      return {
-        intention: item.intention?.value ?? "",
-        transitions,
-      };
-    });
-  },
+        return {
+          intention: item.intention?.value ?? "",
+          transitions,
+        };
+      });
+    },
 
   /**
    * Returns true if there is a keywordSet in the history.

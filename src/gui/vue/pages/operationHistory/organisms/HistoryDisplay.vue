@@ -343,8 +343,9 @@ export default class HistoryDisplay extends Vue {
   private scrollGraphArea() {
     if (this.diagramType === this.DIAGRAM_TYPE_SEQUENCE) {
       this.$nextTick(() => {
-        (this.$refs.mermaidGraphDisplay as Element).scrollTop = (this.$refs
-          .mermaidGraphDisplay as Element).scrollHeight;
+        (this.$refs.mermaidGraphDisplay as Element).scrollTop = (
+          this.$refs.mermaidGraphDisplay as Element
+        ).scrollHeight;
       });
     }
   }

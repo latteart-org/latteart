@@ -62,10 +62,11 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
 
     return {
       pageObjects: model.pageObjects.map((pageObject) => {
-        const pageObjectAttachedComments = pageObjectCommentAttacher.attachComment(
-          pageObject,
-          this.buildTestSuiteGraph(testSuites)
-        );
+        const pageObjectAttachedComments =
+          pageObjectCommentAttacher.attachComment(
+            pageObject,
+            this.buildTestSuiteGraph(testSuites)
+          );
 
         return {
           name: `${this.nameGenerator.pageObject.generate(
@@ -117,9 +118,8 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
     return [
       ...[...this.pageObjectIdToDataSets.entries()].map(
         ([pageObjectId, testDataSets]) => {
-          const pageObjectName = this.nameGenerator.pageObject.generate(
-            pageObjectId
-          );
+          const pageObjectName =
+            this.nameGenerator.pageObject.generate(pageObjectId);
 
           return {
             name: `${pageObjectName}TestData.js`,

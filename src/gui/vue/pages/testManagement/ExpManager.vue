@@ -97,9 +97,8 @@ export default class Manager extends Vue {
     sequence: number,
     index?: number
   ) {
-    const historyItem: OperationWithNotes = this.$store.getters[
-      "operationHistory/findHistoryItem"
-    ](sequence);
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
     if (historyItem === undefined) {
       return;
     }

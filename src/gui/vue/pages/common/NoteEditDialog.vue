@@ -177,13 +177,10 @@ export default class NoteEditDialog extends Vue {
       return;
     }
 
-    const {
-      sequence,
-      index,
-    } = this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes = this.$store.getters[
-      "operationHistory/findHistoryItem"
-    ](sequence);
+    const { sequence, index } =
+      this.$store.state.operationHistory.selectedOperationNote;
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
 
     this.newNote = "";
     this.newNoteDetails = "";

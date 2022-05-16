@@ -24,7 +24,8 @@ export interface ScreenTransitionGraphBuilder {
 }
 
 export class ScreenTransitionGraphBuilderImpl
-  implements ScreenTransitionGraphBuilder {
+  implements ScreenTransitionGraphBuilder
+{
   public build(screenDefs: string[]): Map<string, Set<string>> {
     const screenTransitions: ScreenTransition[] = screenDefs.reduce(
       (acc: ScreenTransition[], current, index, array) => {

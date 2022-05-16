@@ -656,9 +656,8 @@ export default class ExpCapture extends Vue {
           .catch((error) => {
             console.error(error);
           });
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "common.confirm"
-        );
+        this.downloadLinkDialogTitle =
+          this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"
         );
@@ -702,9 +701,8 @@ export default class ExpCapture extends Vue {
             option,
           }
         );
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "common.confirm"
-        );
+        this.downloadLinkDialogTitle =
+          this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
@@ -900,8 +898,8 @@ export default class ExpCapture extends Vue {
     (async () => {
       try {
         const currentRepositoryInfo = (() => {
-          const currentRepository: RepositoryServiceDispatcher = this.$store
-            .state.repositoryServiceDispatcher;
+          const currentRepository: RepositoryServiceDispatcher =
+            this.$store.state.repositoryServiceDispatcher;
 
           return {
             url: currentRepository.serviceUrl,
@@ -1015,8 +1013,8 @@ export default class ExpCapture extends Vue {
         );
 
         if (currentRepositoryInfo.isRemote) {
-          const localTestResultId = this.$store.state.operationHistory
-            .testResultInfo.id;
+          const localTestResultId =
+            this.$store.state.operationHistory.testResultInfo.id;
 
           this.uploadHistory(
             { localId: localTestResultId, remoteId: remoteTestResultId },
@@ -1165,9 +1163,8 @@ export default class ExpCapture extends Vue {
     sequence: number,
     index?: number
   ) {
-    const historyItem: OperationWithNotes = this.$store.getters[
-      "operationHistory/findHistoryItem"
-    ](sequence);
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
     if (historyItem === undefined) {
       return;
     }
@@ -1247,7 +1244,8 @@ export default class ExpCapture extends Vue {
 
   private openWindowSelector(): void {
     this.$store.dispatch("captureControl/selectCapturingWindow");
-    this.capturingWindowInfo.currentWindow = this.$store.state.captureControl.capturingWindowInfo.currentWindow;
+    this.capturingWindowInfo.currentWindow =
+      this.$store.state.captureControl.capturingWindowInfo.currentWindow;
     this.capturingWindowInfo.availableWindows.splice(
       0,
       this.capturingWindowInfo.availableWindows.length,

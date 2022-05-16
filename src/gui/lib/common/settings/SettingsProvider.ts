@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import fs from "fs";
 import Settings from "./Settings";
 import { ScreenDefType, RunningMode, Locale } from "../enum/SettingsEnum";
 import * as Util from "../util";
@@ -28,34 +27,6 @@ export class SettingsProvider {
    * Set value.
    */
   public settings: Settings = new Settings();
-
-  /**
-   * Read the configuration file.
-   * If reading fails, throw Error.
-   * @param filePath  Configuration file file path.
-   */
-  public loadFile(filePath: string): void {
-    try {
-      const stat = fs.statSync(filePath);
-      if (!stat.isFile()) {
-        return;
-      }
-    } catch (error) {
-      return;
-    }
-    const readdata = JSON.parse(fs.readFileSync(filePath, "utf8"));
-    this.merge(this.settings, readdata);
-    this.validate(this.settings);
-  }
-
-  /**
-   * Save the configuration file.
-   * If saving fails, throw Error.
-   * @param saveData Saved data.
-   */
-  public saveFile(filePath: string): void {
-    fs.writeFileSync(filePath, JSON.stringify(this.settings, null, 2), "utf-8");
-  }
 
   /**
    * Get the setting value corresponding to the key character string.

@@ -58,7 +58,8 @@ export default class RepositoryServiceDispatcher
     TestResultImportable,
     TestResultExportable,
     TestResultUploadable,
-    TestResultDeletable {
+    TestResultDeletable
+{
   constructor(
     private config: {
       url: string;
@@ -448,15 +449,11 @@ export default class RepositoryServiceDispatcher
     }>
   > {
     try {
-      const {
-        id,
-        operation,
-        coverageSource,
-        inputElementInfo,
-      } = await this.restClient.httpPost(
-        this.buildAPIURL(`/test-results/${testResultId}/test-steps`),
-        capturedOperation
-      );
+      const { id, operation, coverageSource, inputElementInfo } =
+        await this.restClient.httpPost(
+          this.buildAPIURL(`/test-results/${testResultId}/test-steps`),
+          capturedOperation
+        );
       return {
         succeeded: true,
         data: {
@@ -1351,9 +1348,7 @@ export default class RepositoryServiceDispatcher
    * @param testResultId  Test result ID.
    * @returns Restored operation history information.
    */
-  public async resume(
-    testResultId: string
-  ): Promise<
+  public async resume(testResultId: string): Promise<
     Reply<{
       id: string;
       name: string;
@@ -1628,9 +1623,7 @@ export default class RepositoryServiceDispatcher
    * Get the test result of the specified test result ID.
    * @param testResultId  Test result ID.
    */
-  public async getTestResult(
-    testResultId: string
-  ): Promise<
+  public async getTestResult(testResultId: string): Promise<
     Reply<{
       id: string;
       name: string;
