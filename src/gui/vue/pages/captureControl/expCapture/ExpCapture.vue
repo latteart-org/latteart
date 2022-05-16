@@ -959,7 +959,7 @@ export default class ExpCapture extends Vue {
         const history = this.$store.state.operationHistory.history;
         const startTime = new TimestampImpl().epochMilliseconds();
         const readResultData = await this.$store.dispatch(
-          "captureControl/getTestResult",
+          "operationHistory/getTestResult",
           {
             testResultId,
           }
@@ -1136,7 +1136,7 @@ export default class ExpCapture extends Vue {
         await this.$store.dispatch("operationHistory/resume", { testResultId });
         const history = this.$store.getters["operationHistory/getHistory"]();
         const readResultData = await this.$store.dispatch(
-          "captureControl/getTestResult",
+          "operationHistory/getTestResult",
           {
             testResultId,
           }

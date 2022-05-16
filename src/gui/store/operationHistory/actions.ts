@@ -69,6 +69,7 @@ import { AddNoticeAction } from "@/lib/operationHistory/actions/AddNoticeAction"
 import { EditNoticeAction } from "@/lib/operationHistory/actions/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/ChangeTestResultAction";
+import { GetTestResultAction } from "@/lib/operationHistory/actions/GetTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -1437,6 +1438,33 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       context.commit("setTestResultName", { name: changedName });
     }
+  },
+
+  async getTestResult(
+    context,
+    payload: { testResultId: string }
+  ): Promise<{
+    id: string;
+    name: string;
+    startTimeStamp: number;
+    endTimeStamp: number;
+    initialUrl: string;
+  }> {
+    const result = await new GetTestResultAction(
+      context.rootState.repositoryServiceDispatcher
+    ).getTestResult(payload.testResultId);
+
+    console.log(result);
+
+    const data = result.data as {
+      id: string;
+      name: string;
+      startTimeStamp: number;
+      endTimeStamp: number;
+      initialUrl: string;
+    };
+
+    return data;
   },
 };
 

@@ -531,33 +531,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     return await context.rootState.clientSideCaptureServiceDispatcher.takeScreenshot();
   },
-
-  async getTestResult(
-    context,
-    payload: { testResultId: string }
-  ): Promise<{
-    id: string;
-    name: string;
-    startTimeStamp: number;
-    endTimeStamp: number;
-    initialUrl: string;
-  }> {
-    const result = await new GetTestResultAction(
-      context.rootState.repositoryServiceDispatcher
-    ).getTestResult(payload.testResultId);
-
-    console.log(result);
-
-    const data = result.data as {
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-    };
-
-    return data;
-  },
 };
 
 export default actions;
