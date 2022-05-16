@@ -72,11 +72,10 @@ export default class InputValueTable {
                 return [...(item.notices ?? []), ...(item.bugs ?? [])];
               }
             );
-            const transitionHistory: OperationWithNotes[] = transition.history.filter(
-              (history) => {
+            const transitionHistory: OperationWithNotes[] =
+              transition.history.filter((history) => {
                 return !!history.notices && history.notices.length > 0;
-              }
-            );
+              });
 
             return {
               index,
@@ -105,9 +104,8 @@ export default class InputValueTable {
       this.intentionToScreenTransitions.values()
     ).flat();
 
-    const inputElementsWithSequence = this.createInputElementsWithSequence(
-      transitions
-    );
+    const inputElementsWithSequence =
+      this.createInputElementsWithSequence(transitions);
 
     return inputElementsWithSequence
       .map(({ name, elementInfo, sequence }) => {
@@ -287,12 +285,16 @@ export default class InputValueTable {
               element: operation.elementInfo,
             };
           })
-          .filter((elementWithSequence): elementWithSequence is {
-            sequence: number;
-            element: ElementInfo;
-          } => {
-            return elementWithSequence.element !== null;
-          })
+          .filter(
+            (
+              elementWithSequence
+            ): elementWithSequence is {
+              sequence: number;
+              element: ElementInfo;
+            } => {
+              return elementWithSequence.element !== null;
+            }
+          )
       );
 
       defaultElements.push(

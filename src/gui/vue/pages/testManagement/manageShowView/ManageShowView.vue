@@ -76,9 +76,8 @@ export default class ManageShow extends Vue {
   }
 
   private get testMatrices(): TestMatrix[] {
-    const targetTestMatrices = this.$store.getters[
-      "testManagement/getTestMatrices"
-    ]();
+    const targetTestMatrices =
+      this.$store.getters["testManagement/getTestMatrices"]();
 
     if (targetTestMatrices.length) {
       this.selectedTestMatrixId = targetTestMatrices[0].id;

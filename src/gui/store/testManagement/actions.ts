@@ -69,9 +69,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @returns URL of the output snapshot.
    */
   async writeSnapshot(context): Promise<string> {
-    const reply = await context.rootState.repositoryServiceDispatcher.postSnapshots(
-      context.state.projectId
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.postSnapshots(
+        context.state.projectId
+      );
     return reply.data.url;
   },
 
@@ -93,15 +94,14 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    * @returns Test results.
    */
-  async getTestResults(
-    context
-  ): Promise<
+  async getTestResults(context): Promise<
     {
       name: string;
       id: string;
     }[]
   > {
-    const reply = await context.rootState.repositoryServiceDispatcher.getTestResultList();
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.getTestResultList();
 
     console.log(reply);
 
@@ -860,9 +860,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
     outputUrl: string;
     invalidOperationTypeExists: boolean;
   }> {
-    const screenDefinitionConfig = context.rootGetters[
-      "operationHistory/getConfig"
-    ]().screenDefinition;
+    const screenDefinitionConfig =
+      context.rootGetters["operationHistory/getConfig"]().screenDefinition;
 
     const initialUrlAndHistoryInEachStories = (
       await Promise.all(

@@ -72,7 +72,7 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            (this.dispatcher as unknown) as ProjectUpdatable
+            this.dispatcher as unknown as ProjectUpdatable
           )
         )
       ),

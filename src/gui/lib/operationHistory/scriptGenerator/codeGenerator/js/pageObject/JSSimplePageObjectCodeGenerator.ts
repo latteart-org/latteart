@@ -27,7 +27,8 @@ import { PageObjectCodeGenerator } from "../../PageObjectCodeGenerator";
 import { NameGenerator } from "../../NameGenerator";
 
 export class JSSimplePageObjectCodeGenerator
-  implements PageObjectCodeGenerator {
+  implements PageObjectCodeGenerator
+{
   constructor(
     private nameGenerator: {
       pageObject: NameGenerator;
@@ -35,20 +36,21 @@ export class JSSimplePageObjectCodeGenerator
     }
   ) {}
   public generateFrom(pageObject: PageObject): string {
-    const pageObjectImportString = JSSimplePageObjectCodeGenerator.generatePageObjectImportString(
-      ...pageObject.methods
-        .filter((method) => {
-          return method.pageObjectId !== method.returnPageObjectId;
-        })
-        .map((method) => {
-          return this.nameGenerator.pageObject.generate(
-            method.returnPageObjectId
-          );
-        })
-        .filter((pageObjectName, index, array) => {
-          return array.indexOf(pageObjectName) === index;
-        })
-    );
+    const pageObjectImportString =
+      JSSimplePageObjectCodeGenerator.generatePageObjectImportString(
+        ...pageObject.methods
+          .filter((method) => {
+            return method.pageObjectId !== method.returnPageObjectId;
+          })
+          .map((method) => {
+            return this.nameGenerator.pageObject.generate(
+              method.returnPageObjectId
+            );
+          })
+          .filter((pageObjectName, index, array) => {
+            return array.indexOf(pageObjectName) === index;
+          })
+      );
 
     const prefixString = pageObjectImportString
       ? `${pageObjectImportString}\n\n`
@@ -61,9 +63,10 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
  */\n`
       : "";
 
-    const fieldAccessorStrings = JSSimplePageObjectCodeGenerator.generateFieldAccessorStrings(
-      pageObject.methods
-    );
+    const fieldAccessorStrings =
+      JSSimplePageObjectCodeGenerator.generateFieldAccessorStrings(
+        pageObject.methods
+      );
 
     const methodStrings = this.generateMethodStrings(pageObject.methods);
 
@@ -169,17 +172,19 @@ get ${identifier}() { return $('${locator}'); }
       const operationsString = method.operations
         .flatMap((operation) => {
           if (operation.type === "click") {
-            const clickEventOperationString = JSSimplePageObjectCodeGenerator.generateClickEventOperationString(
-              operation
-            );
+            const clickEventOperationString =
+              JSSimplePageObjectCodeGenerator.generateClickEventOperationString(
+                operation
+              );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
           }
 
           if (operation.type === "change") {
-            const changeEventOperationString = JSSimplePageObjectCodeGenerator.generateChangeEventOperationString(
-              operation
-            );
+            const changeEventOperationString =
+              JSSimplePageObjectCodeGenerator.generateChangeEventOperationString(
+                operation
+              );
 
             return [changeEventOperationString];
           }

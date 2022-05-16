@@ -33,9 +33,7 @@ export interface ResumeActionObserver {
 }
 
 export interface TestResultResumable {
-  resume(
-    testResultId: string
-  ): Promise<
+  resume(testResultId: string): Promise<
     Reply<{
       id: string;
       name: string;

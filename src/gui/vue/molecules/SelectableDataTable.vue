@@ -249,11 +249,12 @@ export default class SelectableDataTable<T> extends Vue {
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
       const destIndex = currentItemIndex + this.pagination.rowsPerPage;
-      const destItem = this.visibleItems[
-        destIndex > this.visibleItems.length - 1
-          ? this.visibleItems.length - 1
-          : destIndex
-      ];
+      const destItem =
+        this.visibleItems[
+          destIndex > this.visibleItems.length - 1
+            ? this.visibleItems.length - 1
+            : destIndex
+        ];
 
       if (destItem) {
         this.selectItems(destItem.index);

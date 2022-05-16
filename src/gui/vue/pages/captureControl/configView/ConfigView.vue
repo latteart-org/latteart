@@ -300,9 +300,7 @@ export default class ConfigView extends Vue {
     }
   }
 
-  private async recognizeDevices(
-    platformName: string
-  ): Promise<
+  private async recognizeDevices(platformName: string): Promise<
     {
       deviceName: string;
       modelNumber: string;

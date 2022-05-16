@@ -132,15 +132,8 @@ export default class StoryDataConverter implements StoryConvertable {
     dispatcher: ProjectUpdatable,
     oldSession?: Session
   ): Promise<Session> {
-    const {
-      intentions,
-      initialUrl,
-      testingTime,
-      issues,
-    } = await StoryDataConverter.buildHistory(
-      dispatcher,
-      target.testResultFiles
-    );
+    const { intentions, initialUrl, testingTime, issues } =
+      await StoryDataConverter.buildHistory(dispatcher, target.testResultFiles);
 
     return {
       name: target.id ?? oldSession?.id ?? "",
@@ -208,9 +201,7 @@ export default class StoryDataConverter implements StoryConvertable {
    * @param story  Story information.
    * @returns Administrative data.
    */
-  public convertToDataFormat(
-    story: Story
-  ): {
+  public convertToDataFormat(story: Story): {
     storyData: ManagedStory;
   } {
     return {

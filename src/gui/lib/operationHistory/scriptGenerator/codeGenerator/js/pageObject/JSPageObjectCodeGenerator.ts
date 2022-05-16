@@ -34,20 +34,21 @@ export class JSPageObjectCodeGenerator implements PageObjectCodeGenerator {
     }
   ) {}
   public generateFrom(pageObject: PageObject): string {
-    const pageObjectImportString = JSPageObjectCodeGenerator.generatePageObjectImportString(
-      ...pageObject.methods
-        .filter((method) => {
-          return method.pageObjectId !== method.returnPageObjectId;
-        })
-        .map((method) => {
-          return this.nameGenerator.pageObject.generate(
-            method.returnPageObjectId
-          );
-        })
-        .filter((pageObjectName, index, array) => {
-          return array.indexOf(pageObjectName) === index;
-        })
-    );
+    const pageObjectImportString =
+      JSPageObjectCodeGenerator.generatePageObjectImportString(
+        ...pageObject.methods
+          .filter((method) => {
+            return method.pageObjectId !== method.returnPageObjectId;
+          })
+          .map((method) => {
+            return this.nameGenerator.pageObject.generate(
+              method.returnPageObjectId
+            );
+          })
+          .filter((pageObjectName, index, array) => {
+            return array.indexOf(pageObjectName) === index;
+          })
+      );
 
     const prefixString = pageObjectImportString
       ? `${pageObjectImportString}\n\n`
@@ -60,9 +61,10 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
  */\n`
       : "";
 
-    const fieldAccessorStrings = JSPageObjectCodeGenerator.generateFieldAccessorStrings(
-      pageObject.methods
-    );
+    const fieldAccessorStrings =
+      JSPageObjectCodeGenerator.generateFieldAccessorStrings(
+        pageObject.methods
+      );
 
     const methodStrings = this.generateMethodStrings(pageObject.methods);
 
@@ -176,18 +178,20 @@ set_${identifier}(isClick) {
       const operationsString = method.operations
         .flatMap((operation) => {
           if (operation.type === "click") {
-            const clickEventOperationString = JSPageObjectCodeGenerator.generateClickEventOperationString(
-              operation.target,
-              radioButtons
-            );
+            const clickEventOperationString =
+              JSPageObjectCodeGenerator.generateClickEventOperationString(
+                operation.target,
+                radioButtons
+              );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
           }
 
           if (operation.type === "change") {
-            const changeEventOperationString = JSPageObjectCodeGenerator.generateChangeEventOperationString(
-              operation.target
-            );
+            const changeEventOperationString =
+              JSPageObjectCodeGenerator.generateChangeEventOperationString(
+                operation.target
+              );
 
             return [changeEventOperationString];
           }

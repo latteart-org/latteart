@@ -20,9 +20,9 @@ import {
 } from "../pageObject/method/operation/PageObjectOperation";
 
 export class InputGroupCollector {
-  public collectFrom(
-    operations: PageObjectOperation[]
-  ): { [paramName: string]: string } {
+  public collectFrom(operations: PageObjectOperation[]): {
+    [paramName: string]: string;
+  } {
     // retain only final entered value.
     const map = operations.reduce((acc: Map<string, string>, op) => {
       const elem = op.target;

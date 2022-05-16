@@ -259,10 +259,11 @@ export default class SequenceDiagramGraphConverter {
 
               // Continue if the same windowHandle continues.
               if (windowHandle && windowHandle === currentWindowHandle) {
-                const windowHandleName = SequenceDiagramGraphConverter.getWindowHandleName(
-                  windowHandles,
-                  currentWindowHandle
-                );
+                const windowHandleName =
+                  SequenceDiagramGraphConverter.getWindowHandleName(
+                    windowHandles,
+                    currentWindowHandle
+                  );
 
                 graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
                 startWindowHandleScope = true;
@@ -284,10 +285,11 @@ export default class SequenceDiagramGraphConverter {
                 startWindowHandleScope = false;
               }
 
-              const windowHandleName = SequenceDiagramGraphConverter.getWindowHandleName(
-                windowHandles,
-                currentWindowHandle
-              );
+              const windowHandleName =
+                SequenceDiagramGraphConverter.getWindowHandleName(
+                  windowHandles,
+                  currentWindowHandle
+                );
 
               graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
               graphTextSteps.push(`activate ${currentScreenId}`);
@@ -298,10 +300,11 @@ export default class SequenceDiagramGraphConverter {
             // At the start of windowHandle.
             if (currentWindowHandle === "" && !!windowHandle) {
               currentWindowHandle = windowHandle;
-              const windowHandleName = SequenceDiagramGraphConverter.getWindowHandleName(
-                windowHandles,
-                currentWindowHandle
-              );
+              const windowHandleName =
+                SequenceDiagramGraphConverter.getWindowHandleName(
+                  windowHandles,
+                  currentWindowHandle
+                );
 
               graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
 

@@ -319,9 +319,8 @@ export default class ManageView extends Vue {
         });
 
       if (testScriptInfo.outputUrl) {
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "common.confirm"
-        );
+        this.downloadLinkDialogTitle =
+          this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "manage-header.generate-script-succeeded"
         );

@@ -38,19 +38,20 @@ export class JSTestSuiteCodeGenerator implements TestSuiteCodeGenerator {
   public generateFrom(...testSuites: TestSuite[]): string {
     const testCases = testSuites.flatMap((testSuite) => testSuite.testCases);
 
-    const pageObjectImportString = JSTestSuiteCodeGenerator.generatePageObjectImportString(
-      ...testCases
-        .map((testCase) => {
-          const topPageObjectName = this.nameGenerator.pageObject.generate(
-            testCase.scenario.methodCalls[0]?.pageObjectId ?? ""
-          );
+    const pageObjectImportString =
+      JSTestSuiteCodeGenerator.generatePageObjectImportString(
+        ...testCases
+          .map((testCase) => {
+            const topPageObjectName = this.nameGenerator.pageObject.generate(
+              testCase.scenario.methodCalls[0]?.pageObjectId ?? ""
+            );
 
-          return topPageObjectName;
-        })
-        .filter((pageObjectName, index, array) => {
-          return array.indexOf(pageObjectName) === index;
-        })
-    );
+            return topPageObjectName;
+          })
+          .filter((pageObjectName, index, array) => {
+            return array.indexOf(pageObjectName) === index;
+          })
+      );
 
     const testSuitesString = this.generateTestSuitesString(testSuites);
 
@@ -156,9 +157,8 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
             ({ methodId }) => methodId === methodCall.methodId
           )?.methodArguments ?? [];
 
-        const argumentGroupString = this.generateArgumentGroupString(
-          methodArguments
-        );
+        const argumentGroupString =
+          this.generateArgumentGroupString(methodArguments);
 
         const methodComment = methodCall.comment
           ? `// ${methodCall.comment}\n`

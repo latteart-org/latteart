@@ -118,13 +118,10 @@ export default class BugEditDialog extends Vue {
 
     this.alertIsVisible = this.$store.state.captureControl.alertIsVisible;
 
-    const {
-      sequence,
-      index,
-    } = this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes = this.$store.getters[
-      "operationHistory/findHistoryItem"
-    ](sequence);
+    const { sequence, index } =
+      this.$store.state.operationHistory.selectedOperationNote;
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
 
     if (!historyItem || !historyItem.bugs || !historyItem.bugs[index]) {
       // new note

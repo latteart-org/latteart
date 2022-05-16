@@ -18,7 +18,8 @@ import { ScreenTransitionGraphBuilderImpl } from "./ScreenTransitionGraphBuilder
 import { ScreenTransitionPathBuilder } from "./ScreenTransitionPathBuilder";
 
 export class GraphBasedScreenTransitionPathBuilder
-  implements ScreenTransitionPathBuilder {
+  implements ScreenTransitionPathBuilder
+{
   public build(screenDefPaths: string[][]): string[][] {
     const paths = screenDefPaths
       .filter((screenDefs) => {
