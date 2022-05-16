@@ -13,14 +13,14 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["webpack-env", "jest", "vuetify"],
+    "types": ["node", "webpack-env", "jest", "vuetify"],
     "paths": {
       "@/*": ["src/gui/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": [
-    "src/**/*.ts",
+    "src/gui/**/*.ts",
     "src/gui/**/*.tsx",
     "src/gui/**/*.vue",
     "tests/**/*.ts",
