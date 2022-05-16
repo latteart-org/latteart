@@ -44,12 +44,15 @@ export class MoveIntentionAction {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
-    const noteId = (
-      await this.dispatcher.testStepRepository.getTestSteps(
-        testResultId,
-        fromTestStepId
-      )
-    ).data!.intention;
+    const replyTestSteps = await this.dispatcher.testStepRepository.getTestSteps(
+      testResultId,
+      fromTestStepId
+    );
+
+    if (!replyTestSteps.data) {
+      return {};
+    }
+    const noteId = replyTestSteps.data.intention;
 
     // Break the link of the move source.
     await this.dispatcher.testStepRepository.patchTestSteps(
@@ -80,14 +83,16 @@ export class MoveIntentionAction {
     };
 
     const serviceUrl = this.dispatcher.serviceUrl;
-    const movedNote = new Note({
-      value: note.value,
-      details: note.details,
-      imageFilePath: note.imageFileUrl
-        ? new URL(note.imageFileUrl, serviceUrl).toString()
-        : "",
-      tags: note.tags,
-    });
+    const movedNote = note
+      ? new Note({
+          value: note.value,
+          details: note.details,
+          imageFilePath: note.imageFileUrl
+            ? new URL(note.imageFileUrl, serviceUrl).toString()
+            : "",
+          tags: note.tags,
+        })
+      : null;
 
     if (movedNote) {
       this.observer.moveIntention(
