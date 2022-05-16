@@ -23,7 +23,48 @@ import {
 import RESTClient from "../RESTClient";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
 
-export class TestStepRepository {
+export interface TestStepRepository {
+  getTestSteps(
+    testResultId: string,
+    testStepId: string
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  >;
+  patchTestSteps(
+    testResultId: string,
+    testStepId: string,
+    noteId?: string | null,
+    bugs?: string[],
+    notices?: string[]
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    }>
+  >;
+  postTestSteps(
+    testResultId: string,
+    capturedOperation: CapturedOperation
+  ): Promise<
+    Reply<{
+      id: string;
+      operation: TestStepOperation;
+      coverageSource: CoverageSource;
+      inputElementInfo: InputElementInfo;
+    }>
+  >;
+}
+
+export class TestStepRepositoryImpl implements TestStepRepository {
   constructor(
     private restClient: RESTClient,
     private buildAPIURL: (url: string) => string

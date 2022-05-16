@@ -17,7 +17,77 @@
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import RESTClient from "../RESTClient";
 
-export class NoteRepository {
+export interface NoteRepository {
+  getNotes(
+    testResultId: string,
+    noteId: string | null
+  ): Promise<
+    Reply<{
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    }>
+  >;
+  postNotes(
+    testResultId: string,
+    intention?: {
+      summary: string;
+      details: string;
+    },
+    bug?: {
+      summary: string;
+      details: string;
+      imageData?: string;
+    },
+    notice?: {
+      summary: string;
+      details: string;
+      tags: string[];
+      imageData?: string;
+    }
+  ): Promise<
+    Reply<{
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    }>
+  >;
+  putNotes(
+    testResultId: string,
+    noteId: string,
+    intention?: {
+      summary: string;
+      details: string;
+    },
+    bug?: {
+      summary: string;
+      details: string;
+    },
+    notice?: {
+      summary: string;
+      details: string;
+      tags: string[];
+    }
+  ): Promise<
+    Reply<{
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      imageFileUrl?: string;
+      tags?: string[];
+    }>
+  >;
+  deleteNotes(testResultId: string, noteId: string): Promise<Reply<void>>;
+}
+
+export class NoteRepositoryImpl implements NoteRepository {
   constructor(
     private restClient: RESTClient,
     private buildAPIURL: (url: string) => string

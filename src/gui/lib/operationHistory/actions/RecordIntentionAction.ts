@@ -99,7 +99,11 @@ export class RecordIntentionAction {
       testResultId,
       intention
     );
-    const savedNote = reply.data!;
+    const savedNote = reply.data ?? undefined;
+
+    if (!savedNote) {
+      return new ReplyImpl({ status: reply.status, data: undefined });
+    }
 
     await this.dispatcher.testStepRepository.patchTestSteps(
       testResultId,
@@ -155,6 +159,10 @@ export class RecordIntentionAction {
       noteId as string,
       intention
     );
+
+    if (!reply.data) {
+      return new ReplyImpl({ status: reply.status, data: undefined });
+    }
 
     const savedNote = reply.data as {
       id: string;
