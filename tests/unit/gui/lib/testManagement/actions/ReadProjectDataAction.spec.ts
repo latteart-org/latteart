@@ -16,26 +16,58 @@ describe("ReadProjectDataActionの", () => {
           setProgressDatas: jest.fn(),
         };
 
-        const dispatcher: ProjectFetchable = {
-          readProject: jest.fn().mockResolvedValue({
-            data: {
-              projectId: "project1",
-              testMatrices: [],
-              progressDatas: [],
-              stories: [
-                {
-                  id: "s1",
-                  testMatrixId: "",
-                  testTargetId: "",
-                  viewPointId: "",
-                  status: "",
-                  sessions: [],
-                },
-              ],
+        const projects = {
+          status: 200,
+          data: [{ id: "project1", name: "name1" }],
+        };
+
+        const targetProjectId = {
+          status: 200,
+          data: { id: "project1", name: "name1" },
+        };
+
+        const project = {
+          id: "project1",
+          name: "name1",
+          testMatrices: [],
+          progressDatas: [],
+          stories: [
+            {
+              id: "s1",
+              testMatrixId: "",
+              viewPointId: "",
+              status: "",
+              sessions: [],
             },
-          }),
+          ],
+        };
+
+        const reply = {
+          status: 200,
+          data: project,
+        };
+
+        const projectRepository = {
+          postProjectForExport: jest.fn(),
+          getProjects: jest.fn().mockResolvedValue(projects),
+          getProject: jest.fn().mockResolvedValue(reply),
+          postProject: jest.fn().mockResolvedValue(targetProjectId),
           putProject: jest.fn(),
+        };
+
+        const testResultRepository = {
+          deleteTestResult: jest.fn(),
+          postTestResultForExport: jest.fn(),
+          postTestResultForUpload: jest.fn(),
+          postEmptyTestResult: jest.fn(),
+          getTestResults: jest.fn(),
           getTestResult: jest.fn(),
+          patchTestResult: jest.fn(),
+        };
+
+        const dispatcher: ProjectFetchable = {
+          testResultRepository,
+          projectRepository,
         };
 
         const storyDataConverter: ProjectStoryConvertable = {

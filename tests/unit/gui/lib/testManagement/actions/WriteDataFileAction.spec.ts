@@ -14,7 +14,21 @@ describe("WriteDataActionの", () => {
         setStoriesData: jest.fn(),
       };
 
-      const dispatcher: ProjectUpdatable = {
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn(),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn(),
+        patchTestResult: jest.fn(),
+      };
+
+      const projectRepository = {
+        postProjectForExport: jest.fn(),
+        getProjects: jest.fn(),
+        getProject: jest.fn(),
+        postProject: jest.fn(),
         putProject: jest.fn().mockResolvedValue({
           data: {
             testMatrices: [],
@@ -28,7 +42,11 @@ describe("WriteDataActionの", () => {
             ],
           },
         }),
-        getTestResult: jest.fn(),
+      };
+
+      const dispatcher: ProjectUpdatable = {
+        testResultRepository,
+        projectRepository,
       };
 
       const storyDataConverter: StoryConvertable = {

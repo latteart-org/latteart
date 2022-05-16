@@ -18,7 +18,31 @@ import RESTClient from "../RESTClient";
 import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
 import { TestResult } from "@/lib/operationHistory/types";
 
-export class TestResultRepository {
+export interface TestResultRepository {
+  deleteTestResult(testResultId: string): Promise<Reply<void>>;
+  postTestResultForExport(
+    testResultId: string,
+    shouldSaveTemporary: boolean
+  ): Promise<Reply<{ url: string }>>;
+  postTestResultForUpload(
+    source: { testResultId: string },
+    dest: { repositoryUrl: string; testResultId?: string }
+  ): Promise<Reply<{ id: string }>>;
+  postEmptyTestResult(
+    initialUrl?: string,
+    name?: string
+  ): Promise<Reply<{ id: string; name: string }>>;
+  getTestResults(): Promise<Reply<Array<{ id: string; name: string }>>>;
+  getTestResult(testResultId: string): Promise<Reply<TestResult>>;
+  patchTestResult(
+    testResultId: string,
+    name?: string,
+    startTime?: number,
+    initialUrl?: string
+  ): Promise<Reply<string>>;
+}
+
+export class TestResultRepositoryImpl implements TestResultRepository {
   constructor(
     private restClient: RESTClient,
     private buildAPIURL: (url: string) => string
