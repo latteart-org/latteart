@@ -40,9 +40,15 @@ import {
   ImportTestResultRepositoryImpl,
   ImportTestResultRepository,
 } from "./repositoryService/ImportTestResultRepository";
-import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
+import {
+  ImportProjectRepository,
+  ImportProjectRepositoryImpl,
+} from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
-import { ProjectRepository } from "./repositoryService/ProjectRepository";
+import {
+  ProjectRepository,
+  ProjectRepositoryImpl,
+} from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 
@@ -81,7 +87,7 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
-    this._importProjectRepository = new ImportProjectRepository(
+    this._importProjectRepository = new ImportProjectRepositoryImpl(
       this.restClient,
       buildAPIURL
     );
@@ -97,7 +103,7 @@ export default class RepositoryServiceDispatcher
       this.restClient,
       buildAPIURL
     );
-    this._projectRepository = new ProjectRepository(
+    this._projectRepository = new ProjectRepositoryImpl(
       this.restClient,
       buildAPIURL
     );

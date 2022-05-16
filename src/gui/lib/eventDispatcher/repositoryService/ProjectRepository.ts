@@ -19,7 +19,29 @@ import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { Project } from "@/lib/testManagement/types";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 
-export class ProjectRepository {
+export interface ProjectRepository {
+  postProjectForExport(
+    projectId: string,
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<Reply<{ url: string }>>;
+  getProjects(): Promise<
+    Reply<
+      Array<{
+        id: string;
+        name: string;
+        createdAt: string;
+      }>
+    >
+  >;
+  getProject(projectId: string): Promise<Reply<Project>>;
+  postProject(): Promise<Reply<{ id: string; name: string }>>;
+  putProject(
+    projectId: string,
+    body: TestManagementData
+  ): Promise<Reply<Project>>;
+}
+
+export class ProjectRepositoryImpl implements ProjectRepository {
   constructor(
     private restClient: RESTClient,
     private buildAPIURL: (url: string) => string

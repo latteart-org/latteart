@@ -7,47 +7,81 @@ describe("ExportAction", () => {
   describe("#exportZip", () => {
     it("渡されたテスト結果IDを用いてエクスポートを実行し、その戻り値を返す", async () => {
       const reply = {
-        succeeded: true,
+        status: 200,
         data: { url: "/test/export.zip" },
       };
 
+      const expectedResult = {
+        data: reply.data.url,
+        error: undefined,
+      };
+
+      const projectRepository = {
+        postProjectForExport: jest.fn().mockResolvedValue(reply),
+        getProjects: jest.fn(),
+        getProject: jest.fn(),
+        postProject: jest.fn(),
+        putProject: jest.fn(),
+      };
+
       const dispatcher: Exportable = {
-        exportZipFile: jest.fn().mockResolvedValue(reply),
+        projectRepository,
       };
 
       const projectId = "projectId";
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const returnUrl = await new ExportAction(dispatcher).exportZip(
+      const result = await new ExportAction(dispatcher).exportZip(
         projectId,
         selectOption
       );
 
-      expect(dispatcher.exportZipFile).toBeCalledWith(projectId, selectOption);
-      expect(returnUrl).toEqual(reply.data.url);
+      expect(dispatcher.projectRepository.postProjectForExport).toBeCalledWith(
+        projectId,
+        selectOption
+      );
+      expect(result).toEqual(expectedResult);
     });
 
     it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
       const reply = {
-        succeeded: false,
+        status: 500,
         error: {
           code: "errorcode",
           message: "errormessage",
         },
       };
 
+      const receivedError = {
+        data: undefined,
+        error: { code: "create-export-data-error" },
+      };
+
+      const projectRepository = {
+        postProjectForExport: jest.fn().mockResolvedValue(reply),
+        getProjects: jest.fn(),
+        getProject: jest.fn(),
+        postProject: jest.fn(),
+        putProject: jest.fn(),
+      };
+
       const dispatcher: Exportable = {
-        exportZipFile: jest.fn().mockResolvedValue(reply),
+        projectRepository,
       };
 
       const projectId = "projectId";
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      await expect(
-        new ExportAction(dispatcher).exportZip(projectId, selectOption)
-      ).rejects.toThrowError("create-export-data-error");
+      const result = await new ExportAction(dispatcher).exportZip(
+        projectId,
+        selectOption
+      );
 
-      expect(dispatcher.exportZipFile).toBeCalledWith(projectId, selectOption);
+      expect(dispatcher.projectRepository.postProjectForExport).toBeCalledWith(
+        projectId,
+        selectOption
+      );
+      expect(result).toEqual(receivedError);
     });
   });
 });
