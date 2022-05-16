@@ -174,12 +174,6 @@ export class GenerateAllSessionTestScriptsAction {
                   value: testStep.intention.value,
                   details: testStep.intention.details,
                   tags: testStep.intention.tags,
-                  imageFilePath: testStep.intention.imageFileUrl
-                    ? new URL(
-                        testStep.intention.imageFileUrl,
-                        serviceUrl
-                      ).toString()
-                    : "",
                 })
               : null,
             bugs:

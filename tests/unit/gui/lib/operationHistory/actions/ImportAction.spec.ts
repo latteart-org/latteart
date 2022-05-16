@@ -6,47 +6,73 @@ import {
 describe("ImportAction", () => {
   describe("#importWithTestResult", () => {
     it("渡されたインポート元、インポート先を用いてインポートを実行し、その戻り値を返す", async () => {
-      const expectedReply = {
-        succeeded: true,
+      const reply = {
+        status: 200,
         data: { name: "name", id: "id", beforeId: "beforeId" },
       };
 
+      const expectedResult = {
+        data: reply.data,
+        error: undefined,
+      };
+
+      const importTestResultRepository = {
+        postTestResult: jest.fn().mockResolvedValue(reply),
+        getTestResults: jest.fn(),
+      };
+
       const dispatcher: TestResultImportable = {
-        importTestResult: jest.fn().mockResolvedValue(expectedReply),
+        importTestResultRepository,
       };
 
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
-      const response = await new ImportAction(dispatcher).importWithTestResult(
+      const result = await new ImportAction(dispatcher).importWithTestResult(
         source,
         dest
       );
 
-      expect(dispatcher.importTestResult).toBeCalledWith(source, dest);
-      expect(response).toEqual(expectedReply.data);
+      expect(
+        dispatcher.importTestResultRepository.postTestResult
+      ).toBeCalledWith(source, dest);
+      expect(result).toEqual(expectedResult);
     });
 
-    it("渡されたインポート元、インポート先を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
+    it("渡されたインポート元、インポート先を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードの戻り値を返す。", async () => {
       const reply = {
-        succeeded: false,
+        status: 500,
         error: {
           code: "errorcode",
           message: "errormessage",
         },
       };
 
+      const receivedError = {
+        data: undefined,
+        error: { code: "import-data-error" },
+      };
+
+      const importTestResultRepository = {
+        postTestResult: jest.fn().mockResolvedValue(reply),
+        getTestResults: jest.fn(),
+      };
+
       const dispatcher: TestResultImportable = {
-        importTestResult: jest.fn().mockResolvedValue(reply),
+        importTestResultRepository,
       };
 
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
 
-      await expect(
-        new ImportAction(dispatcher).importWithTestResult(source, dest)
-      ).rejects.toThrowError("import-data-error");
+      const result = await new ImportAction(dispatcher).importWithTestResult(
+        source,
+        dest
+      );
 
-      expect(dispatcher.importTestResult).toBeCalledWith(source, dest);
+      expect(
+        dispatcher.importTestResultRepository.postTestResult
+      ).toBeCalledWith(source, dest);
+      expect(result).toEqual(receivedError);
     });
   });
 });

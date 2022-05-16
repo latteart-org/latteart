@@ -7,44 +7,78 @@ describe("ExportAction", () => {
   describe("#exportWithTestResult", () => {
     it("渡されたテスト結果IDを用いてエクスポートを実行し、その戻り値を返す", async () => {
       const reply = {
-        succeeded: true,
+        status: 200,
         data: { url: "/test/export.zip" },
       };
 
+      const expectedResult = {
+        data: reply.data.url,
+        error: undefined,
+      };
+
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn().mockResolvedValue(reply),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn(),
+        patchTestResult: jest.fn(),
+      };
+
       const dispatcher: TestResultExportable = {
-        exportTestResult: jest.fn().mockResolvedValue(reply),
+        testResultRepository,
       };
 
       const testResultId = "testResultId";
 
-      const returnUrl = await new ExportAction(dispatcher).exportWithTestResult(
+      const result = await new ExportAction(dispatcher).exportWithTestResult(
         testResultId
       );
 
-      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId, false);
-      expect(returnUrl).toEqual(reply.data.url);
+      expect(
+        dispatcher.testResultRepository.postTestResultForExport
+      ).toBeCalledWith(testResultId, false);
+      expect(result).toEqual(expectedResult);
     });
 
     it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
       const reply = {
-        succeeded: false,
+        status: 500,
         error: {
           code: "errorcode",
           message: "errormessage",
         },
       };
 
-      const dispatcher: TestResultExportable = {
-        exportTestResult: jest.fn().mockResolvedValue(reply),
+      const receivedError = {
+        data: undefined,
+        error: { code: "create-export-data-error" },
       };
 
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn().mockResolvedValue(reply),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn(),
+        patchTestResult: jest.fn(),
+      };
+
+      const dispatcher: TestResultExportable = {
+        testResultRepository,
+      };
       const testResultId = "testResultId";
 
-      await expect(
-        new ExportAction(dispatcher).exportWithTestResult(testResultId)
-      ).rejects.toThrowError("create-export-data-error");
+      const result = await new ExportAction(dispatcher).exportWithTestResult(
+        testResultId
+      );
 
-      expect(dispatcher.exportTestResult).toBeCalledWith(testResultId, false);
+      expect(
+        dispatcher.testResultRepository.postTestResultForExport
+      ).toBeCalledWith(testResultId, false);
+      expect(result).toEqual(receivedError);
     });
   });
 });

@@ -19,17 +19,27 @@ import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction"
 import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
 import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
 import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
-import { TestResultImportable } from "../operationHistory/actions/ImportAction";
-import { TestResultExportable } from "../operationHistory/actions/ExportAction";
 import { TestResultUploadable } from "../operationHistory/actions/UploadTestResultAction";
 import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
-import { TestStepRepository } from "./repositoryService/TestStepRepository";
-import { NoteRepository } from "./repositoryService/NoteRepository";
-import { TestResultRepository } from "./repositoryService/TestResultRepository";
+import {
+  TestStepRepository,
+  TestStepRepositoryImpl,
+} from "./repositoryService/TestStepRepository";
+import {
+  NoteRepository,
+  NoteRepositoryImpl,
+} from "./repositoryService/NoteRepository";
+import {
+  TestResultRepository,
+  TestResultRepositoryImpl,
+} from "./repositoryService/TestResultRepository";
 import { TestScriptRepository } from "./repositoryService/TestScriptRepository";
 import { SettingGettable } from "../operationHistory/actions/ReadSettingAction";
 import { SettingRepository } from "./repositoryService/SettingRepository";
-import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
+import {
+  ImportTestResultRepositoryImpl,
+  ImportTestResultRepository,
+} from "./repositoryService/ImportTestResultRepository";
 import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
 import { ProjectRepository } from "./repositoryService/ProjectRepository";
@@ -45,8 +55,6 @@ export default class RepositoryServiceDispatcher
     IntentionMovable,
     IntentionRecordable,
     TestScriptExportable,
-    TestResultImportable,
-    TestResultExportable,
     TestResultUploadable,
     TestResultDeletable,
     SettingGettable {
@@ -60,16 +68,16 @@ export default class RepositoryServiceDispatcher
       return new URL(`api/v1${url}`, this.serviceUrl).toString();
     };
     this.restClient = new RESTClient();
-    this._testStepRepository = new TestStepRepository(
+    this._testStepRepository = new TestStepRepositoryImpl(
       this.restClient,
       buildAPIURL
     );
-    this._noteRepository = new NoteRepository(this.restClient, buildAPIURL);
-    this._testResultRepository = new TestResultRepository(
+    this._noteRepository = new NoteRepositoryImpl(this.restClient, buildAPIURL);
+    this._testResultRepository = new TestResultRepositoryImpl(
       this.restClient,
       buildAPIURL
     );
-    this._importTestResultRepository = new ImportTestResultRepository(
+    this._importTestResultRepository = new ImportTestResultRepositoryImpl(
       this.restClient,
       buildAPIURL
     );
