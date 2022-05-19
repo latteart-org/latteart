@@ -18,7 +18,6 @@ import Vue from "vue";
 import { ActionTree } from "vuex";
 import { TestManagementState } from ".";
 import { RootState } from "..";
-import { Operation } from "@/lib/operationHistory/Operation";
 import {
   Story,
   TestMatrix,
@@ -35,9 +34,7 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
-import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
-import { TestStep } from "@/lib/operationHistory/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { CalculateProgressDatasAction } from "@/lib/testManagement/actions/CalculateProgressDatasAction";

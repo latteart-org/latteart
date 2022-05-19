@@ -19,6 +19,7 @@ import { ActionResult } from "@/lib/common/ActionResult";
 import { Note } from "../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../types";
+import { convertNote } from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface NoticeAddable {
   readonly noteRepository: NoteRepository;
@@ -98,15 +99,7 @@ export class AddNoticeAction {
 
     const serviceUrl = this.dispatcher.serviceUrl;
     const data = {
-      notice: new Note({
-        id: savedNote.id,
-        value: savedNote.value,
-        details: savedNote.details,
-        imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, serviceUrl).toString()
-          : "",
-        tags: savedNote.tags,
-      }),
+      notice: convertNote(savedNote, serviceUrl),
       index: savedTestStep.notices.length - 1,
     };
 

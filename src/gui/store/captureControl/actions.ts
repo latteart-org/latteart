@@ -32,7 +32,6 @@ import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/SaveDeviceSettingAction";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/GetTestResultAction";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -225,7 +224,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     if (reply.error) {
       const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
+        `error.capture_control.${reply.error.code}`
       );
       throw new Error(errorMessage);
     }
@@ -476,7 +475,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       if (reply.error) {
         const errorMessage = context.rootGetters.message(
-          `error.capture_control.${reply.error!.code}`
+          `error.capture_control.${reply.error.code}`
         );
         throw new Error(errorMessage);
       }

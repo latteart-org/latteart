@@ -19,6 +19,7 @@ import { ActionResult } from "@/lib/common/ActionResult";
 import { Note } from "../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../types";
+import { convertNote } from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface BugAddable {
   readonly noteRepository: NoteRepository;
@@ -92,15 +93,7 @@ export class AddBugAction {
 
     const serviceUrl = this.dispatcher.serviceUrl;
     const data = {
-      bug: new Note({
-        id: savedNote.id,
-        value: savedNote.value,
-        details: savedNote.details,
-        imageFilePath: savedNote.imageFileUrl
-          ? new URL(savedNote.imageFileUrl, serviceUrl).toString()
-          : "",
-        tags: savedNote.tags,
-      }),
+      bug: convertNote(savedNote, serviceUrl),
       index: savedTestStep.bugs.length - 1,
     };
 

@@ -19,6 +19,7 @@ import { CapturedOperation } from "../CapturedOperation";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { Operation } from "../Operation";
 import { CoverageSource, InputElementInfo, TestStepOperation } from "../types";
+import { convertTestStepOperation } from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface OperationRegistrable {
   readonly testStepRepository: TestStepRepository;
@@ -63,20 +64,7 @@ export class RegisterOperationAction {
     };
     const serviceUrl = this.dispatcher.serviceUrl;
 
-    const operation = Operation.createOperation({
-      input: testStepOperation.input,
-      type: testStepOperation.type,
-      elementInfo: testStepOperation.elementInfo,
-      title: testStepOperation.title,
-      url: testStepOperation.url,
-      imageFilePath: testStepOperation.imageFileUrl
-        ? new URL(testStepOperation.imageFileUrl, serviceUrl).toString()
-        : testStepOperation.imageFileUrl,
-      windowHandle: testStepOperation.windowHandle,
-      timestamp: testStepOperation.timestamp,
-      inputElements: testStepOperation.inputElements,
-      keywordSet: new Set(testStepOperation.keywordTexts),
-    });
+    const operation = convertTestStepOperation(testStepOperation, serviceUrl);
 
     const data = {
       id,

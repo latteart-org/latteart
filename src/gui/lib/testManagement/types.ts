@@ -156,26 +156,7 @@ export interface TestTargetProgressData {
 export interface Project {
   id: string;
   name: string;
-  testMatrices: {
-    id: string;
-    name: string;
-    groups: {
-      id: string;
-      name: string;
-      testTargets: {
-        id: string;
-        name: string;
-        plans: {
-          viewPointId: string;
-          value: number;
-        }[];
-      }[];
-    }[];
-    viewPoints: {
-      id: string;
-      name: string;
-    }[];
-  }[];
+  testMatrices: TestMatrix[];
   stories: StoryDetails[];
   progressDatas: ProgressData[];
 }
@@ -208,10 +189,7 @@ interface StoryDetails {
     memo: string;
     name: string;
     testItem: string;
-    testResultFiles?: {
-      name: string;
-      id: string;
-    }[];
+    testResultFiles?: TestResultFile[];
     testerName: string;
     testingTime: number;
   }[];

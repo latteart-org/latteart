@@ -17,18 +17,16 @@
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { Story } from "../types";
-import {
-  TestStep,
-  CoverageSource,
-  InputElementInfo,
-} from "@/lib/operationHistory/types";
+import { TestStep } from "@/lib/operationHistory/types";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
-import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { ScreenDefinition } from "@/lib/common/settings/Settings";
 import { ActionResult } from "@/lib/common/ActionResult";
-import { Note } from "@/lib/operationHistory/Note";
-import { values } from "d3";
+import {
+  convertTestStepOperation,
+  convertIntention,
+  convertNote,
+} from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface GenerateAllSessionTestScriptsActionObserver {
   generateTestScripts: (
@@ -146,59 +144,22 @@ export class GenerateAllSessionTestScriptsAction {
     const testSteps: TestStep[] = reply.data
       ? reply.data.testSteps.map((testStep) => {
           const operation = testStep.operation
-            ? Operation.createOperation({
-                input: testStep.operation.input,
-                type: testStep.operation.type,
-                elementInfo: testStep.operation.elementInfo,
-                title: testStep.operation.title,
-                url: testStep.operation.url,
-                imageFilePath: testStep.operation.imageFileUrl
-                  ? new URL(
-                      testStep.operation.imageFileUrl,
-                      serviceUrl
-                    ).toString()
-                  : testStep.operation.imageFileUrl,
-                windowHandle: testStep.operation.windowHandle,
-                timestamp: testStep.operation.timestamp,
-                inputElements: testStep.operation.inputElements,
-                keywordSet: new Set(testStep.operation.keywordTexts),
-              })
+            ? convertTestStepOperation(testStep.operation, serviceUrl)
             : testStep.operation;
 
           return {
             testStepId: testStep.id,
             operation,
             intention: testStep.intention
-              ? new Note({
-                  id: testStep.intention.id,
-                  value: testStep.intention.value,
-                  details: testStep.intention.details,
-                  tags: testStep.intention.tags,
-                })
+              ? convertIntention(testStep.intention)
               : null,
             bugs:
               testStep.bugs?.map((bug) => {
-                return new Note({
-                  id: bug.id,
-                  value: bug.value,
-                  details: bug.details,
-                  tags: bug.tags,
-                  imageFilePath: bug.imageFileUrl
-                    ? new URL(bug.imageFileUrl, serviceUrl).toString()
-                    : "",
-                });
+                return convertNote(bug, serviceUrl);
               }) ?? null,
             notices:
               testStep.notices?.map((notice) => {
-                return new Note({
-                  id: notice.id,
-                  value: notice.value,
-                  details: notice.details,
-                  tags: notice.tags,
-                  imageFilePath: notice.imageFileUrl
-                    ? new URL(notice.imageFileUrl, serviceUrl).toString()
-                    : "",
-                });
+                return convertNote(notice, serviceUrl);
               }) ?? null,
           };
         })

@@ -16,11 +16,6 @@
 
 import RESTClient from "./RESTClient";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
-import { IntentionMovable } from "../operationHistory/actions/MoveIntentionAction";
-import { IntentionRecordable } from "../operationHistory/actions/RecordIntentionAction";
-import { TestScriptExportable } from "../operationHistory/actions/GenerateTestScriptsAction";
-import { TestResultUploadable } from "../operationHistory/actions/UploadTestResultAction";
-import { TestResultDeletable } from "../operationHistory/actions/DeleteTestResultAction";
 import {
   TestStepRepository,
   TestStepRepositoryImpl,
@@ -34,7 +29,6 @@ import {
   TestResultRepositoryImpl,
 } from "./repositoryService/TestResultRepository";
 import { TestScriptRepository } from "./repositoryService/TestScriptRepository";
-import { SettingGettable } from "../operationHistory/actions/ReadSettingAction";
 import { SettingRepository } from "./repositoryService/SettingRepository";
 import {
   ImportTestResultRepositoryImpl,
@@ -55,15 +49,7 @@ import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 /**
  * A class that processes the acquisition of client-side information through the service.
  */
-export default class RepositoryServiceDispatcher
-  implements
-    ProjectUpdatable,
-    IntentionMovable,
-    IntentionRecordable,
-    TestScriptExportable,
-    TestResultUploadable,
-    TestResultDeletable,
-    SettingGettable {
+export default class RepositoryServiceDispatcher implements ProjectUpdatable {
   constructor(
     private config: {
       url: string;

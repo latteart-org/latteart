@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
 import {
   ManagedStory,
   TestManagementData,

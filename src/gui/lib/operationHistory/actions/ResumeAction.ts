@@ -20,6 +20,11 @@ import { Operation } from "../Operation";
 import { Note } from "../Note";
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  convertTestStepOperation,
+  convertNote,
+  convertIntention,
+} from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -69,23 +74,7 @@ export class ResumeAction {
       name: testResult.name,
       operationHistoryItems: testResult.testSteps.map((testStep) => {
         const operation = testStep.operation
-          ? Operation.createOperation({
-              input: testStep.operation.input,
-              type: testStep.operation.type,
-              elementInfo: testStep.operation.elementInfo,
-              title: testStep.operation.title,
-              url: testStep.operation.url,
-              imageFilePath: testStep.operation.imageFileUrl
-                ? new URL(
-                    testStep.operation.imageFileUrl,
-                    serviceUrl
-                  ).toString()
-                : testStep.operation.imageFileUrl,
-              windowHandle: testStep.operation.windowHandle,
-              timestamp: testStep.operation.timestamp,
-              inputElements: testStep.operation.inputElements,
-              keywordSet: new Set(testStep.operation.keywordTexts),
-            })
+          ? convertTestStepOperation(testStep.operation, serviceUrl)
           : testStep.operation;
 
         return {
@@ -93,26 +82,12 @@ export class ResumeAction {
           operation,
           intention: testStep.intention,
           bugs:
-            testStep.bugs?.map((bug: any) => {
-              return Note.createFromOtherNote({
-                other: bug,
-                overrideParams: {
-                  imageFilePath: bug.imageFileUrl
-                    ? new URL(bug.imageFileUrl, serviceUrl).toString()
-                    : "",
-                },
-              });
+            testStep.bugs?.map((bug) => {
+              return convertNote(bug, serviceUrl);
             }) ?? null,
           notices:
-            testStep.notices?.map((notice: any) => {
-              return Note.createFromOtherNote({
-                other: notice,
-                overrideParams: {
-                  imageFilePath: notice.imageFileUrl
-                    ? new URL(notice.imageFileUrl, serviceUrl).toString()
-                    : "",
-                },
-              });
+            testStep.notices?.map((notice) => {
+              return convertNote(notice, serviceUrl);
             }) ?? null,
         };
       }),
@@ -134,14 +109,9 @@ export class ResumeAction {
             })
           : null;
 
-        const otherNote = new Note({
-          id: item.intention?.id,
-          sequence: sequence,
-          value: item.intention?.value,
-          details: item.intention?.details,
-          tags: item.intention?.tags,
-        });
-        const intention = item.intention ? otherNote : null;
+        const intention = item.intention
+          ? convertIntention(item.intention, sequence)
+          : null;
 
         const bugs =
           item.bugs?.map((bug) => {

@@ -20,6 +20,7 @@ import { TestStepOperation } from "../types";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
+import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface RecordIntentionActionObserver {
   setIntention(value: Note): void;
@@ -174,14 +175,7 @@ export class RecordIntentionAction {
     };
 
     const serviceUrl = this.dispatcher.serviceUrl;
-    const data = new Note({
-      value: savedNote.value,
-      details: savedNote.details,
-      imageFilePath: savedNote.imageFileUrl
-        ? new URL(savedNote.imageFileUrl, serviceUrl).toString()
-        : "",
-      tags: savedNote.tags,
-    });
+    const data = convertNoteWithoutId(savedNote, serviceUrl);
 
     return new ReplyImpl({ status: reply.status, data: data });
   }
