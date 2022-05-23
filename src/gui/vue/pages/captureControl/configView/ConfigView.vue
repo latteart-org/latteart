@@ -238,7 +238,7 @@ export default class ConfigView extends Vue {
 
   private async selectPlatform(platformName: string) {
     this.browsers = [...this.collectBrowsers(platformName)];
-    const browser = this.browsers[0];
+    const browser = this.getBrowser(platformName);
 
     this.devices = [...(await this.recognizeDevices(platformName))];
 
@@ -249,6 +249,17 @@ export default class ConfigView extends Vue {
         device: this.getDefaultDevice(this.devices),
       },
     });
+  }
+
+  private getBrowser(platformName: string) {
+    if (
+      platformName === PlatformName.PC &&
+      this.selectedBrowser === Browser.Edge
+    ) {
+      return this.selectedBrowser;
+    }
+
+    return this.browsers[0];
   }
 
   private collectBrowsers(platformName: string) {
