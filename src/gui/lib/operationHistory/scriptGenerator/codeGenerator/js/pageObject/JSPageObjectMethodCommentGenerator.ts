@@ -23,7 +23,8 @@ import {
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
 
 export class JSPageObjectMethodCommentGenerator
-  implements PageObjectMethodCommentGenerator {
+  implements PageObjectMethodCommentGenerator
+{
   generateFrom(
     name: string,
     operations: PageObjectOperation[],

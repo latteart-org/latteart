@@ -62,11 +62,12 @@ export class JSPageObjectCommentAttacher implements PageObjectCommentAttacher {
           returnPageObjectId: method.returnPageObjectId,
         });
 
-        newMethod.comment = new JSPageObjectMethodCommentGenerator().generateFrom(
-          this.nameGenerator.method.generate(method.id),
-          method.operations,
-          destPageObject
-        );
+        newMethod.comment =
+          new JSPageObjectMethodCommentGenerator().generateFrom(
+            this.nameGenerator.method.generate(method.id),
+            method.operations,
+            destPageObject
+          );
 
         return newMethod;
       }),

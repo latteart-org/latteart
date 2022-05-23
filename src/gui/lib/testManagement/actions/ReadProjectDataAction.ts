@@ -68,7 +68,7 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            (this.dispatcher as unknown) as ProjectUpdatable
+            this.dispatcher as unknown as ProjectUpdatable
           )
         )
       ),
@@ -99,10 +99,12 @@ export class ReadProjectDataAction {
 
     const targetProjectId =
       projects.length === 0
-        ? ((await this.dispatcher.projectRepository.postProject()).data as {
-            id: string;
-            name: string;
-          }).id
+        ? (
+            (await this.dispatcher.projectRepository.postProject()).data as {
+              id: string;
+              name: string;
+            }
+          ).id
         : projects[projects.length - 1].id;
 
     const reply = await this.dispatcher.projectRepository.getProject(

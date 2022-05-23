@@ -73,12 +73,11 @@ export default class ScreenHistory {
         } else {
           acc[acc.length - 1].operationHistory.push(currentItem);
           if (currentItem.operation.inputElements) {
-            acc[
-              acc.length - 1
-            ].inputElements = currentItem.operation.inputElements.map((ele) => {
-              this.tagNameAndXPathToUpperCaseForElementInfo(ele);
-              return ele;
-            });
+            acc[acc.length - 1].inputElements =
+              currentItem.operation.inputElements.map((ele) => {
+                this.tagNameAndXPathToUpperCaseForElementInfo(ele);
+                return ele;
+              });
           }
         }
         prevScreenDef = currentItem.operation.screenDef;
@@ -179,9 +178,7 @@ export default class ScreenHistory {
     });
   }
 
-  public collectScreenTransitions(
-    sourceScreenDef: string
-  ): {
+  public collectScreenTransitions(sourceScreenDef: string): {
     source: {
       title: string;
       url: string;

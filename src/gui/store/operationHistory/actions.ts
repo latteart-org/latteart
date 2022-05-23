@@ -655,10 +655,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload?: { destTestResultId?: string }
   ) {
-    const {
-      serviceUrl,
-      isRemote,
-    } = context.rootState.repositoryServiceDispatcher;
+    const { serviceUrl, isRemote } =
+      context.rootState.repositoryServiceDispatcher;
 
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
@@ -906,11 +904,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async saveUnassignedIntention(context, payload: { destSequence: number }) {
-    const unassignedIntentionIndex = context.state.unassignedIntentions.findIndex(
-      (item) => {
+    const unassignedIntentionIndex =
+      context.state.unassignedIntentions.findIndex((item) => {
         return item.sequence === payload.destSequence;
-      }
-    );
+      });
 
     if (unassignedIntentionIndex !== -1) {
       const unassignedIntention =
@@ -1164,9 +1161,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       const selectOperation = (sequence: number) => {
         context.commit("selectOperation", { sequence });
 
-        const operationWithNotes:
-          | OperationWithNotes
-          | undefined = context.getters.findHistoryItem(sequence);
+        const operationWithNotes: OperationWithNotes | undefined =
+          context.getters.findHistoryItem(sequence);
         if (!operationWithNotes) {
           return;
         }
@@ -1277,10 +1273,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       testResultId: string | undefined;
       projectId: string | undefined;
       sources: { initialUrl: string; history: Operation[] }[];
-      option: { useDataDriven: boolean; maxGeneration: number };
+      option: {
+        testScript: { isSimple: boolean };
+        testData: { useDataDriven: boolean; maxGeneration: number };
+      };
     }
   ) {
-    const optimize = true;
     const imageUrlResolver = (url: string) => {
       return url.replace(
         `${context.rootState.repositoryServiceDispatcher.serviceUrl}/`,
@@ -1289,12 +1287,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     };
 
     const testScriptGenerator = new TestScriptGeneratorImpl(imageUrlResolver, {
-      optimize,
+      testScript: {
+        isSimple: payload.option.testScript.isSimple,
+      },
       testData: {
-        useDataDriven: payload.option.useDataDriven,
-        maxGeneration: payload.option.maxGeneration,
+        useDataDriven: payload.option.testData.useDataDriven,
+        maxGeneration: payload.option.testData.maxGeneration,
       },
     });
+
     const result = await new GenerateTestScriptsAction(
       context.rootState.repositoryServiceDispatcher,
       testScriptGenerator
@@ -1307,9 +1308,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (result.data) {
       return result.data;
     }
+
     if (result.error) {
       if (result.error.code === `generate_test_suite_failed`) {
-        const errorCode = optimize
+        const errorCode = !payload.option.testScript.isSimple
           ? `save_test_scripts_no_section_error`
           : `save_test_scripts_no_operation_error`;
 
@@ -1317,11 +1319,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.rootGetters.message(`error.operation_history.${errorCode}`)
         );
       }
-      throw new Error(
-        context.rootGetters.message(
-          `error.operation_history.${result.error.code}`
-        )
-      );
     }
   },
 

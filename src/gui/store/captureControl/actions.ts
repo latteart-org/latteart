@@ -215,10 +215,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   ): Promise<string | undefined> {
     context.commit("setIsReplaying", { isReplaying: true });
 
-    const reply = await context.rootState.clientSideCaptureServiceDispatcher.runOperations(
-      context.state.config,
-      payload.operations
-    );
+    const reply =
+      await context.rootState.clientSideCaptureServiceDispatcher.runOperations(
+        context.state.config,
+        payload.operations
+      );
 
     context.commit("setIsReplaying", { isReplaying: false });
 
@@ -318,160 +319,163 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     );
 
     try {
-      const reply = await context.rootState.clientSideCaptureServiceDispatcher.startCapture(
-        payload.url,
-        config,
-        {
-          onStart: async () => {
-            const history: OperationWithNotes[] = context.rootGetters[
-              "operationHistory/getHistory"
-            ]();
+      const reply =
+        await context.rootState.clientSideCaptureServiceDispatcher.startCapture(
+          payload.url,
+          config,
+          {
+            onStart: async () => {
+              const history: OperationWithNotes[] =
+                context.rootGetters["operationHistory/getHistory"]();
 
-            const lastTestingTime = calculateElapsedEpochMillis(
-              payload.lastStartTime,
-              history
-            );
-            const newStartTime = new TimestampImpl(payload.startTime)
-              .offset(lastTestingTime * -1)
-              .epochMilliseconds();
+              const lastTestingTime = calculateElapsedEpochMillis(
+                payload.lastStartTime,
+                history
+              );
+              const newStartTime = new TimestampImpl(payload.startTime)
+                .offset(lastTestingTime * -1)
+                .epochMilliseconds();
 
-            context.dispatch("stopTimer");
-            context.dispatch("startTimer", {
-              onChangeTime: payload.callbacks.onChangeTime,
-              startTime: newStartTime,
-            });
+              context.dispatch("stopTimer");
+              context.dispatch("startTimer", {
+                onChangeTime: payload.callbacks.onChangeTime,
+                startTime: newStartTime,
+              });
 
-            context.commit("setCapturing", { isCapturing: true });
-            context.commit("operationHistory/clearUnassignedIntentions", null, {
-              root: true,
-            });
-
-            const testOption = (context.rootState as any).captureControl
-              .testOption;
-
-            if (testOption.firstTestPurpose) {
-              const {
-                sequence,
-              } = (context.rootState as any).operationHistory.selectedOperationNote;
-
+              context.commit("setCapturing", { isCapturing: true });
               context.commit(
-                "operationHistory/selectOperationNote",
-                {
-                  selectedOperationNote: { sequence: null, index: null },
-                },
+                "operationHistory/clearUnassignedIntentions",
+                null,
                 {
                   root: true,
                 }
               );
+
+              const testOption = (context.rootState as any).captureControl
+                .testOption;
+
+              if (testOption.firstTestPurpose) {
+                const { sequence } = (context.rootState as any).operationHistory
+                  .selectedOperationNote;
+
+                context.commit(
+                  "operationHistory/selectOperationNote",
+                  {
+                    selectedOperationNote: { sequence: null, index: null },
+                  },
+                  {
+                    root: true,
+                  }
+                );
+
+                await context.dispatch(
+                  "operationHistory/saveIntention",
+                  {
+                    noteEditInfo: {
+                      oldSequence: sequence ?? undefined,
+                      newSequence: sequence ?? undefined,
+                      note: testOption.firstTestPurpose,
+                      noteDetails: testOption.firstTestPurposeDetails,
+                      shouldTakeScreenshot: false,
+                    },
+                  },
+                  {
+                    root: true,
+                  }
+                );
+              }
+            },
+            onGetOperation: async (capturedOperation: CapturedOperation) => {
+              if (capturedOperation.type === "switch_window") {
+                context.commit("setCurrentWindow", {
+                  currentWindow: capturedOperation.input,
+                });
+              }
 
               await context.dispatch(
-                "operationHistory/saveIntention",
+                "operationHistory/registerOperation",
                 {
-                  noteEditInfo: {
-                    oldSequence: sequence ?? undefined,
-                    newSequence: sequence ?? undefined,
-                    note: testOption.firstTestPurpose,
-                    noteDetails: testOption.firstTestPurposeDetails,
-                    shouldTakeScreenshot: false,
-                  },
+                  operation: capturedOperation,
                 },
-                {
-                  root: true,
-                }
+                { root: true }
               );
-            }
-          },
-          onGetOperation: async (capturedOperation: CapturedOperation) => {
-            if (capturedOperation.type === "switch_window") {
-              context.commit("setCurrentWindow", {
-                currentWindow: capturedOperation.input,
+            },
+            onGetScreenTransition: async (
+              capturedScreenTransition: CapturedScreenTransition
+            ) => {
+              const capturedOperation = {
+                input: "",
+                type: "screen_transition",
+                elementInfo: null,
+                title: capturedScreenTransition.title,
+                url: capturedScreenTransition.url,
+                imageData: capturedScreenTransition.imageData,
+                windowHandle: capturedScreenTransition.windowHandle,
+                timestamp: capturedScreenTransition.timestamp,
+                screenElements: [],
+                pageSource: capturedScreenTransition.pageSource,
+                inputElements: [],
+              };
+
+              await context.dispatch(
+                "operationHistory/registerOperation",
+                {
+                  operation: capturedOperation,
+                },
+                { root: true }
+              );
+            },
+            onChangeBrowserHistory: (browserStatus: {
+              canGoBack: boolean;
+              canGoForward: boolean;
+            }) => {
+              console.log(JSON.stringify(browserStatus));
+              context.commit("setCanDoBrowserBack", {
+                canDoBrowserBack: browserStatus.canGoBack,
               });
-            }
+              context.commit("setCanDoBrowserForward", {
+                canDoBrowserForward: browserStatus.canGoForward,
+              });
+            },
+            onUpdateAvailableWindows: (updatedWindowsInfo: {
+              windowHandles: string[];
+              currentWindowHandle: string;
+            }) => {
+              if (updatedWindowsInfo.windowHandles.length === 0) {
+                return;
+              }
 
-            await context.dispatch(
-              "operationHistory/registerOperation",
-              {
-                operation: capturedOperation,
-              },
-              { root: true }
-            );
-          },
-          onGetScreenTransition: async (
-            capturedScreenTransition: CapturedScreenTransition
-          ) => {
-            const capturedOperation = {
-              input: "",
-              type: "screen_transition",
-              elementInfo: null,
-              title: capturedScreenTransition.title,
-              url: capturedScreenTransition.url,
-              imageData: capturedScreenTransition.imageData,
-              windowHandle: capturedScreenTransition.windowHandle,
-              timestamp: capturedScreenTransition.timestamp,
-              screenElements: [],
-              pageSource: capturedScreenTransition.pageSource,
-              inputElements: [],
-            };
+              context.dispatch("updateWindowHandles", {
+                availableWindowHandles: updatedWindowsInfo.windowHandles,
+              });
 
-            await context.dispatch(
-              "operationHistory/registerOperation",
-              {
-                operation: capturedOperation,
-              },
-              { root: true }
-            );
-          },
-          onChangeBrowserHistory: (browserStatus: {
-            canGoBack: boolean;
-            canGoForward: boolean;
-          }) => {
-            console.log(JSON.stringify(browserStatus));
-            context.commit("setCanDoBrowserBack", {
-              canDoBrowserBack: browserStatus.canGoBack,
-            });
-            context.commit("setCanDoBrowserForward", {
-              canDoBrowserForward: browserStatus.canGoForward,
-            });
-          },
-          onUpdateAvailableWindows: (updatedWindowsInfo: {
-            windowHandles: string[];
-            currentWindowHandle: string;
-          }) => {
-            if (updatedWindowsInfo.windowHandles.length === 0) {
-              return;
-            }
+              context.commit("setAvailableWindows", {
+                availableWindows: context.state.windowHandles.filter(
+                  (windowHandle: WindowHandle) => {
+                    return windowHandle.available;
+                  }
+                ),
+              });
 
-            context.dispatch("updateWindowHandles", {
-              availableWindowHandles: updatedWindowsInfo.windowHandles,
-            });
+              context.commit("setCurrentWindow", {
+                currentWindow: updatedWindowsInfo.currentWindowHandle,
+              });
 
-            context.commit("setAvailableWindows", {
-              availableWindows: context.state.windowHandles.filter(
-                (windowHandle: WindowHandle) => {
-                  return windowHandle.available;
-                }
-              ),
-            });
-
-            context.commit("setCurrentWindow", {
-              currentWindow: updatedWindowsInfo.currentWindowHandle,
-            });
-
-            if (updatedWindowsInfo.windowHandles.length > 1) {
-              payload.callbacks.onChangeNumberOfWindows();
-            }
-          },
-          onChangeAlertVisibility: (data: { isVisible: boolean }) => {
-            context.commit("setAlertVisible", data);
-          },
-          onPause: () => {
-            context.commit("setPaused", { isPaused: true });
-          },
-          onResume: () => {
-            context.commit("setPaused", { isPaused: false });
-          },
-        }
-      );
+              if (updatedWindowsInfo.windowHandles.length > 1) {
+                payload.callbacks.onChangeNumberOfWindows();
+              }
+            },
+            onChangeAlertVisibility: (data: { isVisible: boolean }) => {
+              context.commit("setAlertVisible", data);
+            },
+            onPause: () => {
+              context.commit("setPaused", { isPaused: true });
+            },
+            onResume: () => {
+              context.commit("setPaused", { isPaused: false });
+            },
+          }
+        );
 
       if (reply.error) {
         const errorMessage = context.rootGetters.message(

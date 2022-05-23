@@ -68,9 +68,7 @@ export default class ClientSideCaptureServiceDispatcher {
    *
    * @returns List of connected devices.
    */
-  public async recognizeDevices(
-    platformName: string
-  ): Promise<
+  public async recognizeDevices(platformName: string): Promise<
     Reply<
       Array<{
         deviceName: string;

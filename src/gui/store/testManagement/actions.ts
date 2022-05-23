@@ -95,9 +95,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    * @returns Test results.
    */
-  async getTestResults(
-    context
-  ): Promise<
+  async getTestResults(context): Promise<
     {
       name: string;
       id: string;
@@ -862,9 +860,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
     outputUrl: string;
     invalidOperationTypeExists: boolean;
   }> {
-    const screenDefinitionConfig = context.rootGetters[
-      "operationHistory/getConfig"
-    ]().screenDefinition;
+    const screenDefinitionConfig =
+      context.rootGetters["operationHistory/getConfig"]().screenDefinition;
 
     const result = await new GenerateAllSessionTestScriptsAction(
       {

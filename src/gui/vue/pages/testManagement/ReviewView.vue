@@ -185,9 +185,8 @@ export default class ReviewView extends Vue {
             option,
           }
         );
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "common.confirm"
-        );
+        this.downloadLinkDialogTitle =
+          this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "history-view.generate-testscript-succeeded"
         );
@@ -238,11 +237,10 @@ export default class ReviewView extends Vue {
   }
 
   private get testResult() {
-    const history: OperationWithNotes[] = this.$store.getters[
-      "operationHistory/getHistory"
-    ]();
-    const coverageSources: CoverageSource[] = this.$store.state.operationHistory
-      .coverageSources;
+    const history: OperationWithNotes[] =
+      this.$store.getters["operationHistory/getHistory"]();
+    const coverageSources: CoverageSource[] =
+      this.$store.state.operationHistory.coverageSources;
 
     return { history, coverageSources };
   }
@@ -286,9 +284,8 @@ export default class ReviewView extends Vue {
   }
 
   private changeWindowTitle(windowTitle: string) {
-    const windowTitleManagerPrefix = this.$store.getters.message(
-      "app.manage-title"
-    );
+    const windowTitleManagerPrefix =
+      this.$store.getters.message("app.manage-title");
     this.$store.dispatch("changeWindowTitle", {
       title: `${windowTitleManagerPrefix} [${windowTitle}]`,
     });

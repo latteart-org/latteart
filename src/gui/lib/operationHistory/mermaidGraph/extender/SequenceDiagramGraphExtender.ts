@@ -21,7 +21,8 @@ import MermaidGraphExtender from "./MermaidGraphExtender";
  * A class that extends the mermaid sequence diagram.
  */
 export default class SequenceDiagramGraphExtender
-  implements MermaidGraphExtender {
+  implements MermaidGraphExtender
+{
   private callback: {
     onClickEdge: (index: number) => void;
     onClickScreenRect: (index: number) => void;
@@ -116,7 +117,7 @@ export default class SequenceDiagramGraphExtender
 
     // When pressing edge and accompanying character string.
     svg.selectAll("text.messageText").each((_, i, nodes) => {
-      const messageText = d3.select((nodes[i] as Node) as d3.BaseType);
+      const messageText = d3.select(nodes[i] as Node as d3.BaseType);
 
       messageText.on("click", () => {
         this.callback.onClickEdge(i);

@@ -334,7 +334,8 @@ const store: StoreOptions<RootState> = {
       opened: false,
       message: "",
     },
-    clientSideCaptureServiceDispatcher: new ClientSideCaptureServiceDispatcher(),
+    clientSideCaptureServiceDispatcher:
+      new ClientSideCaptureServiceDispatcher(),
     repositoryServiceDispatcher: new RepositoryServiceDispatcher({
       url: defaultLocalRepositoryServiceUrl,
       isRemote: false,

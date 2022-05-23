@@ -23,7 +23,8 @@ export interface PageObjectOperationFactory {
 }
 
 export class PageObjectOperationFactoryImpl
-  implements PageObjectOperationFactory {
+  implements PageObjectOperationFactory
+{
   constructor(
     private imageUrlResolver: (url: string) => string,
     private elementFactory: PageObjectElementFactory

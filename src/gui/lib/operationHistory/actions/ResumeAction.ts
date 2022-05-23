@@ -55,9 +55,10 @@ export class ResumeAction {
    * @returns Restored operation history information.
    */
   public async resume(testResultId: string): Promise<ActionResult<void>> {
-    const reply = await this.repositoryServiceDispatcher.testResultRepository.getTestResult(
-      testResultId
-    );
+    const reply =
+      await this.repositoryServiceDispatcher.testResultRepository.getTestResult(
+        testResultId
+      );
 
     const error = reply.error ? { code: reply.error.code } : undefined;
 

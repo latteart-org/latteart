@@ -80,8 +80,9 @@ export default class ScreenDefUnitContainer extends Vue {
       await this.$store.dispatch("operationHistory/writeSettings", {
         config: {
           screenDefinition: {
-            screenDefType: this.$store.state.operationHistory.config
-              .screenDefinition.screenDefType,
+            screenDefType:
+              this.$store.state.operationHistory.config.screenDefinition
+                .screenDefType,
             conditionGroups: addConditions,
           },
         },
@@ -114,8 +115,9 @@ export default class ScreenDefUnitContainer extends Vue {
       await this.$store.dispatch("operationHistory/writeSettings", {
         config: {
           screenDefinition: {
-            screenDefType: this.$store.state.operationHistory.config
-              .screenDefinition.screenDefType,
+            screenDefType:
+              this.$store.state.operationHistory.config.screenDefinition
+                .screenDefType,
             conditionGroups,
           },
         },

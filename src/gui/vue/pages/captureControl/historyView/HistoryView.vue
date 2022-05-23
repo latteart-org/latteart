@@ -68,9 +68,8 @@ export default class HistoryView extends Vue {
   }
 
   private changeWindowTitle(windowTitle: string) {
-    const windowTitleCapturePrefix = this.$store.getters.message(
-      "app.capture-title"
-    );
+    const windowTitleCapturePrefix =
+      this.$store.getters.message("app.capture-title");
     this.$store.dispatch("changeWindowTitle", {
       title: `${windowTitleCapturePrefix} [${windowTitle}]`,
     });

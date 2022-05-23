@@ -19,9 +19,7 @@ import { MethodArgumentGroup } from "./TestDataSet";
 import { MethodCall } from "../model/testSuite/TestSuite";
 
 export interface TestDataRepository {
-  collectScenarioArguments(
-    ...methodCalls: MethodCall[]
-  ): {
+  collectScenarioArguments(...methodCalls: MethodCall[]): {
     pageObjectId: string;
     methodId: string;
     testDataVariations: MethodArgumentGroup[];
@@ -33,9 +31,7 @@ export class TestDataRepositoryImpl implements TestDataRepository {
     private methodIdToInputVariations: PageObjectMethodIdToInputVariations
   ) {}
 
-  public collectScenarioArguments(
-    ...methodCalls: MethodCall[]
-  ): {
+  public collectScenarioArguments(...methodCalls: MethodCall[]): {
     pageObjectId: string;
     methodId: string;
     testDataVariations: MethodArgumentGroup[];
