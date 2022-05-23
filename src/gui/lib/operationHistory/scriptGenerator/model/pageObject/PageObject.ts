@@ -22,6 +22,7 @@ export interface PageObject {
   readonly id: string;
   readonly url: string;
   readonly methods: PageObjectMethod[];
+  readonly unSortedMethods: PageObjectMethod[];
   readonly imageUrl?: string;
   comment?: string;
   collectMethodInputVariations(): PageObjectMethodIdToInputVariations;
@@ -60,6 +61,12 @@ export class PageObjectImpl implements PageObject {
     return this.methodFilters.reduce((acc, methodFilter) => {
       return methodFilter.filter(acc);
     }, this.sortedMethods);
+  }
+
+  public get unSortedMethods(): PageObjectMethod[] {
+    return this.methodFilters.reduce((acc, methodFilter) => {
+      return methodFilter.filter(acc);
+    }, this.params.methods);
   }
 
   public get imageUrl(): string | undefined {

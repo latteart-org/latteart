@@ -28,7 +28,7 @@ export class UniqueMethodSelector implements MethodSelector {
         acc.set(pageObject.id, []);
       }
 
-      acc.get(pageObject.id)?.push(...pageObject.methods);
+      acc.get(pageObject.id)?.push(...pageObject.unSortedMethods);
 
       return acc;
     }, new Map<string, PageObjectMethod[]>());

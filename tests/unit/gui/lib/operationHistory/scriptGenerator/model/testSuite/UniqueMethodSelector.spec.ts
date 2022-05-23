@@ -33,13 +33,15 @@ describe("UniqueMethodSelector", () => {
         {
           id: "pageObject1",
           url: "url1",
-          methods: [method1_1, method1_2],
+          methods: [method1_2, method1_1],
+          unSortedMethods: [method1_1, method1_2],
           collectMethodInputVariations: jest.fn(),
         },
         {
           id: "pageObject2",
           url: "url2",
           methods: [method2_1],
+          unSortedMethods: [method2_1],
           collectMethodInputVariations: jest.fn(),
         },
       ];
