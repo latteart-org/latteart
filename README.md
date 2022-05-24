@@ -6,7 +6,7 @@
 
 ## Project Setup
 
-1. Install `node.js v12.18.1`.
+1. Install `node.js v14.15.3`.
 1. Install `yarn` corresponding to the version of node.js.
 1. Go to the root directory of the project.
 1. Execute the following command.
