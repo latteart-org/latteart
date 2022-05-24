@@ -62,6 +62,7 @@ describe("JSSimplePageObjectCodeGenerator", () => {
           },
         ],
         collectMethodInputVariations: jest.fn(),
+        methodComparator: undefined,
       };
 
       const nameGenerator = {

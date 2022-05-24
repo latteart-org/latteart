@@ -67,11 +67,16 @@ describe("PageObjectImpl", () => {
           input: "aaa2",
         });
 
-        const pageObject = new PageObjectImpl({
-          id: "",
-          url: "",
-          methods: [method1, method2],
-        });
+        const pageObject = new PageObjectImpl(
+          {
+            id: "",
+            url: "",
+            methods: [method1, method2],
+          },
+          {
+            methodFilters: [],
+          }
+        );
 
         const result = pageObject.collectMethodInputVariations();
 
@@ -117,11 +122,16 @@ describe("PageObjectImpl", () => {
         method1.operations.push(...operations1);
         method2.operations.push(...operations2);
 
-        const pageObject = new PageObjectImpl({
-          id: "",
-          url: "",
-          methods: [method1, method2],
-        });
+        const pageObject = new PageObjectImpl(
+          {
+            id: "",
+            url: "",
+            methods: [method1, method2],
+          },
+          {
+            methodFilters: [],
+          }
+        );
 
         const result = pageObject.collectMethodInputVariations();
 
