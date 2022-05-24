@@ -73,7 +73,10 @@ export class JSPageObjectCommentAttacher implements PageObjectCommentAttacher {
           return newMethod;
         }),
       },
-      pageObject.methodSorter
+      {
+        methodFilters: [],
+        methodComparator: pageObject.methodComparator,
+      }
     );
 
     newPageObject.comment = new JSPageObjectCommentGenerator().generateFrom(

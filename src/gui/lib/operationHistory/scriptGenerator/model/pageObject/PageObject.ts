@@ -23,7 +23,7 @@ export interface PageObject {
   readonly url: string;
   readonly methods: PageObjectMethod[];
   readonly imageUrl?: string;
-  readonly methodSorter: MethodSorter | undefined;
+  readonly methodComparator: MethodComparator | undefined;
   comment?: string;
   collectMethodInputVariations(): PageObjectMethodIdToInputVariations;
 }
@@ -33,14 +33,16 @@ export type PageObjectMethodIdToInputVariations = Map<
   { [paramName: string]: string }[]
 >;
 
-export type MethodSorter = (
+export type MethodComparator = (
   method1: PageObjectMethod,
   method2: PageObjectMethod
 ) => number;
 
 export class PageObjectImpl implements PageObject {
-  private methodFilters: MethodFilter[];
-  public methodSorter: MethodSorter | undefined;
+  public option: {
+    methodFilters: MethodFilter[];
+    methodComparator?: MethodComparator;
+  };
   public comment?: string;
 
   constructor(
@@ -50,11 +52,12 @@ export class PageObjectImpl implements PageObject {
       methods: PageObjectMethod[];
       imageUrl?: string;
     },
-    methodSorter: MethodSorter | undefined,
-    ...methodFilters: MethodFilter[]
+    option: {
+      methodFilters: MethodFilter[];
+      methodComparator?: MethodComparator;
+    }
   ) {
-    this.methodSorter = methodSorter;
-    this.methodFilters = methodFilters;
+    this.option = option;
   }
 
   public get id(): string {
@@ -66,13 +69,17 @@ export class PageObjectImpl implements PageObject {
   }
 
   public get methods(): PageObjectMethod[] {
-    return this.methodFilters.reduce((acc, methodFilter) => {
+    return this.option.methodFilters.reduce((acc, methodFilter) => {
       return methodFilter.filter(acc);
     }, this.sortedMethods);
   }
 
   public get imageUrl(): string | undefined {
     return this.params.imageUrl;
+  }
+
+  public get methodComparator(): MethodComparator | undefined {
+    return this.option.methodComparator;
   }
 
   public collectMethodInputVariations(): PageObjectMethodIdToInputVariations {
@@ -131,9 +138,9 @@ export class PageObjectImpl implements PageObject {
   }
 
   private get sortedMethods(): PageObjectMethod[] {
-    if (!this.methodSorter) {
+    if (!this.option.methodComparator) {
       return this.params.methods.slice();
     }
-    return this.params.methods.sort(this.methodSorter);
+    return this.params.methods.sort(this.option.methodComparator);
   }
 }

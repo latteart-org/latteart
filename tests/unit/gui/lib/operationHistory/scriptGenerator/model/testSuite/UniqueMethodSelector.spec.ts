@@ -35,14 +35,14 @@ describe("UniqueMethodSelector", () => {
           url: "url1",
           methods: [method1_2, method1_1],
           collectMethodInputVariations: jest.fn(),
-          methodSorter: undefined,
+          methodComparator: undefined,
         },
         {
           id: "pageObject2",
           url: "url2",
           methods: [method2_1],
           collectMethodInputVariations: jest.fn(),
-          methodSorter: undefined,
+          methodComparator: undefined,
         },
       ];
 

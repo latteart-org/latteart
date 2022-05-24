@@ -52,7 +52,9 @@ describe("PageObjectFactory", () => {
           imageUrl: sequence1.imageUrl,
           methods: [expectedMethod],
         },
-        undefined
+        {
+          methodFilters: [],
+        }
       );
 
       expect(methodFactory.create).toBeCalledWith(sequence1);

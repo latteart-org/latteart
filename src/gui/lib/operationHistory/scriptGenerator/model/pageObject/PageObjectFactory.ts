@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-import { MethodSorter, PageObject, PageObjectImpl } from "./PageObject";
+import { MethodComparator, PageObject, PageObjectImpl } from "./PageObject";
 import { MethodFilter } from "./method/MethodFilter";
 import { PageObjectMethodFactory } from "./method/PageObjectMethodFactory";
 import { Sequence } from "../sequencePath/Sequence";
 
 export class PageObjectFactory {
-  private methodSorter: MethodSorter | undefined;
-  private methodFilters: MethodFilter[] = [];
+  private option: {
+    methodFilters: MethodFilter[];
+    methodComparator?: MethodComparator;
+  };
 
   constructor(
     private methodFactory: PageObjectMethodFactory,
-    methodSorter: MethodSorter | undefined,
-    ...methodFilters: MethodFilter[]
+    option?: {
+      methodFilters: MethodFilter[];
+      methodComparator?: MethodComparator;
+    }
   ) {
-    this.methodSorter = methodSorter;
-    this.methodFilters = methodFilters;
+    if (!option) {
+      this.option = {
+        methodFilters: [],
+      };
+    } else {
+      this.option = option;
+    }
   }
 
   public createPageObject(
@@ -49,8 +58,7 @@ export class PageObjectFactory {
         methods,
         imageUrl,
       },
-      this.methodSorter,
-      ...this.methodFilters
+      this.option
     );
   }
 }

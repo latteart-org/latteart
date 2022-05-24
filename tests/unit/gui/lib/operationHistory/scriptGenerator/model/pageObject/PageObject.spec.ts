@@ -73,7 +73,9 @@ describe("PageObjectImpl", () => {
             url: "",
             methods: [method1, method2],
           },
-          undefined
+          {
+            methodFilters: [],
+          }
         );
 
         const result = pageObject.collectMethodInputVariations();
@@ -126,7 +128,9 @@ describe("PageObjectImpl", () => {
             url: "",
             methods: [method1, method2],
           },
-          undefined
+          {
+            methodFilters: [],
+          }
         );
 
         const result = pageObject.collectMethodInputVariations();
