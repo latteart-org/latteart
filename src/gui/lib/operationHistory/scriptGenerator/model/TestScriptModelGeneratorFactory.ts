@@ -31,6 +31,8 @@ import { UniqueMethodSelector } from "./testSuite/UniqueMethodSelector";
 import { SequencePathBuilder } from "./sequencePath/SequencePathBuilder";
 import { DuplicateElementOperationFilter } from "./pageObject/method/operation/DuplicateElementOperationFilter";
 import { UnnecessaryOperationFilter } from "./pageObject/method/operation/UnnecessaryOperationFilter";
+import { PageObjectMethod } from "./pageObject/method/PageObjectMethod";
+import { MethodSorter } from "./pageObject/PageObject";
 
 export enum TestScriptModelGeneratorType {
   Simple,
@@ -60,9 +62,16 @@ export class TestScriptModelGeneratorFactory {
     ];
 
     const methodFilters = [new IncludedMethodFilter()];
+    const methodSorter: MethodSorter = (
+      method1: PageObjectMethod,
+      method2: PageObjectMethod
+    ) => {
+      return method2.operations.length - method1.operations.length;
+    };
 
     const pageObjectFactory = new PageObjectFactory(
       new PageObjectMethodFactoryImpl(operationFactory, ...operationFilters),
+      methodSorter,
       ...methodFilters
     );
 
@@ -86,7 +95,8 @@ export class TestScriptModelGeneratorFactory {
     );
 
     const pageObjectFactory = new PageObjectFactory(
-      new PageObjectMethodFactoryImpl(operationFactory)
+      new PageObjectMethodFactoryImpl(operationFactory),
+      undefined
     );
 
     const testSuiteFactory = new TestSuiteFactory(new UniqueMethodSelector());

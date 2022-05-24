@@ -22,8 +22,8 @@ export interface PageObject {
   readonly id: string;
   readonly url: string;
   readonly methods: PageObjectMethod[];
-  readonly unSortedMethods: PageObjectMethod[];
   readonly imageUrl?: string;
+  readonly methodSorter: MethodSorter | undefined;
   comment?: string;
   collectMethodInputVariations(): PageObjectMethodIdToInputVariations;
 }
@@ -33,8 +33,14 @@ export type PageObjectMethodIdToInputVariations = Map<
   { [paramName: string]: string }[]
 >;
 
+export type MethodSorter = (
+  method1: PageObjectMethod,
+  method2: PageObjectMethod
+) => number;
+
 export class PageObjectImpl implements PageObject {
   private methodFilters: MethodFilter[];
+  public methodSorter: MethodSorter | undefined;
   public comment?: string;
 
   constructor(
@@ -44,8 +50,10 @@ export class PageObjectImpl implements PageObject {
       methods: PageObjectMethod[];
       imageUrl?: string;
     },
+    methodSorter: MethodSorter | undefined,
     ...methodFilters: MethodFilter[]
   ) {
+    this.methodSorter = methodSorter;
     this.methodFilters = methodFilters;
   }
 
@@ -61,12 +69,6 @@ export class PageObjectImpl implements PageObject {
     return this.methodFilters.reduce((acc, methodFilter) => {
       return methodFilter.filter(acc);
     }, this.sortedMethods);
-  }
-
-  public get unSortedMethods(): PageObjectMethod[] {
-    return this.methodFilters.reduce((acc, methodFilter) => {
-      return methodFilter.filter(acc);
-    }, this.params.methods);
   }
 
   public get imageUrl(): string | undefined {
@@ -129,11 +131,9 @@ export class PageObjectImpl implements PageObject {
   }
 
   private get sortedMethods(): PageObjectMethod[] {
-    // Sort in order of size to detect inclusion efficiently.
-    return this.params.methods.sort(
-      (method1: PageObjectMethod, method2: PageObjectMethod) => {
-        return method2.operations.length - method1.operations.length;
-      }
-    );
+    if (!this.methodSorter) {
+      return this.params.methods.slice();
+    }
+    return this.params.methods.sort(this.methodSorter);
   }
 }

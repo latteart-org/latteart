@@ -22,7 +22,7 @@ describe("PageObjectFactory", () => {
         create: jest.fn().mockReturnValue(expectedMethod),
       };
 
-      pageObjectFactory = new PageObjectFactory(methodFactory);
+      pageObjectFactory = new PageObjectFactory(methodFactory, undefined);
     });
 
     it("渡されたシーケンスパス群を元にページオブジェクト群を生成する", () => {
@@ -45,12 +45,15 @@ describe("PageObjectFactory", () => {
         [sequence1]
       );
 
-      const expectedPageObject = new PageObjectImpl({
-        id: sequence1.className,
-        url: sequence1.url,
-        imageUrl: sequence1.imageUrl,
-        methods: [expectedMethod],
-      });
+      const expectedPageObject = new PageObjectImpl(
+        {
+          id: sequence1.className,
+          url: sequence1.url,
+          imageUrl: sequence1.imageUrl,
+          methods: [expectedMethod],
+        },
+        undefined
+      );
 
       expect(methodFactory.create).toBeCalledWith(sequence1);
 

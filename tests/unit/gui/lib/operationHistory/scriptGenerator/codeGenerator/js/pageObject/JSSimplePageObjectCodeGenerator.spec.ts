@@ -61,30 +61,8 @@ describe("JSSimplePageObjectCodeGenerator", () => {
             includes: jest.fn(),
           },
         ],
-        unSortedMethods: [
-          {
-            id: "method1",
-            pageObjectId: "PageObject1",
-            operations: [],
-            returnPageObjectId: "PageObject1",
-            includes: jest.fn(),
-          },
-          {
-            id: "method2",
-            pageObjectId: "PageObject1",
-            operations: [operation],
-            returnPageObjectId: "PageObject2",
-            includes: jest.fn(),
-          },
-          {
-            id: "method3",
-            pageObjectId: "PageObject1",
-            operations: [operation2, operation3],
-            returnPageObjectId: "PageObject2",
-            includes: jest.fn(),
-          },
-        ],
         collectMethodInputVariations: jest.fn(),
+        methodSorter: undefined,
       };
 
       const nameGenerator = {

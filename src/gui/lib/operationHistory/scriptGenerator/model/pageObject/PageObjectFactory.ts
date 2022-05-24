@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import { PageObject, PageObjectImpl } from "./PageObject";
+import { MethodSorter, PageObject, PageObjectImpl } from "./PageObject";
 import { MethodFilter } from "./method/MethodFilter";
 import { PageObjectMethodFactory } from "./method/PageObjectMethodFactory";
 import { Sequence } from "../sequencePath/Sequence";
 
 export class PageObjectFactory {
+  private methodSorter: MethodSorter | undefined;
   private methodFilters: MethodFilter[] = [];
 
   constructor(
     private methodFactory: PageObjectMethodFactory,
+    methodSorter: MethodSorter | undefined,
     ...methodFilters: MethodFilter[]
   ) {
+    this.methodSorter = methodSorter;
     this.methodFilters = methodFilters;
   }
 
@@ -46,6 +49,7 @@ export class PageObjectFactory {
         methods,
         imageUrl,
       },
+      this.methodSorter,
       ...this.methodFilters
     );
   }

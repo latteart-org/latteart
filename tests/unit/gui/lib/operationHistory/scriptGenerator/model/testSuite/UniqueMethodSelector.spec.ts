@@ -34,15 +34,15 @@ describe("UniqueMethodSelector", () => {
           id: "pageObject1",
           url: "url1",
           methods: [method1_2, method1_1],
-          unSortedMethods: [method1_1, method1_2],
           collectMethodInputVariations: jest.fn(),
+          methodSorter: undefined,
         },
         {
           id: "pageObject2",
           url: "url2",
           methods: [method2_1],
-          unSortedMethods: [method2_1],
           collectMethodInputVariations: jest.fn(),
+          methodSorter: undefined,
         },
       ];
 
@@ -54,8 +54,9 @@ describe("UniqueMethodSelector", () => {
         "pageObject1",
         "pageObject2",
       ]);
-
-      expect(methods).toEqual([method1_1, method2_1, method1_2]);
+      expect(JSON.stringify(methods)).toEqual(
+        JSON.stringify([method1_1, method2_1, method1_2])
+      );
     });
   });
 });
