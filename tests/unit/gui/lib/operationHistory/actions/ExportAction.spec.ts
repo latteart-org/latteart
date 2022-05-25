@@ -1,7 +1,7 @@
 import {
   TestResultExportable,
-  ExportAction,
-} from "@/lib/operationHistory/actions/ExportAction";
+  ExportTestResultAction,
+} from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 
 describe("ExportAction", () => {
   describe("#exportWithTestResult", () => {
@@ -32,9 +32,9 @@ describe("ExportAction", () => {
 
       const testResultId = "testResultId";
 
-      const result = await new ExportAction(dispatcher).exportWithTestResult(
-        testResultId
-      );
+      const result = await new ExportTestResultAction(
+        dispatcher
+      ).exportWithTestResult(testResultId);
 
       expect(
         dispatcher.testResultRepository.postTestResultForExport
@@ -71,9 +71,9 @@ describe("ExportAction", () => {
       };
       const testResultId = "testResultId";
 
-      const result = await new ExportAction(dispatcher).exportWithTestResult(
-        testResultId
-      );
+      const result = await new ExportTestResultAction(
+        dispatcher
+      ).exportWithTestResult(testResultId);
 
       expect(
         dispatcher.testResultRepository.postTestResultForExport

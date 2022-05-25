@@ -21,17 +21,18 @@ export interface TestResultExportable {
   readonly testResultRepository: TestResultRepository;
 }
 
-export class ExportAction {
+export class ExportTestResultAction {
   constructor(private dispatcher: TestResultExportable) {}
 
   public async exportWithTestResult(
     testResultId: string,
     shouldSaveTemporary = false
   ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.postTestResultForExport(
-      testResultId,
-      shouldSaveTemporary
-    );
+    const reply =
+      await this.dispatcher.testResultRepository.postTestResultForExport(
+        testResultId,
+        shouldSaveTemporary
+      );
 
     const outputUrl = reply.data ? reply.data.url : undefined;
     const error = reply.error

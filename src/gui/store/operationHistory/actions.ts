@@ -39,37 +39,37 @@ import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/Mermaid
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
-import { RecordIntentionAction } from "@/lib/operationHistory/actions/RecordIntentionAction";
-import { SaveIntentionAction } from "@/lib/operationHistory/actions/SaveIntentionAction";
-import { MoveIntentionAction } from "@/lib/operationHistory/actions/MoveIntentionAction";
+import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
+import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
+import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { TestScriptGeneratorImpl } from "@/lib/operationHistory/scriptGenerator/TestScriptGenerator";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
-import { ImportAction } from "@/lib/operationHistory/actions/ImportAction";
-import { ExportAction } from "@/lib/operationHistory/actions/ExportAction";
-import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
-import { UploadTestResultAction } from "@/lib/operationHistory/actions/UploadTestResultAction";
-import { DeleteTestResultAction } from "@/lib/operationHistory/actions/DeleteTestResultAction";
-import { DeleteIntentionAction } from "@/lib/operationHistory/actions/DeleteIntentionAction";
-import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
-import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
-import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
-import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/GetImportTestResultListAction";
-import { GetImportProjectListAction } from "@/lib/operationHistory/actions/GetImportProjectListAction";
-import { CreateTestResultAction } from "@/lib/operationHistory/actions/CreateTestResultAction";
-import { CompressNoteImageAction } from "@/lib/operationHistory/actions/CompressNoteImageAction";
-import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/CompressTestStepImageAction";
+import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
+import RepositoryServiceContainer from "@/lib/eventDispatcher/RepositoryServiceContainer";
+import { UploadTestResultAction } from "@/lib/operationHistory/actions/testResult/UploadTestResultAction";
+import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
+import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
+import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
+import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
+import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
+import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/import/GetImportTestResultListAction";
+import { GetImportProjectListAction } from "@/lib/operationHistory/actions/import/GetImportProjectListAction";
+import { CreateTestResultAction } from "@/lib/operationHistory/actions/testResult/CreateTestResultAction";
+import { CompressNoteImageAction } from "@/lib/operationHistory/actions/image/CompressNoteImageAction";
+import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/image/CompressTestStepImageAction";
 import { RegisterOperationAction } from "@/lib/operationHistory/actions/RegisterOperationAction";
-import { AddBugAction } from "@/lib/operationHistory/actions/AddBugAction";
-import { EditBugAction } from "@/lib/operationHistory/actions/EditBugAction";
-import { MoveBugAction } from "@/lib/operationHistory/actions/MoveBugAction";
-import { DeleteBugAction } from "@/lib/operationHistory/actions/DeleteBugAction";
-import { DeleteNoticeAction } from "@/lib/operationHistory/actions/DeleteNoticeAction";
-import { AddNoticeAction } from "@/lib/operationHistory/actions/AddNoticeAction";
-import { EditNoticeAction } from "@/lib/operationHistory/actions/EditNoticeAction";
-import { MoveNoticeAction } from "@/lib/operationHistory/actions/MoveNoticeAction";
-import { ChangeTestResultAction } from "@/lib/operationHistory/actions/ChangeTestResultAction";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/GetTestResultAction";
+import { AddBugAction } from "@/lib/operationHistory/actions/bug/AddBugAction";
+import { EditBugAction } from "@/lib/operationHistory/actions/bug/EditBugAction";
+import { MoveBugAction } from "@/lib/operationHistory/actions/bug/MoveBugAction";
+import { DeleteBugAction } from "@/lib/operationHistory/actions/bug/DeleteBugAction";
+import { DeleteNoticeAction } from "@/lib/operationHistory/actions/notice/DeleteNoticeAction";
+import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNoticeAction";
+import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
+import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
+import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
+import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -667,7 +667,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit(
         "setRepositoryServiceDispatcher",
         {
-          serviceDispatcher: new RepositoryServiceDispatcher({
+          serviceDispatcher: new RepositoryServiceContainer({
             url: context.rootState.localRepositoryServiceUrl,
             isRemote: false,
           }),
@@ -696,7 +696,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit(
         "setRepositoryServiceDispatcher",
         {
-          serviceDispatcher: new RepositoryServiceDispatcher({
+          serviceDispatcher: new RepositoryServiceContainer({
             url: serviceUrl,
             isRemote,
           }),
@@ -711,7 +711,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     payload: { localTestResultId: string; remoteTestResultId?: string }
   ) {
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceDispatcher({
+    const localServiceDispatcher = new RepositoryServiceContainer({
       url: localUrl,
       isRemote: false,
     });
@@ -738,7 +738,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async deleteLocalTestResult(context, payload: { testResultId: string }) {
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceDispatcher({
+    const localServiceDispatcher = new RepositoryServiceContainer({
       url: localUrl,
       isRemote: false,
     });
@@ -842,7 +842,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       dest?: { testResultId?: string };
     }
   ) {
-    const result = await new ImportAction(
+    const result = await new ImportTestResultAction(
       context.rootState.repositoryServiceDispatcher
     ).importWithTestResult(payload.source, payload.dest);
     if (result.data) {
@@ -868,7 +868,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       shouldSaveTemporary?: boolean;
     }
   ) {
-    const result = await new ExportAction(
+    const result = await new ExportTestResultAction(
       context.rootState.repositoryServiceDispatcher
     ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
     if (result.data) {
@@ -1378,7 +1378,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async getImportTestResults(context) {
-    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
+    const localRepositoryServiceDispatcher = new RepositoryServiceContainer({
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
@@ -1390,7 +1390,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async getImportProjects(context) {
-    const localRepositoryServiceDispatcher = new RepositoryServiceDispatcher({
+    const localRepositoryServiceDispatcher = new RepositoryServiceContainer({
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });

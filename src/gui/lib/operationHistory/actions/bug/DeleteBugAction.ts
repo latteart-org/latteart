@@ -16,7 +16,7 @@
 
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { ActionResult } from "@/lib/common/ActionResult";
 
 export interface BugDeletable {

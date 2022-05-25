@@ -28,10 +28,11 @@ export class UploadTestResultAction {
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.postTestResultForUpload(
-      source,
-      dest
-    );
+    const reply =
+      await this.dispatcher.testResultRepository.postTestResultForUpload(
+        source,
+        dest
+      );
 
     const error = reply.error ? { code: "upload-request-error" } : undefined;
     const result = {

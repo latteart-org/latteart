@@ -16,45 +16,39 @@
 
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-import { Note } from "../Note";
+import { Note } from "../../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 
-export interface NoticeEditable {
+export interface NoticeMovable {
   readonly noteRepository: NoteRepository;
   readonly testStepRepository: TestStepRepository;
   readonly serviceUrl: string;
 }
 
-export class EditNoticeAction {
-  constructor(private dispatcher: NoticeEditable) {}
+export class MoveNoticeAction {
+  constructor(private dispatcher: NoticeMovable) {}
 
   /**
-   * Edit Notice.
-   * @param testResultId  ID of the test result associated with the notice to be edited.
-   * @param testStepId  Test step id of the test result associated with the target Notice.
-   * @param index  Notice index
-   * @param notice  Update contents of notice.
+   * Update the position associated with the Notice.
+   * @param testResultId  ID of the test result associated with the Notice.
+   * @param from  Position of test result associated with Notice.
+   * @param dest  Position of the test result to which you want to link the Notice.
    * @returns Updated notice information.
    */
-  public async editNotice(
+  public async moveNotice(
     testResultId: string,
-    testStepId: string,
-    index: number,
-    notice: {
-      summary: string;
-      details: string;
-      tags: string[];
-    }
+    from: { testStepId: string; index: number },
+    dest: { testStepId: string }
   ): Promise<ActionResult<{ notice: Note; index: number }>> {
-    const intention = undefined;
-    const bug = undefined;
-
-    const { notices } = (
+    // Break the link of the move source.
+    const noteId = undefined;
+    const bugs = undefined;
+    const { notices: fromNotices } = (
       await this.dispatcher.testStepRepository.getTestSteps(
         testResultId,
-        testStepId
+        from.testStepId
       )
     ).data as {
       id: string;
@@ -64,18 +58,50 @@ export class EditNoticeAction {
       notices: string[];
     };
 
-    const noteId: string = notices[index];
-
-    // Note update
-    const reply = await this.dispatcher.noteRepository.putNotes(
-      testResultId,
-      noteId,
-      intention,
-      bug,
-      notice
+    const filteredNotices = fromNotices.filter(
+      (_: unknown, index: number) => index !== from.index
     );
 
-    const savedNote = reply.data as {
+    await (async () => {
+      return this.dispatcher.testStepRepository.patchTestSteps(
+        testResultId,
+        from.testStepId,
+        noteId,
+        bugs,
+        filteredNotices
+      );
+    })();
+
+    // Link to the destination.
+    const { notices: destNotices } = (
+      await this.dispatcher.testStepRepository.getTestSteps(
+        testResultId,
+        dest.testStepId
+      )
+    ).data as {
+      id: string;
+      operation: TestStepOperation;
+      intention: string | null;
+      bugs: string[];
+      notices: string[];
+    };
+
+    const notices = [...destNotices, fromNotices[from.index]];
+
+    await this.dispatcher.testStepRepository.patchTestSteps(
+      testResultId,
+      dest.testStepId,
+      noteId,
+      bugs,
+      notices
+    );
+
+    const reply = await this.dispatcher.noteRepository.getNotes(
+      testResultId,
+      fromNotices[from.index]
+    );
+
+    const note = reply.data as {
       id: string;
       type: string;
       value: string;
@@ -86,8 +112,8 @@ export class EditNoticeAction {
 
     const serviceUrl = this.dispatcher.serviceUrl;
     const data = {
-      notice: convertNoteWithoutId(savedNote, serviceUrl),
-      index,
+      notice: convertNoteWithoutId(note, serviceUrl),
+      index: destNotices.length,
     };
 
     const error = reply.error ? { code: reply.error.code } : undefined;

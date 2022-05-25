@@ -50,7 +50,7 @@ import { RepositoryServiceClient } from "./RepositoryServiceClient";
 /**
  * A class that processes the acquisition of client-side information through the service.
  */
-export default class RepositoryServiceDispatcher implements ProjectUpdatable {
+export default class RepositoryServiceContainer implements ProjectUpdatable {
   private _proxyUrl = "";
   private restClient: RepositoryServiceClient;
 

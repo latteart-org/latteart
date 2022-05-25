@@ -28,10 +28,11 @@ export class CompressTestStepImageAction {
     testResultId: string,
     testStepId: string
   ): Promise<ActionResult<{ imageFileUrl: string }>> {
-    const reply = await this.dispatcher.compressedImageRepository.postTestStepImage(
-      testResultId,
-      testStepId
-    );
+    const reply =
+      await this.dispatcher.compressedImageRepository.postTestStepImage(
+        testResultId,
+        testStepId
+      );
 
     return reply;
   }

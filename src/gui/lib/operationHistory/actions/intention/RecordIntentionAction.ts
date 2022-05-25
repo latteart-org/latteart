@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Note } from "../Note";
+import { Note } from "../../Note";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";

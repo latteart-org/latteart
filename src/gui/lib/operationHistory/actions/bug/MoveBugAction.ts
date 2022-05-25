@@ -16,9 +16,9 @@
 
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-import { Note } from "../Note";
+import { Note } from "../../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 
 export interface BugMovable {

@@ -24,10 +24,9 @@ import { operationHistory } from "./operationHistory";
 import { captureControl } from "./captureControl";
 import { testManagement } from "./testManagement";
 import ClientSideCaptureServiceDispatcher from "../lib/eventDispatcher/ClientSideCaptureServiceDispatcher";
-import RepositoryServiceDispatcher from "../lib/eventDispatcher/RepositoryServiceDispatcher";
-import RESTClient from "@/lib/eventDispatcher/RESTClient";
-import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
-import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
+import RepositoryServiceContainer from "../lib/eventDispatcher/RepositoryServiceContainer";
+import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
+import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import RESTClientImpl from "@/lib/eventDispatcher/RESTClient";
 
 Vue.use(Vuex);
@@ -64,7 +63,7 @@ export interface RootState {
   /**
    * The service that performs processing involving communication to the local repository.
    */
-  repositoryServiceDispatcher: RepositoryServiceDispatcher;
+  repositoryServiceDispatcher: RepositoryServiceContainer;
 
   /**
    * The service that performs processing involving communication to the remote repository.
@@ -119,7 +118,7 @@ const mutations: MutationTree<RootState> = {
 
   setRepositoryServiceDispatcher(
     state,
-    payload: { serviceDispatcher: RepositoryServiceDispatcher }
+    payload: { serviceDispatcher: RepositoryServiceContainer }
   ) {
     state.repositoryServiceDispatcher = payload.serviceDispatcher;
   },
@@ -292,7 +291,7 @@ const actions: ActionTree<RootState, RootState> = {
     if (serverName === "latteart-repository") {
       const isRemote =
         payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
-      const serviceDispatcher = new RepositoryServiceDispatcher({
+      const serviceDispatcher = new RepositoryServiceContainer({
         url: serverUrl,
         isRemote,
       });
@@ -337,7 +336,7 @@ const store: StoreOptions<RootState> = {
     },
     clientSideCaptureServiceDispatcher:
       new ClientSideCaptureServiceDispatcher(),
-    repositoryServiceDispatcher: new RepositoryServiceDispatcher({
+    repositoryServiceDispatcher: new RepositoryServiceContainer({
       url: defaultLocalRepositoryServiceUrl,
       isRemote: false,
     }),

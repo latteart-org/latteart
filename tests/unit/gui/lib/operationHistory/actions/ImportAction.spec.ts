@@ -1,7 +1,7 @@
 import {
   TestResultImportable,
-  ImportAction,
-} from "@/lib/operationHistory/actions/ImportAction";
+  ImportTestResultAction,
+} from "@/lib/operationHistory/actions/import/ImportTestResultAction";
 
 describe("ImportAction", () => {
   describe("#importWithTestResult", () => {
@@ -27,10 +27,9 @@ describe("ImportAction", () => {
 
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
-      const result = await new ImportAction(dispatcher).importWithTestResult(
-        source,
-        dest
-      );
+      const result = await new ImportTestResultAction(
+        dispatcher
+      ).importWithTestResult(source, dest);
 
       expect(
         dispatcher.importTestResultRepository.postTestResult
@@ -64,10 +63,9 @@ describe("ImportAction", () => {
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
 
-      const result = await new ImportAction(dispatcher).importWithTestResult(
-        source,
-        dest
-      );
+      const result = await new ImportTestResultAction(
+        dispatcher
+      ).importWithTestResult(source, dest);
 
       expect(
         dispatcher.importTestResultRepository.postTestResult

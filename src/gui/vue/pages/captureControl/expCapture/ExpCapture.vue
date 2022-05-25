@@ -408,7 +408,7 @@ import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDia
 import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
-import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import RepositoryServiceContainer from "@/lib/eventDispatcher/RepositoryServiceContainer";
 import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
@@ -898,7 +898,7 @@ export default class ExpCapture extends Vue {
     (async () => {
       try {
         const currentRepositoryInfo = (() => {
-          const currentRepository: RepositoryServiceDispatcher =
+          const currentRepository: RepositoryServiceContainer =
             this.$store.state.repositoryServiceDispatcher;
 
           return {
@@ -938,7 +938,7 @@ export default class ExpCapture extends Vue {
         this.$store.commit(
           "setRepositoryServiceDispatcher",
           {
-            serviceDispatcher: new RepositoryServiceDispatcher({
+            serviceDispatcher: new RepositoryServiceContainer({
               url: this.$store.state.localRepositoryServiceUrl,
               isRemote: false,
             }),
@@ -1005,7 +1005,7 @@ export default class ExpCapture extends Vue {
         this.$store.commit(
           "setRepositoryServiceDispatcher",
           {
-            serviceDispatcher: new RepositoryServiceDispatcher(
+            serviceDispatcher: new RepositoryServiceContainer(
               currentRepositoryInfo
             ),
           },

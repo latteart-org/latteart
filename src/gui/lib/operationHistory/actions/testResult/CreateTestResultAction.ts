@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { TestResult } from "../types";
+import { ActionResult } from "@/lib/common/ActionResult";
 
-export interface TestResultGetable {
+export interface TestResultCreatable {
   readonly testResultRepository: TestResultRepository;
 }
 
-export class GetTestResultAction {
-  constructor(private dispatcher: TestResultGetable) {}
+export class CreateTestResultAction {
+  constructor(private dispatcher: TestResultCreatable) {}
 
-  public async getTestResult(
-    testResultId: string
-  ): Promise<ActionResult<TestResult>> {
-    const reply = await this.dispatcher.testResultRepository.getTestResult(
-      testResultId
-    );
+  public async createTestResult(
+    initialUrl?: string,
+    name?: string
+  ): Promise<ActionResult<{ id: string; name: string }>> {
+    const reply =
+      await this.dispatcher.testResultRepository.postEmptyTestResult(
+        initialUrl,
+        name
+      );
 
     return reply;
   }

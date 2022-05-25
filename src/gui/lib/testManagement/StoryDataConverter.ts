@@ -26,7 +26,7 @@ import {
   ProjectUpdatable,
   StoryConvertable,
 } from "./actions/WriteDataFileAction";
-import { GetTestResultAction } from "../operationHistory/actions/GetTestResultAction";
+import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
 
 /**
  * Convert story information.

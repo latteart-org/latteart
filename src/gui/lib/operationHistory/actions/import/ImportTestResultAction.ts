@@ -21,17 +21,18 @@ export interface TestResultImportable {
   readonly importTestResultRepository: ImportTestResultRepository;
 }
 
-export class ImportAction {
+export class ImportTestResultAction {
   constructor(private dispatcher: TestResultImportable) {}
 
   public async importWithTestResult(
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<ActionResult<{ testResultId: string }>> {
-    const reply = await this.dispatcher.importTestResultRepository.postTestResult(
-      source,
-      dest
-    );
+    const reply =
+      await this.dispatcher.importTestResultRepository.postTestResult(
+        source,
+        dest
+      );
 
     const error = reply.error ? { code: "import-data-error" } : undefined;
     const result = {

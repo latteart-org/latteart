@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Note } from "../Note";
+import { Note } from "../../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
@@ -44,10 +44,11 @@ export class MoveIntentionAction {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
-    const replyTestSteps = await this.dispatcher.testStepRepository.getTestSteps(
-      testResultId,
-      fromTestStepId
-    );
+    const replyTestSteps =
+      await this.dispatcher.testStepRepository.getTestSteps(
+        testResultId,
+        fromTestStepId
+      );
 
     if (!replyTestSteps.data) {
       return {};

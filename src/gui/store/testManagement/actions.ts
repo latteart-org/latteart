@@ -42,7 +42,7 @@ import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectD
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
-import { GetTestResultListAction } from "@/lib/operationHistory/actions/GetTestResultListAction";
+import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
 import { GenerateAllSessionTestScriptsAction } from "@/lib/testManagement/actions/GenerateAllSessionTestScriptsAction";

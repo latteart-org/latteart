@@ -16,28 +16,31 @@
 
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { ActionResult } from "@/lib/common/ActionResult";
 
-export interface IntentionDeletable {
+export interface NoticeDeletable {
   readonly testStepRepository: TestStepRepository;
   readonly noteRepository: NoteRepository;
   readonly serviceUrl: string;
 }
 
-export class DeleteIntentionAction {
-  constructor(private dispatcher: IntentionDeletable) {}
+export class DeleteNoticeAction {
+  constructor(private dispatcher: NoticeDeletable) {}
 
   /**
-   * Delete the intention information of the specified sequence number.
-   * @param testResultId  Test result ID.
-   * @param testStepId  Test step id of the target test step.
+   * Delete Notice.
+   * @param testResultId  The id of the test result associated with the Notice to be deleted.
+   * @param testStepId  Test step id of the test result associated with the target Notice.
+   * @param index  Notice index.
    */
-  public async deleteIntention(
+  public async deleteNotice(
     testResultId: string,
-    testStepId: string
-  ): Promise<ActionResult<string>> {
-    const { intention: noteId } = (
+    testStepId: string,
+    index: number
+  ): Promise<ActionResult<{ testStepId: string; index: number }>> {
+    // Get noteId.
+    const { notices } = (
       await this.dispatcher.testStepRepository.getTestSteps(
         testResultId,
         testStepId
@@ -50,25 +53,30 @@ export class DeleteIntentionAction {
       notices: string[];
     };
 
+    const noteId = notices[index];
+
+    // Delete note.
     const reply = await this.dispatcher.noteRepository.deleteNotes(
       testResultId,
-      noteId as string
+      noteId
     );
 
     // Break the link.
-    await (async () => {
-      return this.dispatcher.testStepRepository.patchTestSteps(
-        testResultId,
-        testStepId,
-        null
-      );
-    })();
+    const filteredNotices = notices.filter(
+      (_: unknown, i: number) => i !== index
+    );
+    await this.dispatcher.testStepRepository.patchTestSteps(
+      testResultId,
+      testStepId,
+      undefined,
+      undefined,
+      filteredNotices
+    );
 
-    const error = reply.error
-      ? { code: "registering-testresults-error" }
-      : undefined;
+    const data = { testStepId, index };
+    const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {
-      data: testStepId,
+      data,
       error,
     };
 

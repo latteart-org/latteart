@@ -2,7 +2,7 @@ import {
   MoveIntentionAction,
   IntentionMovable,
   MoveIntentionActionObserver,
-} from "@/lib/operationHistory/actions/MoveIntentionAction";
+} from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";

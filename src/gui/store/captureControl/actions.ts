@@ -27,11 +27,11 @@ import {
 } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
-import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import RepositoryServiceContainer from "@/lib/eventDispatcher/RepositoryServiceContainer";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
-import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/ReadDeviceSettingAction";
-import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/SaveDeviceSettingAction";
+import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
+import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -165,7 +165,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     };
 
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceDispatcher({
+    const localServiceDispatcher = new RepositoryServiceContainer({
       url: localUrl,
       isRemote: false,
     });

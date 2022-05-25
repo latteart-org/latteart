@@ -28,7 +28,8 @@ export class GetImportTestResultListAction {
   public async getImportTestResults(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
   > {
-    const reply = await this.dispatcher.importTestResultRepository.getTestResults();
+    const reply =
+      await this.dispatcher.importTestResultRepository.getTestResults();
     const serviceUrl = this.dispatcher.serviceUrl;
 
     const data = reply.data

@@ -31,12 +31,14 @@ export class GetImportProjectListAction {
     const reply = await this.dispatcher.importProjectRepository.getProjects();
     const serviceUrl = this.dispatcher.serviceUrl;
 
-    const data = reply.data!.map(({ url, name }) => {
-      return {
-        url: `${serviceUrl}/${url}`,
-        name,
-      };
-    });
+    const data = reply.data
+      ? reply.data.map(({ url, name }) => {
+          return {
+            url: `${serviceUrl}/${url}`,
+            name,
+          };
+        })
+      : undefined;
 
     const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {

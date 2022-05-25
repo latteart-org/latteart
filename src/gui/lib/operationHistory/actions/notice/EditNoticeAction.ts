@@ -16,39 +16,45 @@
 
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-import { Note } from "../Note";
+import { Note } from "../../Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { TestStepOperation } from "../types";
+import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 
-export interface NoticeMovable {
+export interface NoticeEditable {
   readonly noteRepository: NoteRepository;
   readonly testStepRepository: TestStepRepository;
   readonly serviceUrl: string;
 }
 
-export class MoveNoticeAction {
-  constructor(private dispatcher: NoticeMovable) {}
+export class EditNoticeAction {
+  constructor(private dispatcher: NoticeEditable) {}
 
   /**
-   * Update the position associated with the Notice.
-   * @param testResultId  ID of the test result associated with the Notice.
-   * @param from  Position of test result associated with Notice.
-   * @param dest  Position of the test result to which you want to link the Notice.
+   * Edit Notice.
+   * @param testResultId  ID of the test result associated with the notice to be edited.
+   * @param testStepId  Test step id of the test result associated with the target Notice.
+   * @param index  Notice index
+   * @param notice  Update contents of notice.
    * @returns Updated notice information.
    */
-  public async moveNotice(
+  public async editNotice(
     testResultId: string,
-    from: { testStepId: string; index: number },
-    dest: { testStepId: string }
+    testStepId: string,
+    index: number,
+    notice: {
+      summary: string;
+      details: string;
+      tags: string[];
+    }
   ): Promise<ActionResult<{ notice: Note; index: number }>> {
-    // Break the link of the move source.
-    const noteId = undefined;
-    const bugs = undefined;
-    const { notices: fromNotices } = (
+    const intention = undefined;
+    const bug = undefined;
+
+    const { notices } = (
       await this.dispatcher.testStepRepository.getTestSteps(
         testResultId,
-        from.testStepId
+        testStepId
       )
     ).data as {
       id: string;
@@ -58,50 +64,18 @@ export class MoveNoticeAction {
       notices: string[];
     };
 
-    const filteredNotices = fromNotices.filter(
-      (_: unknown, index: number) => index !== from.index
-    );
+    const noteId: string = notices[index];
 
-    await (async () => {
-      return this.dispatcher.testStepRepository.patchTestSteps(
-        testResultId,
-        from.testStepId,
-        noteId,
-        bugs,
-        filteredNotices
-      );
-    })();
-
-    // Link to the destination.
-    const { notices: destNotices } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
-        testResultId,
-        dest.testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
-
-    const notices = [...destNotices, fromNotices[from.index]];
-
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    // Note update
+    const reply = await this.dispatcher.noteRepository.putNotes(
       testResultId,
-      dest.testStepId,
       noteId,
-      bugs,
-      notices
+      intention,
+      bug,
+      notice
     );
 
-    const reply = await this.dispatcher.noteRepository.getNotes(
-      testResultId,
-      fromNotices[from.index]
-    );
-
-    const note = reply.data as {
+    const savedNote = reply.data as {
       id: string;
       type: string;
       value: string;
@@ -112,8 +86,8 @@ export class MoveNoticeAction {
 
     const serviceUrl = this.dispatcher.serviceUrl;
     const data = {
-      notice: convertNoteWithoutId(note, serviceUrl),
-      index: destNotices.length,
+      notice: convertNoteWithoutId(savedNote, serviceUrl),
+      index,
     };
 
     const error = reply.error ? { code: reply.error.code } : undefined;
