@@ -23,6 +23,7 @@ import {
   CapturedScreenTransition,
 } from "../operationHistory/CapturedOperation";
 import { Operation } from "../operationHistory/Operation";
+import RESTClientImpl from "./RESTClient";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -60,7 +61,7 @@ export default class ClientSideCaptureServiceDispatcher {
 
   private _serviceUrl = "http://127.0.0.1:3001";
   private _proxyUrl = "";
-  private restClient: RESTClient = new RESTClient();
+  private restClient: RESTClient = new RESTClientImpl();
   private socketIOClient: SocketIOClient | null = null;
 
   /**

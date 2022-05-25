@@ -19,10 +19,18 @@ export interface RESTClientResponse {
   data: unknown;
 }
 
+export interface RESTClient {
+  httpGet(url: string): Promise<RESTClientResponse>;
+  httpPost<T>(url: string, body?: T): Promise<RESTClientResponse>;
+  httpPut<T>(url: string, body: T): Promise<RESTClientResponse>;
+  httpPatch<T>(url: string, body: T): Promise<RESTClientResponse>;
+  httpDelete(url: string): Promise<RESTClientResponse>;
+}
+
 /**
  * A client for communication using the REST API.
  */
-export default class RESTClient {
+export default class RESTClientImpl implements RESTClient {
   /**
    * Make a GET request.
    * @param url

@@ -20,7 +20,7 @@ import {
   CoverageSource,
   InputElementInfo,
 } from "@/lib/operationHistory/types";
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
 
 export interface TestStepRepository {
@@ -65,10 +65,7 @@ export interface TestStepRepository {
 }
 
 export class TestStepRepositoryImpl implements TestStepRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   public async getTestSteps(
     testResultId: string,
@@ -83,7 +80,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     }>
   > {
     const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}/test-steps/${testStepId}`)
+      `/test-results/${testResultId}/test-steps/${testStepId}`
     );
 
     return new ReplyImpl({
@@ -119,9 +116,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       ? { bugs }
       : { intention: noteId };
     const response = await this.restClient.httpPatch(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/test-steps/${testStepId}`
-      ),
+      `/test-results/${testResultId}/test-steps/${testStepId}`,
       body
     );
 
@@ -149,7 +144,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     }>
   > {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/test-results/${testResultId}/test-steps`),
+      `/test-results/${testResultId}/test-steps`,
       capturedOperation
     );
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
 import { TestResult } from "@/lib/operationHistory/types";
 
@@ -43,10 +43,7 @@ export interface TestResultRepository {
 }
 
 export class TestResultRepositoryImpl implements TestResultRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Delete local test result.
@@ -54,7 +51,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
    */
   public async deleteTestResult(testResultId: string): Promise<Reply<void>> {
     const response = await this.restClient.httpDelete(
-      this.buildAPIURL(`/test-results/${testResultId}`)
+      `/test-results/${testResultId}`
     );
 
     return new ReplyImpl({
@@ -74,7 +71,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
     shouldSaveTemporary: boolean
   ): Promise<Reply<{ url: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/test-results/${testResultId}/export`),
+      `/test-results/${testResultId}/export`,
       { temp: shouldSaveTemporary }
     );
 
@@ -95,7 +92,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<Reply<{ id: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/upload-request/test-result`),
+      `/upload-request/test-result`,
       { source, dest }
     );
 
@@ -114,7 +111,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
     initialUrl?: string,
     name?: string
   ): Promise<Reply<{ id: string; name: string }>> {
-    const url = this.buildAPIURL(`/test-results`);
+    const url = `/test-results`;
     const response = await this.restClient.httpPost(url, { initialUrl, name });
 
     return new ReplyImpl({
@@ -130,9 +127,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
   public async getTestResults(): Promise<
     Reply<Array<{ id: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results`)
-    );
+    const response = await this.restClient.httpGet(`/test-results`);
 
     return new ReplyImpl({
       status: response.status,
@@ -149,7 +144,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
    */
   public async getTestResult(testResultId: string): Promise<Reply<TestResult>> {
     const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}`)
+      `/test-results/${testResultId}`
     );
 
     return new ReplyImpl({
@@ -165,7 +160,7 @@ export class TestResultRepositoryImpl implements TestResultRepository {
     initialUrl?: string
   ): Promise<Reply<string>> {
     const response = await this.restClient.httpPatch(
-      this.buildAPIURL(`/test-results/${testResultId}`),
+      `/test-results/${testResultId}`,
       { name, startTime, initialUrl }
     );
 

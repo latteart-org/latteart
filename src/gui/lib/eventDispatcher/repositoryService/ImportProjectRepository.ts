@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 export interface ImportProjectRepository {
@@ -26,10 +26,7 @@ export interface ImportProjectRepository {
 }
 
 export class ImportProjectRepositoryImpl implements ImportProjectRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Get a list of projects for import.
@@ -38,9 +35,7 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
   public async getProjects(): Promise<
     Reply<Array<{ url: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/imports/projects`)
-    );
+    const response = await this.restClient.httpGet(`/imports/projects`);
 
     return new ReplyImpl({
       status: response.status,
@@ -60,14 +55,11 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<Reply<{ projectId: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/imports/projects`),
-      {
-        source,
-        includeTestResults: selectOption.includeTestResults,
-        includeProject: selectOption.includeProject,
-      }
-    );
+    const response = await this.restClient.httpPost(`/imports/projects`, {
+      source,
+      includeTestResults: selectOption.includeTestResults,
+      includeProject: selectOption.includeProject,
+    });
 
     return new ReplyImpl({
       status: response.status,

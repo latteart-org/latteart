@@ -28,6 +28,7 @@ import RepositoryServiceDispatcher from "../lib/eventDispatcher/RepositoryServic
 import RESTClient from "@/lib/eventDispatcher/RESTClient";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/SaveSettingAction";
+import RESTClientImpl from "@/lib/eventDispatcher/RESTClient";
 
 Vue.use(Vuex);
 
@@ -285,7 +286,7 @@ const actions: ActionTree<RootState, RootState> = {
     const serverUrl = payload.targetUrl;
 
     const serverName = (
-      await new RESTClient().httpGet(`${serverUrl}/api/v1/server-name`)
+      await new RESTClientImpl().httpGet(`${serverUrl}/api/v1/server-name`)
     ).data as string;
 
     if (serverName === "latteart-repository") {

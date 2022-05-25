@@ -15,7 +15,7 @@
  */
 
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 
 export interface NoteRepository {
   getNotes(
@@ -88,10 +88,7 @@ export interface NoteRepository {
 }
 
 export class NoteRepositoryImpl implements NoteRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   public async getNotes(
     testResultId: string,
@@ -107,7 +104,7 @@ export class NoteRepositoryImpl implements NoteRepository {
     }>
   > {
     const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
+      `/test-results/${testResultId}/notes/${noteId}`
     );
 
     return new ReplyImpl({
@@ -171,7 +168,7 @@ export class NoteRepositoryImpl implements NoteRepository {
           imageData: notice!.imageData,
         };
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/test-results/${testResultId}/notes`),
+      `/test-results/${testResultId}/notes`,
       body
     );
 
@@ -233,7 +230,7 @@ export class NoteRepositoryImpl implements NoteRepository {
           tags: notice!.tags,
         };
     const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`),
+      `/test-results/${testResultId}/notes/${noteId}`,
       body
     );
 
@@ -255,7 +252,7 @@ export class NoteRepositoryImpl implements NoteRepository {
     noteId: string
   ): Promise<Reply<void>> {
     const response = await this.restClient.httpDelete(
-      this.buildAPIURL(`/test-results/${testResultId}/notes/${noteId}`)
+      `/test-results/${testResultId}/notes/${noteId}`
     );
 
     return new ReplyImpl({

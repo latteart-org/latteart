@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 export class SnapshotRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Create a snapshot of the specified project ID.
@@ -32,7 +29,7 @@ export class SnapshotRepository {
     projectId: string
   ): Promise<Reply<{ url: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects/${projectId}/snapshots`),
+      `/projects/${projectId}/snapshots`,
       null
     );
 

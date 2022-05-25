@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 export class CompressedImageRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Compress screenshot of note.
@@ -34,9 +31,7 @@ export class CompressedImageRepository {
     noteId: string
   ): Promise<Reply<{ imageFileUrl: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/notes/${noteId}/compressed-image`
-      ),
+      `/test-results/${testResultId}/notes/${noteId}/compressed-image`,
       null
     );
 
@@ -59,9 +54,7 @@ export class CompressedImageRepository {
     testStepId: string
   ): Promise<Reply<{ imageFileUrl: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(
-        `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`
-      ),
+      `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`,
       null
     );
 

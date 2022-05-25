@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { TestScript } from "@/lib/operationHistory/scriptGenerator/TestScript";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 export class TestScriptRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Create a test script with the specified project ID.
@@ -36,7 +33,7 @@ export class TestScriptRepository {
     body: TestScript
   ): Promise<Reply<{ url: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects/${projectId}/test-scripts`),
+      `/projects/${projectId}/test-scripts`,
       body
     );
 
@@ -58,7 +55,7 @@ export class TestScriptRepository {
     body: TestScript
   ): Promise<Reply<{ url: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/test-results/${testResultId}/test-scripts`),
+      `/test-results/${testResultId}/test-scripts`,
       body
     );
 

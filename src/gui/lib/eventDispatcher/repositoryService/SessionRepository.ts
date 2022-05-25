@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { ManagedSession } from "@/lib/testManagement/TestManagementData";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
 export class SessionRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   public async patchSession(
     projectId: string,
@@ -30,7 +27,7 @@ export class SessionRepository {
     body: Partial<ManagedSession>
   ): Promise<Reply<ManagedSession>> {
     const response = await this.restClient.httpPatch(
-      this.buildAPIURL(`/projects/${projectId}/sessions/${sessionId}`),
+      `/projects/${projectId}/sessions/${sessionId}`,
       body
     );
 

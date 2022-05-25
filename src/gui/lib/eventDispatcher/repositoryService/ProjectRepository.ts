@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { Project } from "@/lib/testManagement/types";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
@@ -42,10 +42,7 @@ export interface ProjectRepository {
 }
 
 export class ProjectRepositoryImpl implements ProjectRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Creates export project or testresult or all.
@@ -58,7 +55,7 @@ export class ProjectRepositoryImpl implements ProjectRepository {
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<Reply<{ url: string }>> {
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects/${projectId}/export`),
+      `/projects/${projectId}/export`,
       selectOption
     );
 
@@ -77,9 +74,7 @@ export class ProjectRepositoryImpl implements ProjectRepository {
       }>
     >
   > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects`)
-    );
+    const response = await this.restClient.httpGet(`/projects`);
 
     return new ReplyImpl({
       status: response.status,
@@ -92,9 +87,7 @@ export class ProjectRepositoryImpl implements ProjectRepository {
   }
 
   public async getProject(projectId: string): Promise<Reply<Project>> {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/${projectId}`)
-    );
+    const response = await this.restClient.httpGet(`/projects/${projectId}`);
 
     return new ReplyImpl({
       status: response.status,
@@ -103,12 +96,9 @@ export class ProjectRepositoryImpl implements ProjectRepository {
   }
 
   public async postProject(): Promise<Reply<{ id: string; name: string }>> {
-    const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/projects`),
-      {
-        name: "",
-      }
-    );
+    const response = await this.restClient.httpPost(`/projects`, {
+      name: "",
+    });
 
     return new ReplyImpl({
       status: response.status,
@@ -127,7 +117,7 @@ export class ProjectRepositoryImpl implements ProjectRepository {
     body: TestManagementData
   ): Promise<Reply<Project>> {
     const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/${projectId}`),
+      `/projects/${projectId}`,
       body
     );
 

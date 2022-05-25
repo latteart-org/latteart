@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
 
 export interface ImportTestResultRepository {
@@ -26,11 +26,9 @@ export interface ImportTestResultRepository {
 }
 
 export class ImportTestResultRepositoryImpl
-  implements ImportTestResultRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  implements ImportTestResultRepository
+{
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Import test result.
@@ -48,7 +46,7 @@ export class ImportTestResultRepositoryImpl
     };
 
     const response = await this.restClient.httpPost(
-      this.buildAPIURL(`/imports/test-results`),
+      `/imports/test-results`,
       body
     );
 
@@ -65,9 +63,7 @@ export class ImportTestResultRepositoryImpl
   public async getTestResults(): Promise<
     Reply<Array<{ url: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/imports/test-results`)
-    );
+    const response = await this.restClient.httpGet(`/imports/test-results`);
 
     return new ReplyImpl({
       status: response.status,

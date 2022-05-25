@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import RESTClient from "./RESTClient";
 import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import {
   TestStepRepository,
@@ -45,69 +44,61 @@ import {
 } from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
+import RESTClientImpl from "./RESTClient";
+import { RepositoryServiceClient } from "./RepositoryServiceClient";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
  */
 export default class RepositoryServiceDispatcher implements ProjectUpdatable {
+  private _proxyUrl = "";
+  private restClient: RepositoryServiceClient;
+
+  private repositories: {
+    testStep: TestStepRepository;
+    note: NoteRepository;
+    testResult: TestResultRepository;
+    importTestResult: ImportTestResultRepository;
+    importProject: ImportProjectRepository;
+    testScript: TestScriptRepository;
+    setting: SettingRepository;
+    compressedImage: CompressedImageRepository;
+    project: ProjectRepository;
+    session: SessionRepository;
+    snapshot: SnapshotRepository;
+  };
+
   constructor(
     private config: {
       url: string;
       isRemote: boolean;
     }
   ) {
-    const buildAPIURL = (url: string) => {
-      return new URL(`api/v1${url}`, this.serviceUrl).toString();
+    const serviceUrl = this.config.url;
+    this.restClient = new RepositoryServiceClient(
+      new RESTClientImpl(),
+      serviceUrl
+    );
+    this.repositories = {
+      testStep: new TestStepRepositoryImpl(this.restClient),
+      note: new NoteRepositoryImpl(this.restClient),
+      testResult: new TestResultRepositoryImpl(this.restClient),
+      importTestResult: new ImportTestResultRepositoryImpl(this.restClient),
+      importProject: new ImportProjectRepositoryImpl(this.restClient),
+      testScript: new TestScriptRepository(this.restClient),
+      setting: new SettingRepository(this.restClient),
+      compressedImage: new CompressedImageRepository(this.restClient),
+      project: new ProjectRepositoryImpl(this.restClient),
+      session: new SessionRepository(this.restClient),
+      snapshot: new SnapshotRepository(this.restClient),
     };
-    this.restClient = new RESTClient();
-    this._testStepRepository = new TestStepRepositoryImpl(
-      this.restClient,
-      buildAPIURL
-    );
-    this._noteRepository = new NoteRepositoryImpl(this.restClient, buildAPIURL);
-    this._testResultRepository = new TestResultRepositoryImpl(
-      this.restClient,
-      buildAPIURL
-    );
-    this._importTestResultRepository = new ImportTestResultRepositoryImpl(
-      this.restClient,
-      buildAPIURL
-    );
-    this._importProjectRepository = new ImportProjectRepositoryImpl(
-      this.restClient,
-      buildAPIURL
-    );
-    this._testScriptRepository = new TestScriptRepository(
-      this.restClient,
-      buildAPIURL
-    );
-    this._settingRepository = new SettingRepository(
-      this.restClient,
-      buildAPIURL
-    );
-    this._compressedImageRepository = new CompressedImageRepository(
-      this.restClient,
-      buildAPIURL
-    );
-    this._projectRepository = new ProjectRepositoryImpl(
-      this.restClient,
-      buildAPIURL
-    );
-    this._sessionRepository = new SessionRepository(
-      this.restClient,
-      buildAPIURL
-    );
-    this._snapshotRepository = new SnapshotRepository(
-      this.restClient,
-      buildAPIURL
-    );
   }
 
   /**
    * Service URL.
    */
   get serviceUrl(): string {
-    return this.config.url;
+    return this.restClient.serviceUrl;
   }
 
   get isRemote(): boolean {
@@ -125,70 +116,47 @@ export default class RepositoryServiceDispatcher implements ProjectUpdatable {
     this._proxyUrl = value;
   }
 
-  private _proxyUrl = "";
-  private restClient: RESTClient;
-  private _testStepRepository: TestStepRepository;
-  private _noteRepository: NoteRepository;
-  private _testResultRepository: TestResultRepository;
-  private _importTestResultRepository: ImportTestResultRepository;
-  private _importProjectRepository: ImportProjectRepository;
-  private _testScriptRepository: TestScriptRepository;
-  private _settingRepository: SettingRepository;
-  private _compressedImageRepository: CompressedImageRepository;
-  private _projectRepository: ProjectRepository;
-  private _sessionRepository: SessionRepository;
-  private _snapshotRepository: SnapshotRepository;
-
   public get testStepRepository(): TestStepRepository {
-    return this._testStepRepository;
+    return this.repositories.testStep;
   }
 
   public get noteRepository(): NoteRepository {
-    return this._noteRepository;
+    return this.repositories.note;
   }
 
   public get testResultRepository(): TestResultRepository {
-    return this._testResultRepository;
+    return this.repositories.testResult;
   }
 
   public get importTestResultRepository(): ImportTestResultRepository {
-    return this._importTestResultRepository;
+    return this.repositories.importTestResult;
   }
 
   public get importProjectRepository(): ImportProjectRepository {
-    return this._importProjectRepository;
+    return this.repositories.importProject;
   }
 
   public get testScriptRepository(): TestScriptRepository {
-    return this._testScriptRepository;
+    return this.repositories.testScript;
   }
 
   public get settingRepository(): SettingRepository {
-    return this._settingRepository;
+    return this.repositories.setting;
   }
 
   public get compressedImageRepository(): CompressedImageRepository {
-    return this._compressedImageRepository;
+    return this.repositories.compressedImage;
   }
 
   public get projectRepository(): ProjectRepository {
-    return this._projectRepository;
+    return this.repositories.project;
   }
 
   public get sessionRepository(): SessionRepository {
-    return this._sessionRepository;
+    return this.repositories.session;
   }
 
   public get snapshotRepository(): SnapshotRepository {
-    return this._snapshotRepository;
-  }
-
-  /**
-   * Generate API URL.
-   * @param url  URL after the fixed value.
-   * @returns  URL
-   */
-  private buildAPIURL(url: string) {
-    return new URL(`api/v1${url}`, this.serviceUrl).toString();
+    return this.repositories.snapshot;
   }
 }

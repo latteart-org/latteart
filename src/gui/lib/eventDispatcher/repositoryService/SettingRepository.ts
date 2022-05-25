@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-import RESTClient from "../RESTClient";
+import { RESTClient } from "../RESTClient";
 import Settings from "@/lib/common/settings/Settings";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 
 export class SettingRepository {
-  constructor(
-    private restClient: RESTClient,
-    private buildAPIURL: (url: string) => string
-  ) {}
+  constructor(private restClient: RESTClient) {}
 
   /**
    * Get setting information.
    * @returns Setting information.
    */
   public async getSettings(): Promise<Reply<Settings>> {
-    const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/1/configs`)
-    );
+    const response = await this.restClient.httpGet(`/projects/1/configs`);
 
     return new ReplyImpl({
       status: response.status,
@@ -47,7 +42,7 @@ export class SettingRepository {
    */
   public async putSettings(settings: Settings): Promise<Reply<Settings>> {
     const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/1/configs`),
+      `/projects/1/configs`,
       settings
     );
 
@@ -63,7 +58,7 @@ export class SettingRepository {
    */
   public async getDeviceSettings(): Promise<Reply<DeviceSettings>> {
     const response = await this.restClient.httpGet(
-      this.buildAPIURL(`/projects/1/device-configs`)
+      `/projects/1/device-configs`
     );
 
     return new ReplyImpl({
@@ -81,7 +76,7 @@ export class SettingRepository {
     deviceSettings: DeviceSettings
   ): Promise<Reply<DeviceSettings>> {
     const response = await this.restClient.httpPut(
-      this.buildAPIURL(`/projects/1/device-configs`),
+      `/projects/1/device-configs`,
       deviceSettings
     );
 
