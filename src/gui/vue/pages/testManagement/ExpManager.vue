@@ -37,6 +37,13 @@
       :opened="noticeEditDialogOpened"
       @close="noticeEditDialogOpened = false"
     />
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
+      :onAccept="confirmDialogAccept"
+      @close="confirmDialogOpened = false"
+    />
   </v-app>
 </template>
 
@@ -49,6 +56,7 @@ import { OperationWithNotes } from "@/lib/operationHistory/types";
 import IntentionEditDialog from "../common/IntentionEditDialog.vue";
 import BugEditDialog from "../common/BugEditDialog.vue";
 import NoticeEditDialog from "../common/NoticeEditDialog.vue";
+import ConfirmDialog from "../common/ConfirmDialog.vue";
 
 @Component({
   components: {
@@ -58,6 +66,7 @@ import NoticeEditDialog from "../common/NoticeEditDialog.vue";
     "intention-edit-dialog": IntentionEditDialog,
     "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
+    "confirm-dialog": ConfirmDialog,
   },
 })
 export default class Manager extends Vue {
@@ -69,6 +78,13 @@ export default class Manager extends Vue {
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
+  private confirmDialogOpened = false;
+  private confirmDialogTitle = "";
+  private confirmDialogMessage = "";
+  private confirmDialogAccept() {
+    /* Do nothing */
+  }
+
   public created(): void {
     (async () => {
       try {
@@ -76,6 +92,9 @@ export default class Manager extends Vue {
         await this.$store.dispatch("testManagement/initialize");
       } catch (error) {
         console.error(error);
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = error.message;
         this.errorMessageDialogOpened = true;
       } finally {
@@ -90,6 +109,12 @@ export default class Manager extends Vue {
     this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
       openNoteEditDialog: this.openNoteEditDialog,
     });
+    this.$store.commit(
+      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
+      {
+        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
+      }
+    );
   }
 
   private openNoteEditDialog(
@@ -129,6 +154,55 @@ export default class Manager extends Vue {
           },
         });
         this.noticeEditDialogOpened = true;
+        return;
+      default:
+        return;
+    }
+  }
+
+  private openNoteDeleteConfirmDialog(
+    noteType: string,
+    title: string,
+    sequence: number,
+    index?: number
+  ) {
+    if (noteType === "intention") {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-intention"
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-intention-message",
+        { value: title }
+      );
+    } else {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-notice"
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-notice-message",
+        { value: title }
+      );
+    }
+
+    this.confirmDialogAccept = () => {
+      this.deleteNote(noteType, sequence, index ?? 0);
+    };
+    this.confirmDialogOpened = true;
+  }
+
+  private deleteNote(noteType: string, sequence: number, index: number) {
+    switch (noteType) {
+      case "intention":
+        this.$store.dispatch("operationHistory/deleteIntention", { sequence });
+        return;
+      case "bug":
+        this.$store.dispatch("operationHistory/deleteBug", { sequence, index });
+        return;
+      case "notice":
+        this.$store.dispatch("operationHistory/deleteNotice", {
+          sequence,
+          index,
+        });
         return;
       default:
         return;
