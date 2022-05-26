@@ -253,6 +253,16 @@ export interface OperationHistoryState {
   ) => void;
 
   /**
+   * The function to open the note deletion confirmation dialog.
+   */
+  openNoteDeleteConfirmDialog: (
+    noteType: string,
+    title: string,
+    sequence: number,
+    index: number
+  ) => void;
+
+  /**
    * The function to delete a note.
    */
   deleteNote: (noteType: string, sequence: number, index: number) => void;
@@ -318,6 +328,9 @@ const state: OperationHistoryState = {
   tmpNoteInfoForEdit: null,
   openNoteEditDialog: () => {
     /* Do nothing. */
+  },
+  openNoteDeleteConfirmDialog: () => {
+    /* Do noting. */
   },
   deleteNote: () => {
     /* Do nothing. */

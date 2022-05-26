@@ -637,6 +637,9 @@ export default class ExpCapture extends Vue {
           }
         );
       } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
       } finally {
@@ -665,8 +668,10 @@ export default class ExpCapture extends Vue {
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        }
       } finally {
         this.isExportingData = false;
       }
@@ -717,6 +722,9 @@ export default class ExpCapture extends Vue {
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = error.message;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.errorMessageDialogOpened = true;
@@ -847,6 +855,13 @@ export default class ExpCapture extends Vue {
       openNoteEditDialog: this.openNoteEditDialog,
     });
 
+    this.$store.commit(
+      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
+      {
+        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
+      }
+    );
+
     this.$store.commit("operationHistory/setOpenNoteMenu", {
       menu: this.openNoteMenu,
     });
@@ -880,6 +895,9 @@ export default class ExpCapture extends Vue {
       try {
         await this.$store.dispatch("changeLocale", { locale });
       } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = error.message;
         this.errorMessageDialogOpened = true;
       }
@@ -1026,6 +1044,9 @@ export default class ExpCapture extends Vue {
           );
         }
       } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
       }
@@ -1150,12 +1171,46 @@ export default class ExpCapture extends Vue {
         );
         this.nowTime = formatTime(testingTime);
       } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         this.errorMessage = `${error.message}`;
         this.errorMessageDialogOpened = true;
       } finally {
         this.$store.dispatch("closeProgressDialog");
       }
     }, 300);
+  }
+
+  private openNoteDeleteConfirmDialog(
+    noteType: string,
+    title: string,
+    sequence: number,
+    index?: number
+  ) {
+    if (noteType === "intention") {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-intention"
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-intention-message",
+        { value: title }
+      );
+    } else {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-notice",
+        { value: title }
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-notice-message",
+        { value: title }
+      );
+    }
+
+    this.confirmDialogAccept = () => {
+      this.deleteNote(noteType, sequence, index ?? 0);
+    };
+    this.confirmDialogOpened = true;
   }
 
   private openNoteEditDialog(

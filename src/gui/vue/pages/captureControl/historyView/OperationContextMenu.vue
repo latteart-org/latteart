@@ -142,6 +142,18 @@ export default class OperationContextMenu extends Vue {
         );
       },
     });
+    if (this.currentHistoryItem?.intention) {
+      this.intentionItems.push({
+        label: this.$store.getters.message("history-view.delete-intention"),
+        onClick: () => {
+          this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
+            "intention",
+            this.currentHistoryItem?.intention?.value ?? "",
+            this.operationInfo.sequence
+          );
+        },
+      });
+    }
   }
 
   private initializeNoticesMenu() {
@@ -171,6 +183,19 @@ export default class OperationContextMenu extends Vue {
           );
         },
       });
+      this.noticeItems.push({
+        label: this.$store.getters.message("history-view.delete-notice", {
+          value,
+        }),
+        onClick: () => {
+          this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
+            "bug",
+            bug.value,
+            this.operationInfo.sequence,
+            i
+          );
+        },
+      });
     });
 
     (this.currentHistoryItem?.notices ?? []).forEach(
@@ -183,6 +208,19 @@ export default class OperationContextMenu extends Vue {
           onClick: () => {
             this.$store.state.operationHistory.openNoteEditDialog(
               "notice",
+              this.operationInfo.sequence,
+              i
+            );
+          },
+        });
+        this.noticeItems.push({
+          label: this.$store.getters.message("history-view.delete-notice", {
+            value,
+          }),
+          onClick: () => {
+            this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
+              "notice",
+              notice.value,
               this.operationInfo.sequence,
               i
             );
@@ -224,6 +262,9 @@ export default class OperationContextMenu extends Vue {
             `replay.${successMessage}`
           );
         } catch (error) {
+          if (!(error instanceof Error)) {
+            throw error;
+          }
           this.errorMessageDialogOpened = true;
           this.errorMessage = error.message;
         }
@@ -251,6 +292,9 @@ export default class OperationContextMenu extends Vue {
             `replay.${successMessage}`
           );
         } catch (error) {
+          if (!(error instanceof Error)) {
+            throw error;
+          }
           this.errorMessageDialogOpened = true;
           this.errorMessage = error.message;
         }
@@ -285,6 +329,9 @@ export default class OperationContextMenu extends Vue {
               `replay.${successMessage}`
             );
           } catch (error) {
+            if (!(error instanceof Error)) {
+              throw error;
+            }
             this.errorMessageDialogOpened = true;
             this.errorMessage = error.message;
           }
