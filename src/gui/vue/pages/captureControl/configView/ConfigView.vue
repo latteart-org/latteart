@@ -171,7 +171,7 @@ export default class ConfigView extends Vue {
 
   private created() {
     this.updateWindowTitle();
-    this.selectPlatform(this.selectedPlatformName);
+    this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
 
     const testResultId = this.$route.query.testResultId as string;
 
