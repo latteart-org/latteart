@@ -22,14 +22,14 @@ export interface TestResultExportable {
 }
 
 export class ExportTestResultAction {
-  constructor(private dispatcher: TestResultExportable) {}
+  constructor(private repositoryContainer: TestResultExportable) {}
 
   public async exportWithTestResult(
     testResultId: string,
     shouldSaveTemporary = false
   ): Promise<ActionResult<string>> {
     const reply =
-      await this.dispatcher.testResultRepository.postTestResultForExport(
+      await this.repositoryContainer.testResultRepository.postTestResultForExport(
         testResultId,
         shouldSaveTemporary
       );

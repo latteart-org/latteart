@@ -24,7 +24,10 @@ import { operationHistory } from "./operationHistory";
 import { captureControl } from "./captureControl";
 import { testManagement } from "./testManagement";
 import ClientSideCaptureServiceDispatcher from "../lib/eventDispatcher/ClientSideCaptureServiceDispatcher";
-import RepositoryServiceContainer from "../lib/eventDispatcher/RepositoryServiceContainer";
+import {
+  RepositoryContainerImpl,
+  RepositoryContainer,
+} from "../lib/eventDispatcher/RepositoryContainer";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import RESTClientImpl from "@/lib/eventDispatcher/RESTClient";
@@ -63,7 +66,7 @@ export interface RootState {
   /**
    * The service that performs processing involving communication to the local repository.
    */
-  repositoryServiceDispatcher: RepositoryServiceContainer;
+  repositoryContainer: RepositoryContainer;
 
   /**
    * The service that performs processing involving communication to the remote repository.
@@ -116,11 +119,11 @@ const mutations: MutationTree<RootState> = {
     state.clientSideCaptureServiceDispatcher.serviceUrl = payload.serviceUrl;
   },
 
-  setRepositoryServiceDispatcher(
+  setRepositoryContainer(
     state,
-    payload: { serviceDispatcher: RepositoryServiceContainer }
+    payload: { repositoryContainer: RepositoryContainer }
   ) {
-    state.repositoryServiceDispatcher = payload.serviceDispatcher;
+    state.repositoryContainer = payload.repositoryContainer;
   },
 
   registerRemoteRepositoryServiceUrl(state, payload: { url: string }) {
@@ -211,7 +214,7 @@ const actions: ActionTree<RootState, RootState> = {
    */
   async loadLocaleFromSettings(context) {
     const result = await new ReadSettingAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).readSettings();
     if (result.data) {
       context.commit("setLocale", { locale: result.data.locale });
@@ -229,15 +232,17 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    const dispatcher = context.rootState.repositoryServiceDispatcher;
-    const settings = await new ReadSettingAction(dispatcher).readSettings();
+    const repositoryContainer = context.rootState.repositoryContainer;
+    const settings = await new ReadSettingAction(
+      repositoryContainer
+    ).readSettings();
     if (!settings.data?.locale) {
       return;
     }
     settings.data.locale = payload.locale as any;
-    const result = await new SaveSettingAction(dispatcher).saveSettings(
-      settings.data
-    );
+    const result = await new SaveSettingAction(
+      repositoryContainer
+    ).saveSettings(settings.data);
     if (result.data === null) {
       return;
     } else if (result.data) {
@@ -291,12 +296,12 @@ const actions: ActionTree<RootState, RootState> = {
     if (serverName === "latteart-repository") {
       const isRemote =
         payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
-      const serviceDispatcher = new RepositoryServiceContainer({
+      const repositoryContainer = new RepositoryContainerImpl({
         url: serverUrl,
         isRemote,
       });
 
-      context.commit("setRepositoryServiceDispatcher", { serviceDispatcher });
+      context.commit("setRepositoryContainer", { repositoryContainer });
 
       if (isRemote) {
         context.commit("registerRemoteRepositoryServiceUrl", {
@@ -336,7 +341,7 @@ const store: StoreOptions<RootState> = {
     },
     clientSideCaptureServiceDispatcher:
       new ClientSideCaptureServiceDispatcher(),
-    repositoryServiceDispatcher: new RepositoryServiceContainer({
+    repositoryContainer: new RepositoryContainerImpl({
       url: defaultLocalRepositoryServiceUrl,
       isRemote: false,
     }),

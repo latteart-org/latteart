@@ -28,7 +28,7 @@ export interface NoticeEditable {
 }
 
 export class EditNoticeAction {
-  constructor(private dispatcher: NoticeEditable) {}
+  constructor(private repositoryContainer: NoticeEditable) {}
 
   /**
    * Edit Notice.
@@ -52,7 +52,7 @@ export class EditNoticeAction {
     const bug = undefined;
 
     const { notices } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
       )
@@ -67,7 +67,7 @@ export class EditNoticeAction {
     const noteId: string = notices[index];
 
     // Note update
-    const reply = await this.dispatcher.noteRepository.putNotes(
+    const reply = await this.repositoryContainer.noteRepository.putNotes(
       testResultId,
       noteId,
       intention,
@@ -84,7 +84,7 @@ export class EditNoticeAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       notice: convertNoteWithoutId(savedNote, serviceUrl),
       index,

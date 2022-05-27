@@ -22,14 +22,14 @@ export interface TestResultImportable {
 }
 
 export class ImportTestResultAction {
-  constructor(private dispatcher: TestResultImportable) {}
+  constructor(private repositoryContainer: TestResultImportable) {}
 
   public async importWithTestResult(
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<ActionResult<{ testResultId: string }>> {
     const reply =
-      await this.dispatcher.importTestResultRepository.postTestResult(
+      await this.repositoryContainer.importTestResultRepository.postTestResult(
         source,
         dest
       );

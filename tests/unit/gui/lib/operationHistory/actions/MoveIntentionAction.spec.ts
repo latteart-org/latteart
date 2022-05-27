@@ -12,7 +12,7 @@ describe("MoveIntentionAction", () => {
     let observer: MoveIntentionActionObserver;
     let testStepRepository: TestStepRepository;
     let noteRepository: NoteRepository;
-    let dispatcher: IntentionMovable;
+    let repositoryContainer: IntentionMovable;
 
     const testResultId = "testResultId";
     const fromSequence = 0;
@@ -62,10 +62,9 @@ describe("MoveIntentionAction", () => {
 
     describe("渡されたテスト結果IDとシーケンス番号を用いてテスト目的を移動する", () => {
       afterEach(() => {
-        expect(dispatcher.testStepRepository.getTestSteps).toBeCalledWith(
-          testResultId,
-          `id_of_${fromSequence}`
-        );
+        expect(
+          repositoryContainer.testStepRepository.getTestSteps
+        ).toBeCalledWith(testResultId, `id_of_${fromSequence}`);
       });
 
       it("テスト目的の移動に成功した場合はオブザーバに結果を渡す", async () => {
@@ -90,13 +89,13 @@ describe("MoveIntentionAction", () => {
           deleteNotes: jest.fn(),
         };
 
-        dispatcher = {
+        repositoryContainer = {
           testStepRepository,
           noteRepository,
           serviceUrl: "serviceUrl",
         };
 
-        await new MoveIntentionAction(observer, dispatcher).move(
+        await new MoveIntentionAction(observer, repositoryContainer).move(
           testResultId,
           fromSequence,
           destSequence
@@ -130,13 +129,13 @@ describe("MoveIntentionAction", () => {
           deleteNotes: jest.fn(),
         };
 
-        dispatcher = {
+        repositoryContainer = {
           testStepRepository,
           noteRepository,
           serviceUrl: "serviceUrl",
         };
 
-        await new MoveIntentionAction(observer, dispatcher).move(
+        await new MoveIntentionAction(observer, repositoryContainer).move(
           testResultId,
           fromSequence,
           destSequence

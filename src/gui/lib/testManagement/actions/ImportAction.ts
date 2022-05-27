@@ -22,7 +22,7 @@ export interface Importable {
 }
 
 export class ImportAction {
-  constructor(private dispatcher: Importable) {}
+  constructor(private repositoryContainer: Importable) {}
 
   /**
    * Import project or testresult or all.
@@ -33,10 +33,11 @@ export class ImportAction {
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<{ projectId: string }>> {
-    const reply = await this.dispatcher.importProjectRepository.postProjects(
-      source,
-      selectOption
-    );
+    const reply =
+      await this.repositoryContainer.importProjectRepository.postProjects(
+        source,
+        selectOption
+      );
 
     let errorMessage;
 

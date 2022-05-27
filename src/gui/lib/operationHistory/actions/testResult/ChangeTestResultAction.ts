@@ -22,7 +22,7 @@ export interface TestResultChangeable {
 }
 
 export class ChangeTestResultAction {
-  constructor(private dispatcher: TestResultChangeable) {}
+  constructor(private repositoryContainer: TestResultChangeable) {}
 
   public async changeTestResult(
     testResultId: string,
@@ -30,12 +30,13 @@ export class ChangeTestResultAction {
     startTime?: number,
     initialUrl?: string
   ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.patchTestResult(
-      testResultId,
-      name,
-      startTime,
-      initialUrl
-    );
+    const reply =
+      await this.repositoryContainer.testResultRepository.patchTestResult(
+        testResultId,
+        name,
+        startTime,
+        initialUrl
+      );
 
     const error = reply.error ? { code: reply.error.code } : undefined;
     const result = {

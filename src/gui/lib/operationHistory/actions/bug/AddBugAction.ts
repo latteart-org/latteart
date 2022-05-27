@@ -28,7 +28,7 @@ export interface BugAddable {
 }
 
 export class AddBugAction {
-  constructor(private dispatcher: BugAddable) {}
+  constructor(private repositoryContainer: BugAddable) {}
 
   /**
    * Add bug information to the test step with the specified sequence number.
@@ -47,7 +47,7 @@ export class AddBugAction {
     }
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
     // New registration of note.
-    const reply = await this.dispatcher.noteRepository.postNotes(
+    const reply = await this.repositoryContainer.noteRepository.postNotes(
       testResultId,
       undefined,
       bug
@@ -65,7 +65,7 @@ export class AddBugAction {
     // Linking with testStep.
     const linkTestStep = await (async () => {
       const { bugs: replyBugs } = (
-        await this.dispatcher.testStepRepository.getTestSteps(
+        await this.repositoryContainer.testStepRepository.getTestSteps(
           testResultId,
           testStepId
         )
@@ -79,7 +79,7 @@ export class AddBugAction {
 
       const bugs = [...replyBugs, savedNote.id];
 
-      return await this.dispatcher.testStepRepository.patchTestSteps(
+      return await this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         testStepId,
         undefined,
@@ -91,7 +91,7 @@ export class AddBugAction {
       bugs: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       bug: convertNote(savedNote, serviceUrl),
       index: savedTestStep.bugs.length - 1,

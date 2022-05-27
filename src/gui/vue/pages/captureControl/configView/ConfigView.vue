@@ -197,7 +197,7 @@ export default class ConfigView extends Vue {
   }
 
   private get isConnectedToRemote() {
-    return this.$store.state.repositoryServiceDispatcher.isRemote;
+    return this.$store.state.repositoryContainer.isRemote;
   }
 
   private get coverageOpened() {

@@ -34,7 +34,7 @@ interface WriteDataFileMutationObserver {
 export interface StoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: ProjectUpdatable,
     oldStory?: Story
   ): Promise<Story>;
 }
@@ -48,7 +48,7 @@ export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectUpdatable
+    private repositoryContainer: ProjectUpdatable
   ) {}
 
   public async write(
@@ -56,7 +56,7 @@ export class WriteDataFileAction {
     testManagementData: TestManagementData,
     stories: Story[]
   ): Promise<ActionResult<void>> {
-    const reply = await this.dispatcher.projectRepository.putProject(
+    const reply = await this.repositoryContainer.projectRepository.putProject(
       projectId,
       testManagementData
     );
@@ -79,7 +79,7 @@ export class WriteDataFileAction {
 
         return this.storyDataConverter.convertToStory(
           story as ManagedStory,
-          this.dispatcher,
+          this.repositoryContainer,
           oldStory
         );
       })

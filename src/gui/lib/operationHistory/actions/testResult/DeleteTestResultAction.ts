@@ -22,14 +22,15 @@ export interface TestResultDeletable {
 }
 
 export class DeleteTestResultAction {
-  constructor(private dispatcher: TestResultDeletable) {}
+  constructor(private repositoryContainer: TestResultDeletable) {}
 
   public async deleteTestResult(
     testResultId: string
   ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.testResultRepository.deleteTestResult(
-      testResultId
-    );
+    const reply =
+      await this.repositoryContainer.testResultRepository.deleteTestResult(
+        testResultId
+      );
     const error = reply.error ? { code: "testresult-delete-error" } : undefined;
     const result = {
       data: testResultId,

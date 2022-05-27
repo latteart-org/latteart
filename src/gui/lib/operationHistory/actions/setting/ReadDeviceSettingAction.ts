@@ -23,10 +23,11 @@ export interface DeviceSettingGettable {
 }
 
 export class ReadDeviceSettingAction {
-  constructor(private dispatcher: DeviceSettingGettable) {}
+  constructor(private repositoryContainer: DeviceSettingGettable) {}
 
   public async readDeviceSettings(): Promise<ActionResult<DeviceSettings>> {
-    const reply = await this.dispatcher.settingRepository.getDeviceSettings();
+    const reply =
+      await this.repositoryContainer.settingRepository.getDeviceSettings();
 
     return reply;
   }

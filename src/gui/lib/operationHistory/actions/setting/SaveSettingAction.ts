@@ -23,12 +23,14 @@ export interface SettingSaveable {
 }
 
 export class SaveSettingAction {
-  constructor(private dispatcher: SettingSaveable) {}
+  constructor(private repositoryContainer: SettingSaveable) {}
 
   public async saveSettings(
     settings: Settings
   ): Promise<ActionResult<Settings>> {
-    const reply = await this.dispatcher.settingRepository.putSettings(settings);
+    const reply = await this.repositoryContainer.settingRepository.putSettings(
+      settings
+    );
 
     return reply;
   }

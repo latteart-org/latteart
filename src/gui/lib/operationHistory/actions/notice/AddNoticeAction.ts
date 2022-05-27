@@ -28,7 +28,7 @@ export interface NoticeAddable {
 }
 
 export class AddNoticeAction {
-  constructor(private dispatcher: NoticeAddable) {}
+  constructor(private repositoryContainer: NoticeAddable) {}
 
   /**
    * Notice the test step with the specified sequence number and add information.
@@ -50,7 +50,7 @@ export class AddNoticeAction {
     const intention = undefined;
     const bug = undefined;
 
-    const reply = await this.dispatcher.noteRepository.postNotes(
+    const reply = await this.repositoryContainer.noteRepository.postNotes(
       testResultId,
       intention,
       bug,
@@ -69,7 +69,7 @@ export class AddNoticeAction {
     // Linking with testStep.
     const linkTestStep = await (async () => {
       const { notices: replyNotices } = (
-        await this.dispatcher.testStepRepository.getTestSteps(
+        await this.repositoryContainer.testStepRepository.getTestSteps(
           testResultId,
           testStepId
         )
@@ -84,7 +84,7 @@ export class AddNoticeAction {
       const notices = [...replyNotices, savedNote.id];
       const noteId = undefined;
 
-      return await this.dispatcher.testStepRepository.patchTestSteps(
+      return await this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         testStepId,
         noteId,
@@ -97,7 +97,7 @@ export class AddNoticeAction {
       notices: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       notice: convertNote(savedNote, serviceUrl),
       index: savedTestStep.notices.length - 1,

@@ -22,14 +22,14 @@ export interface TestStepImageCompressible {
 }
 
 export class CompressTestStepImageAction {
-  constructor(private dispatcher: TestStepImageCompressible) {}
+  constructor(private repositoryContainer: TestStepImageCompressible) {}
 
   public async compressNoteImage(
     testResultId: string,
     testStepId: string
   ): Promise<ActionResult<{ imageFileUrl: string }>> {
     const reply =
-      await this.dispatcher.compressedImageRepository.postTestStepImage(
+      await this.repositoryContainer.compressedImageRepository.postTestStepImage(
         testResultId,
         testStepId
       );

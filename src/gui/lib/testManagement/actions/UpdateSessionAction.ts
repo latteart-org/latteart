@@ -23,14 +23,14 @@ export interface SessionUpdatable {
 }
 
 export class UpdateSessionAction {
-  constructor(private dispatcher: SessionUpdatable) {}
+  constructor(private repositoryContainer: SessionUpdatable) {}
 
   public async updateSession(
     projectId: string,
     sessionId: string,
     body: Partial<ManagedSession>
   ): Promise<ActionResult<ManagedSession>> {
-    const reply = await this.dispatcher.sessionRepository.patchSession(
+    const reply = await this.repositoryContainer.sessionRepository.patchSession(
       projectId,
       sessionId,
       body

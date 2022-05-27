@@ -23,14 +23,15 @@ export interface TestResultGetable {
 }
 
 export class GetTestResultAction {
-  constructor(private dispatcher: TestResultGetable) {}
+  constructor(private repositoryContainer: TestResultGetable) {}
 
   public async getTestResult(
     testResultId: string
   ): Promise<ActionResult<TestResult>> {
-    const reply = await this.dispatcher.testResultRepository.getTestResult(
-      testResultId
-    );
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResult(
+        testResultId
+      );
 
     return reply;
   }

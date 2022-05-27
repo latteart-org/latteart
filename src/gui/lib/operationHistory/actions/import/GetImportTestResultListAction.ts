@@ -23,14 +23,14 @@ export interface ImportTestResultsGettable {
 }
 
 export class GetImportTestResultListAction {
-  constructor(private dispatcher: ImportTestResultsGettable) {}
+  constructor(private repositoryContainer: ImportTestResultsGettable) {}
 
   public async getImportTestResults(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
   > {
     const reply =
-      await this.dispatcher.importTestResultRepository.getTestResults();
-    const serviceUrl = this.dispatcher.serviceUrl;
+      await this.repositoryContainer.importTestResultRepository.getTestResults();
+    const serviceUrl = this.repositoryContainer.serviceUrl;
 
     const data = reply.data
       ? reply.data.map(({ url, name }) => {

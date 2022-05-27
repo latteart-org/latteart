@@ -35,11 +35,11 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Get the actual test result from the test result ID.
    * @param testResultFiles  test results. Use only the beginning of the array.
-   * @param dispatcher  Callback function to get the test result.
+   * @param repositoryContainer  Callback function to get the test result.
    * @returns Test results testSteps.
    */
   private static async buildHistory(
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: ProjectUpdatable,
     testResultFiles?: {
       name: string;
       id: string;
@@ -60,9 +60,9 @@ export default class StoryDataConverter implements StoryConvertable {
 
     const testResultFile = testResultFiles[0];
 
-    const result = await new GetTestResultAction(dispatcher).getTestResult(
-      testResultFile.id
-    );
+    const result = await new GetTestResultAction(
+      repositoryContainer
+    ).getTestResult(testResultFile.id);
 
     if (!result.data) {
       return {};
@@ -128,11 +128,14 @@ export default class StoryDataConverter implements StoryConvertable {
 
   public async convertToSession(
     target: Partial<ManagedSession>,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: ProjectUpdatable,
     oldSession?: Session
   ): Promise<Session> {
     const { intentions, initialUrl, testingTime, issues } =
-      await StoryDataConverter.buildHistory(dispatcher, target.testResultFiles);
+      await StoryDataConverter.buildHistory(
+        repositoryContainer,
+        target.testResultFiles
+      );
 
     return {
       name: target.id ?? oldSession?.id ?? "",
@@ -155,12 +158,12 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Convert story information for storage to story information.
    * @param target  Story information for storage.
-   * @param dispatcher  Callback function that associates test results.
+   * @param repositoryContainer  Callback function that associates test results.
    * @returns Story information after conversion.
    */
   public async convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: ProjectUpdatable,
     oldStory?: Story
   ): Promise<Story> {
     return {
@@ -189,7 +192,11 @@ export default class StoryDataConverter implements StoryConvertable {
             testingTime: session.testingTime,
           };
 
-          return this.convertToSession(newSession, dispatcher, oldSession);
+          return this.convertToSession(
+            newSession,
+            repositoryContainer,
+            oldSession
+          );
         })
       ),
     };

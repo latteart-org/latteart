@@ -21,22 +21,21 @@ describe("ImportAction", () => {
         postProjects: jest.fn().mockResolvedValue(reply),
       };
 
-      const dispatcher: Importable = {
+      const repositoryContainer: Importable = {
         importProjectRepository,
       };
 
       const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const result = await new ImportAction(dispatcher).importZip(
+      const result = await new ImportAction(repositoryContainer).importZip(
         source,
         selectOption
       );
 
-      expect(dispatcher.importProjectRepository.postProjects).toBeCalledWith(
-        source,
-        selectOption
-      );
+      expect(
+        repositoryContainer.importProjectRepository.postProjects
+      ).toBeCalledWith(source, selectOption);
       expect(result).toEqual(expectedResult);
     });
 
@@ -59,22 +58,21 @@ describe("ImportAction", () => {
         postProjects: jest.fn().mockResolvedValue(reply),
       };
 
-      const dispatcher: Importable = {
+      const repositoryContainer: Importable = {
         importProjectRepository,
       };
 
       const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const result = await new ImportAction(dispatcher).importZip(
+      const result = await new ImportAction(repositoryContainer).importZip(
         source,
         selectOption
       );
 
-      expect(dispatcher.importProjectRepository.postProjects).toBeCalledWith(
-        source,
-        selectOption
-      );
+      expect(
+        repositoryContainer.importProjectRepository.postProjects
+      ).toBeCalledWith(source, selectOption);
       expect(result).toEqual(receivedError);
     });
   });

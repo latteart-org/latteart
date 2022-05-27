@@ -47,7 +47,7 @@ import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/Genera
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
-import RepositoryServiceContainer from "@/lib/eventDispatcher/RepositoryServiceContainer";
+import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
 import { UploadTestResultAction } from "@/lib/operationHistory/actions/testResult/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
@@ -125,12 +125,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.rootState.settingsProvider.settings.viewPointsPreset,
     };
 
-    if (context.rootState.repositoryServiceDispatcher.isRemote) {
+    if (context.rootState.repositoryContainer.isRemote) {
       return;
     }
 
     const result = await new SaveSettingAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).saveSettings(settings);
     if (result.data === null) {
       return;
@@ -152,7 +152,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async readSettings(context) {
     const result = await new ReadSettingAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).readSettings();
 
     if (result.data) {
@@ -183,7 +183,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.commit("setCanUpdateModels", { canUpdateModels: true });
         },
       },
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     );
 
     const moveIntentionAction = new MoveIntentionAction(
@@ -197,7 +197,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.commit("setCanUpdateModels", { canUpdateModels: true });
         },
       },
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     );
 
     new SaveIntentionAction({
@@ -232,7 +232,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
     const result = await new DeleteIntentionAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).deleteIntention(context.state.testResultInfo.id, testStepId);
 
     if (result.data) {
@@ -308,7 +308,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           root: true,
         })
       : undefined;
-    const dispatcher = context.rootState.repositoryServiceDispatcher;
+    const repositoryContainer = context.rootState.repositoryContainer;
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
@@ -316,7 +316,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       // update
       if (payload.index !== undefined) {
         return (
-          await new EditBugAction(dispatcher).editBug(
+          await new EditBugAction(repositoryContainer).editBug(
             context.state.testResultInfo.id,
             testStepId,
             payload.index,
@@ -330,7 +330,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await new AddBugAction(dispatcher).addBug(
+        await new AddBugAction(repositoryContainer).addBug(
           context.state.testResultInfo.id,
           testStepId,
           {
@@ -357,7 +357,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       console.log("== bug ==");
       setTimeout(async () => {
         const result = await new CompressNoteImageAction(
-          dispatcher
+          repositoryContainer
         ).compressNoteImage(
           context.state.testResultInfo.id,
           recordedNote.bug.id as string
@@ -367,7 +367,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: "bug",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
+            imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
           });
         }
         if (result.error) {
@@ -397,7 +397,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new MoveBugAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).moveBug(
       context.state.testResultInfo.id,
       {
@@ -432,7 +432,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
     const result = await new DeleteBugAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).deleteBug(context.state.testResultInfo.id, testStepId, payload.index);
 
     const { index } = result.data!;
@@ -516,7 +516,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           root: true,
         })
       : undefined;
-    const dispatcher = context.rootState.repositoryServiceDispatcher;
+    const repositoryContainer = context.rootState.repositoryContainer;
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
@@ -524,7 +524,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       // update
       if (payload.index !== undefined) {
         return (
-          await new EditNoticeAction(dispatcher).editNotice(
+          await new EditNoticeAction(repositoryContainer).editNotice(
             context.state.testResultInfo.id,
             testStepId,
             payload.index,
@@ -539,7 +539,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       // add
       return (
-        await new AddNoticeAction(dispatcher).addNotice(
+        await new AddNoticeAction(repositoryContainer).addNotice(
           context.state.testResultInfo.id,
           testStepId,
           {
@@ -567,7 +567,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     ) {
       setTimeout(async () => {
         const result = await new CompressNoteImageAction(
-          dispatcher
+          repositoryContainer
         ).compressNoteImage(
           context.state.testResultInfo.id,
           recordedNote.notice.id as string
@@ -577,7 +577,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: "notice",
             sequence: payload.sequence,
             index: recordedNote.index,
-            imageFileUrl: `${dispatcher.serviceUrl}/${result.data.imageFileUrl}`,
+            imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
           });
         }
         if (result.error) {
@@ -607,7 +607,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new MoveNoticeAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).moveNotice(
       context.state.testResultInfo.id,
       {
@@ -642,7 +642,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
     const result = await new DeleteNoticeAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).deleteNotice(context.state.testResultInfo.id, testStepId, payload.index);
 
     const { index } = result.data!;
@@ -655,8 +655,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload?: { destTestResultId?: string }
   ) {
-    const { serviceUrl, isRemote } =
-      context.rootState.repositoryServiceDispatcher;
+    const { serviceUrl, isRemote } = context.rootState.repositoryContainer;
 
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
@@ -665,9 +664,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
 
       context.commit(
-        "setRepositoryServiceDispatcher",
+        "setRepositoryContainer",
         {
-          serviceDispatcher: new RepositoryServiceContainer({
+          repositoryContainer: new RepositoryContainerImpl({
             url: context.rootState.localRepositoryServiceUrl,
             isRemote: false,
           }),
@@ -694,9 +693,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     } finally {
       context.commit(
-        "setRepositoryServiceDispatcher",
+        "setRepositoryContainer",
         {
-          serviceDispatcher: new RepositoryServiceContainer({
+          repositoryContainer: new RepositoryContainerImpl({
             url: serviceUrl,
             isRemote,
           }),
@@ -711,16 +710,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     payload: { localTestResultId: string; remoteTestResultId?: string }
   ) {
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceContainer({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: localUrl,
       isRemote: false,
     });
     const result = await new UploadTestResultAction(
-      localServiceDispatcher
+      localRepositoryContainer
     ).uploadTestResult(
       { testResultId: payload.localTestResultId },
       {
-        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
+        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
         testResultId: payload.remoteTestResultId,
       }
     );
@@ -738,13 +737,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async deleteLocalTestResult(context, payload: { testResultId: string }) {
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceContainer({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: localUrl,
       isRemote: false,
     });
 
     const result = await new DeleteTestResultAction(
-      localServiceDispatcher
+      localRepositoryContainer
     ).deleteTestResult(payload.testResultId);
     if (result.error) {
       throw new Error(
@@ -796,8 +795,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             { root: true }
           );
           context.commit("setTestResultInfo", {
-            repositoryUrl:
-              context.rootState.repositoryServiceDispatcher.serviceUrl,
+            repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
             ...data.testResultInfo,
           });
 
@@ -810,7 +808,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           await context.dispatch("updateScreenHistory");
         },
       },
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).resume(payload.testResultId);
 
     context.commit(
@@ -843,7 +841,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new ImportTestResultAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).importWithTestResult(payload.source, payload.dest);
     if (result.data) {
       return result.data;
@@ -869,7 +867,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new ExportTestResultAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
     if (result.data) {
       return result.data;
@@ -935,14 +933,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.operation Operation.
    */
   async registerOperation(context, payload: { operation: CapturedOperation }) {
-    const dispatcher = context.rootState.repositoryServiceDispatcher;
+    const repositoryContainer = context.rootState.repositoryContainer;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
     const result = await new RegisterOperationAction(
-      dispatcher
+      repositoryContainer
     ).registerOperation(context.state.testResultInfo.id, capturedOperation);
 
     const { id, operation, coverageSource, inputElementInfo } = result.data!;
@@ -979,12 +977,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       setTimeout(async () => {
         const testStepId = context.state.testStepIds[operation.sequence - 1];
         const result2 = await new CompressTestStepImageAction(
-          dispatcher
+          repositoryContainer
         ).compressNoteImage(context.state.testResultInfo.id, testStepId);
         if (result2.data) {
           context.commit("replaceTestStepsImageFileUrl", {
             sequence: operation.sequence,
-            imageFileUrl: `${dispatcher.serviceUrl}/${result2.data.imageFileUrl}`,
+            imageFileUrl: `${repositoryContainer.serviceUrl}/${result2.data.imageFileUrl}`,
           });
         }
         if (result2.error) {
@@ -1281,7 +1279,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const imageUrlResolver = (url: string) => {
       return url.replace(
-        `${context.rootState.repositoryServiceDispatcher.serviceUrl}/`,
+        `${context.rootState.repositoryContainer.serviceUrl}/`,
         ""
       );
     };
@@ -1297,7 +1295,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     });
 
     const result = await new GenerateTestScriptsAction(
-      context.rootState.repositoryServiceDispatcher,
+      context.rootState.repositoryContainer,
       testScriptGenerator
     ).generate({
       testResultId: payload.testResultId,
@@ -1351,14 +1349,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
     const result = await new CreateTestResultAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).createTestResult(initialUrl, name);
 
     if (result.data) {
       const testResultInfo = result.data;
 
       context.commit("setTestResultInfo", {
-        repositoryUrl: context.rootState.repositoryServiceDispatcher.serviceUrl,
+        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
         id: testResultInfo.id,
         name: testResultInfo.name,
       });
@@ -1372,30 +1370,30 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async getTestResults(context) {
     const reply = await new GetTestResultListAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).getTestResults();
     return reply.data!;
   },
 
   async getImportTestResults(context) {
-    const localRepositoryServiceDispatcher = new RepositoryServiceContainer({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
     const reply = await new GetImportTestResultListAction(
-      localRepositoryServiceDispatcher
+      localRepositoryContainer
     ).getImportTestResults();
 
     return reply.data;
   },
 
   async getImportProjects(context) {
-    const localRepositoryServiceDispatcher = new RepositoryServiceContainer({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
     const reply = await new GetImportProjectListAction(
-      localRepositoryServiceDispatcher
+      localRepositoryContainer
     ).getImportProjects();
 
     return reply.data;
@@ -1415,7 +1413,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const url = payload.initialUrl ?? undefined;
 
     const result = await new ChangeTestResultAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).changeTestResult(
       context.state.testResultInfo.id,
       name,
@@ -1448,7 +1446,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     initialUrl: string;
   }> {
     const result = await new GetTestResultAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).getTestResult(payload.testResultId);
 
     console.log(result);

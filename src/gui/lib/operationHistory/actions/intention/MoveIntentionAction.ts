@@ -33,7 +33,7 @@ export interface IntentionMovable {
 export class MoveIntentionAction {
   constructor(
     private observer: MoveIntentionActionObserver,
-    private dispatcher: IntentionMovable
+    private repositoryContainer: IntentionMovable
   ) {}
 
   public async move(
@@ -45,7 +45,7 @@ export class MoveIntentionAction {
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
     const replyTestSteps =
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         fromTestStepId
       );
@@ -56,20 +56,20 @@ export class MoveIntentionAction {
     const noteId = replyTestSteps.data.intention;
 
     // Break the link of the move source.
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       fromTestStepId,
       null
     );
 
     // Link to the destination.
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       destTestStepId,
       noteId
     );
 
-    const reply = await this.dispatcher.noteRepository.getNotes(
+    const reply = await this.repositoryContainer.noteRepository.getNotes(
       testResultId,
       noteId
     );
@@ -83,7 +83,7 @@ export class MoveIntentionAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const movedNote = note
       ? new Note({
           value: note.value,

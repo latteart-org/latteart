@@ -27,7 +27,7 @@ export interface OperationRegistrable {
 }
 
 export class RegisterOperationAction {
-  constructor(private dispatcher: OperationRegistrable) {}
+  constructor(private repositoryContainer: OperationRegistrable) {}
 
   /**
    * Register the operation information in the repository.
@@ -46,10 +46,11 @@ export class RegisterOperationAction {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const reply = await this.dispatcher.testStepRepository.postTestSteps(
-      testResultId,
-      capturedOperation
-    );
+    const reply =
+      await this.repositoryContainer.testStepRepository.postTestSteps(
+        testResultId,
+        capturedOperation
+      );
 
     const {
       id,
@@ -62,7 +63,7 @@ export class RegisterOperationAction {
       coverageSource: CoverageSource;
       inputElementInfo?: InputElementInfo;
     };
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
 
     const operation = convertTestStepOperation(testStepOperation, serviceUrl);
 

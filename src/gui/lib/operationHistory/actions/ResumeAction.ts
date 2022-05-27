@@ -46,7 +46,7 @@ export interface TestResultResumable {
 export class ResumeAction {
   constructor(
     private observer: ResumeActionObserver,
-    private dispatcher: TestResultResumable
+    private repositoryContainer: TestResultResumable
   ) {}
 
   /**
@@ -55,9 +55,10 @@ export class ResumeAction {
    * @returns Restored operation history information.
    */
   public async resume(testResultId: string): Promise<ActionResult<void>> {
-    const reply = await this.dispatcher.testResultRepository.getTestResult(
-      testResultId
-    );
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResult(
+        testResultId
+      );
 
     const error = reply.error ? { code: reply.error.code } : undefined;
 
@@ -67,7 +68,7 @@ export class ResumeAction {
       return { data: undefined, error };
     }
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
 
     const data = {
       id: testResult.id,

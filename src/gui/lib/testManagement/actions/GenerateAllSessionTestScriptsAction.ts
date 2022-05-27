@@ -45,7 +45,7 @@ export interface TestScriptGeneratable {
 export class GenerateAllSessionTestScriptsAction {
   constructor(
     private observer: GenerateAllSessionTestScriptsActionObserver,
-    private dispatcher: TestScriptGeneratable
+    private repositoryContainer: TestScriptGeneratable
   ) {}
 
   public async generateAllSessionTestScripts(
@@ -137,10 +137,11 @@ export class GenerateAllSessionTestScriptsAction {
   private async collectTestSteps(
     testResultId: string
   ): Promise<Reply<Array<TestStep>>> {
-    const reply = await this.dispatcher.testResultRepository.getTestResult(
-      testResultId
-    );
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResult(
+        testResultId
+      );
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const testSteps: TestStep[] = reply.data
       ? reply.data.testSteps.map((testStep) => {
           const operation = testStep.operation

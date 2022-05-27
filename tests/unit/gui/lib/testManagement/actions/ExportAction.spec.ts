@@ -24,22 +24,21 @@ describe("ExportAction", () => {
         putProject: jest.fn(),
       };
 
-      const dispatcher: Exportable = {
+      const repositoryContainer: Exportable = {
         projectRepository,
       };
 
       const projectId = "projectId";
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const result = await new ExportAction(dispatcher).exportZip(
+      const result = await new ExportAction(repositoryContainer).exportZip(
         projectId,
         selectOption
       );
 
-      expect(dispatcher.projectRepository.postProjectForExport).toBeCalledWith(
-        projectId,
-        selectOption
-      );
+      expect(
+        repositoryContainer.projectRepository.postProjectForExport
+      ).toBeCalledWith(projectId, selectOption);
       expect(result).toEqual(expectedResult);
     });
 
@@ -65,22 +64,21 @@ describe("ExportAction", () => {
         putProject: jest.fn(),
       };
 
-      const dispatcher: Exportable = {
+      const repositoryContainer: Exportable = {
         projectRepository,
       };
 
       const projectId = "projectId";
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const result = await new ExportAction(dispatcher).exportZip(
+      const result = await new ExportAction(repositoryContainer).exportZip(
         projectId,
         selectOption
       );
 
-      expect(dispatcher.projectRepository.postProjectForExport).toBeCalledWith(
-        projectId,
-        selectOption
-      );
+      expect(
+        repositoryContainer.projectRepository.postProjectForExport
+      ).toBeCalledWith(projectId, selectOption);
       expect(result).toEqual(receivedError);
     });
   });

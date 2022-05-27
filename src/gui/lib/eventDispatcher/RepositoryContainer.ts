@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { ProjectUpdatable } from "../testManagement/actions/WriteDataFileAction";
 import {
   TestStepRepository,
   TestStepRepositoryImpl,
@@ -47,10 +46,27 @@ import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 import RESTClientImpl from "./RESTClient";
 import { RepositoryServiceClient } from "./RepositoryServiceClient";
 
+export interface RepositoryContainer {
+  readonly serviceUrl: string;
+  readonly isRemote: boolean;
+  proxyUrl: string;
+  readonly testStepRepository: TestStepRepository;
+  readonly noteRepository: NoteRepository;
+  readonly testResultRepository: TestResultRepository;
+  readonly importTestResultRepository: ImportTestResultRepository;
+  readonly importProjectRepository: ImportProjectRepository;
+  readonly testScriptRepository: TestScriptRepository;
+  readonly settingRepository: SettingRepository;
+  readonly compressedImageRepository: CompressedImageRepository;
+  readonly projectRepository: ProjectRepository;
+  readonly sessionRepository: SessionRepository;
+  readonly snapshotRepository: SnapshotRepository;
+}
+
 /**
  * A class that processes the acquisition of client-side information through the service.
  */
-export default class RepositoryServiceContainer implements ProjectUpdatable {
+export class RepositoryContainerImpl implements RepositoryContainer {
   private _proxyUrl = "";
   private restClient: RepositoryServiceClient;
 

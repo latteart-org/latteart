@@ -21,18 +21,18 @@ describe("ImportAction", () => {
         getTestResults: jest.fn(),
       };
 
-      const dispatcher: TestResultImportable = {
+      const repositoryContainer: TestResultImportable = {
         importTestResultRepository,
       };
 
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
       const result = await new ImportTestResultAction(
-        dispatcher
+        repositoryContainer
       ).importWithTestResult(source, dest);
 
       expect(
-        dispatcher.importTestResultRepository.postTestResult
+        repositoryContainer.importTestResultRepository.postTestResult
       ).toBeCalledWith(source, dest);
       expect(result).toEqual(expectedResult);
     });
@@ -56,7 +56,7 @@ describe("ImportAction", () => {
         getTestResults: jest.fn(),
       };
 
-      const dispatcher: TestResultImportable = {
+      const repositoryContainer: TestResultImportable = {
         importTestResultRepository,
       };
 
@@ -64,11 +64,11 @@ describe("ImportAction", () => {
       const dest = { testResultId: "testResultId" };
 
       const result = await new ImportTestResultAction(
-        dispatcher
+        repositoryContainer
       ).importWithTestResult(source, dest);
 
       expect(
-        dispatcher.importTestResultRepository.postTestResult
+        repositoryContainer.importTestResultRepository.postTestResult
       ).toBeCalledWith(source, dest);
       expect(result).toEqual(receivedError);
     });

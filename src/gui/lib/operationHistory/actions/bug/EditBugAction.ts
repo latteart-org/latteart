@@ -28,7 +28,7 @@ export interface BugEditable {
 }
 
 export class EditBugAction {
-  constructor(private dispatcher: BugEditable) {}
+  constructor(private repositoryContainer: BugEditable) {}
 
   /**
    * Edit the bug.
@@ -48,7 +48,7 @@ export class EditBugAction {
     }
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
     const { bugs } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
       )
@@ -63,7 +63,7 @@ export class EditBugAction {
     const noteId: string = bugs[index];
 
     // note update
-    const reply = await this.dispatcher.noteRepository.putNotes(
+    const reply = await this.repositoryContainer.noteRepository.putNotes(
       testResultId,
       noteId,
       undefined,
@@ -79,7 +79,7 @@ export class EditBugAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       bug: convertNoteWithoutId(savedNote, serviceUrl),
       index,

@@ -27,7 +27,7 @@ import {
 } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
-import RepositoryServiceContainer from "@/lib/eventDispatcher/RepositoryServiceContainer";
+import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
@@ -120,7 +120,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async readDeviceSettings(context) {
     const result = await new ReadDeviceSettingAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).readDeviceSettings();
     if (result.data === null) {
       return;
@@ -165,13 +165,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     };
 
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceContainer({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: localUrl,
       isRemote: false,
     });
 
     const result = await new SaveDeviceSettingAction(
-      localServiceDispatcher
+      localRepositoryContainer
     ).saveDeviceSettings(deviceSettings);
 
     if (result === null) {

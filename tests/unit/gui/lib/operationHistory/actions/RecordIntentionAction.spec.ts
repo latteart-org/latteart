@@ -13,7 +13,7 @@ describe("RecordIntentionAction", () => {
       let observer: RecordIntentionActionObserver;
       let testStepRepository: TestStepRepository;
       let noteRepository: NoteRepository;
-      let dispatcher: IntentionRecordable;
+      let repositoryContainer: IntentionRecordable;
 
       const note = {
         testResultId: "testResultId",
@@ -62,7 +62,7 @@ describe("RecordIntentionAction", () => {
             deleteNotes: jest.fn(),
           };
 
-          dispatcher = {
+          repositoryContainer = {
             testStepRepository,
             noteRepository,
             serviceUrl: "serviceUrl",
@@ -72,12 +72,12 @@ describe("RecordIntentionAction", () => {
         it("記録対象と同じシーケンス番号を持つテスト目的が渡されたテスト履歴内にない場合はテスト目的を追加する", async () => {
           const history = [{ intention: null }, { intention: { sequence: 0 } }];
 
-          await new RecordIntentionAction(observer, dispatcher).record(
+          await new RecordIntentionAction(observer, repositoryContainer).record(
             history,
             note
           );
 
-          expect(dispatcher.noteRepository.postNotes).toBeCalledWith(
+          expect(repositoryContainer.noteRepository.postNotes).toBeCalledWith(
             note.testResultId,
             {
               summary: note.summary,
@@ -85,7 +85,9 @@ describe("RecordIntentionAction", () => {
             }
           );
 
-          expect(dispatcher.testStepRepository.getTestSteps).not.toBeCalled();
+          expect(
+            repositoryContainer.testStepRepository.getTestSteps
+          ).not.toBeCalled();
         });
 
         it("記録対象と同じシーケンス番号を持つテスト目的が渡されたテスト履歴内に既にある場合はテスト目的を更新する", async () => {
@@ -94,17 +96,16 @@ describe("RecordIntentionAction", () => {
             { intention: { sequence: 1 } },
           ];
 
-          await new RecordIntentionAction(observer, dispatcher).record(
+          await new RecordIntentionAction(observer, repositoryContainer).record(
             history,
             note
           );
 
-          expect(dispatcher.testStepRepository.getTestSteps).toBeCalledWith(
-            note.testResultId,
-            `id_of_${note.sequence}`
-          );
+          expect(
+            repositoryContainer.testStepRepository.getTestSteps
+          ).toBeCalledWith(note.testResultId, `id_of_${note.sequence}`);
 
-          expect(dispatcher.noteRepository.postNotes).not.toBeCalled();
+          expect(repositoryContainer.noteRepository.postNotes).not.toBeCalled();
         });
       });
 
@@ -142,7 +143,7 @@ describe("RecordIntentionAction", () => {
             deleteNotes: jest.fn(),
           };
 
-          dispatcher = {
+          repositoryContainer = {
             testStepRepository,
             noteRepository,
             serviceUrl: "serviceUrl",
@@ -156,13 +157,15 @@ describe("RecordIntentionAction", () => {
         it("テスト目的の追加の場合", async () => {
           const history = [{ intention: null }, { intention: { sequence: 0 } }];
 
-          await new RecordIntentionAction(observer, dispatcher).record(
+          await new RecordIntentionAction(observer, repositoryContainer).record(
             history,
             note
           );
 
-          expect(dispatcher.noteRepository.postNotes).toBeCalled();
-          expect(dispatcher.testStepRepository.getTestSteps).not.toBeCalled();
+          expect(repositoryContainer.noteRepository.postNotes).toBeCalled();
+          expect(
+            repositoryContainer.testStepRepository.getTestSteps
+          ).not.toBeCalled();
         });
 
         it("テスト目的の更新の場合", async () => {
@@ -171,13 +174,15 @@ describe("RecordIntentionAction", () => {
             { intention: { sequence: 1 } },
           ];
 
-          await new RecordIntentionAction(observer, dispatcher).record(
+          await new RecordIntentionAction(observer, repositoryContainer).record(
             history,
             note
           );
 
-          expect(dispatcher.testStepRepository.getTestSteps).toBeCalled();
-          expect(dispatcher.noteRepository.postNotes).not.toBeCalled();
+          expect(
+            repositoryContainer.testStepRepository.getTestSteps
+          ).toBeCalled();
+          expect(repositoryContainer.noteRepository.postNotes).not.toBeCalled();
         });
       });
     });

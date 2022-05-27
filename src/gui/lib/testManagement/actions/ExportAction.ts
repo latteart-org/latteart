@@ -22,16 +22,17 @@ export interface Exportable {
 }
 
 export class ExportAction {
-  constructor(private dispatcher: Exportable) {}
+  constructor(private repositoryContainer: Exportable) {}
 
   public async exportZip(
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<string>> {
-    const reply = await this.dispatcher.projectRepository.postProjectForExport(
-      projectId,
-      selectOption
-    );
+    const reply =
+      await this.repositoryContainer.projectRepository.postProjectForExport(
+        projectId,
+        selectOption
+      );
 
     const error = !reply.data
       ? { code: "create-export-data-error" }

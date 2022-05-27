@@ -71,7 +71,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    */
   async writeSnapshot(context): Promise<string> {
     const result = await new WriteSnapshotAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).writeSnapshot(context.state.projectId);
 
     return result.data!.url;
@@ -102,7 +102,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }[]
   > {
     const reply = await new GetTestResultListAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).getTestResults();
 
     console.log(reply.data);
@@ -140,7 +140,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).read();
   },
 
@@ -169,7 +169,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).write(
       context.state.projectId,
       payload.testManagementData,
@@ -622,7 +622,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     };
 
     const result = await new UpdateSessionAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).updateSession(context.state.projectId, payload.sessionId, newSession);
 
     const updatedSession = result.data!;
@@ -653,7 +653,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         }),
         testingTime: updatedSession.testingTime,
       },
-      context.rootState.repositoryServiceDispatcher,
+      context.rootState.repositoryContainer,
       story.sessions[sessionIndex]
     );
 
@@ -877,7 +877,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
           );
         },
       },
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).generateAllSessionTestScripts(
       screenDefinitionConfig,
       context.state.stories
@@ -910,7 +910,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     };
 
     const result = await new ImportAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).importZip(payload.source, selectOption);
 
     if (result.error) {
@@ -946,7 +946,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     };
 
     const result = await new ExportAction(
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).exportZip(exportProjectId, selectOption);
 
     if (result.error) {

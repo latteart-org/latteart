@@ -196,7 +196,7 @@ export default class ReviewView extends Vue {
           );
         }
 
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {

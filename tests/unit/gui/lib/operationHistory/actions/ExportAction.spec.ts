@@ -26,18 +26,18 @@ describe("ExportAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const dispatcher: TestResultExportable = {
+      const repositoryContainer: TestResultExportable = {
         testResultRepository,
       };
 
       const testResultId = "testResultId";
 
       const result = await new ExportTestResultAction(
-        dispatcher
+        repositoryContainer
       ).exportWithTestResult(testResultId);
 
       expect(
-        dispatcher.testResultRepository.postTestResultForExport
+        repositoryContainer.testResultRepository.postTestResultForExport
       ).toBeCalledWith(testResultId, false);
       expect(result).toEqual(expectedResult);
     });
@@ -66,17 +66,17 @@ describe("ExportAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const dispatcher: TestResultExportable = {
+      const repositoryContainer: TestResultExportable = {
         testResultRepository,
       };
       const testResultId = "testResultId";
 
       const result = await new ExportTestResultAction(
-        dispatcher
+        repositoryContainer
       ).exportWithTestResult(testResultId);
 
       expect(
-        dispatcher.testResultRepository.postTestResultForExport
+        repositoryContainer.testResultRepository.postTestResultForExport
       ).toBeCalledWith(testResultId, false);
       expect(result).toEqual(receivedError);
     });

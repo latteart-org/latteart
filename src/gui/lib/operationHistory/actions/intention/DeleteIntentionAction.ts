@@ -26,7 +26,7 @@ export interface IntentionDeletable {
 }
 
 export class DeleteIntentionAction {
-  constructor(private dispatcher: IntentionDeletable) {}
+  constructor(private repositoryContainer: IntentionDeletable) {}
 
   /**
    * Delete the intention information of the specified sequence number.
@@ -38,7 +38,7 @@ export class DeleteIntentionAction {
     testStepId: string
   ): Promise<ActionResult<string>> {
     const { intention: noteId } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
       )
@@ -50,14 +50,14 @@ export class DeleteIntentionAction {
       notices: string[];
     };
 
-    const reply = await this.dispatcher.noteRepository.deleteNotes(
+    const reply = await this.repositoryContainer.noteRepository.deleteNotes(
       testResultId,
       noteId as string
     );
 
     // Break the link.
     await (async () => {
-      return this.dispatcher.testStepRepository.patchTestSteps(
+      return this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         testStepId,
         null

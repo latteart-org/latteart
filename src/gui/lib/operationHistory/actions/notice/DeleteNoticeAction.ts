@@ -26,7 +26,7 @@ export interface NoticeDeletable {
 }
 
 export class DeleteNoticeAction {
-  constructor(private dispatcher: NoticeDeletable) {}
+  constructor(private repositoryContainer: NoticeDeletable) {}
 
   /**
    * Delete Notice.
@@ -41,7 +41,7 @@ export class DeleteNoticeAction {
   ): Promise<ActionResult<{ testStepId: string; index: number }>> {
     // Get noteId.
     const { notices } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
       )
@@ -56,7 +56,7 @@ export class DeleteNoticeAction {
     const noteId = notices[index];
 
     // Delete note.
-    const reply = await this.dispatcher.noteRepository.deleteNotes(
+    const reply = await this.repositoryContainer.noteRepository.deleteNotes(
       testResultId,
       noteId
     );
@@ -65,7 +65,7 @@ export class DeleteNoticeAction {
     const filteredNotices = notices.filter(
       (_: unknown, i: number) => i !== index
     );
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       testStepId,
       undefined,

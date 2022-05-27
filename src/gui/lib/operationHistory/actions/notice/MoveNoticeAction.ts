@@ -28,7 +28,7 @@ export interface NoticeMovable {
 }
 
 export class MoveNoticeAction {
-  constructor(private dispatcher: NoticeMovable) {}
+  constructor(private repositoryContainer: NoticeMovable) {}
 
   /**
    * Update the position associated with the Notice.
@@ -46,7 +46,7 @@ export class MoveNoticeAction {
     const noteId = undefined;
     const bugs = undefined;
     const { notices: fromNotices } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         from.testStepId
       )
@@ -63,7 +63,7 @@ export class MoveNoticeAction {
     );
 
     await (async () => {
-      return this.dispatcher.testStepRepository.patchTestSteps(
+      return this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         from.testStepId,
         noteId,
@@ -74,7 +74,7 @@ export class MoveNoticeAction {
 
     // Link to the destination.
     const { notices: destNotices } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         dest.testStepId
       )
@@ -88,7 +88,7 @@ export class MoveNoticeAction {
 
     const notices = [...destNotices, fromNotices[from.index]];
 
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       dest.testStepId,
       noteId,
@@ -96,7 +96,7 @@ export class MoveNoticeAction {
       notices
     );
 
-    const reply = await this.dispatcher.noteRepository.getNotes(
+    const reply = await this.repositoryContainer.noteRepository.getNotes(
       testResultId,
       fromNotices[from.index]
     );
@@ -110,7 +110,7 @@ export class MoveNoticeAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       notice: convertNoteWithoutId(note, serviceUrl),
       index: destNotices.length,

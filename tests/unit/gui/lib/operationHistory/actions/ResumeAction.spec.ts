@@ -39,18 +39,20 @@ describe("ResumeAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const dispatcher: TestResultResumable = {
+      const repositoryContainer: TestResultResumable = {
         testResultRepository,
         serviceUrl: "serviceUrl",
       };
 
       const testResultId = "testResultId";
 
-      await new ResumeAction(observer, dispatcher).resume(testResultId);
-
-      expect(dispatcher.testResultRepository.getTestResult).toBeCalledWith(
+      await new ResumeAction(observer, repositoryContainer).resume(
         testResultId
       );
+
+      expect(
+        repositoryContainer.testResultRepository.getTestResult
+      ).toBeCalledWith(testResultId);
 
       expect(observer.setResumedData).toBeCalledWith({
         coverageSources: data.coverageSources,
@@ -91,20 +93,21 @@ describe("ResumeAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const dispatcher: TestResultResumable = {
+      const repositoryContainer: TestResultResumable = {
         testResultRepository,
         serviceUrl: "serviceUrl",
       };
 
       const testResultId = "testResultId";
 
-      const result = await new ResumeAction(observer, dispatcher).resume(
-        testResultId
-      );
+      const result = await new ResumeAction(
+        observer,
+        repositoryContainer
+      ).resume(testResultId);
 
-      expect(dispatcher.testResultRepository.getTestResult).toBeCalledWith(
-        testResultId
-      );
+      expect(
+        repositoryContainer.testResultRepository.getTestResult
+      ).toBeCalledWith(testResultId);
       expect(result).toEqual(receivedError);
     });
   });

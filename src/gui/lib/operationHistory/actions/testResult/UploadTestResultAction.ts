@@ -22,14 +22,14 @@ export interface TestResultUploadable {
 }
 
 export class UploadTestResultAction {
-  constructor(private dispatcher: TestResultUploadable) {}
+  constructor(private repositoryContainer: TestResultUploadable) {}
 
   public async uploadTestResult(
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<ActionResult<string>> {
     const reply =
-      await this.dispatcher.testResultRepository.postTestResultForUpload(
+      await this.repositoryContainer.testResultRepository.postTestResultForUpload(
         source,
         dest
       );

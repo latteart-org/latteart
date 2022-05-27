@@ -17,16 +17,15 @@
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
 import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
-import { TestScriptRepository } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface TestScriptExportable {
-  readonly testScriptRepository: TestScriptRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class GenerateTestScriptsAction {
   constructor(
-    private dispatcher: TestScriptExportable,
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testScriptRepository"
+    >,
     private scriptGenerator: TestScriptGenerator
   ) {}
 
@@ -53,10 +52,11 @@ export class GenerateTestScriptsAction {
     });
 
     if (params.projectId) {
-      const reply = await this.dispatcher.testScriptRepository.postTestscriptsWithProjectId(
-        params.projectId,
-        testScript
-      );
+      const reply =
+        await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
+          params.projectId,
+          testScript
+        );
 
       const outputUrl = reply.data!.url;
       const data = {
@@ -73,10 +73,11 @@ export class GenerateTestScriptsAction {
     }
 
     if (params.testResultId) {
-      const reply = await this.dispatcher.testScriptRepository.postTestscriptsWithTestResultId(
-        params.testResultId,
-        testScript
-      );
+      const reply =
+        await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
+          params.testResultId,
+          testScript
+        );
       const outputUrl = reply.data!.url;
       const data = {
         outputUrl,

@@ -23,13 +23,14 @@ export interface ImportProjectsGettable {
 }
 
 export class GetImportProjectListAction {
-  constructor(private dispatcher: ImportProjectsGettable) {}
+  constructor(private repositoryContainer: ImportProjectsGettable) {}
 
   public async getImportProjects(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
   > {
-    const reply = await this.dispatcher.importProjectRepository.getProjects();
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const reply =
+      await this.repositoryContainer.importProjectRepository.getProjects();
+    const serviceUrl = this.repositoryContainer.serviceUrl;
 
     const data = reply.data
       ? reply.data.map(({ url, name }) => {

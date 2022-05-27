@@ -22,14 +22,15 @@ export interface SnapshotWritable {
 }
 
 export class WriteSnapshotAction {
-  constructor(private dispatcher: SnapshotWritable) {}
+  constructor(private repositoryContainer: SnapshotWritable) {}
 
   public async writeSnapshot(
     projectId: string
   ): Promise<ActionResult<{ url: string }>> {
-    const reply = await this.dispatcher.snapshotRepository.postSnapshots(
-      projectId
-    );
+    const reply =
+      await this.repositoryContainer.snapshotRepository.postSnapshots(
+        projectId
+      );
 
     return reply;
   }

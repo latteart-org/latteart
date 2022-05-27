@@ -28,7 +28,7 @@ export interface BugMovable {
 }
 
 export class MoveBugAction {
-  constructor(private dispatcher: BugMovable) {}
+  constructor(private repositoryContainer: BugMovable) {}
 
   /**
    * Update the position where the bug is associated.
@@ -44,7 +44,7 @@ export class MoveBugAction {
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
     // Break the link of the move source.
     const { bugs: fromBugs } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         from.testStepId
       )
@@ -61,7 +61,7 @@ export class MoveBugAction {
     );
 
     await (async () => {
-      return this.dispatcher.testStepRepository.patchTestSteps(
+      return this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         from.testStepId,
         undefined,
@@ -71,7 +71,7 @@ export class MoveBugAction {
 
     // Link to the destination.
     const { bugs: destBugs } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         dest.testStepId
       )
@@ -85,14 +85,14 @@ export class MoveBugAction {
 
     const bugs = [...destBugs, fromBugs[from.index]];
 
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       dest.testStepId,
       undefined,
       bugs
     );
 
-    const reply = await this.dispatcher.noteRepository.getNotes(
+    const reply = await this.repositoryContainer.noteRepository.getNotes(
       testResultId,
       fromBugs[from.index]
     );
@@ -106,7 +106,7 @@ export class MoveBugAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
       bug: convertNoteWithoutId(note, serviceUrl),
       index: destBugs.length,

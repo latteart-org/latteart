@@ -22,12 +22,13 @@ export interface TestResultsGettable {
 }
 
 export class GetTestResultListAction {
-  constructor(private dispatcher: TestResultsGettable) {}
+  constructor(private repositoryContainer: TestResultsGettable) {}
 
   public async getTestResults(): Promise<
     ActionResult<Array<{ id: string; name: string }>>
   > {
-    const reply = await this.dispatcher.testResultRepository.getTestResults();
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResults();
 
     return reply;
   }

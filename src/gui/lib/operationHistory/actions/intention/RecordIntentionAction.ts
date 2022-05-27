@@ -40,7 +40,7 @@ export interface Sequential {
 export class RecordIntentionAction {
   constructor(
     private observer: RecordIntentionActionObserver,
-    private dispatcher: IntentionRecordable
+    private repositoryContainer: IntentionRecordable
   ) {}
 
   public async record(
@@ -96,7 +96,7 @@ export class RecordIntentionAction {
     }
   ): Promise<Reply<Note>> {
     // New note registration
-    const reply = await this.dispatcher.noteRepository.postNotes(
+    const reply = await this.repositoryContainer.noteRepository.postNotes(
       testResultId,
       intention
     );
@@ -106,13 +106,13 @@ export class RecordIntentionAction {
       return new ReplyImpl({ status: reply.status, data: undefined });
     }
 
-    await this.dispatcher.testStepRepository.patchTestSteps(
+    await this.repositoryContainer.testStepRepository.patchTestSteps(
       testResultId,
       testStepId,
       savedNote?.id
     );
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = new Note({
       value: savedNote.value,
       details: savedNote.details,
@@ -142,7 +142,7 @@ export class RecordIntentionAction {
   ): Promise<Reply<Note>> {
     // Get noteId.
     const { intention: noteId } = (
-      await this.dispatcher.testStepRepository.getTestSteps(
+      await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
       )
@@ -155,7 +155,7 @@ export class RecordIntentionAction {
     };
 
     // Note update.
-    const reply = await this.dispatcher.noteRepository.putNotes(
+    const reply = await this.repositoryContainer.noteRepository.putNotes(
       testResultId,
       noteId as string,
       intention
@@ -174,7 +174,7 @@ export class RecordIntentionAction {
       tags?: string[];
     };
 
-    const serviceUrl = this.dispatcher.serviceUrl;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = convertNoteWithoutId(savedNote, serviceUrl);
 
     return new ReplyImpl({ status: reply.status, data: data });

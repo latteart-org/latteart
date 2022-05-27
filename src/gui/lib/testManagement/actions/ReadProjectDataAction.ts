@@ -31,7 +31,7 @@ interface ReadDataFileMutationObserver {
 export interface ProjectStoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectFetchable
+    repositoryContainer: ProjectFetchable
   ): Promise<Story>;
 }
 
@@ -43,7 +43,7 @@ export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectFetchable
+    private repositoryContainer: ProjectFetchable
   ) {}
 
   public async read(): Promise<ActionResult<void>> {
@@ -68,7 +68,7 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            this.dispatcher as unknown as ProjectUpdatable
+            this.repositoryContainer as unknown as ProjectUpdatable
           )
         )
       ),
@@ -91,8 +91,9 @@ export class ReadProjectDataAction {
       stories: ManagedStory[];
     }>
   > {
-    const projects = (await this.dispatcher.projectRepository.getProjects())
-      .data as Array<{
+    const projects = (
+      await this.repositoryContainer.projectRepository.getProjects()
+    ).data as Array<{
       id: string;
       name: string;
     }>;
@@ -100,14 +101,15 @@ export class ReadProjectDataAction {
     const targetProjectId =
       projects.length === 0
         ? (
-            (await this.dispatcher.projectRepository.postProject()).data as {
+            (await this.repositoryContainer.projectRepository.postProject())
+              .data as {
               id: string;
               name: string;
             }
           ).id
         : projects[projects.length - 1].id;
 
-    const reply = await this.dispatcher.projectRepository.getProject(
+    const reply = await this.repositoryContainer.projectRepository.getProject(
       targetProjectId
     );
 

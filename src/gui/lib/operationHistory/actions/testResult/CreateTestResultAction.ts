@@ -22,14 +22,14 @@ export interface TestResultCreatable {
 }
 
 export class CreateTestResultAction {
-  constructor(private dispatcher: TestResultCreatable) {}
+  constructor(private repositoryContainer: TestResultCreatable) {}
 
   public async createTestResult(
     initialUrl?: string,
     name?: string
   ): Promise<ActionResult<{ id: string; name: string }>> {
     const reply =
-      await this.dispatcher.testResultRepository.postEmptyTestResult(
+      await this.repositoryContainer.testResultRepository.postEmptyTestResult(
         initialUrl,
         name
       );

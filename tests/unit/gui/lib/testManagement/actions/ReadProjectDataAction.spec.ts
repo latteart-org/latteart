@@ -65,7 +65,7 @@ describe("ReadProjectDataActionの", () => {
           patchTestResult: jest.fn(),
         };
 
-        const dispatcher: ProjectFetchable = {
+        const repositoryContainer: ProjectFetchable = {
           testResultRepository,
           projectRepository,
         };
@@ -95,7 +95,7 @@ describe("ReadProjectDataActionの", () => {
         await new ReadProjectDataAction(
           observer,
           storyDataConverter,
-          dispatcher
+          repositoryContainer
         ).read();
 
         expect(observer.setProjectId).toBeCalledWith({ projectId: "project1" });

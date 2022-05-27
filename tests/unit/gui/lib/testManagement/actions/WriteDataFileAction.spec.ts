@@ -44,7 +44,7 @@ describe("WriteDataActionの", () => {
         }),
       };
 
-      const dispatcher: ProjectUpdatable = {
+      const repositoryContainer: ProjectUpdatable = {
         testResultRepository,
         projectRepository,
       };
@@ -80,7 +80,7 @@ describe("WriteDataActionの", () => {
       await new WriteDataFileAction(
         observer,
         storyDataConverter,
-        dispatcher
+        repositoryContainer
       ).write(projectId, testManagementData, stories);
 
       expect(observer.setManagedData).toBeCalledWith({
