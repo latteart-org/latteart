@@ -111,11 +111,10 @@ export class UpdateTestMatrixAction {
     addedViewPointsWithTestMatrixId: IaddedViewPointWithTestMatrixId[]
   ): Promise<void> {
     for (const testMatrix of testMatrices) {
-      const viewPointToAddToThisTestMatrix = addedViewPointsWithTestMatrixId.filter(
-        (addedViewPoint) => {
+      const viewPointToAddToThisTestMatrix =
+        addedViewPointsWithTestMatrixId.filter((addedViewPoint) => {
           return testMatrix.id === addedViewPoint.testMatrixId;
-        }
-      );
+        });
       if (!viewPointToAddToThisTestMatrix.length) {
         continue;
       }

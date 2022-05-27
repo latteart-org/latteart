@@ -20,6 +20,24 @@
     }}</template>
     <template v-slot:content>
       {{ $store.getters.message("history-view.generate-testscript-option") }}
+      <v-container fluid pa-1 fill-height id="simple-test-script-generation">
+        <v-layout row wrap>
+          <v-flex xs12 pb-2>
+            {{ $store.getters.message("history-view.testscript") }}
+          </v-flex>
+          <v-flex xs12 pl-2>
+            <v-checkbox
+              :label="
+                $store.getters.message(
+                  'history-view.generate-simple-testscript'
+                )
+              "
+              v-model="testGenerationOption.testScript.isSimple"
+            >
+            </v-checkbox>
+          </v-flex>
+        </v-layout>
+      </v-container>
       <v-container fluid pa-1 fill-height id="max-test-data-generation">
         <v-layout row wrap>
           <v-flex xs12 pb-2>
@@ -28,16 +46,20 @@
           <v-flex xs12 pl-2>
             <v-checkbox
               :label="$store.getters.message('history-view.method-data-driven')"
-              v-model="testDataGenerationOption.useDataDriven"
+              :disabled="testGenerationOption.testScript.isSimple"
+              v-model="testGenerationOption.testData.useDataDriven"
             >
             </v-checkbox>
           </v-flex>
           <v-flex xs12 pl-2>
             <number-field
-              :value="testDataGenerationOption.maxGeneration"
+              :value="testGenerationOption.maxGeneration"
               @updateNumberFieldValue="updateMaxGeneration"
               :label="$store.getters.message('history-view.max-generation')"
-              :disabled="!testDataGenerationOption.useDataDriven"
+              :disabled="
+                !testGenerationOption.testData.useDataDriven ||
+                testGenerationOption.testScript.isSimple
+              "
               :minValue="0"
             >
             </number-field>
@@ -82,17 +104,22 @@ import NumberField from "@/vue/molecules/NumberField.vue";
 export default class ScriptGenerationOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private testDataGenerationOption = {
-    useDataDriven: false,
-    maxGeneration: 0,
+  private testGenerationOption = {
+    testScript: {
+      isSimple: false,
+    },
+    testData: {
+      useDataDriven: false,
+      maxGeneration: 0,
+    },
   };
 
   private updateMaxGeneration(data: { value: number }) {
-    this.testDataGenerationOption.maxGeneration = data.value;
+    this.testGenerationOption.testData.maxGeneration = data.value;
   }
 
   private execute(): void {
-    this.$emit("execute", this.testDataGenerationOption);
+    this.$emit("execute", this.testGenerationOption);
     this.close();
   }
 

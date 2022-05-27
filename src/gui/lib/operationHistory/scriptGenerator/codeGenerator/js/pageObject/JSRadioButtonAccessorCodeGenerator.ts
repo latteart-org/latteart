@@ -24,10 +24,11 @@ export class JSRadioButtonAccessorCodeGenerator {
   }
 
   public generateRadioButtonString(identifier: string, name: string): string {
-    const valuesString = JSRadioButtonAccessorCodeGenerator.generateRadioValuesString(
-      identifier,
-      this._radioNameToValues
-    );
+    const valuesString =
+      JSRadioButtonAccessorCodeGenerator.generateRadioValuesString(
+        identifier,
+        this._radioNameToValues
+      );
 
     return `\
 static get ${identifier}() {

@@ -44,33 +44,40 @@ export class JSPageObjectCommentAttacher implements PageObjectCommentAttacher {
   ): PageObject {
     const pageObjectGraph = this.buildPageObjectGraph(pageObject);
 
-    const newPageObject = new PageObjectImpl({
-      id: pageObject.id,
-      url: pageObject.url,
-      methods: pageObject.methods.map((method) => {
-        const destPageObject = {
-          name: method.returnPageObjectId,
-          imageUrl:
-            this.pageObjects.find((po) => po.id === method.returnPageObjectId)
-              ?.imageUrl ?? "",
-        };
+    const newPageObject = new PageObjectImpl(
+      {
+        id: pageObject.id,
+        url: pageObject.url,
+        methods: pageObject.methods.map((method) => {
+          const destPageObject = {
+            name: method.returnPageObjectId,
+            imageUrl:
+              this.pageObjects.find((po) => po.id === method.returnPageObjectId)
+                ?.imageUrl ?? "",
+          };
 
-        const newMethod = new PageObjectMethodImpl({
-          id: method.id,
-          pageObjectId: method.pageObjectId,
-          operations: method.operations,
-          returnPageObjectId: method.returnPageObjectId,
-        });
+          const newMethod = new PageObjectMethodImpl({
+            id: method.id,
+            pageObjectId: method.pageObjectId,
+            operations: method.operations,
+            returnPageObjectId: method.returnPageObjectId,
+          });
 
-        newMethod.comment = new JSPageObjectMethodCommentGenerator().generateFrom(
-          this.nameGenerator.method.generate(method.id),
-          method.operations,
-          destPageObject
-        );
+          newMethod.comment =
+            new JSPageObjectMethodCommentGenerator().generateFrom(
+              this.nameGenerator.method.generate(method.id),
+              method.operations,
+              destPageObject
+            );
 
-        return newMethod;
-      }),
-    });
+          return newMethod;
+        }),
+      },
+      {
+        methodFilters: [],
+        methodComparator: pageObject.methodComparator,
+      }
+    );
 
     newPageObject.comment = new JSPageObjectCommentGenerator().generateFrom(
       this.nameGenerator.pageObject.generate(pageObject.id),

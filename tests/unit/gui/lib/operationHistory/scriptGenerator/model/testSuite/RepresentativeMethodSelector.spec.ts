@@ -35,12 +35,14 @@ describe("RepresentativeMethodSelector", () => {
           url: "url1",
           methods: [method1_1, method1_2],
           collectMethodInputVariations: jest.fn(),
+          methodComparator: jest.fn(),
         },
         {
           id: "pageObject2",
           url: "url2",
           methods: [method2_1],
           collectMethodInputVariations: jest.fn(),
+          methodComparator: jest.fn(),
         },
       ];
 

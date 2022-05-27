@@ -11,26 +11,12 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
     "baseUrl": ".",
-    "types": [
-      "webpack-env",      
-      "@wdio/mocha-framework",
-      "@wdio/sync",
-      "jest",
-      "vuetify"
-    ],
+    "types": ["node", "webpack-env", "jest", "vuetify"],
     "paths": {
-      "@/*": [
-        "src/gui/*"
-      ]
+      "@/*": ["src/gui/*"]
     },
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": [
     "src/gui/**/*.ts",
@@ -39,7 +25,5 @@
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

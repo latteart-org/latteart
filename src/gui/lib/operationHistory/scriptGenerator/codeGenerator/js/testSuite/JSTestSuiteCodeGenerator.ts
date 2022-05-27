@@ -27,6 +27,7 @@ import { NameGenerator } from "../../NameGenerator";
 
 export class JSTestSuiteCodeGenerator implements TestSuiteCodeGenerator {
   constructor(
+    private isSimple: boolean,
     private nameGenerator: {
       pageObject: NameGenerator;
       method: NameGenerator;
@@ -37,19 +38,20 @@ export class JSTestSuiteCodeGenerator implements TestSuiteCodeGenerator {
   public generateFrom(...testSuites: TestSuite[]): string {
     const testCases = testSuites.flatMap((testSuite) => testSuite.testCases);
 
-    const pageObjectImportString = JSTestSuiteCodeGenerator.generatePageObjectImportString(
-      ...testCases
-        .map((testCase) => {
-          const topPageObjectName = this.nameGenerator.pageObject.generate(
-            testCase.scenario.methodCalls[0]?.pageObjectId ?? ""
-          );
+    const pageObjectImportString =
+      JSTestSuiteCodeGenerator.generatePageObjectImportString(
+        ...testCases
+          .map((testCase) => {
+            const topPageObjectName = this.nameGenerator.pageObject.generate(
+              testCase.scenario.methodCalls[0]?.pageObjectId ?? ""
+            );
 
-          return topPageObjectName;
-        })
-        .filter((pageObjectName, index, array) => {
-          return array.indexOf(pageObjectName) === index;
-        })
-    );
+            return topPageObjectName;
+          })
+          .filter((pageObjectName, index, array) => {
+            return array.indexOf(pageObjectName) === index;
+          })
+      );
 
     const testSuitesString = this.generateTestSuitesString(testSuites);
 
@@ -155,20 +157,14 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
             ({ methodId }) => methodId === methodCall.methodId
           )?.methodArguments ?? [];
 
-        const argumentGroupString = this.generateArgumentGroupString(
-          methodArguments
-        );
+        const argumentGroupString =
+          this.generateArgumentGroupString(methodArguments);
 
         const methodComment = methodCall.comment
           ? `// ${methodCall.comment}\n`
           : "";
 
-        const argsString = argumentGroupString
-          ? `\
-{
-${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
-}`
-          : "";
+        const argsString = this.generateArgsString(argumentGroupString);
 
         const methodName = this.nameGenerator.method.generate(
           methodCall.methodId
@@ -178,6 +174,16 @@ ${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
 ${methodComment}.${methodName}(${argsString})`;
       })
       .join("\n");
+  }
+
+  private generateArgsString(argumentGroupString: string) {
+    if (this.isSimple) return "";
+    return argumentGroupString
+      ? `\
+{
+${CodeFormatter.indentToAllLines(argumentGroupString, 2)}
+}`
+      : "";
   }
 
   private generateArgumentGroupString(

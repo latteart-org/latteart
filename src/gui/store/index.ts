@@ -208,7 +208,8 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.settings Settings.
    */
   async loadLocaleFromSettings(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.getSettings();
     if (!reply.succeeded) {
       const errorMessage = context.rootGetters.message(
         `error.common.${reply.error!.code}`
@@ -225,9 +226,10 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    const reply = await context.rootState.repositoryServiceDispatcher.changeLocale(
-      payload.locale
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.changeLocale(
+        payload.locale
+      );
     if (!reply.succeeded) {
       const errorMessage = context.rootGetters.message(
         `error.common.${reply.error!.code}`
@@ -321,7 +323,8 @@ const store: StoreOptions<RootState> = {
       opened: false,
       message: "",
     },
-    clientSideCaptureServiceDispatcher: new ClientSideCaptureServiceDispatcher(),
+    clientSideCaptureServiceDispatcher:
+      new ClientSideCaptureServiceDispatcher(),
     repositoryServiceDispatcher: new RepositoryServiceDispatcher({
       url: defaultLocalRepositoryServiceUrl,
       isRemote: false,

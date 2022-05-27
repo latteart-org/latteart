@@ -1,37 +1,11 @@
-name: CI
+name: Manual Packaging
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
-  ut:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [14.15.3]
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - run: |
-          yarn install
-          yarn test:unit
-
   package:
     runs-on: ubuntu-latest
-
-    if: |
-      github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/heads/release') ||
-      github.ref_type == 'tag'
-
-    needs: [ut]
 
     strategy:
       matrix:

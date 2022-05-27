@@ -21,7 +21,7 @@ export const ERR_MSG = {
     INVALID_PLATFORMNAME:
       "latteart.device.config.json read error: Invalid platFormName. Allowed values are PC or Android or iOS. The value setting is",
     INVALID_BROWSER:
-      "latteart.device.config.json read error: Invalid browser. Allowed values are Chrome or Safari. The value setting is",
+      "latteart.device.config.json read error: Invalid browser. Allowed values are Chrome, Edge, or Safari. The value setting is",
     INVALID_SCREEN_DEF_TYPE:
       "latteart.config.json read error: Invalid screenDefType. Allowed values are title or url. The value setting is",
     INVALID_LOCALE:

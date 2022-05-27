@@ -73,8 +73,9 @@ export default class ScreenDefinitionSetting extends Vue {
         config: {
           screenDefinition: {
             screenDefType,
-            conditionGroups: this.$store.state.operationHistory.config
-              .screenDefinition.conditionGroups,
+            conditionGroups:
+              this.$store.state.operationHistory.config.screenDefinition
+                .conditionGroups,
           },
         },
       });

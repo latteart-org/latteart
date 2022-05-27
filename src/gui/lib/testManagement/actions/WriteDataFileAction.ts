@@ -48,9 +48,7 @@ export interface ProjectUpdatable {
       stories: ManagedStory[];
     }>
   >;
-  getTestResult(
-    testResultId: string
-  ): Promise<
+  getTestResult(testResultId: string): Promise<
     Reply<{
       id: string;
       name: string;

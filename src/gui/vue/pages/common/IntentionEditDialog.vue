@@ -110,12 +110,10 @@ export default class IntentionEditDialog extends Vue {
       return;
     }
 
-    const {
-      sequence,
-    } = this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes = this.$store.getters[
-      "operationHistory/findHistoryItem"
-    ](sequence);
+    const { sequence } =
+      this.$store.state.operationHistory.selectedOperationNote;
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
 
     if (!historyItem || !historyItem.intention) {
       // new note

@@ -18,15 +18,17 @@ import { PageObject } from "../../../model/pageObject/PageObject";
 import {
   PageObjectElement,
   ElementType,
+  PageObjectOperation,
 } from "../../../model/pageObject/method/operation/PageObjectOperation";
 import { PageObjectMethod } from "../../../model/pageObject/method/PageObjectMethod";
 import { JSRadioButtonAccessorCodeGenerator } from "./JSRadioButtonAccessorCodeGenerator";
 import { CodeFormatter } from "../../CodeFormatter";
 import { PageObjectCodeGenerator } from "../../PageObjectCodeGenerator";
-import { FormalArgumentCollector } from "../../../model/pageObject/method/operation/FormalArgumentsCollector";
 import { NameGenerator } from "../../NameGenerator";
 
-export class JSPageObjectCodeGenerator implements PageObjectCodeGenerator {
+export class JSSimplePageObjectCodeGenerator
+  implements PageObjectCodeGenerator
+{
   constructor(
     private nameGenerator: {
       pageObject: NameGenerator;
@@ -35,7 +37,7 @@ export class JSPageObjectCodeGenerator implements PageObjectCodeGenerator {
   ) {}
   public generateFrom(pageObject: PageObject): string {
     const pageObjectImportString =
-      JSPageObjectCodeGenerator.generatePageObjectImportString(
+      JSSimplePageObjectCodeGenerator.generatePageObjectImportString(
         ...pageObject.methods
           .filter((method) => {
             return method.pageObjectId !== method.returnPageObjectId;
@@ -62,7 +64,7 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
       : "";
 
     const fieldAccessorStrings =
-      JSPageObjectCodeGenerator.generateFieldAccessorStrings(
+      JSSimplePageObjectCodeGenerator.generateFieldAccessorStrings(
         pageObject.methods
       );
 
@@ -136,7 +138,7 @@ export default ${pageObjectName};
         }
 
         if (elem.type === ElementType.CheckBox) {
-          return JSPageObjectCodeGenerator.generateCheckBoxAccessorString(
+          return JSSimplePageObjectCodeGenerator.generateCheckBoxAccessorString(
             identifier,
             elem.locator
           );
@@ -154,11 +156,7 @@ export default ${pageObjectName};
     return `\
 get ${identifier}() { return $('${locator}'); }
 
-set_${identifier}(isClick) {
-  if (this.${identifier}.isSelected() ^ isClick) {
-    this.${identifier}.click();
-  }
-}`;
+`;
   }
 
   private static generatePageObjectImportString(...pageObjectNames: string[]) {
@@ -171,17 +169,12 @@ set_${identifier}(isClick) {
 
   private generateMethodStrings(methods: PageObjectMethod[]) {
     return methods.map((method) => {
-      const argsString = JSPageObjectCodeGenerator.generateArgsString(method);
-
-      const radioButtons = new Set<string>();
-
       const operationsString = method.operations
         .flatMap((operation) => {
           if (operation.type === "click") {
             const clickEventOperationString =
-              JSPageObjectCodeGenerator.generateClickEventOperationString(
-                operation.target,
-                radioButtons
+              JSSimplePageObjectCodeGenerator.generateClickEventOperationString(
+                operation
               );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
@@ -189,8 +182,8 @@ set_${identifier}(isClick) {
 
           if (operation.type === "change") {
             const changeEventOperationString =
-              JSPageObjectCodeGenerator.generateChangeEventOperationString(
-                operation.target
+              JSSimplePageObjectCodeGenerator.generateChangeEventOperationString(
+                operation
               );
 
             return [changeEventOperationString];
@@ -230,7 +223,7 @@ ${CodeFormatter.prependTextToAllLines(method.comment, " * ")}
       const methodName = this.nameGenerator.method.generate(method.id);
 
       return `\
-${methodComment}${methodName}(${argsString}) {
+${methodComment}${methodName}() {
 ${CodeFormatter.indentToAllLines(
   operationsString ? operationsString : "// no operation",
   2
@@ -242,56 +235,31 @@ ${CodeFormatter.indentToAllLines(
 }`;
     });
   }
-
-  private static generateArgsString(method: PageObjectMethod) {
-    const args: Set<string> = new FormalArgumentCollector().collect(
-      method.operations
-    );
-
-    if (args.size === 0) {
-      return "";
-    }
-
-    return `\
-{
-${Array.from(args)
-  .map((arg) => `  ${arg}`)
-  .join(",\n")}
-}`;
-  }
-
   private static generateClickEventOperationString(
-    element: PageObjectElement,
-    radioButtons: Set<string>
+    operation: PageObjectOperation
   ) {
-    if (element.type === ElementType.RadioButton && element.identifier) {
-      if (radioButtons.has(element.identifier)) {
-        radioButtons.add(element.identifier);
-
-        return "";
-      }
-
-      return `this.set_${element.identifier}(${element.identifier});`;
-    }
-
+    const element = operation.target;
     const identifier = element.identifier;
 
-    if (element.type === ElementType.CheckBox) {
-      return `this.set_${identifier}(${identifier});`;
+    if (element.type === ElementType.RadioButton) {
+      return `this.set_${identifier}('${operation.input}');`;
     }
 
-    return `this.${identifier}.click();`;
+    if (identifier) {
+      return `this.${identifier}.click();`;
+    }
   }
 
   private static generateChangeEventOperationString(
-    element: PageObjectElement
+    operation: PageObjectOperation
   ) {
+    const element = operation.target;
     const identifier = element.identifier;
 
     if (element.type === ElementType.SelectBox) {
-      return `this.${identifier}.selectByAttribute('value', ${identifier});`;
+      return `this.${identifier}.selectByAttribute('value', '${operation.input}');`;
     }
 
-    return `this.${identifier}.setValue(${identifier});`;
+    return `this.${identifier}.setValue('${operation.input}');`;
   }
 }

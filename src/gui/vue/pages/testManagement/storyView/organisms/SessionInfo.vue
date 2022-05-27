@@ -685,11 +685,11 @@ export default class SessionInfo extends Vue {
 
   private async openCaptureTool(testResultFiles: TestResultFile[]) {
     const origin = location.origin;
-    const captureClUrl = this.$store.state.clientSideCaptureServiceDispatcher
-      .serviceUrl;
+    const captureClUrl =
+      this.$store.state.clientSideCaptureServiceDispatcher.serviceUrl;
     const localRepositoryUrl = this.$store.state.localRepositoryServiceUrl;
-    const repositoryUrl = this.$store.state.repositoryServiceDispatcher
-      .serviceUrl;
+    const repositoryUrl =
+      this.$store.state.repositoryServiceDispatcher.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${localRepositoryUrl}&remoteRepository=${repositoryUrl}`;
 
     if (testResultFiles.length > 0) {

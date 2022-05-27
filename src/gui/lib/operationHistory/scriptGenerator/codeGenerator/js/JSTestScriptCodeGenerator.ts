@@ -16,7 +16,6 @@
 
 import { TestSuite } from "../../model/testSuite/TestSuite";
 import { TestScriptCodeGenerator } from "../TestScriptCodeGenerator";
-import { JSPageObjectCodeGenerator } from "./pageObject/JSPageObjectCodeGenerator";
 import { JSTestDataCodeGenerator } from "./testData/JSTestDataCodeGenerator";
 import { JSTestSuiteCommentAttacher } from "./testSuite/JSTestSuiteCommentAttacher";
 import { JSPageObjectCommentAttacher } from "./pageObject/JSPageObjectCommentAttacher";
@@ -29,11 +28,12 @@ import { JSDocReadmeGenerator } from "./other/JSDocReadmeGenerator";
 import { JSPageObjectNameGenerator } from "./pageObject/JSPageObjectNameGenerator";
 import { JSPageObjectMethodNameGenerator } from "./pageObject/JSPageObjectMethodNameGenerator";
 import { invalidOperationTypeExists } from "../../model/pageObject/method/operation/PageObjectOperation";
+import { PageObjectCodeGenerator } from "../PageObjectCodeGenerator";
 
 export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
   constructor(
     private codeGenerator: {
-      pageObject: JSPageObjectCodeGenerator;
+      pageObject: PageObjectCodeGenerator;
       testSuite: TestSuiteCodeGenerator;
       testData: JSTestDataCodeGenerator | null;
     },
@@ -62,10 +62,11 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
 
     return {
       pageObjects: model.pageObjects.map((pageObject) => {
-        const pageObjectAttachedComments = pageObjectCommentAttacher.attachComment(
-          pageObject,
-          this.buildTestSuiteGraph(testSuites)
-        );
+        const pageObjectAttachedComments =
+          pageObjectCommentAttacher.attachComment(
+            pageObject,
+            this.buildTestSuiteGraph(testSuites)
+          );
 
         return {
           name: `${this.nameGenerator.pageObject.generate(
@@ -117,9 +118,8 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
     return [
       ...[...this.pageObjectIdToDataSets.entries()].map(
         ([pageObjectId, testDataSets]) => {
-          const pageObjectName = this.nameGenerator.pageObject.generate(
-            pageObjectId
-          );
+          const pageObjectName =
+            this.nameGenerator.pageObject.generate(pageObjectId);
 
           return {
             name: `${pageObjectName}TestData.js`,

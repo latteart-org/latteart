@@ -171,7 +171,7 @@ export default class ConfigView extends Vue {
 
   private created() {
     this.updateWindowTitle();
-    this.selectPlatform(this.selectedPlatformName);
+    this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
 
     const testResultId = this.$route.query.testResultId as string;
 
@@ -255,7 +255,7 @@ export default class ConfigView extends Vue {
     if (platformName === PlatformName.Android) return [Browser.Chrome];
     if (platformName === PlatformName.iOS) return [Browser.Safari];
 
-    return [Browser.Chrome];
+    return [Browser.Chrome, Browser.Edge];
   }
 
   private async selectBrowser(browser: string) {
@@ -300,9 +300,7 @@ export default class ConfigView extends Vue {
     }
   }
 
-  private async recognizeDevices(
-    platformName: string
-  ): Promise<
+  private async recognizeDevices(platformName: string): Promise<
     {
       deviceName: string;
       modelNumber: string;

@@ -78,13 +78,13 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
       const fullText = this.nameMap.get(
         Number(id!.split("mermaid-dom-id-")[1])
       );
-      const g = d3.select((nodes[i] as Node) as d3.BaseType);
+      const g = d3.select(nodes[i] as Node as d3.BaseType);
       g.append("svg:title").text(fullText ? fullText : "");
     });
 
     // When pressing the character string attached to Edge.
     svg.selectAll("g.edgeLabel").each((_, i, nodes) => {
-      const edgeArea = d3.select((nodes[i] as Node) as d3.BaseType);
+      const edgeArea = d3.select(nodes[i] as Node as d3.BaseType);
       this.registeredEventElementList.push({
         eventName: "click",
         element: edgeArea,
@@ -96,7 +96,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
 
     // (Screen) When a node is pressed.
     svg.selectAll("g>.node").each((_, i, nodes) => {
-      const rectArea = d3.select((nodes[i] as Node) as d3.BaseType);
+      const rectArea = d3.select(nodes[i] as Node as d3.BaseType);
       this.registeredEventElementList.push({
         eventName: "click",
         element: rectArea,

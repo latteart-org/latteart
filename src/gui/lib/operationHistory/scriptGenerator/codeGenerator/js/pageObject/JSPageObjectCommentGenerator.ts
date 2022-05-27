@@ -18,7 +18,8 @@ import { ScreenTransitionDiagram } from "../../../docGenerator/screenTransitionD
 import { PageObjectCommentGenerator } from "../../PageObjectCommentAttacher";
 
 export class JSPageObjectCommentGenerator
-  implements PageObjectCommentGenerator {
+  implements PageObjectCommentGenerator
+{
   public generateFrom(
     name: string,
     description: string,

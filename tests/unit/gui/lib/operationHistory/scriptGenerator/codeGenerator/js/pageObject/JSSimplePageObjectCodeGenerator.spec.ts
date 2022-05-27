@@ -1,13 +1,13 @@
 import { PageObject } from "@/lib/operationHistory/scriptGenerator/model/pageObject/PageObject";
 
-import { JSPageObjectCodeGenerator } from "@/lib/operationHistory/scriptGenerator/codeGenerator/js/pageObject/JSPageObjectCodeGenerator";
 import {
   PageObjectElement,
   ElementType,
   PageObjectOperation,
 } from "@/lib/operationHistory/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
+import { JSSimplePageObjectCodeGenerator } from "@/lib/operationHistory/scriptGenerator/codeGenerator/js/pageObject/JSSimplePageObjectCodeGenerator";
 
-describe("JSPageObjectCodeGenerator", () => {
+describe("JSSimplePageObjectCodeGenerator", () => {
   describe("#generateFrom", () => {
     it("渡されたページオブジェクトからJavaScriptのコードを生成する", () => {
       const element: PageObjectElement = {
@@ -19,7 +19,7 @@ describe("JSPageObjectCodeGenerator", () => {
       const operation: PageObjectOperation = {
         target: element,
         type: "change",
-        input: "",
+        input: "test",
       };
 
       const operation2: PageObjectOperation = {
@@ -78,7 +78,7 @@ describe("JSPageObjectCodeGenerator", () => {
         },
       };
 
-      const testSuiteCode = new JSPageObjectCodeGenerator(
+      const testSuiteCode = new JSSimplePageObjectCodeGenerator(
         nameGenerator
       ).generateFrom(pageObject);
 
@@ -97,10 +97,8 @@ class name_of_PageObject1 {
     return new name_of_PageObject1();
   }
 
-  name_of_method2({
-    param1
-  }) {
-    this.param1.setValue(param1);
+  name_of_method2() {
+    this.param1.setValue('test');
 
     return new name_of_PageObject2();
   }

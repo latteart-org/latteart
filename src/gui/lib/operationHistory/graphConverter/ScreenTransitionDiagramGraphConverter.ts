@@ -66,12 +66,13 @@ export default class ScreenTransitionDiagramGraphConverter {
     // Text of the screen definition part in the mermaid graph.
     const screenDefinitionText = appearedScreens.reduce(
       (acc, currentScreen, currentIndex) => {
-        const screenDef = ScreenTransitionDiagramGraphConverter.displayScreenDefOptimal(
-          currentIndex,
-          newNameMap,
-          currentScreen.screenDef,
-          30
-        );
+        const screenDef =
+          ScreenTransitionDiagramGraphConverter.displayScreenDefOptimal(
+            currentIndex,
+            newNameMap,
+            currentScreen.screenDef,
+            30
+          );
 
         return `${acc}${currentIndex}["${screenDef}"];`;
       },

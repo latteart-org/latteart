@@ -109,9 +109,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       return;
     }
 
-    const reply = await context.rootState.repositoryServiceDispatcher.saveSettings(
-      settings
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.saveSettings(
+        settings
+      );
     if (reply === null) {
       return;
     }
@@ -133,7 +134,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.settings Settings.
    */
   async readSettings(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getSettings();
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.getSettings();
     if (reply.succeeded) {
       context.commit("setSettings", { settings: reply.data }, { root: true });
       context.dispatch("setSettings", { settings: reply.data });
@@ -332,10 +334,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (context.state.config.imageCompression.isEnabled) {
       console.log("== bug ==");
       setTimeout(async () => {
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressNoteImage(
-          context.state.testResultInfo.id,
-          recordedNote.bug.id as number
-        );
+        const reply2 =
+          await context.rootState.repositoryServiceDispatcher.compressNoteImage(
+            context.state.testResultInfo.id,
+            recordedNote.bug.id as number
+          );
         if (reply2.succeeded) {
           context.commit("replaceNoteImageFileUrl", {
             type: "bug",
@@ -538,10 +541,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.state.config.imageCompression.isEnabled
     ) {
       setTimeout(async () => {
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressNoteImage(
-          context.state.testResultInfo.id,
-          recordedNote.notice.id as number
-        );
+        const reply2 =
+          await context.rootState.repositoryServiceDispatcher.compressNoteImage(
+            context.state.testResultInfo.id,
+            recordedNote.notice.id as number
+          );
         if (reply2.succeeded) {
           context.commit("replaceNoteImageFileUrl", {
             type: "notice",
@@ -575,16 +579,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
     }
   ) {
-    const reply = await context.rootState.repositoryServiceDispatcher.moveNotice(
-      context.state.testResultInfo.id,
-      {
-        testStepId: context.state.testStepIds[payload.from.sequence - 1],
-        index: payload.from.index,
-      },
-      {
-        testStepId: context.state.testStepIds[payload.dest.sequence - 1],
-      }
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.moveNotice(
+        context.state.testResultInfo.id,
+        {
+          testStepId: context.state.testStepIds[payload.from.sequence - 1],
+          index: payload.from.index,
+        },
+        {
+          testStepId: context.state.testStepIds[payload.dest.sequence - 1],
+        }
+      );
 
     const movedNote = reply.data!;
 
@@ -608,11 +613,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async deleteNotice(context, payload: { sequence: number; index: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const reply = await context.rootState.repositoryServiceDispatcher.deleteNotice(
-      context.state.testResultInfo.id,
-      testStepId,
-      payload.index
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.deleteNotice(
+        context.state.testResultInfo.id,
+        testStepId,
+        payload.index
+      );
 
     const { index } = reply.data!;
 
@@ -624,10 +630,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload?: { destTestResultId?: string }
   ) {
-    const {
-      serviceUrl,
-      isRemote,
-    } = context.rootState.repositoryServiceDispatcher;
+    const { serviceUrl, isRemote } =
+      context.rootState.repositoryServiceDispatcher;
 
     try {
       const exportFileUrl: string = await context.dispatch("exportData", {
@@ -874,11 +878,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   async saveUnassignedIntention(context, payload: { destSequence: number }) {
-    const unassignedIntentionIndex = context.state.unassignedIntentions.findIndex(
-      (item) => {
+    const unassignedIntentionIndex =
+      context.state.unassignedIntentions.findIndex((item) => {
         return item.sequence === payload.destSequence;
-      }
-    );
+      });
 
     if (unassignedIntentionIndex !== -1) {
       const unassignedIntention =
@@ -911,10 +914,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
 
-    const reply = await context.rootState.repositoryServiceDispatcher.registerOperation(
-      context.state.testResultInfo.id,
-      capturedOperation
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.registerOperation(
+        context.state.testResultInfo.id,
+        capturedOperation
+      );
 
     const { id, operation, coverageSource, inputElementInfo } = reply.data!;
 
@@ -950,10 +954,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       setTimeout(async () => {
         const testStepId = context.state.testStepIds[operation.sequence - 1];
 
-        const reply2 = await context.rootState.repositoryServiceDispatcher.compressTestStepImage(
-          context.state.testResultInfo.id,
-          testStepId
-        );
+        const reply2 =
+          await context.rootState.repositoryServiceDispatcher.compressTestStepImage(
+            context.state.testResultInfo.id,
+            testStepId
+          );
         if (reply2.succeeded) {
           context.commit("replaceTestStepsImageFileUrl", {
             sequence: operation.sequence,
@@ -1133,9 +1138,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       const selectOperation = (sequence: number) => {
         context.commit("selectOperation", { sequence });
 
-        const operationWithNotes:
-          | OperationWithNotes
-          | undefined = context.getters.findHistoryItem(sequence);
+        const operationWithNotes: OperationWithNotes | undefined =
+          context.getters.findHistoryItem(sequence);
         if (!operationWithNotes) {
           return;
         }
@@ -1246,14 +1250,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       testResultId: string | undefined;
       projectId: string | undefined;
       sources: { initialUrl: string; history: Operation[] }[];
-      option: { useDataDriven: boolean; maxGeneration: number };
+      option: {
+        testScript: { isSimple: boolean };
+        testData: { useDataDriven: boolean; maxGeneration: number };
+      };
     }
   ): Promise<{
     outputUrl: string;
     invalidOperationTypeExists: boolean;
   }> {
-    const optimize = true;
-
     try {
       const imageUrlResolver = (url: string) => {
         return url.replace(
@@ -1265,10 +1270,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       const testScriptGenerator = new TestScriptGeneratorImpl(
         imageUrlResolver,
         {
-          optimize,
+          testScript: {
+            isSimple: payload.option.testScript.isSimple,
+          },
           testData: {
-            useDataDriven: payload.option.useDataDriven,
-            maxGeneration: payload.option.maxGeneration,
+            useDataDriven: payload.option.testData.useDataDriven,
+            maxGeneration: payload.option.testData.maxGeneration,
           },
         }
       );
@@ -1283,7 +1290,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
     } catch (error) {
       if (error.message === `generate_test_suite_failed`) {
-        const errorCode = optimize
+        const errorCode = !payload.option.testScript.isSimple
           ? `save_test_scripts_no_section_error`
           : `save_test_scripts_no_operation_error`;
 
@@ -1326,10 +1333,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
-    const reply = await context.rootState.repositoryServiceDispatcher.createEmptyTestResult(
-      initialUrl,
-      name
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.createEmptyTestResult(
+        initialUrl,
+        name
+      );
 
     const testResultInfo = reply.data!;
 
@@ -1346,7 +1354,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @returns Test results.
    */
   async getTestResults(context) {
-    const reply = await context.rootState.repositoryServiceDispatcher.getTestResults();
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.getTestResults();
     return reply.data!;
   },
 
@@ -1381,12 +1390,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const startTimeStamp = payload.startTime ?? undefined;
     const url = payload.initialUrl ?? undefined;
 
-    const reply = await context.rootState.repositoryServiceDispatcher.changeTestResult(
-      context.state.testResultInfo.id,
-      name,
-      startTimeStamp,
-      url
-    );
+    const reply =
+      await context.rootState.repositoryServiceDispatcher.changeTestResult(
+        context.state.testResultInfo.id,
+        name,
+        startTimeStamp,
+        url
+      );
 
     if (!reply.succeeded) {
       const errorMessage = context.rootGetters.message(

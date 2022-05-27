@@ -141,6 +141,7 @@ describe("JSTestSuiteCodeGenerator", () => {
       };
 
       const testSuiteCode = new JSTestSuiteCodeGenerator(
+        false,
         nameGenerator,
         testCaseIdToDataSet
       ).generateFrom(...testSuites);
