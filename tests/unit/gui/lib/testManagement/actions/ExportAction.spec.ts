@@ -1,7 +1,4 @@
-import {
-  Exportable,
-  ExportAction,
-} from "@/lib/testManagement/actions/ExportAction";
+import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 
 describe("ExportAction", () => {
   describe("#exportZip", () => {
@@ -24,7 +21,7 @@ describe("ExportAction", () => {
         putProject: jest.fn(),
       };
 
-      const repositoryContainer: Exportable = {
+      const repositoryContainer = {
         projectRepository,
       };
 
@@ -64,7 +61,7 @@ describe("ExportAction", () => {
         putProject: jest.fn(),
       };
 
-      const repositoryContainer: Exportable = {
+      const repositoryContainer = {
         projectRepository,
       };
 

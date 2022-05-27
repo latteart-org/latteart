@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface TestResultExportable {
-  readonly testResultRepository: TestResultRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ExportTestResultAction {
-  constructor(private repositoryContainer: TestResultExportable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository"
+    >
+  ) {}
 
   public async exportWithTestResult(
     testResultId: string,

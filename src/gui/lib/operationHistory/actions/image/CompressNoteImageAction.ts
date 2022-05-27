@@ -15,14 +15,15 @@
  */
 
 import { ActionResult } from "@/lib/common/ActionResult";
-import { CompressedImageRepository } from "@/lib/eventDispatcher/repositoryService/CompressedImageRepository";
-
-export interface NoteImageCompressible {
-  readonly compressedImageRepository: CompressedImageRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class CompressNoteImageAction {
-  constructor(private repositoryContainer: NoteImageCompressible) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "compressedImageRepository"
+    >
+  ) {}
 
   public async compressNoteImage(
     testResultId: string,

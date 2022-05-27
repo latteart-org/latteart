@@ -1,11 +1,11 @@
 import {
   RecordIntentionAction,
   RecordIntentionActionObserver,
-  IntentionRecordable,
 } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 describe("RecordIntentionAction", () => {
   describe("#record", () => {
@@ -13,7 +13,10 @@ describe("RecordIntentionAction", () => {
       let observer: RecordIntentionActionObserver;
       let testStepRepository: TestStepRepository;
       let noteRepository: NoteRepository;
-      let repositoryContainer: IntentionRecordable;
+      let repositoryContainer: Pick<
+        RepositoryContainer,
+        "testStepRepository" | "noteRepository" | "serviceUrl"
+      >;
 
       const note = {
         testResultId: "testResultId",

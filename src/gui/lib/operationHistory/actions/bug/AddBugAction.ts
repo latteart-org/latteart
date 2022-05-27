@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../../types";
 import { convertNote } from "@/lib/eventDispatcher/replyDataConverter";
-
-export interface BugAddable {
-  readonly noteRepository: NoteRepository;
-  readonly testStepRepository: TestStepRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class AddBugAction {
-  constructor(private repositoryContainer: BugAddable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "noteRepository" | "testStepRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Add bug information to the test step with the specified sequence number.

@@ -1,18 +1,21 @@
 import {
   MoveIntentionAction,
-  IntentionMovable,
   MoveIntentionActionObserver,
 } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 describe("MoveIntentionAction", () => {
   describe("#move", () => {
     let observer: MoveIntentionActionObserver;
     let testStepRepository: TestStepRepository;
     let noteRepository: NoteRepository;
-    let repositoryContainer: IntentionMovable;
+    let repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "noteRepository" | "serviceUrl"
+    >;
 
     const testResultId = "testResultId";
     const fromSequence = 0;

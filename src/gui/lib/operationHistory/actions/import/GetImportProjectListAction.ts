@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface ImportProjectsGettable {
-  readonly importProjectRepository: ImportProjectRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class GetImportProjectListAction {
-  constructor(private repositoryContainer: ImportProjectsGettable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importProjectRepository" | "serviceUrl"
+    >
+  ) {}
 
   public async getImportProjects(): Promise<
     ActionResult<Array<{ url: string; name: string }>>

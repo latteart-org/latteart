@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { CapturedOperation } from "../CapturedOperation";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { Operation } from "../Operation";
 import { CoverageSource, InputElementInfo, TestStepOperation } from "../types";
 import { convertTestStepOperation } from "@/lib/eventDispatcher/replyDataConverter";
-
-export interface OperationRegistrable {
-  readonly testStepRepository: TestStepRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class RegisterOperationAction {
-  constructor(private repositoryContainer: OperationRegistrable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Register the operation information in the repository.

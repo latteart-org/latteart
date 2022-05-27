@@ -1,7 +1,6 @@
 import {
   ResumeAction,
   ResumeActionObserver,
-  TestResultResumable,
 } from "@/lib/operationHistory/actions/ResumeAction";
 
 describe("ResumeAction", () => {
@@ -39,7 +38,7 @@ describe("ResumeAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const repositoryContainer: TestResultResumable = {
+      const repositoryContainer = {
         testResultRepository,
         serviceUrl: "serviceUrl",
       };
@@ -93,7 +92,7 @@ describe("ResumeAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const repositoryContainer: TestResultResumable = {
+      const repositoryContainer = {
         testResultRepository,
         serviceUrl: "serviceUrl",
       };

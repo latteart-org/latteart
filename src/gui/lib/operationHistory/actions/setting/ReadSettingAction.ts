@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
 import Settings from "@/lib/common/settings/Settings";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface SettingGettable {
-  readonly settingRepository: SettingRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ReadSettingAction {
-  constructor(private repositoryContainer: SettingGettable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+  ) {}
 
   public async readSettings(): Promise<ActionResult<Settings>> {
     const reply =

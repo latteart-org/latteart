@@ -22,11 +22,9 @@ import {
 import { OperationWithNotes } from "../operationHistory/types";
 import { calculateElapsedEpochMillis } from "../common/util";
 import { Note } from "../operationHistory/Note";
-import {
-  ProjectUpdatable,
-  StoryConvertable,
-} from "./actions/WriteDataFileAction";
+import { StoryConvertable } from "./actions/WriteDataFileAction";
 import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
+import { RepositoryContainer } from "../eventDispatcher/RepositoryContainer";
 
 /**
  * Convert story information.
@@ -39,7 +37,10 @@ export default class StoryDataConverter implements StoryConvertable {
    * @returns Test results testSteps.
    */
   private static async buildHistory(
-    repositoryContainer: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     testResultFiles?: {
       name: string;
       id: string;
@@ -128,7 +129,10 @@ export default class StoryDataConverter implements StoryConvertable {
 
   public async convertToSession(
     target: Partial<ManagedSession>,
-    repositoryContainer: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldSession?: Session
   ): Promise<Session> {
     const { intentions, initialUrl, testingTime, issues } =
@@ -163,7 +167,10 @@ export default class StoryDataConverter implements StoryConvertable {
    */
   public async convertToStory(
     target: ManagedStory,
-    repositoryContainer: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldStory?: Story
   ): Promise<Story> {
     return {

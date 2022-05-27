@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { TestStepOperation } from "../../types";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface NoticeDeletable {
-  readonly testStepRepository: TestStepRepository;
-  readonly noteRepository: NoteRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class DeleteNoticeAction {
-  constructor(private repositoryContainer: NoticeDeletable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "noteRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Delete Notice.

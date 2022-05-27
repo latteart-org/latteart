@@ -1,7 +1,4 @@
-import {
-  Importable,
-  ImportAction,
-} from "@/lib/testManagement/actions/ImportAction";
+import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 
 describe("ImportAction", () => {
   describe("#importZip", () => {
@@ -21,7 +18,7 @@ describe("ImportAction", () => {
         postProjects: jest.fn().mockResolvedValue(reply),
       };
 
-      const repositoryContainer: Importable = {
+      const repositoryContainer = {
         importProjectRepository,
       };
 
@@ -58,7 +55,7 @@ describe("ImportAction", () => {
         postProjects: jest.fn().mockResolvedValue(reply),
       };
 
-      const repositoryContainer: Importable = {
+      const repositoryContainer = {
         importProjectRepository,
       };
 

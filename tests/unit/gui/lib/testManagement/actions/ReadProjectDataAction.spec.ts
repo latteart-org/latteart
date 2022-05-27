@@ -1,5 +1,4 @@
 import {
-  ProjectFetchable,
   ProjectStoryConvertable,
   ReadProjectDataAction,
 } from "@/lib/testManagement/actions/ReadProjectDataAction";
@@ -65,7 +64,7 @@ describe("ReadProjectDataActionの", () => {
           patchTestResult: jest.fn(),
         };
 
-        const repositoryContainer: ProjectFetchable = {
+        const repositoryContainer = {
           testResultRepository,
           projectRepository,
         };

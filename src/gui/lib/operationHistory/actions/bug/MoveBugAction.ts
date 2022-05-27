@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
-
-export interface BugMovable {
-  readonly noteRepository: NoteRepository;
-  readonly testStepRepository: TestStepRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class MoveBugAction {
-  constructor(private repositoryContainer: BugMovable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "noteRepository" | "testStepRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Update the position where the bug is associated.

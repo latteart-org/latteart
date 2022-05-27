@@ -15,25 +15,21 @@
  */
 
 import { Note } from "../../Note";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
   getTestStepId(sequence: number): string;
 }
 
-export interface IntentionMovable {
-  readonly testStepRepository: TestStepRepository;
-  readonly noteRepository: NoteRepository;
-  readonly serviceUrl: string;
-}
-
 export class MoveIntentionAction {
   constructor(
     private observer: MoveIntentionActionObserver,
-    private repositoryContainer: IntentionMovable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "noteRepository" | "serviceUrl"
+    >
   ) {}
 
   public async move(

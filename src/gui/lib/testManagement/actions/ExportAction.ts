@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface Exportable {
-  readonly projectRepository: ProjectRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ExportAction {
-  constructor(private repositoryContainer: Exportable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
+  ) {}
 
   public async exportZip(
     projectId: string,

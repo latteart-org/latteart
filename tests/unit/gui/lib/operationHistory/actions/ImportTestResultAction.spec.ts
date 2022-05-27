@@ -1,9 +1,6 @@
-import {
-  TestResultImportable,
-  ImportTestResultAction,
-} from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
 
-describe("ImportAction", () => {
+describe("ImportTestResultAction", () => {
   describe("#importWithTestResult", () => {
     it("渡されたインポート元、インポート先を用いてインポートを実行し、その戻り値を返す", async () => {
       const reply = {
@@ -21,7 +18,7 @@ describe("ImportAction", () => {
         getTestResults: jest.fn(),
       };
 
-      const repositoryContainer: TestResultImportable = {
+      const repositoryContainer = {
         importTestResultRepository,
       };
 
@@ -56,7 +53,7 @@ describe("ImportAction", () => {
         getTestResults: jest.fn(),
       };
 
-      const repositoryContainer: TestResultImportable = {
+      const repositoryContainer = {
         importTestResultRepository,
       };
 

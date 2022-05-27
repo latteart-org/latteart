@@ -19,9 +19,8 @@ import {
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 interface WriteDataFileMutationObserver {
   setManagedData(data: {
@@ -34,21 +33,22 @@ interface WriteDataFileMutationObserver {
 export interface StoryConvertable {
   convertToStory(
     target: ManagedStory,
-    repositoryContainer: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldStory?: Story
   ): Promise<Story>;
-}
-
-export interface ProjectUpdatable {
-  readonly testResultRepository: TestResultRepository;
-  readonly projectRepository: ProjectRepository;
 }
 
 export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private repositoryContainer: ProjectUpdatable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >
   ) {}
 
   public async write(

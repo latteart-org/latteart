@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface Importable {
-  readonly importProjectRepository: ImportProjectRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ImportAction {
-  constructor(private repositoryContainer: Importable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importProjectRepository"
+    >
+  ) {}
 
   /**
    * Import project or testresult or all.

@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
-
-export interface NoticeMovable {
-  readonly noteRepository: NoteRepository;
-  readonly testStepRepository: TestStepRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class MoveNoticeAction {
-  constructor(private repositoryContainer: NoticeMovable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "noteRepository" | "testStepRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Update the position associated with the Notice.

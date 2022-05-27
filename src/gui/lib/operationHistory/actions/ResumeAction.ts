@@ -18,13 +18,13 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import { CoverageSource, InputElementInfo } from "../types";
 import { Operation } from "../Operation";
 import { Note } from "../Note";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
 import {
   convertTestStepOperation,
   convertNote,
   convertIntention,
 } from "@/lib/eventDispatcher/replyDataConverter";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -38,15 +38,13 @@ export interface ResumeActionObserver {
   clearTestStepIds(): void;
 }
 
-export interface TestResultResumable {
-  readonly testResultRepository: TestResultRepository;
-  readonly serviceUrl: string;
-}
-
 export class ResumeAction {
   constructor(
     private observer: ResumeActionObserver,
-    private repositoryContainer: TestResultResumable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "serviceUrl"
+    >
   ) {}
 
   /**

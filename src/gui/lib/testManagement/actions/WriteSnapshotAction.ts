@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import { SnapshotRepository } from "@/lib/eventDispatcher/repositoryService/SnapshotRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface SnapshotWritable {
-  readonly snapshotRepository: SnapshotRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class WriteSnapshotAction {
-  constructor(private repositoryContainer: SnapshotWritable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "snapshotRepository">
+  ) {}
 
   public async writeSnapshot(
     projectId: string

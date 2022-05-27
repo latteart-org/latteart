@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface DeviceSettingSaveable {
-  readonly settingRepository: SettingRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class SaveDeviceSettingAction {
-  constructor(private repositoryContainer: DeviceSettingSaveable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+  ) {}
 
   public async saveDeviceSettings(
     deviceSettings: DeviceSettings

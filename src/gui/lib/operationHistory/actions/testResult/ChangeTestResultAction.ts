@@ -15,14 +15,15 @@
  */
 
 import { ActionResult } from "@/lib/common/ActionResult";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-
-export interface TestResultChangeable {
-  readonly testResultRepository: TestResultRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ChangeTestResultAction {
-  constructor(private repositoryContainer: TestResultChangeable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository"
+    >
+  ) {}
 
   public async changeTestResult(
     testResultId: string,

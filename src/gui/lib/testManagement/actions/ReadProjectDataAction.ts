@@ -17,9 +17,9 @@
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
-import { ProjectUpdatable, StoryConvertable } from "./WriteDataFileAction";
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { StoryConvertable } from "./WriteDataFileAction";
 import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
@@ -31,19 +31,21 @@ interface ReadDataFileMutationObserver {
 export interface ProjectStoryConvertable {
   convertToStory(
     target: ManagedStory,
-    repositoryContainer: ProjectFetchable
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ): Promise<Story>;
-}
-
-export interface ProjectFetchable extends ProjectUpdatable {
-  readonly projectRepository: ProjectRepository;
 }
 
 export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private repositoryContainer: ProjectFetchable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ) {}
 
   public async read(): Promise<ActionResult<void>> {
@@ -68,7 +70,10 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            this.repositoryContainer as unknown as ProjectUpdatable
+            this.repositoryContainer as unknown as Pick<
+              RepositoryContainer,
+              "testResultRepository" | "projectRepository"
+            >
           )
         )
       ),

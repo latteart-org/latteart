@@ -1,5 +1,4 @@
 import {
-  ProjectUpdatable,
   StoryConvertable,
   WriteDataFileAction,
 } from "@/lib/testManagement/actions/WriteDataFileAction";
@@ -44,7 +43,7 @@ describe("WriteDataActionの", () => {
         }),
       };
 
-      const repositoryContainer: ProjectUpdatable = {
+      const repositoryContainer = {
         testResultRepository,
         projectRepository,
       };

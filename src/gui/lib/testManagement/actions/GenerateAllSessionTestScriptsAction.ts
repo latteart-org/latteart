@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { Story } from "../types";
 import { TestStep } from "@/lib/operationHistory/types";
@@ -27,6 +26,7 @@ import {
   convertIntention,
   convertNote,
 } from "@/lib/eventDispatcher/replyDataConverter";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface GenerateAllSessionTestScriptsActionObserver {
   generateTestScripts: (
@@ -37,15 +37,13 @@ export interface GenerateAllSessionTestScriptsActionObserver {
   }>;
 }
 
-export interface TestScriptGeneratable {
-  readonly testResultRepository: TestResultRepository;
-  readonly serviceUrl: string;
-}
-
 export class GenerateAllSessionTestScriptsAction {
   constructor(
     private observer: GenerateAllSessionTestScriptsActionObserver,
-    private repositoryContainer: TestScriptGeneratable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "serviceUrl"
+    >
   ) {}
 
   public async generateAllSessionTestScripts(

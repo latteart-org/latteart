@@ -1,9 +1,6 @@
-import {
-  TestResultExportable,
-  ExportTestResultAction,
-} from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
+import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 
-describe("ExportAction", () => {
+describe("ExportTestResultAction", () => {
   describe("#exportWithTestResult", () => {
     it("渡されたテスト結果IDを用いてエクスポートを実行し、その戻り値を返す", async () => {
       const reply = {
@@ -26,7 +23,7 @@ describe("ExportAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const repositoryContainer: TestResultExportable = {
+      const repositoryContainer = {
         testResultRepository,
       };
 
@@ -66,7 +63,7 @@ describe("ExportAction", () => {
         patchTestResult: jest.fn(),
       };
 
-      const repositoryContainer: TestResultExportable = {
+      const repositoryContainer = {
         testResultRepository,
       };
       const testResultId = "testResultId";

@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { TestStepOperation } from "../../types";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface BugDeletable {
-  readonly testStepRepository: TestStepRepository;
-  readonly noteRepository: NoteRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class DeleteBugAction {
-  constructor(private repositoryContainer: BugDeletable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "noteRepository" | "serviceUrl"
+    >
+  ) {}
 
   /**
    * Remove the bug.

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface TestResultDeletable {
-  readonly testResultRepository: TestResultRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class DeleteTestResultAction {
-  constructor(private repositoryContainer: TestResultDeletable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository"
+    >
+  ) {}
 
   public async deleteTestResult(
     testResultId: string

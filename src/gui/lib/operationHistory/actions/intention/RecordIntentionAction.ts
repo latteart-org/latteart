@@ -17,20 +17,13 @@
 import { Note } from "../../Note";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { TestStepOperation } from "../../types";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface RecordIntentionActionObserver {
   setIntention(value: Note): void;
   getTestStepId(sequence: number): string;
-}
-
-export interface IntentionRecordable {
-  readonly testStepRepository: TestStepRepository;
-  readonly noteRepository: NoteRepository;
-  readonly serviceUrl: string;
 }
 
 export interface Sequential {
@@ -40,7 +33,10 @@ export interface Sequential {
 export class RecordIntentionAction {
   constructor(
     private observer: RecordIntentionActionObserver,
-    private repositoryContainer: IntentionRecordable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testStepRepository" | "noteRepository" | "serviceUrl"
+    >
   ) {}
 
   public async record(

@@ -15,15 +15,13 @@
  */
 
 import { ActionResult } from "@/lib/common/ActionResult";
-import { SessionRepository } from "@/lib/eventDispatcher/repositoryService/SessionRepository";
 import { ManagedSession } from "../TestManagementData";
-
-export interface SessionUpdatable {
-  readonly sessionRepository: SessionRepository;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class UpdateSessionAction {
-  constructor(private repositoryContainer: SessionUpdatable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+  ) {}
 
   public async updateSession(
     projectId: string,

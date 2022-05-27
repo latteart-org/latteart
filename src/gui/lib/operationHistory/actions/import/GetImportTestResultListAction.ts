@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
 import { ActionResult } from "@/lib/common/ActionResult";
-
-export interface ImportTestResultsGettable {
-  readonly importTestResultRepository: ImportTestResultRepository;
-  readonly serviceUrl: string;
-}
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class GetImportTestResultListAction {
-  constructor(private repositoryContainer: ImportTestResultsGettable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importTestResultRepository" | "serviceUrl"
+    >
+  ) {}
 
   public async getImportTestResults(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
