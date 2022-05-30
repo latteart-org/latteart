@@ -408,7 +408,10 @@ import ScriptGenerationOptionDialog from "../../common/ScriptGenerationOptionDia
 import DownloadLinkDialog from "../../common/DownloadLinkDialog.vue";
 import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
-import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
+import {
+  RepositoryContainer,
+  RepositoryContainerImpl,
+} from "@/lib/eventDispatcher/RepositoryContainer";
 import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
@@ -533,7 +536,7 @@ export default class ExpCapture extends Vue {
   }
 
   private get isConnectedToRemote() {
-    return this.$store.state.repositoryServiceDispatcher.isRemote;
+    return this.$store.state.repositoryContainer.isRemote;
   }
 
   private pushPauseButton() {
@@ -916,8 +919,8 @@ export default class ExpCapture extends Vue {
     (async () => {
       try {
         const currentRepositoryInfo = (() => {
-          const currentRepository: RepositoryServiceDispatcher =
-            this.$store.state.repositoryServiceDispatcher;
+          const currentRepository: RepositoryContainer =
+            this.$store.state.repositoryContainer;
 
           return {
             url: currentRepository.serviceUrl,
@@ -954,9 +957,9 @@ export default class ExpCapture extends Vue {
 
         // switch to local
         this.$store.commit(
-          "setRepositoryServiceDispatcher",
+          "setRepositoryContainer",
           {
-            serviceDispatcher: new RepositoryServiceDispatcher({
+            repositoryContainer: new RepositoryContainerImpl({
               url: this.$store.state.localRepositoryServiceUrl,
               isRemote: false,
             }),
@@ -980,7 +983,7 @@ export default class ExpCapture extends Vue {
         const history = this.$store.state.operationHistory.history;
         const startTime = new TimestampImpl().epochMilliseconds();
         const readResultData = await this.$store.dispatch(
-          "captureControl/getTestResult",
+          "operationHistory/getTestResult",
           {
             testResultId,
           }
@@ -1021,9 +1024,9 @@ export default class ExpCapture extends Vue {
 
         // switch to before repository
         this.$store.commit(
-          "setRepositoryServiceDispatcher",
+          "setRepositoryContainer",
           {
-            serviceDispatcher: new RepositoryServiceDispatcher(
+            repositoryContainer: new RepositoryContainerImpl(
               currentRepositoryInfo
             ),
           },
@@ -1160,7 +1163,7 @@ export default class ExpCapture extends Vue {
         await this.$store.dispatch("operationHistory/resume", { testResultId });
         const history = this.$store.getters["operationHistory/getHistory"]();
         const readResultData = await this.$store.dispatch(
-          "captureControl/getTestResult",
+          "operationHistory/getTestResult",
           {
             testResultId,
           }
@@ -1353,7 +1356,7 @@ export default class ExpCapture extends Vue {
   }
 
   private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryServiceDispatcher.serviceUrl;
+    return this.$store.state.repositoryContainer.serviceUrl;
   }
 
   private get repositoryUrls(): string[] {

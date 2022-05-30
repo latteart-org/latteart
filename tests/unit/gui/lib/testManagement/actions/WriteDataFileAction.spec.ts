@@ -1,5 +1,4 @@
 import {
-  ProjectUpdatable,
   StoryConvertable,
   WriteDataFileAction,
 } from "@/lib/testManagement/actions/WriteDataFileAction";
@@ -14,7 +13,21 @@ describe("WriteDataActionの", () => {
         setStoriesData: jest.fn(),
       };
 
-      const dispatcher: ProjectUpdatable = {
+      const testResultRepository = {
+        deleteTestResult: jest.fn(),
+        postTestResultForExport: jest.fn(),
+        postTestResultForUpload: jest.fn(),
+        postEmptyTestResult: jest.fn(),
+        getTestResults: jest.fn(),
+        getTestResult: jest.fn(),
+        patchTestResult: jest.fn(),
+      };
+
+      const projectRepository = {
+        postProjectForExport: jest.fn(),
+        getProjects: jest.fn(),
+        getProject: jest.fn(),
+        postProject: jest.fn(),
         putProject: jest.fn().mockResolvedValue({
           data: {
             testMatrices: [],
@@ -28,7 +41,11 @@ describe("WriteDataActionの", () => {
             ],
           },
         }),
-        getTestResult: jest.fn(),
+      };
+
+      const repositoryContainer = {
+        testResultRepository,
+        projectRepository,
       };
 
       const storyDataConverter: StoryConvertable = {
@@ -62,7 +79,7 @@ describe("WriteDataActionの", () => {
       await new WriteDataFileAction(
         observer,
         storyDataConverter,
-        dispatcher
+        repositoryContainer
       ).write(projectId, testManagementData, stories);
 
       expect(observer.setManagedData).toBeCalledWith({

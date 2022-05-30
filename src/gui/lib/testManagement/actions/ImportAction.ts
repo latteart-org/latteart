@@ -14,38 +14,50 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
-
-export interface Importable {
-  importZipFile(
-    source: { projectFileUrl: string },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ projectId: string }>>;
-}
+import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ImportAction {
-  constructor(private dispatcher: Importable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importProjectRepository"
+    >
+  ) {}
 
+  /**
+   * Import project or testresult or all.
+   * @param importFileName  Import file name.
+   * @param selectOption  Select options.
+   */
   public async importZip(
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<{
-    projectId: string;
-  }> {
-    const reply = await this.dispatcher.importZipFile(source, selectOption);
+  ): Promise<ActionResult<{ projectId: string }>> {
+    const reply =
+      await this.repositoryContainer.importProjectRepository.postProjects(
+        source,
+        selectOption
+      );
+
+    let errorMessage;
 
     if (reply.error?.code === "import_test_result_not_exist") {
-      throw new Error(`import-test-result-not-exist`);
+      errorMessage = "import-test-result-not-exist";
     }
-
     if (reply.error?.code === "import_project_not_exist") {
-      throw new Error(`import-project-not-exist`);
+      errorMessage = "import-project-not-exist";
     }
-
     if (!reply.data) {
-      throw new Error(`import-data-error`);
+      errorMessage = "import-data-error";
     }
 
-    return reply.data;
+    const error = errorMessage ? { code: errorMessage } : undefined;
+    const result = {
+      data: reply.data,
+      error,
+    };
+
+    return result;
   }
 }

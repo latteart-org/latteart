@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
 import {
   ManagedStory,
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
+import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 interface WriteDataFileMutationObserver {
   setManagedData(data: {
@@ -32,57 +33,36 @@ interface WriteDataFileMutationObserver {
 export interface StoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldStory?: Story
   ): Promise<Story>;
-}
-
-export interface ProjectUpdatable {
-  putProject(
-    projectId: string,
-    testManagementData: TestManagementData
-  ): Promise<
-    Reply<{
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
-  getTestResult(testResultId: string): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-      testSteps: any;
-    }>
-  >;
 }
 
 export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectUpdatable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >
   ) {}
 
   public async write(
     projectId: string,
     testManagementData: TestManagementData,
     stories: Story[]
-  ): Promise<void> {
-    const reply = await this.dispatcher.putProject(
+  ): Promise<ActionResult<void>> {
+    const reply = await this.repositoryContainer.projectRepository.putProject(
       projectId,
       testManagementData
     );
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
-    }
-
     if (!reply.data) {
-      return;
+      return {};
     }
 
     const data = reply.data;
@@ -98,14 +78,14 @@ export class WriteDataFileAction {
         });
 
         return this.storyDataConverter.convertToStory(
-          story,
-          this.dispatcher,
+          story as ManagedStory,
+          this.repositoryContainer,
           oldStory
         );
       })
     );
     this.observer.setStoriesData({ stories: parsedStories });
 
-    return;
+    return {};
   }
 }

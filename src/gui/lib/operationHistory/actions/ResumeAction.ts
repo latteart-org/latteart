@@ -16,9 +16,15 @@
 
 import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
 import { CoverageSource, InputElementInfo } from "../types";
-import { Reply } from "@/lib/captureControl/Reply";
 import { Operation } from "../Operation";
 import { Note } from "../Note";
+import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  convertTestStepOperation,
+  convertNote,
+  convertIntention,
+} from "@/lib/eventDispatcher/replyDataConverter";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -32,33 +38,62 @@ export interface ResumeActionObserver {
   clearTestStepIds(): void;
 }
 
-export interface TestResultResumable {
-  resume(testResultId: string): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      operationHistoryItems: ({ testStepId: string } & OperationHistoryItem)[];
-      coverageSources: CoverageSource[];
-      inputElementInfos: InputElementInfo[];
-      initialUrl: string;
-    }>
-  >;
-}
-
 export class ResumeAction {
   constructor(
     private observer: ResumeActionObserver,
-    private repositoryServiceDispatcher: TestResultResumable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "serviceUrl"
+    >
   ) {}
 
-  public async resume(testResultId: string): Promise<void> {
-    const reply = await this.repositoryServiceDispatcher.resume(testResultId);
+  /**
+   * Restore the operation history of the specified test result ID
+   * @param testResultId  Test result ID.
+   * @returns Restored operation history information.
+   */
+  public async resume(testResultId: string): Promise<ActionResult<void>> {
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResult(
+        testResultId
+      );
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
+    const error = reply.error ? { code: reply.error.code } : undefined;
+
+    const testResult = reply.data ?? undefined;
+
+    if (!testResult) {
+      return { data: undefined, error };
     }
 
-    const data = reply.data;
+    const serviceUrl = this.repositoryContainer.serviceUrl;
+
+    const data = {
+      id: testResult.id,
+      name: testResult.name,
+      operationHistoryItems: testResult.testSteps.map((testStep) => {
+        const operation = testStep.operation
+          ? convertTestStepOperation(testStep.operation, serviceUrl)
+          : testStep.operation;
+
+        return {
+          testStepId: testStep.id,
+          operation,
+          intention: testStep.intention,
+          bugs:
+            testStep.bugs?.map((bug) => {
+              return convertNote(bug, serviceUrl);
+            }) ?? null,
+          notices:
+            testStep.notices?.map((notice) => {
+              return convertNote(notice, serviceUrl);
+            }) ?? null,
+        };
+      }),
+      coverageSources: testResult.coverageSources,
+      inputElementInfos: testResult.inputElementInfos,
+      initialUrl: testResult.initialUrl,
+    };
 
     if (data) {
       this.observer.clearTestStepIds();
@@ -66,33 +101,38 @@ export class ResumeAction {
       const historyItems = data.operationHistoryItems.map((item) => {
         const sequence = this.observer.registerTestStepId(item.testStepId);
 
+        const operation = item.operation
+          ? Operation.createFromOtherOperation({
+              other: item.operation,
+              overrideParams: { sequence },
+            })
+          : null;
+
+        const intention = item.intention
+          ? convertIntention(item.intention, sequence)
+          : null;
+
+        const bugs =
+          item.bugs?.map((bug) => {
+            return Note.createFromOtherNote({
+              other: bug,
+              overrideParams: { sequence },
+            });
+          }) ?? [];
+
+        const notices =
+          item.notices?.map((notice) => {
+            return Note.createFromOtherNote({
+              other: notice,
+              overrideParams: { sequence },
+            });
+          }) ?? [];
+
         return {
-          operation: item.operation
-            ? Operation.createFromOtherOperation({
-                other: item.operation,
-                overrideParams: { sequence },
-              })
-            : null,
-          intention: item.intention
-            ? Note.createFromOtherNote({
-                other: item.intention,
-                overrideParams: { sequence },
-              })
-            : null,
-          bugs:
-            item.bugs?.map((bug) => {
-              return Note.createFromOtherNote({
-                other: bug,
-                overrideParams: { sequence },
-              });
-            }) ?? [],
-          notices:
-            item.notices?.map((notice) => {
-              return Note.createFromOtherNote({
-                other: notice,
-                overrideParams: { sequence },
-              });
-            }) ?? [],
+          operation: operation,
+          intention: intention,
+          bugs: bugs,
+          notices: notices,
         };
       });
 
@@ -104,5 +144,6 @@ export class ResumeAction {
         testResultInfo: { id: data.id, name: data.name },
       });
     }
+    return { data: reply.data as void, error };
   }
 }

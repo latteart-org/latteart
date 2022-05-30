@@ -152,3 +152,45 @@ export interface TestTargetProgressData {
     incompletedNumber: number;
   };
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  testMatrices: TestMatrix[];
+  stories: StoryDetails[];
+  progressDatas: ProgressData[];
+}
+
+interface StoryDetails {
+  id: string;
+  testMatrixId: string;
+  testTargetId: string;
+  viewPointId: string;
+  status: string;
+  sessions: {
+    id: string;
+    attachedFiles: {
+      name: string;
+      fileUrl?: string;
+    }[];
+    doneDate: string;
+    isDone: boolean;
+    issues: {
+      details: string;
+      source: {
+        index: number;
+        type: string;
+      };
+      status: string;
+      ticketId: string;
+      type: string;
+      value: string;
+    }[];
+    memo: string;
+    name: string;
+    testItem: string;
+    testResultFiles?: TestResultFile[];
+    testerName: string;
+    testingTime: number;
+  }[];
+}

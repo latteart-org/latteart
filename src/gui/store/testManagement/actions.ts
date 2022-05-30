@@ -18,7 +18,6 @@ import Vue from "vue";
 import { ActionTree } from "vuex";
 import { TestManagementState } from ".";
 import { RootState } from "..";
-import { Operation } from "@/lib/operationHistory/Operation";
 import {
   Story,
   TestMatrix,
@@ -35,9 +34,7 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
-import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
-import { TestStep } from "@/lib/operationHistory/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { CalculateProgressDatasAction } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
@@ -45,6 +42,10 @@ import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectD
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
+import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
+import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
+import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
+import { GenerateAllSessionTestScriptsAction } from "@/lib/testManagement/actions/GenerateAllSessionTestScriptsAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -69,11 +70,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @returns URL of the output snapshot.
    */
   async writeSnapshot(context): Promise<string> {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.postSnapshots(
-        context.state.projectId
-      );
-    return reply.data.url;
+    const result = await new WriteSnapshotAction(
+      context.rootState.repositoryContainer
+    ).writeSnapshot(context.state.projectId);
+
+    return result.data!.url;
   },
 
   /**
@@ -100,10 +101,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       id: string;
     }[]
   > {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.getTestResultList();
+    const reply = await new GetTestResultListAction(
+      context.rootState.repositoryContainer
+    ).getTestResults();
 
-    console.log(reply);
+    console.log(reply.data);
 
     return reply.data ?? [];
   },
@@ -138,7 +140,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).read();
   },
 
@@ -167,7 +169,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryServiceDispatcher
+      context.rootState.repositoryContainer
     ).write(
       context.state.projectId,
       payload.testManagementData,
@@ -619,13 +621,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       testingTime: payload.params.testingTime,
     };
 
-    const updatedSession = (
-      await context.rootState.repositoryServiceDispatcher.updateSession(
-        context.state.projectId,
-        payload.sessionId,
-        newSession
-      )
-    ).data!;
+    const result = await new UpdateSessionAction(
+      context.rootState.repositoryContainer
+    ).updateSession(context.state.projectId, payload.sessionId, newSession);
+
+    const updatedSession = result.data!;
 
     const parsedSession = await new StoryDataConverter().convertToSession(
       {
@@ -653,7 +653,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         }),
         testingTime: updatedSession.testingTime,
       },
-      context.rootState.repositoryServiceDispatcher,
+      context.rootState.repositoryContainer,
       story.sessions[sessionIndex]
     );
 
@@ -863,85 +863,27 @@ const actions: ActionTree<TestManagementState, RootState> = {
     const screenDefinitionConfig =
       context.rootGetters["operationHistory/getConfig"]().screenDefinition;
 
-    const initialUrlAndHistoryInEachStories = (
-      await Promise.all(
-        context.state.stories.map(async (story) => {
-          const initialUrlAndTestResultIds = story.sessions
-            .map((session) => {
-              return {
-                initialUrl: session.initialUrl,
-                testResultFiles: session.testResultFiles ?? [],
-              };
-            })
-            .filter(({ testResultFiles }) => testResultFiles.length > 0)
-            .map(({ initialUrl, testResultFiles }) => {
-              return {
-                initialUrl,
-                testResultId: testResultFiles[0].id,
-              };
-            });
-
-          const initialUrlAndTestSteps = await Promise.all(
-            initialUrlAndTestResultIds.map(
-              async ({ initialUrl, testResultId }) => {
-                const testSteps: TestStep[] =
-                  (
-                    await this.state.repositoryServiceDispatcher.resume(
-                      testResultId
-                    )
-                  ).data?.operationHistoryItems ?? [];
-
-                return { initialUrl, testSteps };
-              }
-            )
-          );
-
-          const initialUrlAndHistoryInEachSessions = initialUrlAndTestSteps.map(
-            ({ initialUrl, testSteps }) => {
-              const history = testSteps.flatMap((testStep: TestStep) => {
-                if (!testStep.operation) {
-                  return [];
-                }
-
-                const screenDef = new ScreenDefFactory(
-                  screenDefinitionConfig
-                ).createFrom(
-                  testStep.operation.title,
-                  testStep.operation.url,
-                  testStep.operation.keywordSet
-                );
-
-                const operation = Operation.createFromOtherOperation({
-                  other: testStep.operation,
-                  overrideParams: {
-                    screenDef,
-                  },
-                });
-
-                return [operation];
-              });
-
-              return {
-                initialUrl,
-                history,
-              };
-            }
-          );
-
-          return initialUrlAndHistoryInEachSessions;
-        })
-      )
-    ).flat();
-
-    return context.dispatch(
-      "operationHistory/generateTestScripts",
+    const result = await new GenerateAllSessionTestScriptsAction(
       {
-        projectId: context.state.projectId,
-        sources: initialUrlAndHistoryInEachStories,
-        option: payload.option,
+        generateTestScripts: (sources) => {
+          return context.dispatch(
+            "operationHistory/generateTestScripts",
+            {
+              projectId: context.state.projectId,
+              sources,
+              option: payload.option,
+            },
+            { root: true }
+          );
+        },
       },
-      { root: true }
+      context.rootState.repositoryContainer
+    ).generateAllSessionTestScripts(
+      screenDefinitionConfig,
+      context.state.stories
     );
+
+    return result.data!;
   },
 
   /**
@@ -961,22 +903,24 @@ const actions: ActionTree<TestManagementState, RootState> = {
         selectedOptionTestresult: boolean;
       };
     }
-  ): Promise<{
-    projectId: string;
-  }> {
+  ) {
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    try {
-      return await new ImportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).importZip(payload.source, selectOption);
-    } catch (error) {
+    const result = await new ImportAction(
+      context.rootState.repositoryContainer
+    ).importZip(payload.source, selectOption);
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
+    }
+
+    if (result.data) {
+      return result.data;
     }
   },
 
@@ -994,21 +938,25 @@ const actions: ActionTree<TestManagementState, RootState> = {
         selectedOptionTestresult: boolean;
       };
     }
-  ): Promise<string> {
+  ) {
     const exportProjectId = context.state.projectId;
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    try {
-      return await new ExportAction(
-        context.rootState.repositoryServiceDispatcher
-      ).exportZip(exportProjectId, selectOption);
-    } catch (error) {
+    const result = await new ExportAction(
+      context.rootState.repositoryContainer
+    ).exportZip(exportProjectId, selectOption);
+
+    if (result.error) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
+        context.rootGetters.message(`error.import_export.${result.error.code}`)
       );
+    }
+
+    if (result.data) {
+      return result.data;
     }
   },
 };

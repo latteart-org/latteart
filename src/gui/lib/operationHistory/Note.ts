@@ -34,7 +34,7 @@ export class Note {
   public static createFromOtherNote(args: {
     other: Note;
     overrideParams?: {
-      id?: number;
+      id?: string;
       sequence?: number;
       value?: string;
       details?: string;
@@ -60,7 +60,7 @@ export class Note {
   /**
    * Note id.
    */
-  public id?: number;
+  public id?: string;
 
   /**
    * Sequence number of the associated test step.
@@ -108,7 +108,7 @@ export class Note {
    * @param args.compressedImageFilePath  Compressed image file path.
    */
   constructor(args: {
-    id?: number;
+    id?: string;
     sequence?: number;
     value?: string;
     details?: string;
@@ -117,7 +117,7 @@ export class Note {
     compressedImageFilePath?: string;
     tags?: string[];
   }) {
-    this.id = args.id ?? 0;
+    this.id = args.id ?? "";
     this.sequence = args.sequence ?? 0;
     this.value = args.value ?? "";
     this.details = args.details ?? "";

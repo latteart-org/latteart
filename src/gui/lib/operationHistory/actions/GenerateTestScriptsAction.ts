@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-import { TestScript } from "../scriptGenerator/TestScript";
-import { Reply } from "@/lib/captureControl/Reply";
 import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
 import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
-
-export interface TestScriptExportable {
-  postTestscriptsWithProjectId(
-    projectId: string,
-    body: TestScript
-  ): Promise<Reply<{ url: string }>>;
-
-  postTestscriptsWithTestResultId(
-    testResultId: string,
-    body: TestScript
-  ): Promise<Reply<{ url: string }>>;
-}
+import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class GenerateTestScriptsAction {
   constructor(
-    private dispatcher: TestScriptExportable,
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testScriptRepository"
+    >,
     private scriptGenerator: TestScriptGenerator
   ) {}
 
@@ -42,14 +33,16 @@ export class GenerateTestScriptsAction {
     testResultId: string | undefined;
     projectId: string | undefined;
     sources: { initialUrl: string; history: Operation[] }[];
-  }): Promise<{
-    outputUrl: string;
-    invalidOperationTypeExists: boolean;
-  }> {
+  }): Promise<
+    ActionResult<{
+      outputUrl: string;
+      invalidOperationTypeExists: boolean;
+    }>
+  > {
     const testScript = this.scriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
-      throw new Error(`generate_test_suite_failed`);
+      return { data: undefined, error: { code: "generate_test_suite_failed" } };
     }
 
     const invalidTypeExists = params.sources.some((session) => {
@@ -59,41 +52,48 @@ export class GenerateTestScriptsAction {
     });
 
     if (params.projectId) {
-      const reply = await this.dispatcher.postTestscriptsWithProjectId(
-        params.projectId,
-        testScript
-      );
+      const reply =
+        await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
+          params.projectId,
+          testScript
+        );
 
-      if (!reply.data) {
-        throw reply.error;
-      }
-
-      const outputUrl: string = reply.data.url;
-
-      return {
+      const outputUrl = reply.data!.url;
+      const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
+      const error = reply.error ?? undefined;
+      const result = {
+        data,
+        error,
+      };
+
+      return result;
     }
 
     if (params.testResultId) {
-      const reply = await this.dispatcher.postTestscriptsWithTestResultId(
-        params.testResultId,
-        testScript
-      );
-
-      if (!reply.data) {
-        throw reply.error;
-      }
-
-      const outputUrl: string = reply.data.url;
-
-      return {
+      const reply =
+        await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
+          params.testResultId,
+          testScript
+        );
+      const outputUrl = reply.data!.url;
+      const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
-    }
+      const error = reply.error ?? undefined;
+      const result = {
+        data,
+        error,
+      };
 
-    throw new Error(`save_test_scripts_no_operation_error`);
+      return result;
+    }
+    return {
+      data: undefined,
+      error: { code: "save_test_scripts_no_operation_error" },
+    };
   }
 }

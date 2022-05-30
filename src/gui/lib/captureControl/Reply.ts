@@ -18,9 +18,32 @@
  * Response from the counter device.
  */
 export interface Reply<T> {
-  succeeded: boolean;
-  data?: T;
-  error?: ServerError;
+  readonly status: number;
+  readonly succeeded: boolean;
+  readonly data?: T;
+  readonly error?: ServerError;
+}
+
+export class ReplyImpl<T> implements Reply<T> {
+  constructor(
+    private body: { status: number; data?: T; error?: ServerError }
+  ) {}
+
+  public get status(): number {
+    return this.body.status;
+  }
+
+  public get succeeded(): boolean {
+    return !this.body.error;
+  }
+
+  public get data(): T | undefined {
+    return this.body.data;
+  }
+
+  public get error(): ServerError | undefined {
+    return this.body.error;
+  }
 }
 
 /**

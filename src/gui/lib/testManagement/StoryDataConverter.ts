@@ -22,10 +22,9 @@ import {
 import { OperationWithNotes } from "../operationHistory/types";
 import { calculateElapsedEpochMillis } from "../common/util";
 import { Note } from "../operationHistory/Note";
-import {
-  ProjectUpdatable,
-  StoryConvertable,
-} from "./actions/WriteDataFileAction";
+import { StoryConvertable } from "./actions/WriteDataFileAction";
+import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
+import { RepositoryContainer } from "../eventDispatcher/RepositoryContainer";
 
 /**
  * Convert story information.
@@ -34,11 +33,14 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Get the actual test result from the test result ID.
    * @param testResultFiles  test results. Use only the beginning of the array.
-   * @param dispatcher  Callback function to get the test result.
+   * @param repositoryContainer  Callback function to get the test result.
    * @returns Test results testSteps.
    */
   private static async buildHistory(
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     testResultFiles?: {
       name: string;
       id: string;
@@ -59,81 +61,85 @@ export default class StoryDataConverter implements StoryConvertable {
 
     const testResultFile = testResultFiles[0];
 
-    try {
-      const readResultData = (await dispatcher.getTestResult(testResultFile.id))
-        .data;
+    const result = await new GetTestResultAction(
+      repositoryContainer
+    ).getTestResult(testResultFile.id);
 
-      if (!readResultData) {
-        return {};
-      }
-
-      const { testSteps, initialUrl, startTimeStamp } = readResultData;
-
-      const testingTime = calculateElapsedEpochMillis(
-        startTimeStamp,
-        testSteps
-      );
-
-      const issues: Issue[] = (testSteps as OperationWithNotes[]).flatMap(
-        (testStep) => {
-          const noteWithTypes = [
-            ...(testStep.bugs?.map((bug) => {
-              return { type: "bug", note: bug };
-            }) ?? []),
-            ...(testStep.notices?.map((notice) => {
-              return { type: "notice", note: notice };
-            }) ?? []),
-          ];
-
-          return noteWithTypes.map(({ type, note }, index) => {
-            const { status, ticketId } = {
-              status: note.tags.includes("reported")
-                ? "reported"
-                : note.tags.includes("invalid")
-                ? "invalid"
-                : "",
-              ticketId: "",
-            };
-
-            return {
-              status,
-              ticketId,
-              source: {
-                type,
-                sequence: note.sequence,
-                index,
-              },
-              value: note.value,
-              details: note.details,
-            };
-          });
-        }
-      );
-
-      const intentions = (testSteps as OperationWithNotes[]).flatMap(
-        ({ intention }) => {
-          if (!intention) {
-            return [];
-          }
-
-          return [intention];
-        }
-      );
-
-      return { intentions, initialUrl, testingTime, issues };
-    } catch (error) {
-      console.log(error);
+    if (!result.data) {
       return {};
     }
+    if (result.error) {
+      console.log(result.error);
+      return {};
+    }
+
+    const {
+      testSteps: operationWithNotes,
+      initialUrl,
+      startTimeStamp,
+    } = result.data;
+    const testSteps: OperationWithNotes[] = operationWithNotes as any;
+
+    const testingTime = calculateElapsedEpochMillis(startTimeStamp, testSteps);
+
+    const issues: Issue[] = testSteps.flatMap((testStep) => {
+      const noteWithTypes = [
+        ...(testStep.bugs?.map((bug) => {
+          return { type: "bug", note: bug };
+        }) ?? []),
+        ...(testStep.notices?.map((notice) => {
+          return { type: "notice", note: notice };
+        }) ?? []),
+      ];
+
+      return noteWithTypes.map(({ type, note }, index) => {
+        const { status, ticketId } = {
+          status: note.tags.includes("reported")
+            ? "reported"
+            : note.tags.includes("invalid")
+            ? "invalid"
+            : "",
+          ticketId: "",
+        };
+
+        return {
+          status,
+          ticketId,
+          source: {
+            type,
+            sequence: note.sequence,
+            index,
+          },
+          value: note.value,
+          details: note.details,
+        };
+      });
+    });
+
+    const intentions = testSteps.flatMap(({ intention }) => {
+      if (!intention) {
+        return [];
+      }
+
+      return [intention];
+    });
+
+    return { intentions, initialUrl, testingTime, issues };
   }
 
   public async convertToSession(
     target: Partial<ManagedSession>,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldSession?: Session
   ): Promise<Session> {
     const { intentions, initialUrl, testingTime, issues } =
-      await StoryDataConverter.buildHistory(dispatcher, target.testResultFiles);
+      await StoryDataConverter.buildHistory(
+        repositoryContainer,
+        target.testResultFiles
+      );
 
     return {
       name: target.id ?? oldSession?.id ?? "",
@@ -156,12 +162,15 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Convert story information for storage to story information.
    * @param target  Story information for storage.
-   * @param dispatcher  Callback function that associates test results.
+   * @param repositoryContainer  Callback function that associates test results.
    * @returns Story information after conversion.
    */
   public async convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldStory?: Story
   ): Promise<Story> {
     return {
@@ -190,7 +199,11 @@ export default class StoryDataConverter implements StoryConvertable {
             testingTime: session.testingTime,
           };
 
-          return this.convertToSession(newSession, dispatcher, oldSession);
+          return this.convertToSession(
+            newSession,
+            repositoryContainer,
+            oldSession
+          );
         })
       ),
     };

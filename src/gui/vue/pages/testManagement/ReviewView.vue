@@ -196,7 +196,7 @@ export default class ReviewView extends Vue {
           );
         }
 
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
@@ -292,7 +292,7 @@ export default class ReviewView extends Vue {
   }
 
   private openNoteMenu(
-    note: { id: number; sequence: number; index: number; type: string },
+    note: { id: string; sequence: number; index: number; type: string },
     eventInfo: { clientX: number; clientY: number }
   ) {
     if ((this as any).$isViewerMode) {

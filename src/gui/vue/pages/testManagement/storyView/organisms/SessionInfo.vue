@@ -486,7 +486,7 @@ export default class SessionInfo extends Vue {
 
     if (extension !== "") {
       const source = file.fileUrl
-        ? `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${file.fileUrl}`
+        ? `${this.$store.state.repositoryContainer.serviceUrl}/${file.fileUrl}`
         : `data:image/${extension};base64, ${file.fileData}`;
       if (source === "") {
         return false;
@@ -499,7 +499,7 @@ export default class SessionInfo extends Vue {
     // no extention
     const a = document.createElement("a");
     a.href = file.fileUrl
-      ? `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${file.fileUrl}`
+      ? `${this.$store.state.repositoryContainer.serviceUrl}/${file.fileUrl}`
       : (`data:text/plain;base64,${file.fileData}` as string);
     a.target = "_blank";
     a.rel = "noopener noreferrer";
@@ -688,8 +688,7 @@ export default class SessionInfo extends Vue {
     const captureClUrl =
       this.$store.state.clientSideCaptureServiceDispatcher.serviceUrl;
     const localRepositoryUrl = this.$store.state.localRepositoryServiceUrl;
-    const repositoryUrl =
-      this.$store.state.repositoryServiceDispatcher.serviceUrl;
+    const repositoryUrl = this.$store.state.repositoryContainer.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${localRepositoryUrl}&remoteRepository=${repositoryUrl}`;
 
     if (testResultFiles.length > 0) {

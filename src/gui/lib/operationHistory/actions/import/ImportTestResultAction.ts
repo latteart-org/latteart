@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export interface TestResultImportable {
-  importTestResult(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<Reply<{ testResultId: string }>>;
-}
-
-export class ImportAction {
-  constructor(private dispatcher: TestResultImportable) {}
+export class ImportTestResultAction {
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importTestResultRepository"
+    >
+  ) {}
 
   public async importWithTestResult(
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
-  ): Promise<{ testResultId: string }> {
-    const reply = await this.dispatcher.importTestResult(source, dest);
+  ): Promise<ActionResult<{ testResultId: string }>> {
+    const reply =
+      await this.repositoryContainer.importTestResultRepository.postTestResult(
+        source,
+        dest
+      );
 
-    if (!reply.data) {
-      throw new Error(`import-data-error`);
-    }
+    const error = reply.error ? { code: "import-data-error" } : undefined;
+    const result = {
+      data: reply.data,
+      error,
+    };
 
-    return reply.data;
+    return result;
   }
 }

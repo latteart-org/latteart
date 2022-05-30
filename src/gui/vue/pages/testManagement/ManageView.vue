@@ -224,7 +224,7 @@ export default class ManageView extends Vue {
   }
 
   private get isConnectedToRemote() {
-    return this.$store.state.repositoryServiceDispatcher.isRemote;
+    return this.$store.state.repositoryContainer.isRemote;
   }
 
   public toManageEdit(): void {
@@ -530,7 +530,7 @@ export default class ManageView extends Vue {
   }
 
   private get currentRepositoryUrl() {
-    return this.$store.state.repositoryServiceDispatcher.serviceUrl;
+    return this.$store.state.repositoryContainer.serviceUrl;
   }
 
   private get repositoryUrls(): string[] {

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
-import { ProjectUpdatable, StoryConvertable } from "./WriteDataFileAction";
+import { StoryConvertable } from "./WriteDataFileAction";
+import { ActionResult } from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
@@ -29,36 +31,32 @@ interface ReadDataFileMutationObserver {
 export interface ProjectStoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectFetchable
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ): Promise<Story>;
-}
-
-export interface ProjectFetchable extends ProjectUpdatable {
-  readProject(): Promise<
-    Reply<{
-      projectId: string;
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
 }
 
 export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectFetchable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ) {}
 
-  public async read(): Promise<void> {
-    const reply = await this.dispatcher.readProject();
+  public async read(): Promise<ActionResult<void>> {
+    const reply = await this.readProject();
+
     if (reply.error) {
-      throw new Error(reply.error.code);
+      return { data: undefined, error: reply.error };
     }
 
     if (!reply.data) {
-      return;
+      return {};
     }
 
     const { projectId, testMatrices, stories, progressDatas } = reply.data;
@@ -72,12 +70,64 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            this.dispatcher as unknown as ProjectUpdatable
+            this.repositoryContainer as unknown as Pick<
+              RepositoryContainer,
+              "testResultRepository" | "projectRepository"
+            >
           )
         )
       ),
     });
 
     this.observer.setProgressDatas({ progressDatas });
+
+    return {};
+  }
+
+  /**
+   * Read project data.
+   * @returns Project data.
+   */
+  private async readProject(): Promise<
+    Reply<{
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    }>
+  > {
+    const projects = (
+      await this.repositoryContainer.projectRepository.getProjects()
+    ).data as Array<{
+      id: string;
+      name: string;
+    }>;
+
+    const targetProjectId =
+      projects.length === 0
+        ? (
+            (await this.repositoryContainer.projectRepository.postProject())
+              .data as {
+              id: string;
+              name: string;
+            }
+          ).id
+        : projects[projects.length - 1].id;
+
+    const reply = await this.repositoryContainer.projectRepository.getProject(
+      targetProjectId
+    );
+
+    const data = {
+      ...reply.data,
+      projectId: targetProjectId,
+    } as {
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    };
+
+    return new ReplyImpl({ status: reply.status, data: data });
   }
 }

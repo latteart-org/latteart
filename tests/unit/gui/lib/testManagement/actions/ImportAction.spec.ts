@@ -1,53 +1,76 @@
-import {
-  Importable,
-  ImportAction,
-} from "@/lib/testManagement/actions/ImportAction";
+import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
 
 describe("ImportAction", () => {
   describe("#importZip", () => {
     it("渡されたファイル名を用いてインポートを実行し、その戻り値を返す", async () => {
       const reply = {
-        succeeded: true,
+        status: 200,
         data: { name: "importFileName", id: "projectId" },
       };
 
-      const dispatcher: Importable = {
-        importZipFile: jest.fn().mockResolvedValue(reply),
+      const expectedResult = {
+        data: reply.data,
+        error: undefined,
+      };
+
+      const importProjectRepository = {
+        getProjects: jest.fn(),
+        postProjects: jest.fn().mockResolvedValue(reply),
+      };
+
+      const repositoryContainer = {
+        importProjectRepository,
       };
 
       const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      const returnData = await new ImportAction(dispatcher).importZip(
+      const result = await new ImportAction(repositoryContainer).importZip(
         source,
         selectOption
       );
 
-      expect(dispatcher.importZipFile).toBeCalledWith(source, selectOption);
-      expect(returnData).toEqual(reply.data);
+      expect(
+        repositoryContainer.importProjectRepository.postProjects
+      ).toBeCalledWith(source, selectOption);
+      expect(result).toEqual(expectedResult);
     });
 
     it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
       const reply = {
-        succeeded: false,
+        status: 500,
         error: {
           code: "errorcode",
           message: "errormessage",
         },
       };
 
-      const dispatcher: Importable = {
-        importZipFile: jest.fn().mockResolvedValue(reply),
+      const receivedError = {
+        data: undefined,
+        error: { code: "import-data-error" },
+      };
+
+      const importProjectRepository = {
+        getProjects: jest.fn(),
+        postProjects: jest.fn().mockResolvedValue(reply),
+      };
+
+      const repositoryContainer = {
+        importProjectRepository,
       };
 
       const source = { projectFileUrl: "projectFileUrl" };
       const selectOption = { includeProject: true, includeTestResults: false };
 
-      await expect(
-        new ImportAction(dispatcher).importZip(source, selectOption)
-      ).rejects.toThrowError("import-data-error");
+      const result = await new ImportAction(repositoryContainer).importZip(
+        source,
+        selectOption
+      );
 
-      expect(dispatcher.importZipFile).toBeCalledWith(source, selectOption);
+      expect(
+        repositoryContainer.importProjectRepository.postProjects
+      ).toBeCalledWith(source, selectOption);
+      expect(result).toEqual(receivedError);
     });
   });
 });

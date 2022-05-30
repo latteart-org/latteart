@@ -2,7 +2,7 @@ import {
   SaveIntentionAction,
   IntentionInfo,
   SaveIntentionActionObserver,
-} from "@/lib/operationHistory/actions/SaveIntentionAction";
+} from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
 
 describe("SaveIntentionAction", () => {
   describe("#save", () => {

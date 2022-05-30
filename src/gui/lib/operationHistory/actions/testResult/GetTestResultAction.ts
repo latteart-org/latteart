@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import { ActionResult } from "@/lib/common/ActionResult";
+import { TestResult } from "../../types";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export interface TestResultDeletable {
-  deleteTestResult(testResultId: string): Promise<Reply<void>>;
-}
+export class GetTestResultAction {
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository"
+    >
+  ) {}
 
-export class DeleteTestResultAction {
-  constructor(private dispatcher: TestResultDeletable) {}
+  public async getTestResult(
+    testResultId: string
+  ): Promise<ActionResult<TestResult>> {
+    const reply =
+      await this.repositoryContainer.testResultRepository.getTestResult(
+        testResultId
+      );
 
-  public async deleteTestResult(testResultId: string): Promise<string> {
-    const reply = await this.dispatcher.deleteTestResult(testResultId);
-
-    if (reply.error) {
-      throw new Error(`testresult-delete-error`);
-    }
-
-    return testResultId;
+    return reply;
   }
 }
