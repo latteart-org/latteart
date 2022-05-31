@@ -35,7 +35,7 @@
       large
       color="grey darken-3"
       @click="forceQuitReplay"
-      :disabled="disabled"
+      :disabled="isdisabled"
       :title="$store.getters.message('app.stop-replay')"
     >
       <v-icon>stop</v-icon>
