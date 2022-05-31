@@ -22,9 +22,11 @@
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
+
     <v-btn @click="toBack()">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
+
     <v-layout column fill-height>
       <iframe
         style="width: 100%; height: 100%"

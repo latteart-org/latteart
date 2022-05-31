@@ -158,8 +158,13 @@ export default class ReviewView extends Vue {
   }
 
   private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
+    testScript: {
+      isSimple: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
@@ -200,9 +205,13 @@ export default class ReviewView extends Vue {
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
-        this.errorMessage = error.message;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.errorDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.scriptGenerationOptionDialogIsOpened = false;
+          this.errorDialogOpened = true;
+        } else {
+          throw error;
+        }
       } finally {
         this.$store.dispatch("closeProgressDialog");
         this.isGeneratingTestScripts = false;
@@ -223,9 +232,13 @@ export default class ReviewView extends Vue {
       try {
         await this.$store.dispatch("operationHistory/resume", { testResultId });
       } catch (error) {
-        console.error(error);
-        this.errorDialogOpened = true;
-        this.errorMessage = error.message;
+        if (error instanceof Error) {
+          console.error(error);
+          this.errorDialogOpened = true;
+          this.errorMessage = error.message;
+        } else {
+          throw error;
+        }
       }
 
       this.isResuming = false;

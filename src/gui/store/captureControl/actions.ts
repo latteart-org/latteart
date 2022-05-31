@@ -28,8 +28,6 @@ import {
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
 import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
-import { calculateElapsedEpochMillis } from "@/lib/common/util";
-import { TimestampImpl } from "@/lib/common/Timestamp";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 
@@ -296,7 +294,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.url Target URL.
    * @param payload.config Capture config.
-   * @param payload.callbacks.onChangeTime The callback when the time has passed.
    * @param payload.callbacks.onChangeNumberOfWindows
    *            The callback when the number of opened windows on the test target browser.
    */
@@ -305,10 +302,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
-      startTime: number;
-      lastStartTime: number;
       callbacks: {
-        onChangeTime: (time: string) => void;
         onChangeNumberOfWindows: () => void;
       };
     }
@@ -325,22 +319,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           config,
           {
             onStart: async () => {
-              const history: OperationWithNotes[] =
-                context.rootGetters["operationHistory/getHistory"]();
-
-              const lastTestingTime = calculateElapsedEpochMillis(
-                payload.lastStartTime,
-                history
-              );
-              const newStartTime = new TimestampImpl(payload.startTime)
-                .offset(lastTestingTime * -1)
-                .epochMilliseconds();
-
               context.dispatch("stopTimer");
-              context.dispatch("startTimer", {
-                onChangeTime: payload.callbacks.onChangeTime,
-                startTime: newStartTime,
-              });
+              context.dispatch("startTimer");
 
               context.commit("setCapturing", { isCapturing: true });
               context.commit(
@@ -505,13 +485,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   /**
    * Start the timer to measure capture time.
    * @param context Action context.
-   * @param payload.onChangeTime The callback when the time has passed.
    */
-  startTimer(
-    context,
-    payload: { onChangeTime: (time: string) => void; startTime: number }
-  ) {
-    context.state.timer.start(payload.onChangeTime, payload.startTime);
+  startTimer(context) {
+    context.state.timer.start();
   },
 
   /**
@@ -520,6 +496,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   stopTimer(context) {
     context.state.timer.stop();
+  },
+
+  /**
+   * Reset the timer to measure capture time.
+   * @param context Action context.
+   * @param payload.millis initial time.
+   */
+  resetTimer(context, payload?: { millis: number }) {
+    context.state.timer.reset(payload?.millis);
   },
 
   /**

@@ -103,11 +103,8 @@
           </v-flex>
           <v-flex xs2 pl-3 v-if="!isViewerMode">
             <remote-access-field
-              :url="currentRepositoryUrl"
               color="primary"
               hide-details
-              :urls="repositoryUrls"
-              @execute="startRemoteConnection"
             ></remote-access-field
           ></v-flex>
         </v-layout>
@@ -162,7 +159,7 @@ import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ImportOptionDialog from "../common/ImportOptionDialog.vue";
 import ExportOptionDialog from "../common/ExportOptionDialog.vue";
 import InformationMessageDialog from "../common/InformationMessageDialog.vue";
-import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
+import RemoteAccessField from "@/vue/pages/common/organisms/RemoteAccessField.vue";
 
 @Component({
   components: {
@@ -295,8 +292,13 @@ export default class ManageView extends Vue {
   }
 
   private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
+    testScript: {
+      isSimple: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
@@ -385,8 +387,12 @@ export default class ManageView extends Vue {
           }
         );
       } catch (error) {
-        this.errorMessage = `${error.message}`;
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = `${error.message}`;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       } finally {
         this.$store.dispatch("closeProgressDialog");
         this.importDataProcessing = false;
@@ -485,58 +491,8 @@ export default class ManageView extends Vue {
     this.optionMenuList = [...optionMenus.filter((menu) => menu.isEnabled)];
   }
 
-  private startRemoteConnection(targetUrl: string) {
-    (async () => {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "remote-access.connecting-remote-url"
-        ),
-      });
-
-      const url = await this.$store
-        .dispatch("connectRemoteUrl", {
-          targetUrl,
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
-
-      if (url) {
-        await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("operationHistory/readSettings");
-
-        this.$store.dispatch("operationHistory/resetHistory");
-        await this.$store.dispatch("testManagement/readDataFile");
-
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message("common.confirm");
-        this.informationMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-succeeded",
-          {
-            url,
-          }
-        );
-        this.remoteUrl = url;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-error"
-        );
-        this.errorMessageDialogOpened = true;
-      }
-    })();
-  }
-
   private get currentRepositoryUrl() {
     return this.$store.state.repositoryContainer.serviceUrl;
-  }
-
-  private get repositoryUrls(): string[] {
-    const localUrl = this.$store.state.localRepositoryServiceUrl;
-    const remoteUrls = this.$store.state.remoteRepositoryUrls;
-    return [localUrl, ...remoteUrls];
   }
 }
 </script>

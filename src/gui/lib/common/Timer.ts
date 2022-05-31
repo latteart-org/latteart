@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-import { TimestampImpl, Timestamp } from "./Timestamp";
+import { formatTime } from "./Timestamp";
 
 /**
  * Timer class that executes a function every second.
  */
 export default class Timer {
-  private startTime: Timestamp | null = null;
   private intervalId: number | null = null;
+  private currentTime = 0;
+
+  public get now(): string {
+    return formatTime(this.currentTime);
+  }
 
   /**
    * Start the timer.
-   * @param onChangeTime  Callback function called every second.
-   * @param startTime  Start time.
    */
-  public start(onChangeTime: (time: string) => void, startTime: number): void {
-    this.startTime = new TimestampImpl(startTime);
-
+  public start(): void {
     this.intervalId = window.setInterval(() => {
-      const now = new TimestampImpl();
-      onChangeTime(now.diffFormat(this.startTime ?? now));
+      this.currentTime += 1000;
     }, 1000);
   }
 
@@ -45,5 +44,13 @@ export default class Timer {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+  }
+
+  /**
+   * Reset the timer.
+   * @param millis initial time.
+   */
+  public reset(millis = 0): void {
+    this.currentTime = millis;
   }
 }
