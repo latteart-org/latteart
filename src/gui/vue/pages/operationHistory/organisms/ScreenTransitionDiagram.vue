@@ -25,6 +25,7 @@
       :value="selectedWindowHandle"
       @change="(value) => selectWindow(value)"
     />
+
     <mermaid-graph-renderer
       v-if="graph"
       :graph="graph"

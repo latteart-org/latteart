@@ -184,23 +184,14 @@ export default class ClientSideCaptureServiceDispatcher {
 
       this.socketIOClient = null;
 
-      let response: Reply<string> | undefined;
       if (completedMessage) {
-        response = new ReplyImpl({ status: 200, data: completedMessage });
+        return new ReplyImpl({ status: 200, data: completedMessage });
       } else {
-        response = new ReplyImpl({
+        return new ReplyImpl({
           status: 500,
           error: occurredError ?? undefined,
         });
       }
-      response = new ReplyImpl({
-        status: 500,
-        error: {
-          code: "client_side_capture_service_not_found",
-          message: "Client side capture service is not found.",
-        },
-      });
-      return response;
     } catch (error) {
       console.error(error);
 
