@@ -102,9 +102,12 @@ export default class RemoteAccessField extends Vue {
     });
   }
 
-  private resetHistory(): void {
-    this.$store.dispatch("operationHistory/resetHistory");
-    this.$store.dispatch("captureControl/resetTimer");
+  private async initialize(): Promise<void> {
+    await this.$store.dispatch("loadLocaleFromSettings");
+    await this.$store.dispatch("operationHistory/readSettings");
+    await this.$store.dispatch("operationHistory/resetHistory");
+    await this.$store.dispatch("captureControl/resetTimer");
+    await this.$store.dispatch("testManagement/readDataFile");
   }
 
   private startRemoteConnection(targetUrl: string) {
@@ -127,10 +130,7 @@ export default class RemoteAccessField extends Vue {
         });
 
       if (url) {
-        await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("operationHistory/readSettings");
-
-        this.resetHistory();
+        await this.initialize();
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message("common.confirm");
