@@ -26,6 +26,16 @@
       <v-btn @click="resetFilter" color="info" small>{{
         message("operation.reset")
       }}</v-btn>
+      <v-checkbox
+        class="search-checkbox"
+        :label="$store.getters.message('operation.intention')"
+        v-model="intentionCheckbox"
+      ></v-checkbox>
+      <v-checkbox
+        class="search-checkbox"
+        :label="$store.getters.message('operation.notice')"
+        v-model="noticeCheckbox"
+      ></v-checkbox>
     </v-layout>
     <v-layout
       align-space-around
@@ -198,6 +208,9 @@ export default class OperationList extends Vue {
   private search = "";
   private selectedSequences: number[] = [];
 
+  private intentionCheckbox = false;
+  private noticeCheckbox = false;
+
   private contextMenuOpened = false;
   private contextMenuX = -1;
   private contextMenuY = -1;
@@ -289,6 +302,28 @@ export default class OperationList extends Vue {
   private operationContainsText(item: OperationWithNotes): boolean {
     const search = this.search;
 
+    if (this.intentionCheckbox || this.noticeCheckbox) {
+      if (this.intentionCheckbox && item.intention) {
+        if (search) {
+          return this.searchText(item, search);
+        }
+        return true;
+      }
+
+      if (this.noticeCheckbox && item.notices!.length > 0) {
+        if (search) {
+          return this.searchText(item, search);
+        }
+        return true;
+      }
+
+      return false;
+    }
+
+    return this.searchText(item, search);
+  }
+
+  private searchText(item: OperationWithNotes, search: string): boolean {
     if (
       item.operation.sequence.toString().toLowerCase().indexOf(search) !== -1
     ) {
@@ -457,4 +492,8 @@ td
 
 .seq-col
   padding-right: 8px !important
+
+.search-checkbox
+  flex: none
+  transform: scale(0.9)
 </style>
