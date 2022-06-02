@@ -52,7 +52,11 @@
           :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
           :items="displayedHistory"
-          :filtering-predicates="[operationIsDisplayed, operationContainsText]"
+          :filtering-predicates="[
+            displayedOperationFilterPredicate,
+            textFilterPredicate,
+            noteFilterPredicate,
+          ]"
           :shortcut="shortcutEnabled"
           sortBy="operation.sequence"
           descending
@@ -291,7 +295,7 @@ export default class OperationList extends Vue {
     return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
   }
 
-  private operationIsDisplayed(item: OperationWithNotes) {
+  private displayedOperationFilterPredicate(item: OperationWithNotes) {
     if (this.displayedOperations.length === 0) {
       return true;
     }
@@ -299,49 +303,23 @@ export default class OperationList extends Vue {
     return this.displayedOperations.includes(item.operation.sequence);
   }
 
-  private operationIsPurposeChecked(item: OperationWithNotes) {
-    const search = this.search;
-
+  private noteFilterPredicate(item: OperationWithNotes): boolean {
+    if (!this.noticeCheckbox && !this.purposeCheckbox) {
+      return true;
+    }
+    if (this.noticeCheckbox && (item.notices?.length ?? 0 > 0)) {
+      return true;
+    }
     if (this.purposeCheckbox && item.intention) {
-      if (search) {
-        return this.searchText(item, search);
-      }
       return true;
     }
+
+    return false;
   }
 
-  private operationIsNoticeChecked(item: OperationWithNotes) {
+  private textFilterPredicate(item: OperationWithNotes): boolean {
     const search = this.search;
 
-    if (this.noticeCheckbox && item.notices!.length > 0) {
-      if (search) {
-        return this.searchText(item, search);
-      }
-      return true;
-    }
-  }
-
-  private operationContainsText(item: OperationWithNotes): boolean {
-    const search = this.search;
-
-    if (this.purposeCheckbox || this.noticeCheckbox) {
-      const isPurpose = this.operationIsPurposeChecked(item);
-      if (isPurpose) {
-        return isPurpose;
-      }
-
-      const isNotice = this.operationIsNoticeChecked(item);
-      if (isNotice) {
-        return isNotice;
-      }
-
-      return false;
-    }
-
-    return this.searchText(item, search);
-  }
-
-  private searchText(item: OperationWithNotes, search: string): boolean {
     if (
       item.operation.sequence.toString().toLowerCase().indexOf(search) !== -1
     ) {
