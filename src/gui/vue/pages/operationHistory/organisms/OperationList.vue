@@ -28,8 +28,8 @@
       }}</v-btn>
       <v-checkbox
         class="search-checkbox"
-        :label="$store.getters.message('operation.intention')"
-        v-model="intentionCheckbox"
+        :label="$store.getters.message('operation.purpose')"
+        v-model="purposeCheckbox"
       ></v-checkbox>
       <v-checkbox
         class="search-checkbox"
@@ -208,7 +208,7 @@ export default class OperationList extends Vue {
   private search = "";
   private selectedSequences: number[] = [];
 
-  private intentionCheckbox = false;
+  private purposeCheckbox = false;
   private noticeCheckbox = false;
 
   private contextMenuOpened = false;
@@ -299,22 +299,40 @@ export default class OperationList extends Vue {
     return this.displayedOperations.includes(item.operation.sequence);
   }
 
+  private operationIsPurposeChecked(item: OperationWithNotes) {
+    const search = this.search;
+
+    if (this.purposeCheckbox && item.intention) {
+      if (search) {
+        return this.searchText(item, search);
+      }
+      return true;
+    }
+  }
+
+  private operationIsNoticeChecked(item: OperationWithNotes) {
+    const search = this.search;
+
+    if (this.noticeCheckbox && item.notices!.length > 0) {
+      if (search) {
+        return this.searchText(item, search);
+      }
+      return true;
+    }
+  }
+
   private operationContainsText(item: OperationWithNotes): boolean {
     const search = this.search;
 
-    if (this.intentionCheckbox || this.noticeCheckbox) {
-      if (this.intentionCheckbox && item.intention) {
-        if (search) {
-          return this.searchText(item, search);
-        }
-        return true;
+    if (this.purposeCheckbox || this.noticeCheckbox) {
+      const isPurpose = this.operationIsPurposeChecked(item);
+      if (isPurpose) {
+        return isPurpose;
       }
 
-      if (this.noticeCheckbox && item.notices!.length > 0) {
-        if (search) {
-          return this.searchText(item, search);
-        }
-        return true;
+      const isNotice = this.operationIsNoticeChecked(item);
+      if (isNotice) {
+        return isNotice;
       }
 
       return false;
@@ -480,6 +498,10 @@ td
 
 .seq-col
   padding-right: 8px !important
+
+.search-checkbox
+  flex: none
+  transform: scale(0.9)
 </style>
 
 <style lang="sass">
@@ -492,8 +514,4 @@ td
 
 .seq-col
   padding-right: 8px !important
-
-.search-checkbox
-  flex: none
-  transform: scale(0.9)
 </style>
