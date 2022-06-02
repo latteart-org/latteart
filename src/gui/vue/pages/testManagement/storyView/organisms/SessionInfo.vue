@@ -37,13 +37,13 @@
             @change="(value) => updateSession({ testerName: value })"
             :disabled="isViewerMode"
           ></v-text-field>
-          <v-text-field
+          <v-textarea
             class="pt-0"
             :label="this.$store.getters.message('session-info.memo')"
             :value="session.memo"
             @change="(value) => updateSession({ memo: value })"
             :disabled="isViewerMode"
-          ></v-text-field>
+          ></v-textarea>
         </v-card-text>
       </v-form>
     </v-card>
