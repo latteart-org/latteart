@@ -26,16 +26,6 @@
       <v-btn @click="resetFilter" color="info" small>{{
         message("operation.reset")
       }}</v-btn>
-      <v-checkbox
-        class="search-checkbox"
-        :label="$store.getters.message('operation.purpose')"
-        v-model="purposeCheckbox"
-      ></v-checkbox>
-      <v-checkbox
-        class="search-checkbox"
-        :label="$store.getters.message('operation.notice')"
-        v-model="noticeCheckbox"
-      ></v-checkbox>
     </v-layout>
     <v-layout
       align-space-around
@@ -151,9 +141,22 @@
     </v-layout>
 
     <v-layout id="operation-search" style="height: 50px">
+      <span class="search-title"
+        ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+      >
+      <v-checkbox
+        class="search-checkbox search-item"
+        :label="$store.getters.message('operation.purpose')"
+        v-model="purposeCheckbox"
+      ></v-checkbox>
+      <v-checkbox
+        class="search-checkbox"
+        :label="$store.getters.message('operation.notice')"
+        v-model="noticeCheckbox"
+      ></v-checkbox>
       <v-text-field
+        class="search-item"
         v-model="search"
-        prepend-inner-icon="search"
         :label="message('operation.query')"
         @focus="shortcutEnabled = false"
         @blur="shortcutEnabled = true"
@@ -480,6 +483,13 @@ td
 .search-checkbox
   flex: none
   transform: scale(0.9)
+
+.search-title
+  color: rgba(0,0,0,0.54)
+  padding-top: 17px
+
+.search-item
+  padding-left: 16px
 </style>
 
 <style lang="sass">

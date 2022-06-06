@@ -172,7 +172,8 @@
     "details": "Details"
   },
   "operation": {
-    "query": "Search Query",
+    "search": "Search",
+    "query": "Character string",
     "reset": "Reset Filter",
     "purpose": "Purpose",
     "notice": "Finding",
