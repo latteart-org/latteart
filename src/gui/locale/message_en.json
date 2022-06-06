@@ -173,7 +173,7 @@
   },
   "operation": {
     "search": "Search",
-    "query": "Character string",
+    "query": "Text",
     "reset": "Reset Filter",
     "purpose": "Purpose",
     "notice": "Finding",
