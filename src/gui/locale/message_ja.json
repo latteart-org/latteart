@@ -178,8 +178,11 @@
     "details": "詳細"
   },
   "operation": {
-    "query": "検索ワード",
+    "search": "検索",
+    "query": "文字列",
     "reset": "フィルタリセット",
+    "purpose": "目的",
+    "notice": "気づき",
     "sequence": "通番",
     "title": "ページタイトル",
     "tagname": "要素タグ",

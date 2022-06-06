@@ -172,8 +172,11 @@
     "details": "Details"
   },
   "operation": {
-    "query": "Search Query",
+    "search": "Search",
+    "query": "Text",
     "reset": "Reset Filter",
+    "purpose": "Purpose",
+    "notice": "Finding",
     "sequence": "No.",
     "title": "Title",
     "tagname": "Tag",
