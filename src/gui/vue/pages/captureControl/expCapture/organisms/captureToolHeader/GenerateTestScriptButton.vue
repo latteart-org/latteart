@@ -15,23 +15,17 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      icon
-      flat
-      large
-      color="grey darken-3"
-      @click="scriptGenerationOptionDialogIsOpened = true"
-      :loading="isGeneratingTestScripts"
-      :disabled="isDisabled"
-      :title="$store.getters.message('history-view.generate-testscript')"
-      ><v-icon>description</v-icon></v-btn
-    >
-
+  <v-list-tile
+    @click="openScriptGenerationOptionDialogIsOpened"
+    :disabled="isDisabled"
+  >
+    <v-list-tile-title>{{
+      $store.getters.message("history-view.generate-testscript")
+    }}</v-list-tile-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
-      @close="scriptGenerationOptionDialogIsOpened = false"
+      @close="closeOpenScriptGenerationOptionDialogIsOpened"
     >
     </script-generation-option-dialog>
 
@@ -49,7 +43,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </div>
+  </v-list-tile>
 </template>
 
 <script lang="ts">
@@ -102,6 +96,14 @@ export default class GenerateTestScriptButton extends Vue {
 
   private get currentRepositoryUrl(): string {
     return this.$store.state.repositoryContainer.serviceUrl;
+  }
+
+  private openScriptGenerationOptionDialogIsOpened() {
+    this.scriptGenerationOptionDialogIsOpened = true;
+  }
+
+  private closeOpenScriptGenerationOptionDialogIsOpened() {
+    this.scriptGenerationOptionDialogIsOpened = false;
   }
 
   private generateTestScript(option: {

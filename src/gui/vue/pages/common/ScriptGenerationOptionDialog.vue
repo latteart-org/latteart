@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 <template>
-  <scrollable-dialog :opened="opened">
+  <scrollable-dialog :opened="dialogOpened">
     <template v-slot:title>{{
       $store.getters.message("history-view.generate-testscript-title")
     }}</template>
@@ -91,7 +91,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import NumberField from "@/vue/molecules/NumberField.vue";
 
@@ -102,7 +102,16 @@ import NumberField from "@/vue/molecules/NumberField.vue";
   },
 })
 export default class ScriptGenerationOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
+
+  private dialogOpened = false;
+
+  @Watch("opened")
+  private async watchOpened(newValue: boolean) {
+    setTimeout(() => {
+      this.dialogOpened = newValue;
+    }, 100);
+  }
 
   private testGenerationOption = {
     testScript: {

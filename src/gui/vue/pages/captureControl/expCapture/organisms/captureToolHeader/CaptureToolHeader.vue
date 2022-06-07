@@ -25,10 +25,7 @@
         <pause-button />
         <clear-history-button />
         <load-history-button />
-        <test-result-file-import-button />
-        <generate-test-script-button />
-        <test-result-file-export-button />
-        <replay-history-button />
+        <menu-button />
       </v-layout>
     </div>
 
@@ -49,11 +46,9 @@ import LoadHistoryButton from "./LoadHistoryButton.vue";
 import LocaleSelectBox from "./LocaleSelectBox.vue";
 import PauseButton from "./PauseButton.vue";
 import RecordButton from "./RecordButton.vue";
-import ReplayHistoryButton from "./ReplayHistoryButton.vue";
-import TestResultFileExportButton from "./TestResultFileExportButton.vue";
-import TestResultFileImportButton from "./TestResultFileImportButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
 import URLTextField from "./URLTextField.vue";
+import MenuButton from "./MenuButton.vue";
 
 @Component({
   components: {
@@ -63,12 +58,11 @@ import URLTextField from "./URLTextField.vue";
     "pause-button": PauseButton,
     "clear-history-button": ClearHistoryButton,
     "load-history-button": LoadHistoryButton,
-    "test-result-file-import-button": TestResultFileImportButton,
     "generate-test-script-button": GenerateTestScriptButton,
-    "test-result-file-export-button": TestResultFileExportButton,
-    "replay-history-button": ReplayHistoryButton,
+
     "locale-select-box": LocaleSelectBox,
     "remote-access-field": RemoteAccessField,
+    "menu-button": MenuButton,
   },
 })
 export default class CaptureToolHeader extends Vue {}

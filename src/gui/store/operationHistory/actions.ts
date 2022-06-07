@@ -1461,6 +1461,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     return data;
   },
+
+  async getScreenshots(context, payload: { testResultId: string }) {
+    const result =
+      await context.rootState.repositoryContainer.screenshotRepository.getScreenshots(
+        payload.testResultId
+      );
+    return result.data?.url;
+  },
 };
 
 export default actions;

@@ -15,32 +15,8 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      v-if="!isReplaying"
-      icon
-      flat
-      large
-      color="grey darken-3"
-      @click="replayOperations"
-      :disabled="isDisabled"
-      :title="$store.getters.message('app.replay')"
-    >
-      <v-icon>play_arrow</v-icon>
-    </v-btn>
-    <v-btn
-      v-if="isReplaying"
-      icon
-      flat
-      large
-      color="grey darken-3"
-      @click="forceQuitReplay"
-      :disabled="isdisabled"
-      :title="$store.getters.message('app.stop-replay')"
-    >
-      <v-icon>stop</v-icon>
-    </v-btn>
-
+  <v-list-tile @click="execute" :disabled="isDisabled">
+    <v-list-tile-title>{{ title }}</v-list-tile-title>
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="$store.getters.message('replay.done-title')"
@@ -53,7 +29,7 @@
       :message="errorDialogMessage"
       @close="errorDialogOpened = false"
     ></error-message-dialog>
-  </div>
+  </v-list-tile>
 </template>
 
 <script lang="ts">
@@ -94,6 +70,20 @@ export default class ReplayHistoryButton extends Vue {
     return this.$store.getters["operationHistory/getOperations"]();
   }
 
+  private get title() {
+    return this.isReplaying
+      ? this.$store.getters.message("app.stop-replay")
+      : this.$store.getters.message("app.replay");
+  }
+
+  private async execute() {
+    if (!this.isReplaying) {
+      await this.replayOperations();
+    } else {
+      await this.forceQuitReplay();
+    }
+  }
+
   private async replayOperations() {
     const successMessage = await this.$store
       .dispatch("captureControl/replayOperations", {
@@ -112,14 +102,12 @@ export default class ReplayHistoryButton extends Vue {
     }
   }
 
-  private forceQuitReplay() {
-    (async () => {
-      await this.$store
-        .dispatch("captureControl/forceQuitReplay")
-        .catch((error) => {
-          console.log(error);
-        });
-    })();
+  private async forceQuitReplay() {
+    await this.$store
+      .dispatch("captureControl/forceQuitReplay")
+      .catch((error) => {
+        console.log(error);
+      });
   }
 }
 </script>
