@@ -53,6 +53,7 @@
     "add-notice": "Add Finding",
     "edit-notice": "Edit Finding \"{value}\"",
     "delete-notice": "Delete Finding \"{value}\"",
+    "delete-notice-title": "Delete Finding",
     "delete-notice-message": "Are you sure you want to delete this Finding \"{value}\"?",
     "sequence": "Sequence Diagram Model",
     "screen-transition": "Screen Transition Diagram Model",

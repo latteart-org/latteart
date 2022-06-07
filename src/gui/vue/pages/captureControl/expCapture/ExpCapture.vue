@@ -197,7 +197,7 @@ export default class ExpCapture extends Vue {
       );
     } else {
       this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-notice",
+        "history-view.delete-notice-title",
         { value: title }
       );
       this.confirmDialogMessage = this.$store.getters.message(

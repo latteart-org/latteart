@@ -176,7 +176,7 @@ export default class Manager extends Vue {
       );
     } else {
       this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-notice"
+        "history-view.delete-notice-title"
       );
       this.confirmDialogMessage = this.$store.getters.message(
         "history-view.delete-notice-message",
