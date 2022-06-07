@@ -86,9 +86,11 @@ export default class TestResultFileImportButton extends Vue {
 
     setTimeout(async () => {
       try {
+        this.$store.dispatch("openProgressDialog");
         await this.$store.dispatch("operationHistory/importData", {
           source: { testResultFileUrl: importTestResult.url },
         });
+        this.$store.dispatch("closeProgressDialog");
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -101,6 +103,7 @@ export default class TestResultFileImportButton extends Vue {
           }
         );
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {
           this.errorMessage = `${error.message}`;
           this.errorMessageDialogOpened = true;

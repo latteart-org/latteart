@@ -72,12 +72,17 @@ export default class ScreenshotsDownloadButton extends Vue {
   private async execute() {
     this.processing = true;
     try {
+      this.$store.dispatch("openProgressDialog");
       const url = await this.$store.dispatch(
         "operationHistory/getScreenshots",
         { testResultId: this.testResultId }
       );
+      this.$store.dispatch("closeProgressDialog");
       this.linkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${url}`;
       this.dialogOpened = true;
+    } catch (e) {
+      this.$store.dispatch("closeProgressDialog");
+      console.error(e);
     } finally {
       this.processing = false;
     }

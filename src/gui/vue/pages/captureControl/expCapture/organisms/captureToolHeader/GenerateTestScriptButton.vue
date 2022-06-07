@@ -16,7 +16,7 @@
 
 <template>
   <v-list-tile
-    @click="openScriptGenerationOptionDialogIsOpened"
+    @click="scriptGenerationOptionDialogIsOpened = true"
     :disabled="isDisabled"
   >
     <v-list-tile-title>{{
@@ -25,7 +25,7 @@
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
-      @close="closeOpenScriptGenerationOptionDialogIsOpened"
+      @close="scriptGenerationOptionDialogIsOpened = false"
     >
     </script-generation-option-dialog>
 
@@ -98,14 +98,6 @@ export default class GenerateTestScriptButton extends Vue {
     return this.$store.state.repositoryContainer.serviceUrl;
   }
 
-  private openScriptGenerationOptionDialogIsOpened() {
-    this.scriptGenerationOptionDialogIsOpened = true;
-  }
-
-  private closeOpenScriptGenerationOptionDialogIsOpened() {
-    this.scriptGenerationOptionDialogIsOpened = false;
-  }
-
   private generateTestScript(option: {
     testScript: {
       isSimple: boolean;
@@ -121,6 +113,7 @@ export default class GenerateTestScriptButton extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
+        this.$store.dispatch("openProgressDialog");
         const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
@@ -134,6 +127,7 @@ export default class GenerateTestScriptButton extends Vue {
             option,
           }
         );
+        this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
@@ -150,6 +144,7 @@ export default class GenerateTestScriptButton extends Vue {
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         this.scriptGenerationOptionDialogIsOpened = false;
 
         if (error instanceof Error) {

@@ -76,11 +76,13 @@ export default class TestResultFileExportButton extends Vue {
       const testResultId = this.$store.state.operationHistory.testResultInfo.id;
 
       try {
+        this.$store.dispatch("openProgressDialog");
         const exportDataPath = await this.$store
           .dispatch("operationHistory/exportData", { testResultId })
           .catch((error) => {
             console.error(error);
           });
+        this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
@@ -90,6 +92,7 @@ export default class TestResultFileExportButton extends Vue {
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {
           this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
