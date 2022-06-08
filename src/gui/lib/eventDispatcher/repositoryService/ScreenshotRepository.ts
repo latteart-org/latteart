@@ -17,13 +17,13 @@
 import { RESTClient } from "../RESTClient";
 import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
 
-export class ScreenshotsRepository {
+export class ScreenshotRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Create a screenshots of the specified testResult ID.
+   * Get screenshots of the specified test result.
    * @param testResultId  Test Result ID.
-   * @returns URL of the snapshot.
+   * @returns URL of the screenshots archive.
    */
 
   public async getScreenshots(

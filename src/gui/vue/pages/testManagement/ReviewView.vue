@@ -21,10 +21,17 @@
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <screenshots-download-button
-        :testResultId="testResultId"
-        :buttonMode="true"
-      />
+
+      <screenshots-download-button v-slot:default="slotProps">
+        <v-btn
+          :disabled="slotProps.obj.isDisabled"
+          color="primary"
+          :dark="!slotProps.obj.processing"
+          @click="slotProps.obj.execute"
+        >
+          {{ $store.getters.message("history-view.export-screenshots") }}
+        </v-btn>
+      </screenshots-download-button>
       <v-btn
         id="scriptGenerateButton"
         color="primary"

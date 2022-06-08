@@ -33,7 +33,16 @@
         <generate-test-script-button />
         <test-tesult-export-button />
         <replay-button />
-        <screenshots-download-button />
+        <screenshots-download-button v-slot:default="slotProps">
+          <v-list-tile
+            @click="slotProps.obj.execute"
+            :disabled="slotProps.obj.isDisabled"
+          >
+            <v-list-tile-title>{{
+              $store.getters.message("history-view.export-screenshots")
+            }}</v-list-tile-title>
+          </v-list-tile>
+        </screenshots-download-button>
       </v-list>
     </v-menu>
   </div>

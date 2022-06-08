@@ -34,10 +34,6 @@
         <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
           message("history-view.there-are-updates-on-history")
         }}</span>
-        <screenshots-download-button
-          :testResultId="$store.state.operationHistory.testResultInfo.id"
-          style="position: absolute; right: 0px; display: inline-block"
-        ></screenshots-download-button>
       </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
@@ -149,7 +145,6 @@ import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ElementCoverage from "@/vue/pages/operationHistory/organisms/ElementCoverage.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import DecisionTable from "./DecisionTable.vue";
-import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 
 @Component({
   components: {
@@ -159,7 +154,6 @@ import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/Sc
     "element-coverage": ElementCoverage,
     "error-message-dialog": ErrorMessageDialog,
     "decision-table": DecisionTable,
-    "screenshots-download-button": ScreenshotsDownloadButton,
     Splitpanes,
     Pane,
   },

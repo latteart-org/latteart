@@ -16,21 +16,7 @@
 
 <template>
   <div>
-    <v-btn
-      v-if="buttonMode"
-      :disabled="isDisabled"
-      color="primary"
-      :loading="processing"
-      :dark="!processing"
-      @click="execute"
-    >
-      {{ $store.getters.message("history-view.export-screenshots") }}
-    </v-btn>
-    <v-list-tile v-else @click="execute" :disabled="isDisabled">
-      <v-list-tile-title>{{
-        $store.getters.message("history-view.export-screenshots")
-      }}</v-list-tile-title>
-    </v-list-tile>
+    <slot v-bind:obj="obj"> </slot>
 
     <download-link-dialog
       :opened="dialogOpened"
@@ -43,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import DownloadLinkDialog from "@/vue/pages/common/DownloadLinkDialog.vue";
 
 @Component({
@@ -52,11 +38,17 @@ import DownloadLinkDialog from "@/vue/pages/common/DownloadLinkDialog.vue";
   },
 })
 export default class ScreenshotsDownloadButton extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly buttonMode!: boolean;
-
   private dialogOpened = false;
   private processing = false;
   private linkUrl = "";
+
+  private get obj() {
+    return {
+      isDisabled: this.isDisabled,
+      processing: this.processing,
+      execute: this.execute,
+    };
+  }
 
   private get isDisabled(): boolean {
     return (
@@ -72,7 +64,9 @@ export default class ScreenshotsDownloadButton extends Vue {
   private async execute() {
     this.processing = true;
     try {
-      this.$store.dispatch("openProgressDialog");
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message("history-view.export-screenshots"),
+      });
       const url = await this.$store.dispatch(
         "operationHistory/getScreenshots",
         { testResultId: this.testResultId }

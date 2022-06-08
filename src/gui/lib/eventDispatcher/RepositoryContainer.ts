@@ -45,7 +45,7 @@ import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 import RESTClientImpl from "./RESTClient";
 import { RepositoryServiceClient } from "./RepositoryServiceClient";
-import { ScreenshotsRepository } from "./repositoryService/ScreenshotsRepository";
+import { ScreenshotRepository } from "./repositoryService/ScreenshotRepository";
 
 export interface RepositoryContainer {
   readonly serviceUrl: string;
@@ -62,7 +62,7 @@ export interface RepositoryContainer {
   readonly projectRepository: ProjectRepository;
   readonly sessionRepository: SessionRepository;
   readonly snapshotRepository: SnapshotRepository;
-  readonly screenshotRepository: ScreenshotsRepository;
+  readonly screenshotRepository: ScreenshotRepository;
 }
 
 /**
@@ -84,7 +84,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     project: ProjectRepository;
     session: SessionRepository;
     snapshot: SnapshotRepository;
-    screenshot: ScreenshotsRepository;
+    screenshot: ScreenshotRepository;
   };
 
   constructor(
@@ -110,7 +110,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
       project: new ProjectRepositoryImpl(this.restClient),
       session: new SessionRepository(this.restClient),
       snapshot: new SnapshotRepository(this.restClient),
-      screenshot: new ScreenshotsRepository(this.restClient),
+      screenshot: new ScreenshotRepository(this.restClient),
     };
   }
 
@@ -180,7 +180,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     return this.repositories.snapshot;
   }
 
-  public get screenshotRepository(): ScreenshotsRepository {
+  public get screenshotRepository(): ScreenshotRepository {
     return this.repositories.screenshot;
   }
 }
