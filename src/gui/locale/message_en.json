@@ -75,7 +75,9 @@
     "generate-testscript-succeeded": "Test script generation has finished.",
     "update-model-and-coverage": "Update Model/Coverage",
     "there-are-updates-on-history": "There is an update of operation history",
-    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip."
+    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
+    "generate-screenshots": "Successful screenshot generation.",
+    "export-screenshots": "Screenshots Export"
   },
   "import-export-dialog": {
     "import-title": "Import",

@@ -15,20 +15,13 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      icon
-      flat
-      large
-      id="exportButton"
-      color="grey darken-3"
-      @click="exportData"
-      :loading="isExportingData"
-      :disabled="sequence === 0 || isExportingData"
-      :title="$store.getters.message('manage-header.export-option')"
-      ><v-icon>file_download</v-icon></v-btn
-    >
-
+  <v-list-tile
+    @click="exportData"
+    :disabled="sequence === 0 || isExportingData"
+  >
+    <v-list-tile-title>{{
+      $store.getters.message("manage-header.export-option")
+    }}</v-list-tile-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -43,7 +36,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </div>
+  </v-list-tile>
 </template>
 
 <script lang="ts">
@@ -83,11 +76,13 @@ export default class TestResultFileExportButton extends Vue {
       const testResultId = this.$store.state.operationHistory.testResultInfo.id;
 
       try {
+        this.$store.dispatch("openProgressDialog");
         const exportDataPath = await this.$store
           .dispatch("operationHistory/exportData", { testResultId })
           .catch((error) => {
             console.error(error);
           });
+        this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
@@ -97,6 +92,7 @@ export default class TestResultFileExportButton extends Vue {
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {
           this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;

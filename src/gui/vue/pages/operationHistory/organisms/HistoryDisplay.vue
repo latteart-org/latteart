@@ -22,17 +22,19 @@
         'hidden-coverage': !dispCoverage,
       }"
     >
-      <v-btn
-        color="blue"
-        :loading="updating"
-        :dark="canUpdateModels"
-        :disabled="!canUpdateModels"
-        @click="updateScreenHistory"
-        >{{ message("history-view.update-model-and-coverage") }}</v-btn
-      >
-      <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
-        message("history-view.there-are-updates-on-history")
-      }}</span>
+      <div style="position: relative">
+        <v-btn
+          color="blue"
+          :loading="updating"
+          :dark="canUpdateModels"
+          :disabled="!canUpdateModels"
+          @click="updateScreenHistory"
+          >{{ message("history-view.update-model-and-coverage") }}</v-btn
+        >
+        <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
+          message("history-view.there-are-updates-on-history")
+        }}</span>
+      </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
           <v-flex xs12 wrap mb-0 pb-0 px-2>
@@ -74,8 +76,27 @@
           </v-flex>
         </pane>
         <pane>
-          <v-container fluid pa-0 fill-height>
+          <v-container fluid pa-0 fill-height style="position: relative">
             <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
+
+            <a
+              :href="screenshotUrl"
+              :download="screenshotName"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="screenshot-button screenshot-button-single"
+              ref="dllink"
+            >
+              <v-btn
+                v-show="screenshotUrl !== ''"
+                color="white"
+                class="screenshot-button screenshot-button-single"
+                fab
+                small
+              >
+                <v-icon>image</v-icon>
+              </v-btn></a
+            >
           </v-container>
         </pane>
       </splitpanes>
@@ -232,6 +253,18 @@ export default class HistoryDisplay extends Vue {
     return this.$store.state.operationHistory.screenHistoryIsUpdating;
   }
 
+  private get screenshotUrl(): string {
+    return this.imageInfo.decode ?? "";
+  }
+
+  private get screenshotName(): string {
+    const url = this.imageInfo.decode;
+    const ar = url.split(".");
+    const ext = ar[ar.length - 1];
+    const sequence = this.selectedOperationSequence;
+    return `${sequence}.${ext}`;
+  }
+
   @Watch("diagramType")
   private onChangeDialogType() {
     this.updateWindowTitle();
@@ -360,4 +393,13 @@ export default class HistoryDisplay extends Vue {
   padding-left: 16px
   padding-right: 16px
   background-color: #f2f2f2
+
+.screenshot-button
+  position: absolute
+  z-index: 10
+
+  &-multi
+    bottom: 45px
+  &-single
+    bottom: 0px
 </style>

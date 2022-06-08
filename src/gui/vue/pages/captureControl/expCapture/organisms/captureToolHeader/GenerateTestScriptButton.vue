@@ -15,19 +15,13 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      icon
-      flat
-      large
-      color="grey darken-3"
-      @click="scriptGenerationOptionDialogIsOpened = true"
-      :loading="isGeneratingTestScripts"
-      :disabled="isDisabled"
-      :title="$store.getters.message('history-view.generate-testscript')"
-      ><v-icon>description</v-icon></v-btn
-    >
-
+  <v-list-tile
+    @click="scriptGenerationOptionDialogIsOpened = true"
+    :disabled="isDisabled"
+  >
+    <v-list-tile-title>{{
+      $store.getters.message("history-view.generate-testscript")
+    }}</v-list-tile-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -49,7 +43,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </div>
+  </v-list-tile>
 </template>
 
 <script lang="ts">
@@ -119,6 +113,7 @@ export default class GenerateTestScriptButton extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
+        this.$store.dispatch("openProgressDialog");
         const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
@@ -132,6 +127,7 @@ export default class GenerateTestScriptButton extends Vue {
             option,
           }
         );
+        this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
@@ -148,6 +144,7 @@ export default class GenerateTestScriptButton extends Vue {
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         this.scriptGenerationOptionDialogIsOpened = false;
 
         if (error instanceof Error) {

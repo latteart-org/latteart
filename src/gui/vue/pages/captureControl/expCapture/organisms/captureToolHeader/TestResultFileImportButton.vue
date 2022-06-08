@@ -15,43 +15,24 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      icon
-      flat
-      large
-      color="grey darken-3"
-      @click="getImportTestResults"
-      :loading="isImportTestResults"
-      :disabled="isImportTestResults"
-      :title="$store.getters.message('manage-header.import-option')"
-    >
-      <v-icon>file_upload</v-icon>
-    </v-btn>
-
-    <v-menu
-      offset-y
-      v-model="showImportData"
-      :position-x="dataX"
-      :position-y="dataY"
-      absolute
-    >
-      <v-list>
-        <v-list-tile
-          v-for="(testResult, index) in importTestResults"
-          :key="index"
-          @click="importData(testResult)"
-          :disabled="!testResult.url"
-        >
-          <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-menu>
+  <v-list-tile
+    @click="openTestResultImportDialog"
+    :disabled="isImportTestResults"
+  >
+    <v-list-tile-title>{{
+      $store.getters.message("manage-header.import-option")
+    }}</v-list-tile-title>
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
+    />
+
+    <test-result-import-dialog
+      :opened="testResultImportDialogOpend"
+      @execute="importData"
+      @close="testResultImportDialogOpend = false"
     />
 
     <information-message-dialog
@@ -60,18 +41,20 @@
       :message="informationMessage"
       @close="informationMessageDialogOpened = false"
     />
-  </div>
+  </v-list-tile>
 </template>
 
 <script lang="ts">
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/vue/pages/common/InformationMessageDialog.vue";
+import TestResultImportDialog from "@/vue/pages/common/TestResultImportDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "information-message-dialog": InformationMessageDialog,
+    "test-result-import-dialog": TestResultImportDialog,
   },
 })
 export default class TestResultFileImportButton extends Vue {
@@ -84,41 +67,14 @@ export default class TestResultFileImportButton extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private testResultImportDialogOpend = false;
+
   private informationMessageDialogOpened = false;
   private informationTitle = "";
   private informationMessage = "";
 
-  private getImportTestResults(e: any) {
-    e.preventDefault();
-
-    if (this.showImportData) {
-      this.showImportData = false;
-      return;
-    }
-
-    this.dataX = e.clientX;
-    this.dataY = e.clientY;
-    this.$nextTick(async () => {
-      const newImportTestResults: {
-        url: string;
-        name: string;
-      }[] = await this.$store.dispatch("operationHistory/getImportTestResults");
-
-      this.importTestResults.splice(
-        0,
-        this.importTestResults.length,
-        ...newImportTestResults
-      );
-
-      if (this.importTestResults.length === 0) {
-        this.importTestResults.push({
-          url: "",
-          name: "EMPTY",
-        });
-      }
-
-      this.showImportData = true;
-    });
+  private openTestResultImportDialog() {
+    this.testResultImportDialogOpend = true;
   }
 
   private importData(importTestResult: { url: string; name: string }) {
@@ -130,9 +86,11 @@ export default class TestResultFileImportButton extends Vue {
 
     setTimeout(async () => {
       try {
+        this.$store.dispatch("openProgressDialog");
         await this.$store.dispatch("operationHistory/importData", {
           source: { testResultFileUrl: importTestResult.url },
         });
+        this.$store.dispatch("closeProgressDialog");
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
@@ -145,6 +103,7 @@ export default class TestResultFileImportButton extends Vue {
           }
         );
       } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {
           this.errorMessage = `${error.message}`;
           this.errorMessageDialogOpened = true;

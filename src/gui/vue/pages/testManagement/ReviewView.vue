@@ -21,6 +21,17 @@
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <screenshots-download-button v-slot:default="slotProps">
+        <v-btn
+          :disabled="slotProps.obj.isDisabled"
+          color="primary"
+          :dark="!slotProps.obj.processing"
+          @click="slotProps.obj.execute"
+        >
+          {{ $store.getters.message("history-view.export-screenshots") }}
+        </v-btn>
+      </screenshots-download-button>
       <v-btn
         id="scriptGenerateButton"
         color="primary"
@@ -119,6 +130,7 @@ import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
+import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 
 @Component({
   components: {
@@ -128,6 +140,7 @@ import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
     "context-menu": ContextMenu,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
+    "screenshots-download-button": ScreenshotsDownloadButton,
   },
 })
 export default class ReviewView extends Vue {
