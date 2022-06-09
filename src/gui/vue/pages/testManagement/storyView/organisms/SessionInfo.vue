@@ -245,7 +245,8 @@
                             props.item.status,
                             props.item.ticketId,
                             props.item.value,
-                            props.item.details
+                            props.item.details,
+                            props.item.imageFilePath
                           )
                         "
                         >{{
@@ -303,6 +304,7 @@
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
+          <v-img :src="issueDetailsDialogImagePath" />
         </v-list>
       </template>
 
@@ -412,6 +414,7 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogTicketId = "";
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
+  private issueDetailsDialogImagePath = "";
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -655,6 +658,7 @@ export default class SessionInfo extends Vue {
         ticketId: params.ticketId ?? issue.ticketId,
         value: issue.value,
         details: issue.details,
+        imageFilePath: issue.imageFilePath,
       };
     });
 
@@ -667,7 +671,8 @@ export default class SessionInfo extends Vue {
     status: string,
     ticketId: string,
     summary: string,
-    text: string
+    text: string,
+    imageFilePath: string
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -680,6 +685,7 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogTicketId = ticketId !== "" ? ticketId : none;
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
+    this.issueDetailsDialogImagePath = imageFilePath;
     this.issueDetailsDialogOpened = true;
   }
 

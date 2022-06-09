@@ -25,6 +25,11 @@ import { Note } from "../operationHistory/Note";
 import { StoryConvertable } from "./actions/WriteDataFileAction";
 import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
 import { RepositoryContainer } from "../eventDispatcher/RepositoryContainer";
+import {
+  convertTestStepOperation,
+  convertIntention,
+  convertNote,
+} from "../eventDispatcher/replyDataConverter";
 
 /**
  * Convert story information.
@@ -39,7 +44,7 @@ export default class StoryDataConverter implements StoryConvertable {
   private static async buildHistory(
     repositoryContainer: Pick<
       RepositoryContainer,
-      "testResultRepository" | "projectRepository"
+      "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     testResultFiles?: {
       name: string;
@@ -73,12 +78,31 @@ export default class StoryDataConverter implements StoryConvertable {
       return {};
     }
 
-    const {
-      testSteps: operationWithNotes,
-      initialUrl,
-      startTimeStamp,
-    } = result.data;
-    const testSteps: OperationWithNotes[] = operationWithNotes as any;
+    const { testSteps: tmpTestSteps, initialUrl, startTimeStamp } = result.data;
+    const testSteps: OperationWithNotes[] = tmpTestSteps.map((tmpTestStep) => {
+      const operation = tmpTestStep.operation
+        ? convertTestStepOperation(
+            tmpTestStep.operation,
+            repositoryContainer.serviceUrl
+          )
+        : tmpTestStep.operation;
+
+      return {
+        testStepId: tmpTestStep.id,
+        operation,
+        intention: tmpTestStep.intention
+          ? convertIntention(tmpTestStep.intention)
+          : null,
+        bugs:
+          tmpTestStep.bugs?.map((bug) => {
+            return convertNote(bug, repositoryContainer.serviceUrl);
+          }) ?? null,
+        notices:
+          tmpTestStep.notices?.map((notice) => {
+            return convertNote(notice, repositoryContainer.serviceUrl);
+          }) ?? null,
+      };
+    });
 
     const testingTime = calculateElapsedEpochMillis(startTimeStamp, testSteps);
 
@@ -112,6 +136,7 @@ export default class StoryDataConverter implements StoryConvertable {
           },
           value: note.value,
           details: note.details,
+          imageFilePath: note.imageFilePath || testStep.operation.imageFilePath,
         };
       });
     });
@@ -131,7 +156,7 @@ export default class StoryDataConverter implements StoryConvertable {
     target: Partial<ManagedSession>,
     repositoryContainer: Pick<
       RepositoryContainer,
-      "testResultRepository" | "projectRepository"
+      "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     oldSession?: Session
   ): Promise<Session> {
@@ -169,7 +194,7 @@ export default class StoryDataConverter implements StoryConvertable {
     target: ManagedStory,
     repositoryContainer: Pick<
       RepositoryContainer,
-      "testResultRepository" | "projectRepository"
+      "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     oldStory?: Story
   ): Promise<Story> {
@@ -238,6 +263,7 @@ export default class StoryDataConverter implements StoryConvertable {
                 details: issue.details,
                 status: issue.status,
                 ticketId: issue.ticketId,
+                imageFilePath: issue.imageFilePath,
                 source: {
                   type: issue.source.type,
                   sequence: issue.source.sequence,

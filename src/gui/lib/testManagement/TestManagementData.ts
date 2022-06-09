@@ -79,6 +79,7 @@ export interface ManagedSession {
     details: string;
     status: string;
     ticketId: string;
+    imageFilePath: string;
     source: { type: string; sequence: number; index: number };
   }>;
   testingTime?: number;

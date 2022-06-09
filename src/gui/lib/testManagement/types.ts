@@ -65,6 +65,7 @@ export interface Issue {
   ticketId: string;
   value: string;
   details: string;
+  imageFilePath: string;
 }
 
 export interface Story {
