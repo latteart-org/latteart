@@ -96,6 +96,7 @@ export function changeIssueStatus(
         ticketId: ticketId ? ticketId : issue.ticketId,
         value: issue.value,
         details: issue.details,
+        imageFilePath: issue.imageFilePath,
       };
     }
     return issue;
