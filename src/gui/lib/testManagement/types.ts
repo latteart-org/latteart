@@ -42,6 +42,7 @@ export interface ViewPointsPreset {
 export interface ViewPoint {
   id: string;
   name: string;
+  description: string;
 }
 
 export interface TestTarget {
