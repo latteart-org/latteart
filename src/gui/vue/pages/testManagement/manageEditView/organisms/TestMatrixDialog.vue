@@ -52,32 +52,44 @@
                         item-value="id"
                       ></v-select>
                     </v-flex>
-                    <v-flex
-                      xs12
-                      v-for="(tempViewPoint, index) in tempViewPoints"
-                      :key="tempViewPoint.key"
-                    >
-                      <v-layout row wrap class="mt-0 pt-0">
-                        <v-flex xs10>
-                          <v-text-field
-                            :label="
-                              $store.getters.message(
-                                'test-matrix-dialog.viewPoint-name'
-                              )
-                            "
-                            v-model="tempViewPoint.name"
-                          ></v-text-field>
-                        </v-flex>
-                        <v-flex xs2>
-                          <v-btn
-                            flat
-                            icon
-                            color="error"
-                            @click="deleteTempViewPoint(index)"
-                            ><v-icon>delete</v-icon></v-btn
-                          >
-                        </v-flex>
-                      </v-layout>
+                    <v-flex xs12>
+                      <v-expansion-panel>
+                        <v-expansion-panel-content
+                          v-for="(tempViewPoint, index) in tempViewPoints"
+                          :key="tempViewPoint.key + index"
+                        >
+                          <template v-slot:header>
+                            <v-flex xs10>
+                              <v-text-field
+                                :placeholder="
+                                  $store.getters.message(
+                                    'test-matrix-dialog.viewPoint-name'
+                                  )
+                                "
+                                v-model="tempViewPoint.name"
+                                @click="(e) => e.stopPropagation()"
+                                class="view-point-name"
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs2>
+                              <v-btn
+                                flat
+                                icon
+                                color="error"
+                                @click="deleteTempViewPoint(index)"
+                                ><v-icon>delete</v-icon></v-btn
+                              >
+                            </v-flex>
+                          </template>
+                          <div class="view-point-description">
+                            <v-textarea
+                              outline
+                              rows="3"
+                              v-model="tempViewPoint.description"
+                            ></v-textarea>
+                          </div>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
                     </v-flex>
                     <v-flex xs12>
                       <v-btn small @click="createTempViewPoint">{{
@@ -129,10 +141,13 @@ export default class TestMatrixDialog extends Vue {
   private tempViewPoints: Array<{
     key: string;
     name: string;
+    description: string;
     id: string | null;
   }> = [];
   private key = 0;
   private testMatrix: { name: string; id: string } = { name: "", id: "" };
+
+  private panel = [];
 
   private get viewPointsPresets(): ViewPointsPreset[] {
     return this.$store.getters.getSetting("viewPointsPreset");
@@ -190,6 +205,7 @@ export default class TestMatrixDialog extends Vue {
           key: this.tempViewPointKey(),
           name: viewPoint.name,
           id: viewPoint.id,
+          description: viewPoint.description,
         };
       });
     }
@@ -203,6 +219,7 @@ export default class TestMatrixDialog extends Vue {
     this.tempViewPoints.push({
       key: this.tempViewPointKey(),
       name: "",
+      description: "",
       id: null,
     });
   }
@@ -221,6 +238,7 @@ export default class TestMatrixDialog extends Vue {
       return {
         key: this.tempViewPointKey(),
         name: viewPoint.name,
+        description: viewPoint.description,
         id: null,
       };
     });
@@ -249,6 +267,7 @@ export default class TestMatrixDialog extends Vue {
           return {
             name: tempViewPoint.name,
             id: tempViewPoint.id,
+            description: tempViewPoint.description,
           };
         }),
     };
@@ -258,3 +277,21 @@ export default class TestMatrixDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.view-point-name ::v-deep
+  padding-top: 0px
+  margin-top: 0px
+  .v-messages
+    display: none
+.view-point-description  ::v-deep
+  padding: 0px 24px
+  textarea
+    margin: 4px
+  .v-messages
+    display: none
+  .v-text-field__details
+    display: none
+  .v-input__slot
+    border: 1px solid rgba(0,0,0,0.54) !important
+</style>
