@@ -16,13 +16,15 @@
 
 <template>
   <div>
-    <v-tooltip bottom v-if="tooltip !== ''">
-      <template v-slot:activator="{ on }">
-        <v-icon size="16" v-on="on" class="icon-info">info</v-icon>
-      </template>
-      <span class="description-tooltip">{{ tooltip }}</span>
-    </v-tooltip>
-    <span :title="text">{{ text }}</span>
+    <div class="container">
+      <p :title="text" class="label">{{ text }}</p>
+      <v-tooltip bottom v-if="tooltip !== ''">
+        <template v-slot:activator="{ on }">
+          <v-icon size="16" v-on="on" class="icon-info">info</v-icon>
+        </template>
+        <span class="description-tooltip">{{ tooltip }}</span>
+      </v-tooltip>
+    </div>
   </div>
 </template>
 
@@ -36,11 +38,23 @@ export default class LabelWithTooltip extends Vue {
 }
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
+.container
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  justify-content: center
+
+.label
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  padding-top: 16px
+
 .icon-info
   margin-right: 4px
 
 .description-tooltip
   white-space: pre-wrap
-  word-wrap:break-word
+  word-wrap: break-word
 </style>
