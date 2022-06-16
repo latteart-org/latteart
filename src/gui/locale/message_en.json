@@ -77,7 +77,11 @@
     "there-are-updates-on-history": "There is an update of operation history",
     "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
     "generate-screenshots": "Successful screenshot generation.",
-    "export-screenshots": "Screenshots Export"
+    "export-screenshots": "Screenshots Export",
+    "delete-test-result": "Delete Test Result",
+    "delete-test-result-title": "Delete Test Result",
+    "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
+    "delete-test-result-succeeded": "Test Result deletion has finished."
   },
   "import-export-dialog": {
     "import-title": "Import",
@@ -460,7 +464,8 @@
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
-      "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity."
+      "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity.",
+      "delete_test_result_failed": "Failed to delete the test result."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
@@ -473,8 +478,7 @@
       "create-export-data-error": "Data export failed."
     },
     "remote_access": {
-      "upload-request-error": "Failed to register the test result.",
-      "testresult-delete-error": "Failed to delete the test result."
+      "upload-request-error": "Failed to register the test result."
     }
   }
 }

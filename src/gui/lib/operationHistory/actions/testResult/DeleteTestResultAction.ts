@@ -32,12 +32,14 @@ export class DeleteTestResultAction {
       await this.repositoryContainer.testResultRepository.deleteTestResult(
         testResultId
       );
-    const error = reply.error ? { code: "testresult-delete-error" } : undefined;
-    const result = {
-      data: testResultId,
-      error,
-    };
 
-    return result;
+    if (reply.status === 204) {
+      return { data: testResultId };
+    }
+
+    return {
+      data: testResultId,
+      error: { code: "error.operation_history.delete_test_result_failed" },
+    };
   }
 }

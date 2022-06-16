@@ -746,9 +746,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       localRepositoryContainer
     ).deleteTestResult(payload.testResultId);
     if (result.error) {
-      throw new Error(
-        context.rootGetters.message(`error.remote_access.${result.error.code}`)
-      );
+      throw new Error(context.rootGetters.message(result.error.code));
+    }
+  },
+
+  async deleteCurrentTestResult(context) {
+    const testResultId = context.state.testResultInfo.id;
+
+    const result = await new DeleteTestResultAction(
+      context.rootState.repositoryContainer
+    ).deleteTestResult(testResultId);
+
+    if (result.error) {
+      throw new Error(context.rootGetters.message(result.error.code));
     }
   },
 
