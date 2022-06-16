@@ -32,6 +32,7 @@ import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 import {
   TestManagementData,
   ManagedSession,
+  ManagedStory,
 } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
@@ -153,6 +154,15 @@ const actions: ActionTree<TestManagementState, RootState> = {
     context,
     payload: { testManagementData: TestManagementData }
   ): Promise<void> {
+    const tmpStory = convertApiStory(payload.testManagementData.stories);
+    const tmpData = {
+      testManagementData: {
+        testMatrices: payload.testManagementData.testMatrices,
+        stories: tmpStory,
+        progressDatas: payload.testManagementData.progressDatas,
+      },
+    };
+
     await new WriteDataFileAction(
       {
         setManagedData: (data: {
@@ -172,7 +182,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryContainer
     ).write(
       context.state.projectId,
-      payload.testManagementData,
+      tmpData.testManagementData,
       context.state.stories
     );
   },
@@ -615,7 +625,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
           details: "",
           status: issue.status,
           ticketId: issue.ticketId,
-          imageFilePath: issue.imageFilePath,
           source: issue.source,
         };
       }),
@@ -649,7 +658,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
             details: oldIssue.details,
             status: issue.status,
             ticketId: issue.ticketId,
-            imageFilePath: issue.imageFilePath,
             source: issue.source,
           };
         }),
@@ -964,3 +972,46 @@ const actions: ActionTree<TestManagementState, RootState> = {
 };
 
 export default actions;
+
+function convertApiStory(stories: ManagedStory[]): ManagedStory[] {
+  return stories.map((story) => {
+    return {
+      id: story.id,
+      testMatrixId: story.testMatrixId,
+      testTargetId: story.testTargetId,
+      viewPointId: story.viewPointId,
+      status: story.status,
+      sessions: story.sessions
+        ? story.sessions.map((session) => {
+            return {
+              name: session.name,
+              id: session.id,
+              isDone: session.isDone,
+              doneDate: session.doneDate,
+              testItem: session.testItem,
+              testerName: session.testerName,
+              memo: session.memo,
+              attachedFiles: session.attachedFiles,
+              testResultFiles: session.testResultFiles,
+              issues: session.issues
+                ? session.issues.map((issue) => {
+                    return {
+                      type: issue.type,
+                      value: issue.value,
+                      details: issue.details,
+                      status: issue.status,
+                      ticketId: issue.ticketId,
+                      source: {
+                        type: issue.source.type,
+                        index: issue.source.index,
+                      },
+                    };
+                  })
+                : [],
+              testingTime: session.testingTime,
+            };
+          })
+        : [],
+    };
+  });
+}
