@@ -304,7 +304,16 @@
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
-          <v-img :src="issueDetailsDialogImagePath" />
+          <v-img
+            :src="issueDetailsDialogImagePath"
+            @click="openIssueImageFile"
+            style="cursor: pointer"
+          />
+          <v-dialog v-model="issueImageFileOpened">
+            <v-card>
+              <v-img :src="issueDetailsDialogImagePath" />
+            </v-card>
+          </v-dialog>
         </v-list>
       </template>
 
@@ -415,6 +424,7 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
+  private issueImageFileOpened = false;
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -508,6 +518,10 @@ export default class SessionInfo extends Vue {
     a.rel = "noopener noreferrer";
     a.click();
     return false;
+  }
+
+  private openIssueImageFile(): void {
+    this.issueImageFileOpened = true;
   }
 
   private addAttachedFile(event: any): void {

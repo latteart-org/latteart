@@ -615,7 +615,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
           details: "",
           status: issue.status,
           ticketId: issue.ticketId,
-          imageFilePath: issue.imageFilePath,
           source: issue.source,
         };
       }),
@@ -649,7 +648,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
             details: oldIssue.details,
             status: issue.status,
             ticketId: issue.ticketId,
-            imageFilePath: issue.imageFilePath,
             source: issue.source,
           };
         }),

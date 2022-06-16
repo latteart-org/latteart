@@ -263,10 +263,8 @@ export default class StoryDataConverter implements StoryConvertable {
                 details: issue.details,
                 status: issue.status,
                 ticketId: issue.ticketId,
-                imageFilePath: issue.imageFilePath,
                 source: {
                   type: issue.source.type,
-                  sequence: issue.source.sequence,
                   index: issue.source.index,
                 },
               };
