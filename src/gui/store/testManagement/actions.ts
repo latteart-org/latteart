@@ -32,7 +32,6 @@ import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 import {
   TestManagementData,
   ManagedSession,
-  ManagedStory,
 } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
