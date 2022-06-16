@@ -83,7 +83,11 @@
     "there-are-updates-on-history": "操作履歴の更新があります",
     "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
     "generate-screenshots": "スクリーンショットの出力が完了しました。",
-    "export-screenshots": "スクリーンショット出力"
+    "export-screenshots": "スクリーンショット出力",
+    "delete-test-result": "テスト結果の削除",
+    "delete-test-result-title": "テスト結果の削除",
+    "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
   },
   "import-export-dialog": {
     "import-title": "データインポート",
@@ -467,7 +471,8 @@
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
-      "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。"
+      "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。",
+      "delete_test_result_failed": "テスト結果の削除に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
@@ -480,8 +485,7 @@
       "create-export-data-error": "データエクスポートに失敗しました。"
     },
     "remote_access": {
-      "upload-request-error": "テスト結果の登録に失敗しました。",
-      "testresult-delete-error": "テスト結果の削除に失敗しました。"
+      "upload-request-error": "テスト結果の登録に失敗しました。"
     }
   }
 }
