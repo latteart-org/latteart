@@ -258,6 +258,7 @@
     "test-matrix-name": "テストマトリクス名",
     "setting-viewPoint": "テスト観点の設定",
     "viewPoint-name": "テスト観点名",
+    "view-point-description": "テスト観点の説明",
     "new-viewPoint": "テスト観点追加",
     "preset": "使用するプリセット名",
     "create-test-matrix": "テストマトリクス作成",

@@ -59,14 +59,14 @@ export interface Plan {
 export interface Issue {
   source: {
     type: string;
-    sequence: number;
+    sequence?: number;
     index: number;
   };
   status: string;
   ticketId: string;
   value: string;
   details: string;
-  imageFilePath: string;
+  imageFilePath?: string;
 }
 
 export interface Story {
