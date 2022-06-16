@@ -86,6 +86,11 @@
                               outline
                               rows="3"
                               v-model="tempViewPoint.description"
+                              :placeholder="
+                                $store.getters.message(
+                                  'test-matrix-dialog.view-point-description'
+                                )
+                              "
                             ></v-textarea>
                           </div>
                         </v-expansion-panel-content>
