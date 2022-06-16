@@ -248,6 +248,7 @@
     "test-matrix-name": "Test Matrix Name",
     "setting-viewPoint": "View Point Settings",
     "viewPoint-name": "View Point Name",
+    "view-point-description": "Description of test viewpoint",
     "new-viewPoint": "Add View Point",
     "preset": "Preset to Use",
     "create-test-matrix": "Create Test Matrix",
