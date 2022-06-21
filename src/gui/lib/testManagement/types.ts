@@ -43,6 +43,7 @@ export interface ViewPoint {
   id: string;
   name: string;
   description: string;
+  index: number;
 }
 
 export interface TestTarget {

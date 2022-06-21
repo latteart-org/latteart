@@ -211,6 +211,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
       viewPoints: Array<{
         name: string;
         id: string | null;
+        index: number;
+        description: string;
       }>;
     }
   ): Promise<void> {

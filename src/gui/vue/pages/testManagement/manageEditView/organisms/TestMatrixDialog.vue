@@ -59,7 +59,7 @@
                           :key="tempViewPoint.key + index"
                         >
                           <template v-slot:header>
-                            <v-flex xs10>
+                            <v-flex xs9>
                               <v-text-field
                                 :placeholder="
                                   $store.getters.message(
@@ -70,6 +70,15 @@
                                 @click="(e) => e.stopPropagation()"
                                 class="view-point-name"
                               ></v-text-field>
+                            </v-flex>
+                            <v-flex x1>
+                              <up-down-arrows
+                                :index="index"
+                                :upDisabled="index <= 0"
+                                :downDisabled="index.length - 1 <= index"
+                                @up="upViewPoint"
+                                @down="downViewPoint"
+                              />
                             </v-flex>
                             <v-flex xs2>
                               <v-btn
@@ -131,11 +140,13 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
+import UpDownArrows from "@/vue/molecules/UpDownArrows.vue";
 import { UpdateTestMatrixObject } from "../ManageEditTypes";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
+    "up-down-arrows": UpDownArrows,
   },
 })
 export default class TestMatrixDialog extends Vue {
@@ -147,6 +158,7 @@ export default class TestMatrixDialog extends Vue {
     key: string;
     name: string;
     description: string;
+    index: number;
     id: string | null;
   }> = [];
   private key = 0;
@@ -205,14 +217,19 @@ export default class TestMatrixDialog extends Vue {
       this.selectedViewPointsPresetId = this.viewPointsPresets[0]?.id ?? "";
       this.changeSelectedViewPoints();
     } else {
-      this.tempViewPoints = testMatrix.viewPoints.map((viewPoint) => {
-        return {
-          key: this.tempViewPointKey(),
-          name: viewPoint.name,
-          id: viewPoint.id,
-          description: viewPoint.description,
-        };
-      });
+      this.tempViewPoints = testMatrix.viewPoints
+        .map((viewPoint, index) => {
+          return {
+            key: this.tempViewPointKey(),
+            name: viewPoint.name,
+            index: index,
+            id: viewPoint.id,
+            description: viewPoint.description,
+          };
+        })
+        .sort((v1, v2) => {
+          return v1.index - v2.index;
+        });
     }
   }
 
@@ -225,6 +242,7 @@ export default class TestMatrixDialog extends Vue {
       key: this.tempViewPointKey(),
       name: "",
       description: "",
+      index: this.tempViewPoints.length,
       id: null,
     });
   }
@@ -239,18 +257,28 @@ export default class TestMatrixDialog extends Vue {
     if (!addPreset) {
       return;
     }
-    this.tempViewPoints = addPreset.viewPoints.map((viewPoint) => {
+    this.tempViewPoints = addPreset.viewPoints.map((viewPoint, index) => {
       return {
         key: this.tempViewPointKey(),
         name: viewPoint.name,
         description: viewPoint.description,
+        index,
         id: null,
       };
     });
   }
 
   private deleteTempViewPoint(index: number): void {
-    this.tempViewPoints.splice(index, 1);
+    this.tempViewPoints = this.tempViewPoints
+      .filter((_, vIndex) => {
+        return vIndex !== index;
+      })
+      .map((viewPoint, index) => {
+        return {
+          ...viewPoint,
+          index,
+        };
+      });
   }
 
   private closeDialog(): void {
@@ -273,12 +301,31 @@ export default class TestMatrixDialog extends Vue {
             name: tempViewPoint.name,
             id: tempViewPoint.id,
             description: tempViewPoint.description,
+            index: tempViewPoint.index,
           };
         }),
     };
     this.$emit("updateTestMatrix", updateTestMatrixObject);
 
     this.closeDialog();
+  }
+
+  private upViewPoint(index: number): void {
+    const temp = [...this.tempViewPoints];
+    temp[index].index = index - 1;
+    temp[index - 1].index = index;
+    this.tempViewPoints = [...temp].sort((v1, v2) => {
+      return v1.index - v2.index;
+    });
+  }
+
+  private downViewPoint(index: number): void {
+    const temp = [...this.tempViewPoints];
+    temp[index].index = index + 1;
+    temp[index + 1].index = index;
+    this.tempViewPoints = [...temp].sort((v1, v2) => {
+      return v1.index - v2.index;
+    });
   }
 }
 </script>
