@@ -10,6 +10,10 @@
    - ダウンロードサイト (https://developers.google.com/speed/webp/docs/precompiled)
 1. テスト対象の Web アプリケーションに Google Chrome からアクセスできることを確認します。
 
+:bulb: Edge を使用する場合は、手順１で Chrome ではなく、Edge のバージョンに対応した`edgedriver`をダウンロードし、パスを通します。
+
+- ダウンロードサイト（https://developer.microsoft.com/ja-jp/microsoft-edge/tools/webdriver/）
+
 # インストール
 
 GitHub の [Releases](https://github.com/latteart-org/latteart/releases) から最新版をダウンロードして下さい。
@@ -61,8 +65,8 @@ LatteArt は以下の 2 つのツールで構成されています。
 すると、以下のメッセージが表示されたコマンドプロンプトと共に LatteArt を動作させるための Web サーバが立ち上がり、ブラウザ上でツールの画面が表示されます。
 
 ```
-capture: http://127.0.0.1:3000
-manage: http://127.0.0.1:3000?mode=manage
+capture: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
+manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
 ```
 
 :bulb: サーバが起動していれば、以下 URL をブラウザで直接開いても利用できます。
