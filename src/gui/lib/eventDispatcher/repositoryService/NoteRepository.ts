@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import { RESTClient } from "../RESTClient";
 
 export interface NoteRepository {
@@ -22,7 +27,7 @@ export interface NoteRepository {
     testResultId: string,
     noteId: string | null
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -31,6 +36,7 @@ export interface NoteRepository {
       tags?: string[];
     }>
   >;
+
   postNotes(
     testResultId: string,
     intention?: {
@@ -49,7 +55,7 @@ export interface NoteRepository {
       imageData?: string;
     }
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -58,6 +64,7 @@ export interface NoteRepository {
       tags?: string[];
     }>
   >;
+
   putNotes(
     testResultId: string,
     noteId: string,
@@ -75,7 +82,7 @@ export interface NoteRepository {
       tags: string[];
     }
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -84,7 +91,11 @@ export interface NoteRepository {
       tags?: string[];
     }>
   >;
-  deleteNotes(testResultId: string, noteId: string): Promise<Reply<void>>;
+
+  deleteNotes(
+    testResultId: string,
+    noteId: string
+  ): Promise<RepositoryAccessResult<void>>;
 }
 
 export class NoteRepositoryImpl implements NoteRepository {
@@ -94,7 +105,7 @@ export class NoteRepositoryImpl implements NoteRepository {
     testResultId: string,
     noteId: string | null
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -107,7 +118,14 @@ export class NoteRepositoryImpl implements NoteRepository {
       `/test-results/${testResultId}/notes/${noteId}`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
@@ -138,7 +156,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       imageData?: string;
     }
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -172,7 +190,14 @@ export class NoteRepositoryImpl implements NoteRepository {
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
@@ -202,7 +227,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       tags: string[];
     }
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       type: string;
       value: string;
@@ -234,7 +259,14 @@ export class NoteRepositoryImpl implements NoteRepository {
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
@@ -250,12 +282,19 @@ export class NoteRepositoryImpl implements NoteRepository {
   public async deleteNotes(
     testResultId: string,
     noteId: string
-  ): Promise<Reply<void>> {
+  ): Promise<RepositoryAccessResult<void>> {
     const response = await this.restClient.httpDelete(
       `/test-results/${testResultId}/notes/${noteId}`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 204 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as void,
     });

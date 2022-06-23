@@ -16,7 +16,12 @@
 
 import { RESTClient } from "../RESTClient";
 import Settings from "@/lib/common/settings/Settings";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 
 export class SettingRepository {
@@ -26,10 +31,17 @@ export class SettingRepository {
    * Get setting information.
    * @returns Setting information.
    */
-  public async getSettings(): Promise<Reply<Settings>> {
+  public async getSettings(): Promise<RepositoryAccessResult<Settings>> {
     const response = await this.restClient.httpGet(`/projects/1/configs`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Settings,
     });
@@ -40,13 +52,22 @@ export class SettingRepository {
    * @param settings  Setting information.
    * @returns Saved setting information.
    */
-  public async putSettings(settings: Settings): Promise<Reply<Settings>> {
+  public async putSettings(
+    settings: Settings
+  ): Promise<RepositoryAccessResult<Settings>> {
     const response = await this.restClient.httpPut(
       `/projects/1/configs`,
       settings
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Settings,
     });
@@ -56,12 +77,21 @@ export class SettingRepository {
    * Get device settings information.
    * @returns Device settings information
    */
-  public async getDeviceSettings(): Promise<Reply<DeviceSettings>> {
+  public async getDeviceSettings(): Promise<
+    RepositoryAccessResult<DeviceSettings>
+  > {
     const response = await this.restClient.httpGet(
       `/projects/1/device-configs`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as DeviceSettings,
     });
@@ -74,13 +104,20 @@ export class SettingRepository {
    */
   public async putDeviceSettings(
     deviceSettings: DeviceSettings
-  ): Promise<Reply<DeviceSettings>> {
+  ): Promise<RepositoryAccessResult<DeviceSettings>> {
     const response = await this.restClient.httpPut(
       `/projects/1/device-configs`,
       deviceSettings
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as DeviceSettings,
     });

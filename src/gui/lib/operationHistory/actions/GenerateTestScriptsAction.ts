@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-import { TestScriptGenerator } from "../scriptGenerator/TestScriptGenerator";
+import { TestScriptGeneratorImpl } from "../scriptGenerator/TestScriptGenerator";
 import { Operation } from "../Operation";
 import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
+  "error.operation_history.save_test_scripts_failed";
+const NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY =
+  "error.operation_history.save_test_scripts_no_section_error";
+const NO_OPERATION_ERROR_MESSAGE_KEY =
+  "error.operation_history.save_test_scripts_no_operation_error";
 
 export class GenerateTestScriptsAction {
   constructor(
@@ -26,7 +37,14 @@ export class GenerateTestScriptsAction {
       RepositoryContainer,
       "testScriptRepository"
     >,
-    private scriptGenerator: TestScriptGenerator
+    private imageUrlResolver: (url: string) => string,
+    private option: {
+      testScript: { isSimple: boolean };
+      testData: {
+        useDataDriven: boolean;
+        maxGeneration: number;
+      };
+    }
   ) {}
 
   public async generate(params: {
@@ -39,10 +57,23 @@ export class GenerateTestScriptsAction {
       invalidOperationTypeExists: boolean;
     }>
   > {
-    const testScript = this.scriptGenerator.generate(params.sources);
+    const testScriptGenerator = new TestScriptGeneratorImpl(
+      this.imageUrlResolver,
+      this.option
+    );
+
+    const testScript = testScriptGenerator.generate(params.sources);
 
     if (!testScript.testSuite) {
-      return { data: undefined, error: { code: "generate_test_suite_failed" } };
+      if (this.option.testScript.isSimple) {
+        return new ActionFailure({
+          messageKey: NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
+        });
+      }
+
+      return new ActionFailure({
+        messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
+      });
     }
 
     const invalidTypeExists = params.sources.some((session) => {
@@ -52,48 +83,51 @@ export class GenerateTestScriptsAction {
     });
 
     if (params.projectId) {
-      const reply =
+      const postTestScriptsWithProjectIdResult =
         await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
           params.projectId,
           testScript
         );
 
-      const outputUrl = reply.data!.url;
+      if (postTestScriptsWithProjectIdResult.isFailure()) {
+        return new ActionFailure({
+          messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
+        });
+      }
+
+      const outputUrl = postTestScriptsWithProjectIdResult.data.url;
       const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
-      const error = reply.error ?? undefined;
-      const result = {
-        data,
-        error,
-      };
 
-      return result;
+      return new ActionSuccess(data);
     }
 
     if (params.testResultId) {
-      const reply =
+      const postTestScriptsWithTestResultId =
         await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
           params.testResultId,
           testScript
         );
-      const outputUrl = reply.data!.url;
+
+      if (postTestScriptsWithTestResultId.isFailure()) {
+        return new ActionFailure({
+          messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
+        });
+      }
+
+      const outputUrl = postTestScriptsWithTestResultId.data.url;
       const data = {
         outputUrl,
         invalidOperationTypeExists: invalidTypeExists,
       };
-      const error = reply.error ?? undefined;
-      const result = {
-        data,
-        error,
-      };
 
-      return result;
+      return new ActionSuccess(data);
     }
-    return {
-      data: undefined,
-      error: { code: "save_test_scripts_no_operation_error" },
-    };
+
+    return new ActionFailure({
+      messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
+    });
   }
 }

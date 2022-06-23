@@ -15,7 +15,12 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
 export class SnapshotRepository {
   constructor(private restClient: RESTClient) {}
@@ -27,13 +32,20 @@ export class SnapshotRepository {
    */
   public async postSnapshots(
     projectId: string
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpPost(
       `/projects/${projectId}/snapshots`,
       null
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });

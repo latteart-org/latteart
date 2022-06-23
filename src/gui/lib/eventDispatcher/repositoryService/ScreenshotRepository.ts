@@ -15,7 +15,12 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
 export class ScreenshotRepository {
   constructor(private restClient: RESTClient) {}
@@ -28,12 +33,19 @@ export class ScreenshotRepository {
 
   public async getScreenshots(
     testResultId: string
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpGet(
       `/test-results/${testResultId}/screenshots`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });

@@ -16,7 +16,12 @@
 
 import { RESTClient } from "../RESTClient";
 import { TestScript } from "@/lib/operationHistory/scriptGenerator/TestScript";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
 export class TestScriptRepository {
   constructor(private restClient: RESTClient) {}
@@ -31,13 +36,20 @@ export class TestScriptRepository {
   public async postTestscriptsWithProjectId(
     projectId: string,
     body: TestScript
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpPost(
       `/projects/${projectId}/test-scripts`,
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });
@@ -53,13 +65,20 @@ export class TestScriptRepository {
   public async postTestscriptsWithTestResultId(
     testResultId: string,
     body: TestScript
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpPost(
       `/test-results/${testResultId}/test-scripts`,
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });

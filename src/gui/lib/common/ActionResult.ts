@@ -14,14 +14,36 @@
  * limitations under the License.
  */
 
-export interface ActionResult<T> {
-  readonly data?: T;
-  readonly error?: ActionError;
-}
-
 /**
  * Action error information.
  */
 export interface ActionError {
-  code: string;
+  messageKey: string;
+  variables?: { [key: string]: string };
+}
+
+export type ActionResult<T> = ActionSuccess<T> | ActionFailure;
+
+export class ActionSuccess<T> {
+  constructor(public readonly data: T) {}
+
+  public isSuccess(): this is ActionSuccess<T> {
+    return true;
+  }
+
+  public isFailure(): this is ActionFailure {
+    return false;
+  }
+}
+
+export class ActionFailure {
+  constructor(public readonly error: ActionError) {}
+
+  public isSuccess(): this is ActionSuccess<unknown> {
+    return false;
+  }
+
+  public isFailure(): this is ActionFailure {
+    return true;
+  }
 }

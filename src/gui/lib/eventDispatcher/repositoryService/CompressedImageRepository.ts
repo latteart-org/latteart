@@ -15,7 +15,12 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
 export class CompressedImageRepository {
   constructor(private restClient: RESTClient) {}
@@ -29,15 +34,22 @@ export class CompressedImageRepository {
   public async postNoteImage(
     testResultId: string,
     noteId: string
-  ): Promise<Reply<{ imageFileUrl: string }>> {
+  ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>> {
     const response = await this.restClient.httpPost(
       `/test-results/${testResultId}/notes/${noteId}/compressed-image`,
       null
     );
 
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
     const { imageFileUrl } = response.data as { imageFileUrl: string };
 
-    return new ReplyImpl({
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: { imageFileUrl },
     });
@@ -52,19 +64,22 @@ export class CompressedImageRepository {
   public async postTestStepImage(
     testResultId: string,
     testStepId: string
-  ): Promise<Reply<{ imageFileUrl: string }>> {
+  ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>> {
     const response = await this.restClient.httpPost(
       `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`,
       null
     );
 
-    const { imageFileUrl } = response.data as { imageFileUrl: string };
-
-    if (!imageFileUrl) {
-      throw new Error();
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
     }
 
-    return new ReplyImpl({
+    const { imageFileUrl } = response.data as { imageFileUrl: string };
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: { imageFileUrl },
     });

@@ -15,46 +15,36 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import { TestResult } from "@/lib/operationHistory/types";
 
-export interface TestResultRepository {
-  deleteTestResult(testResultId: string): Promise<Reply<void>>;
-  postTestResultForExport(
-    testResultId: string,
-    shouldSaveTemporary: boolean
-  ): Promise<Reply<{ url: string }>>;
-  postTestResultForUpload(
-    source: { testResultId: string },
-    dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<Reply<{ id: string }>>;
-  postEmptyTestResult(
-    initialUrl?: string,
-    name?: string
-  ): Promise<Reply<{ id: string; name: string }>>;
-  getTestResults(): Promise<Reply<Array<{ id: string; name: string }>>>;
-  getTestResult(testResultId: string): Promise<Reply<TestResult>>;
-  patchTestResult(
-    testResultId: string,
-    name?: string,
-    startTime?: number,
-    initialUrl?: string
-  ): Promise<Reply<string>>;
-}
-
-export class TestResultRepositoryImpl implements TestResultRepository {
+export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
    * Delete local test result.
    * @param testResultId  Test result id.
    */
-  public async deleteTestResult(testResultId: string): Promise<Reply<void>> {
+  public async deleteTestResult(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<void>> {
     const response = await this.restClient.httpDelete(
       `/test-results/${testResultId}`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as void,
     });
@@ -69,13 +59,20 @@ export class TestResultRepositoryImpl implements TestResultRepository {
   public async postTestResultForExport(
     testResultId: string,
     shouldSaveTemporary: boolean
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpPost(
       `/test-results/${testResultId}/export`,
       { temp: shouldSaveTemporary }
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });
@@ -90,13 +87,20 @@ export class TestResultRepositoryImpl implements TestResultRepository {
   public async postTestResultForUpload(
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<Reply<{ id: string }>> {
+  ): Promise<RepositoryAccessResult<{ id: string }>> {
     const response = await this.restClient.httpPost(
       `/upload-request/test-result`,
       { source, dest }
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { id: string },
     });
@@ -110,11 +114,18 @@ export class TestResultRepositoryImpl implements TestResultRepository {
   public async postEmptyTestResult(
     initialUrl?: string,
     name?: string
-  ): Promise<Reply<{ id: string; name: string }>> {
+  ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
     const url = `/test-results`;
     const response = await this.restClient.httpPost(url, { initialUrl, name });
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { id: string; name: string },
     });
@@ -125,11 +136,18 @@ export class TestResultRepositoryImpl implements TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    Reply<Array<{ id: string; name: string }>>
+    RepositoryAccessResult<Array<{ id: string; name: string }>>
   > {
     const response = await this.restClient.httpGet(`/test-results`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Array<{
         id: string;
@@ -142,12 +160,21 @@ export class TestResultRepositoryImpl implements TestResultRepository {
    * Get the test result of the specified test result ID.
    * @param testResultId  Test result ID.
    */
-  public async getTestResult(testResultId: string): Promise<Reply<TestResult>> {
+  public async getTestResult(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<TestResult>> {
     const response = await this.restClient.httpGet(
       `/test-results/${testResultId}`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as TestResult,
     });
@@ -158,13 +185,20 @@ export class TestResultRepositoryImpl implements TestResultRepository {
     name?: string,
     startTime?: number,
     initialUrl?: string
-  ): Promise<Reply<string>> {
+  ): Promise<RepositoryAccessResult<string>> {
     const response = await this.restClient.httpPatch(
       `/test-results/${testResultId}`,
       { name, startTime, initialUrl }
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: (response.data as TestResult).name,
     });

@@ -15,17 +15,14 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  RepositoryAccessResult,
+  isServerError,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
-export interface ImportProjectRepository {
-  getProjects(): Promise<Reply<Array<{ url: string; name: string }>>>;
-  postProjects(
-    source: { projectFileUrl: string },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ projectId: string }>>;
-}
-
-export class ImportProjectRepositoryImpl implements ImportProjectRepository {
+export class ImportProjectRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
@@ -33,11 +30,18 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
    * @returns List of projects for import.
    */
   public async getProjects(): Promise<
-    Reply<Array<{ url: string; name: string }>>
+    RepositoryAccessResult<Array<{ url: string; name: string }>>
   > {
     const response = await this.restClient.httpGet(`/imports/projects`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Array<{
         url: string;
@@ -54,14 +58,21 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
   public async postProjects(
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ projectId: string }>> {
+  ): Promise<RepositoryAccessResult<{ projectId: string }>> {
     const response = await this.restClient.httpPost(`/imports/projects`, {
       source,
       includeTestResults: selectOption.includeTestResults,
       includeProject: selectOption.includeProject,
     });
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { projectId: string },
     });

@@ -46,6 +46,50 @@ export class ReplyImpl<T> implements Reply<T> {
   }
 }
 
+export type RepositoryAccessResult<T> =
+  | RepositoryAccessSuccess<T>
+  | RepositoryAccessFailure;
+
+export class RepositoryAccessSuccess<T> {
+  constructor(private readonly body: { status: number; data: T }) {}
+
+  public get status(): number {
+    return this.body.status;
+  }
+
+  public get data(): T {
+    return this.body.data;
+  }
+
+  public isSuccess(): this is RepositoryAccessSuccess<T> {
+    return true;
+  }
+
+  public isFailure(): this is RepositoryAccessFailure {
+    return false;
+  }
+}
+
+export class RepositoryAccessFailure {
+  constructor(private readonly body: { status: number; error: ServerError }) {}
+
+  public get status(): number {
+    return this.body.status;
+  }
+
+  public get error(): ServerError {
+    return this.body.error;
+  }
+
+  public isSuccess(): this is RepositoryAccessSuccess<unknown> {
+    return false;
+  }
+
+  public isFailure(): this is RepositoryAccessFailure {
+    return true;
+  }
+}
+
 /**
  * Server error information.
  */
@@ -57,4 +101,40 @@ export interface ServerError {
     message: string;
     target: string;
   }>;
+}
+
+export function isServerError(data: unknown): data is ServerError {
+  if (typeof data !== "object") {
+    return false;
+  }
+
+  if (typeof (data as ServerError).code !== "string") {
+    return false;
+  }
+
+  if (typeof (data as ServerError).message !== "string") {
+    return false;
+  }
+
+  const details = (data as ServerError).details;
+
+  if (details) {
+    if (typeof details !== "object") {
+      return false;
+    }
+
+    if (
+      !details.every((detail) => {
+        return (
+          typeof detail.code === "string" &&
+          typeof detail.message === "string" &&
+          typeof detail.target === "string"
+        );
+      })
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 }
