@@ -15,8 +15,14 @@
  */
 
 import Settings from "@/lib/common/settings/Settings";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
 export class SaveSettingAction {
   constructor(
@@ -26,10 +32,13 @@ export class SaveSettingAction {
   public async saveSettings(
     settings: Settings
   ): Promise<ActionResult<Settings>> {
-    const reply = await this.repositoryContainer.settingRepository.putSettings(
-      settings
-    );
+    const putSettingsResult =
+      await this.repositoryContainer.settingRepository.putSettings(settings);
 
-    return reply;
+    if (putSettingsResult.isFailure()) {
+      return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
+    }
+
+    return new ActionSuccess(putSettingsResult.data);
   }
 }

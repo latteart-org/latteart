@@ -15,7 +15,7 @@
  */
 
 import { Sequential } from "./RecordIntentionAction";
-import { ActionResult } from "@/lib/common/ActionResult";
+import { ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
 
 export interface SaveIntentionActionObserver {
   recordIntention(intention: {
@@ -66,7 +66,7 @@ export class SaveIntentionAction {
         noteDetails: noteEditInfo.noteDetails,
       });
 
-      return {};
+      return new ActionSuccess(undefined);
     }
 
     await this.observer.recordIntention({
@@ -80,6 +80,6 @@ export class SaveIntentionAction {
       await this.observer.moveIntention(oldSequence, newSequence);
     }
 
-    return {};
+    return new ActionSuccess(undefined);
   }
 }

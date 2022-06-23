@@ -15,8 +15,15 @@
  */
 
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const READ_DEVICE_SETTING_FAILED_MESSAGE_KEY =
+  "error.capture_control.get_device_settings_failed";
 
 export class ReadDeviceSettingAction {
   constructor(
@@ -24,9 +31,15 @@ export class ReadDeviceSettingAction {
   ) {}
 
   public async readDeviceSettings(): Promise<ActionResult<DeviceSettings>> {
-    const reply =
+    const getDeviceSettingsResult =
       await this.repositoryContainer.settingRepository.getDeviceSettings();
 
-    return reply;
+    if (getDeviceSettingsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: READ_DEVICE_SETTING_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(getDeviceSettingsResult.data);
   }
 }

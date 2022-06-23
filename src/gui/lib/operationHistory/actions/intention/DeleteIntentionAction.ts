@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import { TestStepOperation } from "../../types";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const DELETE_TEST_PURPOSE_FAILED_MESSAGE_KEY =
+  "error.operation_history.delete_test_purpose_failed";
 
 export class DeleteIntentionAction {
   constructor(
@@ -35,23 +41,31 @@ export class DeleteIntentionAction {
     testResultId: string,
     testStepId: string
   ): Promise<ActionResult<string>> {
-    const { intention: noteId } = (
+    const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
 
-    const reply = await this.repositoryContainer.noteRepository.deleteNotes(
-      testResultId,
-      noteId as string
-    );
+    if (getTestStepsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: DELETE_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    const { intention: noteId } = getTestStepsResult.data;
+
+    const deleteNotesResult =
+      await this.repositoryContainer.noteRepository.deleteNotes(
+        testResultId,
+        noteId as string
+      );
+
+    if (deleteNotesResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: DELETE_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
 
     // Break the link.
     await (async () => {
@@ -62,14 +76,6 @@ export class DeleteIntentionAction {
       );
     })();
 
-    const error = reply.error
-      ? { code: "registering-testresults-error" }
-      : undefined;
-    const result = {
-      data: testStepId,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(testStepId);
   }
 }

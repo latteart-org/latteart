@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const CREATE_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.create_test_result_failed";
 
 export class CreateTestResultAction {
   constructor(
@@ -29,12 +36,18 @@ export class CreateTestResultAction {
     initialUrl?: string,
     name?: string
   ): Promise<ActionResult<{ id: string; name: string }>> {
-    const reply =
+    const postEmptyTestResultResult =
       await this.repositoryContainer.testResultRepository.postEmptyTestResult(
         initialUrl,
         name
       );
 
-    return reply;
+    if (postEmptyTestResultResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: CREATE_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(postEmptyTestResultResult.data);
   }
 }

@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.update_test_result_failed";
 
 export class ChangeTestResultAction {
   constructor(
@@ -31,7 +38,7 @@ export class ChangeTestResultAction {
     startTime?: number,
     initialUrl?: string
   ): Promise<ActionResult<string>> {
-    const reply =
+    const patchTestResultResult =
       await this.repositoryContainer.testResultRepository.patchTestResult(
         testResultId,
         name,
@@ -39,12 +46,12 @@ export class ChangeTestResultAction {
         initialUrl
       );
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data: reply.data ?? undefined,
-      error,
-    };
+    if (patchTestResultResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
 
-    return result;
+    return new ActionSuccess(patchTestResultResult.data);
   }
 }

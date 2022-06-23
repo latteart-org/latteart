@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.import_test_result_failed";
 
 export class ImportTestResultAction {
   constructor(
@@ -29,18 +36,18 @@ export class ImportTestResultAction {
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<ActionResult<{ testResultId: string }>> {
-    const reply =
+    const postTestResultResult =
       await this.repositoryContainer.importTestResultRepository.postTestResult(
         source,
         dest
       );
 
-    const error = reply.error ? { code: "import-data-error" } : undefined;
-    const result = {
-      data: reply.data,
-      error,
-    };
+    if (postTestResultResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
 
-    return result;
+    return new ActionSuccess(postTestResultResult.data);
   }
 }

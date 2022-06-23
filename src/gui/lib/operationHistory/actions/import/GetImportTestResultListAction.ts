@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const GET_IMPORT_TEST_RESULTS_FAILED_MESSAGE_KEY =
+  "error.operation_history.get_import_test_results_failed";
 
 export class GetImportTestResultListAction {
   constructor(
@@ -28,25 +35,23 @@ export class GetImportTestResultListAction {
   public async getImportTestResults(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
   > {
-    const reply =
+    const getTestResultsResult =
       await this.repositoryContainer.importTestResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: GET_IMPORT_TEST_RESULTS_FAILED_MESSAGE_KEY,
+      });
+    }
+
     const serviceUrl = this.repositoryContainer.serviceUrl;
+    const data = getTestResultsResult.data.map(({ url, name }) => {
+      return {
+        url: `${serviceUrl}/${url}`,
+        name,
+      };
+    });
 
-    const data = reply.data
-      ? reply.data.map(({ url, name }) => {
-          return {
-            url: `${serviceUrl}/${url}`,
-            name,
-          };
-        })
-      : undefined;
-
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

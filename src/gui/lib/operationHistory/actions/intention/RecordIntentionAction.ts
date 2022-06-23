@@ -15,9 +15,15 @@
  */
 
 import { Note } from "../../Note";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
-import { TestStepOperation } from "../../types";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  RepositoryAccessResult,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
+import {
+  ActionResult,
+  ActionSuccess,
+  ActionFailure,
+} from "@/lib/common/ActionResult";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
@@ -29,6 +35,9 @@ export interface RecordIntentionActionObserver {
 export interface Sequential {
   sequence: number;
 }
+
+const RECORD_TEST_PURPOSE_FAILED_MESSAGE_KEY =
+  "error.operation_history.record_test_purpose_failed";
 
 export class RecordIntentionAction {
   constructor(
@@ -56,7 +65,7 @@ export class RecordIntentionAction {
 
     const testStepId = this.observer.getTestStepId(note.sequence);
 
-    const reply = historyHasTargetIntention
+    const editIntentionResult = historyHasTargetIntention
       ? await this.editIntention(note.testResultId, testStepId, {
           summary: note.summary,
           details: note.details,
@@ -66,15 +75,21 @@ export class RecordIntentionAction {
           details: note.details,
         });
 
-    if (reply.data) {
+    if (editIntentionResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: RECORD_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    if (editIntentionResult.data) {
       this.observer.setIntention(
         Note.createFromOtherNote({
-          other: reply.data,
+          other: editIntentionResult.data,
           overrideParams: { sequence: note.sequence },
         })
       );
     }
-    return {};
+    return new ActionSuccess(undefined);
   }
   /**
    * Add intention information to the test step with the specified sequence number.
@@ -90,23 +105,30 @@ export class RecordIntentionAction {
       summary: string;
       details: string;
     }
-  ): Promise<Reply<Note>> {
+  ): Promise<RepositoryAccessResult<Note>> {
     // New note registration
-    const reply = await this.repositoryContainer.noteRepository.postNotes(
-      testResultId,
-      intention
-    );
-    const savedNote = reply.data ?? undefined;
+    const postNotesResult =
+      await this.repositoryContainer.noteRepository.postNotes(
+        testResultId,
+        intention
+      );
 
-    if (!savedNote) {
-      return new ReplyImpl({ status: reply.status, data: undefined });
+    if (postNotesResult.isFailure()) {
+      return postNotesResult;
     }
 
-    await this.repositoryContainer.testStepRepository.patchTestSteps(
-      testResultId,
-      testStepId,
-      savedNote?.id
-    );
+    const savedNote = postNotesResult.data;
+
+    const patchTestStepsResult =
+      await this.repositoryContainer.testStepRepository.patchTestSteps(
+        testResultId,
+        testStepId,
+        savedNote?.id
+      );
+
+    if (patchTestStepsResult.isFailure()) {
+      return patchTestStepsResult;
+    }
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = new Note({
@@ -118,7 +140,10 @@ export class RecordIntentionAction {
       tags: savedNote.tags,
     });
 
-    return new ReplyImpl({ status: reply.status, data: data });
+    return new RepositoryAccessSuccess({
+      status: patchTestStepsResult.status,
+      data: data,
+    });
   }
 
   /**
@@ -135,33 +160,33 @@ export class RecordIntentionAction {
       summary: string;
       details: string;
     }
-  ): Promise<Reply<Note>> {
+  ): Promise<RepositoryAccessResult<Note>> {
     // Get noteId.
-    const { intention: noteId } = (
+    const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
 
-    // Note update.
-    const reply = await this.repositoryContainer.noteRepository.putNotes(
-      testResultId,
-      noteId as string,
-      intention
-    );
-
-    if (!reply.data) {
-      return new ReplyImpl({ status: reply.status, data: undefined });
+    if (getTestStepsResult.isFailure()) {
+      return getTestStepsResult;
     }
 
-    const savedNote = reply.data as {
+    const { intention: noteId } = getTestStepsResult.data;
+
+    // Note update.
+    const putNotesResult =
+      await this.repositoryContainer.noteRepository.putNotes(
+        testResultId,
+        noteId as string,
+        intention
+      );
+
+    if (putNotesResult.isFailure()) {
+      return putNotesResult;
+    }
+
+    const savedNote = putNotesResult.data as {
       id: string;
       type: string;
       value: string;
@@ -173,6 +198,9 @@ export class RecordIntentionAction {
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = convertNoteWithoutId(savedNote, serviceUrl);
 
-    return new ReplyImpl({ status: reply.status, data: data });
+    return new RepositoryAccessSuccess({
+      status: putNotesResult.status,
+      data: data,
+    });
   }
 }

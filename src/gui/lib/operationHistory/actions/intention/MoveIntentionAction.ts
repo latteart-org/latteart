@@ -15,13 +15,20 @@
  */
 
 import { Note } from "../../Note";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface MoveIntentionActionObserver {
   moveIntention(oldSequence: number, newIntention: Note): void;
   getTestStepId(sequence: number): string;
 }
+
+const MOVE_TEST_PURPOSE_FAILED_MESSAGE_KEY =
+  "error.operation_history.move_test_purpose_failed";
 
 export class MoveIntentionAction {
   constructor(
@@ -40,23 +47,33 @@ export class MoveIntentionAction {
     const fromTestStepId = this.observer.getTestStepId(fromSequence);
     const destTestStepId = this.observer.getTestStepId(destSequence);
 
-    const replyTestSteps =
+    const testStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         fromTestStepId
       );
 
-    if (!replyTestSteps.data) {
-      return {};
+    if (testStepsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: MOVE_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
     }
-    const noteId = replyTestSteps.data.intention;
+
+    const noteId = testStepsResult.data.intention;
 
     // Break the link of the move source.
-    await this.repositoryContainer.testStepRepository.patchTestSteps(
-      testResultId,
-      fromTestStepId,
-      null
-    );
+    const patchTestStepsResult =
+      await this.repositoryContainer.testStepRepository.patchTestSteps(
+        testResultId,
+        fromTestStepId,
+        null
+      );
+
+    if (patchTestStepsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: MOVE_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
 
     // Link to the destination.
     await this.repositoryContainer.testStepRepository.patchTestSteps(
@@ -65,19 +82,19 @@ export class MoveIntentionAction {
       noteId
     );
 
-    const reply = await this.repositoryContainer.noteRepository.getNotes(
-      testResultId,
-      noteId
-    );
+    const getNotesResult =
+      await this.repositoryContainer.noteRepository.getNotes(
+        testResultId,
+        noteId
+      );
 
-    const note = reply.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
+    if (getNotesResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: MOVE_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    const note = getNotesResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const movedNote = note
@@ -101,6 +118,6 @@ export class MoveIntentionAction {
       );
     }
 
-    return {};
+    return new ActionSuccess(undefined);
   }
 }

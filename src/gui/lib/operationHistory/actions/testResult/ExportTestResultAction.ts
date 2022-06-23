@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.import_export.create-export-data-error";
 
 export class ExportTestResultAction {
   constructor(
@@ -29,21 +36,18 @@ export class ExportTestResultAction {
     testResultId: string,
     shouldSaveTemporary = false
   ): Promise<ActionResult<string>> {
-    const reply =
+    const postTestResultForExportResult =
       await this.repositoryContainer.testResultRepository.postTestResultForExport(
         testResultId,
         shouldSaveTemporary
       );
 
-    const outputUrl = reply.data ? reply.data.url : undefined;
-    const error = reply.error
-      ? { code: "create-export-data-error" }
-      : undefined;
-    const result = {
-      data: outputUrl,
-      error,
-    };
+    if (postTestResultForExportResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
 
-    return result;
+    return new ActionSuccess(postTestResultForExportResult.data.url);
   }
 }

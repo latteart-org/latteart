@@ -15,8 +15,15 @@
  */
 
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY =
+  "error.capture_control.save_device_settings_failed";
 
 export class SaveDeviceSettingAction {
   constructor(
@@ -26,11 +33,17 @@ export class SaveDeviceSettingAction {
   public async saveDeviceSettings(
     deviceSettings: DeviceSettings
   ): Promise<ActionResult<DeviceSettings>> {
-    const reply =
+    const putDeviceSettingsResult =
       await this.repositoryContainer.settingRepository.putDeviceSettings(
         deviceSettings
       );
 
-    return reply;
+    if (putDeviceSettingsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(putDeviceSettingsResult.data);
   }
 }
