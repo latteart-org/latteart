@@ -16,7 +16,12 @@
 
 import { RESTClient } from "../RESTClient";
 import { ManagedSession } from "@/lib/testManagement/TestManagementData";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
 export class SessionRepository {
   constructor(private restClient: RESTClient) {}
@@ -25,13 +30,20 @@ export class SessionRepository {
     projectId: string,
     sessionId: string,
     body: Partial<ManagedSession>
-  ): Promise<Reply<ManagedSession>> {
+  ): Promise<RepositoryAccessResult<ManagedSession>> {
     const response = await this.restClient.httpPatch(
       `/projects/${projectId}/sessions/${sessionId}`,
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as ManagedSession,
     });

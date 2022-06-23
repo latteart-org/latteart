@@ -70,11 +70,7 @@ export default class StoryDataConverter implements StoryConvertable {
       repositoryContainer
     ).getTestResult(testResultFile.id);
 
-    if (!result.data) {
-      return {};
-    }
-    if (result.error) {
-      console.log(result.error);
+    if (result.isFailure()) {
       return {};
     }
 

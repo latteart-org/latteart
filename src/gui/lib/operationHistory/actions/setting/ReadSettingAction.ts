@@ -15,8 +15,14 @@
  */
 
 import Settings from "@/lib/common/settings/Settings";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
 export class ReadSettingAction {
   constructor(
@@ -24,9 +30,13 @@ export class ReadSettingAction {
   ) {}
 
   public async readSettings(): Promise<ActionResult<Settings>> {
-    const reply =
+    const getSettingsResult =
       await this.repositoryContainer.settingRepository.getSettings();
 
-    return reply;
+    if (getSettingsResult.isFailure()) {
+      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
+    }
+
+    return new ActionSuccess(getSettingsResult.data);
   }
 }

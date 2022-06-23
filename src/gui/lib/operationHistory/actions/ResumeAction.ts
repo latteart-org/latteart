@@ -18,13 +18,19 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import { CoverageSource, InputElementInfo } from "../types";
 import { Operation } from "../Operation";
 import { Note } from "../Note";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import {
   convertTestStepOperation,
   convertNote,
   convertIntention,
 } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const RESUME_FAILED_MESSAGE_KEY = "error.operation_history.resume_failed";
 
 export interface ResumeActionObserver {
   setResumedData: (data: {
@@ -53,18 +59,16 @@ export class ResumeAction {
    * @returns Restored operation history information.
    */
   public async resume(testResultId: string): Promise<ActionResult<void>> {
-    const reply =
+    const getTestResultResult =
       await this.repositoryContainer.testResultRepository.getTestResult(
         testResultId
       );
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-
-    const testResult = reply.data ?? undefined;
-
-    if (!testResult) {
-      return { data: undefined, error };
+    if (getTestResultResult.isFailure()) {
+      return new ActionFailure({ messageKey: RESUME_FAILED_MESSAGE_KEY });
     }
+
+    const testResult = getTestResultResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
 
@@ -144,6 +148,7 @@ export class ResumeAction {
         testResultInfo: { id: data.id, name: data.name },
       });
     }
-    return { data: reply.data as void, error };
+
+    return new ActionSuccess(undefined);
   }
 }

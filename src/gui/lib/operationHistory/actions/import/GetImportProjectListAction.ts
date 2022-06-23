@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY =
+  "error.test_management.get_import_project_list_failed";
 
 export class GetImportProjectListAction {
   constructor(
@@ -28,25 +35,23 @@ export class GetImportProjectListAction {
   public async getImportProjects(): Promise<
     ActionResult<Array<{ url: string; name: string }>>
   > {
-    const reply =
+    const getProjectsResult =
       await this.repositoryContainer.importProjectRepository.getProjects();
+
+    if (getProjectsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY,
+      });
+    }
+
     const serviceUrl = this.repositoryContainer.serviceUrl;
+    const data = getProjectsResult.data.map(({ url, name }) => {
+      return {
+        url: `${serviceUrl}/${url}`,
+        name,
+      };
+    });
 
-    const data = reply.data
-      ? reply.data.map(({ url, name }) => {
-          return {
-            url: `${serviceUrl}/${url}`,
-            name,
-          };
-        })
-      : undefined;
-
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

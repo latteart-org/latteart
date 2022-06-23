@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ExportAction {
@@ -26,21 +30,18 @@ export class ExportAction {
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<string>> {
-    const reply =
+    const postProjectForExportResult =
       await this.repositoryContainer.projectRepository.postProjectForExport(
         projectId,
         selectOption
       );
 
-    const error = !reply.data
-      ? { code: "create-export-data-error" }
-      : undefined;
-    const outputUrl = reply.data ? reply.data.url : undefined;
-    const result = {
-      data: outputUrl,
-      error,
-    };
+    if (postProjectForExportResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: "error.import_export.create-export-data-error",
+      });
+    }
 
-    return result;
+    return new ActionSuccess(postProjectForExportResult.data.url);
   }
 }

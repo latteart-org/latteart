@@ -15,33 +15,16 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import { Project } from "@/lib/testManagement/types";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 
-export interface ProjectRepository {
-  postProjectForExport(
-    projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ url: string }>>;
-  getProjects(): Promise<
-    Reply<
-      Array<{
-        id: string;
-        name: string;
-        createdAt: string;
-      }>
-    >
-  >;
-  getProject(projectId: string): Promise<Reply<Project>>;
-  postProject(): Promise<Reply<{ id: string; name: string }>>;
-  putProject(
-    projectId: string,
-    body: TestManagementData
-  ): Promise<Reply<Project>>;
-}
-
-export class ProjectRepositoryImpl implements ProjectRepository {
+export class ProjectRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
@@ -53,20 +36,27 @@ export class ProjectRepositoryImpl implements ProjectRepository {
   public async postProjectForExport(
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ url: string }>> {
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
     const response = await this.restClient.httpPost(
       `/projects/${projectId}/export`,
       selectOption
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { url: string },
     });
   }
 
   public async getProjects(): Promise<
-    Reply<
+    RepositoryAccessResult<
       Array<{
         id: string;
         name: string;
@@ -76,7 +66,14 @@ export class ProjectRepositoryImpl implements ProjectRepository {
   > {
     const response = await this.restClient.httpGet(`/projects`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Array<{
         id: string;
@@ -86,21 +83,39 @@ export class ProjectRepositoryImpl implements ProjectRepository {
     });
   }
 
-  public async getProject(projectId: string): Promise<Reply<Project>> {
+  public async getProject(
+    projectId: string
+  ): Promise<RepositoryAccessResult<Project>> {
     const response = await this.restClient.httpGet(`/projects/${projectId}`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Project,
     });
   }
 
-  public async postProject(): Promise<Reply<{ id: string; name: string }>> {
+  public async postProject(): Promise<
+    RepositoryAccessResult<{ id: string; name: string }>
+  > {
     const response = await this.restClient.httpPost(`/projects`, {
       name: "",
     });
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { id: string; name: string },
     });
@@ -115,13 +130,20 @@ export class ProjectRepositoryImpl implements ProjectRepository {
   public async putProject(
     projectId: string,
     body: TestManagementData
-  ): Promise<Reply<Project>> {
+  ): Promise<RepositoryAccessResult<Project>> {
     const response = await this.restClient.httpPut(
       `/projects/${projectId}`,
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Project,
     });

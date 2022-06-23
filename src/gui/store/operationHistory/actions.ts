@@ -42,7 +42,6 @@ import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
-import { TestScriptGeneratorImpl } from "@/lib/operationHistory/scriptGenerator/TestScriptGenerator";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
@@ -132,16 +131,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new SaveSettingAction(
       context.rootState.repositoryContainer
     ).saveSettings(settings);
-    if (result.data === null) {
-      return;
-    } else if (result.data) {
-      context.commit("setConfig", { config: result.data.config });
-    }
-    if (result.error) {
+
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.common.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
+
+    context.commit("setConfig", { config: result.data.config });
   },
 
   /**
@@ -155,16 +155,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).readSettings();
 
-    if (result.data) {
-      context.commit("setSettings", { settings: result.data }, { root: true });
-      context.dispatch("setSettings", { settings: result.data });
-    }
-
-    if (result.error) {
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.common.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
+
+    context.commit("setSettings", { settings: result.data }, { root: true });
+    context.dispatch("setSettings", { settings: result.data });
   },
 
   /**
@@ -234,6 +235,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new DeleteIntentionAction(
       context.rootState.repositoryContainer
     ).deleteIntention(context.state.testResultInfo.id, testStepId);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
 
     if (result.data) {
       context.commit("deleteIntention", { sequence: payload.sequence });
@@ -312,35 +322,42 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const recordedNote = await (async () => {
+    const recordedNoteResult = await (async () => {
       // update
       if (payload.index !== undefined) {
-        return (
-          await new EditBugAction(repositoryContainer).editBug(
-            context.state.testResultInfo.id,
-            testStepId,
-            payload.index,
-            {
-              summary: payload.summary,
-              details: payload.details,
-            }
-          )
-        ).data!;
-      }
-
-      // add
-      return (
-        await new AddBugAction(repositoryContainer).addBug(
+        return new EditBugAction(repositoryContainer).editBug(
           context.state.testResultInfo.id,
           testStepId,
+          payload.index,
           {
             summary: payload.summary,
             details: payload.details,
-            imageData,
           }
-        )
-      ).data!;
+        );
+      }
+
+      // add
+      return new AddBugAction(repositoryContainer).addBug(
+        context.state.testResultInfo.id,
+        testStepId,
+        {
+          summary: payload.summary,
+          details: payload.details,
+          imageData,
+        }
+      );
     })();
+
+    if (recordedNoteResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          recordedNoteResult.error.messageKey,
+          recordedNoteResult.error.variables
+        )
+      );
+    }
+
+    const recordedNote = recordedNoteResult.data;
 
     context.commit("setBug", {
       bug: Note.createFromOtherNote({
@@ -362,17 +379,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.state.testResultInfo.id,
           recordedNote.bug.id as string
         );
-        if (result.data) {
-          context.commit("replaceNoteImageFileUrl", {
-            type: "bug",
-            sequence: payload.sequence,
-            index: recordedNote.index,
-            imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
-          });
+
+        if (result.isFailure()) {
+          throw new Error(
+            context.rootGetters.message(
+              result.error.messageKey,
+              result.error.variables
+            )
+          );
         }
-        if (result.error) {
-          throw result.error;
-        }
+
+        context.commit("replaceNoteImageFileUrl", {
+          type: "bug",
+          sequence: payload.sequence,
+          index: recordedNote.index,
+          imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
+        });
       }, 1);
     }
   },
@@ -409,7 +431,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
     );
 
-    const movedNote = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const movedNote = result.data;
 
     context.commit("deleteBug", payload.from);
     context.commit("setBug", {
@@ -435,7 +466,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).deleteBug(context.state.testResultInfo.id, testStepId, payload.index);
 
-    const { index } = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const { index } = result.data;
 
     context.commit("deleteBug", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
@@ -520,37 +560,44 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const recordedNote = await (async () => {
+    const recordedNoteResult = await (async () => {
       // update
       if (payload.index !== undefined) {
-        return (
-          await new EditNoticeAction(repositoryContainer).editNotice(
-            context.state.testResultInfo.id,
-            testStepId,
-            payload.index,
-            {
-              summary: payload.summary,
-              details: payload.details,
-              tags: payload.tags,
-            }
-          )
-        ).data!;
-      }
-
-      // add
-      return (
-        await new AddNoticeAction(repositoryContainer).addNotice(
+        return new EditNoticeAction(repositoryContainer).editNotice(
           context.state.testResultInfo.id,
           testStepId,
+          payload.index,
           {
             summary: payload.summary,
             details: payload.details,
             tags: payload.tags,
-            imageData,
           }
-        )
-      ).data!;
+        );
+      }
+
+      // add
+      return new AddNoticeAction(repositoryContainer).addNotice(
+        context.state.testResultInfo.id,
+        testStepId,
+        {
+          summary: payload.summary,
+          details: payload.details,
+          tags: payload.tags,
+          imageData,
+        }
+      );
     })();
+
+    if (recordedNoteResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          recordedNoteResult.error.messageKey,
+          recordedNoteResult.error.variables
+        )
+      );
+    }
+
+    const recordedNote = recordedNoteResult.data;
 
     context.commit("setNotice", {
       notice: Note.createFromOtherNote({
@@ -572,17 +619,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.state.testResultInfo.id,
           recordedNote.notice.id as string
         );
-        if (result.data) {
-          context.commit("replaceNoteImageFileUrl", {
-            type: "notice",
-            sequence: payload.sequence,
-            index: recordedNote.index,
-            imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
-          });
+
+        if (result.isFailure()) {
+          throw new Error(
+            context.rootGetters.message(
+              result.error.messageKey,
+              result.error.variables
+            )
+          );
         }
-        if (result.error) {
-          throw result.error;
-        }
+
+        context.commit("replaceNoteImageFileUrl", {
+          type: "notice",
+          sequence: payload.sequence,
+          index: recordedNote.index,
+          imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
+        });
       }, 1);
     }
   },
@@ -619,7 +671,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
     );
 
-    const movedNote = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const movedNote = result.data;
 
     context.commit("deleteNotice", payload.from);
     context.commit("setNotice", {
@@ -645,7 +706,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).deleteNotice(context.state.testResultInfo.id, testStepId, payload.index);
 
-    const { index } = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const { index } = result.data;
 
     context.commit("deleteNotice", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
@@ -723,16 +793,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         testResultId: payload.remoteTestResultId,
       }
     );
-    if (result.data) {
-      return result.data;
-    }
-    if (result.error) {
-      console.error(result.error);
 
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.remote_access.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
+
+    return result.data;
   },
 
   async deleteLocalTestResult(context, payload: { testResultId: string }) {
@@ -745,8 +816,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new DeleteTestResultAction(
       localRepositoryContainer
     ).deleteTestResult(payload.testResultId);
-    if (result.error) {
-      throw new Error(context.rootGetters.message(result.error.code));
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
   },
 
@@ -757,8 +834,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).deleteTestResult(testResultId);
 
-    if (result.error) {
-      throw new Error(context.rootGetters.message(result.error.code));
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
   },
 
@@ -827,12 +909,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { root: true }
     );
 
-    if (result.error) {
-      const errorMessage = context.rootGetters.message(
-        `error.operation_history.${result.error.code}`
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
-
-      throw new Error(errorMessage);
     }
   },
 
@@ -853,13 +936,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new ImportTestResultAction(
       context.rootState.repositoryContainer
     ).importWithTestResult(payload.source, payload.dest);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
     if (result.data) {
       return result.data;
-    }
-    if (result.error) {
-      throw new Error(
-        context.rootGetters.message(`error.import_export.${result.error.code}`)
-      );
     }
   },
 
@@ -879,14 +967,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new ExportTestResultAction(
       context.rootState.repositoryContainer
     ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
-    if (result.data) {
-      return result.data;
-    }
-    if (result.error) {
+
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
+
+    return result.data;
   },
 
   /**
@@ -953,7 +1044,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryContainer
     ).registerOperation(context.state.testResultInfo.id, capturedOperation);
 
-    const { id, operation, coverageSource, inputElementInfo } = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const { id, operation, coverageSource, inputElementInfo } = result.data;
 
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
@@ -988,15 +1088,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         const testStepId = context.state.testStepIds[operation.sequence - 1];
         const result2 = await new CompressTestStepImageAction(
           repositoryContainer
-        ).compressNoteImage(context.state.testResultInfo.id, testStepId);
+        ).compressTestStepImage(context.state.testResultInfo.id, testStepId);
+
+        if (result2.isFailure()) {
+          throw new Error(
+            context.rootGetters.message(
+              result2.error.messageKey,
+              result2.error.variables
+            )
+          );
+        }
+
         if (result2.data) {
           context.commit("replaceTestStepsImageFileUrl", {
             sequence: operation.sequence,
             imageFileUrl: `${repositoryContainer.serviceUrl}/${result2.data.imageFileUrl}`,
           });
-        }
-        if (result2.error) {
-          throw result2.error;
         }
       }, 1);
     }
@@ -1294,40 +1401,34 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     };
 
-    const testScriptGenerator = new TestScriptGeneratorImpl(imageUrlResolver, {
-      testScript: {
-        isSimple: payload.option.testScript.isSimple,
-      },
-      testData: {
-        useDataDriven: payload.option.testData.useDataDriven,
-        maxGeneration: payload.option.testData.maxGeneration,
-      },
-    });
-
     const result = await new GenerateTestScriptsAction(
       context.rootState.repositoryContainer,
-      testScriptGenerator
+      imageUrlResolver,
+      {
+        testScript: {
+          isSimple: payload.option.testScript.isSimple,
+        },
+        testData: {
+          useDataDriven: payload.option.testData.useDataDriven,
+          maxGeneration: payload.option.testData.maxGeneration,
+        },
+      }
     ).generate({
       testResultId: payload.testResultId,
       projectId: payload.projectId,
       sources: payload.sources,
     });
 
-    if (result.data) {
-      return result.data;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
 
-    if (result.error) {
-      if (result.error.code === `generate_test_suite_failed`) {
-        const errorCode = !payload.option.testScript.isSimple
-          ? `save_test_scripts_no_section_error`
-          : `save_test_scripts_no_operation_error`;
-
-        throw new Error(
-          context.rootGetters.message(`error.operation_history.${errorCode}`)
-        );
-      }
-    }
+    return result.data;
   },
 
   /**
@@ -1362,15 +1463,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).createTestResult(initialUrl, name);
 
-    if (result.data) {
-      const testResultInfo = result.data;
-
-      context.commit("setTestResultInfo", {
-        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-        id: testResultInfo.id,
-        name: testResultInfo.name,
-      });
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
+
+    const testResultInfo = result.data;
+
+    context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      id: testResultInfo.id,
+      name: testResultInfo.name,
+    });
   },
 
   /**
@@ -1379,10 +1487,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @returns Test results.
    */
   async getTestResults(context) {
-    const reply = await new GetTestResultListAction(
+    const result = await new GetTestResultListAction(
       context.rootState.repositoryContainer
     ).getTestResults();
-    return reply.data!;
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 
   async getImportTestResults(context) {
@@ -1390,11 +1508,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
-    const reply = await new GetImportTestResultListAction(
+    const result = await new GetImportTestResultListAction(
       localRepositoryContainer
     ).getImportTestResults();
 
-    return reply.data;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 
   async getImportProjects(context) {
@@ -1402,11 +1529,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       url: context.rootState.localRepositoryServiceUrl,
       isRemote: false,
     });
-    const reply = await new GetImportProjectListAction(
+    const result = await new GetImportProjectListAction(
       localRepositoryContainer
     ).getImportProjects();
 
-    return reply.data;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 
   async changeCurrentTestResult(
@@ -1431,18 +1567,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       url
     );
 
-    if (result.error) {
-      const errorMessage = context.rootGetters.message(
-        `error.operation_history.${result.error.code}`
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
-      throw new Error(errorMessage);
     }
 
-    if (result.data) {
-      const changedName = result.data;
-
-      context.commit("setTestResultName", { name: changedName });
-    }
+    const changedName = result.data;
+    context.commit("setTestResultName", { name: changedName });
   },
 
   async getTestResult(
@@ -1459,17 +1594,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     ).getTestResult(payload.testResultId);
 
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
     console.log(result);
 
-    const data = result.data as {
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-    };
-
-    return data;
+    return result.data;
   },
 
   async getScreenshots(context, payload: { testResultId: string }) {
@@ -1477,7 +1613,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       await context.rootState.repositoryContainer.screenshotRepository.getScreenshots(
         payload.testResultId
       );
-    return result.data?.url;
+
+    if (result.isFailure()) {
+      return "";
+    }
+
+    return result.data.url;
   },
 };
 

@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const EDIT_NOTE_FAILED_MESSAGE_KEY = "error.operation_history.edit_note_failed";
 
 export class EditBugAction {
   constructor(
@@ -45,37 +50,34 @@ export class EditBugAction {
       details: string;
     }
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
-    const { bugs } = (
+    const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
+
+    if (getTestStepsResult.isFailure()) {
+      return new ActionFailure({ messageKey: EDIT_NOTE_FAILED_MESSAGE_KEY });
+    }
+
+    const { bugs } = getTestStepsResult.data;
 
     const noteId: string = bugs[index];
 
     // note update
-    const reply = await this.repositoryContainer.noteRepository.putNotes(
-      testResultId,
-      noteId,
-      undefined,
-      bug
-    );
+    const putNotesResult =
+      await this.repositoryContainer.noteRepository.putNotes(
+        testResultId,
+        noteId,
+        undefined,
+        bug
+      );
 
-    const savedNote = reply.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
+    if (putNotesResult.isFailure()) {
+      return new ActionFailure({ messageKey: EDIT_NOTE_FAILED_MESSAGE_KEY });
+    }
+
+    const savedNote = putNotesResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
@@ -83,12 +85,6 @@ export class EditBugAction {
       index,
     };
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

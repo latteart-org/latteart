@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const DELETE_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.delete_test_result_failed";
 
 export class DeleteTestResultAction {
   constructor(
@@ -28,18 +35,17 @@ export class DeleteTestResultAction {
   public async deleteTestResult(
     testResultId: string
   ): Promise<ActionResult<string>> {
-    const reply =
+    const deleteTestResultResult =
       await this.repositoryContainer.testResultRepository.deleteTestResult(
         testResultId
       );
 
-    if (reply.status === 204) {
-      return { data: testResultId };
+    if (deleteTestResultResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: DELETE_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
     }
 
-    return {
-      data: testResultId,
-      error: { code: "error.operation_history.delete_test_result_failed" },
-    };
+    return new ActionSuccess(testResultId);
   }
 }

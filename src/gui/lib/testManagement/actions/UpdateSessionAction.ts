@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { ManagedSession } from "../TestManagementData";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const UPDATE_SESSION_FAILED_MESSAGE_KEY =
+  "error.test_management.update_session_failed";
 
 export class UpdateSessionAction {
   constructor(
@@ -28,12 +35,19 @@ export class UpdateSessionAction {
     sessionId: string,
     body: Partial<ManagedSession>
   ): Promise<ActionResult<ManagedSession>> {
-    const reply = await this.repositoryContainer.sessionRepository.patchSession(
-      projectId,
-      sessionId,
-      body
-    );
+    const patchSessionResult =
+      await this.repositoryContainer.sessionRepository.patchSession(
+        projectId,
+        sessionId,
+        body
+      );
 
-    return reply;
+    if (patchSessionResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: UPDATE_SESSION_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(patchSessionResult.data);
   }
 }

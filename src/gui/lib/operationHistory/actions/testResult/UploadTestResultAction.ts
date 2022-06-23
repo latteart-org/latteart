@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const UPLOAD_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.remote_access.upload-request-error";
 
 export class UploadTestResultAction {
   constructor(
@@ -29,18 +36,18 @@ export class UploadTestResultAction {
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<ActionResult<string>> {
-    const reply =
+    const postTestResultForUploadResult =
       await this.repositoryContainer.testResultRepository.postTestResultForUpload(
         source,
         dest
       );
 
-    const error = reply.error ? { code: "upload-request-error" } : undefined;
-    const result = {
-      data: reply.data?.id,
-      error,
-    };
+    if (postTestResultForUploadResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: UPLOAD_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
 
-    return result;
+    return new ActionSuccess(postTestResultForUploadResult.data.id);
   }
 }

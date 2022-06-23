@@ -15,19 +15,14 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { ReplyImpl, Reply } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 
-export interface ImportTestResultRepository {
-  postTestResult(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<Reply<{ testResultId: string }>>;
-  getTestResults(): Promise<Reply<Array<{ url: string; name: string }>>>;
-}
-
-export class ImportTestResultRepositoryImpl
-  implements ImportTestResultRepository
-{
+export class ImportTestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
@@ -39,7 +34,7 @@ export class ImportTestResultRepositoryImpl
   public async postTestResult(
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
-  ): Promise<Reply<{ testResultId: string }>> {
+  ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
     const body = {
       source,
       dest,
@@ -50,7 +45,14 @@ export class ImportTestResultRepositoryImpl
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as { testResultId: string },
     });
@@ -61,11 +63,18 @@ export class ImportTestResultRepositoryImpl
    * @returns List of test results for import.
    */
   public async getTestResults(): Promise<
-    Reply<Array<{ url: string; name: string }>>
+    RepositoryAccessResult<Array<{ url: string; name: string }>>
   > {
     const response = await this.restClient.httpGet(`/imports/test-results`);
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as Array<{
         url: string;

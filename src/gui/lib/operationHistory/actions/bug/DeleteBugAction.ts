@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import { TestStepOperation } from "../../types";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const DELETE_NOTE_FAILED_MESSAGE_KEY =
+  "error.operation_history.delete_note_failed";
 
 export class DeleteBugAction {
   constructor(
@@ -38,43 +44,45 @@ export class DeleteBugAction {
     index: number
   ): Promise<ActionResult<{ testStepId: string; index: number }>> {
     // Get noteId.
-    const { bugs } = (
+    const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
+
+    if (getTestStepsResult.isFailure()) {
+      return new ActionFailure({ messageKey: DELETE_NOTE_FAILED_MESSAGE_KEY });
+    }
+
+    const { bugs } = getTestStepsResult.data;
 
     const noteId = bugs[index];
 
     // Delete note.
-    const reply = await this.repositoryContainer.noteRepository.deleteNotes(
-      testResultId,
-      noteId
-    );
+    const deleteNotesResult =
+      await this.repositoryContainer.noteRepository.deleteNotes(
+        testResultId,
+        noteId
+      );
+
+    if (deleteNotesResult.isFailure()) {
+      return new ActionFailure({ messageKey: DELETE_NOTE_FAILED_MESSAGE_KEY });
+    }
 
     // Break the link.
     const filteredBugs = bugs.filter((_: unknown, i: number) => i !== index);
-    await this.repositoryContainer.testStepRepository.patchTestSteps(
-      testResultId,
-      testStepId,
-      undefined,
-      filteredBugs
-    );
+    const patchTestStepsResult =
+      await this.repositoryContainer.testStepRepository.patchTestSteps(
+        testResultId,
+        testStepId,
+        undefined,
+        filteredBugs
+      );
 
-    const data = { testStepId, index };
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
+    if (patchTestStepsResult.isFailure()) {
+      return new ActionFailure({ messageKey: DELETE_NOTE_FAILED_MESSAGE_KEY });
+    }
 
-    return result;
+    return new ActionSuccess({ testStepId, index });
   }
 }

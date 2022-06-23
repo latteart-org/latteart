@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  RepositoryAccessResult,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
 import { StoryConvertable } from "./WriteDataFileAction";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-interface ReadDataFileMutationObserver {
+export interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
@@ -38,6 +45,9 @@ export interface ProjectStoryConvertable {
   ): Promise<Story>;
 }
 
+const READ_PROJECT_DATA_FAILED_MESSAGE_KEY =
+  "error.test_management.read_project_data_failed";
+
 export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
@@ -49,17 +59,16 @@ export class ReadProjectDataAction {
   ) {}
 
   public async read(): Promise<ActionResult<void>> {
-    const reply = await this.readProject();
+    const readProjectResult = await this.readProject();
 
-    if (reply.error) {
-      return { data: undefined, error: reply.error };
+    if (readProjectResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: READ_PROJECT_DATA_FAILED_MESSAGE_KEY,
+      });
     }
 
-    if (!reply.data) {
-      return {};
-    }
-
-    const { projectId, testMatrices, stories, progressDatas } = reply.data;
+    const { projectId, testMatrices, stories, progressDatas } =
+      readProjectResult.data;
 
     this.observer.setProjectId({ projectId });
 
@@ -81,7 +90,7 @@ export class ReadProjectDataAction {
 
     this.observer.setProgressDatas({ progressDatas });
 
-    return {};
+    return new ActionSuccess(undefined);
   }
 
   /**
@@ -89,45 +98,52 @@ export class ReadProjectDataAction {
    * @returns Project data.
    */
   private async readProject(): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       projectId: string;
       testMatrices: TestMatrix[];
       progressDatas: ProgressData[];
       stories: ManagedStory[];
     }>
   > {
-    const projects = (
-      await this.repositoryContainer.projectRepository.getProjects()
-    ).data as Array<{
-      id: string;
-      name: string;
-    }>;
+    const getProjectsResult =
+      await this.repositoryContainer.projectRepository.getProjects();
 
-    const targetProjectId =
-      projects.length === 0
-        ? (
-            (await this.repositoryContainer.projectRepository.postProject())
-              .data as {
-              id: string;
-              name: string;
-            }
-          ).id
-        : projects[projects.length - 1].id;
+    if (getProjectsResult.isFailure()) {
+      return getProjectsResult;
+    }
 
-    const reply = await this.repositoryContainer.projectRepository.getProject(
-      targetProjectId
-    );
+    const projectIds = getProjectsResult.data.map(({ id }) => id);
+
+    if (projectIds.length === 0) {
+      const postProjectResult =
+        await this.repositoryContainer.projectRepository.postProject();
+
+      if (postProjectResult.isFailure()) {
+        return postProjectResult;
+      }
+
+      projectIds.push(postProjectResult.data.id);
+    }
+
+    const targetProjectId = projectIds[projectIds.length - 1];
+
+    const getProjectResult =
+      await this.repositoryContainer.projectRepository.getProject(
+        targetProjectId
+      );
+
+    if (getProjectResult.isFailure()) {
+      return getProjectResult;
+    }
 
     const data = {
-      ...reply.data,
+      ...getProjectResult.data,
       projectId: targetProjectId,
-    } as {
-      projectId: string;
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
     };
 
-    return new ReplyImpl({ status: reply.status, data: data });
+    return new RepositoryAccessSuccess({
+      status: getProjectResult.status,
+      data: data,
+    });
   }
 }

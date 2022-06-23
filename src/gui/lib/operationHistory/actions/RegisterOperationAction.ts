@@ -15,11 +15,18 @@
  */
 
 import { CapturedOperation } from "../CapturedOperation";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { Operation } from "../Operation";
-import { CoverageSource, InputElementInfo, TestStepOperation } from "../types";
+import { CoverageSource, InputElementInfo } from "../types";
 import { convertTestStepOperation } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const REGISTER_OPERATION_FAILED_MESSAGE_KEY =
+  "error.operation_history.register_operation_failed";
 
 export class RegisterOperationAction {
   constructor(
@@ -46,23 +53,24 @@ export class RegisterOperationAction {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const reply =
+    const postTestStepsResult =
       await this.repositoryContainer.testStepRepository.postTestSteps(
         testResultId,
         capturedOperation
       );
+
+    if (postTestStepsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: REGISTER_OPERATION_FAILED_MESSAGE_KEY,
+      });
+    }
 
     const {
       id,
       operation: testStepOperation,
       coverageSource,
       inputElementInfo,
-    } = reply.data as {
-      id: string;
-      operation: TestStepOperation;
-      coverageSource: CoverageSource;
-      inputElementInfo?: InputElementInfo;
-    };
+    } = postTestStepsResult.data;
     const serviceUrl = this.repositoryContainer.serviceUrl;
 
     const operation = convertTestStepOperation(testStepOperation, serviceUrl);
@@ -74,17 +82,6 @@ export class RegisterOperationAction {
       inputElementInfo,
     };
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data: data as {
-        id: string;
-        operation: Operation;
-        coverageSource: CoverageSource;
-        inputElementInfo: InputElementInfo;
-      },
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

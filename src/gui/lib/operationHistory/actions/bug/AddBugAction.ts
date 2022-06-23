@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepOperation } from "../../types";
 import { convertNote } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const ADD_NOTE_FAILED_MESSAGE_KEY = "error.operation_history.add_note_failed";
 
 export class AddBugAction {
   constructor(
@@ -45,37 +50,34 @@ export class AddBugAction {
     }
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
     // New registration of note.
-    const reply = await this.repositoryContainer.noteRepository.postNotes(
-      testResultId,
-      undefined,
-      bug
-    );
+    const postNotesResult =
+      await this.repositoryContainer.noteRepository.postNotes(
+        testResultId,
+        undefined,
+        bug
+      );
 
-    const savedNote = reply.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
+    if (postNotesResult.isFailure()) {
+      return new ActionFailure({ messageKey: ADD_NOTE_FAILED_MESSAGE_KEY });
+    }
+
+    const savedNote = postNotesResult.data;
 
     // Linking with testStep.
-    const linkTestStep = await (async () => {
-      const { bugs: replyBugs } = (
+    const linkTestStepResult = await (async () => {
+      const getTestStepResult =
         await this.repositoryContainer.testStepRepository.getTestSteps(
           testResultId,
           testStepId
-        )
-      ).data as {
-        id: string;
-        operation: TestStepOperation;
-        intention: string | null;
-        bugs: string[];
-        notices: string[];
-      };
+        );
 
-      const bugs = [...replyBugs, savedNote.id];
+      if (getTestStepResult.isFailure()) {
+        return getTestStepResult;
+      }
+
+      const { bugs: resultBugs } = getTestStepResult.data;
+
+      const bugs = [...resultBugs, savedNote.id];
 
       return await this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
@@ -85,9 +87,11 @@ export class AddBugAction {
       );
     })();
 
-    const savedTestStep = linkTestStep.data as {
-      bugs: string[];
-    };
+    if (linkTestStepResult.isFailure()) {
+      return new ActionFailure({ messageKey: ADD_NOTE_FAILED_MESSAGE_KEY });
+    }
+
+    const savedTestStep = linkTestStepResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
@@ -95,12 +99,6 @@ export class AddBugAction {
       index: savedTestStep.bugs.length - 1,
     };
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

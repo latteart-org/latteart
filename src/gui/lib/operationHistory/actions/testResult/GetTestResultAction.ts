@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { TestResult } from "../../types";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const GET_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.get_test_result_failed";
 
 export class GetTestResultAction {
   constructor(
@@ -29,11 +36,17 @@ export class GetTestResultAction {
   public async getTestResult(
     testResultId: string
   ): Promise<ActionResult<TestResult>> {
-    const reply =
+    const getTestResultResult =
       await this.repositoryContainer.testResultRepository.getTestResult(
         testResultId
       );
 
-    return reply;
+    if (getTestResultResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: GET_TEST_RESULT_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(getTestResultResult.data);
   }
 }

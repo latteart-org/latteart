@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { Note } from "../../Note";
-import { TestStepOperation } from "../../types";
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const MOVE_NOTICE_FAILED_MESSAGE_KEY =
+  "error.operation_history.move_note_failed";
 
 export class MoveNoticeAction {
   constructor(
@@ -43,24 +49,23 @@ export class MoveNoticeAction {
     // Break the link of the move source.
     const noteId = undefined;
     const bugs = undefined;
-    const { notices: fromNotices } = (
+    const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         from.testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
+
+    if (getTestStepsResult.isFailure()) {
+      return new ActionFailure({ messageKey: MOVE_NOTICE_FAILED_MESSAGE_KEY });
+    }
+
+    const { notices: fromNotices } = getTestStepsResult.data;
 
     const filteredNotices = fromNotices.filter(
       (_: unknown, index: number) => index !== from.index
     );
 
-    await (async () => {
+    const patchTestStepsResult = await (async () => {
       return this.repositoryContainer.testStepRepository.patchTestSteps(
         testResultId,
         from.testStepId,
@@ -70,43 +75,49 @@ export class MoveNoticeAction {
       );
     })();
 
+    if (patchTestStepsResult.isFailure()) {
+      return new ActionFailure({ messageKey: MOVE_NOTICE_FAILED_MESSAGE_KEY });
+    }
+
     // Link to the destination.
-    const { notices: destNotices } = (
+    const getTestStepsResult2 =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
         dest.testStepId
-      )
-    ).data as {
-      id: string;
-      operation: TestStepOperation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    };
+      );
+
+    if (getTestStepsResult2.isFailure()) {
+      return new ActionFailure({ messageKey: MOVE_NOTICE_FAILED_MESSAGE_KEY });
+    }
+
+    const { notices: destNotices } = getTestStepsResult2.data;
 
     const notices = [...destNotices, fromNotices[from.index]];
 
-    await this.repositoryContainer.testStepRepository.patchTestSteps(
-      testResultId,
-      dest.testStepId,
-      noteId,
-      bugs,
-      notices
-    );
+    const patchTestStepsResult2 =
+      await this.repositoryContainer.testStepRepository.patchTestSteps(
+        testResultId,
+        dest.testStepId,
+        noteId,
+        bugs,
+        notices
+      );
 
-    const reply = await this.repositoryContainer.noteRepository.getNotes(
-      testResultId,
-      fromNotices[from.index]
-    );
+    if (patchTestStepsResult2.isFailure()) {
+      return new ActionFailure({ messageKey: MOVE_NOTICE_FAILED_MESSAGE_KEY });
+    }
 
-    const note = reply.data as {
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    };
+    const getNotesResult =
+      await this.repositoryContainer.noteRepository.getNotes(
+        testResultId,
+        fromNotices[from.index]
+      );
+
+    if (getNotesResult.isFailure()) {
+      return new ActionFailure({ messageKey: MOVE_NOTICE_FAILED_MESSAGE_KEY });
+    }
+
+    const note = getNotesResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
     const data = {
@@ -114,12 +125,6 @@ export class MoveNoticeAction {
       index: destNotices.length,
     };
 
-    const error = reply.error ? { code: reply.error.code } : undefined;
-    const result = {
-      data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(data);
   }
 }

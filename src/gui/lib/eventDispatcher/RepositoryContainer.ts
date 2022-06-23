@@ -22,25 +22,13 @@ import {
   NoteRepository,
   NoteRepositoryImpl,
 } from "./repositoryService/NoteRepository";
-import {
-  TestResultRepository,
-  TestResultRepositoryImpl,
-} from "./repositoryService/TestResultRepository";
+import { TestResultRepository } from "./repositoryService/TestResultRepository";
 import { TestScriptRepository } from "./repositoryService/TestScriptRepository";
 import { SettingRepository } from "./repositoryService/SettingRepository";
-import {
-  ImportTestResultRepositoryImpl,
-  ImportTestResultRepository,
-} from "./repositoryService/ImportTestResultRepository";
-import {
-  ImportProjectRepository,
-  ImportProjectRepositoryImpl,
-} from "./repositoryService/ImportProjectRepository";
+import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
+import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
-import {
-  ProjectRepository,
-  ProjectRepositoryImpl,
-} from "./repositoryService/ProjectRepository";
+import { ProjectRepository } from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 import RESTClientImpl from "./RESTClient";
@@ -101,13 +89,13 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     this.repositories = {
       testStep: new TestStepRepositoryImpl(this.restClient),
       note: new NoteRepositoryImpl(this.restClient),
-      testResult: new TestResultRepositoryImpl(this.restClient),
-      importTestResult: new ImportTestResultRepositoryImpl(this.restClient),
-      importProject: new ImportProjectRepositoryImpl(this.restClient),
+      testResult: new TestResultRepository(this.restClient),
+      importTestResult: new ImportTestResultRepository(this.restClient),
+      importProject: new ImportProjectRepository(this.restClient),
       testScript: new TestScriptRepository(this.restClient),
       setting: new SettingRepository(this.restClient),
       compressedImage: new CompressedImageRepository(this.restClient),
-      project: new ProjectRepositoryImpl(this.restClient),
+      project: new ProjectRepository(this.restClient),
       session: new SessionRepository(this.restClient),
       snapshot: new SnapshotRepository(this.restClient),
       screenshot: new ScreenshotRepository(this.restClient),

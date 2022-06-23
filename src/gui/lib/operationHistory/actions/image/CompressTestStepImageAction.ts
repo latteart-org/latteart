@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const COMPRESS_TEST_STEP_IMAGE_FAILED_MESSAGE_KEY =
+  "error.operation_history.compress_operation_screenshot_failed";
 
 export class CompressTestStepImageAction {
   constructor(
@@ -25,16 +32,22 @@ export class CompressTestStepImageAction {
     >
   ) {}
 
-  public async compressNoteImage(
+  public async compressTestStepImage(
     testResultId: string,
     testStepId: string
   ): Promise<ActionResult<{ imageFileUrl: string }>> {
-    const reply =
+    const postTestStepImageResult =
       await this.repositoryContainer.compressedImageRepository.postTestStepImage(
         testResultId,
         testStepId
       );
 
-    return reply;
+    if (postTestStepImageResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: COMPRESS_TEST_STEP_IMAGE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(postTestStepImageResult.data);
   }
 }

@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const COMPRESS_NOTE_IMAGE_FAILED_MESSAGE_KEY =
+  "error.operation_history.compress_note_screenshot_failed";
 
 export class CompressNoteImageAction {
   constructor(
@@ -29,12 +36,18 @@ export class CompressNoteImageAction {
     testResultId: string,
     noteId: string
   ): Promise<ActionResult<{ imageFileUrl: string }>> {
-    const reply =
+    const postNoteImageResult =
       await this.repositoryContainer.compressedImageRepository.postNoteImage(
         testResultId,
         noteId
       );
 
-    return reply;
+    if (postNoteImageResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: COMPRESS_NOTE_IMAGE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(postNoteImageResult.data);
   }
 }

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ImportAction {
@@ -34,30 +38,29 @@ export class ImportAction {
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<{ projectId: string }>> {
-    const reply =
+    const postProjectsResult =
       await this.repositoryContainer.importProjectRepository.postProjects(
         source,
         selectOption
       );
 
-    let errorMessage;
+    if (postProjectsResult.isFailure()) {
+      if (postProjectsResult.error.code === "import_test_result_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-test-result-not-exist",
+        });
+      }
+      if (postProjectsResult.error?.code === "import_project_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-project-not-exist",
+        });
+      }
 
-    if (reply.error?.code === "import_test_result_not_exist") {
-      errorMessage = "import-test-result-not-exist";
-    }
-    if (reply.error?.code === "import_project_not_exist") {
-      errorMessage = "import-project-not-exist";
-    }
-    if (!reply.data) {
-      errorMessage = "import-data-error";
+      return new ActionFailure({
+        messageKey: "error.import_export.import-data-error",
+      });
     }
 
-    const error = errorMessage ? { code: errorMessage } : undefined;
-    const result = {
-      data: reply.data,
-      error,
-    };
-
-    return result;
+    return new ActionSuccess(postProjectsResult.data);
   }
 }

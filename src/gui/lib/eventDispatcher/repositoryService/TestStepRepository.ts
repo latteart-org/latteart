@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  isServerError,
+  RepositoryAccessResult,
+  RepositoryAccessFailure,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import {
   TestStepOperation,
   CoverageSource,
@@ -28,7 +33,7 @@ export interface TestStepRepository {
     testResultId: string,
     testStepId: string
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       intention: string | null;
@@ -36,6 +41,7 @@ export interface TestStepRepository {
       notices: string[];
     }>
   >;
+
   patchTestSteps(
     testResultId: string,
     testStepId: string,
@@ -43,7 +49,7 @@ export interface TestStepRepository {
     bugs?: string[],
     notices?: string[]
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       intention: string | null;
@@ -51,11 +57,12 @@ export interface TestStepRepository {
       notices: string[];
     }>
   >;
+
   postTestSteps(
     testResultId: string,
     capturedOperation: CapturedOperation
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       coverageSource: CoverageSource;
@@ -71,7 +78,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     testResultId: string,
     testStepId: string
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       intention: string | null;
@@ -83,7 +90,14 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       `/test-results/${testResultId}/test-steps/${testStepId}`
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
@@ -102,7 +116,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     bugs?: string[],
     notices?: string[]
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       intention: string | null;
@@ -120,7 +134,14 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       body
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
@@ -136,7 +157,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     testResultId: string,
     capturedOperation: CapturedOperation
   ): Promise<
-    Reply<{
+    RepositoryAccessResult<{
       id: string;
       operation: TestStepOperation;
       coverageSource: CoverageSource;
@@ -148,7 +169,14 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       capturedOperation
     );
 
-    return new ReplyImpl({
+    if (response.status !== 200 && isServerError(response.data)) {
+      return new RepositoryAccessFailure({
+        status: response.status,
+        error: response.data,
+      });
+    }
+
+    return new RepositoryAccessSuccess({
       status: response.status,
       data: response.data as {
         id: string;
