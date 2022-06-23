@@ -120,20 +120,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     const result = await new ReadDeviceSettingAction(
       context.rootState.repositoryContainer
     ).readDeviceSettings();
-    if (result.data === null) {
-      return;
-    } else if (result.data) {
-      await context.dispatch("setDeviceSettings", {
-        deviceSettings: result.data,
-      });
-    }
-    if (result.error) {
+
+    if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          `error.capture_control.${result.error.code}`
+          result.error.messageKey,
+          result.error.variables
         )
       );
     }
+
+    await context.dispatch("setDeviceSettings", {
+      deviceSettings: result.data,
+    });
   },
 
   /**
@@ -172,34 +171,29 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       localRepositoryContainer
     ).saveDeviceSettings(deviceSettings);
 
-    if (result === null) {
-      return;
-    }
-
-    if (result.data) {
-      const captureConfig: CaptureConfig = {
-        platformName: result.data.config.platformName
-          ? result.data.config.platformName
-          : context.state.config.platformName,
-        browser: result.data.config.browser
-          ? result.data.config.browser
-          : context.state.config.browser,
-        device: result.data.config.device,
-        platformVersion: result.data.config.platformVersion,
-        waitTimeForStartupReload: result.data.config.waitTimeForStartupReload,
-        executablePaths: result.data.config.executablePaths,
-      };
-
-      context.commit("setCaptureConfig", { captureConfig });
-    }
-
-    if (result.error) {
+    if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          `error.capture_control.${result.error.code}`
+          result.error.messageKey,
+          result.error.variables
         )
       );
     }
+
+    const captureConfig: CaptureConfig = {
+      platformName: result.data.config.platformName
+        ? result.data.config.platformName
+        : context.state.config.platformName,
+      browser: result.data.config.browser
+        ? result.data.config.browser
+        : context.state.config.browser,
+      device: result.data.config.device,
+      platformVersion: result.data.config.platformVersion,
+      waitTimeForStartupReload: result.data.config.waitTimeForStartupReload,
+      executablePaths: result.data.config.executablePaths,
+    };
+
+    context.commit("setCaptureConfig", { captureConfig });
   },
 
   /**

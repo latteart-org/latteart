@@ -1,73 +1,86 @@
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import {
+  RESTClientResponse,
+  RESTClient,
+} from "@/lib/eventDispatcher/RESTClient";
+import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("ImportTestResultAction", () => {
   describe("#importWithTestResult", () => {
-    it("渡されたインポート元、インポート先を用いてインポートを実行し、その戻り値を返す", async () => {
-      const reply = {
+    describe("指定のテスト結果ファイルをリポジトリにインポートする", () => {
+      const expectedData = { testResultId: "testResultId" };
+      const resSuccess: RESTClientResponse = {
         status: 200,
-        data: { name: "name", id: "id", beforeId: "beforeId" },
+        data: expectedData,
       };
 
-      const expectedResult = {
-        data: reply.data,
-        error: undefined,
-      };
-
-      const importTestResultRepository = {
-        postTestResult: jest.fn().mockResolvedValue(reply),
-        getTestResults: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        importTestResultRepository,
-      };
-
-      const source = { testResultFileUrl: "testResultFileUrl" };
-      const dest = { testResultId: "testResultId" };
-      const result = await new ImportTestResultAction(
-        repositoryContainer
-      ).importWithTestResult(source, dest);
-
-      expect(
-        repositoryContainer.importTestResultRepository.postTestResult
-      ).toBeCalledWith(source, dest);
-      expect(result).toEqual(expectedResult);
-    });
-
-    it("渡されたインポート元、インポート先を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードの戻り値を返す。", async () => {
-      const reply = {
+      const resFailure: RESTClientResponse = {
         status: 500,
-        error: {
-          code: "errorcode",
-          message: "errormessage",
-        },
-      };
-
-      const receivedError = {
-        data: undefined,
-        error: { code: "import-data-error" },
-      };
-
-      const importTestResultRepository = {
-        postTestResult: jest.fn().mockResolvedValue(reply),
-        getTestResults: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        importTestResultRepository,
+        data: { code: "errorcode", message: "errormessage" },
       };
 
       const source = { testResultFileUrl: "testResultFileUrl" };
       const dest = { testResultId: "testResultId" };
 
-      const result = await new ImportTestResultAction(
-        repositoryContainer
-      ).importWithTestResult(source, dest);
+      it("インポートに成功した場合は、インポートされたテスト結果の識別情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resSuccess),
+        };
+        const action = new ImportTestResultAction({
+          importTestResultRepository: new ImportTestResultRepository(
+            restClient
+          ),
+        });
 
-      expect(
-        repositoryContainer.importTestResultRepository.postTestResult
-      ).toBeCalledWith(source, dest);
-      expect(result).toEqual(receivedError);
+        const result = await action.importWithTestResult(source, dest);
+
+        expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
+          source,
+          dest,
+        });
+        if (result.isSuccess()) {
+          expect(result.data).toEqual({
+            testResultId: expectedData.testResultId,
+          });
+        } else {
+          throw new Error("failed");
+        }
+      });
+
+      it("インポートに失敗した場合は、エラー情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resFailure),
+        };
+        const action = new ImportTestResultAction({
+          importTestResultRepository: new ImportTestResultRepository(
+            restClient
+          ),
+        });
+
+        const result = await action.importWithTestResult(source, dest);
+
+        expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
+          source,
+          dest,
+        });
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.operation_history.import_test_result_failed",
+          });
+        }
+      });
     });
   });
 });

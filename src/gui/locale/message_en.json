@@ -466,11 +466,29 @@
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
       "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity.",
-      "delete_test_result_failed": "Failed to delete the test result."
+      "delete_test_result_failed": "Failed to delete the test result.",
+      "add_note_failed": "Failed to add note.",
+      "delete_note_failed": "Failed to delete note.",
+      "edit_note_failed": "Failed to update note.",
+      "move_note_failed": "Failed to move note.",
+      "get_import_test_results_failed": "Failed to get import file list.",
+      "import_test_result_failed": "Failed to import test result.",
+      "delete_test_purpose_failed": "Failed to delete test purpose.",
+      "move_test_purpose_failed": "Failed to move test purpose.",
+      "record_test_purpose_failed": "Failed to record test purpose.",
+      "create_test_result_failed": "Failed to create test result.",
+      "get_test_result_failed": "Failed to get test result.",
+      "get_test_result_list_failed": "Failed to get test result list.",
+      "register_operation_failed": "Failed to register operation."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
-      "illegal_test_management_data": "Illegal format of test management data."
+      "illegal_test_management_data": "Illegal format of test management data.",
+      "get_import_project_list_failed": "Failed to get import file list.",
+      "read_project_data_failed": "Failed to read project data.",
+      "update_session_failed": "Failed to update session.",
+      "save_project_failed": "Failed to save project data.",
+      "write_snapshot_failed": "Failed to write snapshot."
     },
     "import_export": {
       "import-data-error": "Data import failed.",

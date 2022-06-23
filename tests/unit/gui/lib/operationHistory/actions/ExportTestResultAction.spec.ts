@@ -1,81 +1,86 @@
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
+import {
+  RESTClientResponse,
+  RESTClient,
+} from "@/lib/eventDispatcher/RESTClient";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("ExportTestResultAction", () => {
   describe("#exportWithTestResult", () => {
-    it("渡されたテスト結果IDを用いてエクスポートを実行し、その戻り値を返す", async () => {
-      const reply = {
+    describe("指定のテスト結果をファイルにエクスポートする", () => {
+      const expectedData = { url: "url" };
+      const resSuccess: RESTClientResponse = {
         status: 200,
-        data: { url: "/test/export.zip" },
+        data: expectedData,
       };
 
-      const expectedResult = {
-        data: reply.data.url,
-        error: undefined,
-      };
-
-      const testResultRepository = {
-        deleteTestResult: jest.fn(),
-        postTestResultForExport: jest.fn().mockResolvedValue(reply),
-        postTestResultForUpload: jest.fn(),
-        postEmptyTestResult: jest.fn(),
-        getTestResults: jest.fn(),
-        getTestResult: jest.fn(),
-        patchTestResult: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        testResultRepository,
-      };
-
-      const testResultId = "testResultId";
-
-      const result = await new ExportTestResultAction(
-        repositoryContainer
-      ).exportWithTestResult(testResultId);
-
-      expect(
-        repositoryContainer.testResultRepository.postTestResultForExport
-      ).toBeCalledWith(testResultId, false);
-      expect(result).toEqual(expectedResult);
-    });
-
-    it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
-      const reply = {
+      const resFailure: RESTClientResponse = {
         status: 500,
-        error: {
-          code: "errorcode",
-          message: "errormessage",
-        },
+        data: { code: "errorcode", message: "errormessage" },
       };
 
-      const receivedError = {
-        data: undefined,
-        error: { code: "create-export-data-error" },
-      };
-
-      const testResultRepository = {
-        deleteTestResult: jest.fn(),
-        postTestResultForExport: jest.fn().mockResolvedValue(reply),
-        postTestResultForUpload: jest.fn(),
-        postEmptyTestResult: jest.fn(),
-        getTestResults: jest.fn(),
-        getTestResult: jest.fn(),
-        patchTestResult: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        testResultRepository,
-      };
       const testResultId = "testResultId";
+      const shouldSaveTemporary = false;
 
-      const result = await new ExportTestResultAction(
-        repositoryContainer
-      ).exportWithTestResult(testResultId);
+      it("エクスポートに成功した場合は、エクスポートされたファイルのダウンロードURLを返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resSuccess),
+        };
+        const action = new ExportTestResultAction({
+          testResultRepository: new TestResultRepository(restClient),
+        });
 
-      expect(
-        repositoryContainer.testResultRepository.postTestResultForExport
-      ).toBeCalledWith(testResultId, false);
-      expect(result).toEqual(receivedError);
+        const result = await action.exportWithTestResult(
+          testResultId,
+          shouldSaveTemporary
+        );
+
+        expect(restClient.httpPost).toBeCalledWith(
+          `/test-results/${testResultId}/export`,
+          { temp: shouldSaveTemporary }
+        );
+        if (result.isSuccess()) {
+          expect(result.data).toEqual(expectedData.url);
+        } else {
+          throw new Error("failed");
+        }
+      });
+
+      it("エクスポートに失敗した場合は、エラー情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resFailure),
+        };
+        const action = new ExportTestResultAction({
+          testResultRepository: new TestResultRepository(restClient),
+        });
+
+        const result = await action.exportWithTestResult(
+          testResultId,
+          shouldSaveTemporary
+        );
+
+        expect(restClient.httpPost).toBeCalledWith(
+          `/test-results/${testResultId}/export`,
+          { temp: shouldSaveTemporary }
+        );
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.import_export.create-export-data-error",
+          });
+        }
+      });
     });
   });
 });

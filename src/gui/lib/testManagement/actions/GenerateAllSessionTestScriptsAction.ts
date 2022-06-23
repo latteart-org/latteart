@@ -17,10 +17,13 @@
 import { Operation } from "@/lib/operationHistory/Operation";
 import { Story } from "../types";
 import { TestStep } from "@/lib/operationHistory/types";
-import { Reply, ReplyImpl } from "@/lib/captureControl/Reply";
+import {
+  RepositoryAccessResult,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { ScreenDefinition } from "@/lib/common/settings/Settings";
-import { ActionResult } from "@/lib/common/ActionResult";
+import { ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
 import {
   convertTestStepOperation,
   convertIntention,
@@ -77,9 +80,12 @@ export class GenerateAllSessionTestScriptsAction {
             initialUrlAndTestResultIds.map(
               async ({ initialUrl, testResultId }) => {
                 const result = await this.collectTestSteps(testResultId);
-                const testSteps: TestStep[] = result.data ?? [];
 
-                return { initialUrl, testSteps };
+                if (result.isFailure()) {
+                  return { initialUrl, testSteps: [] };
+                }
+
+                return { initialUrl, testSteps: result.data };
               }
             )
           );
@@ -125,45 +131,49 @@ export class GenerateAllSessionTestScriptsAction {
       initialUrlAndHistoryInEachStories
     );
 
-    const result = {
-      data: generatedTestScripts,
-    };
-
-    return result;
+    return new ActionSuccess(generatedTestScripts);
   }
 
   private async collectTestSteps(
     testResultId: string
-  ): Promise<Reply<Array<TestStep>>> {
-    const reply =
+  ): Promise<RepositoryAccessResult<Array<TestStep>>> {
+    const getTestResultResult =
       await this.repositoryContainer.testResultRepository.getTestResult(
         testResultId
       );
+
+    if (getTestResultResult.isFailure()) {
+      return getTestResultResult;
+    }
+
     const serviceUrl = this.repositoryContainer.serviceUrl;
-    const testSteps: TestStep[] = reply.data
-      ? reply.data.testSteps.map((testStep) => {
-          const operation = testStep.operation
-            ? convertTestStepOperation(testStep.operation, serviceUrl)
-            : testStep.operation;
+    const testSteps: TestStep[] = getTestResultResult.data.testSteps.map(
+      (testStep) => {
+        const operation = testStep.operation
+          ? convertTestStepOperation(testStep.operation, serviceUrl)
+          : testStep.operation;
 
-          return {
-            testStepId: testStep.id,
-            operation,
-            intention: testStep.intention
-              ? convertIntention(testStep.intention)
-              : null,
-            bugs:
-              testStep.bugs?.map((bug) => {
-                return convertNote(bug, serviceUrl);
-              }) ?? null,
-            notices:
-              testStep.notices?.map((notice) => {
-                return convertNote(notice, serviceUrl);
-              }) ?? null,
-          };
-        })
-      : [];
+        return {
+          testStepId: testStep.id,
+          operation,
+          intention: testStep.intention
+            ? convertIntention(testStep.intention)
+            : null,
+          bugs:
+            testStep.bugs?.map((bug) => {
+              return convertNote(bug, serviceUrl);
+            }) ?? null,
+          notices:
+            testStep.notices?.map((notice) => {
+              return convertNote(notice, serviceUrl);
+            }) ?? null,
+        };
+      }
+    );
 
-    return new ReplyImpl({ status: reply.status, data: testSteps });
+    return new RepositoryAccessSuccess({
+      status: getTestResultResult.status,
+      data: testSteps,
+    });
   }
 }

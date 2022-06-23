@@ -74,7 +74,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryContainer
     ).writeSnapshot(context.state.projectId);
 
-    return result.data!.url;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data.url;
   },
 
   /**
@@ -101,13 +110,22 @@ const actions: ActionTree<TestManagementState, RootState> = {
       id: string;
     }[]
   > {
-    const reply = await new GetTestResultListAction(
+    const result = await new GetTestResultListAction(
       context.rootState.repositoryContainer
     ).getTestResults();
 
-    console.log(reply.data);
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
 
-    return reply.data ?? [];
+    console.log(result.data);
+
+    return result.data;
   },
 
   /**
@@ -627,7 +645,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryContainer
     ).updateSession(context.state.projectId, payload.sessionId, newSession);
 
-    const updatedSession = result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    const updatedSession = result.data;
 
     const parsedSession = await new StoryDataConverter().convertToSession(
       {
@@ -885,7 +912,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.state.stories
     );
 
-    return result.data!;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 
   /**
@@ -915,15 +951,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryContainer
     ).importZip(payload.source, selectOption);
 
-    if (result.error) {
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
 
-    if (result.data) {
-      return result.data;
-    }
+    return result.data;
   },
 
   /**
@@ -951,15 +988,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       context.rootState.repositoryContainer
     ).exportZip(exportProjectId, selectOption);
 
-    if (result.error) {
+    if (result.isFailure()) {
       throw new Error(
-        context.rootGetters.message(`error.import_export.${result.error.code}`)
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
     }
 
-    if (result.data) {
-      return result.data;
-    }
+    return result.data;
   },
 };
 

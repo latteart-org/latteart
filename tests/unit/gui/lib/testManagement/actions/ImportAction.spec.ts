@@ -1,76 +1,85 @@
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
+import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
+import {
+  RESTClient,
+  RESTClientResponse,
+} from "@/lib/eventDispatcher/RESTClient";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("ImportAction", () => {
   describe("#importZip", () => {
-    it("渡されたファイル名を用いてインポートを実行し、その戻り値を返す", async () => {
-      const reply = {
+    describe("指定のプロジェクトファイルをリポジトリにインポートする", () => {
+      const expectedData = { projectId: "projectId" };
+      const resSuccess: RESTClientResponse = {
         status: 200,
-        data: { name: "importFileName", id: "projectId" },
+        data: expectedData,
       };
 
-      const expectedResult = {
-        data: reply.data,
-        error: undefined,
-      };
-
-      const importProjectRepository = {
-        getProjects: jest.fn(),
-        postProjects: jest.fn().mockResolvedValue(reply),
-      };
-
-      const repositoryContainer = {
-        importProjectRepository,
-      };
-
-      const source = { projectFileUrl: "projectFileUrl" };
-      const selectOption = { includeProject: true, includeTestResults: false };
-
-      const result = await new ImportAction(repositoryContainer).importZip(
-        source,
-        selectOption
-      );
-
-      expect(
-        repositoryContainer.importProjectRepository.postProjects
-      ).toBeCalledWith(source, selectOption);
-      expect(result).toEqual(expectedResult);
-    });
-
-    it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
-      const reply = {
+      const resFailure: RESTClientResponse = {
         status: 500,
-        error: {
-          code: "errorcode",
-          message: "errormessage",
-        },
-      };
-
-      const receivedError = {
-        data: undefined,
-        error: { code: "import-data-error" },
-      };
-
-      const importProjectRepository = {
-        getProjects: jest.fn(),
-        postProjects: jest.fn().mockResolvedValue(reply),
-      };
-
-      const repositoryContainer = {
-        importProjectRepository,
+        data: { code: "errorcode", message: "errormessage" },
       };
 
       const source = { projectFileUrl: "projectFileUrl" };
-      const selectOption = { includeProject: true, includeTestResults: false };
+      const selectOption = {
+        includeProject: true,
+        includeTestResults: false,
+      };
 
-      const result = await new ImportAction(repositoryContainer).importZip(
-        source,
-        selectOption
-      );
+      it("インポートに成功した場合は、インポートされたプロジェクトの識別情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resSuccess),
+        };
+        const action = new ImportAction({
+          importProjectRepository: new ImportProjectRepository(restClient),
+        });
 
-      expect(
-        repositoryContainer.importProjectRepository.postProjects
-      ).toBeCalledWith(source, selectOption);
-      expect(result).toEqual(receivedError);
+        const result = await action.importZip(source, selectOption);
+
+        expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
+          source,
+          includeTestResults: selectOption.includeTestResults,
+          includeProject: selectOption.includeProject,
+        });
+        if (result.isSuccess()) {
+          expect(result.data).toEqual({ projectId: expectedData.projectId });
+        } else {
+          throw new Error("failed");
+        }
+      });
+
+      it("インポートに失敗した場合は、エラー情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resFailure),
+        };
+        const action = new ImportAction({
+          importProjectRepository: new ImportProjectRepository(restClient),
+        });
+
+        const result = await action.importZip(source, selectOption);
+
+        expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
+          source,
+          includeTestResults: selectOption.includeTestResults,
+          includeProject: selectOption.includeProject,
+        });
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.import_export.import-data-error",
+          });
+        }
+      });
     });
   });
 });

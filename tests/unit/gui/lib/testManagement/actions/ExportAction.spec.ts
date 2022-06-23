@@ -1,82 +1,83 @@
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
+import {
+  RESTClient,
+  RESTClientResponse,
+} from "@/lib/eventDispatcher/RESTClient";
+import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("ExportAction", () => {
   describe("#exportZip", () => {
-    it("渡されたテスト結果IDを用いてエクスポートを実行し、その戻り値を返す", async () => {
-      const reply = {
+    describe("指定のプロジェクトをファイルにエクスポートする", () => {
+      const expectedData = { url: "url" };
+      const resSuccess: RESTClientResponse = {
         status: 200,
-        data: { url: "/test/export.zip" },
+        data: expectedData,
       };
 
-      const expectedResult = {
-        data: reply.data.url,
-        error: undefined,
-      };
-
-      const projectRepository = {
-        postProjectForExport: jest.fn().mockResolvedValue(reply),
-        getProjects: jest.fn(),
-        getProject: jest.fn(),
-        postProject: jest.fn(),
-        putProject: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        projectRepository,
-      };
-
-      const projectId = "projectId";
-      const selectOption = { includeProject: true, includeTestResults: false };
-
-      const result = await new ExportAction(repositoryContainer).exportZip(
-        projectId,
-        selectOption
-      );
-
-      expect(
-        repositoryContainer.projectRepository.postProjectForExport
-      ).toBeCalledWith(projectId, selectOption);
-      expect(result).toEqual(expectedResult);
-    });
-
-    it("渡されたファイル名を用いてインポートを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
-      const reply = {
+      const resFailure: RESTClientResponse = {
         status: 500,
-        error: {
-          code: "errorcode",
-          message: "errormessage",
-        },
-      };
-
-      const receivedError = {
-        data: undefined,
-        error: { code: "create-export-data-error" },
-      };
-
-      const projectRepository = {
-        postProjectForExport: jest.fn().mockResolvedValue(reply),
-        getProjects: jest.fn(),
-        getProject: jest.fn(),
-        postProject: jest.fn(),
-        putProject: jest.fn(),
-      };
-
-      const repositoryContainer = {
-        projectRepository,
+        data: { code: "errorcode", message: "errormessage" },
       };
 
       const projectId = "projectId";
-      const selectOption = { includeProject: true, includeTestResults: false };
+      const selectOption = {
+        includeProject: true,
+        includeTestResults: false,
+      };
 
-      const result = await new ExportAction(repositoryContainer).exportZip(
-        projectId,
-        selectOption
-      );
+      it("エクスポートに成功した場合は、エクスポートされたファイルのダウンロードURLを返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resSuccess),
+        };
+        const action = new ExportAction({
+          projectRepository: new ProjectRepository(restClient),
+        });
 
-      expect(
-        repositoryContainer.projectRepository.postProjectForExport
-      ).toBeCalledWith(projectId, selectOption);
-      expect(result).toEqual(receivedError);
+        const result = await action.exportZip(projectId, selectOption);
+
+        expect(restClient.httpPost).toBeCalledWith(
+          `/projects/${projectId}/export`,
+          selectOption
+        );
+        if (result.isSuccess()) {
+          expect(result.data).toEqual(expectedData.url);
+        } else {
+          throw new Error("failed");
+        }
+      });
+
+      it("エクスポートに失敗した場合は、エラー情報を返す", async () => {
+        const restClient = {
+          ...baseRestClient,
+          httpPost: jest.fn().mockResolvedValue(resFailure),
+        };
+        const action = new ExportAction({
+          projectRepository: new ProjectRepository(restClient),
+        });
+
+        const result = await action.exportZip(projectId, selectOption);
+
+        expect(restClient.httpPost).toBeCalledWith(
+          `/projects/${projectId}/export`,
+          selectOption
+        );
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.import_export.create-export-data-error",
+          });
+        }
+      });
     });
   });
 });

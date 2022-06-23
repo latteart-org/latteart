@@ -19,10 +19,14 @@ import {
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-interface WriteDataFileMutationObserver {
+export interface WriteDataFileMutationObserver {
   setManagedData(data: {
     testMatrices: TestMatrix[];
     progressDatas: ProgressData[];
@@ -41,6 +45,9 @@ export interface StoryConvertable {
   ): Promise<Story>;
 }
 
+const WRITE_DATA_FILE_FAILED_MESSAGE_KEY =
+  "error.test_management.save_project_failed";
+
 export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
@@ -56,16 +63,19 @@ export class WriteDataFileAction {
     testManagementData: TestManagementData,
     stories: Story[]
   ): Promise<ActionResult<void>> {
-    const reply = await this.repositoryContainer.projectRepository.putProject(
-      projectId,
-      testManagementData
-    );
+    const putProjectResult =
+      await this.repositoryContainer.projectRepository.putProject(
+        projectId,
+        testManagementData
+      );
 
-    if (!reply.data) {
-      return {};
+    if (putProjectResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: WRITE_DATA_FILE_FAILED_MESSAGE_KEY,
+      });
     }
 
-    const data = reply.data;
+    const data = putProjectResult.data;
     this.observer.setManagedData({
       testMatrices: data.testMatrices,
       progressDatas: data.progressDatas,
@@ -86,6 +96,6 @@ export class WriteDataFileAction {
     );
     this.observer.setStoriesData({ stories: parsedStories });
 
-    return {};
+    return new ActionSuccess(undefined);
   }
 }

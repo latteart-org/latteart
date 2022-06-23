@@ -3,26 +3,28 @@ import {
   RecordIntentionActionObserver,
 } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { Note } from "@/lib/operationHistory/Note";
-import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
-import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { TestStepRepositoryImpl } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
+import { NoteRepositoryImpl } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
+import {
+  RESTClientResponse,
+  RESTClient,
+} from "@/lib/eventDispatcher/RESTClient";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("RecordIntentionAction", () => {
   describe("#record", () => {
     describe("渡されたテスト目的をリポジトリに記録する", () => {
       let observer: RecordIntentionActionObserver;
-      let testStepRepository: TestStepRepository;
-      let noteRepository: NoteRepository;
-      let repositoryContainer: Pick<
-        RepositoryContainer,
-        "testStepRepository" | "noteRepository" | "serviceUrl"
-      >;
-
-      const note = {
-        testResultId: "testResultId",
-        sequence: 1,
-        summary: "summary",
-        details: "details",
+      const resFailure: RESTClientResponse = {
+        status: 500,
+        data: { code: "errorcode", message: "errormessage" },
       };
 
       beforeEach(() => {
@@ -35,157 +37,261 @@ describe("RecordIntentionAction", () => {
       });
 
       describe("記録に成功した場合は結果をオブザーバに渡す", () => {
-        beforeEach(() => {
-          const reply = {
-            status: 200,
-            data: new Note({}),
-          };
-
-          const testStepReply = {
-            status: 200,
-            data: {
-              id: "1",
-              operation: {},
-              intention: "intention1",
-              bugs: null,
-              notices: null,
-            },
-          };
-
-          testStepRepository = {
-            getTestSteps: jest.fn().mockResolvedValue(testStepReply),
-            patchTestSteps: jest.fn().mockResolvedValue(reply),
-            postTestSteps: jest.fn(),
-          };
-
-          noteRepository = {
-            getNotes: jest.fn(),
-            postNotes: jest.fn().mockResolvedValue(reply),
-            putNotes: jest.fn().mockResolvedValue(reply),
-            deleteNotes: jest.fn(),
-          };
-
-          repositoryContainer = {
-            testStepRepository,
-            noteRepository,
-            serviceUrl: "serviceUrl",
-          };
-        });
-
         it("記録対象と同じシーケンス番号を持つテスト目的が渡されたテスト履歴内にない場合はテスト目的を追加する", async () => {
+          const expectedNote = {
+            id: "intention1",
+            type: "intention",
+            value: "summary",
+            details: "details",
+          };
+          const postResSuccess: RESTClientResponse = {
+            status: 200,
+            data: expectedNote,
+          };
+          const expectedTestStep = {
+            id: "1",
+            operation: {},
+            intention: "intention1",
+            bugs: null,
+            notices: null,
+          };
+          const patchResSuccess: RESTClientResponse = {
+            status: 200,
+            data: expectedTestStep,
+          };
+          const restClient = {
+            ...baseRestClient,
+            httpPost: jest.fn().mockResolvedValue(postResSuccess),
+            httpPatch: jest.fn().mockResolvedValue(patchResSuccess),
+          };
+          const action = new RecordIntentionAction(observer, {
+            testStepRepository: new TestStepRepositoryImpl(restClient),
+            noteRepository: new NoteRepositoryImpl(restClient),
+            serviceUrl: "serviceUrl",
+          });
+
           const history = [{ intention: null }, { intention: { sequence: 0 } }];
+          const note = {
+            testResultId: "testResultId",
+            sequence: 1,
+            summary: "summary",
+            details: "details",
+          };
+          const result = await action.record(history, note);
 
-          await new RecordIntentionAction(observer, repositoryContainer).record(
-            history,
-            note
-          );
-
-          expect(repositoryContainer.noteRepository.postNotes).toBeCalledWith(
-            note.testResultId,
+          expect(restClient.httpPost).toBeCalledWith(
+            `/test-results/${note.testResultId}/notes`,
             {
-              summary: note.summary,
+              type: "intention",
+              value: note.summary,
               details: note.details,
             }
           );
+          expect(restClient.httpPatch).toBeCalledWith(
+            `/test-results/${
+              note.testResultId
+            }/test-steps/${observer.getTestStepId(note.sequence)}`,
+            { intention: expectedNote.id }
+          );
+          expect(observer.setIntention).toBeCalledWith(
+            new Note({
+              value: "summary",
+              details: "details",
+              sequence: note.sequence,
+            })
+          );
 
-          expect(
-            repositoryContainer.testStepRepository.getTestSteps
-          ).not.toBeCalled();
+          if (result.isFailure()) {
+            throw new Error("failed");
+          }
         });
 
         it("記録対象と同じシーケンス番号を持つテスト目的が渡されたテスト履歴内に既にある場合はテスト目的を更新する", async () => {
+          const expectedTestStep = {
+            id: "intention1",
+            operation: {},
+            intention: "intention1",
+            bugs: null,
+            notices: null,
+          };
+          const getResSuccess: RESTClientResponse = {
+            status: 200,
+            data: expectedTestStep,
+          };
+          const expectedNote = {
+            id: "",
+            type: "intention",
+            value: "summary",
+            details: "details",
+          };
+          const putResSuccess: RESTClientResponse = {
+            status: 200,
+            data: expectedNote,
+          };
+          const restClient = {
+            ...baseRestClient,
+            httpGet: jest.fn().mockResolvedValue(getResSuccess),
+            httpPut: jest.fn().mockResolvedValue(putResSuccess),
+          };
+          const action = new RecordIntentionAction(observer, {
+            testStepRepository: new TestStepRepositoryImpl(restClient),
+            noteRepository: new NoteRepositoryImpl(restClient),
+            serviceUrl: "serviceUrl",
+          });
+
           const history = [
             { intention: { sequence: 0 } },
             { intention: { sequence: 1 } },
           ];
+          const note = {
+            testResultId: "testResultId",
+            sequence: 1,
+            summary: "summary",
+            details: "details",
+          };
+          const result = await action.record(history, note);
 
-          await new RecordIntentionAction(observer, repositoryContainer).record(
-            history,
-            note
+          expect(restClient.httpGet).toBeCalledWith(
+            `/test-results/${
+              note.testResultId
+            }/test-steps/${observer.getTestStepId(note.sequence)}`
+          );
+          expect(restClient.httpPut).toBeCalledWith(
+            `/test-results/${note.testResultId}/notes/${expectedTestStep.intention}`,
+            {
+              type: "intention",
+              value: note.summary,
+              details: note.details,
+            }
+          );
+          expect(observer.setIntention).toBeCalledWith(
+            new Note({
+              value: "summary",
+              details: "details",
+              sequence: note.sequence,
+            })
           );
 
-          expect(
-            repositoryContainer.testStepRepository.getTestSteps
-          ).toBeCalledWith(note.testResultId, `id_of_${note.sequence}`);
-
-          expect(repositoryContainer.noteRepository.postNotes).not.toBeCalled();
+          if (result.isFailure()) {
+            throw new Error("failed");
+          }
         });
       });
 
-      describe("記録に失敗した場合は結果をオブザーバに渡さない", () => {
-        beforeEach(() => {
-          const reply = {
-            status: 500,
-            error: {
-              code: "errorCode",
-              message: "errorMessage",
-            },
+      describe("テスト目的の記録に失敗した場合は、エラー情報を返す", () => {
+        it("テスト目的を持たないテストステップに対して、テスト目的を追加する場合", async () => {
+          const expectedNote = {
+            id: "intention1",
+            type: "intention",
+            value: "summary",
+            details: "details",
           };
-
-          const testStepReply = {
+          const resSuccess: RESTClientResponse = {
             status: 200,
-            data: {
-              id: "1",
-              operation: {},
-              intention: "intention1",
-              bugs: null,
-              notices: null,
-            },
+            data: expectedNote,
           };
-
-          testStepRepository = {
-            getTestSteps: jest.fn().mockResolvedValue(testStepReply),
-            patchTestSteps: jest.fn().mockResolvedValue(reply),
-            postTestSteps: jest.fn(),
+          const restClient = {
+            ...baseRestClient,
+            httpPost: jest.fn().mockResolvedValue(resSuccess),
+            httpPatch: jest.fn().mockResolvedValue(resFailure),
           };
-
-          noteRepository = {
-            getNotes: jest.fn(),
-            postNotes: jest.fn().mockResolvedValue(reply),
-            putNotes: jest.fn().mockResolvedValue(reply),
-            deleteNotes: jest.fn(),
-          };
-
-          repositoryContainer = {
-            testStepRepository,
-            noteRepository,
+          const action = new RecordIntentionAction(observer, {
+            testStepRepository: new TestStepRepositoryImpl(restClient),
+            noteRepository: new NoteRepositoryImpl(restClient),
             serviceUrl: "serviceUrl",
-          };
-        });
+          });
 
-        afterEach(() => {
-          expect(observer.setIntention).not.toBeCalled();
-        });
-
-        it("テスト目的の追加の場合", async () => {
           const history = [{ intention: null }, { intention: { sequence: 0 } }];
+          const note = {
+            testResultId: "testResultId",
+            sequence: 1,
+            summary: "summary",
+            details: "details",
+          };
+          const result = await action.record(history, note);
 
-          await new RecordIntentionAction(observer, repositoryContainer).record(
-            history,
-            note
+          expect(restClient.httpPost).toBeCalledWith(
+            `/test-results/${note.testResultId}/notes`,
+            {
+              type: "intention",
+              value: note.summary,
+              details: note.details,
+            }
           );
+          expect(restClient.httpPatch).toBeCalledWith(
+            `/test-results/${
+              note.testResultId
+            }/test-steps/${observer.getTestStepId(note.sequence)}`,
+            { intention: expectedNote.id }
+          );
+          expect(observer.setIntention).not.toBeCalled();
 
-          expect(repositoryContainer.noteRepository.postNotes).toBeCalled();
-          expect(
-            repositoryContainer.testStepRepository.getTestSteps
-          ).not.toBeCalled();
+          if (result.isSuccess()) {
+            throw new Error("failed");
+          } else {
+            expect(result.error).toEqual({
+              messageKey: "error.operation_history.record_test_purpose_failed",
+            });
+          }
         });
 
-        it("テスト目的の更新の場合", async () => {
+        it("テスト目的を既に持つテストステップに対して、テスト目的を更新する場合", async () => {
+          const expectedTestStep = {
+            id: "intention1",
+            operation: {},
+            intention: "intention1",
+            bugs: null,
+            notices: null,
+          };
+          const resSuccess: RESTClientResponse = {
+            status: 200,
+            data: expectedTestStep,
+          };
+          const restClient = {
+            ...baseRestClient,
+            httpGet: jest.fn().mockResolvedValue(resSuccess),
+            httpPut: jest.fn().mockResolvedValue(resFailure),
+          };
+          const action = new RecordIntentionAction(observer, {
+            testStepRepository: new TestStepRepositoryImpl(restClient),
+            noteRepository: new NoteRepositoryImpl(restClient),
+            serviceUrl: "serviceUrl",
+          });
+
           const history = [
             { intention: { sequence: 0 } },
             { intention: { sequence: 1 } },
           ];
+          const note = {
+            testResultId: "testResultId",
+            sequence: 1,
+            summary: "summary",
+            details: "details",
+          };
+          const result = await action.record(history, note);
 
-          await new RecordIntentionAction(observer, repositoryContainer).record(
-            history,
-            note
+          expect(restClient.httpGet).toBeCalledWith(
+            `/test-results/${
+              note.testResultId
+            }/test-steps/${observer.getTestStepId(note.sequence)}`
           );
+          expect(restClient.httpPut).toBeCalledWith(
+            `/test-results/${note.testResultId}/notes/${expectedTestStep.intention}`,
+            {
+              type: "intention",
+              value: note.summary,
+              details: note.details,
+            }
+          );
+          expect(observer.setIntention).not.toBeCalled();
 
-          expect(
-            repositoryContainer.testStepRepository.getTestSteps
-          ).toBeCalled();
-          expect(repositoryContainer.noteRepository.postNotes).not.toBeCalled();
+          if (result.isSuccess()) {
+            throw new Error("failed");
+          } else {
+            expect(result.error).toEqual({
+              messageKey: "error.operation_history.record_test_purpose_failed",
+            });
+          }
         });
       });
     });

@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import { ActionResult } from "@/lib/common/ActionResult";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+
+const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY =
+  "error.test_management.write_snapshot_failed";
 
 export class WriteSnapshotAction {
   constructor(
@@ -25,11 +32,17 @@ export class WriteSnapshotAction {
   public async writeSnapshot(
     projectId: string
   ): Promise<ActionResult<{ url: string }>> {
-    const reply =
+    const postSnapshotsResult =
       await this.repositoryContainer.snapshotRepository.postSnapshots(
         projectId
       );
 
-    return reply;
+    if (postSnapshotsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: WRITE_SNAPSHOT_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(postSnapshotsResult.data);
   }
 }

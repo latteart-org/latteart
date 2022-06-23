@@ -6,6 +6,10 @@ import { Note } from "@/lib/operationHistory/Note";
 import { TestStepRepository } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepository } from "@/lib/eventDispatcher/repositoryService/NoteRepository";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import {
+  RepositoryAccessSuccess,
+  RepositoryAccessFailure,
+} from "@/lib/captureControl/Reply";
 
 describe("MoveIntentionAction", () => {
   describe("#move", () => {
@@ -77,16 +81,20 @@ describe("MoveIntentionAction", () => {
         };
 
         testStepRepository = {
-          getTestSteps: jest.fn().mockResolvedValue(testStepReply),
+          getTestSteps: jest
+            .fn()
+            .mockResolvedValue(new RepositoryAccessSuccess(testStepReply)),
           patchTestSteps: jest
             .fn()
-            .mockResolvedValueOnce(breakReply)
-            .mockResolvedValueOnce(moveReply),
+            .mockResolvedValueOnce(new RepositoryAccessSuccess(breakReply))
+            .mockResolvedValueOnce(new RepositoryAccessSuccess(moveReply)),
           postTestSteps: jest.fn(),
         };
 
         noteRepository = {
-          getNotes: jest.fn().mockResolvedValue(reply),
+          getNotes: jest
+            .fn()
+            .mockResolvedValue(new RepositoryAccessSuccess(reply)),
           postNotes: jest.fn(),
           putNotes: jest.fn(),
           deleteNotes: jest.fn(),
@@ -98,13 +106,16 @@ describe("MoveIntentionAction", () => {
           serviceUrl: "serviceUrl",
         };
 
-        await new MoveIntentionAction(observer, repositoryContainer).move(
-          testResultId,
-          fromSequence,
-          destSequence
-        );
+        const result = await new MoveIntentionAction(
+          observer,
+          repositoryContainer
+        ).move(testResultId, fromSequence, destSequence);
 
         expect(observer.moveIntention).toBeCalledWith(fromSequence, reply.data);
+
+        if (result.isFailure()) {
+          throw new Error("failed");
+        }
       });
 
       it("テスト目的の移動に失敗した場合はオブザーバに結果を渡さない", async () => {
@@ -117,16 +128,20 @@ describe("MoveIntentionAction", () => {
         };
 
         testStepRepository = {
-          getTestSteps: jest.fn().mockResolvedValue(testStepReply),
+          getTestSteps: jest
+            .fn()
+            .mockResolvedValue(new RepositoryAccessSuccess(testStepReply)),
           patchTestSteps: jest
             .fn()
-            .mockResolvedValueOnce(breakReply)
-            .mockResolvedValueOnce(moveReply),
+            .mockResolvedValueOnce(new RepositoryAccessSuccess(breakReply))
+            .mockResolvedValueOnce(new RepositoryAccessSuccess(moveReply)),
           postTestSteps: jest.fn(),
         };
 
         noteRepository = {
-          getNotes: jest.fn().mockResolvedValue(reply),
+          getNotes: jest
+            .fn()
+            .mockResolvedValue(new RepositoryAccessFailure(reply)),
           postNotes: jest.fn(),
           putNotes: jest.fn(),
           deleteNotes: jest.fn(),
@@ -138,13 +153,20 @@ describe("MoveIntentionAction", () => {
           serviceUrl: "serviceUrl",
         };
 
-        await new MoveIntentionAction(observer, repositoryContainer).move(
-          testResultId,
-          fromSequence,
-          destSequence
-        );
+        const result = await new MoveIntentionAction(
+          observer,
+          repositoryContainer
+        ).move(testResultId, fromSequence, destSequence);
 
         expect(observer.moveIntention).not.toBeCalled();
+
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.operation_history.move_test_purpose_failed",
+          });
+        }
       });
     });
   });
