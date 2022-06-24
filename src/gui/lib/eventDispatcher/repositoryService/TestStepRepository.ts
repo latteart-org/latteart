@@ -15,10 +15,9 @@
  */
 
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 import {
   TestStepOperation,
@@ -90,11 +89,8 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       `/test-results/${testResultId}/test-steps/${testStepId}`
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -134,11 +130,8 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -169,11 +162,8 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       capturedOperation
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

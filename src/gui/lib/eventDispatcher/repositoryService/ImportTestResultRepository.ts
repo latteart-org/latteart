@@ -16,10 +16,9 @@
 
 import { RESTClient } from "../RESTClient";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 
 export class ImportTestResultRepository {
@@ -45,11 +44,8 @@ export class ImportTestResultRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -67,11 +63,8 @@ export class ImportTestResultRepository {
   > {
     const response = await this.restClient.httpGet(`/imports/test-results`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

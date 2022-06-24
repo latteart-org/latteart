@@ -16,10 +16,9 @@
 
 import { RESTClient } from "../RESTClient";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 import { TestResult } from "@/lib/operationHistory/types";
 
@@ -37,11 +36,8 @@ export class TestResultRepository {
       `/test-results/${testResultId}`
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 204) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -65,11 +61,8 @@ export class TestResultRepository {
       { temp: shouldSaveTemporary }
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -93,11 +86,8 @@ export class TestResultRepository {
       { source, dest }
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -118,11 +108,8 @@ export class TestResultRepository {
     const url = `/test-results`;
     const response = await this.restClient.httpPost(url, { initialUrl, name });
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -140,11 +127,8 @@ export class TestResultRepository {
   > {
     const response = await this.restClient.httpGet(`/test-results`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -167,11 +151,8 @@ export class TestResultRepository {
       `/test-results/${testResultId}`
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -191,11 +172,8 @@ export class TestResultRepository {
       { name, startTime, initialUrl }
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

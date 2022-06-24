@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { RESTClientResponse } from "../eventDispatcher/RESTClient";
+
 /**
  * Response from the counter device.
  */
@@ -95,7 +97,7 @@ export class RepositoryAccessFailure {
  */
 export interface ServerError {
   code: string;
-  message: string;
+  message?: string;
   details?: Array<{
     code: string;
     message: string;
@@ -103,7 +105,25 @@ export interface ServerError {
   }>;
 }
 
-export function isServerError(data: unknown): data is ServerError {
+export function createRepositoryAccessFailure(
+  response: RESTClientResponse
+): RepositoryAccessFailure {
+  if (isServerError(response.data)) {
+    return new RepositoryAccessFailure({
+      status: response.status,
+      error: response.data,
+    });
+  } else {
+    console.error("Invalid Server Error.", response.data);
+
+    return new RepositoryAccessFailure({
+      status: response.status,
+      error: { code: "unknown_error" },
+    });
+  }
+}
+
+function isServerError(data: unknown): data is ServerError {
   if (typeof data !== "object") {
     return false;
   }
@@ -112,13 +132,16 @@ export function isServerError(data: unknown): data is ServerError {
     return false;
   }
 
-  if (typeof (data as ServerError).message !== "string") {
-    return false;
+  const message = (data as ServerError).message;
+  if (message !== undefined) {
+    if (typeof (data as ServerError).message !== "string") {
+      return false;
+    }
   }
 
   const details = (data as ServerError).details;
 
-  if (details) {
+  if (details !== undefined) {
     if (typeof details !== "object") {
       return false;
     }

@@ -16,10 +16,9 @@
 
 import { RESTClient } from "../RESTClient";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 import { Project } from "@/lib/testManagement/types";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
@@ -42,11 +41,8 @@ export class ProjectRepository {
       selectOption
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -66,11 +62,8 @@ export class ProjectRepository {
   > {
     const response = await this.restClient.httpGet(`/projects`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -88,11 +81,8 @@ export class ProjectRepository {
   ): Promise<RepositoryAccessResult<Project>> {
     const response = await this.restClient.httpGet(`/projects/${projectId}`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -108,11 +98,8 @@ export class ProjectRepository {
       name: "",
     });
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -136,11 +123,8 @@ export class ProjectRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

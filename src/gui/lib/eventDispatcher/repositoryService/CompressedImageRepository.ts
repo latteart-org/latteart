@@ -16,10 +16,9 @@
 
 import { RESTClient } from "../RESTClient";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 
 export class CompressedImageRepository {
@@ -40,11 +39,8 @@ export class CompressedImageRepository {
       null
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     const { imageFileUrl } = response.data as { imageFileUrl: string };
@@ -70,11 +66,8 @@ export class CompressedImageRepository {
       null
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     const { imageFileUrl } = response.data as { imageFileUrl: string };

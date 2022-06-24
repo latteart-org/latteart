@@ -17,9 +17,8 @@
 import { RESTClient } from "../RESTClient";
 import {
   RepositoryAccessResult,
-  isServerError,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 
 export class ImportProjectRepository {
@@ -34,11 +33,8 @@ export class ImportProjectRepository {
   > {
     const response = await this.restClient.httpGet(`/imports/projects`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -65,11 +61,8 @@ export class ImportProjectRepository {
       includeProject: selectOption.includeProject,
     });
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
