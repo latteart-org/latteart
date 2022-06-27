@@ -89,6 +89,7 @@
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
     "select-file": "Select the file to be imported",
+    "select-test-result-file": "Select test result file to be imported",
     "creating-export-data": "Creating export data",
     "importing-data": "Importing data",
     "create-export-data-succeeded": "Data export is complete.",
