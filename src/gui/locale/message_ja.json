@@ -95,6 +95,7 @@
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
     "select-file": "インポート対象のプロジェクトファイル選択",
+    "select-test-result-file": "インポート対象のテスト結果ファイル選択",
     "creating-export-data": "エクスポートデータ作成中",
     "importing-data": "データインポート中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",

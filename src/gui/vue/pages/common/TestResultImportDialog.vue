@@ -25,15 +25,20 @@
           item-text="name"
           item-value="url"
           :items="importTestResults"
-          :label="$store.getters.message('import-export-dialog.select-file')"
+          :label="
+            $store.getters.message(
+              'import-export-dialog.select-test-result-file'
+            )
+          "
         ></v-select>
       </v-container>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
       <v-btn
+        :disabled="okButtonIsDisabled"
+        :dark="!okButtonIsDisabled"
         color="blue"
-        dark
         @click="
           execute();
           close();
@@ -65,6 +70,14 @@ export default class TestResultImportDialog extends Vue {
     url: string;
     name: string;
   }[] = [];
+
+  private get okButtonIsDisabled() {
+    if (this.selectedUrl === "") {
+      return true;
+    }
+
+    return false;
+  }
 
   @Watch("opened")
   private async updateImportFiles(newValue: boolean) {
