@@ -75,7 +75,9 @@
                               <up-down-arrows
                                 :index="index"
                                 :upDisabled="index <= 0"
-                                :downDisabled="index.length - 1 <= index"
+                                :downDisabled="
+                                  tempViewPoints.length - 1 <= index
+                                "
                                 @up="upViewPoint"
                                 @down="downViewPoint"
                               />
