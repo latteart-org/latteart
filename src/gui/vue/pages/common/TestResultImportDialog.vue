@@ -72,11 +72,7 @@ export default class TestResultImportDialog extends Vue {
   }[] = [];
 
   private get okButtonIsDisabled() {
-    if (this.selectedUrl === "") {
-      return true;
-    }
-
-    return false;
+    return this.selectedUrl === "";
   }
 
   @Watch("opened")
