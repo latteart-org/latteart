@@ -146,12 +146,12 @@
       >
       <v-checkbox
         class="search-checkbox search-item"
-        :label="$store.getters.message('operation.purpose')"
+        :label="message('operation.purpose')"
         v-model="purposeCheckbox"
       ></v-checkbox>
       <v-checkbox
         class="search-checkbox"
-        :label="$store.getters.message('operation.notice')"
+        :label="message('operation.notice')"
         v-model="noticeCheckbox"
       ></v-checkbox>
       <v-text-field
