@@ -81,7 +81,7 @@ export default class DeleteTestResultButton extends Vue {
       this.isCapturing ||
       this.isReplaying ||
       this.isResuming ||
-      this.operations.length === 0
+      this.testResultName === ""
     );
   }
 
