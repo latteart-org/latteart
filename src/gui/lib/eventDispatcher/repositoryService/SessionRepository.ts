@@ -17,10 +17,9 @@
 import { RESTClient } from "../RESTClient";
 import { ManagedSession } from "@/lib/testManagement/TestManagementData";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 
 export class SessionRepository {
@@ -36,11 +35,8 @@ export class SessionRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

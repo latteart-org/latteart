@@ -17,10 +17,9 @@
 import { RESTClient } from "../RESTClient";
 import Settings from "@/lib/common/settings/Settings";
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 
@@ -34,11 +33,8 @@ export class SettingRepository {
   public async getSettings(): Promise<RepositoryAccessResult<Settings>> {
     const response = await this.restClient.httpGet(`/projects/1/configs`);
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -60,11 +56,8 @@ export class SettingRepository {
       settings
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -84,11 +77,8 @@ export class SettingRepository {
       `/projects/1/device-configs`
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -110,11 +100,8 @@ export class SettingRepository {
       deviceSettings
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({

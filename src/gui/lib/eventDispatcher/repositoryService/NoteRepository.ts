@@ -15,10 +15,9 @@
  */
 
 import {
-  isServerError,
   RepositoryAccessResult,
-  RepositoryAccessFailure,
   RepositoryAccessSuccess,
+  createRepositoryAccessFailure,
 } from "@/lib/captureControl/Reply";
 import { RESTClient } from "../RESTClient";
 
@@ -118,11 +117,8 @@ export class NoteRepositoryImpl implements NoteRepository {
       `/test-results/${testResultId}/notes/${noteId}`
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -190,11 +186,8 @@ export class NoteRepositoryImpl implements NoteRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -259,11 +252,8 @@ export class NoteRepositoryImpl implements NoteRepository {
       body
     );
 
-    if (response.status !== 200 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 200) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
@@ -287,11 +277,8 @@ export class NoteRepositoryImpl implements NoteRepository {
       `/test-results/${testResultId}/notes/${noteId}`
     );
 
-    if (response.status !== 204 && isServerError(response.data)) {
-      return new RepositoryAccessFailure({
-        status: response.status,
-        error: response.data,
-      });
+    if (response.status !== 204) {
+      return createRepositoryAccessFailure(response);
     }
 
     return new RepositoryAccessSuccess({
