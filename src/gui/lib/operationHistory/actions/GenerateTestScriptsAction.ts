@@ -67,12 +67,12 @@ export class GenerateTestScriptsAction {
     if (!testScript.testSuite) {
       if (this.option.testScript.isSimple) {
         return new ActionFailure({
-          messageKey: NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
+          messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
         });
       }
 
       return new ActionFailure({
-        messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
+        messageKey: NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
       });
     }
 
