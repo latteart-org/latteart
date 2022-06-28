@@ -15,10 +15,7 @@
 -->
 
 <template>
-  <v-list-tile
-    @click="openTestResultImportDialog"
-    :disabled="isImportTestResults"
-  >
+  <v-list-tile @click="openTestResultImportDialog" :disabled="isDisabled">
     <v-list-tile-title>{{
       $store.getters.message("manage-header.import-option")
     }}</v-list-tile-title>
@@ -72,6 +69,27 @@ export default class TestResultFileImportButton extends Vue {
   private informationMessageDialogOpened = false;
   private informationTitle = "";
   private informationMessage = "";
+
+  private get isDisabled(): boolean {
+    return (
+      this.isCapturing ||
+      this.isReplaying ||
+      this.isResuming ||
+      this.isImportTestResults
+    );
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
+  private get isResuming(): boolean {
+    return this.$store.state.captureControl.isResuming;
+  }
 
   private openTestResultImportDialog() {
     this.testResultImportDialogOpend = true;
