@@ -23,9 +23,12 @@ export interface SaveIntentionActionObserver {
     summary: string;
     details: string;
     sequence: number;
-  }): Promise<void>;
+  }): Promise<ActionResult<void>>;
 
-  moveIntention(fromSequence: number, destSequence: number): Promise<void>;
+  moveIntention(
+    fromSequence: number,
+    destSequence: number
+  ): Promise<ActionResult<void>>;
 
   setUnassignedIntention(unassignedIntention: {
     sequence: number;
@@ -69,15 +72,26 @@ export class SaveIntentionAction {
       return new ActionSuccess(undefined);
     }
 
-    await this.observer.recordIntention({
+    const recordActionResult = await this.observer.recordIntention({
       testResultId,
       summary: note,
       details: noteDetails ?? "",
       sequence,
     });
 
+    if (recordActionResult.isFailure()) {
+      return recordActionResult;
+    }
+
     if (oldSequence !== undefined && newSequence !== undefined) {
-      await this.observer.moveIntention(oldSequence, newSequence);
+      const moveActionResult = await this.observer.moveIntention(
+        oldSequence,
+        newSequence
+      );
+
+      if (moveActionResult.isFailure()) {
+        return moveActionResult;
+      }
     }
 
     return new ActionSuccess(undefined);

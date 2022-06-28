@@ -19,6 +19,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class ImportProjectRepository {
@@ -31,19 +32,22 @@ export class ImportProjectRepository {
   public async getProjects(): Promise<
     RepositoryAccessResult<Array<{ url: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(`/imports/projects`);
+    try {
+      const response = await this.restClient.httpGet(`/imports/projects`);
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Array<{
+          url: string;
+          name: string;
+        }>,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as Array<{
-        url: string;
-        name: string;
-      }>,
-    });
   }
 
   /**
@@ -55,19 +59,22 @@ export class ImportProjectRepository {
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<RepositoryAccessResult<{ projectId: string }>> {
-    const response = await this.restClient.httpPost(`/imports/projects`, {
-      source,
-      includeTestResults: selectOption.includeTestResults,
-      includeProject: selectOption.includeProject,
-    });
+    try {
+      const response = await this.restClient.httpPost(`/imports/projects`, {
+        source,
+        includeTestResults: selectOption.includeTestResults,
+        includeProject: selectOption.includeProject,
+      });
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { projectId: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { projectId: string },
-    });
   }
 }

@@ -217,7 +217,6 @@
   },
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
-    "print-html-error": "スナップショット出力に失敗しました。",
     "output-html-running": "スナップショット出力中",
     "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}"
   },
@@ -434,10 +433,8 @@
     "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
     "register-confirm": "リモートリポジトリに接続されています。\nテスト結果をリモートリポジトリに登録しますか？",
     "registering-testresults": "テスト結果登録中",
-    "registering-testresults-error": "テスト結果の登録に失敗しました。",
     "delete-warning": "登録したテスト結果をローカルリポジトリから削除しますか？",
     "delete-testresults": "テスト結果削除中",
-    "delete-error": "テスト結果の削除に失敗しました。",
     "register-delete-succeeded": "リモートリポジトリへのテスト結果登録・ローカルリポジトリのテスト結果の削除が完了致しました。",
     "load": "読み込み中"
   },
@@ -446,7 +443,8 @@
       "fatal": "不明なエラーが発生しました。",
       "get_settings_failed": "設定の取得に失敗しました。",
       "save_settings_failed": "設定の保存に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
-      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。"
+      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
+      "repository_access_failed": "リポジトリとの通信に失敗しました。"
     },
     "capture_control": {
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",

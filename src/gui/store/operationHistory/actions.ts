@@ -201,12 +201,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryContainer
     );
 
-    new SaveIntentionAction({
-      recordIntention: async (note) => {
-        await recordIntentionAction.record(context.state.history, note);
+    const result = await new SaveIntentionAction({
+      recordIntention: (note) => {
+        return recordIntentionAction.record(context.state.history, note);
       },
-      moveIntention: async (fromSequence, destSequence) => {
-        await moveIntentionAction.move(
+      moveIntention: (fromSequence, destSequence) => {
+        return moveIntentionAction.move(
           context.state.testResultInfo.id,
           fromSequence,
           destSequence
@@ -222,6 +222,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       payload.noteEditInfo,
       context.state.history
     );
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
   },
 
   /**

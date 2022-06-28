@@ -141,7 +141,6 @@ export class RecordIntentionAction {
     });
 
     return new RepositoryAccessSuccess({
-      status: patchTestStepsResult.status,
       data: data,
     });
   }
@@ -199,7 +198,6 @@ export class RecordIntentionAction {
     const data = convertNoteWithoutId(savedNote, serviceUrl);
 
     return new RepositoryAccessSuccess({
-      status: putNotesResult.status,
       data: data,
     });
   }

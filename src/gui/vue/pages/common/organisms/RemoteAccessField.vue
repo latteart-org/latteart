@@ -118,18 +118,11 @@ export default class RemoteAccessField extends Vue {
         ),
       });
 
-      const url = await this.$store
-        .dispatch("connectRemoteUrl", {
+      try {
+        const url = await this.$store.dispatch("connectRemoteUrl", {
           targetUrl,
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
         });
 
-      if (url) {
         await this.initialize();
 
         this.informationMessageDialogOpened = true;
@@ -141,11 +134,15 @@ export default class RemoteAccessField extends Vue {
           }
         );
         this.remoteUrl = url;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-error"
-        );
-        this.errorMessageDialogOpened = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
       }
     })();
   }

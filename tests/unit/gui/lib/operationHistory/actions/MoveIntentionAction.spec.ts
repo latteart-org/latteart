@@ -9,6 +9,8 @@ import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 import {
   RepositoryAccessSuccess,
   RepositoryAccessFailure,
+  RepositoryAccessFailureType,
+  ServerError,
 } from "@/lib/captureControl/Reply";
 
 describe("MoveIntentionAction", () => {
@@ -26,7 +28,6 @@ describe("MoveIntentionAction", () => {
     const destSequence = 0;
 
     const testStepReply = {
-      status: 200,
       data: {
         id: "1",
         operation: {},
@@ -37,7 +38,6 @@ describe("MoveIntentionAction", () => {
     };
 
     const breakReply = {
-      status: 200,
       data: {
         id: "2",
         operation: {},
@@ -48,7 +48,6 @@ describe("MoveIntentionAction", () => {
     };
 
     const moveReply = {
-      status: 200,
       data: {
         id: "2",
         operation: {},
@@ -76,7 +75,6 @@ describe("MoveIntentionAction", () => {
 
       it("テスト目的の移動に成功した場合はオブザーバに結果を渡す", async () => {
         const reply = {
-          status: 200,
           data: new Note({}),
         };
 
@@ -119,13 +117,14 @@ describe("MoveIntentionAction", () => {
       });
 
       it("テスト目的の移動に失敗した場合はオブザーバに結果を渡さない", async () => {
-        const reply = {
-          status: 500,
-          error: {
-            code: "errorCode",
-            message: "errorMessage",
-          },
-        };
+        const reply: { type: RepositoryAccessFailureType; error: ServerError } =
+          {
+            type: "InternalServerError",
+            error: {
+              code: "errorCode",
+              message: "errorMessage",
+            },
+          };
 
         testStepRepository = {
           getTestSteps: jest

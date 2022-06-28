@@ -188,9 +188,13 @@ export default class ConfigView extends Vue {
             testResultId,
           });
         } catch (error) {
-          console.error(error);
-          this.errorMessageDialogOpened = true;
-          this.errorMessage = error.message;
+          if (error instanceof Error) {
+            console.error(error);
+            this.errorMessageDialogOpened = true;
+            this.errorMessage = error.message;
+          } else {
+            throw error;
+          }
         }
       })();
     }

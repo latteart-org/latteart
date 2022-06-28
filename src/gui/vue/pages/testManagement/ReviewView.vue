@@ -220,13 +220,13 @@ export default class ReviewView extends Vue {
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
-          this.scriptGenerationOptionDialogIsOpened = false;
           this.errorDialogOpened = true;
         } else {
           throw error;
         }
       } finally {
         this.$store.dispatch("closeProgressDialog");
+        this.scriptGenerationOptionDialogIsOpened = false;
         this.isGeneratingTestScripts = false;
       }
     })();

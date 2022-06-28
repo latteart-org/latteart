@@ -53,11 +53,7 @@ export type RepositoryAccessResult<T> =
   | RepositoryAccessFailure;
 
 export class RepositoryAccessSuccess<T> {
-  constructor(private readonly body: { status: number; data: T }) {}
-
-  public get status(): number {
-    return this.body.status;
-  }
+  constructor(private readonly body: { data: T }) {}
 
   public get data(): T {
     return this.body.data;
@@ -72,11 +68,24 @@ export class RepositoryAccessSuccess<T> {
   }
 }
 
-export class RepositoryAccessFailure {
-  constructor(private readonly body: { status: number; error: ServerError }) {}
+export type RepositoryAccessFailureType =
+  | "ConnectionRefused"
+  | "ResourceNotFound"
+  | "InternalServerError"
+  | "OtherClientError"
+  | "OtherServerError"
+  | "UnknownError";
 
-  public get status(): number {
-    return this.body.status;
+export class RepositoryAccessFailure {
+  constructor(
+    private readonly body: {
+      type: RepositoryAccessFailureType;
+      error: ServerError;
+    }
+  ) {}
+
+  public get type(): RepositoryAccessFailureType {
+    return this.body.type;
   }
 
   public get error(): ServerError {
@@ -108,19 +117,42 @@ export interface ServerError {
 export function createRepositoryAccessFailure(
   response: RESTClientResponse
 ): RepositoryAccessFailure {
+  const failureType: RepositoryAccessFailureType = (() => {
+    if (response.status >= 400 && response.status < 500) {
+      if (response.status === 404) return "ResourceNotFound";
+      return "OtherClientError";
+    }
+
+    if (response.status >= 500 && response.status < 600) {
+      if (response.status === 500) return "InternalServerError";
+      return "OtherServerError";
+    }
+
+    return "UnknownError";
+  })();
+
   if (isServerError(response.data)) {
     return new RepositoryAccessFailure({
-      status: response.status,
+      type: failureType,
       error: response.data,
     });
   } else {
     console.error("Invalid Server Error.", response.data);
 
     return new RepositoryAccessFailure({
-      status: response.status,
+      type: failureType,
       error: { code: "unknown_error" },
     });
   }
+}
+
+export function createConnectionRefusedFailure(): RepositoryAccessFailure {
+  return new RepositoryAccessFailure({
+    type: "ConnectionRefused",
+    error: {
+      code: "connection_refused",
+    },
+  });
 }
 
 function isServerError(data: unknown): data is ServerError {

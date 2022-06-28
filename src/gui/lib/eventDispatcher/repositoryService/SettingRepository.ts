@@ -20,6 +20,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 
@@ -31,16 +32,19 @@ export class SettingRepository {
    * @returns Setting information.
    */
   public async getSettings(): Promise<RepositoryAccessResult<Settings>> {
-    const response = await this.restClient.httpGet(`/projects/1/configs`);
+    try {
+      const response = await this.restClient.httpGet(`/projects/1/configs`);
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Settings,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as Settings,
-    });
   }
 
   /**
@@ -51,19 +55,22 @@ export class SettingRepository {
   public async putSettings(
     settings: Settings
   ): Promise<RepositoryAccessResult<Settings>> {
-    const response = await this.restClient.httpPut(
-      `/projects/1/configs`,
-      settings
-    );
+    try {
+      const response = await this.restClient.httpPut(
+        `/projects/1/configs`,
+        settings
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Settings,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as Settings,
-    });
   }
 
   /**
@@ -73,18 +80,21 @@ export class SettingRepository {
   public async getDeviceSettings(): Promise<
     RepositoryAccessResult<DeviceSettings>
   > {
-    const response = await this.restClient.httpGet(
-      `/projects/1/device-configs`
-    );
+    try {
+      const response = await this.restClient.httpGet(
+        `/projects/1/device-configs`
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as DeviceSettings,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as DeviceSettings,
-    });
   }
 
   /**
@@ -95,18 +105,21 @@ export class SettingRepository {
   public async putDeviceSettings(
     deviceSettings: DeviceSettings
   ): Promise<RepositoryAccessResult<DeviceSettings>> {
-    const response = await this.restClient.httpPut(
-      `/projects/1/device-configs`,
-      deviceSettings
-    );
+    try {
+      const response = await this.restClient.httpPut(
+        `/projects/1/device-configs`,
+        deviceSettings
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as DeviceSettings,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as DeviceSettings,
-    });
   }
 }

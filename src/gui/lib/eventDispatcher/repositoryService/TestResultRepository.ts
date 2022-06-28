@@ -19,6 +19,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 import { TestResult } from "@/lib/operationHistory/types";
 
@@ -32,18 +33,21 @@ export class TestResultRepository {
   public async deleteTestResult(
     testResultId: string
   ): Promise<RepositoryAccessResult<void>> {
-    const response = await this.restClient.httpDelete(
-      `/test-results/${testResultId}`
-    );
+    try {
+      const response = await this.restClient.httpDelete(
+        `/test-results/${testResultId}`
+      );
 
-    if (response.status !== 204) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 204) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as void,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as void,
-    });
   }
 
   /**
@@ -56,19 +60,22 @@ export class TestResultRepository {
     testResultId: string,
     shouldSaveTemporary: boolean
   ): Promise<RepositoryAccessResult<{ url: string }>> {
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/export`,
-      { temp: shouldSaveTemporary }
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/export`,
+        { temp: shouldSaveTemporary }
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { url: string },
-    });
   }
 
   /**
@@ -81,19 +88,22 @@ export class TestResultRepository {
     source: { testResultId: string },
     dest: { repositoryUrl: string; testResultId?: string }
   ): Promise<RepositoryAccessResult<{ id: string }>> {
-    const response = await this.restClient.httpPost(
-      `/upload-request/test-result`,
-      { source, dest }
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/upload-request/test-result`,
+        { source, dest }
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { id: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { id: string },
-    });
   }
 
   /**
@@ -105,17 +115,23 @@ export class TestResultRepository {
     initialUrl?: string,
     name?: string
   ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
-    const url = `/test-results`;
-    const response = await this.restClient.httpPost(url, { initialUrl, name });
+    try {
+      const url = `/test-results`;
+      const response = await this.restClient.httpPost(url, {
+        initialUrl,
+        name,
+      });
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { id: string; name: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { id: string; name: string },
-    });
   }
 
   /**
@@ -125,19 +141,22 @@ export class TestResultRepository {
   public async getTestResults(): Promise<
     RepositoryAccessResult<Array<{ id: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(`/test-results`);
+    try {
+      const response = await this.restClient.httpGet(`/test-results`);
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Array<{
+          id: string;
+          name: string;
+        }>,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as Array<{
-        id: string;
-        name: string;
-      }>,
-    });
   }
 
   /**
@@ -147,18 +166,21 @@ export class TestResultRepository {
   public async getTestResult(
     testResultId: string
   ): Promise<RepositoryAccessResult<TestResult>> {
-    const response = await this.restClient.httpGet(
-      `/test-results/${testResultId}`
-    );
+    try {
+      const response = await this.restClient.httpGet(
+        `/test-results/${testResultId}`
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as TestResult,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as TestResult,
-    });
   }
 
   public async patchTestResult(
@@ -167,18 +189,21 @@ export class TestResultRepository {
     startTime?: number,
     initialUrl?: string
   ): Promise<RepositoryAccessResult<string>> {
-    const response = await this.restClient.httpPatch(
-      `/test-results/${testResultId}`,
-      { name, startTime, initialUrl }
-    );
+    try {
+      const response = await this.restClient.httpPatch(
+        `/test-results/${testResultId}`,
+        { name, startTime, initialUrl }
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: (response.data as TestResult).name,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: (response.data as TestResult).name,
-    });
   }
 }

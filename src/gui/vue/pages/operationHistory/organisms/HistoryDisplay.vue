@@ -119,11 +119,6 @@
         :message="message"
       ></decision-table>
     </pane>
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
   </splitpanes>
 </template>
 
@@ -143,7 +138,6 @@ import OperationList from "@/vue/pages/operationHistory/organisms/OperationList.
 import ScreenShotDisplay from "@/vue/molecules/ScreenShotDisplay.vue";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ElementCoverage from "@/vue/pages/operationHistory/organisms/ElementCoverage.vue";
-import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import DecisionTable from "./DecisionTable.vue";
 
 @Component({
@@ -152,7 +146,6 @@ import DecisionTable from "./DecisionTable.vue";
     "operation-list": OperationList,
     "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
-    "error-message-dialog": ErrorMessageDialog,
     "decision-table": DecisionTable,
     Splitpanes,
     Pane,
@@ -223,9 +216,6 @@ export default class HistoryDisplay extends Vue {
   private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
-
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
 
   private get selectedOperationSequence(): number {
     return this.$store.state.operationHistory.selectedOperationSequence;

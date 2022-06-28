@@ -63,6 +63,12 @@
       :onAccept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
+
+    <error-message-dialog
+      :opened="errorDialogOpened"
+      :message="errorDialogMessage"
+      @close="errorDialogOpened = false"
+    />
   </v-app>
 </template>
 
@@ -76,6 +82,7 @@ import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import CaptureToolHeader from "./organisms/captureToolHeader/CaptureToolHeader.vue";
 import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
@@ -86,6 +93,7 @@ import ConfirmDialog from "../../common/ConfirmDialog.vue";
     "notice-edit-dialog": NoticeEditDialog,
     "context-menu": ContextMenu,
     "confirm-dialog": ConfirmDialog,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class ExpCapture extends Vue {
@@ -104,6 +112,9 @@ export default class ExpCapture extends Vue {
   private confirmDialogAccept() {
     /* Do nothing */
   }
+
+  private errorDialogOpened = false;
+  private errorDialogMessage = "";
 
   private mounted() {
     this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
@@ -255,22 +266,41 @@ export default class ExpCapture extends Vue {
   }
 
   private deleteNote(noteType: string, sequence: number, index: number) {
-    switch (noteType) {
-      case "intention":
-        this.$store.dispatch("operationHistory/deleteIntention", { sequence });
-        return;
-      case "bug":
-        this.$store.dispatch("operationHistory/deleteBug", { sequence, index });
-        return;
-      case "notice":
-        this.$store.dispatch("operationHistory/deleteNotice", {
-          sequence,
-          index,
-        });
-        return;
-      default:
-        return;
-    }
+    (async () => {
+      try {
+        switch (noteType) {
+          case "intention":
+            await this.$store.dispatch("operationHistory/deleteIntention", {
+              sequence,
+            });
+
+            return;
+          case "bug":
+            await this.$store.dispatch("operationHistory/deleteBug", {
+              sequence,
+              index,
+            });
+
+            return;
+          case "notice":
+            await this.$store.dispatch("operationHistory/deleteNotice", {
+              sequence,
+              index,
+            });
+
+            return;
+          default:
+            return;
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorDialogOpened = true;
+          this.errorDialogMessage = error.message;
+        } else {
+          throw error;
+        }
+      }
+    })();
   }
 }
 </script>
