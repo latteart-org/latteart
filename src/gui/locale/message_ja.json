@@ -39,8 +39,8 @@
   },
   "replay": {
     "done-title": "履歴再生の終了",
-    "done-run-operations": "履歴再生が終了しました",
-    "done-run-operations-because-skipped": "記録中に一時停止されているため履歴再生を中止しました",
+    "done-run-operations": "履歴再生が終了しました。",
+    "done-run-operations-because-skipped": "「記録の一時停止」により記録されなかった操作があるため、履歴再生を中止しました。",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {

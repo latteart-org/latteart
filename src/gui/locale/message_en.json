@@ -36,7 +36,7 @@
   "replay": {
     "done-title": "Replay is done",
     "done-run-operations": "Replay is finished.",
-    "done-run-operations-because-skipped": "Replay was canceled because it was paused during recording.",
+    "done-run-operations-because-skipped": "Replay was interrupted because the test contains some unrecorded operations due to capture pause.",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
