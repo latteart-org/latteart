@@ -15,10 +15,7 @@
 -->
 
 <template>
-  <v-list-tile
-    @click="exportData"
-    :disabled="sequence === 0 || isExportingData"
-  >
+  <v-list-tile @click="exportData" :disabled="isDisabled">
     <v-list-tile-title>{{
       $store.getters.message("manage-header.export-option")
     }}</v-list-tile-title>
@@ -61,6 +58,28 @@ export default class TestResultFileExportButton extends Vue {
   private downloadLinkDialogLinkUrl = "";
 
   private isExportingData = false;
+
+  private get isDisabled(): boolean {
+    return (
+      this.isCapturing ||
+      this.isReplaying ||
+      this.isResuming ||
+      this.sequence === 0 ||
+      this.isExportingData
+    );
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
+  private get isResuming(): boolean {
+    return this.$store.state.captureControl.isResuming;
+  }
 
   private get sequence() {
     const history = this.$store.getters["operationHistory/getHistory"]();

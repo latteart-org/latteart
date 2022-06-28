@@ -77,7 +77,25 @@ export default class GenerateTestScriptButton extends Vue {
   private downloadLinkDialogLinkUrl = "";
 
   private get isDisabled(): boolean {
-    return this.sequence === 0 || this.isGeneratingTestScripts;
+    return (
+      this.isCapturing ||
+      this.isReplaying ||
+      this.isResuming ||
+      this.sequence === 0 ||
+      this.isGeneratingTestScripts
+    );
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
+  private get isResuming(): boolean {
+    return this.$store.state.captureControl.isResuming;
   }
 
   private get sequence() {

@@ -52,9 +52,24 @@ export default class ScreenshotsDownloadButton extends Vue {
 
   private get isDisabled(): boolean {
     return (
+      this.isCapturing ||
+      this.isReplaying ||
+      this.isResuming ||
       this.$store.getters["operationHistory/getOperations"]().length === 0 ||
       this.processing
     );
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
+  private get isResuming(): boolean {
+    return this.$store.state.captureControl.isResuming;
   }
 
   private get testResultId(): string {
