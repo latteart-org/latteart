@@ -102,6 +102,7 @@ import {
 })
 export default class RecordButton extends Vue {
   private testOptionDialogOpened = false;
+  private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private confirmDialogOpened = false;
@@ -133,7 +134,14 @@ export default class RecordButton extends Vue {
   }
 
   private get isDisabled(): boolean {
-    return !this.url || this.isReplaying || this.isResuming || !this.urlIsValid;
+    return (
+      !this.url ||
+      this.isReplaying ||
+      this.isResuming ||
+      !this.urlIsValid ||
+      this.testOptionDialogOpened ||
+      this.preparingForCapture
+    );
   }
 
   private get isCapturing(): boolean {
@@ -153,6 +161,7 @@ export default class RecordButton extends Vue {
   }
 
   private startCapture(): void {
+    this.preparingForCapture = true;
     this.goToHistoryView();
 
     (async () => {
@@ -249,6 +258,7 @@ export default class RecordButton extends Vue {
             },
           },
         });
+        this.preparingForCapture = false;
 
         // switch to before repository
         this.$store.commit(
@@ -281,6 +291,8 @@ export default class RecordButton extends Vue {
         } else {
           throw error;
         }
+      } finally {
+        this.preparingForCapture = false;
       }
     })();
   }
