@@ -20,6 +20,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class TestScriptRepository {
@@ -36,19 +37,22 @@ export class TestScriptRepository {
     projectId: string,
     body: TestScript
   ): Promise<RepositoryAccessResult<{ url: string }>> {
-    const response = await this.restClient.httpPost(
-      `/projects/${projectId}/test-scripts`,
-      body
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/projects/${projectId}/test-scripts`,
+        body
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { url: string },
-    });
   }
 
   /**
@@ -62,18 +66,21 @@ export class TestScriptRepository {
     testResultId: string,
     body: TestScript
   ): Promise<RepositoryAccessResult<{ url: string }>> {
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/test-scripts`,
-      body
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/test-scripts`,
+        body
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { url: string },
-    });
   }
 }

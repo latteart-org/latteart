@@ -18,6 +18,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 import {
   TestStepOperation,
@@ -85,24 +86,27 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       notices: string[];
     }>
   > {
-    const response = await this.restClient.httpGet(
-      `/test-results/${testResultId}/test-steps/${testStepId}`
-    );
+    try {
+      const response = await this.restClient.httpGet(
+        `/test-results/${testResultId}/test-steps/${testStepId}`
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          operation: TestStepOperation;
+          intention: string | null;
+          bugs: string[];
+          notices: string[];
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        operation: TestStepOperation;
-        intention: string | null;
-        bugs: string[];
-        notices: string[];
-      },
-    });
   }
 
   public async patchTestSteps(
@@ -120,30 +124,33 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       notices: string[];
     }>
   > {
-    const body = notices
-      ? { notices }
-      : bugs
-      ? { bugs }
-      : { intention: noteId };
-    const response = await this.restClient.httpPatch(
-      `/test-results/${testResultId}/test-steps/${testStepId}`,
-      body
-    );
+    try {
+      const body = notices
+        ? { notices }
+        : bugs
+        ? { bugs }
+        : { intention: noteId };
+      const response = await this.restClient.httpPatch(
+        `/test-results/${testResultId}/test-steps/${testStepId}`,
+        body
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          operation: TestStepOperation;
+          intention: string | null;
+          bugs: string[];
+          notices: string[];
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        operation: TestStepOperation;
-        intention: string | null;
-        bugs: string[];
-        notices: string[];
-      },
-    });
   }
 
   public async postTestSteps(
@@ -157,23 +164,26 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/test-steps`,
-      capturedOperation
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/test-steps`,
+        capturedOperation
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          operation: TestStepOperation;
+          coverageSource: CoverageSource;
+          inputElementInfo: InputElementInfo;
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        operation: TestStepOperation;
-        coverageSource: CoverageSource;
-        inputElementInfo: InputElementInfo;
-      },
-    });
   }
 }

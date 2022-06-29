@@ -142,7 +142,6 @@ export class ReadProjectDataAction {
     };
 
     return new RepositoryAccessSuccess({
-      status: getProjectResult.status,
       data: data,
     });
   }

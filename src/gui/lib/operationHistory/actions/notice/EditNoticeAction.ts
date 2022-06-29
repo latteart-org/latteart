@@ -52,9 +52,6 @@ export class EditNoticeAction {
       tags: string[];
     }
   ): Promise<ActionResult<{ notice: Note; index: number }>> {
-    const intention = undefined;
-    const bug = undefined;
-
     const getTestStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
@@ -74,9 +71,12 @@ export class EditNoticeAction {
       await this.repositoryContainer.noteRepository.putNotes(
         testResultId,
         noteId,
-        intention,
-        bug,
-        notice
+        {
+          type: "notice",
+          value: notice.summary,
+          details: notice.details,
+          tags: notice.tags,
+        }
       );
 
     if (putNotesResult.isFailure()) {

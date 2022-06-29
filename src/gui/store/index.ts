@@ -304,31 +304,37 @@ const actions: ActionTree<RootState, RootState> = {
     const serverUrl = payload.targetUrl;
 
     const serverName = (
-      await new RESTClientImpl().httpGet(`${serverUrl}/api/v1/server-name`)
+      await new RESTClientImpl()
+        .httpGet(`${serverUrl}/api/v1/server-name`)
+        .catch(() => {
+          return { data: "" };
+        })
     ).data as string;
 
-    if (serverName === "latteart-repository") {
-      const isRemote =
-        payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
-      const repositoryContainer = new RepositoryContainerImpl({
-        url: serverUrl,
-        isRemote,
-      });
+    if (serverName !== "latteart-repository") {
+      console.error(`'${serverUrl}' is not latteart-repository.`);
 
-      context.commit("setRepositoryContainer", { repositoryContainer });
-
-      if (isRemote) {
-        context.commit("registerRemoteRepositoryServiceUrl", {
-          url: serverUrl,
-        });
-      }
-
-      return serverUrl;
+      throw new Error(
+        context.rootGetters.message("remote-access.connect-remote-url-error")
+      );
     }
 
-    console.error(`'${serverUrl}' is not latteart-repository.`);
+    const isRemote =
+      payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
+    const repositoryContainer = new RepositoryContainerImpl({
+      url: serverUrl,
+      isRemote,
+    });
 
-    return "";
+    context.commit("setRepositoryContainer", { repositoryContainer });
+
+    if (isRemote) {
+      context.commit("registerRemoteRepositoryServiceUrl", {
+        url: serverUrl,
+      });
+    }
+
+    return serverUrl;
   },
 };
 

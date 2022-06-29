@@ -172,7 +172,6 @@ export class GenerateAllSessionTestScriptsAction {
     );
 
     return new RepositoryAccessSuccess({
-      status: getTestResultResult.status,
       data: testSteps,
     });
   }

@@ -69,8 +69,11 @@ export class EditBugAction {
       await this.repositoryContainer.noteRepository.putNotes(
         testResultId,
         noteId,
-        undefined,
-        bug
+        {
+          type: "bug",
+          value: bug.summary,
+          details: bug.details,
+        }
       );
 
     if (putNotesResult.isFailure()) {

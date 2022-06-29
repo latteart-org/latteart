@@ -19,6 +19,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class CompressedImageRepository {
@@ -34,21 +35,24 @@ export class CompressedImageRepository {
     testResultId: string,
     noteId: string
   ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>> {
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/notes/${noteId}/compressed-image`,
-      null
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/notes/${noteId}/compressed-image`,
+        null
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      const { imageFileUrl } = response.data as { imageFileUrl: string };
+
+      return new RepositoryAccessSuccess({
+        data: { imageFileUrl },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    const { imageFileUrl } = response.data as { imageFileUrl: string };
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: { imageFileUrl },
-    });
   }
 
   /**
@@ -61,20 +65,23 @@ export class CompressedImageRepository {
     testResultId: string,
     testStepId: string
   ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>> {
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`,
-      null
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/test-steps/${testStepId}/compressed-image`,
+        null
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      const { imageFileUrl } = response.data as { imageFileUrl: string };
+
+      return new RepositoryAccessSuccess({
+        data: { imageFileUrl },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    const { imageFileUrl } = response.data as { imageFileUrl: string };
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: { imageFileUrl },
-    });
   }
 }

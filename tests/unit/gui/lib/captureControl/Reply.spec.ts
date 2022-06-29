@@ -1,4 +1,9 @@
-import { createRepositoryAccessFailure } from "@/lib/captureControl/Reply";
+import {
+  createRepositoryAccessFailure,
+  RepositoryAccessFailureType,
+  createConnectionRefusedFailure,
+  ServerError,
+} from "@/lib/captureControl/Reply";
 import { RESTClientResponse } from "@/lib/eventDispatcher/RESTClient";
 
 describe("createRepositoryAccessFailure", () => {
@@ -22,7 +27,9 @@ describe("createRepositoryAccessFailure", () => {
         const res: RESTClientResponse = { status: 500, data };
         const result = createRepositoryAccessFailure(res);
 
-        expect(result.status).toEqual(res.status);
+        const expectedFailureType: RepositoryAccessFailureType =
+          "InternalServerError";
+        expect(result.type).toEqual(expectedFailureType);
         expect(result.error).toEqual(res.data);
       }
     );
@@ -40,9 +47,43 @@ describe("createRepositoryAccessFailure", () => {
         const res: RESTClientResponse = { status: 500, data };
         const result = createRepositoryAccessFailure(res);
 
-        expect(result.status).toEqual(res.status);
+        const expectedFailureType: RepositoryAccessFailureType =
+          "InternalServerError";
+        expect(result.type).toEqual(expectedFailureType);
         expect(result.error).toEqual({ code: "unknown_error" });
       }
     );
+
+    it.each([
+      { status: 404, expectedType: "ResourceNotFound" },
+      { status: 403, expectedType: "OtherClientError" },
+      { status: 500, expectedType: "InternalServerError" },
+      { status: 503, expectedType: "OtherServerError" },
+      { status: 999, expectedType: "UnknownError" },
+    ])(
+      "RepositoryAccessFailureには受け取ったRESTClientResponseのステータスコードに応じた失敗種別を付与する",
+      ({ status, expectedType }) => {
+        const res: RESTClientResponse = { status, data: { code: "code" } };
+        const result = createRepositoryAccessFailure(res);
+
+        const expectedFailureType = expectedType;
+        expect(result.type).toEqual(expectedFailureType);
+        expect(result.error).toEqual(res.data);
+      }
+    );
+  });
+});
+
+describe("createConnectionRefusedFailure", () => {
+  it("種別がConnectionRefusedのRepositoryAccessFailureを生成する", () => {
+    () => {
+      const result = createConnectionRefusedFailure();
+
+      const expectedFailureType: RepositoryAccessFailureType =
+        "ConnectionRefused";
+      const expectedError: ServerError = { code: "connection_refused" };
+      expect(result.type).toEqual(expectedFailureType);
+      expect(result.error).toEqual(expectedError);
+    };
   });
 });

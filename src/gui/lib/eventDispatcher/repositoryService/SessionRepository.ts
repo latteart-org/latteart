@@ -20,6 +20,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class SessionRepository {
@@ -30,18 +31,21 @@ export class SessionRepository {
     sessionId: string,
     body: Partial<ManagedSession>
   ): Promise<RepositoryAccessResult<ManagedSession>> {
-    const response = await this.restClient.httpPatch(
-      `/projects/${projectId}/sessions/${sessionId}`,
-      body
-    );
+    try {
+      const response = await this.restClient.httpPatch(
+        `/projects/${projectId}/sessions/${sessionId}`,
+        body
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as ManagedSession,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as ManagedSession,
-    });
   }
 }

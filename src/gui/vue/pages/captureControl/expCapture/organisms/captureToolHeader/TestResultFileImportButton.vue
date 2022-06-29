@@ -123,7 +123,7 @@ export default class TestResultFileImportButton extends Vue {
       } catch (error) {
         this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {
-          this.errorMessage = `${error.message}`;
+          this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
         } else {
           throw error;

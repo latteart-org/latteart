@@ -167,8 +167,12 @@ export default class BugEditDialog extends Vue {
           noteEditInfo: args,
         });
       } catch (error) {
-        this.errorMessage = `${error.message}`;
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       }
     })();
   }

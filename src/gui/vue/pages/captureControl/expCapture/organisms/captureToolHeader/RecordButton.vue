@@ -286,7 +286,7 @@ export default class RecordButton extends Vue {
         }
       } catch (error) {
         if (error instanceof Error) {
-          this.errorMessage = `${error.message}`;
+          this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
         } else {
           throw error;
@@ -314,31 +314,34 @@ export default class RecordButton extends Vue {
       this.confirmDialogOpened = false;
 
       (async () => {
-        try {
-          this.$store.dispatch("openProgressDialog", {
-            message: this.$store.getters.message(
-              "remote-access.registering-testresults"
-            ),
-          });
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message(
+            "remote-access.registering-testresults"
+          ),
+        });
 
-          const newTestResultId = await this.$store
-            .dispatch("operationHistory/uploadTestResultsToRemote", {
+        try {
+          const newTestResultId = await this.$store.dispatch(
+            "operationHistory/uploadTestResultsToRemote",
+            {
               localTestResultId: testResult.localId,
               remoteTestResultId: testResult.remoteId,
-            })
-            .finally(() => {
-              this.$store.dispatch("closeProgressDialog");
-            });
+            }
+          );
 
           await postOperation(newTestResultId);
-
-          this.deleteLocalTestResult(testResult.localId);
         } catch (error) {
-          this.errorMessage = this.$store.getters.message(
-            "remote-access.registering-testresults-error"
-          );
-          this.errorMessageDialogOpened = true;
+          if (error instanceof Error) {
+            this.errorMessage = error.message;
+            this.errorMessageDialogOpened = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          this.$store.dispatch("closeProgressDialog");
         }
+
+        this.deleteLocalTestResult(testResult.localId);
       })();
     };
 
@@ -354,20 +357,16 @@ export default class RecordButton extends Vue {
     this.confirmDialogAccept = async () => {
       this.confirmDialogOpened = false;
 
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "remote-access.delete-testresults"
-          ),
-        });
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "remote-access.delete-testresults"
+        ),
+      });
 
-        await this.$store
-          .dispatch("operationHistory/deleteLocalTestResult", {
-            testResultId,
-          })
-          .finally(() => {
-            this.$store.dispatch("closeProgressDialog");
-          });
+      try {
+        await this.$store.dispatch("operationHistory/deleteLocalTestResult", {
+          testResultId,
+        });
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message("common.confirm");
@@ -375,10 +374,14 @@ export default class RecordButton extends Vue {
           "remote-access.register-delete-succeeded"
         );
       } catch (error) {
-        this.errorMessage = this.$store.getters.message(
-          "remote-access.delete-error"
-        );
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
       }
     };
 

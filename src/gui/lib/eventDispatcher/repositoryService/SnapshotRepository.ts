@@ -19,6 +19,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class SnapshotRepository {
@@ -32,18 +33,21 @@ export class SnapshotRepository {
   public async postSnapshots(
     projectId: string
   ): Promise<RepositoryAccessResult<{ url: string }>> {
-    const response = await this.restClient.httpPost(
-      `/projects/${projectId}/snapshots`,
-      null
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/projects/${projectId}/snapshots`,
+        null
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { url: string },
-    });
   }
 }

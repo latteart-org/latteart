@@ -19,6 +19,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
 export class ImportTestResultRepository {
@@ -34,24 +35,27 @@ export class ImportTestResultRepository {
     source: { testResultFileUrl: string },
     dest?: { testResultId?: string }
   ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
-    const body = {
-      source,
-      dest,
-    };
+    try {
+      const body = {
+        source,
+        dest,
+      };
 
-    const response = await this.restClient.httpPost(
-      `/imports/test-results`,
-      body
-    );
+      const response = await this.restClient.httpPost(
+        `/imports/test-results`,
+        body
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { testResultId: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as { testResultId: string },
-    });
   }
 
   /**
@@ -61,18 +65,21 @@ export class ImportTestResultRepository {
   public async getTestResults(): Promise<
     RepositoryAccessResult<Array<{ url: string; name: string }>>
   > {
-    const response = await this.restClient.httpGet(`/imports/test-results`);
+    try {
+      const response = await this.restClient.httpGet(`/imports/test-results`);
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Array<{
+          url: string;
+          name: string;
+        }>,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as Array<{
-        url: string;
-        name: string;
-      }>,
-    });
   }
 }

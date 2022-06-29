@@ -256,16 +256,11 @@ export default class ManageView extends Vue {
         message: this.$store.getters.message("manage-header.creating-snapshot"),
       });
 
-      const snapshotUrl = await this.$store
-        .dispatch("testManagement/writeSnapshot")
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
+      try {
+        const snapshotUrl = await this.$store.dispatch(
+          "testManagement/writeSnapshot"
+        );
 
-      if (snapshotUrl) {
         this.downloadLinkDialogOpened = true;
         this.downloadLinkDialogTitle = this.$store.getters.message(
           "manage-header.output-html"
@@ -275,14 +270,17 @@ export default class ManageView extends Vue {
         );
         this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "manage.print-html-error"
-        );
-        this.errorMessageDialogOpened = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.outputHtmlProcessing = false;
+        this.$store.dispatch("closeProgressDialog");
       }
-
-      this.outputHtmlProcessing = false;
     })();
   }
 
@@ -388,7 +386,7 @@ export default class ManageView extends Vue {
         );
       } catch (error) {
         if (error instanceof Error) {
-          this.errorMessage = `${error.message}`;
+          this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
         } else {
           throw error;
@@ -412,16 +410,12 @@ export default class ManageView extends Vue {
         ),
       });
 
-      const exportDataUrl = await this.$store
-        .dispatch("testManagement/exportData", { option })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
+      try {
+        const exportDataUrl = await this.$store.dispatch(
+          "testManagement/exportData",
+          { option }
+        );
 
-      if (exportDataUrl) {
         this.downloadLinkDialogOpened = true;
         this.downloadLinkDialogTitle = this.$store.getters.message(
           "import-export-dialog.export-title"
@@ -431,14 +425,17 @@ export default class ManageView extends Vue {
         );
         this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "error.import_export.create-export-data-error"
-        );
-        this.errorMessageDialogOpened = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.exportDataProcessing = false;
+        this.$store.dispatch("closeProgressDialog");
       }
-
-      this.exportDataProcessing = false;
     })();
   }
 

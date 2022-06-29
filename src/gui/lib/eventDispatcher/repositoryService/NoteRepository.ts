@@ -18,6 +18,7 @@ import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 import { RESTClient } from "../RESTClient";
 
@@ -38,20 +39,12 @@ export interface NoteRepository {
 
   postNotes(
     testResultId: string,
-    intention?: {
-      summary: string;
-      details: string;
-    },
-    bug?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
       imageData?: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
-      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -67,18 +60,12 @@ export interface NoteRepository {
   putNotes(
     testResultId: string,
     noteId: string,
-    intention?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
-    },
-    bug?: {
-      summary: string;
-      details: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
+      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -113,43 +100,38 @@ export class NoteRepositoryImpl implements NoteRepository {
       tags?: string[];
     }>
   > {
-    const response = await this.restClient.httpGet(
-      `/test-results/${testResultId}/notes/${noteId}`
-    );
+    try {
+      const response = await this.restClient.httpGet(
+        `/test-results/${testResultId}/notes/${noteId}`
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          type: string;
+          value: string;
+          details: string;
+          imageFileUrl?: string;
+          tags?: string[];
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      },
-    });
   }
 
   public async postNotes(
     testResultId: string,
-    intention?: {
-      summary: string;
-      details: string;
-    },
-    bug?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
       imageData?: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
-      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -161,63 +143,39 @@ export class NoteRepositoryImpl implements NoteRepository {
       tags?: string[];
     }>
   > {
-    const body = intention
-      ? {
-          type: "intention",
-          value: intention.summary,
-          details: intention.details,
-        }
-      : bug
-      ? {
-          type: "bug",
-          value: bug.summary,
-          details: bug.details,
-          imageData: bug.imageData,
-        }
-      : {
-          type: "notice",
-          value: notice!.summary,
-          details: notice!.details,
-          tags: notice!.tags,
-          imageData: notice!.imageData,
-        };
-    const response = await this.restClient.httpPost(
-      `/test-results/${testResultId}/notes`,
-      body
-    );
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId}/notes`,
+        note
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          type: string;
+          value: string;
+          details: string;
+          imageFileUrl?: string;
+          tags?: string[];
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      },
-    });
   }
 
   public async putNotes(
     testResultId: string,
     noteId: string,
-    intention?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
-    },
-    bug?: {
-      summary: string;
-      details: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -229,61 +187,49 @@ export class NoteRepositoryImpl implements NoteRepository {
       tags?: string[];
     }>
   > {
-    const body = intention
-      ? {
-          type: "intention",
-          value: intention.summary,
-          details: intention.details,
-        }
-      : bug
-      ? {
-          type: "bug",
-          value: bug.summary,
-          details: bug.details,
-        }
-      : {
-          type: "notice",
-          value: notice!.summary,
-          details: notice!.details,
-          tags: notice!.tags,
-        };
-    const response = await this.restClient.httpPut(
-      `/test-results/${testResultId}/notes/${noteId}`,
-      body
-    );
+    try {
+      const response = await this.restClient.httpPut(
+        `/test-results/${testResultId}/notes/${noteId}`,
+        note
+      );
 
-    if (response.status !== 200) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          id: string;
+          type: string;
+          value: string;
+          details: string;
+          imageFileUrl?: string;
+          tags?: string[];
+        },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        imageFileUrl?: string;
-        tags?: string[];
-      },
-    });
   }
 
   public async deleteNotes(
     testResultId: string,
     noteId: string
   ): Promise<RepositoryAccessResult<void>> {
-    const response = await this.restClient.httpDelete(
-      `/test-results/${testResultId}/notes/${noteId}`
-    );
+    try {
+      const response = await this.restClient.httpDelete(
+        `/test-results/${testResultId}/notes/${noteId}`
+      );
 
-    if (response.status !== 204) {
-      return createRepositoryAccessFailure(response);
+      if (response.status !== 204) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as void,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-
-    return new RepositoryAccessSuccess({
-      status: response.status,
-      data: response.data as void,
-    });
   }
 }
