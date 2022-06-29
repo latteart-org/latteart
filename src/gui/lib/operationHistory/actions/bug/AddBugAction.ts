@@ -51,11 +51,12 @@ export class AddBugAction {
   ): Promise<ActionResult<{ bug: Note; index: number }>> {
     // New registration of note.
     const postNotesResult =
-      await this.repositoryContainer.noteRepository.postNotes(
-        testResultId,
-        undefined,
-        bug
-      );
+      await this.repositoryContainer.noteRepository.postNotes(testResultId, {
+        type: "bug",
+        value: bug.summary,
+        details: bug.details,
+        imageData: bug.imageData,
+      });
 
     if (postNotesResult.isFailure()) {
       return new ActionFailure({ messageKey: ADD_NOTE_FAILED_MESSAGE_KEY });

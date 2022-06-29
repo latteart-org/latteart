@@ -52,6 +52,6 @@ export class ChangeTestResultAction {
       });
     }
 
-    return new ActionSuccess(patchTestResultResult.data);
+    return new ActionSuccess(patchTestResultResult.data.name);
   }
 }

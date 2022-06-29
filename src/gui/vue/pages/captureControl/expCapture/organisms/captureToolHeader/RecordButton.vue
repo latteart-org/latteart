@@ -276,7 +276,7 @@ export default class RecordButton extends Vue {
         }
       } catch (error) {
         if (error instanceof Error) {
-          this.errorMessage = `${error.message}`;
+          this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
         } else {
           throw error;

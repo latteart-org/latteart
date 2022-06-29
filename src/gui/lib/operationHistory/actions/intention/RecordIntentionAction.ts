@@ -108,10 +108,11 @@ export class RecordIntentionAction {
   ): Promise<RepositoryAccessResult<Note>> {
     // New note registration
     const postNotesResult =
-      await this.repositoryContainer.noteRepository.postNotes(
-        testResultId,
-        intention
-      );
+      await this.repositoryContainer.noteRepository.postNotes(testResultId, {
+        type: "intention",
+        value: intention.summary,
+        details: intention.details,
+      });
 
     if (postNotesResult.isFailure()) {
       return postNotesResult;
@@ -178,7 +179,11 @@ export class RecordIntentionAction {
       await this.repositoryContainer.noteRepository.putNotes(
         testResultId,
         noteId as string,
-        intention
+        {
+          type: "intention",
+          value: intention.summary,
+          details: intention.details,
+        }
       );
 
     if (putNotesResult.isFailure()) {

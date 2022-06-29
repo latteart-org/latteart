@@ -39,20 +39,12 @@ export interface NoteRepository {
 
   postNotes(
     testResultId: string,
-    intention?: {
-      summary: string;
-      details: string;
-    },
-    bug?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
       imageData?: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
-      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -68,18 +60,12 @@ export interface NoteRepository {
   putNotes(
     testResultId: string,
     noteId: string,
-    intention?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
-    },
-    bug?: {
-      summary: string;
-      details: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
+      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -140,20 +126,12 @@ export class NoteRepositoryImpl implements NoteRepository {
 
   public async postNotes(
     testResultId: string,
-    intention?: {
-      summary: string;
-      details: string;
-    },
-    bug?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
       imageData?: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
-      imageData?: string;
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -166,29 +144,9 @@ export class NoteRepositoryImpl implements NoteRepository {
     }>
   > {
     try {
-      const body = intention
-        ? {
-            type: "intention",
-            value: intention.summary,
-            details: intention.details,
-          }
-        : bug
-        ? {
-            type: "bug",
-            value: bug.summary,
-            details: bug.details,
-            imageData: bug.imageData,
-          }
-        : {
-            type: "notice",
-            value: notice!.summary,
-            details: notice!.details,
-            tags: notice!.tags,
-            imageData: notice!.imageData,
-          };
       const response = await this.restClient.httpPost(
         `/test-results/${testResultId}/notes`,
-        body
+        note
       );
 
       if (response.status !== 200) {
@@ -213,18 +171,11 @@ export class NoteRepositoryImpl implements NoteRepository {
   public async putNotes(
     testResultId: string,
     noteId: string,
-    intention?: {
-      summary: string;
+    note: {
+      type: "intention" | "bug" | "notice";
+      value: string;
       details: string;
-    },
-    bug?: {
-      summary: string;
-      details: string;
-    },
-    notice?: {
-      summary: string;
-      details: string;
-      tags: string[];
+      tags?: string[];
     }
   ): Promise<
     RepositoryAccessResult<{
@@ -237,27 +188,9 @@ export class NoteRepositoryImpl implements NoteRepository {
     }>
   > {
     try {
-      const body = intention
-        ? {
-            type: "intention",
-            value: intention.summary,
-            details: intention.details,
-          }
-        : bug
-        ? {
-            type: "bug",
-            value: bug.summary,
-            details: bug.details,
-          }
-        : {
-            type: "notice",
-            value: notice!.summary,
-            details: notice!.details,
-            tags: notice!.tags,
-          };
       const response = await this.restClient.httpPut(
         `/test-results/${testResultId}/notes/${noteId}`,
-        body
+        note
       );
 
       if (response.status !== 200) {

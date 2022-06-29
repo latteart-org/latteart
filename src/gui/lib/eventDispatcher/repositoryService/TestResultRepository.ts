@@ -188,7 +188,7 @@ export class TestResultRepository {
     name?: string,
     startTime?: number,
     initialUrl?: string
-  ): Promise<RepositoryAccessResult<string>> {
+  ): Promise<RepositoryAccessResult<TestResult>> {
     try {
       const response = await this.restClient.httpPatch(
         `/test-results/${testResultId}`,
@@ -200,7 +200,7 @@ export class TestResultRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: (response.data as TestResult).name,
+        data: response.data as TestResult,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

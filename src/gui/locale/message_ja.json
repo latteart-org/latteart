@@ -443,8 +443,7 @@
       "fatal": "不明なエラーが発生しました。",
       "get_settings_failed": "設定の取得に失敗しました。",
       "save_settings_failed": "設定の保存に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
-      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
-      "repository_access_failed": "リポジトリとの通信に失敗しました。"
+      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。"
     },
     "capture_control": {
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",

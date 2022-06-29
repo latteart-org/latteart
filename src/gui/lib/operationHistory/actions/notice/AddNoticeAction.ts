@@ -50,16 +50,15 @@ export class AddNoticeAction {
     }
   ): Promise<ActionResult<{ notice: Note; index: number }>> {
     // New registration of note.
-    const intention = undefined;
-    const bug = undefined;
 
     const postNotesResult =
-      await this.repositoryContainer.noteRepository.postNotes(
-        testResultId,
-        intention,
-        bug,
-        notice
-      );
+      await this.repositoryContainer.noteRepository.postNotes(testResultId, {
+        type: "notice",
+        value: notice.summary,
+        details: notice.details,
+        tags: notice.tags,
+        imageData: notice.imageData,
+      });
 
     if (postNotesResult.isFailure()) {
       return new ActionFailure({ messageKey: ADD_NOTICE_FAILED_MESSAGE_KEY });
@@ -88,7 +87,7 @@ export class AddNoticeAction {
         testResultId,
         testStepId,
         noteId,
-        bug,
+        undefined,
         notices
       );
     })();
