@@ -104,7 +104,11 @@ export default class TestResultFileImportButton extends Vue {
 
     setTimeout(async () => {
       try {
-        this.$store.dispatch("openProgressDialog");
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message(
+            "import-export-dialog.importing-data"
+          ),
+        });
         await this.$store.dispatch("operationHistory/importData", {
           source: { testResultFileUrl: importTestResult.url },
         });

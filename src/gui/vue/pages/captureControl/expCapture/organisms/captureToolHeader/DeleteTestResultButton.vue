@@ -110,7 +110,9 @@ export default class DeleteTestResultButton extends Vue {
   }
 
   private async deleteTestResult(): Promise<void> {
-    await this.$store.dispatch("openProgressDialog");
+    await this.$store.dispatch("openProgressDialog", {
+      message: this.$store.getters.message("remote-access.delete-testresults"),
+    });
 
     try {
       await this.$store.dispatch("operationHistory/deleteCurrentTestResult");
