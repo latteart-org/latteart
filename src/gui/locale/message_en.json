@@ -230,8 +230,8 @@
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
     "generate-script-succeeded": "Test script generation has finished.",
-    "import-option": "Data import",
-    "export-option": "Data export",
+    "import-option": "Data Import",
+    "export-option": "Data Export",
     "optional-function": "Optional function",
     "locale": "locale"
   },
