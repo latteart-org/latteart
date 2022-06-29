@@ -131,7 +131,11 @@ export default class GenerateTestScriptButton extends Vue {
 
       const initialUrl = this.$store.state.captureControl.url;
       try {
-        this.$store.dispatch("openProgressDialog");
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message(
+            "manage-header.generating-test-script"
+          ),
+        });
         const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {

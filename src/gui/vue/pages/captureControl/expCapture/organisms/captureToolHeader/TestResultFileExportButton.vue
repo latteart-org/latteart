@@ -95,7 +95,11 @@ export default class TestResultFileExportButton extends Vue {
       const testResultId = this.$store.state.operationHistory.testResultInfo.id;
 
       try {
-        this.$store.dispatch("openProgressDialog");
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message(
+            "import-export-dialog.creating-export-data"
+          ),
+        });
         const exportDataPath = await this.$store
           .dispatch("operationHistory/exportData", { testResultId })
           .catch((error) => {
