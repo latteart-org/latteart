@@ -33,7 +33,7 @@
                 >
                 <v-tab
                   id="manageProgressViewButton"
-                  :disabled="!hasAnyTestMatrix"
+                  :disabled="!isTestMatrixSelected"
                   @click="toOtherManagePage('manageProgressView')"
                   >{{
                     $store.getters.message("manage-header.manage-progress")
@@ -41,7 +41,7 @@
                 >
                 <v-tab
                   id="manageQualityViewButton"
-                  :disabled="!hasAnyTestMatrix"
+                  :disabled="!isTestMatrixSelected"
                   @click="toOtherManagePage('manageQualityView')"
                   >{{
                     $store.getters.message("manage-header.manage-quality")
@@ -214,6 +214,10 @@ export default class ManageView extends Vue {
 
   private get hasAnyTestMatrix(): boolean {
     return this.$store.state.testManagement.testMatrices.length > 0;
+  }
+
+  private get isTestMatrixSelected(): boolean {
+    return this.selectedTestMatrixId !== "";
   }
 
   private get isConnectedToRemote() {
