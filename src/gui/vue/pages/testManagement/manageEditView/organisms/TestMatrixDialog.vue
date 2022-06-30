@@ -52,32 +52,60 @@
                         item-value="id"
                       ></v-select>
                     </v-flex>
-                    <v-flex
-                      xs12
-                      v-for="(tempViewPoint, index) in tempViewPoints"
-                      :key="tempViewPoint.key"
-                    >
-                      <v-layout row wrap class="mt-0 pt-0">
-                        <v-flex xs10>
-                          <v-text-field
-                            :label="
-                              $store.getters.message(
-                                'test-matrix-dialog.viewPoint-name'
-                              )
-                            "
-                            v-model="tempViewPoint.name"
-                          ></v-text-field>
-                        </v-flex>
-                        <v-flex xs2>
-                          <v-btn
-                            flat
-                            icon
-                            color="error"
-                            @click="deleteTempViewPoint(index)"
-                            ><v-icon>delete</v-icon></v-btn
-                          >
-                        </v-flex>
-                      </v-layout>
+                    <v-flex xs12>
+                      <v-expansion-panel>
+                        <v-expansion-panel-content
+                          v-for="(tempViewPoint, index) in tempViewPoints"
+                          :key="tempViewPoint.key + index"
+                        >
+                          <template v-slot:header>
+                            <v-flex xs9>
+                              <v-text-field
+                                :placeholder="
+                                  $store.getters.message(
+                                    'test-matrix-dialog.viewPoint-name'
+                                  )
+                                "
+                                v-model="tempViewPoint.name"
+                                @click="(e) => e.stopPropagation()"
+                                class="view-point-name"
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex x1>
+                              <up-down-arrows
+                                :index="index"
+                                :upDisabled="index <= 0"
+                                :downDisabled="
+                                  tempViewPoints.length - 1 <= index
+                                "
+                                @up="upViewPoint"
+                                @down="downViewPoint"
+                              />
+                            </v-flex>
+                            <v-flex xs2>
+                              <v-btn
+                                flat
+                                icon
+                                color="error"
+                                @click="deleteTempViewPoint(index)"
+                                ><v-icon>delete</v-icon></v-btn
+                              >
+                            </v-flex>
+                          </template>
+                          <div class="view-point-description">
+                            <v-textarea
+                              outline
+                              rows="3"
+                              v-model="tempViewPoint.description"
+                              :placeholder="
+                                $store.getters.message(
+                                  'test-matrix-dialog.view-point-description'
+                                )
+                              "
+                            ></v-textarea>
+                          </div>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
                     </v-flex>
                     <v-flex xs12>
                       <v-btn small @click="createTempViewPoint">{{
@@ -114,11 +142,13 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
+import UpDownArrows from "@/vue/molecules/UpDownArrows.vue";
 import { UpdateTestMatrixObject } from "../ManageEditTypes";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
+    "up-down-arrows": UpDownArrows,
   },
 })
 export default class TestMatrixDialog extends Vue {
@@ -129,10 +159,14 @@ export default class TestMatrixDialog extends Vue {
   private tempViewPoints: Array<{
     key: string;
     name: string;
+    description: string;
+    index: number;
     id: string | null;
   }> = [];
   private key = 0;
   private testMatrix: { name: string; id: string } = { name: "", id: "" };
+
+  private panel = [];
 
   private get viewPointsPresets(): ViewPointsPreset[] {
     return this.$store.getters.getSetting("viewPointsPreset");
@@ -185,13 +219,19 @@ export default class TestMatrixDialog extends Vue {
       this.selectedViewPointsPresetId = this.viewPointsPresets[0]?.id ?? "";
       this.changeSelectedViewPoints();
     } else {
-      this.tempViewPoints = testMatrix.viewPoints.map((viewPoint) => {
-        return {
-          key: this.tempViewPointKey(),
-          name: viewPoint.name,
-          id: viewPoint.id,
-        };
-      });
+      this.tempViewPoints = testMatrix.viewPoints
+        .map((viewPoint, index) => {
+          return {
+            key: this.tempViewPointKey(),
+            name: viewPoint.name,
+            index: index,
+            id: viewPoint.id,
+            description: viewPoint.description,
+          };
+        })
+        .sort((v1, v2) => {
+          return v1.index - v2.index;
+        });
     }
   }
 
@@ -203,6 +243,8 @@ export default class TestMatrixDialog extends Vue {
     this.tempViewPoints.push({
       key: this.tempViewPointKey(),
       name: "",
+      description: "",
+      index: this.tempViewPoints.length,
       id: null,
     });
   }
@@ -217,17 +259,28 @@ export default class TestMatrixDialog extends Vue {
     if (!addPreset) {
       return;
     }
-    this.tempViewPoints = addPreset.viewPoints.map((viewPoint) => {
+    this.tempViewPoints = addPreset.viewPoints.map((viewPoint, index) => {
       return {
         key: this.tempViewPointKey(),
         name: viewPoint.name,
+        description: viewPoint.description,
+        index,
         id: null,
       };
     });
   }
 
   private deleteTempViewPoint(index: number): void {
-    this.tempViewPoints.splice(index, 1);
+    this.tempViewPoints = this.tempViewPoints
+      .filter((_, vIndex) => {
+        return vIndex !== index;
+      })
+      .map((viewPoint, index) => {
+        return {
+          ...viewPoint,
+          index,
+        };
+      });
   }
 
   private closeDialog(): void {
@@ -249,6 +302,8 @@ export default class TestMatrixDialog extends Vue {
           return {
             name: tempViewPoint.name,
             id: tempViewPoint.id,
+            description: tempViewPoint.description,
+            index: tempViewPoint.index,
           };
         }),
     };
@@ -256,5 +311,41 @@ export default class TestMatrixDialog extends Vue {
 
     this.closeDialog();
   }
+
+  private upViewPoint(index: number): void {
+    const temp = [...this.tempViewPoints];
+    temp[index].index = index - 1;
+    temp[index - 1].index = index;
+    this.tempViewPoints = [...temp].sort((v1, v2) => {
+      return v1.index - v2.index;
+    });
+  }
+
+  private downViewPoint(index: number): void {
+    const temp = [...this.tempViewPoints];
+    temp[index].index = index + 1;
+    temp[index + 1].index = index;
+    this.tempViewPoints = [...temp].sort((v1, v2) => {
+      return v1.index - v2.index;
+    });
+  }
 }
 </script>
+
+<style lang="sass" scoped>
+.view-point-name ::v-deep
+  padding-top: 0px
+  margin-top: 0px
+  .v-messages
+    display: none
+.view-point-description  ::v-deep
+  padding: 0px 24px
+  textarea
+    margin: 4px
+  .v-messages
+    display: none
+  .v-text-field__details
+    display: none
+  .v-input__slot
+    border: 1px solid rgba(0,0,0,0.54) !important
+</style>

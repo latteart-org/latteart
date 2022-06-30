@@ -39,8 +39,8 @@
   },
   "replay": {
     "done-title": "履歴再生の終了",
-    "done-run-operations": "履歴再生が終了しました",
-    "done-run-operations-because-skipped": "記録中に一時停止されているため履歴再生を中止しました",
+    "done-run-operations": "履歴再生が終了しました。",
+    "done-run-operations-because-skipped": "「記録の一時停止」により記録されなかった操作があるため、履歴再生を中止しました。",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {
@@ -52,10 +52,15 @@
     "edit-comment": "コメントの編集",
     "delete-comment": "コメントの削除",
     "edit-intention": "目的の追加・編集",
+    "delete-intention": "目的の削除",
+    "delete-intention-message": "目的「{value}」を削除してもよろしいですか？",
     "add-bug": "バグの追加",
     "edit-bug": "バグ「{value}」の編集",
     "add-notice": "気づきの追加",
     "edit-notice": "気づき「{value}」の編集",
+    "delete-notice": "気づき「{value}」の削除",
+    "delete-notice-title": "気づきの削除",
+    "delete-notice-message": "気づき「{value}」を削除してもよろしいですか？",
     "sequence": "シーケンス図モデル",
     "screen-transition": "画面遷移図モデル",
     "element-coverage": "画面部品カバレッジ",
@@ -76,7 +81,13 @@
     "generate-testscript-succeeded": "テストスクリプトの生成が完了しました。",
     "update-model-and-coverage": "モデル・カバレッジの更新",
     "there-are-updates-on-history": "操作履歴の更新があります",
-    "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。"
+    "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
+    "generate-screenshots": "スクリーンショットの出力が完了しました。",
+    "export-screenshots": "スクリーンショット出力",
+    "delete-test-result": "テスト結果の削除",
+    "delete-test-result-title": "テスト結果の削除",
+    "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
   },
   "import-export-dialog": {
     "import-title": "データインポート",
@@ -84,6 +95,7 @@
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
     "select-file": "インポート対象のプロジェクトファイル選択",
+    "select-test-result-file": "インポート対象のテスト結果ファイル選択",
     "creating-export-data": "エクスポートデータ作成中",
     "importing-data": "データインポート中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",
@@ -174,8 +186,11 @@
     "details": "詳細"
   },
   "operation": {
-    "query": "検索ワード",
+    "search": "検索",
+    "query": "文字列",
     "reset": "フィルタリセット",
+    "purpose": "目的",
+    "notice": "気づき",
     "sequence": "通番",
     "title": "ページタイトル",
     "tagname": "要素タグ",
@@ -202,7 +217,6 @@
   },
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
-    "print-html-error": "スナップショット出力に失敗しました。",
     "output-html-running": "スナップショット出力中",
     "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}"
   },
@@ -244,6 +258,7 @@
     "test-matrix-name": "テストマトリクス名",
     "setting-viewPoint": "テスト観点の設定",
     "viewPoint-name": "テスト観点名",
+    "view-point-description": "テスト観点の説明",
     "new-viewPoint": "テスト観点追加",
     "preset": "使用するプリセット名",
     "create-test-matrix": "テストマトリクス作成",
@@ -418,10 +433,8 @@
     "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
     "register-confirm": "リモートリポジトリに接続されています。\nテスト結果をリモートリポジトリに登録しますか？",
     "registering-testresults": "テスト結果登録中",
-    "registering-testresults-error": "テスト結果の登録に失敗しました。",
     "delete-warning": "登録したテスト結果をローカルリポジトリから削除しますか？",
     "delete-testresults": "テスト結果削除中",
-    "delete-error": "テスト結果の削除に失敗しました。",
     "register-delete-succeeded": "リモートリポジトリへのテスト結果登録・ローカルリポジトリのテスト結果の削除が完了致しました。",
     "load": "読み込み中"
   },
@@ -456,11 +469,30 @@
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
-      "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。"
+      "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。",
+      "delete_test_result_failed": "テスト結果の削除に失敗しました。",
+      "add_note_failed": "気づきの追加に失敗しました。",
+      "delete_note_failed": "気づきの削除に失敗しました。",
+      "edit_note_failed": "気づきの編集に失敗しました。",
+      "move_note_failed": "気づきの移動に失敗しました。",
+      "get_import_test_results_failed": "インポートファイル一覧の取得に失敗しました。",
+      "import_test_result_failed": "テスト結果のインポートに失敗しました。",
+      "delete_test_purpose_failed": "テスト目的の削除に失敗しました。",
+      "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
+      "record_test_purpose_failed": "テスト目的の記録に失敗しました。",
+      "create_test_result_failed": "テスト結果の作成に失敗しました。",
+      "get_test_result_failed": "テスト結果の取得に失敗しました。",
+      "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
+      "register_operation_failed": "操作の登録に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
-      "illegal_test_management_data": "テスト管理データのフォーマットが不正です。"
+      "illegal_test_management_data": "テスト管理データのフォーマットが不正です。",
+      "get_import_project_list_failed": "インポートファイル一覧の取得に失敗しました。",
+      "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
+      "update_session_failed": "セッションの更新に失敗しました。",
+      "save_project_failed": "プロジェクト情報の保存に失敗しました。",
+      "write_snapshot_failed": "スナップショットの出力に失敗しました。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",
@@ -469,8 +501,7 @@
       "create-export-data-error": "データエクスポートに失敗しました。"
     },
     "remote_access": {
-      "upload-request-error": "テスト結果の登録に失敗しました。",
-      "testresult-delete-error": "テスト結果の削除に失敗しました。"
+      "upload-request-error": "テスト結果の登録に失敗しました。"
     }
   }
 }

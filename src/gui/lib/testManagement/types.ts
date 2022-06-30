@@ -42,6 +42,8 @@ export interface ViewPointsPreset {
 export interface ViewPoint {
   id: string;
   name: string;
+  description: string;
+  index: number;
 }
 
 export interface TestTarget {
@@ -58,13 +60,14 @@ export interface Plan {
 export interface Issue {
   source: {
     type: string;
-    sequence: number;
+    sequence?: number;
     index: number;
   };
   status: string;
   ticketId: string;
   value: string;
   details: string;
+  imageFilePath?: string;
 }
 
 export interface Story {
@@ -151,4 +154,46 @@ export interface TestTargetProgressData {
     completedNumber: number;
     incompletedNumber: number;
   };
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  testMatrices: TestMatrix[];
+  stories: StoryDetails[];
+  progressDatas: ProgressData[];
+}
+
+interface StoryDetails {
+  id: string;
+  testMatrixId: string;
+  testTargetId: string;
+  viewPointId: string;
+  status: string;
+  sessions: {
+    id: string;
+    attachedFiles: {
+      name: string;
+      fileUrl?: string;
+    }[];
+    doneDate: string;
+    isDone: boolean;
+    issues: {
+      details: string;
+      source: {
+        index: number;
+        type: string;
+      };
+      status: string;
+      ticketId: string;
+      type: string;
+      value: string;
+    }[];
+    memo: string;
+    name: string;
+    testItem: string;
+    testResultFiles?: TestResultFile[];
+    testerName: string;
+    testingTime: number;
+  }[];
 }

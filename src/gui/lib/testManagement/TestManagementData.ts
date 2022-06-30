@@ -79,7 +79,7 @@ export interface ManagedSession {
     details: string;
     status: string;
     ticketId: string;
-    source: { type: string; sequence: number; index: number };
+    source: { type: string; index: number };
   }>;
   testingTime?: number;
 }

@@ -42,7 +42,11 @@
           :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
           :items="displayedHistory"
-          :filtering-predicates="[operationIsDisplayed, operationContainsText]"
+          :filtering-predicates="[
+            displayedOperationFilterPredicate,
+            textFilterPredicate,
+            noteFilterPredicate,
+          ]"
           :shortcut="shortcutEnabled"
           sortBy="operation.sequence"
           descending
@@ -137,9 +141,22 @@
     </v-layout>
 
     <v-layout id="operation-search" style="height: 50px">
+      <span class="search-title"
+        ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+      >
+      <v-checkbox
+        class="search-checkbox search-item"
+        :label="message('operation.purpose')"
+        v-model="purposeCheckbox"
+      ></v-checkbox>
+      <v-checkbox
+        class="search-checkbox"
+        :label="message('operation.notice')"
+        v-model="noticeCheckbox"
+      ></v-checkbox>
       <v-text-field
+        class="search-item"
         v-model="search"
-        prepend-inner-icon="search"
         :label="message('operation.query')"
         @focus="shortcutEnabled = false"
         @blur="shortcutEnabled = true"
@@ -197,6 +214,9 @@ export default class OperationList extends Vue {
 
   private search = "";
   private selectedSequences: number[] = [];
+
+  private purposeCheckbox = false;
+  private noticeCheckbox = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -278,7 +298,7 @@ export default class OperationList extends Vue {
     return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
   }
 
-  private operationIsDisplayed(item: OperationWithNotes) {
+  private displayedOperationFilterPredicate(item: OperationWithNotes) {
     if (this.displayedOperations.length === 0) {
       return true;
     }
@@ -286,7 +306,21 @@ export default class OperationList extends Vue {
     return this.displayedOperations.includes(item.operation.sequence);
   }
 
-  private operationContainsText(item: OperationWithNotes): boolean {
+  private noteFilterPredicate(item: OperationWithNotes): boolean {
+    if (!this.noticeCheckbox && !this.purposeCheckbox) {
+      return true;
+    }
+    if (this.noticeCheckbox && (item.notices?.length ?? 0 > 0)) {
+      return true;
+    }
+    if (this.purposeCheckbox && item.intention) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private textFilterPredicate(item: OperationWithNotes): boolean {
     const search = this.search;
 
     if (
@@ -445,6 +479,17 @@ td
 
 .seq-col
   padding-right: 8px !important
+
+.search-checkbox
+  flex: none
+  transform: scale(0.9)
+
+.search-title
+  color: rgba(0,0,0,0.54)
+  padding-top: 17px
+
+.search-item
+  padding-left: 16px
 </style>
 
 <style lang="sass">

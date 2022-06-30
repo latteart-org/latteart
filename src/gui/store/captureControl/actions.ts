@@ -27,9 +27,9 @@ import {
 } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
-import RepositoryServiceDispatcher from "@/lib/eventDispatcher/RepositoryServiceDispatcher";
-import { calculateElapsedEpochMillis } from "@/lib/common/util";
-import { TimestampImpl } from "@/lib/common/Timestamp";
+import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
+import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
+import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -117,23 +117,22 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   async readDeviceSettings(context) {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.getDeviceSettings();
+    const result = await new ReadDeviceSettingAction(
+      context.rootState.repositoryContainer
+    ).readDeviceSettings();
 
-    if (reply === null) {
-      return;
-    }
-
-    if (reply.succeeded) {
-      await context.dispatch("setDeviceSettings", {
-        deviceSettings: reply.data,
-      });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
-      throw new Error(errorMessage);
     }
+
+    await context.dispatch("setDeviceSettings", {
+      deviceSettings: result.data,
+    });
   },
 
   /**
@@ -163,40 +162,38 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     };
 
     const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localServiceDispatcher = new RepositoryServiceDispatcher({
+    const localRepositoryContainer = new RepositoryContainerImpl({
       url: localUrl,
       isRemote: false,
     });
 
-    const reply = await localServiceDispatcher.saveDeviceSettings(
-      deviceSettings
-    );
+    const result = await new SaveDeviceSettingAction(
+      localRepositoryContainer
+    ).saveDeviceSettings(deviceSettings);
 
-    if (reply === null) {
-      return;
-    }
-
-    if (reply.data) {
-      const captureConfig: CaptureConfig = {
-        platformName: reply.data.config.platformName
-          ? reply.data.config.platformName
-          : context.state.config.platformName,
-        browser: reply.data.config.browser
-          ? reply.data.config.browser
-          : context.state.config.browser,
-        device: reply.data.config.device,
-        platformVersion: reply.data.config.platformVersion,
-        waitTimeForStartupReload: reply.data.config.waitTimeForStartupReload,
-        executablePaths: reply.data.config.executablePaths,
-      };
-
-      context.commit("setCaptureConfig", { captureConfig });
-    } else {
-      const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
-      throw new Error(errorMessage);
     }
+
+    const captureConfig: CaptureConfig = {
+      platformName: result.data.config.platformName
+        ? result.data.config.platformName
+        : context.state.config.platformName,
+      browser: result.data.config.browser
+        ? result.data.config.browser
+        : context.state.config.browser,
+      device: result.data.config.device,
+      platformVersion: result.data.config.platformVersion,
+      waitTimeForStartupReload: result.data.config.waitTimeForStartupReload,
+      executablePaths: result.data.config.executablePaths,
+    };
+
+    context.commit("setCaptureConfig", { captureConfig });
   },
 
   /**
@@ -220,7 +217,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     if (reply.error) {
       const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
+        `error.capture_control.${reply.error.code}`
       );
       throw new Error(errorMessage);
     }
@@ -291,7 +288,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.url Target URL.
    * @param payload.config Capture config.
-   * @param payload.callbacks.onChangeTime The callback when the time has passed.
    * @param payload.callbacks.onChangeNumberOfWindows
    *            The callback when the number of opened windows on the test target browser.
    */
@@ -300,10 +296,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
-      startTime: number;
-      lastStartTime: number;
       callbacks: {
-        onChangeTime: (time: string) => void;
         onChangeNumberOfWindows: () => void;
       };
     }
@@ -320,22 +313,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           config,
           {
             onStart: async () => {
-              const history: OperationWithNotes[] =
-                context.rootGetters["operationHistory/getHistory"]();
-
-              const lastTestingTime = calculateElapsedEpochMillis(
-                payload.lastStartTime,
-                history
-              );
-              const newStartTime = new TimestampImpl(payload.startTime)
-                .offset(lastTestingTime * -1)
-                .epochMilliseconds();
-
               context.dispatch("stopTimer");
-              context.dispatch("startTimer", {
-                onChangeTime: payload.callbacks.onChangeTime,
-                startTime: newStartTime,
-              });
+              context.dispatch("startTimer");
 
               context.commit("setCapturing", { isCapturing: true });
               context.commit(
@@ -474,7 +453,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       if (reply.error) {
         const errorMessage = context.rootGetters.message(
-          `error.capture_control.${reply.error!.code}`
+          `error.capture_control.${reply.error.code}`
         );
         throw new Error(errorMessage);
       }
@@ -500,13 +479,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   /**
    * Start the timer to measure capture time.
    * @param context Action context.
-   * @param payload.onChangeTime The callback when the time has passed.
    */
-  startTimer(
-    context,
-    payload: { onChangeTime: (time: string) => void; startTime: number }
-  ) {
-    context.state.timer.start(payload.onChangeTime, payload.startTime);
+  startTimer(context) {
+    context.state.timer.start();
   },
 
   /**
@@ -515,6 +490,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   stopTimer(context) {
     context.state.timer.stop();
+  },
+
+  /**
+   * Reset the timer to measure capture time.
+   * @param context Action context.
+   * @param payload.millis initial time.
+   */
+  resetTimer(context, payload?: { millis: number }) {
+    context.state.timer.reset(payload?.millis);
   },
 
   /**
@@ -528,29 +512,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     }
 
     return await context.rootState.clientSideCaptureServiceDispatcher.takeScreenshot();
-  },
-
-  async getTestResult(
-    context,
-    payload: { testResultId: string }
-  ): Promise<
-    | {
-        id: string;
-        name: string;
-        startTimeStamp: number;
-        endTimeStamp: number;
-        initialUrl: string;
-      }
-    | undefined
-  > {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.getTestResult(
-        payload.testResultId
-      );
-
-    console.log(reply);
-
-    return reply.data;
   },
 };
 

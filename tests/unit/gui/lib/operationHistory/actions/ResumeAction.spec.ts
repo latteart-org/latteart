@@ -1,70 +1,113 @@
 import {
   ResumeAction,
   ResumeActionObserver,
-  TestResultResumable,
 } from "@/lib/operationHistory/actions/ResumeAction";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import {
+  RESTClient,
+  RESTClientResponse,
+} from "@/lib/eventDispatcher/RESTClient";
+import { TestResult } from "@/lib/operationHistory/types";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("ResumeAction", () => {
   describe("#resume", () => {
-    it("渡されたテスト結果IDを用いてリジュームを実行し、その戻り値を加工してオブザーバに渡す", async () => {
-      const observer: ResumeActionObserver = {
+    let observer: ResumeActionObserver;
+
+    beforeEach(() => {
+      observer = {
         setResumedData: jest.fn(),
         registerTestStepId: jest.fn(),
         clearTestStepIds: jest.fn(),
       };
-
-      const data = {
-        id: "id",
-        name: "name",
-        operationHistoryItems: [],
-        coverageSources: [],
-        inputElementInfos: [],
-        initialUrl: "url",
-      };
-
-      const dispatcher: TestResultResumable = {
-        resume: jest.fn().mockResolvedValue({ data }),
-      };
-
-      const testResultId = "testResultId";
-
-      await new ResumeAction(observer, dispatcher).resume(testResultId);
-
-      expect(dispatcher.resume).toBeCalledWith(testResultId);
-
-      expect(observer.setResumedData).toBeCalledWith({
-        coverageSources: data.coverageSources,
-        inputElementInfos: data.inputElementInfos,
-        historyItems: data.operationHistoryItems,
-        url: data.initialUrl,
-        testResultInfo: { id: data.id, name: data.name },
-      });
     });
 
-    it("渡されたテスト結果IDを用いてリジュームを実行した結果、エラーが返ってきた場合はエラーコードをメッセージとするエラーをthrowする", async () => {
-      const observer: ResumeActionObserver = {
-        setResumedData: jest.fn(),
-        registerTestStepId: jest.fn(),
-        clearTestStepIds: jest.fn(),
-      };
+    describe("指定のテスト結果をリポジトリから読み込む", () => {
+      it("リポジトリからの読み込みに成功した場合、読み込んだテスト結果の情報をobserverの関数に渡す", async () => {
+        const expectedTestResult: TestResult = {
+          id: "id",
+          name: "name",
+          startTimeStamp: 0,
+          endTimeStamp: 0,
+          initialUrl: "url",
+          testSteps: [],
+          coverageSources: [],
+          inputElementInfos: [],
+        };
+        const resSuccess: RESTClientResponse = {
+          status: 200,
+          data: expectedTestResult,
+        };
+        const restClient = {
+          ...baseRestClient,
+          httpGet: jest.fn().mockResolvedValue(resSuccess),
+        };
+        const action = new ResumeAction(observer, {
+          testResultRepository: new TestResultRepository(restClient),
+          serviceUrl: "serviceUrl",
+        });
 
-      const error = {
-        code: "errorCode",
-      };
+        const testResultId = "testResultId";
+        const result = await action.resume(testResultId);
 
-      const dispatcher: TestResultResumable = {
-        resume: jest.fn().mockResolvedValue({ error }),
-      };
+        expect(restClient.httpGet).toBeCalledWith(
+          `/test-results/${testResultId}`
+        );
 
-      const testResultId = "testResultId";
+        expect(observer.setResumedData).toBeCalledWith({
+          coverageSources: expectedTestResult.coverageSources,
+          inputElementInfos: expectedTestResult.inputElementInfos,
+          historyItems: expectedTestResult.testSteps,
+          url: expectedTestResult.initialUrl,
+          testResultInfo: {
+            id: expectedTestResult.id,
+            name: expectedTestResult.name,
+          },
+        });
 
-      await expect(
-        new ResumeAction(observer, dispatcher).resume(testResultId)
-      ).rejects.toThrowError(error.code);
+        if (result.isFailure()) {
+          throw new Error("failed");
+        }
+      });
 
-      expect(dispatcher.resume).toBeCalledWith(testResultId);
+      it("リポジトリからの読み込みに失敗した場合、エラー情報を返す", async () => {
+        const resFailure: RESTClientResponse = {
+          status: 500,
+          data: { code: "errorcode", message: "errormessage" },
+        };
+        const restClient = {
+          ...baseRestClient,
+          httpGet: jest.fn().mockResolvedValue(resFailure),
+        };
+        const action = new ResumeAction(observer, {
+          testResultRepository: new TestResultRepository(restClient),
+          serviceUrl: "serviceUrl",
+        });
 
-      expect(observer.setResumedData).not.toBeCalled();
+        const testResultId = "testResultId";
+        const result = await action.resume(testResultId);
+
+        expect(restClient.httpGet).toBeCalledWith(
+          `/test-results/${testResultId}`
+        );
+
+        expect(observer.setResumedData).not.toBeCalled();
+
+        if (result.isSuccess()) {
+          throw new Error("failed");
+        } else {
+          expect(result.error).toEqual({
+            messageKey: "error.operation_history.resume_failed",
+          });
+        }
+      });
     });
   });
 });

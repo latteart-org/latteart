@@ -102,7 +102,7 @@ import NumberField from "@/vue/molecules/NumberField.vue";
   },
 })
 export default class ScriptGenerationOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
 
   private testGenerationOption = {
     testScript: {

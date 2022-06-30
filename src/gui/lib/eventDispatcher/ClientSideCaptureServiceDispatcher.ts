@@ -16,13 +16,14 @@
 
 import SocketIOClient from "./SocketIOClient";
 import RESTClient from "./RESTClient";
-import { Reply, ServerError } from "../captureControl/Reply";
+import { Reply, ServerError, ReplyImpl } from "../captureControl/Reply";
 import { CaptureConfig } from "../captureControl/CaptureConfig";
 import {
   CapturedOperation,
   CapturedScreenTransition,
 } from "../operationHistory/CapturedOperation";
 import { Operation } from "../operationHistory/Operation";
+import RESTClientImpl from "./RESTClient";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -60,7 +61,7 @@ export default class ClientSideCaptureServiceDispatcher {
 
   private _serviceUrl = "http://127.0.0.1:3001";
   private _proxyUrl = "";
-  private restClient: RESTClient = new RESTClient();
+  private restClient: RESTClient = new RESTClientImpl();
   private socketIOClient: SocketIOClient | null = null;
 
   /**
@@ -77,35 +78,25 @@ export default class ClientSideCaptureServiceDispatcher {
       }>
     >
   > {
-    try {
-      const devices: Array<{
-        platform: "Android" | "iOS";
-        id: string;
-        name: string;
-        osVersion: string;
-      }> = await this.restClient.httpGet(this.buildAPIURL(`/devices`));
+    const response = await this.restClient.httpGet(
+      this.buildAPIURL(`/devices`)
+    );
+    const devices = response.data as Array<{
+      platform: "Android" | "iOS";
+      id: string;
+      name: string;
+      osVersion: string;
+    }>;
 
-      const data = devices
-        .filter((device) => {
-          return device.platform === platformName;
-        })
-        .map(({ id, name, osVersion }) => {
-          return { deviceName: id, modelNumber: name, osVersion };
-        });
+    const data = devices
+      .filter((device) => {
+        return device.platform === platformName;
+      })
+      .map(({ id, name, osVersion }) => {
+        return { deviceName: id, modelNumber: name, osVersion };
+      });
 
-      return {
-        succeeded: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        succeeded: false,
-        error: {
-          code: "client_side_capture_service_not_found",
-          message: "Client side capture service is not found.",
-        },
-      };
-    }
+    return new ReplyImpl({ status: response.status, data: data });
   }
 
   /**
@@ -193,29 +184,24 @@ export default class ClientSideCaptureServiceDispatcher {
 
       this.socketIOClient = null;
 
-      let response: Reply<string> | undefined;
       if (completedMessage) {
-        response = {
-          succeeded: true,
-          data: completedMessage,
-        };
+        return new ReplyImpl({ status: 200, data: completedMessage });
       } else {
-        response = {
-          succeeded: false,
+        return new ReplyImpl({
+          status: 500,
           error: occurredError ?? undefined,
-        };
+        });
       }
-      return response;
     } catch (error) {
       console.error(error);
 
-      return {
-        succeeded: false,
+      return new ReplyImpl({
+        status: 500,
         error: {
           code: "client_side_capture_service_not_found",
           message: "Client side capture service is not found.",
         },
-      };
+      });
     }
   }
 
@@ -388,20 +374,20 @@ export default class ClientSideCaptureServiceDispatcher {
 
       this.socketIOClient = null;
 
-      return {
-        succeeded: !occurredError,
+      return new ReplyImpl({
+        status: 500,
         error: occurredError ? occurredError : undefined,
-      };
+      });
     } catch (error) {
       console.error(error);
 
-      return {
-        succeeded: false,
+      return new ReplyImpl({
+        status: 500,
         error: {
           code: "client_side_capture_service_not_found",
           message: "Client side capture service is not found.",
         },
-      };
+      });
     }
   }
 

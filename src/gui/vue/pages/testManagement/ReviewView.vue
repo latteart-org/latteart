@@ -21,15 +21,30 @@
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <screenshots-download-button v-slot:default="slotProps">
+        <v-btn
+          :disabled="slotProps.obj.isDisabled"
+          color="primary"
+          :dark="!slotProps.obj.processing"
+          @click="slotProps.obj.execute"
+        >
+          {{ $store.getters.message("history-view.export-screenshots") }}
+        </v-btn>
+      </screenshots-download-button>
       <v-btn
         id="scriptGenerateButton"
         color="primary"
         @click="scriptGenerationOptionDialogIsOpened = true"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
-        $store.getters.message("manage-header.capture-config")
-      }}</v-btn>
+      <v-btn
+        id="viewerConfigButton"
+        color="primary"
+        @click="toViewerConfig"
+        :disabled="isConnectedToRemote"
+        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
+      >
     </v-toolbar>
 
     <v-btn :disabled="isResuming" @click="toBack()">{{
@@ -119,6 +134,7 @@ import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
+import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 
 @Component({
   components: {
@@ -128,6 +144,7 @@ import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
     "context-menu": ContextMenu,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
+    "screenshots-download-button": ScreenshotsDownloadButton,
   },
 })
 export default class ReviewView extends Vue {
@@ -151,6 +168,10 @@ export default class ReviewView extends Vue {
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
 
+  private get isConnectedToRemote() {
+    return this.$store.state.repositoryContainer.isRemote;
+  }
+
   private get history(): OperationHistory {
     return this.$store.getters[
       "operationHistory/getHistory"
@@ -158,8 +179,13 @@ export default class ReviewView extends Vue {
   }
 
   private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
+    testScript: {
+      isSimple: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
@@ -196,15 +222,19 @@ export default class ReviewView extends Vue {
           );
         }
 
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${testScriptInfo.outputUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
-        this.errorMessage = error.message;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.errorDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorDialogOpened = true;
+        } else {
+          throw error;
+        }
       } finally {
         this.$store.dispatch("closeProgressDialog");
+        this.scriptGenerationOptionDialogIsOpened = false;
         this.isGeneratingTestScripts = false;
       }
     })();
@@ -223,9 +253,13 @@ export default class ReviewView extends Vue {
       try {
         await this.$store.dispatch("operationHistory/resume", { testResultId });
       } catch (error) {
-        console.error(error);
-        this.errorDialogOpened = true;
-        this.errorMessage = error.message;
+        if (error instanceof Error) {
+          console.error(error);
+          this.errorDialogOpened = true;
+          this.errorMessage = error.message;
+        } else {
+          throw error;
+        }
       }
 
       this.isResuming = false;
@@ -292,7 +326,7 @@ export default class ReviewView extends Vue {
   }
 
   private openNoteMenu(
-    note: { id: number; sequence: number; index: number; type: string },
+    note: { id: string; sequence: number; index: number; type: string },
     eventInfo: { clientX: number; clientY: number }
   ) {
     if ((this as any).$isViewerMode) {

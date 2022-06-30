@@ -29,13 +29,11 @@
             v-for="(header, index) in props.headers"
             :width="header.width"
             :class="header.class"
-            :title="header.text"
             :key="index"
           >
-            {{ header.text }}
-          </th>
-        </tr></template
-      >
+            <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
+          </th></tr
+      ></template>
       <template #items="props">
         <tr class="business-info-row">
           <td class="py-0 px-2 my-0 business-info-title">
@@ -81,11 +79,13 @@ import {
   Story,
 } from "@/lib/testManagement/types";
 import FixedDataTable from "@/vue/molecules/FixedDataTable.vue";
+import LabelWithTooltip from "@/vue/molecules/LabelWithTooltip.vue";
 
 @Component({
   components: {
     "sessions-status": SessionsStatus,
     "fixed-data-table": FixedDataTable,
+    "label-with-tooltip": LabelWithTooltip,
   },
 })
 export default class GroupViewer extends Vue {
@@ -105,6 +105,7 @@ export default class GroupViewer extends Vue {
     this.viewPoints.forEach((viewPoint: ViewPoint) => {
       headers.push({
         text: viewPoint.name,
+        tooltip: viewPoint.description,
         value: viewPoint.id,
         sortable: false,
         align: "center",

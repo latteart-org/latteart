@@ -77,6 +77,7 @@ describe("Historyは", () => {
       ticketId: "",
       value: "",
       details: "",
+      imageFilePath: "",
     };
     const issue2: Issue = {
       source: { type: "bug", sequence: 1, index: 1 },
@@ -84,6 +85,7 @@ describe("Historyは", () => {
       ticketId: "",
       value: "",
       details: "",
+      imageFilePath: "",
     };
     const issue3: Issue = {
       source: { type: "notice", sequence: 1, index: 2 },
@@ -91,6 +93,7 @@ describe("Historyは", () => {
       ticketId: "",
       value: "",
       details: "",
+      imageFilePath: "",
     };
     const session: Session = {
       name: "session1",
@@ -109,7 +112,7 @@ describe("Historyは", () => {
     it("対象Issueが存在する場合、Issueを返す", () => {
       expect(
         History.getTargetIssue(session, {
-          id: 1,
+          id: "1",
           sequence: 1,
           index: 1,
           type: "bug",
@@ -120,7 +123,7 @@ describe("Historyは", () => {
     it("対象Issueが存在しない場合、nullを返す", () => {
       expect(
         History.getTargetIssue(session, {
-          id: 1,
+          id: "1",
           sequence: 1,
           index: 1,
           type: "notice",
@@ -136,6 +139,7 @@ describe("Historyは", () => {
       ticketId: "",
       value: "",
       details: "",
+      imageFilePath: "",
     };
     const issue2 = {
       source: { type: "notice", sequence: 1, index: 2 },
@@ -143,6 +147,7 @@ describe("Historyは", () => {
       ticketId: "",
       value: "",
       details: "",
+      imageFilePath: "",
     };
 
     it("引数にticketIdがある場合、tickedIdとstatusを更新する", () => {
@@ -154,6 +159,7 @@ describe("Historyは", () => {
           ticketId: "",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -166,6 +172,7 @@ describe("Historyは", () => {
           ticketId: "123",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -188,6 +195,7 @@ describe("Historyは", () => {
           ticketId: "",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -200,6 +208,7 @@ describe("Historyは", () => {
           ticketId: "",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -221,6 +230,7 @@ describe("Historyは", () => {
           ticketId: "",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -233,6 +243,7 @@ describe("Historyは", () => {
           ticketId: "",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -254,6 +265,7 @@ describe("Historyは", () => {
           ticketId: "123",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];
@@ -266,6 +278,7 @@ describe("Historyは", () => {
           ticketId: "456",
           value: "",
           details: "",
+          imageFilePath: "",
         },
         issue2,
       ];

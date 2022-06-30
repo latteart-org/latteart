@@ -48,8 +48,12 @@ export default class Root extends Vue {
         await this.$store.dispatch("operationHistory/readSettings");
         await this.$store.dispatch("captureControl/readDeviceSettings");
       } catch (error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       }
 
       if (this.$route.query.mode === "manage") {

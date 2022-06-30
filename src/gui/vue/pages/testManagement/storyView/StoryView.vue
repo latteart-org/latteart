@@ -61,7 +61,7 @@
             item-value="value"
             :value="story.status"
             :label="this.$store.getters.message('story-view.status')"
-            :disabled="isViewerMode"
+            :readonly="isViewerMode"
             @change="updateStatus"
           ></v-select>
         </v-container>
@@ -135,7 +135,7 @@
                     :input-value="session.isDone"
                     @change="(value) => changeSessionStatus(session.id, value)"
                     :label="$store.getters.message('session-list.complete')"
-                    :disabled="isViewerMode"
+                    :readonly="isViewerMode"
                     :id="`completedSessionCheckBox${index}`"
                   ></v-checkbox>
                 </div>

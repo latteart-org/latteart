@@ -24,8 +24,14 @@ import { operationHistory } from "./operationHistory";
 import { captureControl } from "./captureControl";
 import { testManagement } from "./testManagement";
 import ClientSideCaptureServiceDispatcher from "../lib/eventDispatcher/ClientSideCaptureServiceDispatcher";
-import RepositoryServiceDispatcher from "../lib/eventDispatcher/RepositoryServiceDispatcher";
-import RESTClient from "@/lib/eventDispatcher/RESTClient";
+import {
+  RepositoryContainerImpl,
+  RepositoryContainer,
+} from "../lib/eventDispatcher/RepositoryContainer";
+import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
+import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
+import RESTClientImpl from "@/lib/eventDispatcher/RESTClient";
+import { Locale } from "@/lib/common/enum/SettingsEnum";
 
 Vue.use(Vuex);
 
@@ -61,7 +67,7 @@ export interface RootState {
   /**
    * The service that performs processing involving communication to the local repository.
    */
-  repositoryServiceDispatcher: RepositoryServiceDispatcher;
+  repositoryContainer: RepositoryContainer;
 
   /**
    * The service that performs processing involving communication to the remote repository.
@@ -114,11 +120,11 @@ const mutations: MutationTree<RootState> = {
     state.clientSideCaptureServiceDispatcher.serviceUrl = payload.serviceUrl;
   },
 
-  setRepositoryServiceDispatcher(
+  setRepositoryContainer(
     state,
-    payload: { serviceDispatcher: RepositoryServiceDispatcher }
+    payload: { repositoryContainer: RepositoryContainer }
   ) {
-    state.repositoryServiceDispatcher = payload.serviceDispatcher;
+    state.repositoryContainer = payload.repositoryContainer;
   },
 
   registerRemoteRepositoryServiceUrl(state, payload: { url: string }) {
@@ -208,16 +214,22 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.settings Settings.
    */
   async loadLocaleFromSettings(context) {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.getSettings();
-    if (!reply.succeeded) {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryContainer
+    ).readSettings();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
       );
-      throw new Error(errorMessage);
     }
 
-    context.commit("setLocale", { locale: reply.data!.locale });
+    if (result.data) {
+      context.commit("setLocale", { locale: result.data.locale });
+    }
   },
 
   /**
@@ -226,15 +238,33 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    const reply =
-      await context.rootState.repositoryServiceDispatcher.changeLocale(
-        payload.locale
+    const repositoryContainer = context.rootState.repositoryContainer;
+    const readSettingActionResult = await new ReadSettingAction(
+      repositoryContainer
+    ).readSettings();
+
+    if (readSettingActionResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          readSettingActionResult.error.messageKey,
+          readSettingActionResult.error.variables
+        )
       );
-    if (!reply.succeeded) {
-      const errorMessage = context.rootGetters.message(
-        `error.common.${reply.error!.code}`
+    }
+
+    readSettingActionResult.data.locale = payload.locale as Locale;
+
+    const saveSettingActionResult = await new SaveSettingAction(
+      repositoryContainer
+    ).saveSettings(readSettingActionResult.data);
+
+    if (saveSettingActionResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          saveSettingActionResult.error.messageKey,
+          saveSettingActionResult.error.variables
+        )
       );
-      throw new Error(errorMessage);
     }
 
     context.commit("setLocale", payload);
@@ -273,32 +303,38 @@ const actions: ActionTree<RootState, RootState> = {
   async connectRemoteUrl(context, payload: { targetUrl: string }) {
     const serverUrl = payload.targetUrl;
 
-    const serverName = await new RESTClient().httpGet(
-      `${serverUrl}/api/v1/server-name`
-    );
+    const serverName = (
+      await new RESTClientImpl()
+        .httpGet(`${serverUrl}/api/v1/server-name`)
+        .catch(() => {
+          return { data: "" };
+        })
+    ).data as string;
 
-    if (serverName === "latteart-repository") {
-      const isRemote =
-        payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
-      const serviceDispatcher = new RepositoryServiceDispatcher({
-        url: serverUrl,
-        isRemote,
-      });
+    if (serverName !== "latteart-repository") {
+      console.error(`'${serverUrl}' is not latteart-repository.`);
 
-      context.commit("setRepositoryServiceDispatcher", { serviceDispatcher });
-
-      if (isRemote) {
-        context.commit("registerRemoteRepositoryServiceUrl", {
-          url: serverUrl,
-        });
-      }
-
-      return serverUrl;
+      throw new Error(
+        context.rootGetters.message("remote-access.connect-remote-url-error")
+      );
     }
 
-    console.error(`'${serverUrl}' is not latteart-repository.`);
+    const isRemote =
+      payload.targetUrl !== context.rootState.localRepositoryServiceUrl;
+    const repositoryContainer = new RepositoryContainerImpl({
+      url: serverUrl,
+      isRemote,
+    });
 
-    return "";
+    context.commit("setRepositoryContainer", { repositoryContainer });
+
+    if (isRemote) {
+      context.commit("registerRemoteRepositoryServiceUrl", {
+        url: serverUrl,
+      });
+    }
+
+    return serverUrl;
   },
 };
 
@@ -325,7 +361,7 @@ const store: StoreOptions<RootState> = {
     },
     clientSideCaptureServiceDispatcher:
       new ClientSideCaptureServiceDispatcher(),
-    repositoryServiceDispatcher: new RepositoryServiceDispatcher({
+    repositoryContainer: new RepositoryContainerImpl({
       url: defaultLocalRepositoryServiceUrl,
       isRemote: false,
     }),

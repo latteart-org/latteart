@@ -103,11 +103,8 @@
           </v-flex>
           <v-flex xs2 pl-3 v-if="!isViewerMode">
             <remote-access-field
-              :url="currentRepositoryUrl"
               color="primary"
               hide-details
-              :urls="repositoryUrls"
-              @execute="startRemoteConnection"
             ></remote-access-field
           ></v-flex>
         </v-layout>
@@ -162,7 +159,7 @@ import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ImportOptionDialog from "../common/ImportOptionDialog.vue";
 import ExportOptionDialog from "../common/ExportOptionDialog.vue";
 import InformationMessageDialog from "../common/InformationMessageDialog.vue";
-import RemoteAccessField from "@/vue/molecules/RemoteAccessField.vue";
+import RemoteAccessField from "@/vue/pages/common/organisms/RemoteAccessField.vue";
 
 @Component({
   components: {
@@ -224,7 +221,7 @@ export default class ManageView extends Vue {
   }
 
   private get isConnectedToRemote() {
-    return this.$store.state.repositoryServiceDispatcher.isRemote;
+    return this.$store.state.repositoryContainer.isRemote;
   }
 
   public toManageEdit(): void {
@@ -259,16 +256,11 @@ export default class ManageView extends Vue {
         message: this.$store.getters.message("manage-header.creating-snapshot"),
       });
 
-      const snapshotUrl = await this.$store
-        .dispatch("testManagement/writeSnapshot")
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
+      try {
+        const snapshotUrl = await this.$store.dispatch(
+          "testManagement/writeSnapshot"
+        );
 
-      if (snapshotUrl) {
         this.downloadLinkDialogOpened = true;
         this.downloadLinkDialogTitle = this.$store.getters.message(
           "manage-header.output-html"
@@ -278,14 +270,17 @@ export default class ManageView extends Vue {
         );
         this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "manage.print-html-error"
-        );
-        this.errorMessageDialogOpened = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.outputHtmlProcessing = false;
+        this.$store.dispatch("closeProgressDialog");
       }
-
-      this.outputHtmlProcessing = false;
     })();
   }
 
@@ -295,8 +290,13 @@ export default class ManageView extends Vue {
   }
 
   private generateTestScript(option: {
-    useDataDriven: boolean;
-    maxGeneration: number;
+    testScript: {
+      isSimple: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
@@ -385,8 +385,12 @@ export default class ManageView extends Vue {
           }
         );
       } catch (error) {
-        this.errorMessage = `${error.message}`;
-        this.errorMessageDialogOpened = true;
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       } finally {
         this.$store.dispatch("closeProgressDialog");
         this.importDataProcessing = false;
@@ -406,16 +410,12 @@ export default class ManageView extends Vue {
         ),
       });
 
-      const exportDataUrl = await this.$store
-        .dispatch("testManagement/exportData", { option })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
+      try {
+        const exportDataUrl = await this.$store.dispatch(
+          "testManagement/exportData",
+          { option }
+        );
 
-      if (exportDataUrl) {
         this.downloadLinkDialogOpened = true;
         this.downloadLinkDialogTitle = this.$store.getters.message(
           "import-export-dialog.export-title"
@@ -425,14 +425,17 @@ export default class ManageView extends Vue {
         );
         this.downloadLinkDialogAlertMessage = "";
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "error.import_export.create-export-data-error"
-        );
-        this.errorMessageDialogOpened = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.exportDataProcessing = false;
+        this.$store.dispatch("closeProgressDialog");
       }
-
-      this.exportDataProcessing = false;
     })();
   }
 
@@ -485,58 +488,8 @@ export default class ManageView extends Vue {
     this.optionMenuList = [...optionMenus.filter((menu) => menu.isEnabled)];
   }
 
-  private startRemoteConnection(targetUrl: string) {
-    (async () => {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "remote-access.connecting-remote-url"
-        ),
-      });
-
-      const url = await this.$store
-        .dispatch("connectRemoteUrl", {
-          targetUrl,
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
-
-      if (url) {
-        await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("operationHistory/readSettings");
-
-        this.$store.dispatch("operationHistory/resetHistory");
-        await this.$store.dispatch("testManagement/readDataFile");
-
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message("common.confirm");
-        this.informationMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-succeeded",
-          {
-            url,
-          }
-        );
-        this.remoteUrl = url;
-      } else {
-        this.errorMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-error"
-        );
-        this.errorMessageDialogOpened = true;
-      }
-    })();
-  }
-
   private get currentRepositoryUrl() {
-    return this.$store.state.repositoryServiceDispatcher.serviceUrl;
-  }
-
-  private get repositoryUrls(): string[] {
-    const localUrl = this.$store.state.localRepositoryServiceUrl;
-    const remoteUrls = this.$store.state.remoteRepositoryUrls;
-    return [localUrl, ...remoteUrls];
+    return this.$store.state.repositoryContainer.serviceUrl;
   }
 }
 </script>

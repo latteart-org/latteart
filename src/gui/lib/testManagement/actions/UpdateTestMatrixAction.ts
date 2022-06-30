@@ -42,6 +42,8 @@ export class UpdateTestMatrixAction {
       viewPoints: Array<{
         name: string;
         id: string | null;
+        description: string;
+        index: number;
       }>;
     }
   ): Promise<void> {

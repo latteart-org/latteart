@@ -14,38 +14,53 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
-
-export interface Importable {
-  importZipFile(
-    source: { projectFileUrl: string },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ projectId: string }>>;
-}
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ImportAction {
-  constructor(private dispatcher: Importable) {}
+  constructor(
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "importProjectRepository"
+    >
+  ) {}
 
+  /**
+   * Import project or testresult or all.
+   * @param importFileName  Import file name.
+   * @param selectOption  Select options.
+   */
   public async importZip(
     source: { projectFileUrl: string },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<{
-    projectId: string;
-  }> {
-    const reply = await this.dispatcher.importZipFile(source, selectOption);
+  ): Promise<ActionResult<{ projectId: string }>> {
+    const postProjectsResult =
+      await this.repositoryContainer.importProjectRepository.postProjects(
+        source,
+        selectOption
+      );
 
-    if (reply.error?.code === "import_test_result_not_exist") {
-      throw new Error(`import-test-result-not-exist`);
+    if (postProjectsResult.isFailure()) {
+      if (postProjectsResult.error.code === "import_test_result_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-test-result-not-exist",
+        });
+      }
+      if (postProjectsResult.error?.code === "import_project_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-project-not-exist",
+        });
+      }
+
+      return new ActionFailure({
+        messageKey: "error.import_export.import-data-error",
+      });
     }
 
-    if (reply.error?.code === "import_project_not_exist") {
-      throw new Error(`import-project-not-exist`);
-    }
-
-    if (!reply.data) {
-      throw new Error(`import-data-error`);
-    }
-
-    return reply.data;
+    return new ActionSuccess(postProjectsResult.data);
   }
 }

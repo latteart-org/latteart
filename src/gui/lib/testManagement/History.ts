@@ -47,7 +47,7 @@ export function getTargetSession(
  */
 export function getTargetIssue(
   targetSession: Session,
-  note: { id: number; sequence: number; index: number; type: string }
+  note: { id: string; sequence: number; index: number; type: string }
 ): Issue | null {
   const targetIssue = targetSession.issues.find((issue: Issue) => {
     if (
@@ -96,6 +96,7 @@ export function changeIssueStatus(
         ticketId: ticketId ? ticketId : issue.ticketId,
         value: issue.value,
         details: issue.details,
+        imageFilePath: issue.imageFilePath,
       };
     }
     return issue;

@@ -35,10 +35,12 @@ describe("UpdateTestMatrixAction", () => {
               {
                 id: "v1",
                 name: "viewPointName1",
+                description: "viewPointDescription1",
               },
               {
                 id: "v2",
                 name: "viewPointName2",
+                description: "viewPointDescription2",
               },
             ],
           },
@@ -72,6 +74,8 @@ describe("UpdateTestMatrixAction", () => {
             {
               id: "v1",
               name: "viewPointName1",
+              description: "viewPointDescription1",
+              index: 0,
             },
           ],
         },
@@ -93,6 +97,8 @@ describe("UpdateTestMatrixAction", () => {
         name: string;
         viewPoints: Array<{
           name: string;
+          description: string;
+          index: number;
           id: string | null;
         }>;
       } = {
@@ -102,10 +108,14 @@ describe("UpdateTestMatrixAction", () => {
           {
             id: "v1",
             name: "viewPointName1",
+            description: "viewPointDescription1",
+            index: 0,
           },
           {
-            id: (undefined as unknown) as string,
+            id: undefined as unknown as string,
             name: "viewPointName2",
+            description: "viewPointDescription2",
+            index: 1,
           },
         ],
       };
@@ -121,8 +131,10 @@ describe("UpdateTestMatrixAction", () => {
         value: 0,
       });
       testMatrices[0].viewPoints.push({
-        id: (undefined as unknown) as string,
+        id: undefined as unknown as string,
         name: "viewPointName2",
+        description: "viewPointDescription2",
+        index: 1,
       });
 
       expect(observer.saveManagedData).toBeCalledWith({

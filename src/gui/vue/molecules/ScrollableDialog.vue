@@ -20,7 +20,7 @@
     persistent
     max-height="800"
     :max-width="maxWidth"
-    v-model="opened"
+    v-model="openedDialog"
     :transition="noTransition ? false : 'dialog-transition'"
     :fullscreen="fullscreen"
   >
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class ScrollableDialog extends Vue {
@@ -55,5 +55,14 @@ export default class ScrollableDialog extends Vue {
   @Prop({ type: String, default: "" }) public readonly content!: string;
   @Prop({ type: String, default: "" }) public readonly footer!: string;
   @Prop({ type: Number, default: 500 }) public readonly maxWidth!: number;
+
+  private openedDialog = false;
+
+  @Watch("opened")
+  private changeOpenedDialog(newValue: boolean) {
+    setTimeout(() => {
+      this.openedDialog = newValue;
+    }, 100);
+  }
 }
 </script>

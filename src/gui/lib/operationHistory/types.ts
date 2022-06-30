@@ -133,3 +133,42 @@ export interface ScreenDefinitionConditionGroup {
     word: string;
   }>;
 }
+
+export interface TestStepOperation {
+  input: string;
+  type: string;
+  elementInfo: ElementInfo | null;
+  title: string;
+  url: string;
+  imageFileUrl: string;
+  timestamp: string;
+  inputElements: ElementInfo[];
+  windowHandle: string;
+  keywordTexts?: string[];
+}
+
+interface ApiNote {
+  id: string;
+  type: string;
+  value: string;
+  details: string;
+  imageFileUrl: string;
+  tags: string[];
+}
+
+export interface TestResult {
+  id: string;
+  name: string;
+  startTimeStamp: number;
+  endTimeStamp: number;
+  initialUrl: string;
+  testSteps: {
+    id: string;
+    operation: TestStepOperation;
+    intention: ApiNote | null;
+    bugs: ApiNote[];
+    notices: ApiNote[];
+  }[];
+  coverageSources: CoverageSource[];
+  inputElementInfos: InputElementInfo[];
+}

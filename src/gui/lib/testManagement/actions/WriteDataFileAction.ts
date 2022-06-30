@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
 import {
   ManagedStory,
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-interface WriteDataFileMutationObserver {
+export interface WriteDataFileMutationObserver {
   setManagedData(data: {
     testMatrices: TestMatrix[];
     progressDatas: ProgressData[];
@@ -32,60 +37,45 @@ interface WriteDataFileMutationObserver {
 export interface StoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectUpdatable,
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >,
     oldStory?: Story
   ): Promise<Story>;
 }
 
-export interface ProjectUpdatable {
-  putProject(
-    projectId: string,
-    testManagementData: TestManagementData
-  ): Promise<
-    Reply<{
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
-  getTestResult(testResultId: string): Promise<
-    Reply<{
-      id: string;
-      name: string;
-      startTimeStamp: number;
-      endTimeStamp: number;
-      initialUrl: string;
-      testSteps: any;
-    }>
-  >;
-}
+const WRITE_DATA_FILE_FAILED_MESSAGE_KEY =
+  "error.test_management.save_project_failed";
 
 export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectUpdatable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "testResultRepository" | "projectRepository"
+    >
   ) {}
 
   public async write(
     projectId: string,
     testManagementData: TestManagementData,
     stories: Story[]
-  ): Promise<void> {
-    const reply = await this.dispatcher.putProject(
-      projectId,
-      testManagementData
-    );
+  ): Promise<ActionResult<void>> {
+    const putProjectResult =
+      await this.repositoryContainer.projectRepository.putProject(
+        projectId,
+        testManagementData
+      );
 
-    if (reply.error) {
-      throw new Error(reply.error.code);
+    if (putProjectResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: WRITE_DATA_FILE_FAILED_MESSAGE_KEY,
+      });
     }
 
-    if (!reply.data) {
-      return;
-    }
-
-    const data = reply.data;
+    const data = putProjectResult.data;
     this.observer.setManagedData({
       testMatrices: data.testMatrices,
       progressDatas: data.progressDatas,
@@ -98,14 +88,14 @@ export class WriteDataFileAction {
         });
 
         return this.storyDataConverter.convertToStory(
-          story,
-          this.dispatcher,
+          story as ManagedStory,
+          this.repositoryContainer,
           oldStory
         );
       })
     );
     this.observer.setStoriesData({ stories: parsedStories });
 
-    return;
+    return new ActionSuccess(undefined);
   }
 }

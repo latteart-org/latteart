@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
-
-export interface Exportable {
-  exportZipFile(
-    projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<Reply<{ url: string }>>;
-}
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export class ExportAction {
-  constructor(private dispatcher: Exportable) {}
+  constructor(
+    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
+  ) {}
 
   public async exportZip(
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<string> {
-    const reply = await this.dispatcher.exportZipFile(projectId, selectOption);
+  ): Promise<ActionResult<string>> {
+    const postProjectForExportResult =
+      await this.repositoryContainer.projectRepository.postProjectForExport(
+        projectId,
+        selectOption
+      );
 
-    if (!reply.data) {
-      throw new Error(`create-export-data-error`);
+    if (postProjectForExportResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: "error.import_export.create-export-data-error",
+      });
     }
 
-    const outputUrl: string = reply.data.url;
-
-    return outputUrl;
+    return new ActionSuccess(postProjectForExportResult.data.url);
   }
 }

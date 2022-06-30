@@ -43,8 +43,8 @@ describe("GroupEditListは", () => {
       ],
     };
     viewPoints = [
-      { id: "s001", name: "story1" },
-      { id: "s002", name: "story2" },
+      { id: "s001", name: "story1", description: "description1", index: 0 },
+      { id: "s002", name: "story2", description: "description2", index: 1 },
     ];
 
     spyLog = jest.spyOn(console, "error");

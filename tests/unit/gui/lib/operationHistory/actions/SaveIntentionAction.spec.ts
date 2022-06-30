@@ -2,7 +2,8 @@ import {
   SaveIntentionAction,
   IntentionInfo,
   SaveIntentionActionObserver,
-} from "@/lib/operationHistory/actions/SaveIntentionAction";
+} from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
+import { ActionSuccess } from "@/lib/common/ActionResult";
 
 describe("SaveIntentionAction", () => {
   describe("#save", () => {
@@ -12,8 +13,12 @@ describe("SaveIntentionAction", () => {
 
     beforeEach(() => {
       observer = {
-        recordIntention: jest.fn(),
-        moveIntention: jest.fn(),
+        recordIntention: jest
+          .fn()
+          .mockResolvedValue(new ActionSuccess(undefined)),
+        moveIntention: jest
+          .fn()
+          .mockResolvedValue(new ActionSuccess(undefined)),
         setUnassignedIntention: jest.fn(),
       };
     });

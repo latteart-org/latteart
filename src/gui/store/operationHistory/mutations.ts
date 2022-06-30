@@ -24,16 +24,9 @@ import {
   CoverageSource,
   ScreenTransition,
   InputElementInfo,
-  ScreenDefinitionConditionGroup,
 } from "@/lib/operationHistory/types";
 import { Note } from "@/lib/operationHistory/Note";
 
-import {
-  ScreenDefinition,
-  Coverage,
-  ImageCompression,
-} from "@/lib/common/settings/Settings";
-import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { Operation } from "@/lib/operationHistory/Operation";
@@ -591,6 +584,25 @@ const mutations: MutationTree<OperationHistoryState> = {
     }
   ) {
     state.openNoteEditDialog = payload.openNoteEditDialog;
+  },
+
+  /**
+   * Set the function to open a dialog to confirm the deletion of the note.
+   * @param state State.
+   * @param payload.openNoteEditDialog The function to open the note deletion confirmation dialog.
+   */
+  setOpenNoteDeleteConfirmDialogFunction(
+    state,
+    payload: {
+      openNoteDeleteConfirmDialog: (
+        noteType: string,
+        title: string,
+        sequence: number,
+        index: number
+      ) => void;
+    }
+  ) {
+    state.openNoteDeleteConfirmDialog = payload.openNoteDeleteConfirmDialog;
   },
 
   /**

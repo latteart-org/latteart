@@ -35,6 +35,8 @@
   },
   "replay": {
     "done-title": "Replay is done",
+    "done-run-operations": "Replay is finished.",
+    "done-run-operations-because-skipped": "Replay was interrupted because the test contains some unrecorded operations due to capture pause.",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
@@ -46,10 +48,15 @@
     "edit-comment": "Edit Note",
     "delete-comment": "Delete Note",
     "edit-intention": "Add/Edit Test Purpose",
+    "delete-intention": "Delete Test Purpose",
+    "delete-intention-message": "Are you sure you want to delete this Test Purpose \"{value}\"?",
     "add-bug": "Add Bug",
     "edit-bug": "Edit Bug \"{value}\"",
     "add-notice": "Add Finding",
     "edit-notice": "Edit Finding \"{value}\"",
+    "delete-notice": "Delete Finding \"{value}\"",
+    "delete-notice-title": "Delete Finding",
+    "delete-notice-message": "Are you sure you want to delete this Finding \"{value}\"?",
     "sequence": "Sequence Diagram Model",
     "screen-transition": "Screen Transition Diagram Model",
     "element-coverage": "Web Element Coverage",
@@ -70,7 +77,13 @@
     "generate-testscript-succeeded": "Test script generation has finished.",
     "update-model-and-coverage": "Update Model/Coverage",
     "there-are-updates-on-history": "There is an update of operation history",
-    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip."
+    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
+    "generate-screenshots": "Successful screenshot generation.",
+    "export-screenshots": "Screenshots Export",
+    "delete-test-result": "Delete Test Result",
+    "delete-test-result-title": "Delete Test Result",
+    "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
+    "delete-test-result-succeeded": "Test Result deletion has finished."
   },
   "import-export-dialog": {
     "import-title": "Import",
@@ -78,6 +91,7 @@
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
     "select-file": "Select the file to be imported",
+    "select-test-result-file": "Select test result file to be imported",
     "creating-export-data": "Creating export data",
     "importing-data": "Importing data",
     "create-export-data-succeeded": "Data export is complete.",
@@ -168,8 +182,11 @@
     "details": "Details"
   },
   "operation": {
-    "query": "Search Query",
+    "search": "Search",
+    "query": "Text",
     "reset": "Reset Filter",
+    "purpose": "Purpose",
+    "notice": "Finding",
     "sequence": "No.",
     "title": "Title",
     "tagname": "Tag",
@@ -196,7 +213,6 @@
   },
   "manage": {
     "print-html-succeeded": "Snapshot output has finished.",
-    "print-html-error": "Snapshot output failed.",
     "output-html-running": "Snapshot output is running.",
     "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}"
   },
@@ -213,8 +229,8 @@
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
     "generate-script-succeeded": "Test script generation has finished.",
-    "import-option": "Data import",
-    "export-option": "Data export",
+    "import-option": "Data Import",
+    "export-option": "Data Export",
     "optional-function": "Optional function",
     "locale": "locale"
   },
@@ -238,6 +254,7 @@
     "test-matrix-name": "Test Matrix Name",
     "setting-viewPoint": "View Point Settings",
     "viewPoint-name": "View Point Name",
+    "view-point-description": "Description of test viewpoint",
     "new-viewPoint": "Add View Point",
     "preset": "Preset to Use",
     "create-test-matrix": "Create Test Matrix",
@@ -412,10 +429,8 @@
     "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
     "register-confirm": "You are connected to a remote repository. \nDo you want to register the test result in the remote repository?",
     "registering-testresults": "Registering test results.",
-    "registering-testresults-error": "Failed to register the test result.",
     "delete-warning": "Do you want to delete the registered test result from the local repository?",
     "delete-testresults": "Deleting test results.",
-    "delete-error": "Failed to delete the test result.",
     "register-delete-succeeded": "Registration of test results in the remote repository.\nAnd deletion of test results in the local repository have been completed.",
     "load": "Loading"
   },
@@ -450,11 +465,30 @@
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
-      "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity."
+      "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity.",
+      "delete_test_result_failed": "Failed to delete the test result.",
+      "add_note_failed": "Failed to add note.",
+      "delete_note_failed": "Failed to delete note.",
+      "edit_note_failed": "Failed to update note.",
+      "move_note_failed": "Failed to move note.",
+      "get_import_test_results_failed": "Failed to get import file list.",
+      "import_test_result_failed": "Failed to import test result.",
+      "delete_test_purpose_failed": "Failed to delete test purpose.",
+      "move_test_purpose_failed": "Failed to move test purpose.",
+      "record_test_purpose_failed": "Failed to record test purpose.",
+      "create_test_result_failed": "Failed to create test result.",
+      "get_test_result_failed": "Failed to get test result.",
+      "get_test_result_list_failed": "Failed to get test result list.",
+      "register_operation_failed": "Failed to register operation."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
-      "illegal_test_management_data": "Illegal format of test management data."
+      "illegal_test_management_data": "Illegal format of test management data.",
+      "get_import_project_list_failed": "Failed to get import file list.",
+      "read_project_data_failed": "Failed to read project data.",
+      "update_session_failed": "Failed to update session.",
+      "save_project_failed": "Failed to save project data.",
+      "write_snapshot_failed": "Failed to write snapshot."
     },
     "import_export": {
       "import-data-error": "Data import failed.",
@@ -463,8 +497,7 @@
       "create-export-data-error": "Data export failed."
     },
     "remote_access": {
-      "upload-request-error": "Failed to register the test result.",
-      "testresult-delete-error": "Failed to delete the test result."
+      "upload-request-error": "Failed to register the test result."
     }
   }
 }

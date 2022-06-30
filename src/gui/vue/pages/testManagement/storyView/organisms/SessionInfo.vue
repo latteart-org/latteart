@@ -28,22 +28,22 @@
             :label="this.$store.getters.message('session-info.test-item')"
             :value="session.testItem"
             @change="(value) => updateSession({ testItem: value })"
-            :disabled="isViewerMode"
+            :readonly="isViewerMode"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             :label="this.$store.getters.message('session-info.tester-name')"
             :value="session.testerName"
             @change="(value) => updateSession({ testerName: value })"
-            :disabled="isViewerMode"
+            :readonly="isViewerMode"
           ></v-text-field>
-          <v-text-field
+          <v-textarea
             class="pt-0"
             :label="this.$store.getters.message('session-info.memo')"
             :value="session.memo"
             @change="(value) => updateSession({ memo: value })"
-            :disabled="isViewerMode"
-          ></v-text-field>
+            :readonly="isViewerMode"
+          ></v-textarea>
         </v-card-text>
       </v-form>
     </v-card>
@@ -245,7 +245,8 @@
                             props.item.status,
                             props.item.ticketId,
                             props.item.value,
-                            props.item.details
+                            props.item.details,
+                            props.item.imageFilePath
                           )
                         "
                         >{{
@@ -303,6 +304,16 @@
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
+          <v-img
+            :src="issueDetailsDialogImagePath"
+            @click="openIssueImageFile"
+            style="cursor: pointer"
+          />
+          <v-dialog v-model="issueImageFileOpened">
+            <v-card>
+              <v-img :src="issueDetailsDialogImagePath" />
+            </v-card>
+          </v-dialog>
         </v-list>
       </template>
 
@@ -412,6 +423,8 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogTicketId = "";
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
+  private issueDetailsDialogImagePath = "";
+  private issueImageFileOpened = false;
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -486,7 +499,7 @@ export default class SessionInfo extends Vue {
 
     if (extension !== "") {
       const source = file.fileUrl
-        ? `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${file.fileUrl}`
+        ? `${this.$store.state.repositoryContainer.serviceUrl}/${file.fileUrl}`
         : `data:image/${extension};base64, ${file.fileData}`;
       if (source === "") {
         return false;
@@ -499,12 +512,16 @@ export default class SessionInfo extends Vue {
     // no extention
     const a = document.createElement("a");
     a.href = file.fileUrl
-      ? `${this.$store.state.repositoryServiceDispatcher.serviceUrl}/${file.fileUrl}`
+      ? `${this.$store.state.repositoryContainer.serviceUrl}/${file.fileUrl}`
       : (`data:text/plain;base64,${file.fileData}` as string);
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.click();
     return false;
+  }
+
+  private openIssueImageFile(): void {
+    this.issueImageFileOpened = true;
   }
 
   private addAttachedFile(event: any): void {
@@ -655,6 +672,7 @@ export default class SessionInfo extends Vue {
         ticketId: params.ticketId ?? issue.ticketId,
         value: issue.value,
         details: issue.details,
+        imageFilePath: issue.imageFilePath,
       };
     });
 
@@ -667,7 +685,8 @@ export default class SessionInfo extends Vue {
     status: string,
     ticketId: string,
     summary: string,
-    text: string
+    text: string,
+    imageFilePath: string
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -680,6 +699,7 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogTicketId = ticketId !== "" ? ticketId : none;
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
+    this.issueDetailsDialogImagePath = imageFilePath;
     this.issueDetailsDialogOpened = true;
   }
 
@@ -688,8 +708,7 @@ export default class SessionInfo extends Vue {
     const captureClUrl =
       this.$store.state.clientSideCaptureServiceDispatcher.serviceUrl;
     const localRepositoryUrl = this.$store.state.localRepositoryServiceUrl;
-    const repositoryUrl =
-      this.$store.state.repositoryServiceDispatcher.serviceUrl;
+    const repositoryUrl = this.$store.state.repositoryContainer.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${localRepositoryUrl}&remoteRepository=${repositoryUrl}`;
 
     if (testResultFiles.length > 0) {

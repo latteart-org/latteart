@@ -32,13 +32,11 @@
             v-for="(header, index) in props.headers"
             :width="header.width"
             :class="header.class"
-            :title="header.text"
             :key="index"
           >
-            {{ header.text }}
-          </th>
-        </tr></template
-      >
+            <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
+          </th></tr
+      ></template>
       <template #items="props">
         <tr>
           <td class="px-0 py-0 my-0" style="width: 52px">
@@ -158,12 +156,14 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import NumberField from "@/vue/molecules/NumberField.vue";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import FixedDataTable from "@/vue/molecules/FixedDataTable.vue";
+import LabelWithTooltip from "@/vue/molecules/LabelWithTooltip.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "confirm-dialog": ConfirmDialog,
     "fixed-data-table": FixedDataTable,
+    "label-with-tooltip": LabelWithTooltip,
   },
 })
 export default class GroupEditor extends Vue {
@@ -204,6 +204,7 @@ export default class GroupEditor extends Vue {
     sortable?: boolean;
     class?: string[];
     text?: string;
+    description?: string;
     width?: string;
   }[] {
     const headers = [];
@@ -227,6 +228,7 @@ export default class GroupEditor extends Vue {
     this.viewPoints.forEach((viewPoint: ViewPoint) => {
       headers.push({
         text: viewPoint.name,
+        tooltip: viewPoint.description,
         value: viewPoint.id,
         sortable: false,
         align: "center",

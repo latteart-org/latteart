@@ -1,45 +1,69 @@
 import {
-  ProjectUpdatable,
-  StoryConvertable,
+  WriteDataFileMutationObserver,
   WriteDataFileAction,
 } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
-import { Story } from "@/lib/testManagement/types";
+import { Story, Project } from "@/lib/testManagement/types";
+import {
+  RESTClient,
+  RESTClientResponse,
+} from "@/lib/eventDispatcher/RESTClient";
+import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
+import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+
+const baseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("WriteDataActionの", () => {
   describe("#write", () => {
-    it("正常系", async () => {
-      const observer = {
+    let observer: WriteDataFileMutationObserver;
+
+    beforeEach(() => {
+      observer = {
         setManagedData: jest.fn(),
         setStoriesData: jest.fn(),
       };
+    });
 
-      const dispatcher: ProjectUpdatable = {
-        putProject: jest.fn().mockResolvedValue({
-          data: {
-            testMatrices: [],
-            progressDatas: [],
-            stories: [
-              {
-                id: "s1",
-                status: "",
-                sessions: [],
-              },
-            ],
+    it("正常系", async () => {
+      const expectedProject: Project = {
+        id: "",
+        name: "",
+        testMatrices: [],
+        stories: [
+          {
+            id: "s1",
+            status: "",
+            sessions: [],
+            testMatrixId: "",
+            testTargetId: "",
+            viewPointId: "",
           },
-        }),
-        getTestResult: jest.fn(),
+        ],
+        progressDatas: [],
+      };
+      const resSuccess: RESTClientResponse = {
+        status: 200,
+        data: expectedProject,
       };
 
-      const storyDataConverter: StoryConvertable = {
-        convertToStory: jest.fn().mockResolvedValue({
-          id: "s1",
-          testMatrixId: "",
-          testTargetId: "",
-          viewPointId: "",
-          status: "",
-          sessions: [],
-        }),
+      const restClient = {
+        ...baseRestClient,
+        httpPut: jest.fn().mockResolvedValue(resSuccess),
+      };
+
+      const testResultRepository = new TestResultRepository(restClient);
+      const projectRepository = new ProjectRepository(restClient);
+
+      const repositoryContainer = {
+        testResultRepository,
+        projectRepository,
       };
 
       const projectId = "1";
@@ -51,28 +75,36 @@ describe("WriteDataActionの", () => {
       const stories: Story[] = [
         {
           id: "s1",
+          status: "",
+          sessions: [],
           testMatrixId: "",
           testTargetId: "",
           viewPointId: "",
-          status: "",
-          sessions: [],
         },
       ];
 
-      await new WriteDataFileAction(
+      const result = await new WriteDataFileAction(
         observer,
-        storyDataConverter,
-        dispatcher
+        new StoryDataConverter(),
+        repositoryContainer
       ).write(projectId, testManagementData, stories);
 
+      expect(restClient.httpPut).toBeCalledWith(
+        `/projects/${projectId}`,
+        testManagementData
+      );
+
       expect(observer.setManagedData).toBeCalledWith({
-        testMatrices: [],
-        progressDatas: [],
+        testMatrices: expectedProject.testMatrices,
+        progressDatas: expectedProject.progressDatas,
       });
-      expect(storyDataConverter.convertToStory).toBeCalledTimes(1);
       expect(observer.setStoriesData).toBeCalledWith({
-        stories,
+        stories: expectedProject.stories,
       });
+
+      if (result.isFailure()) {
+        throw new Error("failed");
+      }
     });
   });
 });

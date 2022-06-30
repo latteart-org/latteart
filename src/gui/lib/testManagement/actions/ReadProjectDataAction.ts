@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-import { Reply } from "@/lib/captureControl/Reply";
+import {
+  RepositoryAccessResult,
+  RepositoryAccessSuccess,
+} from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
-import { ProjectUpdatable, StoryConvertable } from "./WriteDataFileAction";
+import { StoryConvertable } from "./WriteDataFileAction";
+import {
+  ActionResult,
+  ActionFailure,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-interface ReadDataFileMutationObserver {
+export interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
@@ -29,39 +38,37 @@ interface ReadDataFileMutationObserver {
 export interface ProjectStoryConvertable {
   convertToStory(
     target: ManagedStory,
-    dispatcher: ProjectFetchable
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ): Promise<Story>;
 }
 
-export interface ProjectFetchable extends ProjectUpdatable {
-  readProject(): Promise<
-    Reply<{
-      projectId: string;
-      testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
-      stories: ManagedStory[];
-    }>
-  >;
-}
+const READ_PROJECT_DATA_FAILED_MESSAGE_KEY =
+  "error.test_management.read_project_data_failed";
 
 export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private dispatcher: ProjectFetchable
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "projectRepository" | "testResultRepository"
+    >
   ) {}
 
-  public async read(): Promise<void> {
-    const reply = await this.dispatcher.readProject();
-    if (reply.error) {
-      throw new Error(reply.error.code);
+  public async read(): Promise<ActionResult<void>> {
+    const readProjectResult = await this.readProject();
+
+    if (readProjectResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: READ_PROJECT_DATA_FAILED_MESSAGE_KEY,
+      });
     }
 
-    if (!reply.data) {
-      return;
-    }
-
-    const { projectId, testMatrices, stories, progressDatas } = reply.data;
+    const { projectId, testMatrices, stories, progressDatas } =
+      readProjectResult.data;
 
     this.observer.setProjectId({ projectId });
 
@@ -72,12 +79,70 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            this.dispatcher as unknown as ProjectUpdatable
+            this.repositoryContainer as unknown as Pick<
+              RepositoryContainer,
+              "testResultRepository" | "projectRepository"
+            >
           )
         )
       ),
     });
 
     this.observer.setProgressDatas({ progressDatas });
+
+    return new ActionSuccess(undefined);
+  }
+
+  /**
+   * Read project data.
+   * @returns Project data.
+   */
+  private async readProject(): Promise<
+    RepositoryAccessResult<{
+      projectId: string;
+      testMatrices: TestMatrix[];
+      progressDatas: ProgressData[];
+      stories: ManagedStory[];
+    }>
+  > {
+    const getProjectsResult =
+      await this.repositoryContainer.projectRepository.getProjects();
+
+    if (getProjectsResult.isFailure()) {
+      return getProjectsResult;
+    }
+
+    const projectIds = getProjectsResult.data.map(({ id }) => id);
+
+    if (projectIds.length === 0) {
+      const postProjectResult =
+        await this.repositoryContainer.projectRepository.postProject();
+
+      if (postProjectResult.isFailure()) {
+        return postProjectResult;
+      }
+
+      projectIds.push(postProjectResult.data.id);
+    }
+
+    const targetProjectId = projectIds[projectIds.length - 1];
+
+    const getProjectResult =
+      await this.repositoryContainer.projectRepository.getProject(
+        targetProjectId
+      );
+
+    if (getProjectResult.isFailure()) {
+      return getProjectResult;
+    }
+
+    const data = {
+      ...getProjectResult.data,
+      projectId: targetProjectId,
+    };
+
+    return new RepositoryAccessSuccess({
+      data: data,
+    });
   }
 }
