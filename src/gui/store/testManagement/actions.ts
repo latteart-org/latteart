@@ -45,7 +45,7 @@ import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
-import { GenerateAllSessionTestScriptsAction } from "@/lib/testManagement/actions/GenerateAllSessionTestScriptsAction";
+import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -873,44 +873,23 @@ const actions: ActionTree<TestManagementState, RootState> = {
   /**
    * Generate test scripts of all sessions.
    * @param context Action context.
+   * @param payload.option option for test script generation.
+   * @param payload.sources Informations for generating test scripts.
    * @returns URL of generated test scripts and whether test scripts contain invalid operation.
    */
   async generateAllSessionTestScripts(
     context,
     payload: {
       option: {
-        maxGeneration: number;
-        templateOnly: boolean;
-        method: string;
-        useDataDriven: boolean;
+        testScript: { isSimple: boolean };
+        testData: { useDataDriven: boolean; maxGeneration: number };
       };
     }
-  ): Promise<{
-    outputUrl: string;
-    invalidOperationTypeExists: boolean;
-  }> {
-    const screenDefinitionConfig =
-      context.rootGetters["operationHistory/getConfig"]().screenDefinition;
-
-    const result = await new GenerateAllSessionTestScriptsAction(
-      {
-        generateTestScripts: (sources) => {
-          return context.dispatch(
-            "operationHistory/generateTestScripts",
-            {
-              projectId: context.state.projectId,
-              sources,
-              option: payload.option,
-            },
-            { root: true }
-          );
-        },
-      },
-      context.rootState.repositoryContainer
-    ).generateAllSessionTestScripts(
-      screenDefinitionConfig,
-      context.state.stories
-    );
+  ) {
+    const result = await new GenerateTestScriptsAction(
+      context.rootState.repositoryContainer,
+      payload.option
+    ).generateFromProject(context.state.projectId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -923,7 +902,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     return result.data;
   },
-
   /**
    * Import Data.
    * @param context Action context.
