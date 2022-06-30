@@ -1,0 +1,29 @@
+{
+  "name": "launch",
+  "version": "1.0.0",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w",
+    "package": "yarn package:win & yarn package:mac",
+    "package:win": "nexe dist/main.js -o dist/win/launch --target windows-x64-12.18.1 && cpx \"*.bat\" dist && cpx launch.config.json dist",
+    "package:mac": "nexe dist/main.js -o dist/mac/launch --target macos-x64-12.18.1 && cpx \"*.sh\" dist && cpx launch.config.json dist",
+    "prepackage:win": "yarn build",
+    "prepackage:mac": "yarn build"
+  },
+  "dependencies": {
+    "@types/encoding-japanese": "^1.0.18",
+    "encoding-japanese": "^1.0.30"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.70",
+    "cpx": "^1.5.0",
+    "nexe": "^4.0.0-beta.19",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.2"
+  }
+}
