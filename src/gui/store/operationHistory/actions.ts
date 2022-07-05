@@ -1394,39 +1394,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async generateTestScripts(
     context,
     payload: {
-      testResultId: string | undefined;
-      projectId: string | undefined;
-      sources: { initialUrl: string; history: Operation[] }[];
       option: {
         testScript: { isSimple: boolean };
         testData: { useDataDriven: boolean; maxGeneration: number };
       };
     }
   ) {
-    const imageUrlResolver = (url: string) => {
-      return url.replace(
-        `${context.rootState.repositoryContainer.serviceUrl}/`,
-        ""
-      );
-    };
-
     const result = await new GenerateTestScriptsAction(
       context.rootState.repositoryContainer,
-      imageUrlResolver,
-      {
-        testScript: {
-          isSimple: payload.option.testScript.isSimple,
-        },
-        testData: {
-          useDataDriven: payload.option.testData.useDataDriven,
-          maxGeneration: payload.option.testData.maxGeneration,
-        },
-      }
-    ).generate({
-      testResultId: payload.testResultId,
-      projectId: payload.projectId,
-      sources: payload.sources,
-    });
+      payload.option
+    ).generateFromTestResult(context.state.testResultInfo.id);
 
     if (result.isFailure()) {
       throw new Error(

@@ -194,20 +194,11 @@ export default class ReviewView extends Vue {
           "manage-header.generating-test-script"
         ),
       });
-      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
 
-      const initialUrl = this.$store.state.captureControl.url;
       try {
         const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
-            testResultId,
-            sources: [
-              {
-                initialUrl,
-                history: this.history.map(({ operation }) => operation),
-              },
-            ],
             option,
           }
         );

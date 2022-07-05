@@ -15,7 +15,6 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import { TestScript } from "@/lib/operationHistory/scriptGenerator/TestScript";
 import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
@@ -35,12 +34,22 @@ export class TestScriptRepository {
    */
   public async postTestscriptsWithProjectId(
     projectId: string,
-    body: TestScript
-  ): Promise<RepositoryAccessResult<{ url: string }>> {
+    option: {
+      testScript: {
+        isSimple: boolean;
+      };
+      testData: {
+        useDataDriven: boolean;
+        maxGeneration: number;
+      };
+    }
+  ): Promise<
+    RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
+  > {
     try {
       const response = await this.restClient.httpPost(
         `/projects/${projectId}/test-scripts`,
-        body
+        option
       );
 
       if (response.status !== 200) {
@@ -48,7 +57,10 @@ export class TestScriptRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as { url: string },
+        data: response.data as {
+          url: string;
+          invalidOperationTypeExists: boolean;
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -64,12 +76,22 @@ export class TestScriptRepository {
    */
   public async postTestscriptsWithTestResultId(
     testResultId: string,
-    body: TestScript
-  ): Promise<RepositoryAccessResult<{ url: string }>> {
+    option: {
+      testScript: {
+        isSimple: boolean;
+      };
+      testData: {
+        useDataDriven: boolean;
+        maxGeneration: number;
+      };
+    }
+  ): Promise<
+    RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
+  > {
     try {
       const response = await this.restClient.httpPost(
         `/test-results/${testResultId}/test-scripts`,
-        body
+        option
       );
 
       if (response.status !== 200) {
@@ -77,7 +99,10 @@ export class TestScriptRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as { url: string },
+        data: response.data as {
+          url: string;
+          invalidOperationTypeExists: boolean;
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

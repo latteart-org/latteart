@@ -127,9 +127,7 @@ export default class GenerateTestScriptButton extends Vue {
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
-      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
 
-      const initialUrl = this.$store.state.captureControl.url;
       try {
         this.$store.dispatch("openProgressDialog", {
           message: this.$store.getters.message(
@@ -139,13 +137,6 @@ export default class GenerateTestScriptButton extends Vue {
         const testScriptInfo = await this.$store.dispatch(
           "operationHistory/generateTestScripts",
           {
-            testResultId,
-            sources: [
-              {
-                initialUrl,
-                history: this.history.map(({ operation }) => operation),
-              },
-            ],
             option,
           }
         );
