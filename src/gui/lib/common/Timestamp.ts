@@ -75,7 +75,12 @@ export class TimestampImpl implements Timestamp {
   }
 
   public isSameDayAs(other: number): boolean {
-    return moment.unix(other).diff(this.time, "days") === 0;
+    return (
+      moment
+        .unix(other)
+        .startOf("day")
+        .diff(this.time.startOf("day"), "days") === 0
+    );
   }
 
   public offset(epochMilliseconds: number): Timestamp {
