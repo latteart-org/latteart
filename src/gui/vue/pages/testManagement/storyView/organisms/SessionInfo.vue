@@ -33,8 +33,8 @@
           <v-textarea
             class="pt-0"
             :label="this.$store.getters.message('session-info.memo')"
-            :value="setMemo()"
-            @change="(value) => updateSession({ memo: value })"
+            :value="getMemo()"
+            @change="(value) => updateSession({ memo: value, testItem: '' })"
             :readonly="isViewerMode"
           ></v-textarea>
         </v-card-text>
@@ -721,19 +721,10 @@ export default class SessionInfo extends Vue {
     }
   }
 
-  private setMemo(): string {
-    const testItem = this.session?.testItem ?? "";
-    const memo = this.session?.memo ?? "";
-    if (!testItem) {
-      return memo;
-    }
-    if (!memo) {
-      return testItem;
-    }
-
-    const hasTestItem = memo.includes(`${testItem}\n`);
-
-    return hasTestItem ? memo : `${testItem}\n${memo}`;
+  private getMemo(): string {
+    const testItems = this.session?.testItem ? [this.session.testItem] : [];
+    const memos = this.session?.memo ? [this.session.memo] : [];
+    return [...testItems, ...memos].join("\n");
   }
 }
 </script>
