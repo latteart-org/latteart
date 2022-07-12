@@ -25,13 +25,6 @@
         <v-card-text class="pt-0">
           <v-text-field
             class="pt-0"
-            :label="this.$store.getters.message('session-info.test-item')"
-            :value="session.testItem"
-            @change="(value) => updateSession({ testItem: value })"
-            :readonly="isViewerMode"
-          ></v-text-field>
-          <v-text-field
-            class="pt-0"
             :label="this.$store.getters.message('session-info.tester-name')"
             :value="session.testerName"
             @change="(value) => updateSession({ testerName: value })"
@@ -40,7 +33,7 @@
           <v-textarea
             class="pt-0"
             :label="this.$store.getters.message('session-info.memo')"
-            :value="session.memo"
+            :value="setMemo()"
             @change="(value) => updateSession({ memo: value })"
             :readonly="isViewerMode"
           ></v-textarea>
@@ -726,6 +719,21 @@ export default class SessionInfo extends Vue {
 
       window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
     }
+  }
+
+  private setMemo(): string {
+    const testItem = this.session?.testItem ?? "";
+    const memo = this.session?.memo ?? "";
+    if (!testItem) {
+      return memo;
+    }
+    if (!memo) {
+      return testItem;
+    }
+
+    const hasTestItem = memo.includes(`${testItem}\n`);
+
+    return hasTestItem ? memo : `${testItem}\n${memo}`;
   }
 }
 </script>
