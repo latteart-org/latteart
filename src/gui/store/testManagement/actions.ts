@@ -21,7 +21,6 @@ import { RootState } from "..";
 import {
   Story,
   TestMatrix,
-  ProgressData,
   AttachedFile,
   TestResultFile,
   Issue,
@@ -29,15 +28,11 @@ import {
   Plan,
 } from "@/lib/testManagement/types";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
-import {
-  TestManagementData,
-  ManagedSession,
-} from "@/lib/testManagement/TestManagementData";
+import { ManagedSession } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
-import { CalculateProgressDatasAction } from "@/lib/testManagement/actions/CalculateProgressDatasAction";
 import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
 import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
@@ -46,6 +41,8 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResu
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
+import { CollectProgressDatasAction } from "@/lib/testManagement/actions/CollectProgressDatasAction";
+import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/ProjectFileRepository";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -95,7 +92,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
     context.commit("setManagedData", {
       stories: payload.snapshot.stories,
       testMatrices: payload.snapshot.testMatrices,
-      progressDatas: payload.snapshot.progressDatas,
     });
   },
 
@@ -151,11 +147,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
         setStoriesData: (data: { stories: Story[] }): void => {
           context.commit("setStoriesData", { stories: data.stories });
         },
-        setProgressDatas: (data: { progressDatas: ProgressData[] }): void => {
-          context.commit("setProgressDatas", {
-            progressDatas: data.progressDatas,
-          });
-        },
       },
       new StoryDataConverter(),
       context.rootState.repositoryContainer
@@ -169,17 +160,21 @@ const actions: ActionTree<TestManagementState, RootState> = {
    */
   async writeDataFile(
     context,
-    payload: { testManagementData: TestManagementData }
+    payload: {
+      testMatrices: TestMatrix[];
+      stories: Story[];
+    }
   ): Promise<void> {
+    const builder = new TestManagementBuilder();
+    builder.testMatrices = payload.testMatrices;
+    builder.stories = payload.stories;
+    const testManagementData = builder.build();
+
     await new WriteDataFileAction(
       {
-        setManagedData: (data: {
-          testMatrices: TestMatrix[];
-          progressDatas: ProgressData[];
-        }): void => {
+        setManagedData: (data: { testMatrices: TestMatrix[] }): void => {
           context.commit("setManagedData", {
             testMatrices: data.testMatrices,
-            progressDatas: data.progressDatas,
           });
         },
         setStoriesData: (data: { stories: Story[] }): void => {
@@ -188,11 +183,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       },
       new StoryDataConverter(),
       context.rootState.repositoryContainer
-    ).write(
-      context.state.projectId,
-      payload.testManagementData,
-      context.state.stories
-    );
+    ).write(context.state.projectId, testManagementData, context.state.stories);
   },
 
   addNewTestMatrix(
@@ -525,17 +516,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
     context,
     payload: { testMatrices: TestMatrix[]; stories: Story[] }
   ): Promise<void> {
-    const builder = new TestManagementBuilder();
-    builder.testMatrices = payload.testMatrices;
-    builder.stories = payload.stories;
-    builder.progressDatas = await context.dispatch("calculateProgressDatas", {
+    return context.dispatch("writeDataFile", {
       testMatrices: payload.testMatrices,
       stories: payload.stories,
-    });
-    const testManagementData = builder.build();
-    console.log(testManagementData);
-    return await context.dispatch("writeDataFile", {
-      testManagementData,
     });
   },
 
@@ -734,17 +717,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const newStories = [...context.state.stories, newStory];
 
-    const builder = new TestManagementBuilder();
-    builder.testMatrices = context.state.testMatrices;
-    builder.stories = newStories;
-    builder.progressDatas = await context.dispatch("calculateProgressDatas", {
+    return context.dispatch("writeDataFile", {
       testMatrices: context.state.testMatrices,
       stories: newStories,
-    });
-    const testManagementData = builder.build();
-
-    return context.dispatch("writeDataFile", {
-      testManagementData,
     });
   },
 
@@ -802,42 +777,40 @@ const actions: ActionTree<TestManagementState, RootState> = {
       return tmpStories;
     })(JSON.parse(JSON.stringify(payload.story)));
 
-    const builder = new TestManagementBuilder();
-    builder.testMatrices = context.state.testMatrices;
-    builder.stories = updatedStories;
-    builder.progressDatas = await context.dispatch("calculateProgressDatas", {
+    return context.dispatch("writeDataFile", {
       testMatrices: context.state.testMatrices,
       stories: updatedStories,
     });
-    const testManagementData = builder.build();
-
-    return context.dispatch("writeDataFile", {
-      testManagementData,
-    });
   },
 
-  /**
-   * Calculate progress datas from test matrices and stories.
-   * @param context Action context.
-   * @param payload.testMatrices Test matrices.
-   * @param payload.stories Stories.
-   * @returns Calculated progress datas.
-   */
-  calculateProgressDatas(
+  async collectProgressDatas(
     context,
     payload: {
-      testMatrices: TestMatrix[];
-      stories: Story[];
-    }
+      period?: { since: Timestamp; until: Timestamp };
+    } = {}
   ) {
-    const nowTimestamp: Timestamp = new TimestampImpl();
+    const repositoryContainer = Vue.prototype.$dailyTestProgresses
+      ? {
+          projectRepository: new ProjectFileRepository(
+            Vue.prototype.$dailyTestProgresses
+          ),
+        }
+      : context.rootState.repositoryContainer;
 
-    return new CalculateProgressDatasAction().calculate(
-      nowTimestamp,
-      payload.testMatrices,
-      payload.stories,
-      context.state.progressDatas
-    );
+    const result = await new CollectProgressDatasAction(
+      repositoryContainer
+    ).collect(context.state.projectId, payload);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 
   /**

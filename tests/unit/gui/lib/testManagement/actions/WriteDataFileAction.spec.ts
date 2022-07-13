@@ -10,7 +10,7 @@ import {
 } from "@/lib/eventDispatcher/RESTClient";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 
 const baseRestClient: RESTClient = {
   httpGet: jest.fn(),
@@ -46,7 +46,6 @@ describe("WriteDataActionの", () => {
             viewPointId: "",
           },
         ],
-        progressDatas: [],
       };
       const resSuccess: RESTClientResponse = {
         status: 200,
@@ -59,7 +58,7 @@ describe("WriteDataActionの", () => {
       };
 
       const testResultRepository = new TestResultRepository(restClient);
-      const projectRepository = new ProjectRepository(restClient);
+      const projectRepository = new ProjectRESTRepository(restClient);
 
       const repositoryContainer = {
         testResultRepository,
@@ -70,7 +69,6 @@ describe("WriteDataActionの", () => {
       const testManagementData: TestManagementData = {
         testMatrices: [],
         stories: [],
-        progressDatas: [],
       };
       const stories: Story[] = [
         {
@@ -96,7 +94,6 @@ describe("WriteDataActionの", () => {
 
       expect(observer.setManagedData).toBeCalledWith({
         testMatrices: expectedProject.testMatrices,
-        progressDatas: expectedProject.progressDatas,
       });
       expect(observer.setStoriesData).toBeCalledWith({
         stories: expectedProject.stories,

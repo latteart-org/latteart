@@ -23,6 +23,8 @@ export interface Timestamp {
   diff(from: Timestamp): number;
   diffFormat(from: Timestamp, format?: string): string;
   isBetween(start: Timestamp, end: Timestamp): boolean;
+  isSameOrBefore(other: Timestamp): boolean;
+  isSameOrAfter(other: Timestamp): boolean;
   isSameDayAs(other: number): boolean;
 }
 
@@ -72,6 +74,20 @@ export class TimestampImpl implements Timestamp {
     const startDate = start.format(TimestampImpl.dateFormat);
     const endDate = end.format(TimestampImpl.dateFormat);
     return this.time.isBetween(startDate, endDate, "day", "[]");
+  }
+
+  public isSameOrBefore(other: Timestamp): boolean {
+    return this.time.isSameOrBefore(
+      other.format(TimestampImpl.dateFormat),
+      "day"
+    );
+  }
+
+  public isSameOrAfter(other: Timestamp): boolean {
+    return this.time.isSameOrAfter(
+      other.format(TimestampImpl.dateFormat),
+      "day"
+    );
   }
 
   public isSameDayAs(other: number): boolean {

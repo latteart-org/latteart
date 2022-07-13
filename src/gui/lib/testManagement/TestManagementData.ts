@@ -17,7 +17,6 @@
 export interface TestManagementData {
   testMatrices: ManagedTestMatrix[];
   stories: ManagedStory[];
-  progressDatas: ManagedProgressData[];
 }
 
 export interface ManagedTestMatrix {
@@ -82,24 +81,4 @@ export interface ManagedSession {
     source: { type: string; index: number };
   }>;
   testingTime?: number;
-}
-
-export interface ManagedProgressData {
-  testMatrixId: string;
-  testMatrixProgressDatas: Array<{
-    date: string;
-    groups: Array<{
-      id: string;
-      name: string;
-      testTargets: Array<{
-        id: string;
-        name: string;
-        progress: {
-          planNumber: number;
-          completedNumber: number;
-          incompletedNumber: number;
-        };
-      }>;
-    }>;
-  }>;
 }

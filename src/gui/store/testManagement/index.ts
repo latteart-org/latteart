@@ -19,7 +19,7 @@ import { RootState } from "..";
 import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
-import { TestMatrix, Story, ProgressData } from "@/lib/testManagement/types";
+import { TestMatrix, Story } from "@/lib/testManagement/types";
 
 /**
  * State for test management.
@@ -41,11 +41,6 @@ export interface TestManagementState {
   stories: Story[];
 
   /**
-   * Progress datas.
-   */
-  progressDatas: ProgressData[];
-
-  /**
    * Story being edited.
    */
   tempStory: Story | null;
@@ -55,7 +50,6 @@ const state: TestManagementState = {
   projectId: "",
   testMatrices: Array<TestMatrix>(),
   stories: Array<Story>(),
-  progressDatas: Array<ProgressData>(),
   tempStory: null,
 };
 

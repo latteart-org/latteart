@@ -24,7 +24,66 @@ import {
 import { Project } from "@/lib/testManagement/types";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 
-export class ProjectRepository {
+export type DailyTestProgress = {
+  date: string;
+  storyProgresses: {
+    storyId: string;
+    testMatrixId: string;
+    testTargetGroupId: string;
+    testTargetId: string;
+    viewPointId: string;
+    plannedSessionNumber: number;
+    completedSessionNumber: number;
+    incompletedSessionNumber: number;
+  }[];
+};
+
+export interface ProjectRepository {
+  /**
+   * Creates export project or testresult or all.
+   * @param projectId  Project ID.
+   * @param selectOption  Select option.
+   * @returns Export File URL.
+   */
+  postProjectForExport(
+    projectId: string,
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+
+  getProjects(): Promise<
+    RepositoryAccessResult<
+      Array<{
+        id: string;
+        name: string;
+        createdAt: string;
+      }>
+    >
+  >;
+
+  getProject(projectId: string): Promise<RepositoryAccessResult<Project>>;
+
+  postProject(): Promise<RepositoryAccessResult<{ id: string; name: string }>>;
+
+  /**
+   * Update the project with the specified project ID.
+   * @param projectId  Project ID.
+   * @param body  Project information to update.
+   * @returns Updated project information.
+   */
+  putProject(
+    projectId: string,
+    body: TestManagementData
+  ): Promise<RepositoryAccessResult<Project>>;
+
+  getTestProgress(
+    projectId: string,
+    filter?: {
+      period?: { since?: number; until?: number };
+    }
+  ): Promise<RepositoryAccessResult<DailyTestProgress[]>>;
+}
+
+export class ProjectRESTRepository implements ProjectRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
@@ -143,6 +202,41 @@ export class ProjectRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as Project,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async getTestProgress(
+    projectId: string,
+    filter: {
+      period?: { since?: number; until?: number };
+    } = {}
+  ): Promise<RepositoryAccessResult<DailyTestProgress[]>> {
+    try {
+      const query: string[] = [];
+      if (filter.period?.since !== undefined) {
+        query.push(`since=${filter.period.since}`);
+      }
+      if (filter.period?.until !== undefined) {
+        query.push(`until=${filter.period.until}`);
+      }
+
+      const response = await this.restClient.httpGet(
+        `/projects/${projectId}/progress${
+          query.length > 0 ? `?${query.join("&")}` : ""
+        }`
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      const dailyTestProgresses = response.data as DailyTestProgress[];
+
+      return new RepositoryAccessSuccess({
+        data: dailyTestProgresses,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

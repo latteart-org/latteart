@@ -139,15 +139,6 @@ const getters: GetterTree<TestManagementState, RootState> = {
   },
 
   /**
-   * Collect progress datas from the State.
-   * @param state State.
-   * @returns Progress datas.
-   */
-  collectProgressDatas: (state) => () => {
-    return state.progressDatas;
-  },
-
-  /**
    * Whether there is at least one session holding test result in the State's test management data or not.
    * @param state State.
    * @returns 'true': There is, 'false': There is not.

@@ -7,7 +7,7 @@ import {
   RESTClientResponse,
 } from "@/lib/eventDispatcher/RESTClient";
 import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 
 const baseRestClient: RESTClient = {
@@ -33,7 +33,6 @@ describe("ReadProjectDataActionの", () => {
           setProjectId: jest.fn(),
           setManagedData: jest.fn(),
           setStoriesData: jest.fn(),
-          setProgressDatas: jest.fn(),
         };
       });
 
@@ -42,7 +41,6 @@ describe("ReadProjectDataActionの", () => {
           id: "",
           name: "",
           testMatrices: [],
-          progressDatas: [],
           stories: [
             {
               id: "s1",
@@ -84,7 +82,7 @@ describe("ReadProjectDataActionの", () => {
             new StoryDataConverter(),
             {
               testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRepository(restClient),
+              projectRepository: new ProjectRESTRepository(restClient),
             }
           );
 
@@ -98,11 +96,10 @@ describe("ReadProjectDataActionの", () => {
             expectedProjectList[expectedProjectList.length - 1].id;
           expect(restClient.httpGet).toBeCalledWith(`/projects/${projectId}`);
           // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
-          const { id, testMatrices, stories, progressDatas } = expectedProject;
+          const { id, testMatrices, stories } = expectedProject;
           expect(observer.setProjectId).toBeCalledWith({ projectId: id });
           expect(observer.setManagedData).toBeCalledWith({ testMatrices });
           expect(observer.setStoriesData).toBeCalledWith({ stories });
-          expect(observer.setProgressDatas).toBeCalledWith({ progressDatas });
           if (result.isFailure()) {
             throw new Error("failed");
           }
@@ -143,7 +140,7 @@ describe("ReadProjectDataActionの", () => {
             new StoryDataConverter(),
             {
               testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRepository(restClient),
+              projectRepository: new ProjectRESTRepository(restClient),
             }
           );
 
@@ -156,11 +153,10 @@ describe("ReadProjectDataActionの", () => {
           const projectId = expectedNewProjectIdentifier.id;
           expect(restClient.httpGet).toBeCalledWith(`/projects/${projectId}`);
           // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
-          const { id, testMatrices, stories, progressDatas } = expectedProject;
+          const { id, testMatrices, stories } = expectedProject;
           expect(observer.setProjectId).toBeCalledWith({ projectId: id });
           expect(observer.setManagedData).toBeCalledWith({ testMatrices });
           expect(observer.setStoriesData).toBeCalledWith({ stories });
-          expect(observer.setProgressDatas).toBeCalledWith({ progressDatas });
           if (result.isFailure()) {
             throw new Error("failed");
           }
@@ -178,7 +174,7 @@ describe("ReadProjectDataActionの", () => {
             new StoryDataConverter(),
             {
               testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRepository(restClient),
+              projectRepository: new ProjectRESTRepository(restClient),
             }
           );
 
@@ -192,7 +188,6 @@ describe("ReadProjectDataActionの", () => {
           expect(observer.setProjectId).not.toBeCalled();
           expect(observer.setManagedData).not.toBeCalled();
           expect(observer.setStoriesData).not.toBeCalled();
-          expect(observer.setProgressDatas).not.toBeCalled();
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {
@@ -217,7 +212,7 @@ describe("ReadProjectDataActionの", () => {
             new StoryDataConverter(),
             {
               testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRepository(restClient),
+              projectRepository: new ProjectRESTRepository(restClient),
             }
           );
 
@@ -231,7 +226,6 @@ describe("ReadProjectDataActionの", () => {
           expect(observer.setProjectId).not.toBeCalled();
           expect(observer.setManagedData).not.toBeCalled();
           expect(observer.setStoriesData).not.toBeCalled();
-          expect(observer.setProgressDatas).not.toBeCalled();
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {
@@ -262,7 +256,7 @@ describe("ReadProjectDataActionの", () => {
             new StoryDataConverter(),
             {
               testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRepository(restClient),
+              projectRepository: new ProjectRESTRepository(restClient),
             }
           );
 
@@ -276,7 +270,6 @@ describe("ReadProjectDataActionの", () => {
           expect(observer.setProjectId).not.toBeCalled();
           expect(observer.setManagedData).not.toBeCalled();
           expect(observer.setStoriesData).not.toBeCalled();
-          expect(observer.setProgressDatas).not.toBeCalled();
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {

@@ -28,7 +28,10 @@ import { SettingRepository } from "./repositoryService/SettingRepository";
 import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
 import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
-import { ProjectRepository } from "./repositoryService/ProjectRepository";
+import {
+  ProjectRESTRepository,
+  ProjectRepository,
+} from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 import RESTClientImpl from "./RESTClient";
@@ -95,7 +98,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
       testScript: new TestScriptRepository(this.restClient),
       setting: new SettingRepository(this.restClient),
       compressedImage: new CompressedImageRepository(this.restClient),
-      project: new ProjectRepository(this.restClient),
+      project: new ProjectRESTRepository(this.restClient),
       session: new SessionRepository(this.restClient),
       snapshot: new SnapshotRepository(this.restClient),
       screenshot: new ScreenshotRepository(this.restClient),
