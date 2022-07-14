@@ -722,7 +722,9 @@ export default class SessionInfo extends Vue {
   }
 
   private get memo(): string {
-    const testItems = this.session?.testItem ? [this.session.testItem] : [];
+    const testItems = this.session?.testItem
+      ? [`Test Item: ${this.session.testItem}`]
+      : [];
     const memos = this.session?.memo ? [this.session.memo] : [];
     return [...testItems, ...memos].join("\n");
   }
