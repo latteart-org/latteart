@@ -23,8 +23,10 @@ import router from "../../viewerRouter";
 import store from "../../store";
 
 declare const snapshot: any;
+declare const dailyTestProgresses: any;
 declare const settings: any;
 Vue.prototype.$snapshot = snapshot;
+Vue.prototype.$dailyTestProgresses = dailyTestProgresses;
 Vue.prototype.$settings = settings;
 Vue.prototype.$isViewerMode = true;
 

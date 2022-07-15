@@ -19,7 +19,7 @@ import {
   RepositoryAccessSuccess,
 } from "@/lib/captureControl/Reply";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
-import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
+import { Story, TestMatrix } from "@/lib/testManagement/types";
 import { StoryConvertable } from "./WriteDataFileAction";
 import {
   ActionResult,
@@ -32,7 +32,6 @@ export interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
-  setProgressDatas(data: { progressDatas: ProgressData[] }): void;
 }
 
 export interface ProjectStoryConvertable {
@@ -67,8 +66,7 @@ export class ReadProjectDataAction {
       });
     }
 
-    const { projectId, testMatrices, stories, progressDatas } =
-      readProjectResult.data;
+    const { projectId, testMatrices, stories } = readProjectResult.data;
 
     this.observer.setProjectId({ projectId });
 
@@ -88,8 +86,6 @@ export class ReadProjectDataAction {
       ),
     });
 
-    this.observer.setProgressDatas({ progressDatas });
-
     return new ActionSuccess(undefined);
   }
 
@@ -101,7 +97,6 @@ export class ReadProjectDataAction {
     RepositoryAccessResult<{
       projectId: string;
       testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
       stories: ManagedStory[];
     }>
   > {

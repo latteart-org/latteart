@@ -488,7 +488,8 @@
       "read_project_data_failed": "Failed to read project data.",
       "update_session_failed": "Failed to update session.",
       "save_project_failed": "Failed to save project data.",
-      "write_snapshot_failed": "Failed to write snapshot."
+      "write_snapshot_failed": "Failed to write snapshot.",
+      "collect_progress_datas_failed": "Failed to collect progress datas."
     },
     "import_export": {
       "import-data-error": "Data import failed.",

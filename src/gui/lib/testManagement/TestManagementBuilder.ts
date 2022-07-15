@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { TestMatrix, Story, ProgressData } from "./types";
+import { TestMatrix, Story } from "./types";
 import {
   TestManagementData,
   ManagedStory,
@@ -27,7 +27,6 @@ import StoryDataConverter from "./StoryDataConverter";
 export default class TestManagementBuilder {
   private _testMatrices: TestMatrix[] = [];
   private _stories: Story[] = [];
-  private _progressDatas: ProgressData[] = [];
 
   /**
    * Set test matrices
@@ -44,13 +43,6 @@ export default class TestManagementBuilder {
   }
 
   /**
-   * Set progressDatas
-   */
-  set progressDatas(value: ProgressData[]) {
-    this._progressDatas = JSON.parse(JSON.stringify(value));
-  }
-
-  /**
    * Convert to a format for storing retained data
    * @returns TestManagementData  Converted data.
    */
@@ -60,7 +52,6 @@ export default class TestManagementBuilder {
     return {
       testMatrices: this._testMatrices,
       stories: managedStories,
-      progressDatas: this._progressDatas,
     };
   }
 

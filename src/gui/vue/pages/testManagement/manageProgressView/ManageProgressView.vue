@@ -24,10 +24,13 @@
         <v-spacer></v-spacer>
       </v-layout>
     </v-flex>
+
     <v-flex>
       {{ $store.getters.message("manage-progress.display-settings-section") }}
+
       <v-layout row align-center>
         {{ $store.getters.message("manage-progress.period") }}
+
         <v-menu
           v-model="startDateMenu"
           :close-on-content-click="false"
@@ -40,7 +43,8 @@
         >
           <template v-slot:activator="{ on }">
             <v-text-field
-              v-model="startDate"
+              :value="startDate"
+              @change="(value) => updatePeriod({ start: value })"
               single-line
               prepend-icon="event"
               readonly
@@ -49,11 +53,14 @@
             ></v-text-field>
           </template>
           <v-date-picker
-            v-model="startDate"
+            :value="startDate"
+            @change="(value) => updatePeriod({ start: value })"
             @input="startDateMenu = false"
           ></v-date-picker>
         </v-menu>
+
         {{ $store.getters.message("manage-progress.period-symbol") }}
+
         <v-menu
           v-model="endDateMenu"
           :close-on-content-click="false"
@@ -66,7 +73,8 @@
         >
           <template v-slot:activator="{ on }">
             <v-text-field
-              v-model="endDate"
+              :value="endDate"
+              @change="(value) => updatePeriod({ end: value })"
               single-line
               prepend-icon="event"
               readonly
@@ -75,14 +83,17 @@
             ></v-text-field>
           </template>
           <v-date-picker
-            v-model="endDate"
+            :value="endDate"
+            @change="(value) => updatePeriod({ end: value })"
             @input="endDateMenu = false"
           ></v-date-picker>
         </v-menu>
       </v-layout>
     </v-flex>
+
     <v-flex>
       {{ $store.getters.message("manage-progress.filter-section") }}
+
       <v-layout row align-center>
         <v-flex xs6>
           <v-layout row align-center>
@@ -97,6 +108,7 @@
             ></v-select>
           </v-layout>
         </v-flex>
+
         <v-flex xs6>
           <v-layout row align-center>
             {{ $store.getters.message("manage-progress.test-target") }}
@@ -112,11 +124,9 @@
         </v-flex>
       </v-layout>
     </v-flex>
+
     <v-flex pb-3>
-      <progress-chart
-        v-if="rerender"
-        :datas="progressDatasForRender"
-      ></progress-chart>
+      <progress-chart v-if="rerender" :datas="chartData"></progress-chart>
     </v-flex>
   </v-layout>
 </template>
@@ -124,13 +134,10 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ProgressChart from "./organisms/ProgressChart.vue";
-import {
-  TestMatrixProgressData,
-  TestMatrix,
-  ProgressData,
-} from "@/lib/testManagement/types";
+import { TestMatrix } from "@/lib/testManagement/types";
 import Chart from "chart.js";
-import { Timestamp, TimestampImpl } from "@/lib/common/Timestamp";
+import { TimestampImpl } from "@/lib/common/Timestamp";
+import { DailyTestProgress } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 
 @Component({
   components: {
@@ -142,14 +149,16 @@ export default class ManageProgress extends Vue {
     ? (this as any).$isViewerMode
     : false;
   private rerender = true;
-
-  private innerStartDate: Timestamp | null = null;
   private startDateMenu = false;
-  private innerEndDate: Timestamp | null = null;
   private endDateMenu = false;
+
+  private startDate = "";
+  private endDate = "";
 
   private selectedGroupId = "all";
   private selectedTestTargetId = "all";
+
+  private progressDatas: DailyTestProgress[] = [];
 
   private testMatrix: TestMatrix = {
     id: "",
@@ -158,192 +167,90 @@ export default class ManageProgress extends Vue {
     groups: [],
   };
 
-  private get locale() {
-    return this.$store.getters.getLocale();
-  }
-
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-progress.window-title"),
-    });
-  }
-
-  private async created() {
-    await this.$store.dispatch("testManagement/readDataFile");
-
-    this.updateWindowTitle();
-
-    const targetTestMatrix = this.$store.state.testManagement.testMatrices.find(
-      (testMatrix: TestMatrix) => {
-        return this.$route.params.testMatrixId === testMatrix.id;
-      }
-    );
-
-    if (targetTestMatrix) {
-      this.testMatrix = targetTestMatrix;
-    }
-
-    const dates = this.originalProgressDatas.map((data) => {
-      return new TimestampImpl(data.date).unix();
-    });
-    const minDate = dates.reduce((first, second) => Math.min(first, second));
-    const maxDate = dates.reduce((first, second) => Math.max(first, second));
-
-    this.innerStartDate = new TimestampImpl(minDate);
-    this.innerEndDate = new TimestampImpl(maxDate);
-  }
-
-  private get startDate() {
-    return this.innerStartDate
-      ? this.innerStartDate.format("YYYY-MM-DD")
-      : new TimestampImpl().format("YYYY-MM-DD");
-  }
-
-  private set startDate(value: string) {
-    this.innerStartDate = new TimestampImpl(value);
-  }
-
-  private get endDate() {
-    return this.innerEndDate
-      ? this.innerEndDate.format("YYYY-MM-DD")
-      : new TimestampImpl().format("YYYY-MM-DD");
-  }
-
-  private set endDate(value: string) {
-    this.innerEndDate = new TimestampImpl(value);
-  }
-
-  private get originalProgressDatas(): TestMatrixProgressData[] {
-    const allProgressDatas: ProgressData[] =
-      this.$store.getters["testManagement/collectProgressDatas"]() ?? [];
-    const targetProgressData = allProgressDatas.find((progressData) => {
-      return progressData.testMatrixId === this.testMatrix.id;
-    });
-    return targetProgressData?.testMatrixProgressDatas ?? [];
-  }
-
-  private get unselectedItem() {
-    return {
-      id: "all",
-      name: this.$store.getters.message("manage-progress.all") as string,
-    };
-  }
-
   private get groups() {
-    const filterItems = this.testMatrix.groups.map((group) => {
-      return {
-        id: group.id,
-        name: group.name,
-      };
-    });
-
-    return [this.unselectedItem, ...filterItems];
+    const all = {
+      ...this.unselectedItem,
+      testTargets: this.testMatrix.groups.flatMap((group) => group.testTargets),
+    };
+    return [all, ...this.testMatrix.groups];
   }
 
   private get testTargets() {
-    const filterItems = this.testMatrix.groups
-      .filter((group) => {
-        return this.selectedGroupId === "all"
-          ? true
-          : group.id === this.selectedGroupId;
-      })
-      .reduce(
-        (acc, current) => {
-          const testTargetIdAndNames = current.testTargets.map((testTarget) => {
-            return {
-              id: `${current.id}-${testTarget.id}`,
-              name: testTarget.name,
-            };
-          });
+    const testTargets =
+      this.groups.find((group) => group.id === this.selectedGroupId)
+        ?.testTargets ?? [];
 
-          acc.push(...testTargetIdAndNames);
-
-          return acc;
-        },
-        [] as Array<{
-          id: string;
-          name: string;
-        }>
-      )
-      .filter((testTargetIdAndName, index, array) => {
-        return (
-          array.findIndex((item) => {
-            return item.id === testTargetIdAndName.id;
-          }) === index
-        );
-      });
-
-    if (
-      filterItems.findIndex((item) => item.id === this.selectedTestTargetId) ===
-      -1
-    ) {
-      this.selectedTestTargetId = "all";
+    if (!testTargets.find(({ id }) => id === this.selectedTestTargetId)) {
+      this.selectedTestTargetId = this.unselectedItem.id;
     }
 
-    return [this.unselectedItem, ...filterItems];
+    return [this.unselectedItem, ...testTargets];
+  }
+
+  private get unselectedItem(): { id: string; name: string } {
+    return {
+      id: "all",
+      name: this.$store.getters.message("manage-progress.all"),
+    };
   }
 
   private get filteredProgressDatas() {
-    const allProgressDatas = this.originalProgressDatas;
-
-    const filteredProgressDatas = allProgressDatas
-      .filter((data) => {
-        const start = this.innerStartDate
-          ? this.innerStartDate
-          : new TimestampImpl();
-        const end = this.innerEndDate ? this.innerEndDate : new TimestampImpl();
-        return new TimestampImpl(data.date).isBetween(start, end);
-      })
-      .map((data) => {
-        const groups = data.groups
-          .filter((group) => {
-            return this.selectedGroupId === "all"
-              ? true
-              : group.id === this.selectedGroupId;
-          })
-          .map((group) => {
-            return {
-              id: group.id,
-              name: group.name,
-              testTargets: group.testTargets.filter((testTarget) => {
-                return this.selectedTestTargetId === "all"
-                  ? true
-                  : `${group.id}-${testTarget.id}` ===
-                      this.selectedTestTargetId;
-              }),
-            };
-          });
-        return groups.reduce(
-          (progressData, currentGroup) => {
-            for (const currentTestTarget of currentGroup.testTargets) {
-              progressData.planNumber += currentTestTarget.progress.planNumber;
-              progressData.completedNumber +=
-                currentTestTarget.progress.completedNumber;
-              progressData.incompletedNumber +=
-                currentTestTarget.progress.incompletedNumber;
-            }
-
-            return progressData;
-          },
-          {
-            date: new TimestampImpl(data.date).format("YYYY-MM-DD"),
-            planNumber: 0,
-            completedNumber: 0,
-            incompletedNumber: 0,
+    const filteredDatas = this.progressDatas.map((dailyProgress) => {
+      const storyProgresses = dailyProgress.storyProgresses
+        .filter(({ testMatrixId }) => {
+          return testMatrixId === this.testMatrix.id;
+        })
+        .filter(({ testTargetGroupId }) => {
+          if (this.selectedGroupId === "all") {
+            return true;
           }
-        );
-      });
+          return testTargetGroupId === this.selectedGroupId;
+        })
+        .filter(({ testTargetId }) => {
+          if (this.selectedTestTargetId === "all") {
+            return true;
+          }
+          return testTargetId === this.selectedTestTargetId;
+        });
 
-    return filteredProgressDatas;
+      return {
+        date: dailyProgress.date,
+        storyProgresses,
+      };
+    });
+
+    return filteredDatas.map((dailyProgress) => {
+      return dailyProgress.storyProgresses.reduce(
+        (
+          acc,
+          {
+            plannedSessionNumber,
+            completedSessionNumber,
+            incompletedSessionNumber,
+          }
+        ) => {
+          acc.planNumber += plannedSessionNumber;
+          acc.completedNumber += completedSessionNumber;
+          acc.incompletedNumber += incompletedSessionNumber;
+          return acc;
+        },
+        {
+          date: new TimestampImpl(dailyProgress.date).format("YYYY-MM-DD"),
+          planNumber: 0,
+          completedNumber: 0,
+          incompletedNumber: 0,
+        }
+      );
+    });
   }
 
-  private get progressDatasForRender(): Chart.ChartData {
+  private get chartData(): Chart.ChartData {
     this.rerender = false;
 
     Vue.nextTick(() => {
       this.rerender = true;
     });
+
     return {
       labels: this.filteredProgressDatas.map(
         (progressData) => progressData.date
@@ -386,6 +293,68 @@ export default class ManageProgress extends Vue {
         ]
       ),
     };
+  }
+
+  private get locale() {
+    return this.$store.getters.getLocale();
+  }
+
+  @Watch("locale")
+  private updateWindowTitle() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message("manage-progress.window-title"),
+    });
+  }
+
+  private async created() {
+    await this.$store.dispatch("testManagement/readDataFile");
+
+    this.updateWindowTitle();
+
+    const found = this.$store.state.testManagement.testMatrices.find(
+      (testMatrix: TestMatrix) => {
+        return this.$route.params.testMatrixId === testMatrix.id;
+      }
+    );
+    if (found) {
+      this.testMatrix = found;
+    }
+
+    this.progressDatas = await this.collectProgressDatas();
+
+    const dates = this.progressDatas.map((data) => {
+      return new TimestampImpl(data.date).unix();
+    });
+    this.startDate = new TimestampImpl(Math.min(...dates)).format("YYYY-MM-DD");
+    this.endDate = new TimestampImpl(Math.max(...dates)).format("YYYY-MM-DD");
+  }
+
+  private updatePeriod(value: { start?: string; end?: string }) {
+    (async () => {
+      if (value.start) {
+        this.startDate = new TimestampImpl(value.start).format("YYYY-MM-DD");
+      }
+
+      if (value.end) {
+        this.endDate = new TimestampImpl(value.end).format("YYYY-MM-DD");
+      }
+
+      this.progressDatas = await this.collectProgressDatas();
+    })();
+  }
+
+  private async collectProgressDatas(): Promise<DailyTestProgress[]> {
+    const filter = {
+      period:
+        this.startDate && this.endDate
+          ? {
+              since: new TimestampImpl(this.startDate),
+              until: new TimestampImpl(this.endDate),
+            }
+          : undefined,
+    };
+
+    return this.$store.dispatch("testManagement/collectProgressDatas", filter);
   }
 }
 </script>

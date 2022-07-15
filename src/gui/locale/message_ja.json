@@ -492,7 +492,8 @@
       "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
-      "write_snapshot_failed": "スナップショットの出力に失敗しました。"
+      "write_snapshot_failed": "スナップショットの出力に失敗しました。",
+      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",

@@ -16,12 +16,7 @@
 
 import { MutationTree } from "vuex";
 import { TestManagementState } from ".";
-import {
-  Story,
-  TestMatrix,
-  ProgressData,
-  Session,
-} from "@/lib/testManagement/types";
+import { Story, TestMatrix, Session } from "@/lib/testManagement/types";
 
 const mutations: MutationTree<TestManagementState> = {
   /**
@@ -43,21 +38,18 @@ const mutations: MutationTree<TestManagementState> = {
    * @param state State.
    * @param payload.stories Stories.
    * @param payload.testMatrices Test matrices.
-   * @param payload.progressDatas Progress datas.
    */
   setManagedData(
     state,
     payload: {
       stories?: Story[];
       testMatrices: TestMatrix[];
-      progressDatas: ProgressData[];
     }
   ) {
     if (payload.stories) {
       state.stories = payload.stories;
     }
     state.testMatrices = payload.testMatrices;
-    state.progressDatas = payload.progressDatas;
   },
 
   /**
@@ -121,34 +113,6 @@ const mutations: MutationTree<TestManagementState> = {
    */
   clearTempStory(state) {
     state.tempStory = null;
-  },
-
-  /**
-   * Set progress datas to the State.
-   * @param state State.
-   * @param payload.progressDatas New progress datas.
-   */
-  setProgressDatas(state, payload: { progressDatas: ProgressData[] }) {
-    state.progressDatas = JSON.parse(JSON.stringify(payload.progressDatas));
-  },
-
-  /**
-   * Add a progress data to the State.
-   * @param state State.
-   * @param payload.data Progress data.
-   */
-  addProgressData(state, payload: { data: ProgressData }) {
-    (state.progressDatas as ProgressData[]).push(payload.data);
-  },
-
-  /**
-   * Replace the specified index progress data in the State.
-   * @param state State
-   * @param payload.index Progress data index.
-   * @param payload.data New progress data.
-   */
-  setProgressData(state, payload: { index: number; data: ProgressData }) {
-    (state.progressDatas as ProgressData[])[payload.index] = payload.data;
   },
 };
 
