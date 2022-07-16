@@ -163,6 +163,7 @@ export default class ManageProgress extends Vue {
   private testMatrix: TestMatrix = {
     id: "",
     name: "",
+    index: 0,
     viewPoints: [],
     groups: [],
   };

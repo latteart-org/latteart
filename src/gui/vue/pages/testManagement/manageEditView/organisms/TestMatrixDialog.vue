@@ -307,6 +307,7 @@ export default class TestMatrixDialog extends Vue {
           };
         }),
     };
+    console.log(updateTestMatrixObject);
     this.$emit("updateTestMatrix", updateTestMatrixObject);
 
     this.closeDialog();

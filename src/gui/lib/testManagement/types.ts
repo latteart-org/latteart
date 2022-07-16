@@ -24,6 +24,7 @@ export interface SessionsData {
 export interface TestMatrix {
   id: string;
   name: string;
+  index: number;
   groups: Group[];
   viewPoints: ViewPoint[];
 }
@@ -31,6 +32,7 @@ export interface TestMatrix {
 export interface Group {
   id: string;
   name: string;
+  index: number;
   testTargets: TestTarget[];
 }
 
@@ -50,6 +52,7 @@ export interface TestTarget {
   id: string;
   name: string;
   plans: Plan[];
+  index: number;
 }
 
 export interface Plan {

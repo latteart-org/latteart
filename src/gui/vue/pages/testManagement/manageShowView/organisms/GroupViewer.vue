@@ -145,6 +145,7 @@ export default class GroupViewer extends Vue {
       return {
         id: "",
         name: "",
+        index: 0,
         plans: [],
       };
     }
