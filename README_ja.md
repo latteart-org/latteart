@@ -49,7 +49,7 @@ LatteArt は以下の 2 つのツールで構成されています。
        ├─ launch.exe
        ├─ latteart/
        ├─ latteart-capture-cl/ # 追加
-       └─ latteart-repository/ # 追加
+       └─ latteart-repository/ # マージ
    ```
 
 # 開発者向け

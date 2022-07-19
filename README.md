@@ -77,7 +77,7 @@ Detect source code changes and rebuild LatteArt.
        ├─ launch.exe
        ├─ latteart/
        ├─ latteart-capture-cl/ # put
-       └─ latteart-repository/ # put
+       └─ latteart-repository/ # merge
    ```
 
 ## Run
