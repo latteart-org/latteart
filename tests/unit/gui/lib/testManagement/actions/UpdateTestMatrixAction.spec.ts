@@ -1,148 +1,183 @@
+import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { TestMatrixRepository } from "@/lib/eventDispatcher/repositoryService/TestMatrixRepository";
+import { ViewPointRepository } from "@/lib/eventDispatcher/repositoryService/ViewPointRepository";
+import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
+
+const beseRestClient: RESTClient = {
+  httpGet: jest.fn(),
+  httpPost: jest.fn(),
+  httpPut: jest.fn(),
+  httpPatch: jest.fn(),
+  httpDelete: jest.fn(),
+};
 
 describe("UpdateTestMatrixAction", () => {
   describe("#updateTestMatrix", () => {
-    it("viewPointを追加", async () => {
-      const observer = {
-        saveManagedData: jest.fn().mockResolvedValue([
-          {
-            id: "t1",
-            name: "testMatrixName",
-            groups: [
+    it("TestMatrix更新、ViewPoint作成・更新・削除", async () => {
+      const testMatrixResponse = {
+        ...beseRestClient,
+        httpPatch: jest.fn().mockResolvedValue({
+          status: 200,
+          data: {
+            id: "testMatrixId",
+            name: "newTestMatrixName",
+            index: 0,
+            groups: [],
+            viewPoints: [],
+          },
+        }),
+      };
+      const viewPointResponse = {
+        ...beseRestClient,
+        httpPost: jest.fn().mockResolvedValue({
+          status: 200,
+          data: {
+            id: "viewPointId",
+            name: "viewPointName",
+            description: "viewPointDescription",
+            index: 0,
+          },
+        }),
+        httpPatch: jest.fn().mockResolvedValue({
+          status: 200,
+          data: {
+            id: "viewPointId1",
+            name: "viewPointName1",
+            description: "viewPointDescription1",
+            index: 0,
+          },
+        }),
+        httpDelete: jest.fn().mockResolvedValue({ status: 204 }),
+      };
+      const projectResponse = {
+        ...beseRestClient,
+        httpGet: jest.fn().mockResolvedValue({
+          status: 200,
+          data: {
+            testMatrices: [
               {
-                id: "g1",
-                name: "groupName",
-                testTargets: [
+                id: "testMatrixId",
+                name: "newTestMatrixName",
+                index: 0,
+                groups: [],
+                viewPoints: [
                   {
-                    id: "t1",
-                    name: "testTargetName",
-                    plans: [
-                      {
-                        viewPointId: "v1",
-                        value: 0,
-                      },
-                      {
-                        viewPointId: "v2",
-                        value: 0,
-                      },
-                    ],
+                    id: "viewPointId1",
+                    name: "viewPointName1",
+                    description: "viewPointDescription1",
+                    index: 0,
+                  },
+                  {
+                    id: "viewPointId2",
+                    name: "viewPointName2",
+                    description: "viewPointDescription2",
+                    index: 1,
                   },
                 ],
               },
             ],
-            viewPoints: [
-              {
-                id: "v1",
-                name: "viewPointName1",
-                description: "viewPointDescription1",
-              },
-              {
-                id: "v2",
-                name: "viewPointName2",
-                description: "viewPointDescription2",
-              },
-            ],
           },
-        ]),
-        addNewStory: jest.fn(),
+        }),
       };
 
-      const testMatrices: TestMatrix[] = [
-        {
-          id: "t1",
-          name: "testMatrixName",
-          groups: [
-            {
-              id: "g1",
-              name: "groupName",
-              testTargets: [
-                {
-                  id: "t1",
-                  name: "testTargetName",
-                  plans: [
-                    {
-                      viewPointId: "v1",
-                      value: 0,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-          viewPoints: [
-            {
-              id: "v1",
-              name: "viewPointName1",
-              description: "viewPointDescription1",
-              index: 0,
-            },
-          ],
+      const args = {
+        projectId: "project1",
+        newTestMatrix: {
+          id: "testMatrixId1",
+          name: "testMatrixName1",
         },
-      ];
-
-      const stories: Story[] = [
-        {
-          id: "t1_v1_g1_t1",
-          testMatrixId: "",
-          testTargetId: "",
-          viewPointId: "v1",
-          status: "status",
-          sessions: [],
-        },
-      ];
-
-      const updateMatrixData: {
-        id: string;
-        name: string;
-        viewPoints: Array<{
-          name: string;
-          description: string;
-          index: number;
-          id: string | null;
-        }>;
-      } = {
-        id: "t1",
-        name: "testMatrixName",
-        viewPoints: [
+        newViewPoints: [
           {
-            id: "v1",
+            id: "viewPointId1",
             name: "viewPointName1",
             description: "viewPointDescription1",
             index: 0,
           },
           {
-            id: undefined as unknown as string,
+            id: null,
             name: "viewPointName2",
             description: "viewPointDescription2",
             index: 1,
           },
         ],
+        oldTestMatrix: {
+          id: "testMatrixId1",
+          name: "testMatrixNameXXX",
+          index: 0,
+          groups: [],
+          viewPoints: [
+            {
+              id: "viewPointId1",
+              name: "viewPointName0",
+              description: "viewPointDescription0",
+              index: 0,
+            },
+            {
+              id: "viewPointId3",
+              name: "viewPointName3",
+              description: "viewPointDescription3",
+              index: 1,
+            },
+          ],
+        },
       };
-
-      await new UpdateTestMatrixAction(observer).updateTestMatrix(
-        testMatrices,
-        stories,
-        updateMatrixData
-      );
-
-      testMatrices[0].groups[0].testTargets[0].plans.push({
-        viewPointId: "v2",
-        value: 0,
+      const result = await new UpdateTestMatrixAction().updateTestMatrix(args, {
+        testMatrixRepository: new TestMatrixRepository(testMatrixResponse),
+        viewPointRepository: new ViewPointRepository(viewPointResponse),
+        projectRepository: new ProjectRESTRepository(projectResponse),
       });
-      testMatrices[0].viewPoints.push({
-        id: undefined as unknown as string,
+
+      expect(testMatrixResponse.httpPatch).toBeCalledWith(
+        "/test-matrices/testMatrixId1",
+        {
+          name: "testMatrixName1",
+        }
+      );
+      expect(viewPointResponse.httpPost).toBeCalledWith("/view-points", {
         name: "viewPointName2",
         description: "viewPointDescription2",
         index: 1,
+        testMatrixId: "testMatrixId1",
       });
+      expect(viewPointResponse.httpPatch).toBeCalledWith(
+        "/view-points/viewPointId1",
+        {
+          name: "viewPointName1",
+          description: "viewPointDescription1",
+          index: 0,
+        }
+      );
+      expect(viewPointResponse.httpDelete).toBeCalledWith(
+        `/view-points/viewPointId3`
+      );
 
-      expect(observer.saveManagedData).toBeCalledWith({
-        testMatrices: testMatrices,
-        stories: stories,
-      });
+      if (result.isFailure()) {
+        throw result.error;
+      }
 
-      expect(observer.addNewStory).toBeCalledWith();
+      expect(result.data).toEqual([
+        {
+          groups: [],
+          id: "testMatrixId",
+          index: 0,
+          name: "newTestMatrixName",
+          viewPoints: [
+            {
+              description: "viewPointDescription1",
+              id: "viewPointId1",
+              index: 0,
+              name: "viewPointName1",
+            },
+            {
+              description: "viewPointDescription2",
+              id: "viewPointId2",
+              index: 1,
+              name: "viewPointName2",
+            },
+          ],
+        },
+      ]);
     });
   });
 });

@@ -64,7 +64,7 @@
           <v-flex xs2>
             <v-btn
               v-if="expandedPanelIndex === index"
-              @click="openConfirmDialogToDeleteGroup(group.id)"
+              @click.stop="openConfirmDialogToDeleteGroup(group.id)"
               small
               color="error"
               >{{ $store.getters.message("group-edit-list.delete") }}</v-btn
@@ -221,9 +221,7 @@ export default class TestMatrixEditor extends Vue {
     this.$store.dispatch("testManagement/updateGroup", {
       testMatrixId: this.testMatrixId,
       groupId: id,
-      params: {
-        name,
-      },
+      name,
     });
   }
 }

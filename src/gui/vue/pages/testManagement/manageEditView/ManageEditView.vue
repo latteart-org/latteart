@@ -168,6 +168,7 @@ export default class ManageEditView extends Vue {
     this.testMatrixBeingEdited = {
       name: "",
       id: "",
+      index: 0,
       groups: [],
       viewPoints: [],
     };
@@ -183,7 +184,6 @@ export default class ManageEditView extends Vue {
         name: obj.testMatrix.name,
         viewPoints: obj.viewPoints,
       });
-
       this.selectTestMatrix(this.testMatrices[this.testMatrices.length - 1].id);
     })();
   }

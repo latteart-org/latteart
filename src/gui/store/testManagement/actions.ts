@@ -24,7 +24,6 @@ import {
   AttachedFile,
   TestResultFile,
   Issue,
-  TestTarget,
   Plan,
 } from "@/lib/testManagement/types";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
@@ -40,6 +39,14 @@ import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
+import { AddNewTestMatrixAction } from "@/lib/testManagement/actions/AddNewTestMatrixAction";
+import { AddNewGroupAction } from "@/lib/testManagement/actions/AddNewGroupAction";
+import { UpdateGroupAction } from "@/lib/testManagement/actions/UpdateGroupAction";
+import { UpdateTestTargetsAction } from "@/lib/testManagement/actions/UpdateTestTargetsAction";
+import { DeleteTestTargetAction } from "@/lib/testManagement/actions/DeleteTestTargetAction";
+import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";
+import { DeleteGroupAction } from "@/lib/testManagement/actions/DeleteGroupAction";
+import { AddNewTestTargetAction } from "@/lib/testManagement/actions/AddNewTestTargetAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { CollectProgressDatasAction } from "@/lib/testManagement/actions/CollectProgressDatasAction";
 import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/ProjectFileRepository";
@@ -186,32 +193,47 @@ const actions: ActionTree<TestManagementState, RootState> = {
     ).write(context.state.projectId, testManagementData, context.state.stories);
   },
 
-  addNewTestMatrix(
+  /**
+   * Create a test matrix and its associated view point.
+   * @param context Action context.
+   * @param payload.name The name of the test matrix to create.
+   * @param payload.name View point to create.
+   */
+  async addNewTestMatrix(
     context,
     payload: {
       name: string;
       viewPoints: Array<{
         name: string;
-        id: string | null;
+        index: number;
+        description: string;
       }>;
     }
   ): Promise<void> {
-    const newTestMatrices = [
-      ...context.state.testMatrices,
+    const result = await new AddNewTestMatrixAction().addTestMatrix(
       {
-        groups: [],
-        id: "",
-        name: payload.name,
+        projectId: context.state.projectId,
+        testMatrixName: payload.name,
         viewPoints: payload.viewPoints,
       },
-    ];
+      context.rootState.repositoryContainer
+    );
 
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: context.state.stories,
-    });
+    if (result.isFailure()) {
+      throw result.error;
+    }
+
+    context.commit("addTestMatrix", { testMatrix: result.data });
   },
 
+  /**
+   * Update test matrix.
+   * @param context Action context.
+   * @param payload.id Test matrix ID to be updated.
+   * @param payload.id Test matrix name.
+   * @param payload.viewPoints View points to update.
+   * @returns
+   */
   async updateTestMatrix(
     context,
     payload: {
@@ -219,154 +241,149 @@ const actions: ActionTree<TestManagementState, RootState> = {
       name: string;
       viewPoints: Array<{
         name: string;
-        id: string | null;
-        index: number;
         description: string;
+        index: number;
+        id: string | null;
       }>;
     }
   ): Promise<void> {
-    await new UpdateTestMatrixAction({
-      saveManagedData: async (data: {
-        stories: Story[];
-        testMatrices: TestMatrix[];
-      }): Promise<TestMatrix[]> => {
-        await context.dispatch("saveManagedData", {
-          testMatrices: data.testMatrices,
-          stories: data.stories,
-        });
-        return context.state.testMatrices;
-      },
-      addNewStory: async (): Promise<void> => {
-        await context.dispatch("addNewStory");
-      },
-    }).updateTestMatrix(
-      context.state.testMatrices,
-      context.state.stories,
-      payload
+    const oldTestMatrix = context.state.testMatrices.find(
+      (testMatrix) => payload.id === testMatrix.id
     );
+    if (!oldTestMatrix) {
+      throw new Error();
+    }
+
+    const result = await new UpdateTestMatrixAction().updateTestMatrix(
+      {
+        projectId: context.state.projectId,
+        newTestMatrix: {
+          id: payload.id,
+          name: payload.name,
+        },
+        newViewPoints: payload.viewPoints,
+        oldTestMatrix,
+      },
+      context.rootState.repositoryContainer
+    );
+
+    if (result.isFailure()) {
+      throw result.error;
+    }
+
+    context.commit("updateTestMatrices", result.data);
+
     return;
   },
 
+  /**
+   * Delete test matrix.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of test matrix to delete.
+   */
   async deleteTestMatrix(
     context,
     payload: { testMatrixId: string }
   ): Promise<void> {
-    const newStory = context.state.stories.filter((story) => {
-      return story.id.split("_")[0] !== payload.testMatrixId;
-    });
-
-    const newTestMatrices = context.state.testMatrices.filter((testMatrix) => {
-      return testMatrix.id !== payload.testMatrixId;
-    });
-
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: newStory,
-    });
+    await new DeleteTestMatrixAction().deleteTestMatrix(
+      {
+        projectId: context.state.projectId,
+        testMatrixId: payload.testMatrixId,
+      },
+      context.rootState.repositoryContainer
+    );
+    await context.dispatch("readDataFile");
   },
 
+  /**
+   * Create a group.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the group to create.
+   */
   async addNewGroup(
     context,
     payload: {
       testMatrixId: string;
     }
   ): Promise<void> {
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    const result = await new AddNewGroupAction().addNewGroup(
+      {
+        testMatrixId: payload.testMatrixId,
+        name: context.rootGetters.message("group-edit-list.name"),
+      },
+      context.rootState.repositoryContainer
+    );
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: [
-          ...testMatrix.groups,
-          {
-            id: "",
-            name: context.rootGetters.message("group-edit-list.name"),
-            testTargets: [],
-          },
-        ],
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-    console.log(newTestMatrices);
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-    return await context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: context.state.stories,
-    });
+    context.commit("addGroup", { testMatrixId: payload, group: result.data });
   },
 
-  updateGroup(
+  /**
+   * Update group.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the group to update.
+   * @param payload.groupId ID of group to update.
+   * @param payload.name Group name.
+   */
+  async updateGroup(
     context,
     payload: {
       testMatrixId: string;
       groupId: string;
-      params: {
-        name?: string;
-        testTargets?: TestTarget[];
-      };
+      name: string;
     }
   ): Promise<void> {
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    const result = await new UpdateGroupAction().updateGroup(
+      {
+        testMatrixId: payload.testMatrixId,
+        groupId: payload.groupId,
+        name: payload.name,
+      },
+      context.rootState.repositoryContainer
+    );
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: testMatrix.groups.map((group) => {
-          if (group.id !== payload.groupId) {
-            return group;
-          }
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-          return {
-            id: group.id,
-            name: payload.params.name ?? group.name,
-            testTargets: payload.params.testTargets ?? group.testTargets,
-          };
-        }),
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: context.state.stories,
-    });
+    context.commit("updateTestMatrices", { testMatrices: [result.data] });
   },
 
-  deleteGroup(
+  /**
+   * Delete group.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the test target to delete.
+   * @param payload.groupId ID of group to delete.
+   */
+  async deleteGroup(
     context,
     payload: { testMatrixId: string; groupId: string }
   ): Promise<void> {
-    const newStories = context.state.stories.filter((story) => {
-      return story.id.split("_")[2] !== payload.groupId;
-    });
+    const result = await new DeleteGroupAction().deleteGroup(
+      {
+        testMatrixId: payload.testMatrixId,
+        groupId: payload.groupId,
+      },
+      context.rootState.repositoryContainer
+    );
 
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: testMatrix.groups.filter((group) => {
-          return group.id !== payload.groupId;
-        }),
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: newStories,
-    });
+    context.commit("updateTestMatrices", { testMatrices: [result.data] });
   },
 
+  /**
+   * Create a test target.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the test target to create.
+   * @param payload.groupId ID of the group that has the test target to create.
+   * @param payload.testTargetName Test target name.
+   */
   async addNewTestTarget(
     context,
     payload: {
@@ -375,134 +392,80 @@ const actions: ActionTree<TestManagementState, RootState> = {
       testTargetName: string;
     }
   ): Promise<void> {
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    const result = await new AddNewTestTargetAction().addNewTestTarget(
+      payload,
+      context.rootState.repositoryContainer
+    );
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: testMatrix.groups.map((group) => {
-          if (group.id !== payload.groupId) {
-            return group;
-          }
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-          return {
-            id: group.id,
-            name: group.name,
-            testTargets: [
-              ...group.testTargets,
-              {
-                id: "",
-                name: payload.testTargetName,
-                plans: testMatrix.viewPoints.map((viewPoint) => {
-                  return {
-                    viewPointId: viewPoint.id,
-                    value: 0,
-                  };
-                }),
-              },
-            ],
-          };
-        }),
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-
-    await context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: context.state.stories,
+    context.commit("addTestTarget", {
+      testMatrixId: payload.testMatrixId,
+      groupId: payload.groupId,
+      testTarget: result.data,
     });
   },
 
-  updateTestTarget(
+  /**
+   * Update test targets.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the test target to update.
+   * @param payload.groupId ID of the group that has the test target to update.
+   * @param payload.testTargets Test targets to update.
+   */
+  async updateTestTargets(
     context,
     payload: {
       testMatrixId: string;
       groupId: string;
-      testTargetId: string;
-      params: {
-        name: string;
-        plans: Plan[];
-      };
+      testTargets: {
+        id: string;
+        index?: number;
+        name?: string;
+        plans?: Plan[];
+      }[];
     }
   ): Promise<void> {
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    const result = await new UpdateTestTargetsAction().updateTestTargets(
+      payload,
+      context.rootState.repositoryContainer
+    );
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: testMatrix.groups.map((group) => {
-          if (group.id !== payload.groupId) {
-            return group;
-          }
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-          return {
-            id: group.id,
-            name: group.name,
-            testTargets: group.testTargets.map((testTarget) => {
-              if (testTarget.id !== payload.testTargetId) {
-                return testTarget;
-              }
-
-              return {
-                id: testTarget.id,
-                name: payload.params.name ?? testTarget.name,
-                plans: payload.params.plans ?? testTarget.plans,
-              };
-            }),
-          };
-        }),
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: context.state.stories,
+    context.commit("updateGroups", {
+      testMatrixId: payload.testMatrixId,
+      groups: [result.data],
     });
   },
 
-  deleteTestTarget(
+  /**
+   * Delete test target.
+   * @param context Action context.
+   * @param payload.testMatrixId ID of the test matrix that has the test target to delete.
+   * @param payload.groupId ID of the group that has the test target to delete.
+   * @param payload.testTargetId ID of test target to delete.
+   */
+  async deleteTestTarget(
     context,
     payload: { testMatrixId: string; groupId: string; testTargetId: string }
   ): Promise<void> {
-    const newTestMatrices = context.state.testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== payload.testMatrixId) {
-        return testMatrix;
-      }
+    const result = await new DeleteTestTargetAction().deleteTestTarget(
+      payload,
+      context.rootState.repositoryContainer
+    );
 
-      return {
-        id: testMatrix.id,
-        name: testMatrix.name,
-        groups: testMatrix.groups.map((group) => {
-          if (group.id !== payload.groupId) {
-            return group;
-          }
+    if (result.isFailure()) {
+      throw result.error;
+    }
 
-          return {
-            id: group.id,
-            name: group.name,
-            testTargets: group.testTargets.filter((testTarget) => {
-              return testTarget.id !== payload.testTargetId;
-            }),
-          };
-        }),
-        viewPoints: testMatrix.viewPoints,
-      };
-    });
-
-    const newStories = context.state.stories.filter((story) => {
-      return story.id.split("_")[3] !== payload.testTargetId;
-    });
-
-    return context.dispatch("saveManagedData", {
-      testMatrices: newTestMatrices,
-      stories: newStories,
+    context.commit("updateGroups", {
+      testMatrixId: payload.testMatrixId,
+      groups: [result.data],
     });
   },
 

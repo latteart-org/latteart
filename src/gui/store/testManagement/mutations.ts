@@ -16,8 +16,13 @@
 
 import { MutationTree } from "vuex";
 import { TestManagementState } from ".";
-import { Story, TestMatrix, Session } from "@/lib/testManagement/types";
-
+import {
+  Story,
+  TestMatrix,
+  Session,
+  Group,
+  TestTarget,
+} from "@/lib/testManagement/types";
 const mutations: MutationTree<TestManagementState> = {
   /**
    * Set project id to the State.
@@ -113,6 +118,155 @@ const mutations: MutationTree<TestManagementState> = {
    */
   clearTempStory(state) {
     state.tempStory = null;
+  },
+
+  /**
+   * Add a test matrix to the State.
+   * @param state State.
+   * @param payload.testMatrix New test matrix.
+   */
+  addTestMatrix(state, payload: { testMatrix: TestMatrix }) {
+    state.testMatrices = [...state.testMatrices, payload.testMatrix];
+  },
+
+  /**
+   * Replace the specified test matrix in the State.
+   * @param state State.
+   * @param payload.testMatrices Test matrices to update.
+   */
+  updateTestMatrices(state, payload: { testMatrices: TestMatrix[] }) {
+    state.testMatrices = [
+      ...state.testMatrices.filter((testMatrix) => {
+        return !payload.testMatrices.find(
+          (newTestMatrix) => newTestMatrix.id === testMatrix.id
+        );
+      }),
+      ...payload.testMatrices,
+    ].sort((t1, t2) => {
+      return t1.index - t2.index;
+    });
+  },
+
+  /**
+   * Delete a test matrix to the State.
+   * @param state State.
+   * @param payload ID of test matrix to delete.
+   */
+  deleteTestMatrix(state, payload: { testMatrixId: string }) {
+    state.testMatrices = state.testMatrices.filter(
+      (testMatrix) => testMatrix.id !== payload.testMatrixId
+    );
+  },
+
+  /**
+   * Add a group to the State.
+   * @param state State
+   * @param payload New group.
+   */
+  addGroup(state, payload: { testMatrixId: string; group: Group }) {
+    state.testMatrices = state.testMatrices.map((testMatrix) => {
+      if (testMatrix.id !== payload.testMatrixId) {
+        return testMatrix;
+      }
+      return {
+        ...testMatrix,
+        groups: [...testMatrix.groups, payload.group],
+      };
+    });
+  },
+
+  /**
+   * Replace the specified group in the State.
+   * @param state State.
+   * @param payload Group to update.
+   */
+  updateGroups(state, payload: { testMatrixId: string; groups: Group[] }) {
+    state.testMatrices = state.testMatrices.map((testMatrix) => {
+      if (testMatrix.id !== payload.testMatrixId) {
+        return testMatrix;
+      }
+
+      return {
+        ...testMatrix,
+        groups: [
+          ...testMatrix.groups.filter((group) => {
+            return !payload.groups.find((newGroup) => {
+              return newGroup.id === group.id;
+            });
+          }),
+          ...payload.groups,
+        ].sort((g1, g2) => {
+          return g1.index - g2.index;
+        }),
+      };
+    });
+  },
+
+  /**
+   * Add a test target to the State.
+   * @param state State.
+   * @param payload.testMatrixId ID of the project that has the test target to update.
+   * @param payload.groupId ID of the group that has the test target to update.
+   * @param payload.testTarget New test target.
+   */
+  addTestTarget(
+    state,
+    payload: { testMatrixId: string; groupId: string; testTarget: TestTarget }
+  ) {
+    state.testMatrices = state.testMatrices.map((testMatrix) => {
+      if (testMatrix.id !== payload.testMatrixId) {
+        return testMatrix;
+      }
+      testMatrix.groups = testMatrix.groups.map((group) => {
+        if (group.id !== payload.groupId) {
+          return group;
+        }
+        return {
+          ...group,
+          testTargets: [...group.testTargets, payload.testTarget],
+        };
+      });
+      return testMatrix;
+    });
+  },
+
+  /**
+   * Replace the specified test targets in the State.
+   * @param state State.
+   * @param payload.testMatrixId ID of the project that has the test target to update.
+   * @param payload.groupId ID of the group that has the test target to update.
+   * @param payload.testTargets Test targets to update.
+   */
+  updateTestTargets(
+    state,
+    payload: {
+      testMatrixId: string;
+      groupId: string;
+      testTargets: TestTarget[];
+    }
+  ) {
+    state.testMatrices = state.testMatrices.map((testMatrix) => {
+      if (testMatrix.id !== payload.testMatrixId) {
+        return testMatrix;
+      }
+      testMatrix.groups = testMatrix.groups.map((group) => {
+        if (group.id !== payload.groupId) {
+          return group;
+        }
+        return {
+          ...group,
+          testTargets: [
+            ...group.testTargets.filter((testTarget) => {
+              return !payload.testTargets.find(
+                (newTestTarget) => newTestTarget.id !== testTarget.id
+              );
+            }),
+            ...payload.testTargets,
+          ].sort((t1, t2) => t1.index - t2.index),
+        };
+      });
+      return testMatrix;
+    });
   },
 };
 
