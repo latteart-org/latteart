@@ -41,17 +41,16 @@ LatteArt は以下の 2 つのツールで構成されています。
 
 1. `latteart`ディレクトリを任意のディレクトリに配置します。
 2. `latteart`ディレクトリ配下に以下の構成で`latteart-capture-cl`、`latteart-repository`を配置します。
-
-```bash
-latteart
-      ├─ capture.bat
-      ├─ manage.bat
-      ├─ launch.config.json
-      ├─ launch.exe
-      ├─ latteart
-      ├─ latteart-capture-cl # 追加
-      └─ latteart-repository # 追加
-```
+   ```bash
+   latteart/
+       ├─ capture.bat
+       ├─ manage.bat
+       ├─ launch.config.json
+       ├─ launch.exe
+       ├─ latteart/
+       ├─ latteart-capture-cl/ # 追加
+       └─ latteart-repository/ # 追加
+   ```
 
 # 開発者向け
 
@@ -74,27 +73,18 @@ latteart
    ```
 1. `dist/latteart`に以下構成のディレクトリが作成されます。
    ```bash
-   dist/latteart
+   dist/latteart/
        ├─ capture.bat # バッチファイル
        ├─ manage.bat  # バッチファイル
        ├─ launch.config.json # バッチ実行設定ファイル
        ├─ launch.exe # Windows用実行ファイル
-       └─ latteart
-                ├─ public # index.htmlとfavicon
-                └─ latteart.exe # Windows用実行ファイル
+       ├─ latteart/
+       │        ├─ public/ # index.htmlとfavicon
+       │        └─ latteart.exe # Windows用実行ファイル
+       └─ latteart-repository/
+                ├─ history-viewer/ # スナップショットビューア(レビュー画面)
+                └─ snapshot-viewer/ # スナップショットビューア
    ```
-
-## スナップショットビューアのビルド
-
-※スナップショットビューアは`latteart-repository`のビルドで使用します。詳細は`latteart-repository`側の README をご確認ください。
-
-1. ソースコードのルートディレクトリに移動します。
-1. 以下コマンドを実行します。
-   ```bash
-   yarn build:viewer
-   yarn build:viewer:history
-   ```
-1. カレントディレクトリに`snapshot-viewer`、`history-viewer`が作成されます。
 
 ## ウォッチ（開発用）
 
@@ -103,14 +93,9 @@ latteart
 ### GUI
 
 1. ソースコードのルートディレクトリに移動します。
-1. 以下コマンドを実行します。
+1. 以下コマンドを実行すると開発用サーバが立ち上がります(以降ソースコードを修正すると自動的に再ビルドされます)。
    ```bash
-   yarn watch:gui
-   ```
-1. カレントディレクトリに`dist`ディレクトリが作成され、配下にビルドされた`index.js`が出力されます（以降ソースコードを修正すると自動的に再ビルドされます）。
-1. 以下コマンドを実行します。
-   ```bash
-   yarn start:server
+   yarn serve
    ```
 
 ### サーバ

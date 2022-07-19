@@ -96,14 +96,9 @@ jobs:
       - name: Package 'LatteArt'
         run: |
           cd latteart
-          yarn build:viewer
-          yarn build:viewer:history
           yarn package:${{ matrix.os }}
           mkdir -p latteart
-          mkdir -p latteart/latteart-repository
           cp -rp dist/latteart/* latteart
-          cp -rp history-viewer latteart/latteart-repository
-          cp -rp snapshot-viewer latteart/latteart-repository
           cd ..
 
       - name: Cache dependencies of 'LatteArt Repository'
