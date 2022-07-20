@@ -25,28 +25,18 @@
    ```
 1. The following directory is created in `dist/latteart`.
    ```bash
-   dist/latteart
+   dist/latteart/
        ├─ capture.bat # batch file
        ├─ manage.bat  # batch file
        ├─ launch.config.json # batch execution configuration file
        ├─ launch.exe # executable file for Windows
-       └─ latteart
-                ├─ public # contains index.html and favicon
-                └─ latteart.exe # executable file for Windows
+       ├─ latteart/
+       │        ├─ public/ # contains index.html and favicon
+       │        └─ latteart.exe # executable file for Windows
+       └─ latteart-repository/
+                ├─ history-viewer/ # snapshot viewer (review view)
+                └─ snapshot-viewer/ # snapshot viewer
    ```
-
-### Build Snapshot Viewer
-
-Snapshot viewer is required for building `latteart-repository`.
-If you want to know more details, please read [latteart-repository](https://github.com/latteart-org/latteart-repository).
-
-1. Go to the root directory of the project.
-1. Execute the following command.
-   ```bash
-   yarn build:viewer
-   yarn build:viewer:history
-   ```
-1. The directories `snapshot-viewer` and `history-viewer` is created in the current directory.
 
 ## Watch (for developer)
 
@@ -55,15 +45,10 @@ Detect source code changes and rebuild LatteArt.
 ### GUI
 
 1. Go to the root directory of the project.
-1. Execute the following command.
-   ```bash
-   yarn watch:gui
-   ```
-1. The directory `dist` is created in the current directory, and `dist` contains built `index.js`.
+1. Execute the following command to start development server.
    (If you update a source code, that is rebuilt automatically.)
-1. Execute the following command.
    ```bash
-   yarn start:server
+   yarn serve
    ```
 
 ### Server
@@ -85,14 +70,14 @@ Detect source code changes and rebuild LatteArt.
 1. Put generated `latteart` directory into any directory.
 1. Put `latteart-capture-cl` and `latteart-repository` directories into `latteart` directory.
    ```bash
-   latteart
+   latteart/
        ├─ capture.bat
        ├─ manage.bat
        ├─ launch.config.json
        ├─ launch.exe
-       ├─ latteart
-       ├─ latteart-capture-cl # put
-       └─ latteart-repository # put
+       ├─ latteart/
+       ├─ latteart-capture-cl/ # put
+       └─ latteart-repository/ # merge
    ```
 
 ## Run
