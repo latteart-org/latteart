@@ -40,7 +40,6 @@ jobs:
     runs-on: ubuntu-latest
 
     if: |
-      github.ref == 'refs/heads/main' ||
       startsWith(github.ref, 'refs/heads/release') ||
       github.ref_type == 'tag'
 
