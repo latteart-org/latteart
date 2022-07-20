@@ -318,7 +318,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
       throw result.error;
     }
 
-    context.commit("addGroup", { testMatrixId: payload, group: result.data });
+    context.commit("addGroup", {
+      testMatrixId: payload.testMatrixId,
+      group: result.data,
+    });
   },
 
   /**
