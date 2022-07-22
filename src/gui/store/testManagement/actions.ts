@@ -271,7 +271,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       throw result.error;
     }
 
-    context.commit("updateTestMatrices", result.data);
+    context.commit("updateTestMatrices", { testMatrices: result.data });
 
     return;
   },
