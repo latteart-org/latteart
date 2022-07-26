@@ -124,10 +124,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.rootState.settingsProvider.settings.viewPointsPreset,
     };
 
-    if (context.rootState.repositoryContainer.isRemote) {
-      return;
-    }
-
     const result = await new SaveSettingAction(
       context.rootState.repositoryContainer
     ).saveSettings(settings);
