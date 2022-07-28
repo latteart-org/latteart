@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import { TestScriptGeneratorImpl } from "../scriptGenerator/TestScriptGenerator";
-import { Operation } from "../Operation";
-import { invalidOperationTypeExists } from "../scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
 import {
   ActionResult,
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryAccessResult } from "@/lib/captureControl/Reply";
 
 const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
   "error.operation_history.save_test_scripts_failed";
@@ -37,7 +35,6 @@ export class GenerateTestScriptsAction {
       RepositoryContainer,
       "testScriptRepository"
     >,
-    private imageUrlResolver: (url: string) => string,
     private option: {
       testScript: { isSimple: boolean };
       testData: {
@@ -47,87 +44,65 @@ export class GenerateTestScriptsAction {
     }
   ) {}
 
-  public async generate(params: {
-    testResultId: string | undefined;
-    projectId: string | undefined;
-    sources: { initialUrl: string; history: Operation[] }[];
-  }): Promise<
+  public async generateFromTestResult(testResultId: string): Promise<
     ActionResult<{
       outputUrl: string;
       invalidOperationTypeExists: boolean;
     }>
   > {
-    const testScriptGenerator = new TestScriptGeneratorImpl(
-      this.imageUrlResolver,
-      this.option
-    );
+    const result =
+      await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
+        testResultId,
+        this.option
+      );
 
-    const testScript = testScriptGenerator.generate(params.sources);
+    return this.createActionResult(result);
+  }
 
-    if (!testScript.testSuite) {
-      if (this.option.testScript.isSimple) {
+  public async generateFromProject(projectId: string): Promise<
+    ActionResult<{
+      outputUrl: string;
+      invalidOperationTypeExists: boolean;
+    }>
+  > {
+    const result =
+      await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
+        projectId,
+        this.option
+      );
+
+    return this.createActionResult(result);
+  }
+
+  private createActionResult(
+    result: RepositoryAccessResult<{
+      url: string;
+      invalidOperationTypeExists: boolean;
+    }>
+  ): ActionResult<{
+    outputUrl: string;
+    invalidOperationTypeExists: boolean;
+  }> {
+    if (result.isFailure()) {
+      if (result.error.code === "no_test_cases_generated") {
         return new ActionFailure({
-          messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
+          messageKey: this.option.testScript.isSimple
+            ? NO_OPERATION_ERROR_MESSAGE_KEY
+            : NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
         });
       }
 
       return new ActionFailure({
-        messageKey: NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
+        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
       });
     }
 
-    const invalidTypeExists = params.sources.some((session) => {
-      return session.history.some((operation) => {
-        return invalidOperationTypeExists(operation.type);
-      });
-    });
+    const outputUrl = result.data.url;
+    const data = {
+      outputUrl,
+      invalidOperationTypeExists: result.data.invalidOperationTypeExists,
+    };
 
-    if (params.projectId) {
-      const postTestScriptsWithProjectIdResult =
-        await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
-          params.projectId,
-          testScript
-        );
-
-      if (postTestScriptsWithProjectIdResult.isFailure()) {
-        return new ActionFailure({
-          messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
-        });
-      }
-
-      const outputUrl = postTestScriptsWithProjectIdResult.data.url;
-      const data = {
-        outputUrl,
-        invalidOperationTypeExists: invalidTypeExists,
-      };
-
-      return new ActionSuccess(data);
-    }
-
-    if (params.testResultId) {
-      const postTestScriptsWithTestResultId =
-        await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
-          params.testResultId,
-          testScript
-        );
-
-      if (postTestScriptsWithTestResultId.isFailure()) {
-        return new ActionFailure({
-          messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
-        });
-      }
-
-      const outputUrl = postTestScriptsWithTestResultId.data.url;
-      const data = {
-        outputUrl,
-        invalidOperationTypeExists: invalidTypeExists,
-      };
-
-      return new ActionSuccess(data);
-    }
-
-    return new ActionFailure({
-      messageKey: NO_OPERATION_ERROR_MESSAGE_KEY,
-    });
+    return new ActionSuccess(data);
   }
 }

@@ -310,36 +310,27 @@ export default class GroupEditor extends Vue {
     }
   }
 
-  private changeTestTargetOrder(testTargetId: string, type: "up" | "down") {
+  private async changeTestTargetOrder(
+    testTargetId: string,
+    type: "up" | "down"
+  ) {
     if (!this.group) {
       return;
     }
-
-    const testTargetIndex = this.group.testTargets.findIndex(
+    const index = this.group.testTargets.findIndex(
       (testTarget) => testTarget.id === testTargetId
     );
 
-    const newTestTargets =
-      type === "up"
-        ? [
-            ...this.group.testTargets.slice(0, testTargetIndex - 1),
-            this.group.testTargets[testTargetIndex],
-            this.group.testTargets[testTargetIndex - 1],
-            ...this.group.testTargets.slice(testTargetIndex + 1),
-          ]
-        : [
-            ...this.group.testTargets.slice(0, testTargetIndex),
-            this.group.testTargets[testTargetIndex + 1],
-            this.group.testTargets[testTargetIndex],
-            ...this.group.testTargets.slice(testTargetIndex + 2),
-          ];
+    const t1 = this.group.testTargets[index];
+    const t2 = this.group.testTargets[type === "up" ? index - 1 : index + 1];
 
-    this.$store.dispatch("testManagement/updateGroup", {
+    await this.$store.dispatch("testManagement/updateTestTargets", {
       testMatrixId: this.testMatrixId,
       groupId: this.groupId,
-      params: {
-        testTargets: newTestTargets,
-      },
+      testTargets: [
+        { id: t1.id, index: type === "up" ? t1.index - 1 : t1.index + 1 },
+        { id: t2.id, index: type === "up" ? t2.index + 1 : t1.index - 1 },
+      ],
     });
   }
 
@@ -347,13 +338,10 @@ export default class GroupEditor extends Vue {
     testTargetName: string,
     testTargetId: string
   ): Promise<void> {
-    await this.$store.dispatch("testManagement/updateTestTarget", {
+    await this.$store.dispatch("testManagement/updateTestTargets", {
       testMatrixId: this.testMatrixId,
       groupId: this.groupId,
-      testTargetId: testTargetId,
-      params: {
-        name: testTargetName,
-      },
+      testTargets: [{ id: testTargetId, name: testTargetName }],
     });
   }
 
@@ -380,35 +368,16 @@ export default class GroupEditor extends Vue {
         return;
       }
 
-      await this.$store.dispatch("testManagement/updateTestTarget", {
+      await this.$store.dispatch("testManagement/updateTestTargets", {
         testMatrixId: this.testMatrixId,
         groupId: this.groupId,
-        testTargetId: args.testTargetId,
-        params: {
-          plans: newPlans,
-        },
-      });
-
-      const story: Story | undefined = this.$store.getters[
-        "testManagement/findStoryByTestTargetAndViewPointId"
-      ](args.testTargetId, args.viewPointId, this.testMatrixId);
-
-      if (
-        story &&
-        [CHARTER_STATUS.OUT_OF_SCOPE.id, CHARTER_STATUS.NG.id].includes(
-          story.status
-        )
-      ) {
-        await this.$store.dispatch("testManagement/updateStory", {
-          storyId: story.id,
-          params: {
-            status:
-              args.newValue === 0
-                ? CHARTER_STATUS.OUT_OF_SCOPE.id
-                : CHARTER_STATUS.NG.id,
+        testTargets: [
+          {
+            id: args.testTargetId,
+            plans: newPlans,
           },
-        });
-      }
+        ],
+      });
     })();
   }
 }

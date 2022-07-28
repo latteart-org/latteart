@@ -28,12 +28,19 @@ import { SettingRepository } from "./repositoryService/SettingRepository";
 import { ImportTestResultRepository } from "./repositoryService/ImportTestResultRepository";
 import { ImportProjectRepository } from "./repositoryService/ImportProjectRepository";
 import { CompressedImageRepository } from "./repositoryService/CompressedImageRepository";
-import { ProjectRepository } from "./repositoryService/ProjectRepository";
+import {
+  ProjectRESTRepository,
+  ProjectRepository,
+} from "./repositoryService/ProjectRepository";
 import { SessionRepository } from "./repositoryService/SessionRepository";
 import { SnapshotRepository } from "./repositoryService/SnapshotRepository";
 import RESTClientImpl from "./RESTClient";
 import { RepositoryServiceClient } from "./RepositoryServiceClient";
 import { ScreenshotRepository } from "./repositoryService/ScreenshotRepository";
+import { TestMatrixRepository } from "./repositoryService/TestMatrixRepository";
+import { TestTargetGroupRepository } from "./repositoryService/TestTargetGroupRepository";
+import { TestTargetRepository } from "./repositoryService/TestTargetRepository";
+import { ViewPointRepository } from "./repositoryService/ViewPointRepository";
 
 export interface RepositoryContainer {
   readonly serviceUrl: string;
@@ -51,6 +58,10 @@ export interface RepositoryContainer {
   readonly sessionRepository: SessionRepository;
   readonly snapshotRepository: SnapshotRepository;
   readonly screenshotRepository: ScreenshotRepository;
+  readonly testMatrixRepository: TestMatrixRepository;
+  readonly testTargetGroupRepository: TestTargetGroupRepository;
+  readonly testTargetRepository: TestTargetRepository;
+  readonly viewPointRepository: ViewPointRepository;
 }
 
 /**
@@ -73,6 +84,10 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     session: SessionRepository;
     snapshot: SnapshotRepository;
     screenshot: ScreenshotRepository;
+    testMatrix: TestMatrixRepository;
+    testTargetGroup: TestTargetGroupRepository;
+    testTarget: TestTargetRepository;
+    viewPoint: ViewPointRepository;
   };
 
   constructor(
@@ -95,10 +110,14 @@ export class RepositoryContainerImpl implements RepositoryContainer {
       testScript: new TestScriptRepository(this.restClient),
       setting: new SettingRepository(this.restClient),
       compressedImage: new CompressedImageRepository(this.restClient),
-      project: new ProjectRepository(this.restClient),
+      project: new ProjectRESTRepository(this.restClient),
       session: new SessionRepository(this.restClient),
       snapshot: new SnapshotRepository(this.restClient),
       screenshot: new ScreenshotRepository(this.restClient),
+      testMatrix: new TestMatrixRepository(this.restClient),
+      testTargetGroup: new TestTargetGroupRepository(this.restClient),
+      testTarget: new TestTargetRepository(this.restClient),
+      viewPoint: new ViewPointRepository(this.restClient),
     };
   }
 
@@ -170,5 +189,21 @@ export class RepositoryContainerImpl implements RepositoryContainer {
 
   public get screenshotRepository(): ScreenshotRepository {
     return this.repositories.screenshot;
+  }
+
+  public get testMatrixRepository(): TestMatrixRepository {
+    return this.repositories.testMatrix;
+  }
+
+  public get testTargetGroupRepository(): TestTargetGroupRepository {
+    return this.repositories.testTargetGroup;
+  }
+
+  public get testTargetRepository(): TestTargetRepository {
+    return this.repositories.testTarget;
+  }
+
+  public get viewPointRepository(): ViewPointRepository {
+    return this.repositories.viewPoint;
   }
 }

@@ -3,7 +3,7 @@ import {
   RESTClient,
   RESTClientResponse,
 } from "@/lib/eventDispatcher/RESTClient";
-import { ProjectRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
 
 const baseRestClient: RESTClient = {
   httpGet: jest.fn(),
@@ -39,7 +39,7 @@ describe("ExportAction", () => {
           httpPost: jest.fn().mockResolvedValue(resSuccess),
         };
         const action = new ExportAction({
-          projectRepository: new ProjectRepository(restClient),
+          projectRepository: new ProjectRESTRepository(restClient),
         });
 
         const result = await action.exportZip(projectId, selectOption);
@@ -61,7 +61,7 @@ describe("ExportAction", () => {
           httpPost: jest.fn().mockResolvedValue(resFailure),
         };
         const action = new ExportAction({
-          projectRepository: new ProjectRepository(restClient),
+          projectRepository: new ProjectRESTRepository(restClient),
         });
 
         const result = await action.exportZip(projectId, selectOption);

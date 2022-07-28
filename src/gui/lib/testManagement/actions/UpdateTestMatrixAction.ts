@@ -14,123 +14,118 @@
  * limitations under the License.
  */
 
-import { Story, TestMatrix } from "@/lib/testManagement/types";
-
-export interface UpdateTestMatrixMutationObserver {
-  saveManagedData(data: {
-    stories: Story[];
-    testMatrices: TestMatrix[];
-  }): Promise<TestMatrix[]>;
-  addNewStory(): Promise<void>;
-}
-
-interface IaddedViewPointWithTestMatrixId {
-  name: string;
-  id: string | null;
-  testMatrixId: string;
-}
+import {
+  ActionFailure,
+  ActionResult,
+  ActionSuccess,
+} from "@/lib/common/ActionResult";
+import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { TestMatrix } from "@/lib/testManagement/types";
 
 export class UpdateTestMatrixAction {
-  constructor(private observer: UpdateTestMatrixMutationObserver) {}
-
   public async updateTestMatrix(
-    testMatrices: TestMatrix[],
-    stories: Story[],
-    updateMatrixData: {
-      id: string;
-      name: string;
-      viewPoints: Array<{
+    payload: {
+      projectId: string;
+      newTestMatrix: { id: string; name: string };
+      newViewPoints: {
         name: string;
-        id: string | null;
         description: string;
         index: number;
-      }>;
-    }
-  ): Promise<void> {
-    let addedViewPointsWithTestMatrixId: IaddedViewPointWithTestMatrixId[] = [];
-    const newTestMatrices = testMatrices.map((testMatrix) => {
-      if (testMatrix.id !== updateMatrixData.id) {
-        return testMatrix;
+        id: string | null;
+      }[];
+      oldTestMatrix: TestMatrix;
+    },
+    repositoryContainer: Pick<
+      RepositoryContainer,
+      "testMatrixRepository" | "viewPointRepository" | "projectRepository"
+    >
+  ): Promise<ActionResult<TestMatrix[]>> {
+    if (payload.newTestMatrix.name !== payload.oldTestMatrix.name) {
+      const testMatrixResult =
+        await repositoryContainer.testMatrixRepository.patchTestMatrix(
+          payload.newTestMatrix.id,
+          payload.newTestMatrix.name
+        );
+      if (testMatrixResult.isFailure()) {
+        return new ActionFailure({
+          messageKey: testMatrixResult.error.message ?? "",
+        });
       }
+    }
 
-      addedViewPointsWithTestMatrixId = updateMatrixData.viewPoints
-        .filter((newViewPoint) => {
-          return !newViewPoint.id;
-        })
-        .map((newViewPoint) => {
-          return {
-            ...newViewPoint,
-            testMatrixId: testMatrix.id,
-          };
-        });
-
-      const groups = testMatrix.groups.map((group) => {
-        group.testTargets = group.testTargets.map((testTarget) => {
-          testTarget.plans = testTarget.plans.filter((plan) => {
-            return updateMatrixData.viewPoints.some((viewPoint) => {
-              return plan.viewPointId === viewPoint.id;
+    await Promise.all(
+      payload.newViewPoints.map(async (newViewPoint) => {
+        if (!newViewPoint.id) {
+          const result =
+            await repositoryContainer.viewPointRepository.postViewPoint({
+              testMatrixId: payload.oldTestMatrix.id,
+              name: newViewPoint.name,
+              description: newViewPoint.description,
+              index: newViewPoint.index,
             });
-          });
-
-          return testTarget;
-        });
-        return group;
-      });
-
-      return {
-        id: testMatrix.id,
-        name: updateMatrixData.name,
-        groups,
-        viewPoints: updateMatrixData.viewPoints,
-      };
-    });
-
-    const newStories = stories.filter((story) => {
-      return newTestMatrices
-        .map((newTestMatrix) => {
-          return newTestMatrix.viewPoints;
-        })
-        .flat()
-        .some((viewPoint) => {
-          return story.viewPointId === viewPoint.id;
-        });
-    });
-    const updatedTestMatrices = await this.observer.saveManagedData({
-      testMatrices: newTestMatrices as TestMatrix[],
-      stories: newStories,
-    });
-
-    await this.addNewStories(
-      updatedTestMatrices,
-      addedViewPointsWithTestMatrixId
+          if (result.isFailure()) {
+            return new ActionFailure({
+              messageKey: result.error.message ?? "",
+            });
+          }
+          return result.data;
+        }
+        const oldViewPoint = payload.oldTestMatrix.viewPoints.find(
+          (v) => v.id === newViewPoint.id
+        );
+        if (!oldViewPoint) {
+          throw new Error();
+        }
+        if (
+          newViewPoint.id &&
+          (newViewPoint.name !== oldViewPoint.name ||
+            newViewPoint.description !== oldViewPoint.description ||
+            newViewPoint.index !== oldViewPoint.index)
+        ) {
+          const result =
+            await repositoryContainer.viewPointRepository.patchViewPoint(
+              newViewPoint.id,
+              {
+                name: newViewPoint.name,
+                description: newViewPoint.description,
+                index: newViewPoint.index,
+              }
+            );
+          if (result.isFailure()) {
+            return new ActionFailure({
+              messageKey: result.error.message ?? "",
+            });
+          }
+          return result.data;
+        }
+        return newViewPoint;
+      })
     );
 
-    return;
-  }
-
-  private async addNewStories(
-    testMatrices: TestMatrix[],
-    addedViewPointsWithTestMatrixId: IaddedViewPointWithTestMatrixId[]
-  ): Promise<void> {
-    for (const testMatrix of testMatrices) {
-      const viewPointToAddToThisTestMatrix =
-        addedViewPointsWithTestMatrixId.filter((addedViewPoint) => {
-          return testMatrix.id === addedViewPoint.testMatrixId;
+    const deleteList = payload.oldTestMatrix.viewPoints.filter(
+      (oldViewPoint) => {
+        return !payload.newViewPoints.find((newViewPoint) => {
+          return oldViewPoint.id === newViewPoint.id;
         });
-      if (!viewPointToAddToThisTestMatrix.length) {
-        continue;
       }
+    );
 
-      const newViewPoints = testMatrix.viewPoints.slice(
-        -viewPointToAddToThisTestMatrix.length
-      );
-      for (const group of testMatrix.groups) {
-        for (const testTarget of group.testTargets) {
-          for (const newViewPoint of newViewPoints) {
-            await this.observer.addNewStory();
-          }
-        }
-      }
+    await Promise.all(
+      deleteList.map(async (viewPoint) => {
+        return await repositoryContainer.viewPointRepository.deleteViewPoint(
+          viewPoint.id
+        );
+      })
+    );
+
+    const projectResult =
+      await repositoryContainer.projectRepository.getProject(payload.projectId);
+
+    if (projectResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: projectResult.error.message ?? "",
+      });
     }
+    return new ActionSuccess(projectResult.data.testMatrices);
   }
 }

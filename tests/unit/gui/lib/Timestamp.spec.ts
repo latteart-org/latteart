@@ -113,15 +113,4 @@ describe("Timestamp", () => {
       expect(isBetweenDay).toBeTruthy();
     });
   });
-
-  describe("#isSameDayAs", () => {
-    it("渡された年月日が同日かどうか判定する", async () => {
-      const timestamp = 1643311344;
-      const now = 1643358144;
-
-      const isSameDay: boolean = new TimestampImpl(now).isSameDayAs(timestamp);
-
-      expect(isSameDay).toBeTruthy();
-    });
-  });
 });

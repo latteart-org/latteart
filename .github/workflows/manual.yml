@@ -38,24 +38,49 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Package 'LatteArt'
+      - name: Cache dependencies of 'LatteArt'
+        uses: actions/cache@v3
+        id: cache-latteart-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "latteart/**/node_modules"
+          key: ${{ runner.os }}-package-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('latteart/**/yarn.lock') }}
+
+      - name: Install dependencies of 'LatteArt'
+        if: ${{ steps.cache-latteart-dependencies.outputs.cache-hit != 'true' }}
         run: |
           cd latteart
           yarn install
-          yarn build:viewer
-          yarn build:viewer:history
+          cd ..
+
+      - name: Package 'LatteArt'
+        run: |
+          cd latteart
           yarn package:${{ matrix.os }}
           mkdir -p latteart
-          mkdir -p latteart/latteart-repository
           cp -rp dist/latteart/* latteart
-          cp -rp history-viewer latteart/latteart-repository
-          cp -rp snapshot-viewer latteart/latteart-repository
+          cd ..
+
+      - name: Cache dependencies of 'LatteArt Repository'
+        uses: actions/cache@v3
+        id: cache-repository-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "latteart-repository/**/node_modules"
+          key: ${{ runner.os }}-package-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('latteart-repository/**/yarn.lock') }}
+
+      - name: Install dependencies of 'LatteArt Repository'
+        if: ${{ steps.cache-repository-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          cd latteart-repository
+          yarn install
           cd ..
 
       - name: Package 'LatteArt Repository'
         run: |
           cd latteart-repository
-          yarn install
           yarn typescript-json-validator src/lib/settings/Settings.ts
           yarn typescript-json-validator src/lib/settings/DeviceSettings.ts
           yarn package:${{ matrix.os }}
@@ -63,10 +88,25 @@ jobs:
           cp -rp dist/latteart-repository latteart
           cd ..
 
-      - name: Package 'LatteArt Capture CL'
+      - name: Cache dependencies of 'LatteArt Capture CL'
+        uses: actions/cache@v3
+        id: cache-capture-cl-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "latteart-capture-cl/**/node_modules"
+          key: ${{ runner.os }}-package-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('latteart-capture-cl/**/yarn.lock') }}
+
+      - name: Install dependencies of 'LatteArt Capture CL'
+        if: ${{ steps.cache-capture-cl-dependencies.outputs.cache-hit != 'true' }}
         run: |
           cd latteart-capture-cl
           yarn install
+          cd ..
+
+      - name: Package 'LatteArt Capture CL'
+        run: |
+          cd latteart-capture-cl
           yarn package:${{ matrix.os }}
           mkdir -p latteart
           cp -rp dist/latteart-capture-cl latteart

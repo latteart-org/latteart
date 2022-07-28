@@ -23,5 +23,7 @@ export interface UpdateTestMatrixObject {
   viewPoints: Array<{
     name: string;
     id: string | null;
+    index: number;
+    description: string;
   }>;
 }

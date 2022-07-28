@@ -1,6 +1,6 @@
 {
   "name": "latteart",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3000",
@@ -15,8 +15,8 @@
     "package:mac": "nexe dist/index.js -o dist/latteart/latteart/latteart --target macos-x64-14.15.3 && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
     "prepackage:win": "yarn build",
     "prepackage:mac": "yarn build",
-    "postpackage:win": "yarn package:launch:win && yarn copy:launch:win",
-    "postpackage:mac": "yarn package:launch:mac && yarn copy:launch:mac",
+    "postpackage:win": "yarn package:launch:win && yarn copy:launch:win && yarn package:viewers",
+    "postpackage:mac": "yarn package:launch:mac && yarn copy:launch:mac && yarn package:viewers",
     "package:launch:win": "cd launch && yarn install && yarn prepackage:win && yarn package:win",
     "package:launch:mac": "cd launch && yarn install && yarn prepackage:mac &&  yarn package:mac",
     "copy:launch:win": "cpx \"launch/dist/launch.config.json\" dist/latteart && cpx \"launch/dist/*.bat\" dist/latteart && cpx \"launch/dist/win/launch.exe\" dist/latteart",
@@ -26,7 +26,12 @@
     "lint": "vue-cli-service lint src/gui/**/*.ts src/gui/**/*.vue",
     "doc": "typedoc --out dist_docs/typedoc src/",
     "build:viewer": "cross-env VUE_CLI_SERVICE_CONFIG_PATH=vue.config.viewer.js vue-cli-service build",
-    "build:viewer:history": "cross-env VUE_CLI_SERVICE_CONFIG_PATH=vue.config.viewer.history.js vue-cli-service build"
+    "build:viewer:history": "cross-env VUE_CLI_SERVICE_CONFIG_PATH=vue.config.viewer.history.js vue-cli-service build",
+    "copy:viewer": "cpx \"snapshot-viewer/**/*\" dist/latteart/latteart-repository/snapshot-viewer",
+    "copy:viewer:history": "cpx \"history-viewer/**/*\" dist/latteart/latteart-repository/history-viewer",
+    "package:viewer": "yarn build:viewer && yarn copy:viewer",
+    "package:viewer:history": "yarn build:viewer:history && yarn copy:viewer:history",
+    "package:viewers": "yarn package:viewer & yarn package:viewer:history"
   },
   "dependencies": {
     "@types/chart.js": "^2.7.55",
@@ -43,11 +48,11 @@
     "connect-history-api-fallback": "^1.6.0",
     "core-js": "^3.6.5",
     "d3": "^5.9.2",
+    "dayjs": "^1.11.3",
     "encoding-japanese": "^1.0.30",
     "express": "^4.17.1",
     "leaflet": "^1.5.1",
     "mermaid": "^8.11.5",
-    "moment": "^2.24.0",
     "socket.io-client": "^2.3.1",
     "splitpanes": "^2.3.6",
     "vue": "^2.6.11",

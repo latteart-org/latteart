@@ -23,7 +23,6 @@ describe("testManagementストアのactionは", () => {
             state: {
               testMatrices: ["dummyTestMatrix"],
               stories: ["dummyStory"],
-              progressDatas: [],
               tempStory: null,
             },
           },

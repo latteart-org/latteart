@@ -18,7 +18,7 @@ import {
   ManagedStory,
   TestManagementData,
 } from "@/lib/testManagement/TestManagementData";
-import { ProgressData, Story, TestMatrix } from "@/lib/testManagement/types";
+import { Story, TestMatrix } from "@/lib/testManagement/types";
 import {
   ActionResult,
   ActionFailure,
@@ -27,10 +27,7 @@ import {
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
 export interface WriteDataFileMutationObserver {
-  setManagedData(data: {
-    testMatrices: TestMatrix[];
-    progressDatas: ProgressData[];
-  }): void;
+  setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
 }
 
@@ -78,7 +75,6 @@ export class WriteDataFileAction {
     const data = putProjectResult.data;
     this.observer.setManagedData({
       testMatrices: data.testMatrices,
-      progressDatas: data.progressDatas,
     });
 
     const parsedStories: Story[] = await Promise.all(

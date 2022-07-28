@@ -24,6 +24,7 @@ export interface SessionsData {
 export interface TestMatrix {
   id: string;
   name: string;
+  index: number;
   groups: Group[];
   viewPoints: ViewPoint[];
 }
@@ -31,6 +32,7 @@ export interface TestMatrix {
 export interface Group {
   id: string;
   name: string;
+  index: number;
   testTargets: TestTarget[];
 }
 
@@ -50,6 +52,7 @@ export interface TestTarget {
   id: string;
   name: string;
   plans: Plan[];
+  index: number;
 }
 
 export interface Plan {
@@ -131,37 +134,11 @@ export interface DetailedReportObj {
   viewPointName: string;
 }
 
-export interface ProgressData {
-  testMatrixId: string;
-  testMatrixProgressDatas: TestMatrixProgressData[];
-}
-export interface TestMatrixProgressData {
-  date: string;
-  groups: GroupProgressData[];
-}
-
-export interface GroupProgressData {
-  id: string;
-  name: string;
-  testTargets: TestTargetProgressData[];
-}
-
-export interface TestTargetProgressData {
-  id: string;
-  name: string;
-  progress: {
-    planNumber: number;
-    completedNumber: number;
-    incompletedNumber: number;
-  };
-}
-
 export interface Project {
   id: string;
   name: string;
   testMatrices: TestMatrix[];
   stories: StoryDetails[];
-  progressDatas: ProgressData[];
 }
 
 interface StoryDetails {

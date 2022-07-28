@@ -16,17 +16,23 @@ describe("GenerateTestScriptsAction", () => {
       it.each([
         {
           testScriptOption: { isSimple: false },
+          repositoryErrorCode: "no_test_cases_generated",
           expectedMessageKey:
             "error.operation_history.save_test_scripts_no_section_error",
         },
         {
           testScriptOption: { isSimple: true },
+          repositoryErrorCode: "no_test_cases_generated",
           expectedMessageKey:
             "error.operation_history.save_test_scripts_no_operation_error",
         },
       ])(
-        "テストスイートを生成できなかった場合、エラーを返却する",
-        async ({ testScriptOption, expectedMessageKey }) => {
+        "テストケースを1つも生成できなかった場合、エラーを返却する",
+        async ({
+          testScriptOption,
+          repositoryErrorCode,
+          expectedMessageKey,
+        }) => {
           const option = {
             testScript: testScriptOption,
             testData: {
@@ -35,17 +41,62 @@ describe("GenerateTestScriptsAction", () => {
             },
           };
 
+          const restClient = {
+            ...baseRestClient,
+            httpPost: jest.fn().mockResolvedValue({
+              status: 500,
+              data: { code: repositoryErrorCode },
+            }),
+          };
+
           const action = new GenerateTestScriptsAction(
-            { testScriptRepository: new TestScriptRepository(baseRestClient) },
-            () => "",
+            { testScriptRepository: new TestScriptRepository(restClient) },
             option
           );
 
-          const result = await action.generate({
-            testResultId: undefined,
-            projectId: undefined,
-            sources: [],
-          });
+          const result = await action.generateFromTestResult("");
+
+          if (result.isSuccess()) {
+            throw new Error("failed");
+          } else {
+            expect(result.error).toEqual({
+              messageKey: expectedMessageKey,
+            });
+          }
+        }
+      );
+
+      it.each([
+        {
+          repositoryErrorCode: "hogehoge",
+          expectedMessageKey:
+            "error.operation_history.save_test_scripts_failed",
+        },
+      ])(
+        "テストスクリプト生成に失敗した場合、エラーを返却する",
+        async ({ repositoryErrorCode, expectedMessageKey }) => {
+          const option = {
+            testScript: { isSimple: false },
+            testData: {
+              useDataDriven: false,
+              maxGeneration: 0,
+            },
+          };
+
+          const restClient = {
+            ...baseRestClient,
+            httpPost: jest.fn().mockResolvedValue({
+              status: 500,
+              data: { code: repositoryErrorCode },
+            }),
+          };
+
+          const action = new GenerateTestScriptsAction(
+            { testScriptRepository: new TestScriptRepository(restClient) },
+            option
+          );
+
+          const result = await action.generateFromTestResult("");
 
           if (result.isSuccess()) {
             throw new Error("failed");
