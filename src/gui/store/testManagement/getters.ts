@@ -90,11 +90,9 @@ const getters: GetterTree<TestManagementState, RootState> = {
    * @returns Found story.
    */
   findStory: (state) => (storyId: string) => {
-    console.log(state.stories);
     const found = state.stories.find((chater: Story) => {
       return chater.id === storyId;
     });
-    console.log(found);
     return found === undefined ? undefined : JSON.parse(JSON.stringify(found));
   },
 

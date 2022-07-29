@@ -41,6 +41,7 @@ import { TestMatrixRepository } from "./repositoryService/TestMatrixRepository";
 import { TestTargetGroupRepository } from "./repositoryService/TestTargetGroupRepository";
 import { TestTargetRepository } from "./repositoryService/TestTargetRepository";
 import { ViewPointRepository } from "./repositoryService/ViewPointRepository";
+import { StoryRepository } from "./repositoryService/StoryRepository";
 
 export interface RepositoryContainer {
   readonly serviceUrl: string;
@@ -62,6 +63,7 @@ export interface RepositoryContainer {
   readonly testTargetGroupRepository: TestTargetGroupRepository;
   readonly testTargetRepository: TestTargetRepository;
   readonly viewPointRepository: ViewPointRepository;
+  readonly storyRepository: StoryRepository;
 }
 
 /**
@@ -88,6 +90,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     testTargetGroup: TestTargetGroupRepository;
     testTarget: TestTargetRepository;
     viewPoint: ViewPointRepository;
+    story: StoryRepository;
   };
 
   constructor(
@@ -118,6 +121,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
       testTargetGroup: new TestTargetGroupRepository(this.restClient),
       testTarget: new TestTargetRepository(this.restClient),
       viewPoint: new ViewPointRepository(this.restClient),
+      story: new StoryRepository(this.restClient),
     };
   }
 
@@ -205,5 +209,9 @@ export class RepositoryContainerImpl implements RepositoryContainer {
 
   public get viewPointRepository(): ViewPointRepository {
     return this.repositories.viewPoint;
+  }
+
+  public get storyRepository(): StoryRepository {
+    return this.repositories.story;
   }
 }
