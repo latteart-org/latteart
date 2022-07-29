@@ -22,6 +22,26 @@ import {
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
 
+type TestResultViewOption = {
+  node: {
+    unit: "title" | "url";
+    definitions: {
+      name: string;
+      conditions: {
+        target: "title" | "url" | "keyword";
+        method: "contains" | "equals" | "regex";
+        value: string;
+      }[];
+    }[];
+  };
+};
+
+export type TestScriptOption = {
+  optimized: boolean;
+  testData: { useDataDriven: boolean; maxGeneration: number };
+  view: TestResultViewOption;
+};
+
 export class TestScriptRepository {
   constructor(private restClient: RESTClient) {}
 
@@ -34,15 +54,7 @@ export class TestScriptRepository {
    */
   public async postTestscriptsWithProjectId(
     projectId: string,
-    option: {
-      testScript: {
-        isSimple: boolean;
-      };
-      testData: {
-        useDataDriven: boolean;
-        maxGeneration: number;
-      };
-    }
+    option: TestScriptOption
   ): Promise<
     RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
   > {
@@ -76,15 +88,7 @@ export class TestScriptRepository {
    */
   public async postTestscriptsWithTestResultId(
     testResultId: string,
-    option: {
-      testScript: {
-        isSimple: boolean;
-      };
-      testData: {
-        useDataDriven: boolean;
-        maxGeneration: number;
-      };
-    }
+    option: TestScriptOption
   ): Promise<
     RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
   > {

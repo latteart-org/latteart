@@ -1,6 +1,8 @@
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { TestScriptRepository } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
 import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
+import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 
 const baseRestClient: RESTClient = {
   httpGet: jest.fn(),
@@ -40,9 +42,21 @@ describe("GenerateTestScriptsAction", () => {
               maxGeneration: 0,
             },
           };
+          const settings = {
+            config: {
+              screenDefinition: {
+                screenDefType: ScreenDefType.Title,
+                conditionGroups: [],
+              },
+            },
+          };
 
           const restClient = {
             ...baseRestClient,
+            httpGet: jest.fn().mockResolvedValue({
+              status: 200,
+              data: settings,
+            }),
             httpPost: jest.fn().mockResolvedValue({
               status: 500,
               data: { code: repositoryErrorCode },
@@ -50,7 +64,10 @@ describe("GenerateTestScriptsAction", () => {
           };
 
           const action = new GenerateTestScriptsAction(
-            { testScriptRepository: new TestScriptRepository(restClient) },
+            {
+              testScriptRepository: new TestScriptRepository(restClient),
+              settingRepository: new SettingRepository(restClient),
+            },
             option
           );
 
@@ -82,9 +99,21 @@ describe("GenerateTestScriptsAction", () => {
               maxGeneration: 0,
             },
           };
+          const settings = {
+            config: {
+              screenDefinition: {
+                screenDefType: ScreenDefType.Title,
+                conditionGroups: [],
+              },
+            },
+          };
 
           const restClient = {
             ...baseRestClient,
+            httpGet: jest.fn().mockResolvedValue({
+              status: 200,
+              data: settings,
+            }),
             httpPost: jest.fn().mockResolvedValue({
               status: 500,
               data: { code: repositoryErrorCode },
@@ -92,7 +121,10 @@ describe("GenerateTestScriptsAction", () => {
           };
 
           const action = new GenerateTestScriptsAction(
-            { testScriptRepository: new TestScriptRepository(restClient) },
+            {
+              testScriptRepository: new TestScriptRepository(restClient),
+              settingRepository: new SettingRepository(restClient),
+            },
             option
           );
 
