@@ -427,11 +427,7 @@
     "connecting-remote-url": "Connecting to a repository.",
     "connect-remote-url-succeeded": "Connected to {url}.",
     "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
-    "register-confirm": "You are connected to a remote repository. \nDo you want to register the test result in the remote repository?",
-    "registering-testresults": "Registering test results.",
-    "delete-warning": "Do you want to delete the registered test result from the local repository?",
     "delete-testresults": "Deleting test results.",
-    "register-delete-succeeded": "Registration of test results in the remote repository.\nAnd deletion of test results in the local repository have been completed.",
     "load": "Loading"
   },
   "error": {
@@ -496,9 +492,6 @@
       "import-project-not-exist": "Project information does not exist.",
       "import-test-result-not-exist": "Test result information does not exist.",
       "create-export-data-error": "Data export failed."
-    },
-    "remote_access": {
-      "upload-request-error": "Failed to register the test result."
     }
   }
 }

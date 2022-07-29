@@ -60,7 +60,6 @@
                 id="viewerConfigButton"
                 color="primary"
                 @click="toViewerConfig"
-                :disabled="isConnectedToRemote"
                 >{{
                   $store.getters.message("manage-header.capture-config")
                 }}</v-btn
@@ -98,7 +97,6 @@
               :items="locales"
               :value="initLocale"
               v-on:change="changeLocale"
-              :disabled="isConnectedToRemote"
             ></v-select>
           </v-flex>
           <v-flex xs2 pl-3 v-if="!isViewerMode">
@@ -218,10 +216,6 @@ export default class ManageView extends Vue {
 
   private get isTestMatrixSelected(): boolean {
     return this.selectedTestMatrixId !== "";
-  }
-
-  private get isConnectedToRemote() {
-    return this.$store.state.repositoryContainer.isRemote;
   }
 
   public toManageEdit(): void {

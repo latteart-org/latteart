@@ -80,7 +80,7 @@
               </v-container>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content :disabled="isConnectedToRemote">
+            <v-expansion-panel-content>
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message(
@@ -91,10 +91,7 @@
               <image-compression-setting> </image-compression-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content
-              v-if="configureCaptureSettings"
-              :disabled="isConnectedToRemote"
-            >
+            <v-expansion-panel-content v-if="configureCaptureSettings">
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message("config-view.setting-inclusion-tags")
@@ -103,10 +100,7 @@
               <coverage-setting :opened="coverageOpened"> </coverage-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content
-              v-if="configureCaptureSettings"
-              :disabled="isConnectedToRemote"
-            >
+            <v-expansion-panel-content v-if="configureCaptureSettings">
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
@@ -198,10 +192,6 @@ export default class ConfigView extends Vue {
         }
       })();
     }
-  }
-
-  private get isConnectedToRemote() {
-    return this.$store.state.repositoryContainer.isRemote;
   }
 
   private get coverageOpened() {

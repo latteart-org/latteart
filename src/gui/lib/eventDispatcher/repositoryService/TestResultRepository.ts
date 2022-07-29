@@ -27,7 +27,7 @@ export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Delete local test result.
+   * Delete test result.
    * @param testResultId  Test result id.
    */
   public async deleteTestResult(
@@ -72,34 +72,6 @@ export class TestResultRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as { url: string },
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
-   * Upload test result.
-   * @param source.testResultId Source test result ID.
-   * @param dest.repositoryUrl Destination repository url.
-   * @param dest.testResultId Destination test result ID.
-   */
-  public async postTestResultForUpload(
-    source: { testResultId: string },
-    dest: { repositoryUrl: string; testResultId?: string }
-  ): Promise<RepositoryAccessResult<{ id: string }>> {
-    try {
-      const response = await this.restClient.httpPost(
-        `/upload-request/test-result`,
-        { source, dest }
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return new RepositoryAccessSuccess({
-        data: response.data as { id: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

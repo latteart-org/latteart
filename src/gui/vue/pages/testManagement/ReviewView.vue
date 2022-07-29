@@ -38,13 +38,9 @@
         @click="scriptGenerationOptionDialogIsOpened = true"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn
-        id="viewerConfigButton"
-        color="primary"
-        @click="toViewerConfig"
-        :disabled="isConnectedToRemote"
-        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
-      >
+      <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
+        $store.getters.message("manage-header.capture-config")
+      }}</v-btn>
     </v-toolbar>
 
     <v-btn :disabled="isResuming" @click="toBack()">{{
@@ -167,10 +163,6 @@ export default class ReviewView extends Vue {
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
-
-  private get isConnectedToRemote() {
-    return this.$store.state.repositoryContainer.isRemote;
-  }
 
   private get history(): OperationHistory {
     return this.$store.getters[

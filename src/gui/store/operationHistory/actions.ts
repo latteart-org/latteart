@@ -47,7 +47,6 @@ import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
-import { UploadTestResultAction } from "@/lib/operationHistory/actions/testResult/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
@@ -724,112 +723,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     context.commit("deleteNotice", { sequence: payload.sequence, index });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
-  },
-
-  async importTestResultFromRemoteRepository(
-    context,
-    payload?: { destTestResultId?: string }
-  ) {
-    const { serviceUrl, isRemote } = context.rootState.repositoryContainer;
-
-    try {
-      const exportFileUrl: string = await context.dispatch("exportData", {
-        testResultId: context.state.testResultInfo.id,
-        shouldSaveTemporary: true,
-      });
-
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: context.rootState.localRepositoryServiceUrl,
-            isRemote: false,
-          }),
-        },
-        { root: true }
-      );
-
-      const result: {
-        testResultId: string;
-      } = await context.dispatch("importData", {
-        source: {
-          testResultFileUrl: new URL(
-            exportFileUrl,
-            context.state.testResultInfo.repositoryUrl
-          ).toString(),
-        },
-        dest: { testResultId: payload?.destTestResultId },
-      });
-
-      return result;
-    } catch (error) {
-      throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
-      );
-    } finally {
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: serviceUrl,
-            isRemote,
-          }),
-        },
-        { root: true }
-      );
-    }
-  },
-
-  async uploadTestResultsToRemote(
-    context,
-    payload: { localTestResultId: string; remoteTestResultId?: string }
-  ) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-    const result = await new UploadTestResultAction(
-      localRepositoryContainer
-    ).uploadTestResult(
-      { testResultId: payload.localTestResultId },
-      {
-        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-        testResultId: payload.remoteTestResultId,
-      }
-    );
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async deleteLocalTestResult(context, payload: { testResultId: string }) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-
-    const result = await new DeleteTestResultAction(
-      localRepositoryContainer
-    ).deleteTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
   },
 
   async deleteCurrentTestResult(context) {
