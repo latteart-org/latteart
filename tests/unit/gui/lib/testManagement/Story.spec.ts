@@ -24,6 +24,7 @@ describe("Storyの", () => {
     };
 
     const story: Story = {
+      index: 0,
       sessions: [session],
       status: "",
       id: "",
