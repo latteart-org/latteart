@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import {
   ActionResult,
   ActionFailure,
@@ -22,10 +21,9 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY =
-  "error.capture_control.save_device_settings_failed";
+const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
-export class SaveDeviceSettingAction {
+export class ReadLocaleAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
@@ -33,20 +31,14 @@ export class SaveDeviceSettingAction {
     >
   ) {}
 
-  public async saveDeviceSettings(
-    deviceSettings: DeviceSettings
-  ): Promise<ActionResult<DeviceSettings>> {
-    const putDeviceSettingsResult =
-      await this.repositoryContainer.localStorageSettingRepository.putDeviceSettings(
-        deviceSettings
-      );
+  public async readLocale(): Promise<ActionResult<string>> {
+    const getLocaleResult =
+      await this.repositoryContainer.localStorageSettingRepository.getLocale();
 
-    if (putDeviceSettingsResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY,
-      });
+    if (getLocaleResult.isFailure()) {
+      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(putDeviceSettingsResult.data);
+    return new ActionSuccess(getLocaleResult.data);
   }
 }
