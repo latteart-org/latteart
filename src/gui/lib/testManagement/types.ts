@@ -75,6 +75,7 @@ export interface Issue {
 
 export interface Story {
   id: string;
+  index: number;
   testMatrixId: string;
   testTargetId: string;
   viewPointId: string;
@@ -143,6 +144,7 @@ export interface Project {
 
 interface StoryDetails {
   id: string;
+  index: number;
   testMatrixId: string;
   testTargetId: string;
   viewPointId: string;

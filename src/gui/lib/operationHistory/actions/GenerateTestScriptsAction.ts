@@ -21,6 +21,8 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 import { RepositoryAccessResult } from "@/lib/captureControl/Reply";
+import { TestScriptOption } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
+import { ScreenDefinition } from "@/lib/common/settings/Settings";
 
 const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
   "error.operation_history.save_test_scripts_failed";
@@ -33,7 +35,7 @@ export class GenerateTestScriptsAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "testScriptRepository"
+      "testScriptRepository" | "settingRepository"
     >,
     private option: {
       testScript: { isSimple: boolean };
@@ -50,10 +52,23 @@ export class GenerateTestScriptsAction {
       invalidOperationTypeExists: boolean;
     }>
   > {
+    const getSettingsResult =
+      await this.repositoryContainer.settingRepository.getSettings();
+
+    if (getSettingsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    const testScriptOption = this.buildTestScriptOption(
+      getSettingsResult.data.config.screenDefinition
+    );
+
     const result =
       await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
         testResultId,
-        this.option
+        testScriptOption
       );
 
     return this.createActionResult(result);
@@ -65,10 +80,23 @@ export class GenerateTestScriptsAction {
       invalidOperationTypeExists: boolean;
     }>
   > {
+    const getSettingsResult =
+      await this.repositoryContainer.settingRepository.getSettings();
+
+    if (getSettingsResult.isFailure()) {
+      return new ActionFailure({
+        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    const testScriptOption = this.buildTestScriptOption(
+      getSettingsResult.data.config.screenDefinition
+    );
+
     const result =
       await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
         projectId,
-        this.option
+        testScriptOption
       );
 
     return this.createActionResult(result);
@@ -104,5 +132,41 @@ export class GenerateTestScriptsAction {
     };
 
     return new ActionSuccess(data);
+  }
+
+  private buildTestScriptOption(
+    screenDefinitionConfig: ScreenDefinition
+  ): TestScriptOption {
+    const viewOption = {
+      node: {
+        unit: screenDefinitionConfig.screenDefType,
+        definitions: screenDefinitionConfig.conditionGroups
+          .filter((group) => group.isEnabled)
+          .map((group) => {
+            const conditions = group.conditions
+              .filter((condition) => condition.isEnabled)
+              .map((condition) => {
+                return {
+                  target: condition.definitionType,
+                  method: condition.matchType,
+                  value: condition.word,
+                };
+              });
+
+            return {
+              name: group.screenName,
+              conditions,
+            };
+          }),
+      },
+    };
+
+    const testScriptOption = {
+      optimized: !this.option.testScript.isSimple,
+      testData: this.option.testData,
+      view: viewOption,
+    };
+
+    return testScriptOption;
   }
 }

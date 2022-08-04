@@ -22,9 +22,34 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
+import { Session } from "@/lib/testManagement/types";
 
 export class SessionRepository {
   constructor(private restClient: RESTClient) {}
+
+  public async postSession(
+    projectId: string,
+    body: {
+      storyId: string;
+    }
+  ): Promise<RepositoryAccessResult<Session>> {
+    try {
+      const response = await this.restClient.httpPost(
+        `/projects/${projectId}/sessions/`,
+        body
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as Session,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
 
   public async patchSession(
     projectId: string,
@@ -43,6 +68,27 @@ export class SessionRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as ManagedSession,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async deleteSession(
+    projectId: string,
+    sessionId: string
+  ): Promise<RepositoryAccessResult<void>> {
+    try {
+      const response = await this.restClient.httpDelete(
+        `/projects/${projectId}/sessions/${sessionId}`
+      );
+
+      if (response.status !== 204) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

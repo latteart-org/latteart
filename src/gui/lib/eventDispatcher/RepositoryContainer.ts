@@ -42,6 +42,7 @@ import { TestTargetGroupRepository } from "./repositoryService/TestTargetGroupRe
 import { TestTargetRepository } from "./repositoryService/TestTargetRepository";
 import { ViewPointRepository } from "./repositoryService/ViewPointRepository";
 import { LocalStorageSettingRepository } from "./repositoryService/LocalStorageSettingRepository";
+import { StoryRepository } from "./repositoryService/StoryRepository";
 
 export interface RepositoryContainer {
   readonly serviceUrl: string;
@@ -64,6 +65,7 @@ export interface RepositoryContainer {
   readonly testTargetRepository: TestTargetRepository;
   readonly viewPointRepository: ViewPointRepository;
   readonly localStorageSettingRepository: LocalStorageSettingRepository;
+  readonly storyRepository: StoryRepository;
 }
 
 /**
@@ -91,6 +93,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
     testTarget: TestTargetRepository;
     viewPoint: ViewPointRepository;
     localStorageSetting: LocalStorageSettingRepository;
+    story: StoryRepository;
   };
 
   constructor(
@@ -122,6 +125,7 @@ export class RepositoryContainerImpl implements RepositoryContainer {
       testTarget: new TestTargetRepository(this.restClient),
       viewPoint: new ViewPointRepository(this.restClient),
       localStorageSetting: new LocalStorageSettingRepository(),
+      story: new StoryRepository(this.restClient),
     };
   }
 
@@ -213,5 +217,9 @@ export class RepositoryContainerImpl implements RepositoryContainer {
 
   public get localStorageSettingRepository(): LocalStorageSettingRepository {
     return this.repositories.localStorageSetting;
+  }
+
+  public get storyRepository(): StoryRepository {
+    return this.repositories.story;
   }
 }

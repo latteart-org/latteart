@@ -50,6 +50,9 @@ import { AddNewTestTargetAction } from "@/lib/testManagement/actions/AddNewTestT
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { CollectProgressDatasAction } from "@/lib/testManagement/actions/CollectProgressDatasAction";
 import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/ProjectFileRepository";
+import { UpdateStoryAction } from "@/lib/testManagement/actions/UpdateStoryAction";
+import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionAction";
+import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -494,37 +497,22 @@ const actions: ActionTree<TestManagementState, RootState> = {
       storyId: string;
     }
   ) {
-    const story = context.state.stories.find((story) => {
-      return story.id === payload.storyId;
-    });
+    const result = await new AddNewSessionAction().addNewSession(
+      {
+        projectId: context.state.projectId,
+        storyId: payload.storyId,
+      },
+      context.rootState.repositoryContainer
+    );
 
-    if (!story) {
-      return;
+    if (result.isFailure()) {
+      throw result.error;
     }
 
-    const newStory: Story = {
-      ...story,
-      sessions: [
-        ...story.sessions,
-        {
-          name: "",
-          id: "",
-          isDone: false,
-          doneDate: "",
-          testItem: "",
-          testerName: "",
-          memo: "",
-          attachedFiles: [],
-          testResultFiles: [],
-          initialUrl: "",
-          intentions: [],
-          issues: [],
-          testingTime: 0,
-        },
-      ],
-    };
-
-    await context.dispatch("saveStory", { story: newStory });
+    context.commit("addSession", {
+      storyId: payload.storyId,
+      session: result.data,
+    });
   },
 
   /**
@@ -544,55 +532,28 @@ const actions: ActionTree<TestManagementState, RootState> = {
         memo?: string;
         attachedFiles?: AttachedFile[];
         testResultFiles?: TestResultFile[];
-        issues?: Issue[];
-        testingTime?: number;
       };
     }
   ): Promise<void> {
-    const storyIndex = context.state.stories.findIndex((story) => {
+    const story = context.state.stories.find((story) => {
       return story.id === payload.storyId;
     });
 
-    if (storyIndex === -1) {
+    if (!story) {
       return;
     }
 
-    const story = context.state.stories[storyIndex];
-
-    const sessionIndex = story.sessions.findIndex((session) => {
+    const session = story.sessions.find((session) => {
       return session.id === payload.sessionId;
     });
 
-    if (sessionIndex === -1) {
+    if (!session) {
       return;
     }
 
-    const newSession: Partial<ManagedSession> = {
-      isDone: payload.params.isDone,
-      doneDate: payload.params.isDone
-        ? new TimestampImpl().format("YYYYMMDDHHmmss")
-        : undefined,
-      testItem: payload.params.testItem,
-      testerName: payload.params.testerName,
-      memo: payload.params.memo,
-      attachedFiles: payload.params.attachedFiles,
-      testResultFiles: payload.params.testResultFiles,
-      issues: payload.params.issues?.map((issue) => {
-        return {
-          type: "",
-          value: "",
-          details: "",
-          status: issue.status,
-          ticketId: issue.ticketId,
-          source: issue.source,
-        };
-      }),
-      testingTime: payload.params.testingTime,
-    };
-
     const result = await new UpdateSessionAction(
       context.rootState.repositoryContainer
-    ).updateSession(context.state.projectId, payload.sessionId, newSession);
+    ).updateSession(context.state.projectId, payload.sessionId, payload.params);
 
     if (result.isFailure()) {
       throw new Error(
@@ -603,46 +564,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
       );
     }
 
-    const updatedSession = result.data;
-
-    const parsedSession = await new StoryDataConverter().convertToSession(
-      {
-        name: updatedSession.name,
-        id: updatedSession.id,
-        isDone: updatedSession.isDone,
-        doneDate: updatedSession.doneDate,
-        testItem: updatedSession.testItem,
-        testerName: updatedSession.testerName,
-        memo: updatedSession.memo,
-        attachedFiles: updatedSession.attachedFiles,
-        testResultFiles: payload.params.testResultFiles
-          ? updatedSession.testResultFiles
-          : undefined,
-        issues: updatedSession.issues.map((issue, index) => {
-          const oldIssue = story.sessions[sessionIndex].issues[index];
-          return {
-            type: "",
-            value: oldIssue.value,
-            details: oldIssue.details,
-            status: issue.status,
-            ticketId: issue.ticketId,
-            source: issue.source,
-          };
-        }),
-        testingTime: updatedSession.testingTime,
-      },
-      context.rootState.repositoryContainer,
-      story.sessions[sessionIndex]
-    );
-
     context.commit("setSession", {
-      storyIndex,
-      sessionIndex,
-      data: parsedSession,
-    });
-
-    await context.dispatch("saveStory", {
-      story: context.state.stories[storyIndex],
+      storyId: payload.storyId,
+      session: result.data,
     });
   },
 
@@ -653,27 +577,30 @@ const actions: ActionTree<TestManagementState, RootState> = {
       sessionId: string;
     }
   ) {
-    const story = context.state.stories.find((story) => {
-      return story.id === payload.storyId;
-    });
+    const result = await new DeleteSessionAction().deleteSession(
+      {
+        projectId: context.state.projectId,
+        sessionId: payload.sessionId,
+      },
+      context.rootState.repositoryContainer
+    );
 
-    if (!story) {
-      return;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
 
-    const newStory: Story = {
-      ...story,
-      sessions: story.sessions.filter((session) => {
-        return session.id !== payload.sessionId;
-      }),
-    };
-
-    await context.dispatch("saveStory", { story: newStory });
+    context.commit("deleteSession", payload);
   },
 
   async addNewStory(context): Promise<void> {
     const newStory: Story = {
       id: "",
+      index: 0,
       testMatrixId: "",
       testTargetId: "",
       viewPointId: "",
@@ -698,54 +625,20 @@ const actions: ActionTree<TestManagementState, RootState> = {
       };
     }
   ): Promise<void> {
-    const story = context.state.stories.find((story) => {
-      return story.id === payload.storyId;
-    });
+    const result = await new UpdateStoryAction().updateStory(
+      {
+        id: payload.storyId,
+        status: payload.params.status,
+      },
+      context.rootState.repositoryContainer
+    );
 
-    if (!story) {
-      return;
+    if (result.isFailure()) {
+      throw result.error;
     }
 
-    const newStory: Story = {
-      ...story,
-      status: payload.params.status ?? story.status,
-      sessions: story.sessions,
-    };
-
-    await context.dispatch("saveStory", { story: newStory });
-  },
-
-  /**
-   * Save story.
-   * @param context Action context.
-   * @param payload.story Story.
-   */
-  async saveStory(
-    context,
-    payload: {
-      story: Story;
-    }
-  ): Promise<void> {
-    const updatedStories = ((story: Story) => {
-      const tmpStories: Story[] = JSON.parse(
-        JSON.stringify(context.state.stories)
-      );
-
-      const index = context.state.stories.findIndex((c) => {
-        return c.id === story.id;
-      });
-      if (index !== -1) {
-        tmpStories[index] = story;
-      } else {
-        tmpStories.push(story);
-      }
-
-      return tmpStories;
-    })(JSON.parse(JSON.stringify(payload.story)));
-
-    return context.dispatch("writeDataFile", {
-      testMatrices: context.state.testMatrices,
-      stories: updatedStories,
+    context.commit("setStory", {
+      data: result.data,
     });
   },
 
