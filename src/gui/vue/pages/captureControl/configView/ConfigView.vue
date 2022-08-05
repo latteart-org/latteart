@@ -176,6 +176,8 @@ export default class ConfigView extends Vue {
             await this.$store.dispatch("connectRemoteUrl", {
               targetUrl: this.$route.query.remoteRepository,
             });
+
+            await this.initialize();
           }
 
           await this.$store.dispatch("operationHistory/resume", {
@@ -322,6 +324,11 @@ export default class ConfigView extends Vue {
     await this.$store.dispatch("captureControl/writeDeviceSettings", {
       config: { waitTimeForStartupReload },
     });
+  }
+
+  private async initialize(): Promise<void> {
+    await this.$store.dispatch("operationHistory/readSettings");
+    await this.$store.dispatch("testManagement/readDataFile");
   }
 }
 </script>
