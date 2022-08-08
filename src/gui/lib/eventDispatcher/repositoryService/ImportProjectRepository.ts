@@ -26,37 +26,12 @@ export class ImportProjectRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Get a list of projects for import.
-   * @returns List of projects for import.
-   */
-  public async getProjects(): Promise<
-    RepositoryAccessResult<Array<{ url: string; name: string }>>
-  > {
-    try {
-      const response = await this.restClient.httpGet(`/imports/projects`);
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return new RepositoryAccessSuccess({
-        data: response.data as Array<{
-          url: string;
-          name: string;
-        }>,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
    * Import project or testresult or all.
    * @param importFileName  Import file name.
    * @param selectOption  Select options.
    */
   public async postProjects(
-    source: { projectFileUrl: string },
+    source: { projectFile: { data: string; name: string } },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<RepositoryAccessResult<{ projectId: string }>> {
     try {

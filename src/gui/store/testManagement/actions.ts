@@ -23,19 +23,16 @@ import {
   TestMatrix,
   AttachedFile,
   TestResultFile,
-  Issue,
   Plan,
 } from "@/lib/testManagement/types";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
-import { ManagedSession } from "@/lib/testManagement/TestManagementData";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
-import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
-import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
-import { TimestampImpl, Timestamp } from "@/lib/common/Timestamp";
+import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
+import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { UpdateSessionAction } from "@/lib/testManagement/actions/UpdateSessionAction";
 import { WriteSnapshotAction } from "@/lib/testManagement/actions/WriteSnapshotAction";
@@ -53,6 +50,7 @@ import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/P
 import { UpdateStoryAction } from "@/lib/testManagement/actions/UpdateStoryAction";
 import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionAction";
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
+import { Timestamp } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -745,7 +743,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
   async importData(
     context,
     payload: {
-      source: { projectFileUrl: string };
+      source: { projectFile: { data: string; name: string } };
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
@@ -757,9 +755,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    const result = await new ImportAction(
+    const result = await new ImportProjectAction(
       context.rootState.repositoryContainer
-    ).importZip(payload.source, selectOption);
+    ).import(payload.source, selectOption);
 
     if (result.isFailure()) {
       throw new Error(
@@ -794,9 +792,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
       includeTestResults: payload.option.selectedOptionTestresult,
     };
 
-    const result = await new ExportAction(
+    const result = await new ExportProjectAction(
       context.rootState.repositoryContainer
-    ).exportZip(exportProjectId, selectOption);
+    ).export(exportProjectId, selectOption);
 
     if (result.isFailure()) {
       throw new Error(
