@@ -105,6 +105,17 @@ export type OperationHistory = OperationWithNotes[];
 
 export type MessageProvider = (message: string, args?: any) => string;
 
+export type ScreenDefinitionType = "url" | "title" | "keyword";
+export type ScreenMatchType = "contains" | "equals" | "regex";
+export type LocatorMatchType = "equals" | "regex";
+export type AutofillCondition = {
+  isEnabled: boolean;
+  locatorType: string;
+  locator: string;
+  locatorMatchType: LocatorMatchType;
+  inputValue: string;
+};
+
 /**
  * Screen configuration information.
  */
@@ -123,13 +134,28 @@ export interface InputElementInfo {
   inputElements: ElementInfo[];
 }
 
+export interface AutofillSetting {
+  autoHopupRegistrationDialog: boolean;
+  autoHopupSelectionDialog: boolean;
+  conditionGroups: AutofillConditionGroup[];
+}
+
+export interface AutofillConditionGroup {
+  isEnabled: boolean;
+  settingName: string;
+  screenName: string;
+  definitionType: ScreenDefinitionType;
+  screenMatchType: ScreenMatchType;
+  inputValueConditions: Array<AutofillCondition>;
+}
+
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;
   screenName: string;
   conditions: Array<{
     isEnabled: boolean;
-    definitionType: "url" | "title" | "keyword";
-    matchType: "contains" | "equals" | "regex";
+    definitionType: ScreenDefinitionType;
+    screenMatchType: ScreenMatchType;
     word: string;
   }>;
 }

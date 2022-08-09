@@ -112,6 +112,16 @@
               </template>
               <screen-definition-setting> </screen-definition-setting>
             </v-expansion-panel-content>
+
+            <v-expansion-panel-content
+              v-if="configureCaptureSettings"
+              :disabled="isConnectedToRemote"
+            >
+              <template v-slot:header class="py-0">
+                {{ $store.getters.message("config-view.setting-autofill") }}
+              </template>
+              <autofill-setting> </autofill-setting>
+            </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
       </v-layout>
@@ -133,6 +143,7 @@ import * as Util from "@/lib/common/util";
 import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer/CoverageSetting.vue";
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
+import AutofillSetting from "@/vue/pages/operationHistory/organisms/configViewer/AutofillSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 @Component({
   components: {
@@ -140,6 +151,7 @@ import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
+    "autofill-setting": AutofillSetting,
     "error-message-dialog": ErrorMessageDialog,
   },
 })

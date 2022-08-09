@@ -126,6 +126,7 @@
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
+    "setting-autofill": "自動入力設定",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
@@ -150,6 +151,17 @@
       "screen-name": "定義名",
       "description": "詳細条件を複数設定した場合、その全てが満たされると定義名が適用されます",
       "and": "かつ"
+    },
+    "autofill": {
+      "setting-name": "設定名",
+      "add-setting": "設定の追加",
+      "adding-autofill-values": "設定値の追加",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "テスト中に入力値を定義するホップアップを自動表示する",
+      "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するホップアップを自動表示する",
+      "input-value": "入力値"
     },
     "settings": "設定"
   },

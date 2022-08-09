@@ -122,6 +122,7 @@
     "include-coverage": "Tags to include in coverage calculation",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
+    "setting-autofill": "Autofill Setting",
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
@@ -146,6 +147,17 @@
       "screen-name": "Definition Name",
       "description": "When multiple detailed conditions are set, the definition name will be applied if all of them are satisfied.",
       "and": "and"
+    },
+    "autofill": {
+      "setting-name": "Setting Name",
+      "add-setting": "Add Setting",
+      "adding-autofill-values": "Adding Autofill Values",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "Automatically display popups to define input values ​​during testing",
+      "auto-popup-selection": "Auto-display popup to select input value if auto-fill is defined",
+      "input-value": "Input Value"
     },
     "settings": "Settings"
   },

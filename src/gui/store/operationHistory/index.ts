@@ -19,6 +19,8 @@ import {
   CoverageSource,
   ScreenTransition,
   InputElementInfo,
+  AutofillConditionGroup,
+  AutofillSetting,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
@@ -66,6 +68,11 @@ export interface OperationHistoryState {
      * Screen definition settings.
      */
     screenDefinition: ScreenDefinition;
+
+    /**
+     * Autofill condition settings.
+     */
+    autofillSetting: AutofillSetting;
 
     /**
      * Screen element coverage settings.
@@ -243,6 +250,8 @@ export interface OperationHistoryState {
     index: number;
   } | null;
 
+  autoFillDialog: AutofillConditionGroup[] | null;
+
   /**
    * The function to open the dialog for editing a note.
    */
@@ -295,6 +304,11 @@ const state: OperationHistoryState = {
       screenDefType: ScreenDefType.Title,
       conditionGroups: [],
     },
+    autofillSetting: {
+      autoHopupRegistrationDialog: true,
+      autoHopupSelectionDialog: true,
+      conditionGroups: [],
+    },
     coverage: {
       include: {
         tags: [],
@@ -326,6 +340,7 @@ const state: OperationHistoryState = {
   selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
+  autoFillDialog: null,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

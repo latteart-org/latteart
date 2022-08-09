@@ -25,8 +25,9 @@ import {
   ScreenTransition,
   OperationWithNotes,
   ElementInfo,
+  AutofillConditionGroup,
+  AutofillCondition,
 } from "@/lib/operationHistory/types";
-import { Operation } from "@/lib/operationHistory/Operation";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
@@ -90,6 +91,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
+        autofillSetting: config.autofillSetting,
       },
     });
   },
@@ -107,6 +109,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       captureSettings:
         context.rootState.settingsProvider.settings.captureSettings,
       config: {
+        autofillSetting:
+          payload.config.autofillSetting ??
+          context.state.config.autofillSetting,
         screenDefinition:
           payload.config.screenDefinition ??
           context.state.config.screenDefinition,
@@ -763,9 +768,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       return result;
     } catch (error) {
-      throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
-      );
+      if (error instanceof Error) {
+        throw new Error(
+          context.rootGetters.message(`error.import_export.${error.message}`)
+        );
+      } else {
+        throw error;
+      }
     } finally {
       context.commit(
         "setRepositoryContainer",
@@ -1069,6 +1078,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("addHistory", {
       entry: { operation, intention: null, bugs: null, notices: null },
     });
+
+    // if (operation.isScreenTransition()) {
+    //   const matchGroups =
+    //     new AutofillTestAction().extractMatchingAutofillConditionGroup(
+    //       context.state.config.autofillConditionGroup,
+    //       operation.title,
+    //       operation.url,
+    //       capturedOperation.keywordTexts
+    //     );
+    //   console.log(matchGroups);
+    //   if (matchGroups.length > 0) {
+    //     context.commit("setAutofillDialog", {
+    //       autofillConditionGroups: matchGroups,
+    //     });
+    //   }
+    // }
 
     await context.dispatch("saveUnassignedIntention", {
       destSequence: operation.sequence,
@@ -1601,6 +1626,135 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data.url;
+  },
+
+  async updateAutofillSetting(
+    context,
+    payload: {
+      autoHopupRegistrationDialog?: boolean;
+      autoHopupSelectionDialog?: boolean;
+    }
+  ) {
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting: {
+          ...context.state.config.autofillSetting,
+          ...payload,
+        },
+      },
+    });
+  },
+
+  async updateAutofillConditionGroup(
+    context,
+    payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
+  ) {
+    const autofillSetting = context.state.config.autofillSetting;
+    autofillSetting.conditionGroups =
+      payload.index < 0
+        ? [
+            ...context.state.config.autofillSetting.conditionGroups,
+            {
+              isEnabled: true,
+              settingName: "",
+              screenName: "",
+              definitionType: "url",
+              screenMatchType: "equals",
+              inputValueConditions: [],
+            },
+          ]
+        : context.state.config.autofillSetting.conditionGroups.map(
+            (group, index) => {
+              return index !== payload.index
+                ? group
+                : { ...group, ...payload.conditionGroup };
+            }
+          );
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting,
+      },
+    });
+  },
+
+  async deleteAutofillConditionGroup(context, payload: { index: number }) {
+    const autofillSetting = context.state.config.autofillSetting;
+    (autofillSetting.conditionGroups =
+      context.state.config.autofillSetting.conditionGroups.filter(
+        (group, index) => index !== payload.index
+      )),
+      await context.dispatch("writeSettings", {
+        config: {
+          autofillSetting,
+        },
+      });
+  },
+
+  /**
+   *
+   * @param context
+   */
+  async updateAutofillCondition(
+    context,
+    payload: {
+      condition: Partial<AutofillCondition>;
+      conditionIndex: number;
+      conditionGroupIndex: number;
+    }
+  ) {
+    if (
+      context.state.config.autofillSetting.conditionGroups.length <=
+      payload.conditionGroupIndex
+    ) {
+      return;
+    }
+    const targetGroup =
+      context.state.config.autofillSetting.conditionGroups[
+        payload.conditionGroupIndex
+      ];
+
+    if (targetGroup.inputValueConditions.length <= payload.conditionIndex) {
+      return;
+    }
+    payload.conditionIndex < 0
+      ? targetGroup.inputValueConditions.push({
+          isEnabled: true,
+          locatorType: "id",
+          locator: "",
+          locatorMatchType: "equals",
+          inputValue: "",
+        })
+      : (targetGroup.inputValueConditions[payload.conditionIndex] = {
+          ...targetGroup.inputValueConditions[payload.conditionIndex],
+          ...payload.condition,
+        });
+
+    await context.dispatch("updateAutofillConditionGroup", {
+      conditionGroup: targetGroup,
+      index: payload.conditionGroupIndex,
+    });
+  },
+
+  async deleteAutofillCondition(
+    context,
+    payload: { conditionIndex: number; conditionGroupIndex: number }
+  ) {
+    const newGroup = context.state.config.autofillSetting.conditionGroups.map(
+      (group, index) => {
+        if (index === payload.conditionGroupIndex) {
+          group.inputValueConditions = group.inputValueConditions.filter(
+            (condition, index) => index !== payload.conditionIndex
+          );
+        }
+
+        return group;
+      }
+    );
+
+    await context.dispatch("updateAutofillConditionGroup", {
+      conditionGroup: newGroup,
+      index: payload.conditionGroupIndex,
+    });
   },
 };
 
