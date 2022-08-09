@@ -21,12 +21,12 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export class ExportAction {
+export class ExportProjectAction {
   constructor(
     private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
   ) {}
 
-  public async exportZip(
+  public async export(
     projectId: string,
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<string>> {
