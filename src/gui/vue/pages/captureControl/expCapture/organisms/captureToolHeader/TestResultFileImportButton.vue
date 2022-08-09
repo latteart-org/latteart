@@ -17,7 +17,7 @@
 <template>
   <v-list-tile @click="openTestResultImportDialog" :disabled="isDisabled">
     <v-list-tile-title>{{
-      $store.getters.message("manage-header.import-option")
+      $store.getters.message("import-export-dialog.test-result-import-title")
     }}</v-list-tile-title>
 
     <error-message-dialog
@@ -27,9 +27,9 @@
     />
 
     <test-result-import-dialog
-      :opened="testResultImportDialogOpend"
+      :opened="testResultImportDialogOpened"
       @execute="importData"
-      @close="testResultImportDialogOpend = false"
+      @close="testResultImportDialogOpened = false"
     />
 
     <information-message-dialog
@@ -58,13 +58,13 @@ export default class TestResultFileImportButton extends Vue {
   private showImportData = false;
   private dataX = 0;
   private dataY = 0;
-  private isImportTestResults = false;
+  private isImportingTestResults = false;
   private importTestResults: Array<{ url: string; name: string }> = [];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private testResultImportDialogOpend = false;
+  private testResultImportDialogOpened = false;
 
   private informationMessageDialogOpened = false;
   private informationTitle = "";
@@ -75,7 +75,7 @@ export default class TestResultFileImportButton extends Vue {
       this.isCapturing ||
       this.isReplaying ||
       this.isResuming ||
-      this.isImportTestResults
+      this.isImportingTestResults
     );
   }
 
@@ -92,15 +92,11 @@ export default class TestResultFileImportButton extends Vue {
   }
 
   private openTestResultImportDialog() {
-    this.testResultImportDialogOpend = true;
+    this.testResultImportDialogOpened = true;
   }
 
-  private importData(importTestResult: { url: string; name: string }) {
-    this.isImportTestResults = true;
-    if (!importTestResult.url) {
-      this.isImportTestResults = false;
-      return;
-    }
+  private importData(testResultImportFile: { data: string; name: string }) {
+    this.isImportingTestResults = true;
 
     setTimeout(async () => {
       try {
@@ -110,18 +106,18 @@ export default class TestResultFileImportButton extends Vue {
           ),
         });
         await this.$store.dispatch("operationHistory/importData", {
-          source: { testResultFileUrl: importTestResult.url },
+          source: { testResultFile: testResultImportFile },
         });
         this.$store.dispatch("closeProgressDialog");
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
-          "import-export-dialog.import-title"
+          "import-export-dialog.test-result-import-title"
         );
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName: importTestResult.name,
+            returnName: testResultImportFile.name,
           }
         );
       } catch (error) {
@@ -133,7 +129,7 @@ export default class TestResultFileImportButton extends Vue {
           throw error;
         }
       } finally {
-        this.isImportTestResults = false;
+        this.isImportingTestResults = false;
       }
     }, 300);
   }

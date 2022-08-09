@@ -28,10 +28,9 @@ import {
   RepositoryContainerImpl,
   RepositoryContainer,
 } from "../lib/eventDispatcher/RepositoryContainer";
-import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
-import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import RESTClientImpl from "@/lib/eventDispatcher/RESTClient";
-import { Locale } from "@/lib/common/enum/SettingsEnum";
+import { SaveLocaleAction } from "@/lib/operationHistory/actions/setting/SaveLocaleAction";
+import { ReadLocaleAction } from "@/lib/operationHistory/actions/setting/ReadLocaleAction";
 
 Vue.use(Vuex);
 
@@ -214,9 +213,9 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.settings Settings.
    */
   async loadLocaleFromSettings(context) {
-    const result = await new ReadSettingAction(
+    const result = await new ReadLocaleAction(
       context.rootState.repositoryContainer
-    ).readSettings();
+    ).readLocale();
 
     if (result.isFailure()) {
       throw new Error(
@@ -228,7 +227,7 @@ const actions: ActionTree<RootState, RootState> = {
     }
 
     if (result.data) {
-      context.commit("setLocale", { locale: result.data.locale });
+      context.commit("setLocale", { locale: result.data });
     }
   },
 
@@ -238,31 +237,15 @@ const actions: ActionTree<RootState, RootState> = {
    * @param payload.locale Locale.
    */
   async changeLocale(context, payload: { locale: string }) {
-    const repositoryContainer = context.rootState.repositoryContainer;
-    const readSettingActionResult = await new ReadSettingAction(
-      repositoryContainer
-    ).readSettings();
+    const saveLocaleActionResult = await new SaveLocaleAction(
+      context.rootState.repositoryContainer
+    ).saveLocale(payload.locale);
 
-    if (readSettingActionResult.isFailure()) {
+    if (saveLocaleActionResult.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          readSettingActionResult.error.messageKey,
-          readSettingActionResult.error.variables
-        )
-      );
-    }
-
-    readSettingActionResult.data.locale = payload.locale as Locale;
-
-    const saveSettingActionResult = await new SaveSettingAction(
-      repositoryContainer
-    ).saveSettings(readSettingActionResult.data);
-
-    if (saveSettingActionResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          saveSettingActionResult.error.messageKey,
-          saveSettingActionResult.error.variables
+          saveLocaleActionResult.error.messageKey,
+          saveLocaleActionResult.error.variables
         )
       );
     }

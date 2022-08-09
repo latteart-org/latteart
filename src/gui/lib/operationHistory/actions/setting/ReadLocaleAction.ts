@@ -21,27 +21,24 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export class ExportAction {
+const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
+
+export class ReadLocaleAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "localStorageSettingRepository"
+    >
   ) {}
 
-  public async exportZip(
-    projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<ActionResult<string>> {
-    const postProjectForExportResult =
-      await this.repositoryContainer.projectRepository.postProjectForExport(
-        projectId,
-        selectOption
-      );
+  public async readLocale(): Promise<ActionResult<string>> {
+    const getLocaleResult =
+      await this.repositoryContainer.localStorageSettingRepository.getLocale();
 
-    if (postProjectForExportResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: "error.import_export.create-export-data-error",
-      });
+    if (getLocaleResult.isFailure()) {
+      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(postProjectForExportResult.data.url);
+    return new ActionSuccess(getLocaleResult.data);
   }
 }

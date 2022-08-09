@@ -32,7 +32,7 @@ export class ImportTestResultRepository {
    * @param dest.shouldSaveTemporary Whether to save temporary.
    */
   public async postTestResult(
-    source: { testResultFileUrl: string },
+    source: { testResultFile: { data: string; name: string } },
     dest?: { testResultId?: string }
   ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
     try {
@@ -52,31 +52,6 @@ export class ImportTestResultRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as { testResultId: string },
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
-   * Get a list of test results for import.
-   * @returns List of test results for import.
-   */
-  public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<{ url: string; name: string }>>
-  > {
-    try {
-      const response = await this.restClient.httpGet(`/imports/test-results`);
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return new RepositoryAccessSuccess({
-        data: response.data as Array<{
-          url: string;
-          name: string;
-        }>,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

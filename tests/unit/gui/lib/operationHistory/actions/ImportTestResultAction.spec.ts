@@ -1,4 +1,4 @@
-import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import {
   RESTClientResponse,
   RESTClient,
@@ -14,7 +14,7 @@ const baseRestClient: RESTClient = {
 };
 
 describe("ImportTestResultAction", () => {
-  describe("#importWithTestResult", () => {
+  describe("#import", () => {
     describe("指定のテスト結果ファイルをリポジトリにインポートする", () => {
       const expectedData = { testResultId: "testResultId" };
       const resSuccess: RESTClientResponse = {
@@ -27,7 +27,7 @@ describe("ImportTestResultAction", () => {
         data: { code: "errorcode", message: "errormessage" },
       };
 
-      const source = { testResultFileUrl: "testResultFileUrl" };
+      const source = { testResultFile: { data: "data", name: "name" } };
       const dest = { testResultId: "testResultId" };
 
       it("インポートに成功した場合は、インポートされたテスト結果の識別情報を返す", async () => {
@@ -41,7 +41,7 @@ describe("ImportTestResultAction", () => {
           ),
         });
 
-        const result = await action.importWithTestResult(source, dest);
+        const result = await action.import(source, dest);
 
         expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
           source,
@@ -67,7 +67,7 @@ describe("ImportTestResultAction", () => {
           ),
         });
 
-        const result = await action.importWithTestResult(source, dest);
+        const result = await action.import(source, dest);
 
         expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
           source,

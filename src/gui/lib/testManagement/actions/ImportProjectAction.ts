@@ -21,7 +21,7 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export class ImportAction {
+export class ImportProjectAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
@@ -34,8 +34,8 @@ export class ImportAction {
    * @param importFileName  Import file name.
    * @param selectOption  Select options.
    */
-  public async importZip(
-    source: { projectFileUrl: string },
+  public async import(
+    source: { projectFile: { data: string; name: string } },
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<{ projectId: string }>> {
     const postProjectsResult =

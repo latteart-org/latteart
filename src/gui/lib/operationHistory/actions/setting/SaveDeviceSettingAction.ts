@@ -27,14 +27,17 @@ const SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY =
 
 export class SaveDeviceSettingAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "localStorageSettingRepository"
+    >
   ) {}
 
   public async saveDeviceSettings(
     deviceSettings: DeviceSettings
   ): Promise<ActionResult<DeviceSettings>> {
     const putDeviceSettingsResult =
-      await this.repositoryContainer.settingRepository.putDeviceSettings(
+      await this.repositoryContainer.localStorageSettingRepository.putDeviceSettings(
         deviceSettings
       );
 

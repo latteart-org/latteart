@@ -27,7 +27,6 @@ import {
 } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
 import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
-import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 
@@ -161,14 +160,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       },
     };
 
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-
     const result = await new SaveDeviceSettingAction(
-      localRepositoryContainer
+      context.rootState.repositoryContainer
     ).saveDeviceSettings(deviceSettings);
 
     if (result.isFailure()) {

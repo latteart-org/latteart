@@ -60,7 +60,6 @@
                 id="viewerConfigButton"
                 color="primary"
                 @click="toViewerConfig"
-                :disabled="isConnectedToRemote"
                 >{{
                   $store.getters.message("manage-header.capture-config")
                 }}</v-btn
@@ -98,7 +97,6 @@
               :items="locales"
               :value="initLocale"
               v-on:change="changeLocale"
-              :disabled="isConnectedToRemote"
             ></v-select>
           </v-flex>
           <v-flex xs2 pl-3 v-if="!isViewerMode">
@@ -220,10 +218,6 @@ export default class ManageView extends Vue {
     return this.selectedTestMatrixId !== "";
   }
 
-  private get isConnectedToRemote() {
-    return this.$store.state.repositoryContainer.isRemote;
-  }
-
   public toManageEdit(): void {
     this.$router.push({ name: "manageEditView" });
   }
@@ -342,11 +336,13 @@ export default class ManageView extends Vue {
     })();
   }
 
-  private importData(option: {
-    selectedOptionProject: boolean;
-    selectedOptionTestresult: boolean;
-    selectedItem: { url: string; name: string };
-  }): void {
+  private importData(
+    projectImportFile: { data: string; name: string },
+    option: {
+      selectedOptionProject: boolean;
+      selectedOptionTestresult: boolean;
+    }
+  ): void {
     this.importDataProcessing = true;
     this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message(
@@ -354,34 +350,26 @@ export default class ManageView extends Vue {
       ),
     });
 
-    if (!option.selectedItem.url) {
-      this.$store.dispatch("closeProgressDialog");
-      this.importDataProcessing = false;
-      return;
-    }
-
     setTimeout(async () => {
       try {
-        const source = { projectFileUrl: option.selectedItem.url };
+        const source = { projectFile: projectImportFile };
         const { projectId } = await this.$store.dispatch(
           "testManagement/importData",
-          {
-            source,
-            option,
-          }
+          { source, option }
         );
+
         if (projectId) {
           await this.$store.dispatch("testManagement/readDataFile");
         }
 
         this.informationMessageDialogOpened = true;
         this.informationTitle = this.$store.getters.message(
-          "import-export-dialog.import-title"
+          "import-export-dialog.project-import-title"
         );
         this.informationMessage = this.$store.getters.message(
           "import-export-dialog.import-data-succeeded",
           {
-            returnName: option.selectedItem.name,
+            returnName: projectImportFile.name,
           }
         );
       } catch (error) {
@@ -418,7 +406,7 @@ export default class ManageView extends Vue {
 
         this.downloadLinkDialogOpened = true;
         this.downloadLinkDialogTitle = this.$store.getters.message(
-          "import-export-dialog.export-title"
+          "import-export-dialog.project-export-title"
         );
         this.downloadLinkDialogMessage = this.$store.getters.message(
           "import-export-dialog.create-export-data-succeeded"

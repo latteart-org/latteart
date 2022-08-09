@@ -59,21 +59,6 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
-
-    <information-message-dialog
-      :opened="informationMessageDialogOpened"
-      :title="informationTitle"
-      :message="informationMessage"
-      @close="informationMessageDialogOpened = false"
-    />
   </div>
 </template>
 
@@ -82,21 +67,13 @@ import { Component, Vue } from "vue-property-decorator";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import TestOptionDialog from "../../../testOptionDialog/TestOptionDialog.vue";
-import InformationMessageDialog from "../../../../common/InformationMessageDialog.vue";
-import ConfirmDialog from "../../../../common/ConfirmDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import WindowSelectorDialog from "../WindowSelectorDialog.vue";
-import {
-  RepositoryContainer,
-  RepositoryContainerImpl,
-} from "@/lib/eventDispatcher/RepositoryContainer";
 
 @Component({
   components: {
     "test-option-dialog": TestOptionDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
-    "confirm-dialog": ConfirmDialog,
     "window-selector-dialog": WindowSelectorDialog,
   },
 })
@@ -105,17 +82,8 @@ export default class RecordButton extends Vue {
   private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-  private windowSelectorOpened = false;
 
-  private informationMessageDialogOpened = false;
-  private informationTitle = "";
-  private informationMessage = "";
+  private windowSelectorOpened = false;
 
   private get testResultName(): string {
     return this.$store.state.operationHistory.testResultInfo.name;
@@ -166,66 +134,11 @@ export default class RecordButton extends Vue {
 
     (async () => {
       try {
-        const currentRepositoryInfo = (() => {
-          const currentRepository: RepositoryContainer =
-            this.$store.state.repositoryContainer;
-
-          return {
-            url: currentRepository.serviceUrl,
-            isRemote: currentRepository.isRemote,
-          };
-        })();
-
-        const testResultId = await (async () => {
-          const testResultInfo: {
-            repositoryUrl: string;
-            id: string;
-          } = this.$store.state.operationHistory.testResultInfo;
-
-          if (
-            !testResultInfo.repositoryUrl ||
-            testResultInfo.repositoryUrl ===
-              this.$store.state.localRepositoryServiceUrl
-          ) {
-            return testResultInfo.id;
-          }
-
-          const id: string =
-            (
-              await this.$store.dispatch(
-                "operationHistory/importTestResultFromRemoteRepository"
-              )
-            ).testResultId ?? "";
-
-          return id;
-        })();
-
-        const remoteTestResultId =
-          this.$store.state.operationHistory.testResultInfo.id ?? "";
-
-        // switch to local
-        this.$store.commit(
-          "setRepositoryContainer",
-          {
-            repositoryContainer: new RepositoryContainerImpl({
-              url: this.$store.state.localRepositoryServiceUrl,
-              isRemote: false,
-            }),
-          },
-          { root: true }
-        );
-
-        if (testResultId === "") {
+        if (this.$store.state.operationHistory.testResultInfo.id === "") {
           await this.$store.dispatch("operationHistory/createTestResult", {
             initialUrl: this.url,
             name: this.testResultName,
           });
-        } else {
-          const tmpUrl = this.url;
-          await this.$store.dispatch("operationHistory/resume", {
-            testResultId,
-          });
-          this.url = tmpUrl;
         }
 
         const history = this.$store.state.operationHistory.history;
@@ -259,31 +172,6 @@ export default class RecordButton extends Vue {
           },
         });
         this.preparingForCapture = false;
-
-        // switch to before repository
-        this.$store.commit(
-          "setRepositoryContainer",
-          {
-            repositoryContainer: new RepositoryContainerImpl(
-              currentRepositoryInfo
-            ),
-          },
-          { root: true }
-        );
-
-        if (currentRepositoryInfo.isRemote) {
-          const localTestResultId =
-            this.$store.state.operationHistory.testResultInfo.id;
-
-          this.uploadHistory(
-            { localId: localTestResultId, remoteId: remoteTestResultId },
-            async (testResultId: string) => {
-              await this.$store.dispatch("operationHistory/resume", {
-                testResultId,
-              });
-            }
-          );
-        }
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -299,93 +187,6 @@ export default class RecordButton extends Vue {
 
   private endCapture(): void {
     this.$store.dispatch("captureControl/endCapture");
-  }
-
-  private uploadHistory(
-    testResult: { localId: string; remoteId?: string },
-    postOperation: (testResultId: string) => Promise<void>
-  ): void {
-    this.confirmDialogTitle = this.$store.getters.message("common.confirm");
-    this.confirmDialogMessage = this.$store.getters.message(
-      "remote-access.register-confirm"
-    );
-
-    this.confirmDialogAccept = () => {
-      this.confirmDialogOpened = false;
-
-      (async () => {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "remote-access.registering-testresults"
-          ),
-        });
-
-        try {
-          const newTestResultId = await this.$store.dispatch(
-            "operationHistory/uploadTestResultsToRemote",
-            {
-              localTestResultId: testResult.localId,
-              remoteTestResultId: testResult.remoteId,
-            }
-          );
-
-          await postOperation(newTestResultId);
-        } catch (error) {
-          if (error instanceof Error) {
-            this.errorMessage = error.message;
-            this.errorMessageDialogOpened = true;
-          } else {
-            throw error;
-          }
-        } finally {
-          this.$store.dispatch("closeProgressDialog");
-        }
-
-        this.deleteLocalTestResult(testResult.localId);
-      })();
-    };
-
-    this.confirmDialogOpened = true;
-  }
-
-  private deleteLocalTestResult(testResultId: string): void {
-    this.confirmDialogTitle = this.$store.getters.message("common.confirm");
-    this.confirmDialogMessage = this.$store.getters.message(
-      "remote-access.delete-warning"
-    );
-
-    this.confirmDialogAccept = async () => {
-      this.confirmDialogOpened = false;
-
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "remote-access.delete-testresults"
-        ),
-      });
-
-      try {
-        await this.$store.dispatch("operationHistory/deleteLocalTestResult", {
-          testResultId,
-        });
-
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message("common.confirm");
-        this.informationMessage = this.$store.getters.message(
-          "remote-access.register-delete-succeeded"
-        );
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    };
-
-    this.confirmDialogOpened = true;
   }
 
   private goToHistoryView() {

@@ -27,12 +27,15 @@ const READ_DEVICE_SETTING_FAILED_MESSAGE_KEY =
 
 export class ReadDeviceSettingAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "localStorageSettingRepository"
+    >
   ) {}
 
   public async readDeviceSettings(): Promise<ActionResult<DeviceSettings>> {
     const getDeviceSettingsResult =
-      await this.repositoryContainer.settingRepository.getDeviceSettings();
+      await this.repositoryContainer.localStorageSettingRepository.getDeviceSettings();
 
     if (getDeviceSettingsResult.isFailure()) {
       return new ActionFailure({
