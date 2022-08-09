@@ -17,7 +17,7 @@
 <template>
   <v-list-tile @click="exportData" :disabled="isDisabled">
     <v-list-tile-title>{{
-      $store.getters.message("manage-header.export-option")
+      $store.getters.message("import-export-dialog.test-result-export-title")
     }}</v-list-tile-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"

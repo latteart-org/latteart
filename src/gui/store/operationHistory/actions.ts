@@ -26,7 +26,6 @@ import {
   OperationWithNotes,
   ElementInfo,
 } from "@/lib/operationHistory/types";
-import { Operation } from "@/lib/operationHistory/Operation";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
@@ -44,17 +43,13 @@ import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/Sa
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
-import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
-import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
-import { UploadTestResultAction } from "@/lib/operationHistory/actions/testResult/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
-import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/import/GetImportTestResultListAction";
-import { GetImportProjectListAction } from "@/lib/operationHistory/actions/import/GetImportProjectListAction";
 import { CreateTestResultAction } from "@/lib/operationHistory/actions/testResult/CreateTestResultAction";
 import { CompressNoteImageAction } from "@/lib/operationHistory/actions/image/CompressNoteImageAction";
 import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/image/CompressTestStepImageAction";
@@ -726,112 +721,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
-  async importTestResultFromRemoteRepository(
-    context,
-    payload?: { destTestResultId?: string }
-  ) {
-    const { serviceUrl, isRemote } = context.rootState.repositoryContainer;
-
-    try {
-      const exportFileUrl: string = await context.dispatch("exportData", {
-        testResultId: context.state.testResultInfo.id,
-        shouldSaveTemporary: true,
-      });
-
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: context.rootState.localRepositoryServiceUrl,
-            isRemote: false,
-          }),
-        },
-        { root: true }
-      );
-
-      const result: {
-        testResultId: string;
-      } = await context.dispatch("importData", {
-        source: {
-          testResultFileUrl: new URL(
-            exportFileUrl,
-            context.state.testResultInfo.repositoryUrl
-          ).toString(),
-        },
-        dest: { testResultId: payload?.destTestResultId },
-      });
-
-      return result;
-    } catch (error) {
-      throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
-      );
-    } finally {
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: serviceUrl,
-            isRemote,
-          }),
-        },
-        { root: true }
-      );
-    }
-  },
-
-  async uploadTestResultsToRemote(
-    context,
-    payload: { localTestResultId: string; remoteTestResultId?: string }
-  ) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-    const result = await new UploadTestResultAction(
-      localRepositoryContainer
-    ).uploadTestResult(
-      { testResultId: payload.localTestResultId },
-      {
-        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-        testResultId: payload.remoteTestResultId,
-      }
-    );
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async deleteLocalTestResult(context, payload: { testResultId: string }) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-
-    const result = await new DeleteTestResultAction(
-      localRepositoryContainer
-    ).deleteTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-  },
-
   async deleteCurrentTestResult(context) {
     const testResultId = context.state.testResultInfo.id;
 
@@ -934,13 +823,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async importData(
     context,
     payload: {
-      source: { testResultFileUrl: string };
+      source: { testResultFile: { data: string; name: string } };
       dest?: { testResultId?: string };
     }
   ) {
     const result = await new ImportTestResultAction(
       context.rootState.repositoryContainer
-    ).importWithTestResult(payload.source, payload.dest);
+    ).import(payload.source, payload.dest);
 
     if (result.isFailure()) {
       throw new Error(
@@ -1472,48 +1361,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new GetTestResultListAction(
       context.rootState.repositoryContainer
     ).getTestResults();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async getImportTestResults(context) {
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-    const result = await new GetImportTestResultListAction(
-      localRepositoryContainer
-    ).getImportTestResults();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async getImportProjects(context) {
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-    const result = await new GetImportProjectListAction(
-      localRepositoryContainer
-    ).getImportProjects();
 
     if (result.isFailure()) {
       throw new Error(

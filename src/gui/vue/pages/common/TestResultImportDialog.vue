@@ -14,23 +14,35 @@
  limitations under the License.
 -->
 <template>
-  <scrollable-dialog :opened="dialogOpened">
+  <scrollable-dialog :opened="opened">
     <template v-slot:title>{{
-      $store.getters.message("import-export-dialog.import-title")
+      $store.getters.message("import-export-dialog.test-result-import-title")
     }}</template>
     <template v-slot:content>
-      <v-container class="px-0 pt-0" fluid id="import-option-dialog">
-        <v-select
-          v-model="selectedUrl"
-          item-text="name"
-          item-value="url"
-          :items="importTestResults"
-          :label="
-            $store.getters.message(
-              'import-export-dialog.select-test-result-file'
-            )
-          "
-        ></v-select>
+      <v-container class="px-0 pt-0 pb-0" fluid id="import-option-dialog">
+        <v-layout column>
+          <v-flex xs12>
+            {{
+              $store.getters.message(
+                "import-export-dialog.select-test-result-file-label"
+              )
+            }}
+          </v-flex>
+
+          <v-flex xs12 class="pl-2 pr-2 pt-2">
+            <select-file-button
+              accept=".zip"
+              :details-message="targetFile ? targetFile.name : ''"
+              @select="selectImportFile"
+            >
+              {{
+                $store.getters.message(
+                  "import-export-dialog.select-test-result-file-button"
+                )
+              }}
+            </select-file-button>
+          </v-flex>
+        </v-layout>
       </v-container>
     </template>
     <template v-slot:footer>
@@ -55,53 +67,47 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
+import { loadFileAsBase64 } from "@/lib/common/util";
+import SelectFileButton from "@/vue/molecules/SelectFileButton.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
+    "select-file-button": SelectFileButton,
   },
 })
 export default class TestResultImportDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private dialogOpened = false;
-  private selectedUrl = "";
-  private importTestResults: {
-    url: string;
-    name: string;
-  }[] = [];
+  private targetFile: File | null = null;
 
   private get okButtonIsDisabled() {
-    return this.selectedUrl === "";
+    return !this.targetFile;
   }
 
   @Watch("opened")
-  private async updateImportFiles(newValue: boolean) {
-    try {
-      if (newValue) {
-        this.importTestResults = await this.$store.dispatch(
-          "operationHistory/getImportTestResults"
-        );
-      }
-      this.dialogOpened = newValue;
-    } catch (e) {
-      console.error(e);
-      this.close();
+  private initialize() {
+    if (this.opened) {
+      this.targetFile = null;
     }
   }
 
+  private selectImportFile(targetFile: File): void {
+    this.targetFile = targetFile;
+  }
+
   private execute(): void {
-    const target = this.importTestResults.find((testResult) => {
-      return testResult.url === this.selectedUrl;
-    });
-    if (!target) {
-      throw new Error(`invalid url: ${this.selectedUrl}`);
+    if (!this.targetFile) {
+      return;
     }
-    this.$emit("execute", {
-      url: target.url,
-      name: target.name,
-    });
-    this.close();
+
+    (async (targetFile) => {
+      const file = await loadFileAsBase64(targetFile);
+
+      this.$emit("execute", file);
+
+      this.close();
+    })(this.targetFile);
   }
 
   private close(): void {

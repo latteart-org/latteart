@@ -333,7 +333,7 @@
         >
           <v-flex xs9>{{ testResult.name }}</v-flex>
           <v-flex xs3
-            ><v-btn @click="importTestResult(testResult)">{{
+            ><v-btn @click="addTestResultToSession(testResult)">{{
               $store.getters.message("session-info.result-import")
             }}</v-btn></v-flex
           >
@@ -549,7 +549,9 @@ export default class SessionInfo extends Vue {
     await this.$store.dispatch("testManagement/readDataFile");
   }
 
-  private async importTestResult(testResult: TestResultFile): Promise<void> {
+  private async addTestResultToSession(
+    testResult: TestResultFile
+  ): Promise<void> {
     this.testResultSelectionDialogOpened = false;
     this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message("session-info.import-test-result"),
@@ -715,7 +717,10 @@ export default class SessionInfo extends Vue {
 
       const newTestResult = this.$store.state.operationHistory.testResultInfo;
 
-      this.importTestResult({ id: newTestResult.id, name: newTestResult.name });
+      this.addTestResultToSession({
+        id: newTestResult.id,
+        name: newTestResult.name,
+      });
 
       window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
     }

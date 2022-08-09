@@ -21,33 +21,27 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const UPLOAD_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.remote_access.upload-request-error";
-
-export class UploadTestResultAction {
+export class ExportProjectAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
-    >
+    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
   ) {}
 
-  public async uploadTestResult(
-    source: { testResultId: string },
-    dest: { repositoryUrl: string; testResultId?: string }
+  public async export(
+    projectId: string,
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<string>> {
-    const postTestResultForUploadResult =
-      await this.repositoryContainer.testResultRepository.postTestResultForUpload(
-        source,
-        dest
+    const postProjectForExportResult =
+      await this.repositoryContainer.projectRepository.postProjectForExport(
+        projectId,
+        selectOption
       );
 
-    if (postTestResultForUploadResult.isFailure()) {
+    if (postProjectForExportResult.isFailure()) {
       return new ActionFailure({
-        messageKey: UPLOAD_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: "error.import_export.create-export-data-error",
       });
     }
 
-    return new ActionSuccess(postTestResultForUploadResult.data.id);
+    return new ActionSuccess(postProjectForExportResult.data.url);
   }
 }

@@ -21,7 +21,6 @@
       :items="locales"
       :value="initLocale"
       v-on:change="changeLocale"
-      :disabled="isConnectedToRemote"
     ></v-select>
 
     <error-message-dialog
@@ -45,10 +44,6 @@ export default class LocaleSelectBox extends Vue {
   private locales: string[] = ["ja", "en"];
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-
-  private get isConnectedToRemote() {
-    return this.$store.state.repositoryContainer.isRemote;
-  }
 
   public get initLocale(): string {
     return this.$store.getters.getLocale();

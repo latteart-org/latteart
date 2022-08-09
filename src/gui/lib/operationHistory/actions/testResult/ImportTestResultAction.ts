@@ -21,37 +21,33 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY =
-  "error.test_management.get_import_project_list_failed";
+const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.import_test_result_failed";
 
-export class GetImportProjectListAction {
+export class ImportTestResultAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "importProjectRepository" | "serviceUrl"
+      "importTestResultRepository"
     >
   ) {}
 
-  public async getImportProjects(): Promise<
-    ActionResult<Array<{ url: string; name: string }>>
-  > {
-    const getProjectsResult =
-      await this.repositoryContainer.importProjectRepository.getProjects();
+  public async import(
+    source: { testResultFile: { data: string; name: string } },
+    dest?: { testResultId?: string }
+  ): Promise<ActionResult<{ testResultId: string }>> {
+    const postTestResultResult =
+      await this.repositoryContainer.importTestResultRepository.postTestResult(
+        source,
+        dest
+      );
 
-    if (getProjectsResult.isFailure()) {
+    if (postTestResultResult.isFailure()) {
       return new ActionFailure({
-        messageKey: GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY,
+        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
       });
     }
 
-    const serviceUrl = this.repositoryContainer.serviceUrl;
-    const data = getProjectsResult.data.map(({ url, name }) => {
-      return {
-        url: `${serviceUrl}/${url}`,
-        name,
-      };
-    });
-
-    return new ActionSuccess(data);
+    return new ActionSuccess(postTestResultResult.data);
   }
 }
