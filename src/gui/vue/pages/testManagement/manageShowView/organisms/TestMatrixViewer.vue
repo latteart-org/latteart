@@ -63,7 +63,7 @@ export default class TestMatrixViewer extends Vue {
   private expandedPanelIndex: number | null = null;
 
   private get expandedGroupPanelIndexKey(): string {
-    return `expandedGroupPanelIndex_${this.testMatrixId}`;
+    return `latteart-management-expandedGroupPanelIndex_${this.testMatrixId}`;
   }
 
   created(): void {

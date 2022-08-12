@@ -325,12 +325,15 @@ const defaultLocalRepositoryServiceUrl = "http://127.0.0.1:3002";
 
 function getRemoteRepositoryUrlsFromLocalStorage(): string[] {
   const repositoryUrlsStr =
-    localStorage.getItem("remoteRepositoryUrls") ?? "[]";
+    localStorage.getItem("latteart-config-remoteRepositoryUrls") ?? "[]";
   return JSON.parse(repositoryUrlsStr);
 }
 
 function setRemoteRepositoryUrlsToLocalStorage(urls: string[]) {
-  localStorage.setItem("remoteRepositoryUrls", JSON.stringify(urls));
+  localStorage.setItem(
+    "latteart-config-remoteRepositoryUrls",
+    JSON.stringify(urls)
+  );
 }
 
 const store: StoreOptions<RootState> = {

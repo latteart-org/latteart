@@ -233,7 +233,7 @@ export default class StoryView extends Vue {
       title: this.$store.getters.message("story-view.window-title"),
     });
 
-    const sessionPanelExpantionStatesKey = `sessionPanelExpantionStates_${this.storyId}`;
+    const sessionPanelExpantionStatesKey = `latteart-management-sessionPanelExpantionStates_${this.storyId}`;
 
     this.sessionPanelExpantionStates = JSON.parse(
       localStorage.getItem(sessionPanelExpantionStatesKey) ?? "[]"

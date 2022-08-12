@@ -26,7 +26,7 @@ export class LocalStorageSettingRepository {
    * @returns Locale information.
    */
   public async getLocale(): Promise<RepositoryAccessResult<string>> {
-    const tmpLocale = localStorage.getItem("latteartConfigLocale");
+    const tmpLocale = localStorage.getItem("latteart-config-locale");
     const locale = tmpLocale ?? "ja";
 
     return new RepositoryAccessSuccess({
@@ -42,7 +42,7 @@ export class LocalStorageSettingRepository {
   public async putLocale(
     locale: string
   ): Promise<RepositoryAccessResult<string>> {
-    localStorage.setItem("latteartConfigLocale", locale);
+    localStorage.setItem("latteart-config-locale", locale);
 
     return new RepositoryAccessSuccess({
       data: locale as string,
@@ -57,7 +57,7 @@ export class LocalStorageSettingRepository {
     RepositoryAccessResult<DeviceSettings>
   > {
     const tmpDeviceSettings = localStorage.getItem(
-      "latteartConfigDeviceSettings"
+      "latteart-config-deviceSettings"
     );
 
     const deviceSettings = tmpDeviceSettings
@@ -93,7 +93,7 @@ export class LocalStorageSettingRepository {
     };
 
     localStorage.setItem(
-      "latteartConfigDeviceSettings",
+      "latteart-config-deviceSettings",
       JSON.stringify(tmpDeviceSettings)
     );
 
