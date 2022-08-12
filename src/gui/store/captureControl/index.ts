@@ -98,6 +98,14 @@ export interface CaptureControlState {
     firstTestPurposeDetails: string;
     shouldRecordTestPurpose: boolean;
   };
+
+  /**
+   * Replay option.
+   */
+  replayOption: {
+    testResultName: string;
+    replayCaptureMode: boolean;
+  };
 }
 
 const state: CaptureControlState = {
@@ -120,6 +128,10 @@ const state: CaptureControlState = {
     firstTestPurpose: "",
     firstTestPurposeDetails: "",
     shouldRecordTestPurpose: false,
+  },
+  replayOption: {
+    testResultName: "",
+    replayCaptureMode: false,
   },
 };
 

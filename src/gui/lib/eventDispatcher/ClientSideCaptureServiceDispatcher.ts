@@ -100,119 +100,6 @@ export default class ClientSideCaptureServiceDispatcher {
   }
 
   /**
-   * Replay execution of operation history.
-   * @param config  Settings at the time of capture.
-   * @param operations Operation history.
-   */
-  public async runOperations(
-    config: CaptureConfig,
-    operations: Operation[]
-  ): Promise<Reply<string>> {
-    try {
-      let occurredError: ServerError | null = null;
-      let completedMessage: string | null = null;
-
-      this.socketIOClient = new SocketIOClient(this._serviceUrl);
-
-      const target = {
-        platformName: config.platformName,
-        browserName: config.browser,
-        device: {
-          id: config.device.deviceName,
-          name: config.device.modelNumber,
-          osVersion: config.device.osVersion,
-        },
-        platformVersion: config.platformVersion,
-        waitTimeForStartupReload: config.waitTimeForStartupReload,
-      };
-
-      const onConnect = () => {
-        this.socketIOClient?.emit("run_operations", operations, target);
-      };
-
-      const onCanceled = () => {
-        completedMessage = "run-operations-canceled";
-      };
-
-      const onSucceeded = () => {
-        completedMessage = "done-run-operations";
-      };
-
-      const onAborted = () => {
-        completedMessage = "done-run-operations-because-skipped";
-      };
-
-      const onError = (data?: unknown) => {
-        console.info(`onError: ${JSON.stringify(data)}`);
-
-        const error = data as ServerError;
-        occurredError = {
-          code:
-            error.code === "unknown_error"
-              ? "run_operations_failed"
-              : error.code,
-          message: error.message,
-          details: error.details,
-        };
-      };
-
-      await this.socketIOClient
-        .connect(
-          onConnect,
-          ...[
-            { eventName: "error_occurred", eventHandler: onError },
-            {
-              eventName: "run_operations_completed",
-              eventHandler: onSucceeded,
-            },
-            { eventName: "run_operations_canceled", eventHandler: onCanceled },
-            { eventName: "run_operations_aborted", eventHandler: onAborted },
-          ]
-        )
-        .catch((error) => {
-          if (error.message === "disconnected") {
-            occurredError = {
-              code: "run_operations_socket_disconnected",
-              message: "Disconnected from client side capture service.",
-            };
-
-            return;
-          }
-
-          throw error;
-        });
-
-      this.socketIOClient = null;
-
-      if (completedMessage) {
-        return new ReplyImpl({ status: 200, data: completedMessage });
-      } else {
-        return new ReplyImpl({
-          status: 500,
-          error: occurredError ?? undefined,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-
-      return new ReplyImpl({
-        status: 500,
-        error: {
-          code: "client_side_capture_service_not_found",
-          message: "Client side capture service is not found.",
-        },
-      });
-    }
-  }
-
-  /**
-   * Forced termination of replay.
-   */
-  public forceQuitRunningOperation(): void {
-    this.socketIOClient?.emit("stop_run_operations");
-  }
-
-  /**
    * Start recording.
    *
    * @param target  Recording target.
@@ -239,7 +126,8 @@ export default class ClientSideCaptureServiceDispatcher {
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
       onPause: () => void;
       onResume: () => void;
-    }
+    },
+    isReplaying?: boolean
   ): Promise<Reply<void>> {
     try {
       let occurredError: ServerError | null = null;
@@ -326,10 +214,13 @@ export default class ClientSideCaptureServiceDispatcher {
 
         const error = data as ServerError;
         occurredError = {
-          code: error.code === "unknown_error" ? "capture_failed" : error.code,
+          code: error.code,
           message: error.message,
           details: error.details,
         };
+        if (isReplaying) {
+          this.socketIOClient?.emit("stop_capture");
+        }
       };
 
       await this.socketIOClient
@@ -376,7 +267,7 @@ export default class ClientSideCaptureServiceDispatcher {
 
       return new ReplyImpl({
         status: 500,
-        error: occurredError ? occurredError : undefined,
+        error: occurredError ?? undefined,
       });
     } catch (error) {
       console.error(error);
@@ -463,6 +354,30 @@ export default class ClientSideCaptureServiceDispatcher {
    */
   public resumeCapturing(): void {
     this.socketIOClient?.emit("resume_capture");
+  }
+
+  /**
+   * Run Operation.
+   */
+  public async runOperation(operation: Operation): Promise<void> {
+    await this.socketIOClient?.invoke(
+      "run_operation",
+      "run_operation_completed",
+      operation
+    );
+  }
+
+  /**
+   * Run Operation And Screen Transition.
+   */
+  public async runOperationAndScreenTransition(
+    operation: Operation
+  ): Promise<void> {
+    await this.socketIOClient?.invoke(
+      "run_operation",
+      "run_operation_and_screen_transition_completed",
+      operation
+    );
   }
 
   /**

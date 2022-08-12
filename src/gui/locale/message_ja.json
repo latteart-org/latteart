@@ -40,7 +40,6 @@
   "replay": {
     "done-title": "履歴再生の終了",
     "done-run-operations": "履歴再生が終了しました。",
-    "done-run-operations-because-skipped": "「記録の一時停止」により記録されなかった操作があるため、履歴再生を中止しました。",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {
@@ -170,6 +169,11 @@
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+  },
+  "replay-option": {
+    "start-replay": "履歴を再生する",
+    "test-result-name": "テスト結果名",
+    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
   },
   "test-option": {
     "start-testing": "テストを始める",
@@ -454,6 +458,7 @@
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
+      "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
