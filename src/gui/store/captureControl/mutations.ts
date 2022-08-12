@@ -149,6 +149,23 @@ const mutations: MutationTree<CaptureControlState> = {
   ) {
     state.testOption = payload.testOption;
   },
+
+  /**
+   * Set replay option.
+   * @param state State.
+   * @param payload.replayOption replay option.
+   */
+  setReplayOption(
+    state,
+    payload: {
+      replayOption: {
+        testResultName: string;
+        replayCaptureMode: boolean;
+      };
+    }
+  ) {
+    state.replayOption = payload.replayOption;
+  },
 };
 
 export default mutations;
