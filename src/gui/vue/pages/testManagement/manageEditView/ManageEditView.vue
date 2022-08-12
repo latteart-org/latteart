@@ -140,7 +140,9 @@ export default class ManageEditView extends Vue {
     });
 
     const testMatrixId =
-      localStorage.getItem("selectedTestMatrixIdOnEditor") ??
+      localStorage.getItem(
+        "latteart-management-selectedTestMatrixIdOnEditor"
+      ) ??
       this.testMatrices[0]?.id ??
       "";
 
@@ -151,7 +153,7 @@ export default class ManageEditView extends Vue {
 
   private beforeDestroy() {
     localStorage.setItem(
-      "selectedTestMatrixIdOnEditor",
+      "latteart-management-selectedTestMatrixIdOnEditor",
       this.selectedTestMatrixId
     );
   }

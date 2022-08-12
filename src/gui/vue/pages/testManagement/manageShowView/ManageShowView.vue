@@ -99,7 +99,9 @@ export default class ManageShow extends Vue {
     this.updateWindowTitle();
 
     const testMatrixId =
-      localStorage.getItem("selectedTestMatrixIdOnViewer") ??
+      localStorage.getItem(
+        "latteart-management-selectedTestMatrixIdOnViewer"
+      ) ??
       this.testMatrices[0]?.id ??
       "";
 
@@ -110,7 +112,7 @@ export default class ManageShow extends Vue {
 
   private beforeDestroy() {
     localStorage.setItem(
-      "selectedTestMatrixIdOnViewer",
+      "latteart-management-selectedTestMatrixIdOnViewer",
       this.selectedTestMatrixId
     );
   }
