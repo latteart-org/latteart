@@ -66,6 +66,7 @@ import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoti
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
+import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -955,6 +956,32 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const { id, operation, coverageSource, inputElementInfo } = result.data;
 
+    if (
+      operation.isScreenTransition() &&
+      context.state.config.autofillSetting.conditionGroups.length > 0
+    ) {
+      console.log(
+        context.state.config.autofillSetting.conditionGroups,
+        operation.title,
+        operation.url
+      );
+      const matchGroup =
+        new AutofillTestAction().extractMatchingAutofillConditionGroup(
+          context.state.config.autofillSetting.conditionGroups,
+          operation.title,
+          operation.url
+        );
+      if (matchGroup.isFailure()) {
+        throw new Error();
+      }
+      console.log(matchGroup.data);
+      context.commit("setAutofillDialog", {
+        autofillConditionGroups: matchGroup.data,
+      });
+    } else {
+      context.commit("clearAutofillDialog");
+    }
+
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
 
@@ -964,22 +991,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("addHistory", {
       entry: { operation, intention: null, bugs: null, notices: null },
     });
-
-    // if (operation.isScreenTransition()) {
-    //   const matchGroups =
-    //     new AutofillTestAction().extractMatchingAutofillConditionGroup(
-    //       context.state.config.autofillConditionGroup,
-    //       operation.title,
-    //       operation.url,
-    //       capturedOperation.keywordTexts
-    //     );
-    //   console.log(matchGroups);
-    //   if (matchGroups.length > 0) {
-    //     context.commit("setAutofillDialog", {
-    //       autofillConditionGroups: matchGroups,
-    //     });
-    //   }
-    // }
 
     await context.dispatch("saveUnassignedIntention", {
       destSequence: operation.sequence,
@@ -1501,9 +1512,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             {
               isEnabled: true,
               settingName: "",
-              screenName: "",
-              definitionType: "url",
-              screenMatchType: "equals",
+              url: "",
+              title: "url",
               inputValueConditions: [],
             },
           ]

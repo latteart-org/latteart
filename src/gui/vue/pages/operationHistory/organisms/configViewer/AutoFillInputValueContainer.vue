@@ -39,29 +39,21 @@
       </v-flex>
     </v-layout>
     <v-layout row>
-      <v-flex xs4>
-        <v-select
-          :value="conditionGroup.definitionType"
-          @change="(definitionType) => updateconditionGroup({ definitionType })"
-          :items="definitionTypeList"
-          class="px-1"
-        ></v-select>
-      </v-flex>
-      <v-flex xs4>
+      <v-flex xs6>
         <v-text-field
-          :value="conditionGroup.screenName"
-          @change="(screenName) => updateconditionGroup({ screenName })"
+          label="url"
+          :value="conditionGroup.title"
+          @change="(title) => updateconditionGroup({ title })"
           class="px-1"
-        ></v-text-field> </v-flex
-      ><v-flex xs4>
-        <v-select
-          :value="conditionGroup.screenMatchType"
-          @change="
-            (screenMatchType) => updateconditionGroup({ screenMatchType })
-          "
-          :items="screenMatchTypeList"
+        ></v-text-field>
+      </v-flex>
+      <v-flex xs6>
+        <v-text-field
+          label="title"
+          :value="conditionGroup.url"
+          @change="(url) => updateconditionGroup({ url })"
           class="px-1"
-        ></v-select>
+        ></v-text-field>
       </v-flex>
     </v-layout>
     <div

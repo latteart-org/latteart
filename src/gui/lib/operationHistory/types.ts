@@ -143,9 +143,8 @@ export interface AutofillSetting {
 export interface AutofillConditionGroup {
   isEnabled: boolean;
   settingName: string;
-  screenName: string;
-  definitionType: ScreenDefinitionType;
-  screenMatchType: ScreenMatchType;
+  url: string;
+  title: string;
   inputValueConditions: Array<AutofillCondition>;
 }
 

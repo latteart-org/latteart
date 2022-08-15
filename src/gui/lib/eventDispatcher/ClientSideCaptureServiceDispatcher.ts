@@ -24,6 +24,7 @@ import {
 } from "../operationHistory/CapturedOperation";
 import { Operation } from "../operationHistory/Operation";
 import RESTClientImpl from "./RESTClient";
+import { AutofillConditionGroup } from "../operationHistory/types";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -210,6 +211,12 @@ export default class ClientSideCaptureServiceDispatcher {
    */
   public forceQuitRunningOperation(): void {
     this.socketIOClient?.emit("stop_run_operations");
+  }
+
+  public sendAutofill(autofillConditionGroup: AutofillConditionGroup): void {
+    console.log("autofill");
+    console.log(autofillConditionGroup);
+    this.socketIOClient?.emit("autofill", autofillConditionGroup);
   }
 
   /**

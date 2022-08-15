@@ -250,7 +250,7 @@ export interface OperationHistoryState {
     index: number;
   } | null;
 
-  autoFillDialog: AutofillConditionGroup[] | null;
+  autofillSelectDialog: AutofillConditionGroup[] | null;
 
   /**
    * The function to open the dialog for editing a note.
@@ -340,7 +340,7 @@ const state: OperationHistoryState = {
   selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
-  autoFillDialog: null,
+  autofillSelectDialog: null,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },
