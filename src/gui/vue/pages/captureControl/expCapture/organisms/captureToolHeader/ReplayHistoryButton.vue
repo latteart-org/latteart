@@ -22,17 +22,18 @@
       :title="$store.getters.message('replay.done-title')"
       :message="informationMessage"
       @close="informationMessageDialogOpened = false"
-    ></information-message-dialog>
+    />
 
     <error-message-dialog
       :opened="errorDialogOpened"
       :message="errorDialogMessage"
       @close="errorDialogOpened = false"
-    ></error-message-dialog>
+    />
   </v-list-tile>
 </template>
 
 <script lang="ts">
+import { Operation } from "@/lib/operationHistory/Operation";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../../../common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "../../../../common/InformationMessageDialog.vue";
@@ -51,7 +52,11 @@ export default class ReplayHistoryButton extends Vue {
   private informationMessage = "";
 
   private get isDisabled(): boolean {
-    return this.isCapturing || this.isResuming || this.operations.length === 0;
+    return (
+      (this.isCapturing && !this.isReplaying) ||
+      this.isResuming ||
+      this.operations.length === 0
+    );
   }
 
   private get isCapturing(): boolean {
@@ -66,7 +71,7 @@ export default class ReplayHistoryButton extends Vue {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get operations() {
+  private get operations(): Operation[] {
     return this.$store.getters["operationHistory/getOperations"]();
   }
 
@@ -85,25 +90,25 @@ export default class ReplayHistoryButton extends Vue {
   }
 
   private async replayOperations() {
-    const successMessage = await this.$store
-      .dispatch("captureControl/replayOperations", {
-        operations: this.operations,
-      })
-      .catch((error) => {
+    (async () => {
+      try {
+        await this.$store.dispatch("captureControl/replayOperations", {
+          operations: this.operations,
+        });
+
+        this.informationMessageDialogOpened = true;
+        this.informationMessage = this.$store.getters.message(
+          `replay.done-run-operations`
+        );
+      } catch (error) {
         if (error instanceof Error) {
           this.errorDialogOpened = true;
           this.errorDialogMessage = error.message;
         } else {
           throw error;
         }
-      });
-
-    if (successMessage) {
-      this.informationMessageDialogOpened = true;
-      this.informationMessage = this.$store.getters.message(
-        `replay.${successMessage}`
-      );
-    }
+      }
+    })();
   }
 
   private async forceQuitReplay() {

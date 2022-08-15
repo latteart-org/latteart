@@ -36,7 +36,6 @@
   "replay": {
     "done-title": "Replay is done",
     "done-run-operations": "Replay is finished.",
-    "done-run-operations-because-skipped": "Replay was interrupted because the test contains some unrecorded operations due to capture pause.",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
@@ -178,6 +177,11 @@
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
     "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
+  },
+  "replay-option": {
+    "start-replay": "Replay",
+    "test-result-name": "Test result name",
+    "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
   },
   "test-option": {
     "start-testing": "Start Session",
@@ -462,6 +466,7 @@
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
       "capture_failed": "An error has occurred during capturing operation.",
+      "invalid_operation": "Replay was interrupted because the test contains some invalid operations.",
       "web_driver_not_ready": "Failed to start WebDriver. Please check if a correct path to WebDriver is set.",
       "appium_not_started": "Appium is not started.",
       "device_not_connected": "Device is not connected.",

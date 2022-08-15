@@ -251,15 +251,13 @@ export default class OperationContextMenu extends Vue {
           this.operationInfo.sequence
         );
         try {
-          const successMessage = await this.$store.dispatch(
-            "captureControl/replayOperations",
-            {
-              operations: extractOperations,
-            }
-          );
+          await this.$store.dispatch("captureControl/replayOperations", {
+            operations: extractOperations,
+          });
+
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
-            `replay.${successMessage}`
+            `replay.done-run-operations`
           );
         } catch (error) {
           if (!(error instanceof Error)) {
@@ -281,15 +279,13 @@ export default class OperationContextMenu extends Vue {
           this.operationInfo.sequence - 1
         );
         try {
-          const successMessage = await this.$store.dispatch(
-            "captureControl/replayOperations",
-            {
-              operations: extractOperations,
-            }
-          );
+          await this.$store.dispatch("captureControl/replayOperations", {
+            operations: extractOperations,
+          });
+
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
-            `replay.${successMessage}`
+            `replay.done-run-operations`
           );
         } catch (error) {
           if (!(error instanceof Error)) {
@@ -318,15 +314,13 @@ export default class OperationContextMenu extends Vue {
         onClick: async () => {
           const extractOperations = operations.slice(from - 1, to);
           try {
-            const successMessage = await this.$store.dispatch(
-              "captureControl/replayOperations",
-              {
-                operations: extractOperations,
-              }
-            );
+            await this.$store.dispatch("captureControl/replayOperations", {
+              operations: extractOperations,
+            });
+
             this.informationMessageDialogOpened = true;
             this.informationMessage = this.$store.getters.message(
-              `replay.${successMessage}`
+              `replay.done-run-operations`
             );
           } catch (error) {
             if (!(error instanceof Error)) {
