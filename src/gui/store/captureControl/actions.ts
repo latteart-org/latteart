@@ -315,6 +315,25 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param payload.operations Operations.
    */
   async runOperations(context, payload: { operations: Operation[] }) {
+    const isReplayCaptureMode = (context.rootState as any).captureControl
+      .replayOption.replayCaptureMode;
+    const isReplaying = (context.rootState as any).captureControl.isReplaying;
+    if (!isReplayCaptureMode && isReplaying) {
+      context.commit(
+        "operationHistory/selectOperation",
+        { sequence: payload.operations[0].sequence },
+        {
+          root: true,
+        }
+      );
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000);
+    });
+
     const recordedWindowHandles = payload.operations
       .map((operation) => {
         return operation.windowHandle;
@@ -325,14 +344,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     const replayWindowHandles: string[] = [];
 
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 1000);
-    });
-
     for (const [index, operation] of payload.operations.entries()) {
       if (index > 0) {
+        if (!isReplayCaptureMode && isReplaying) {
+          context.commit(
+            "operationHistory/selectOperation",
+            { sequence: operation.sequence },
+            {
+              root: true,
+            }
+          );
+        }
         const previous = new TimestampImpl(
           payload.operations[index - 1].timestamp
         );
