@@ -377,41 +377,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set Empty input element informations to the State.
-   * @param state State.
-   */
-  clearInputElementInfos(state) {
-    Vue.set(state, "inputElementInfos", []);
-  },
-
-  /**
-   * Reset input element informations to the State.
-   * @param payload.inputElementInfos input element informations.
-   */
-  resetInputElementInfos(
-    state,
-    payload: { inputElementInfos: InputElementInfo[] }
-  ) {
-    state.inputElementInfos.splice(
-      0,
-      state.inputElementInfos.length,
-      ...payload.inputElementInfos
-    );
-  },
-
-  /**
-   * register a new input element information to the State.
-   * @param state State.
-   * @param payload.coverageSource Element informations for calculating screen element coverage.
-   */
-  registerInputElementInfo(
-    state,
-    payload: { inputElementInfo: InputElementInfo }
-  ) {
-    state.inputElementInfos.push(payload.inputElementInfo);
-  },
-
-  /**
    * Set a sequence diagram to the State.
    * @param state State.
    * @param payload.graph Sequence diagram.

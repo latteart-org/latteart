@@ -170,5 +170,4 @@ export interface TestResult {
     notices: ApiNote[];
   }[];
   coverageSources: CoverageSource[];
-  inputElementInfos: InputElementInfo[];
 }

@@ -73,7 +73,6 @@ describe("ScreenHistoryクラスは", () => {
 
   describe("createFromOperationHistoryが呼ばれたとき指定された操作履歴を元にScreenHistoryインスタンスを構築して返す", () => {
     let coverageSources: CoverageSource[];
-    let inputElementInfos: InputElementInfo[];
 
     beforeEach(() => {
       coverageSources = [
@@ -86,19 +85,6 @@ describe("ScreenHistoryクラスは", () => {
           title: "title2",
           url: "url2",
           screenElements: [testElement2],
-        },
-      ];
-
-      inputElementInfos = [
-        {
-          title: "title1",
-          url: "url1",
-          inputElements: [testElement1],
-        },
-        {
-          title: "title2",
-          url: "url2",
-          inputElements: [testElement2],
         },
       ];
     });
