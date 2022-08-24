@@ -15,7 +15,7 @@
  */
 
 import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
-import { CoverageSource, InputElementInfo } from "../types";
+import { CoverageSource } from "../types";
 import { Operation } from "../Operation";
 import { Note } from "../Note";
 import {
@@ -35,7 +35,6 @@ const RESUME_FAILED_MESSAGE_KEY = "error.operation_history.resume_failed";
 export interface ResumeActionObserver {
   setResumedData: (data: {
     coverageSources: CoverageSource[];
-    inputElementInfos: InputElementInfo[];
     historyItems: OperationHistoryItem[];
     url: string;
     testResultInfo: { id: string; name: string };
@@ -95,7 +94,6 @@ export class ResumeAction {
         };
       }),
       coverageSources: testResult.coverageSources,
-      inputElementInfos: testResult.inputElementInfos,
       initialUrl: testResult.initialUrl,
     };
 
@@ -142,7 +140,6 @@ export class ResumeAction {
 
       await this.observer.setResumedData({
         coverageSources: data.coverageSources,
-        inputElementInfos: data.inputElementInfos,
         historyItems,
         url: data.initialUrl,
         testResultInfo: { id: data.id, name: data.name },
