@@ -155,7 +155,7 @@ export interface ScreenDefinitionConditionGroup {
   conditions: Array<{
     isEnabled: boolean;
     definitionType: ScreenDefinitionType;
-    screenMatchType: ScreenMatchType;
+    matchType: ScreenMatchType;
     word: string;
   }>;
 }
