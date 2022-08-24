@@ -66,13 +66,10 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history, coverageSources, inputElementInfos } = this.testResult;
+      const { history, coverageSources } = this.testResult;
 
       this.$store.commit("operationHistory/resetAllCoverageSources", {
         coverageSources,
-      });
-      this.$store.commit("operationHistory/resetInputElementInfos", {
-        inputElementInfos,
       });
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
@@ -102,7 +99,6 @@ export default class App extends Vue {
   private get testResult(): {
     history: OperationWithNotes[];
     coverageSources: CoverageSource[];
-    inputElementInfos: InputElementInfo[];
   } {
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
@@ -138,7 +134,6 @@ export default class App extends Vue {
         };
       }),
       coverageSources: (this as any).$historyLog.coverageSources,
-      inputElementInfos: (this as any).$historyLog.inputElementInfos,
     };
   }
 
