@@ -21,6 +21,7 @@ import {
   InputElementInfo,
   AutofillConditionGroup,
   AutofillSetting,
+  ElementInfo,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
@@ -250,7 +251,20 @@ export interface OperationHistoryState {
     index: number;
   } | null;
 
-  autofillSelectDialog: AutofillConditionGroup[] | null;
+  /**
+   * Dialog to select autofill.
+   */
+  autofillSelectDialogData: AutofillConditionGroup[] | null;
+
+  /**
+   * Dialogg to register autofill settings.
+   */
+  autofillRegisterDialogData: {
+    title: string;
+    url: string;
+    inputElements: ElementInfo[];
+    callback: () => void;
+  } | null;
 
   /**
    * The function to open the dialog for editing a note.
@@ -340,7 +354,8 @@ const state: OperationHistoryState = {
   selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
-  autofillSelectDialog: null,
+  autofillSelectDialogData: null,
+  autofillRegisterDialogData: null,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

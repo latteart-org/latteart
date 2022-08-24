@@ -50,8 +50,6 @@ export default class SocketIOClient {
       this.socket.once("connect", () => {
         for (const eventListener of eventListeners) {
           this.socket.on(eventListener.eventName, (data?: string) => {
-            console.log(`receive: ${eventListener.eventName}`);
-            console.log(data);
             eventListener.eventHandler(data ? JSON.parse(data) : data);
           });
         }
@@ -93,8 +91,6 @@ export default class SocketIOClient {
    * @param args  Arguments associated with the event.
    */
   public emit(eventName: string, ...args: unknown[]): void {
-    console.log(`send: ${eventName}`);
-    console.log(...args);
     this.socket.emit(eventName, ...args.map((arg) => JSON.stringify(arg)));
   }
 

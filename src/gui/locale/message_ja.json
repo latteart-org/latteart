@@ -166,7 +166,18 @@
       "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するホップアップを自動表示する",
       "input-value": "入力値"
     },
+
     "settings": "設定"
+  },
+  "autofill-register-dialog": {
+    "title": "自動入力設定",
+    "message": "ただいま入力した入力値を自動入力に設定しますか？次回以降のテスト時に利用できます。設定する場合は入力値の設定名を入力してください。",
+    "form-label": "設定名"
+  },
+  "autofill-select-dialog": {
+    "title": "自動入力",
+    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は以下から自動入力設定を選んでください。",
+    "form-label": "設定名"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",

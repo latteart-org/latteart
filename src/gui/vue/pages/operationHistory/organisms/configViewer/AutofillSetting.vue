@@ -45,7 +45,7 @@
       <v-flex xs12 class="py-0 my-0">
         <autofill-input-value-container
           v-for="(group, index) in conditionGroups"
-          :key="index + group.screenName"
+          :key="index"
           :conditionGroup="group"
           :index="index"
           @add-condition="addCondition"

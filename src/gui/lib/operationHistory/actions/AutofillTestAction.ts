@@ -22,11 +22,11 @@ export class AutofillTestAction {
     conditionGroups: AutofillConditionGroup[],
     title: string,
     url: string
-  ): ActionResult<AutofillConditionGroup[]> {
-    return new ActionSuccess(
-      conditionGroups.filter((conditionGroup) => {
-        return conditionGroup.url === url && conditionGroup.title === title;
-      })
-    );
+  ): ActionResult<AutofillConditionGroup[] | null> {
+    const matchGroup = conditionGroups.filter((conditionGroup) => {
+      return conditionGroup.url === url && conditionGroup.title === title;
+    });
+
+    return new ActionSuccess(matchGroup.length > 0 ? matchGroup : null);
   }
 }

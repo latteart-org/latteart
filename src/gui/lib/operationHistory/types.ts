@@ -108,6 +108,7 @@ export type MessageProvider = (message: string, args?: any) => string;
 export type ScreenDefinitionType = "url" | "title" | "keyword";
 export type ScreenMatchType = "contains" | "equals" | "regex";
 export type LocatorMatchType = "equals" | "regex";
+
 export type AutofillCondition = {
   isEnabled: boolean;
   locatorType: string;

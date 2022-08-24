@@ -162,7 +162,18 @@
       "auto-popup-selection": "Auto-display popup to select input value if auto-fill is defined",
       "input-value": "Input Value"
     },
+
     "settings": "Settings"
+  },
+  "autofill-register-dialog": {
+    "title": "Autofill Setting",
+    "message": "Do you want to autofill the input you just typed? This can be used for further testing. When setting, enter the setting name of the input value.",
+    "form-label": "Setting Name"
+  },
+  "autofill-select-dialog": {
+    "title": "Autofill",
+    "message": "Found an autofillable form. If you would like to autofill, please select your autofill settings below.",
+    "form-label": "Setting Name"
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",

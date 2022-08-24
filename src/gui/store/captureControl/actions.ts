@@ -313,6 +313,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
   },
 
+  async autofill(
+    context,
+    payload: { autofillConditionGroup: AutofillConditionGroup }
+  ) {
+    await context.rootState.clientSideCaptureServiceDispatcher.autofill(
+      payload.autofillConditionGroup.inputValueConditions
+    );
+  },
+
   /**
    * Run operations.
    * @param context Action context.

@@ -107,10 +107,7 @@
               <screen-definition-setting> </screen-definition-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content
-              v-if="configureCaptureSettings"
-              :disabled="isConnectedToRemote"
-            >
+            <v-expansion-panel-content v-if="configureCaptureSettings">
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>

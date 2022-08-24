@@ -42,16 +42,16 @@
       <v-flex xs6>
         <v-text-field
           label="url"
-          :value="conditionGroup.title"
-          @change="(title) => updateconditionGroup({ title })"
+          :value="conditionGroup.url"
+          @change="(url) => updateconditionGroup({ url })"
           class="px-1"
         ></v-text-field>
       </v-flex>
       <v-flex xs6>
         <v-text-field
           label="title"
-          :value="conditionGroup.url"
-          @change="(url) => updateconditionGroup({ url })"
+          :value="conditionGroup.title"
+          @change="(title) => updateconditionGroup({ title })"
           class="px-1"
         ></v-text-field>
       </v-flex>
@@ -102,7 +102,7 @@
         <v-flex xs3>
           <v-text-field
             :label="$store.getters.message('config-view.autofill.input-value')"
-            :value="item.inputValue"
+            :value="item.inputValue.replaceAll('\n', '\\n')"
             @change="(value) => updateCondition(index, { inputValue: value })"
             class="px-1"
           ></v-text-field>
@@ -189,4 +189,7 @@ export default class AutoFillInputValueContainer extends Vue {
 <style lang="sass" scoped>
 .center
   text-align: center
+
+.pre-wrap
+  white-space: pre-wrap
 </style>

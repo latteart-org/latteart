@@ -378,7 +378,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (context.state.config.imageCompression.isEnabled) {
-      console.log("== bug ==");
       setTimeout(async () => {
         const result = await new CompressNoteImageAction(
           repositoryContainer
@@ -935,6 +934,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.operation Operation.
    */
   async registerOperation(context, payload: { operation: CapturedOperation }) {
+    console.log("registerOperation");
     const repositoryContainer = context.rootState.repositoryContainer;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
@@ -956,30 +956,50 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const { id, operation, coverageSource, inputElementInfo } = result.data;
 
+    const openAutofillSelectDialogCallBack = () => {
+      if (
+        operation.isScreenTransition() &&
+        context.state.config.autofillSetting &&
+        context.state.config.autofillSetting.autoHopupSelectionDialog &&
+        context.state.config.autofillSetting.conditionGroups.length > 0
+      ) {
+        const matchGroup =
+          new AutofillTestAction().extractMatchingAutofillConditionGroup(
+            context.state.config.autofillSetting.conditionGroups,
+            operation.title,
+            operation.url
+          );
+        if (matchGroup.isFailure()) {
+          throw new Error();
+        }
+        context.commit("setAutofillSelectDialog", {
+          autofillConditionGroups: matchGroup.data,
+        });
+      } else {
+        context.commit("setAutofillSelectDialog", {
+          autofillConditionGroups: null,
+        });
+      }
+    };
+
+    const beforeOperation =
+      context.state.history[context.state.history.length - 1]?.operation;
     if (
       operation.isScreenTransition() &&
-      context.state.config.autofillSetting.conditionGroups.length > 0
+      context.state.config.autofillSetting.autoHopupRegistrationDialog &&
+      beforeOperation &&
+      (beforeOperation?.inputElements ?? []).length > 0
     ) {
-      console.log(
-        context.state.config.autofillSetting.conditionGroups,
-        operation.title,
-        operation.url
-      );
-      const matchGroup =
-        new AutofillTestAction().extractMatchingAutofillConditionGroup(
-          context.state.config.autofillSetting.conditionGroups,
-          operation.title,
-          operation.url
-        );
-      if (matchGroup.isFailure()) {
-        throw new Error();
-      }
-      console.log(matchGroup.data);
-      context.commit("setAutofillDialog", {
-        autofillConditionGroups: matchGroup.data,
+      console.log(beforeOperation);
+      context.commit("setAutofillRegisterDialog", {
+        title: beforeOperation.title,
+        url: beforeOperation.url,
+        inputElements: beforeOperation.inputElements,
+        callback: openAutofillSelectDialogCallBack,
       });
     } else {
-      context.commit("clearAutofillDialog");
+      context.commit("setAutofillRegisterDialog", null);
+      openAutofillSelectDialogCallBack();
     }
 
     context.commit("addTestStepId", { testStepId: id });
@@ -1504,17 +1524,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
   ) {
-    const autofillSetting = context.state.config.autofillSetting;
+    const autofillSetting = { ...context.state.config.autofillSetting };
     autofillSetting.conditionGroups =
       payload.index < 0
         ? [
-            ...context.state.config.autofillSetting.conditionGroups,
+            ...autofillSetting.conditionGroups,
             {
               isEnabled: true,
               settingName: "",
               url: "",
               title: "url",
               inputValueConditions: [],
+              ...payload.conditionGroup,
             },
           ]
         : context.state.config.autofillSetting.conditionGroups.map(

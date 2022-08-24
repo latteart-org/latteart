@@ -15,18 +15,16 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="autofillConditionGroups">
+  <scrollable-dialog :opened="opened">
     <template v-slot:title>{{
-      $store.getters.message("config-view.setting-autofill")
+      $store.getters.message("autofill-select-dialog.title")
     }}</template>
     <template v-slot:content>
       <div class="pre-wrap break-word">
-        {{
-          "自動入力可能なフォームが見つかりました。自動入力する場合は以下から自動入力定義を選んでください。"
-        }}
+        {{ $store.getters.message("autofill-select-dialog.message") }}
       </div>
       <v-select
-        label="設定名"
+        :label="$store.getters.message('autofill-select-dialog.form-label')"
         :items="selectList"
         item-text="settingName"
         item-value="index"
@@ -65,7 +63,11 @@ export default class AutofillSelectDialog extends Vue {
   private selectedIndex = -1;
 
   private get autofillConditionGroups(): AutofillConditionGroup[] | null {
-    return this.$store.state.captureControll.autofillSelectDialog;
+    return this.$store.state.operationHistory?.autofillSelectDialogData ?? null;
+  }
+
+  private get opened(): boolean {
+    return !!this.autofillConditionGroups;
   }
 
   private get selectList(): { settingName: string; index: number }[] {
@@ -85,14 +87,16 @@ export default class AutofillSelectDialog extends Vue {
     if (this.autofillConditionGroups === null || this.selectedIndex < 0) {
       return;
     }
-    await this.$store.dispatch(
-      "captureControl/autofill",
-      this.autofillConditionGroups[this.selectedIndex]
-    );
+    await this.$store.dispatch("captureControl/autofill", {
+      autofillConditionGroup: this.autofillConditionGroups[this.selectedIndex],
+    });
+    this.close();
   }
 
   private close(): void {
-    this.$store.commit("captureControl/clearAutofillDialog");
+    this.$store.commit("operationHistory/setAutofillSelectDialog", {
+      autofillConditionGroups: null,
+    });
   }
 }
 </script>
