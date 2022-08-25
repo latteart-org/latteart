@@ -162,8 +162,8 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
-      "auto-popup-registration": "テスト中に入力値を定義するホップアップを自動表示する",
-      "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するホップアップを自動表示する",
+      "auto-popup-registration": "テスト中に入力値を定義するポップアップを自動表示する",
+      "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するポップアップを自動表示する",
       "input-value": "入力値"
     },
 

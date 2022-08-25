@@ -19,7 +19,7 @@
     <v-layout row wrap>
       <v-flex xs12 class="py-0 my-0">
         <v-checkbox
-          v-model="autoHopupRegistrationDialog"
+          v-model="autoPopupRegistrationDialog"
           :label="
             $store.getters.message(
               'config-view.autofill.auto-popup-registration'
@@ -30,7 +30,7 @@
       </v-flex>
       <v-flex xs12 class="py-0 my-0">
         <v-checkbox
-          v-model="autoHopupSelectionDialog"
+          v-model="autoPopupSelectionDialog"
           :label="
             $store.getters.message('config-view.autofill.auto-popup-selection')
           "
@@ -80,27 +80,27 @@ export default class AutofillSetting extends Vue {
       .conditionGroups;
   }
 
-  private get autoHopupRegistrationDialog(): boolean {
+  private get autoPopupRegistrationDialog(): boolean {
     return this.$store.state.operationHistory.config.autofillSetting
-      .autoHopupRegistrationDialog;
+      .autoPopupRegistrationDialog;
   }
 
-  private set autoHopupRegistrationDialog(
-    autoHopupRegistrationDialog: boolean
+  private set autoPopupRegistrationDialog(
+    autoPopupRegistrationDialog: boolean
   ) {
     this.$store.dispatch("operationHistory/updateAutofillSetting", {
-      autoHopupRegistrationDialog,
+      autoPopupRegistrationDialog,
     });
   }
 
-  private get autoHopupSelectionDialog(): boolean {
+  private get autoPopupSelectionDialog(): boolean {
     return this.$store.state.operationHistory.config.autofillSetting
-      .autoHopupSelectionDialog;
+      .autoPopupSelectionDialog;
   }
 
-  private set autoHopupSelectionDialog(autoHopupSelectionDialog: boolean) {
+  private set autoPopupSelectionDialog(autoPopupSelectionDialog: boolean) {
     this.$store.dispatch("operationHistory/updateAutofillSetting", {
-      autoHopupSelectionDialog,
+      autoPopupSelectionDialog,
     });
   }
 

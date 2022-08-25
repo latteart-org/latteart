@@ -102,7 +102,7 @@
         <v-flex xs3>
           <v-text-field
             :label="$store.getters.message('config-view.autofill.input-value')"
-            :value="item.inputValue.replaceAll('\n', '\\n')"
+            :value="item.inputValue"
             @change="(value) => updateCondition(index, { inputValue: value })"
             class="px-1"
           ></v-text-field>

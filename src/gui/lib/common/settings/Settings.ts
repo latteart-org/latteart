@@ -96,8 +96,8 @@ export default class Settings {
     this.defaultTagList = [];
     this.config = {
       autofillSetting: {
-        autoHopupRegistrationDialog: true,
-        autoHopupSelectionDialog: true,
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
         conditionGroups: [],
       },
       screenDefinition: {

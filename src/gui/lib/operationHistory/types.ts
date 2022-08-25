@@ -136,8 +136,8 @@ export interface InputElementInfo {
 }
 
 export interface AutofillSetting {
-  autoHopupRegistrationDialog: boolean;
-  autoHopupSelectionDialog: boolean;
+  autoPopupRegistrationDialog: boolean;
+  autoPopupSelectionDialog: boolean;
   conditionGroups: AutofillConditionGroup[];
 }
 

@@ -314,8 +314,8 @@ const state: OperationHistoryState = {
       conditionGroups: [],
     },
     autofillSetting: {
-      autoHopupRegistrationDialog: true,
-      autoHopupSelectionDialog: true,
+      autoPopupRegistrationDialog: true,
+      autoPopupSelectionDialog: true,
       conditionGroups: [],
     },
     coverage: {

@@ -930,7 +930,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.operation Operation.
    */
   async registerOperation(context, payload: { operation: CapturedOperation }) {
-    console.log("registerOperation");
     const repositoryContainer = context.rootState.repositoryContainer;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
@@ -956,7 +955,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       if (
         operation.isScreenTransition() &&
         context.state.config.autofillSetting &&
-        context.state.config.autofillSetting.autoHopupSelectionDialog &&
+        context.state.config.autofillSetting.autoPopupSelectionDialog &&
         context.state.config.autofillSetting.conditionGroups.length > 0
       ) {
         const matchGroup =
@@ -982,15 +981,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.state.history[context.state.history.length - 1]?.operation;
     if (
       operation.isScreenTransition() &&
-      context.state.config.autofillSetting.autoHopupRegistrationDialog &&
+      context.state.config.autofillSetting.autoPopupRegistrationDialog &&
       beforeOperation &&
       (beforeOperation?.inputElements ?? []).length > 0
     ) {
-      console.log(beforeOperation);
       context.commit("setAutofillRegisterDialog", {
         title: beforeOperation.title,
         url: beforeOperation.url,
-        inputElements: beforeOperation.inputElements,
+        inputElements: beforeOperation.inputElements?.map((element) => {
+          return {
+            ...element,
+            xpath: element.xpath.toLowerCase(),
+          };
+        }),
         callback: openAutofillSelectDialogCallBack,
       });
     } else {
@@ -1493,8 +1496,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async updateAutofillSetting(
     context,
     payload: {
-      autoHopupRegistrationDialog?: boolean;
-      autoHopupSelectionDialog?: boolean;
+      autoPopupRegistrationDialog?: boolean;
+      autoPopupSelectionDialog?: boolean;
     }
   ) {
     await context.dispatch("writeSettings", {
