@@ -125,6 +125,7 @@
     "include-coverage": "Tags to include in coverage calculation",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
+    "setting-autofill": "Autofill Setting",
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
@@ -150,7 +151,29 @@
       "description": "When multiple detailed conditions are set, the definition name will be applied if all of them are satisfied.",
       "and": "and"
     },
+    "autofill": {
+      "setting-name": "Setting Name",
+      "add-setting": "Add Setting",
+      "adding-autofill-values": "Adding Autofill Values",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "Automatically display popups to define input values ​​during testing",
+      "auto-popup-selection": "Auto-display popup to select input value if auto-fill is defined",
+      "input-value": "Input Value"
+    },
+
     "settings": "Settings"
+  },
+  "autofill-register-dialog": {
+    "title": "Autofill Setting",
+    "message": "Do you want to autofill the input you just typed? This can be used for further testing. When setting, enter the setting name of the input value.",
+    "form-label": "Setting Name"
+  },
+  "autofill-select-dialog": {
+    "title": "Autofill",
+    "message": "Found an autofillable form. If you would like to autofill, please select your autofill settings below.",
+    "form-label": "Setting Name"
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",

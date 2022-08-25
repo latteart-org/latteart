@@ -17,7 +17,11 @@
 import { ActionTree } from "vuex";
 import { CaptureControlState } from ".";
 import { RootState } from "..";
-import { WindowHandle, OperationWithNotes } from "@/lib/operationHistory/types";
+import {
+  WindowHandle,
+  OperationWithNotes,
+  AutofillConditionGroup,
+} from "@/lib/operationHistory/types";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
 import { Operation } from "@/lib/operationHistory/Operation";
@@ -307,6 +311,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   resumeCapturing(context) {
     context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
+  },
+
+  async autofill(
+    context,
+    payload: { autofillConditionGroup: AutofillConditionGroup }
+  ) {
+    await context.rootState.clientSideCaptureServiceDispatcher.autofill(
+      payload.autofillConditionGroup.inputValueConditions
+    );
   },
 
   /**

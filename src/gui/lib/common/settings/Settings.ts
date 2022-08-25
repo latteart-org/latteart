@@ -15,7 +15,10 @@
  */
 
 import { ScreenDefType, RunningMode, Locale } from "../enum/SettingsEnum";
-import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  ScreenDefinitionConditionGroup,
+} from "@/lib/operationHistory/types";
 
 /**
  * Class that holds the setting information of the tool.
@@ -62,6 +65,7 @@ export default class Settings {
    */
   public config: {
     screenDefinition: ScreenDefinition;
+    autofillSetting: AutofillSetting;
     coverage: Coverage;
     imageCompression: ImageCompression;
   };
@@ -91,6 +95,11 @@ export default class Settings {
     this.viewPointsPreset = [];
     this.defaultTagList = [];
     this.config = {
+      autofillSetting: {
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      },
       screenDefinition: {
         screenDefType: ScreenDefType.Title,
         conditionGroups: [],

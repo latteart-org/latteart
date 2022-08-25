@@ -129,6 +129,7 @@
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
+    "setting-autofill": "自動入力設定",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
@@ -154,7 +155,29 @@
       "description": "詳細条件を複数設定した場合、その全てが満たされると定義名が適用されます",
       "and": "かつ"
     },
+    "autofill": {
+      "setting-name": "設定名",
+      "add-setting": "設定の追加",
+      "adding-autofill-values": "設定値の追加",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "テスト中に入力値を定義するポップアップを自動表示する",
+      "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するポップアップを自動表示する",
+      "input-value": "入力値"
+    },
+
     "settings": "設定"
+  },
+  "autofill-register-dialog": {
+    "title": "自動入力設定",
+    "message": "ただいま入力した入力値を自動入力に設定しますか？次回以降のテスト時に利用できます。設定する場合は入力値の設定名を入力してください。",
+    "form-label": "設定名"
+  },
+  "autofill-select-dialog": {
+    "title": "自動入力",
+    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は以下から自動入力設定を選んでください。",
+    "form-label": "設定名"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",

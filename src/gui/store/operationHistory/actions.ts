@@ -25,6 +25,8 @@ import {
   ScreenTransition,
   OperationWithNotes,
   ElementInfo,
+  AutofillConditionGroup,
+  AutofillCondition,
 } from "@/lib/operationHistory/types";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
@@ -64,6 +66,7 @@ import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoti
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
+import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -85,6 +88,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
+        autofillSetting: config.autofillSetting,
       },
     });
   },
@@ -102,6 +106,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       captureSettings:
         context.rootState.settingsProvider.settings.captureSettings,
       config: {
+        autofillSetting:
+          payload.config.autofillSetting ??
+          context.state.config.autofillSetting,
         screenDefinition:
           payload.config.screenDefinition ??
           context.state.config.screenDefinition,
@@ -371,7 +378,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (context.state.config.imageCompression.isEnabled) {
-      console.log("== bug ==");
       setTimeout(async () => {
         const result = await new CompressNoteImageAction(
           repositoryContainer
@@ -945,6 +951,56 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const { id, operation, coverageSource } = result.data;
 
+    const openAutofillSelectDialogCallBack = () => {
+      if (
+        operation.isScreenTransition() &&
+        context.state.config.autofillSetting &&
+        context.state.config.autofillSetting.autoPopupSelectionDialog &&
+        context.state.config.autofillSetting.conditionGroups.length > 0
+      ) {
+        const matchGroup =
+          new AutofillTestAction().extractMatchingAutofillConditionGroup(
+            context.state.config.autofillSetting.conditionGroups,
+            operation.title,
+            operation.url
+          );
+        if (matchGroup.isFailure()) {
+          throw new Error();
+        }
+        context.commit("setAutofillSelectDialog", {
+          autofillConditionGroups: matchGroup.data,
+        });
+      } else {
+        context.commit("setAutofillSelectDialog", {
+          autofillConditionGroups: null,
+        });
+      }
+    };
+
+    const beforeOperation =
+      context.state.history[context.state.history.length - 1]?.operation;
+    if (
+      operation.isScreenTransition() &&
+      context.state.config.autofillSetting.autoPopupRegistrationDialog &&
+      beforeOperation &&
+      (beforeOperation?.inputElements ?? []).length > 0
+    ) {
+      context.commit("setAutofillRegisterDialog", {
+        title: beforeOperation.title,
+        url: beforeOperation.url,
+        inputElements: beforeOperation.inputElements?.map((element) => {
+          return {
+            ...element,
+            xpath: element.xpath.toLowerCase(),
+          };
+        }),
+        callback: openAutofillSelectDialogCallBack,
+      });
+    } else {
+      context.commit("setAutofillRegisterDialog", null);
+      openAutofillSelectDialogCallBack();
+    }
+
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
 
@@ -1435,6 +1491,135 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data.url;
+  },
+
+  async updateAutofillSetting(
+    context,
+    payload: {
+      autoPopupRegistrationDialog?: boolean;
+      autoPopupSelectionDialog?: boolean;
+    }
+  ) {
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting: {
+          ...context.state.config.autofillSetting,
+          ...payload,
+        },
+      },
+    });
+  },
+
+  async updateAutofillConditionGroup(
+    context,
+    payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
+  ) {
+    const autofillSetting = { ...context.state.config.autofillSetting };
+    autofillSetting.conditionGroups =
+      payload.index < 0
+        ? [
+            ...autofillSetting.conditionGroups,
+            {
+              isEnabled: true,
+              settingName: "",
+              url: "",
+              title: "url",
+              inputValueConditions: [],
+              ...payload.conditionGroup,
+            },
+          ]
+        : context.state.config.autofillSetting.conditionGroups.map(
+            (group, index) => {
+              return index !== payload.index
+                ? group
+                : { ...group, ...payload.conditionGroup };
+            }
+          );
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting,
+      },
+    });
+  },
+
+  async deleteAutofillConditionGroup(context, payload: { index: number }) {
+    const autofillSetting = context.state.config.autofillSetting;
+    (autofillSetting.conditionGroups =
+      context.state.config.autofillSetting.conditionGroups.filter(
+        (group, index) => index !== payload.index
+      )),
+      await context.dispatch("writeSettings", {
+        config: {
+          autofillSetting,
+        },
+      });
+  },
+
+  /**
+   *
+   * @param context
+   */
+  async updateAutofillCondition(
+    context,
+    payload: {
+      condition: Partial<AutofillCondition>;
+      conditionIndex: number;
+      conditionGroupIndex: number;
+    }
+  ) {
+    if (
+      context.state.config.autofillSetting.conditionGroups.length <=
+      payload.conditionGroupIndex
+    ) {
+      return;
+    }
+    const targetGroup =
+      context.state.config.autofillSetting.conditionGroups[
+        payload.conditionGroupIndex
+      ];
+
+    if (targetGroup.inputValueConditions.length <= payload.conditionIndex) {
+      return;
+    }
+    payload.conditionIndex < 0
+      ? targetGroup.inputValueConditions.push({
+          isEnabled: true,
+          locatorType: "id",
+          locator: "",
+          locatorMatchType: "equals",
+          inputValue: "",
+        })
+      : (targetGroup.inputValueConditions[payload.conditionIndex] = {
+          ...targetGroup.inputValueConditions[payload.conditionIndex],
+          ...payload.condition,
+        });
+
+    await context.dispatch("updateAutofillConditionGroup", {
+      conditionGroup: targetGroup,
+      index: payload.conditionGroupIndex,
+    });
+  },
+
+  async deleteAutofillCondition(
+    context,
+    payload: { conditionIndex: number; conditionGroupIndex: number }
+  ) {
+    const newGroup = context.state.config.autofillSetting.conditionGroups.map(
+      (group, index) => {
+        if (index === payload.conditionGroupIndex) {
+          group.inputValueConditions = group.inputValueConditions.filter(
+            (condition, index) => index !== payload.conditionIndex
+          );
+        }
+
+        return group;
+      }
+    );
+
+    await context.dispatch("updateAutofillConditionGroup", {
+      conditionGroup: newGroup,
+      index: payload.conditionGroupIndex,
+    });
   },
 };
 

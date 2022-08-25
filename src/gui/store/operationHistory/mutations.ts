@@ -24,6 +24,8 @@ import {
   CoverageSource,
   ScreenTransition,
   InputElementInfo,
+  AutofillConditionGroup,
+  ElementInfo,
 } from "@/lib/operationHistory/types";
 import { Note } from "@/lib/operationHistory/Note";
 
@@ -722,6 +724,25 @@ const mutations: MutationTree<OperationHistoryState> = {
       }
       return operationWithNotes;
     });
+  },
+
+  setAutofillSelectDialog(
+    state,
+    payload: { autofillConditionGroups: AutofillConditionGroup[] | null }
+  ) {
+    state.autofillSelectDialogData = payload.autofillConditionGroups;
+  },
+
+  setAutofillRegisterDialog(
+    state,
+    payload: {
+      title: string;
+      url: string;
+      inputElements: ElementInfo[];
+      callback: () => void;
+    } | null
+  ) {
+    state.autofillRegisterDialogData = payload;
   },
 };
 
