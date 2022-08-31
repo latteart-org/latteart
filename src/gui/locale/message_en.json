@@ -176,7 +176,7 @@
     "form-label": "Setting Name"
   },
   "autofill-button": {
-    "dialog-message": "Select your autofill settings."
+    "message": "Select your autofill settings."
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
