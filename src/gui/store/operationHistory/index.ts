@@ -249,7 +249,10 @@ export interface OperationHistoryState {
   /**
    * Dialog to select autofill.
    */
-  autofillSelectDialogData: AutofillConditionGroup[] | null;
+  autofillSelectDialogData: {
+    autofillConditionGroups: AutofillConditionGroup[];
+    message: string;
+  } | null;
 
   /**
    * Dialogg to register autofill settings.

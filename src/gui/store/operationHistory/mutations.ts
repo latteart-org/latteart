@@ -728,9 +728,14 @@ const mutations: MutationTree<OperationHistoryState> = {
 
   setAutofillSelectDialog(
     state,
-    payload: { autofillConditionGroups: AutofillConditionGroup[] | null }
+    payload: {
+      dialogData: {
+        autofillConditionGroups: AutofillConditionGroup[];
+        message: string;
+      } | null;
+    }
   ) {
-    state.autofillSelectDialogData = payload.autofillConditionGroups;
+    state.autofillSelectDialogData = payload.dialogData;
   },
 
   setAutofillRegisterDialog(

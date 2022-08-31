@@ -173,6 +173,7 @@
   "autofill-select-dialog": {
     "title": "Autofill",
     "message": "Found an autofillable form. If you would like to autofill, please select your autofill settings below.",
+    "message-from-btton": "Select your autofill settings.",
     "form-label": "Setting Name"
   },
   "note-edit": {
