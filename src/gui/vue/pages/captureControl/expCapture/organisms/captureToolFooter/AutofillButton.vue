@@ -76,9 +76,7 @@ export default class AutofillButton extends Vue {
     this.$store.commit("operationHistory/setAutofillSelectDialog", {
       dialogData: {
         autofillConditionGroups: this.autofillConditionGroup,
-        message: this.$store.getters.message(
-          "autofill-select-dialog.message-from-btton"
-        ),
+        message: this.$store.getters.message("autofill-button.message"),
       },
     });
   }

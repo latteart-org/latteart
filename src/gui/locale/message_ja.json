@@ -177,8 +177,10 @@
   "autofill-select-dialog": {
     "title": "自動入力",
     "message": "自動入力可能なフォームが見つかりました。自動入力する場合は以下から自動入力設定を選んでください。",
-    "message-from-btton": "自動入力設定を選んでください。",
     "form-label": "設定名"
+  },
+  "autofill-button": {
+    "message": "自動入力設定を選んでください。"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",

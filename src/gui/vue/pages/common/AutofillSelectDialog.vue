@@ -62,7 +62,7 @@ import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 export default class AutofillSelectDialog extends Vue {
   private selectedIndex = -1;
 
-  private get daialogData(): {
+  private get dialogData(): {
     autofillConditionGroups: AutofillConditionGroup[];
     message: string;
   } | null {
@@ -70,15 +70,15 @@ export default class AutofillSelectDialog extends Vue {
   }
 
   private get opened(): boolean {
-    return !!this.daialogData?.autofillConditionGroups;
+    return !!this.dialogData?.autofillConditionGroups;
   }
 
   private get autofillConditionGroups(): AutofillConditionGroup[] {
-    return this.daialogData?.autofillConditionGroups ?? [];
+    return this.dialogData?.autofillConditionGroups ?? [];
   }
 
   private get message(): string {
-    return this.daialogData?.message ?? "";
+    return this.dialogData?.message ?? "";
   }
 
   private get selectList(): { settingName: string; index: number }[] {
