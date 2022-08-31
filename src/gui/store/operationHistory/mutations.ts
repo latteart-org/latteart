@@ -738,6 +738,7 @@ const mutations: MutationTree<OperationHistoryState> = {
     payload: {
       title: string;
       url: string;
+      message: string;
       inputElements: ElementInfo[];
       callback: () => void;
     } | null

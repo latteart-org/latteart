@@ -257,6 +257,7 @@ export interface OperationHistoryState {
   autofillRegisterDialogData: {
     title: string;
     url: string;
+    message: string;
     inputElements: ElementInfo[];
     callback: () => void;
   } | null;
