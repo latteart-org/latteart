@@ -175,6 +175,9 @@
     "message": "Found an autofillable form. If you would like to autofill, please select your autofill settings below.",
     "form-label": "Setting Name"
   },
+  "autofill-button": {
+    "message": "Select your autofill settings."
+  },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
     "save-warning": "The test purpose has already been noted for the specified operation.",

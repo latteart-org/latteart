@@ -21,7 +21,7 @@
     }}</template>
     <template v-slot:content>
       <div class="pre-wrap break-word">
-        {{ $store.getters.message("autofill-select-dialog.message") }}
+        {{ message }}
       </div>
       <v-select
         :label="$store.getters.message('autofill-select-dialog.form-label')"
@@ -62,12 +62,23 @@ import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 export default class AutofillSelectDialog extends Vue {
   private selectedIndex = -1;
 
-  private get autofillConditionGroups(): AutofillConditionGroup[] | null {
+  private get dialogData(): {
+    autofillConditionGroups: AutofillConditionGroup[];
+    message: string;
+  } | null {
     return this.$store.state.operationHistory?.autofillSelectDialogData ?? null;
   }
 
   private get opened(): boolean {
-    return !!this.autofillConditionGroups;
+    return !!this.dialogData?.autofillConditionGroups;
+  }
+
+  private get autofillConditionGroups(): AutofillConditionGroup[] {
+    return this.dialogData?.autofillConditionGroups ?? [];
+  }
+
+  private get message(): string {
+    return this.dialogData?.message ?? "";
   }
 
   private get selectList(): { settingName: string; index: number }[] {
