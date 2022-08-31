@@ -76,6 +76,13 @@
             >
               {{ header.text }}
               <v-icon
+                v-if="index > 2"
+                class="mx-1"
+                color="blue lighten-3"
+                @click="registerAutofillSetting(header)"
+                >control_point</v-icon
+              >
+              <v-icon
                 v-if="header.notes.length > 0"
                 :title="message('app.note')"
                 class="mx-1"
@@ -252,10 +259,10 @@ export default class DecisionTable extends Vue {
           },
         ],
       },
-      ...this.inputValueTable.headerColumns.map((item) => {
+      ...this.inputValueTable.headerColumns.map((item, intentionIndex) => {
         return {
           intention: item.intention,
-          values: item.screenTransitions.map((screenTransition) => {
+          values: item.screenTransitions.map((screenTransition, index) => {
             return {
               text: `${screenTransition.index + 1}${this.message(
                 "input-value.times"
@@ -266,6 +273,8 @@ export default class DecisionTable extends Vue {
               trigger: screenTransition.trigger,
               notes: screenTransition.notes,
               operationHistory: screenTransition.operationHistory,
+              index,
+              intentionIndex,
             };
           }),
         };
@@ -314,6 +323,34 @@ export default class DecisionTable extends Vue {
 
   private elementTypeIsHidden(elementType: string): boolean {
     return elementType === "hidden";
+  }
+
+  private registerAutofillSetting(header: any): void {
+    const key =
+      this.inputValueTable.headerColumns[header.intentionIndex].intention;
+    const data = this.inputValueTable.getScreenTransitionWithIntention(key);
+    if (!data) {
+      return;
+    }
+    const operationWithNotes =
+      data[header.index].history[data[header.index].history.length - 1];
+
+    this.$store.commit("operationHistory/setAutofillRegisterDialog", {
+      title: operationWithNotes.operation.title,
+      url: operationWithNotes.operation.url,
+      message: this.$store.getters.message(
+        "input-value.autofill-dialog-message"
+      ),
+      inputElements: operationWithNotes.operation.inputElements?.map(
+        (element) => {
+          return {
+            ...element,
+            xpath: element.xpath.toLowerCase(),
+          };
+        }
+      ),
+      callback: null,
+    });
   }
 }
 </script>

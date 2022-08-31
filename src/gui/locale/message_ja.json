@@ -209,7 +209,8 @@
     "element-name": "要素名",
     "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
-    "hide-hidden-elements": "hidden要素は表示しない"
+    "hide-hidden-elements": "hidden要素は表示しない",
+    "autofill-dialog-message": "入力値を自動入力に設定しますか？設定する場合は入力値の設定名を入力してください。"
   },
   "note-list-dialog": {
     "note-list": "メモ一覧",

@@ -21,7 +21,7 @@
     }}</template>
     <template v-slot:content>
       <div class="pre-wrap break-word">
-        {{ $store.getters.message("autofill-register-dialog.message") }}
+        {{ message }}
       </div>
       <v-text-field
         v-model="settingName"
@@ -65,6 +65,7 @@ export default class AutofillRegisterDialog extends Vue {
   private get autofillRegisterDialogData(): {
     title: string;
     url: string;
+    message: string;
     inputElements: ElementInfo[];
     callback: () => void;
   } | null {
@@ -74,6 +75,10 @@ export default class AutofillRegisterDialog extends Vue {
     return (
       this.$store.state.operationHistory?.autofillRegisterDialogData ?? null
     );
+  }
+
+  private get message(): string {
+    return this.autofillRegisterDialogData?.message ?? "";
   }
 
   private get opened(): boolean {

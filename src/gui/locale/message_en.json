@@ -205,7 +205,8 @@
     "element-name": "Name",
     "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
-    "hide-hidden-elements": "Don't Display Hidden Elements"
+    "hide-hidden-elements": "Don't Display Hidden Elements",
+    "autofill-dialog-message": "Do you want to set the input value to autofill? When setting, enter the setting name of the input value."
   },
   "note-list-dialog": {
     "note-list": "Note List",
