@@ -156,31 +156,31 @@
       "and": "かつ"
     },
     "autofill": {
-      "setting-name": "設定名",
-      "add-setting": "設定の追加",
-      "adding-autofill-values": "設定値の追加",
+      "setting-name": "入力値セット名",
+      "add-setting": "入力値セットの追加",
+      "adding-autofill-values": "入力値の追加",
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
-      "auto-popup-registration": "テスト中に入力値を定義するポップアップを自動表示する",
-      "auto-popup-selection": "自動入力が定義されている場合、入力値を選択するポップアップを自動表示する",
+      "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
+      "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
       "input-value": "入力値"
     },
 
     "settings": "設定"
   },
   "autofill-register-dialog": {
-    "title": "自動入力設定",
-    "message": "ただいま入力した入力値を自動入力に設定しますか？次回以降のテスト時に利用できます。設定する場合は入力値の設定名を入力してください。",
-    "form-label": "設定名"
+    "title": "自動入力：登録",
+    "message": "ただいま入力した入力値を登録しますか？　登録する場合は入力値セット名を入力してください。",
+    "form-label": "入力値セット名"
   },
   "autofill-select-dialog": {
-    "title": "自動入力",
-    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は以下から自動入力設定を選んでください。",
-    "form-label": "設定名"
+    "title": "自動入力：選択",
+    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は入力値セット名を選択してください。",
+    "form-label": "入力値セット名"
   },
   "autofill-button": {
-    "message": "自動入力設定を選んでください。"
+    "message": "入力値セット名を選択してください。"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",
@@ -213,7 +213,7 @@
     "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
     "hide-hidden-elements": "hidden要素は表示しない",
-    "autofill-dialog-message": "入力値を自動入力に設定しますか？設定する場合は入力値の設定名を入力してください。"
+    "autofill-dialog-message": "入力値セット名を入力してください。"
   },
   "note-list-dialog": {
     "note-list": "メモ一覧",
