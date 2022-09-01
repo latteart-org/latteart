@@ -158,25 +158,25 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
-      "auto-popup-registration": "Automatically display popups to define input values ​​during testing",
-      "auto-popup-selection": "Auto-display popup to select input value if auto-fill is defined",
+      "auto-popup-registration": "Automatically display a popup to register input values",
+      "auto-popup-selection": "Automatically display popup to select input value",
       "input-value": "Input Value"
     },
 
     "settings": "Settings"
   },
   "autofill-register-dialog": {
-    "title": "Autofill Setting",
-    "message": "Do you want to autofill the input you just typed? This can be used for further testing. When setting, enter the setting name of the input value.",
-    "form-label": "Setting Name"
+    "title": "Autofill: Registration",
+    "message": "Do you want to register the input value you just entered? Enter an input value set name during registration.",
+    "form-label": "Input Value Set Name"
   },
   "autofill-select-dialog": {
-    "title": "Autofill",
-    "message": "Found an autofillable form. If you would like to autofill, please select your autofill settings below.",
-    "form-label": "Setting Name"
+    "title": "Autofill: Select",
+    "message": "Found an autofillable form. Select the input value set name to autofill.",
+    "form-label": "Input Value Set Name"
   },
   "autofill-button": {
-    "message": "Select your autofill settings."
+    "message": "Please select an input value set name."
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
@@ -209,7 +209,7 @@
     "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
     "hide-hidden-elements": "Don't Display Hidden Elements",
-    "autofill-dialog-message": "Do you want to set the input value to autofill? When setting, enter the setting name of the input value."
+    "autofill-dialog-message": "Please select an input value set name."
   },
   "note-list-dialog": {
     "note-list": "Note List",
