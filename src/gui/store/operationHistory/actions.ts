@@ -1531,7 +1531,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               isEnabled: true,
               settingName: "",
               url: "",
-              title: "url",
+              title: "",
               inputValueConditions: [],
               ...payload.conditionGroup,
             },
