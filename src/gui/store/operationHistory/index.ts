@@ -18,7 +18,6 @@ import {
   OperationWithNotes,
   CoverageSource,
   ScreenTransition,
-  InputElementInfo,
   AutofillConditionGroup,
   AutofillSetting,
   ElementInfo,
@@ -66,14 +65,14 @@ export interface OperationHistoryState {
    */
   config: {
     /**
-     * Screen definition settings.
-     */
-    screenDefinition: ScreenDefinition;
-
-    /**
      * Autofill condition settings.
      */
     autofillSetting: AutofillSetting;
+
+    /**
+     * Screen definition settings.
+     */
+    screenDefinition: ScreenDefinition;
 
     /**
      * Screen element coverage settings.
@@ -313,13 +312,13 @@ const state: OperationHistoryState = {
     name: "",
   },
   config: {
-    screenDefinition: {
-      screenDefType: ScreenDefType.Title,
+    autofillSetting: {
+      autoPopupRegistrationDialog: false,
+      autoPopupSelectionDialog: false,
       conditionGroups: [],
     },
-    autofillSetting: {
-      autoPopupRegistrationDialog: true,
-      autoPopupSelectionDialog: true,
+    screenDefinition: {
+      screenDefType: ScreenDefType.Title,
       conditionGroups: [],
     },
     coverage: {

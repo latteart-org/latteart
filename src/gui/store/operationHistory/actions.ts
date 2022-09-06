@@ -85,10 +85,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     await context.dispatch("writeSettings", {
       config: {
+        autofillSetting: config.autofillSetting,
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
-        autofillSetting: config.autofillSetting,
       },
     });
   },
