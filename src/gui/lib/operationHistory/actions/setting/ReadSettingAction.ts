@@ -26,17 +26,36 @@ const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
 export class ReadSettingAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "settingRepository" | "localStorageSettingRepository"
+    >
   ) {}
 
   public async readSettings(): Promise<ActionResult<Settings>> {
     const getSettingsResult =
       await this.repositoryContainer.settingRepository.getSettings();
+    const getAutoPopupSettingsResult =
+      await this.repositoryContainer.localStorageSettingRepository.getAutoPopupSettings();
 
-    if (getSettingsResult.isFailure()) {
+    if (
+      getSettingsResult.isFailure() ||
+      getAutoPopupSettingsResult.isFailure()
+    ) {
       return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(getSettingsResult.data);
+    const settings = {
+      ...getSettingsResult.data,
+      config: {
+        ...getSettingsResult.data.config,
+        autofillSetting: {
+          ...getSettingsResult.data.config.autofillSetting,
+          ...getAutoPopupSettingsResult.data,
+        },
+      },
+    };
+
+    return new ActionSuccess(settings);
   }
 }

@@ -51,8 +51,9 @@ export default class Settings {
    * ViewPoint presets.
    */
   public viewPointsPreset: Array<{
+    id: string;
     name: string;
-    viewPoints: Array<{ name: string }>;
+    viewPoints: Array<{ name: string; description: string }>;
   }>;
 
   /**
