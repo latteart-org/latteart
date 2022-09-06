@@ -135,6 +135,8 @@ export interface InputElementInfo {
   inputElements: ElementInfo[];
 }
 
+export type AutoPopupSettings = Omit<AutofillSetting, "conditionGroups">;
+
 export interface AutofillSetting {
   autoPopupRegistrationDialog: boolean;
   autoPopupSelectionDialog: boolean;
