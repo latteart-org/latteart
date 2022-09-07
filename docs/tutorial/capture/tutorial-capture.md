@@ -1,267 +1,267 @@
-# LatteArt チュートリアル（操作記録編）
+# LatteArt Tutorial (operation capturing)
 
-# 目次
+# Table of Contents
 
-- [操作記録のチュートリアル](#操作記録のチュートリアル)
-  - [記録ツールの起動](#記録ツールの起動)
-  - [記録ツールの初期設定](#記録ツールの初期設定)
-  - [操作記録の開始](#操作記録の開始)
-  - [テスト対象アプリケーションの操作](#テスト対象アプリケーションの操作)
-  - [テスト中にメモをとる](#テスト中にメモをとる)
-  - [操作記録の確認](#操作記録の確認)
-  - [操作記録の終了](#操作記録の終了)
-  - [画面のリセット](#画面のリセット)
-  - [操作記録の読み込み](#操作記録の読み込み)
-  - [操作記録の再生](#操作記録の再生)
-  - [スクリプト生成](#スクリプト生成)
-  - [データインポート](#データインポート)
-  - [データエクスポート](#データエクスポート)
-  - [スクリーンショット出力](#スクリーンショット出力)
-  - [テスト結果の削除](#テスト結果の削除)
-- [おわりに](#おわりに)
+- [Operation Capturing Tutorial](#operation-capturing-tutorial)
+  - [Start capturing tool](#start-capturing-tool)
+  - [Initial settings for capturing tools](#initial-settings-for-capturing-tools)
+  - [Start operation capture](#start-operation-capture)
+  - [Test target application operation](#test-target-application-operation)
+  - [Take notes during the test](#take-notes-during-the-test)
+  - [Confirmation of operation captures](#confirmation-of-operation-captures)
+  - [End operation capture](#end-operation-capture)
+  - [Reset screen](#reset-screen)
+  - [Load operation capture](#load-operation-capture)
+  - [Replay operation capture](#replay-operation-capture)
+  - [Generate script](#generate-script)
+  - [Import data](#import-data)
+  - [Export data](#export-data)
+  - [Screenshot output](#screenshot-output)
+  - [Delete test results](#delete-test-results)
+- [Conclusion](#Conclusion)
 
-# この資料について
+# About this docoment
 
-本書では、ツールの導入として「操作記録機能」を中心に説明します。
+This document mainly explains the "operation capturing function" as an introduction to the tool.
 
-LatteArt を用いたテストの考え方、およびテストの実施方法については 「[LatteArt チュートリアル （テスト実践編）](/docs/tutorial/management/tutorial-management.md)」で説明しています。
-また、各機能の詳細は「[記録ツール 操作説明書](/docs/manual/capture/manual-capture.md)」で説明しています。
+The concept of testing using LatteArt and how to execute the test are explained in "[LatteArt Tutorial (test management)](/docs/tutorial/management/tutorial-management.md)".
+Details of each function are explained in "[Capturing Tool Operation Manual](/docs/manual/capture/manual-capture.md)".
 
-# 操作記録のチュートリアル
+# Operation Capturing Tutorial
 
-本章では「記録ツール」を使用した操作の流れを紹介します。
+This chapter introduces the flow of operations using the "Capturing Tool".
 
 <img src="./images/capturetool-flow.png" width="650"/>
 
-## 記録ツールの起動
+## Start capturing tool
 
-- インストールした環境で「記録ツール」を起動します。
-  - 解凍した zip ファイル内の`capture.bat`をダブルクリックすると以下のメッセージが表示されたコマンドプロンプトが立ち上がり、ブラウザ上で記録ツールの画面が表示されます。
+- Start "Capturing Tool" in the installed environment.
+   - Double-click `capture.bat` in the decompressed zip file to launch a command prompt with the following message and display the capturing tool screen on the browser.
 
 ```
 capture: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
 manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
 ```
 
-## 記録ツールの初期設定
+## Initial settings for capturing tools
 
-- 画面上部の必要情報を記載し、テストを開始します。
-  - 「URL」にテスト対象アプリケーションの URL を入力してください。
-    - 本チュートリアルでは、LatteArt の管理ツールの画面にテストを行いましょう。`http://127.0.0.1:3000?mode=manage`を入力してください。
-  - テスト結果に名前を付けたい場合は「URL」の右側の「テスト結果名」を入力してください。
-    - テスト結果名は省略可です。その場合、自動的にテスト結果名`session_YYYYMMDD_HHmmss`が付与されます。
-  - 「テスト結果名」の右側にある「テスト開始ボタン（丸いボタン）」を押下してください。
+- Enter the required information at the top of the screen and start the test.
+  - Enter the URL of the application under test in "URL".
+    - In this tutorial, let's test the screen of LatteArt's administration tool. Enter `http://127.0.0.1:3000?mode=manage`.
+  - If you want to name the test result, enter "テスト結果名" on the right side of "URL".
+    - The test result name can be omitted. In that case, the test result name `session_YYYYMMDD_HHmmss` is automatically given.
+  - Press the "Test start button (round button)" on the right side of "テスト結果名".
 
 <div align="center">
 <img src="./images/tutorial-1.png"/> 
 </div>
 
-## 操作記録の開始
+## Start operation capture
 
-- ダイアログが表示され、どのようにテストを行うかを指定します。今回はチェックボックスは ON のままで、最初のテスト目的を入力し、「OK」ボタンを押下してください。
-  - テスト目的を記録することで、後でそれぞれのテストの意図を振り返ることができます。
+- A dialog will appear to specify how the test should be done. This time, leave the check box ON, enter the first test purpose, and press the "OK" button.
+  - Record test objectives so you can later review the intent of each test.
 
 <div align="center">
 <img src="./images/tutorial-2.png"/> 
 </div><br>
 
-- ダイアログの「OK」ボタンを押下すると、新しいブラウザで指定の URL のページが表示され、記録が開始されます。また、記録ツールは自動的に**履歴画面**に画面が切り替わります。
-  - 履歴画面と設定画面は、記録ツール右下のボタンからいつでも相互に切り替えることができます。
+- When you press the "OK" button in the dialog, the page of the specified URL will be displayed in a new browser and capturing will start. Also, the recording tool automatically switches to the **history screen**.
+  - You can switch between the history screen and the setting screen at any time from the button at the bottom right of the capturing tool.
 
 <div align="center">
 <img src="./images/tutorial-3.png" width="800"/> 
 </div>
 
-## テスト対象アプリケーションの操作
+## Test target application operation
 
-- 実際にテスト対象アプリケーションを操作して、異なる画面に遷移させてみましょう。
-  - 図では「テスト計画編集」ボタンを押下しています。
+- Let's actually operate the application under test and make a transition to a different screen.
+  - In the figure, the "テスト計画編集" button is pressed.
 
 <div align="center">
 <img src="./images/record-operation.png" width="800"/> 
 </div>
 
-- ボタンを押下すると、ボタンの周りに一瞬赤枠（LatteArt で記録されたことを示す目印）が表示され、画面が遷移します。
-  - 入力フォームへの記入等、様々な操作を試してみましょう。
+- When you press the button, a red frame (a mark indicating that it was recorded with LatteArt) is displayed around the button for a moment, and the screen transitions.
+  - Let's try various operations such as filling in the input form.
 
-## テスト中にメモをとる
+## Take notes during the test
 
-- テスト目的に沿ったテストが一区切りついた時や、違和感のある動作を見つけた場合は、記録ツールのフッターの以下ボタンからメモを残すことができます。
+- When the test meets the purpose of the test, or if you find an unusual behavior, you can leave a memo from the following button in the footer of the capturing tool.
 
 <div align="center">
 <img src="./images/add-note-button.png"/>
 </div><br>
 
-- ボタンを押下すると以下のダイアログが表示され、メモを入力できます。
+- When you press the button, the following dialog is displayed and you can enter a memo.
 
 <div align="center">
 <img src="./images/add-note.png" width="420"/>
 </div>
 
-## 操作記録の確認
+## Confirmation of operation captures
 
-- 操作した内容を LatteArt で確認してみましょう。履歴画面の「モデル・カバレッジの更新」ボタンを押下すると、最新の操作履歴を元に LatteArt で表示されている各種情報が更新されます。
+- Let's check the operation contents in LatteArt. When you press the "モデル・カバレッジの更新" button on the history screen, various information displayed in LatteArt will be updated based on the latest operation history.
 
 <div align="center">
 <img src="./images/before-update.png"/>
 </div>
 
-:bulb:「モデル・カバレッジの更新」が画面内に無い場合は、記録ツール右下のボタンから画面を切り替えてください。
+:bulb:If "モデル・カバレッジの更新" is not on the screen, switch the screen from the button at the bottom right of the recording tool.
 
-### シーケンス図モデル
+### Sequence diagram model
 
-シーケンス図モデルは以下のような内容を確認したい場合に用います。
+The sequence diagram model is used when you want to check the following contents.
 
-- どのようなタイミングでテスターが気付きをメモしたか
-- 各操作がどのような目的で行われたか
-- どのタイミングで画面遷移が行われたか
-- 1 つ 1 つの操作の内容
+- At what timing did the tester take notes
+- For what purpose each operation was performed
+- At what timing the screen transition was performed
+- Content of each operation
 
-次に具体的な画面を用いて説明します。
+Next, we will explain using specific screens.
 
-- 「モデル・カバレッジの更新」下部のラジオボタンで「シーケンス図モデル」を選択します。
+- Select "シーケンス図モデル" in the radio button at the bottom of "モデル・カバレッジの更新".
 
-実施したテストの大まかな流れと、残したメモの情報がシーケンス図で表示されます。
+The rough flow of the executed test and the information of the memo left are displayed in the sequence diagram.
 
 <div align="center">
 <img src="./images/sequence-diagram-model.png" width="620"/>
 </div><br>
 
-メモで記録した「テスト目的」はシーケンス図上に枠で表示されます。テキストにカーソルを合わせることで詳細を確認できます。
+The "test purpose" recorded in the memo is displayed in a frame on the sequence diagram. You can see more details by hovering over the text.
 
 <div align="center">
 <img src="./images/sequence-intention.png" width="200"/> 
 </div><br>
 
-メモで記録した「テスト中の気づき」はシーケンス図上に紫色の吹き出しで表示されます。カーソルを合わせることで詳細を確認できます。
+"Awareness during the test" recorded in the memo is displayed in a purple balloon on the sequence diagram. Hover over to see details.
 
 <div align="center">
 <img src="./images/sequence-notice.png" width="150"/> 
 </div><br>
 
-下部の表では全ての操作や、操作された Web 要素の属性等の情報を確認できます。また、「検索欄」で目的や気づきのチェックボックスにチェックを入れると目的や気づきのみの操作履歴を検索することができ、文字列入力欄にに文字列を入れることで、文字列を含む操作履歴を検索することができます。
+In the table below you can see all the operations and information such as the attributes of the web elements that were manipulated. In addition, if you check the check box of the purpose or awareness in the "検索" column, you can search the operation history only for the purpose or awareness. By entering a character string in the character string input field, you can search for operation logs that include the character string.
 
 <div align="center">
 <img src="./images/operation-area.png" width="550"/> 
 </div><br>
 
-### 画面遷移図モデル
+### Screen transition diagram model
 
-画面遷移図モデルは以下のような内容を確認したい場合に用います。
+The screen transition diagram model is used when you want to check the following contents.
 
-- テストでどのような画面遷移が確認されたか
-- 各画面でどのような入力値の組み合わせが試されたか
+- What kind of screen transitions were confirmed in the test
+- What combinations of input values were tried on each screen
 
-次に具体的な画面を用いて説明します。
+Next, we will explain using specific screens.
 
-- 「モデル・カバレッジの更新」下部のラジオボタンで「画面遷移図モデル」を選択します。
+- Select "画面遷移図モデル" from the radio button at the bottom of "モデル・カバレッジの更新".
 
-実施したテスト内での画面遷移情報が画面遷移図で表示されます。また、下部の表にて画面遷移時に各画面でどのような入力値の組み合わせが試されたのかを確認できます。今回は入力値を入れずに画面遷移をしたので空欄になっています。
+The screen transition information in the executed test is displayed in the screen transition diagram. Also, in the table at the bottom, you can check what combinations of input values were tried on each screen when transitioning between screens. This time, the screen is changed without entering the input value, so it is blank.
 
 <div align="center">
 <img src="./images/screen-transition-diagram-model.png" width="620"/> 
 </div>
 
-### 画面要素カバレッジ
+### Screen element coverage
 
-画面要素カバレッジは、各画面でどの Web 要素がテストで操作されたかを確認したい場合に用います。
+Screen element coverage is used when you want to see which web elements were manipulated by the test on each screen.
 
-- 「モデル・カバレッジの更新」下部のラジオボタンで「画面要素カバレッジ」を選択します。
+- Select "画面要素カバレッジ" from the radio button at the bottom of "モデル・カバレッジの更新".
 
-各画面の要素に対する操作状況が表示されます。
+Displays the operation status for each screen element.
 
 <div align="center">
 <img src="./images/coverage-model.png" width="700"/> 
 </div><br>
 
-各画面のパネルをクリックすると、テスト中に操作した要素は薄緑色、操作していない要素はピンク色で表示されます。
+When you click on a panel on each screen, the elements you manipulated during the test are displayed in light green, and the elements you did not manipulate are displayed in pink.
 
 <div align="center">
 <img src="./images/coverage-model2.png" width="700"/> 
 </div><br>
 
-:bulb: カバレッジの計算対象に入れるタグは設定画面で指定することができます。設定画面についての詳細は[記録ツール 操作説明書](/docs/manual/capture/manual-capture.md)をご確認ください。
+:bulb: The tags to be included in coverage calculation can be specified on the setting screen. For details on the setting screen, please refer to [Capturing Tool Operation Manual](/docs/manual/capture/manual-capture.md).
 
-## 操作記録の終了
+## End operation capture
 
-- 操作がすべて完了したら、記録ツール上部のテスト終了ボタン（赤い丸ボタン）を押下します。
+- When all the operations are completed, press the end test button (red circle button) at the top of the capturing tool.
 
 <div align="center">
 <img src="./images/stop.png"/> 
 </div><br>
 
-ボタンが赤色から黒色に変わります。
+The button will change from red to black.
 
 <div align="center">
 <img src="./images/capture-finish.png"/> 
 </div>
 
-## 画面のリセット
+## Reset screen
 
-- 画面をリセットしたい場合は、画面上部の履歴リセットボタンを押下することで、テスト履歴をクリアし、画面を初期状態に戻すことができます。
-  - 記録した内容は削除されず残るため、後述の「操作記録の読み込み」で再度呼び出せます。
+- If you want to reset the screen, press the history reset button at the top of the screen to clear the test history and return the screen to its initial state.
+   - Since the captureed contents are not deleted and remain, they can be recalled by "Load operation capture" described later.
 
 <div align="center">
 <img src="./images/reset.png"/> 
 </div>
 
-## 操作記録の読み込み
+## Load operation capture
 
-既存のファイルに追加で操作を記録したい場合や、過去のテストの内容を閲覧したい場合に用います。
+It is used when you want to capture additional operations in an existing file or when you want to view the contents of past tests.
 
-操作記録のデータは[データエクスポート](#データエクスポート)により他開発者への操作記録の展開ができます。
+Operation capture data can be exported to other developers by [Export data] (#export-data).
 
-- リポジトリに保存されているテスト結果を読み込みます。
-  - 過去のテスト結果の読み込みボタンを押下します。
-  - 過去セッション記録の一覧が表示されるので任意のセッションを選択します。
+- Load test results stored in the repository.
+   - Press "過去のテスト結果の読み込み" button.
+   - A list of past session captures will be displayed, so select any session.
 
 <div align="center">
 <img src="./images/import.png"/> 
 </div><br>
 
-:bulb: 他開発者のテスト結果を読み込みたい場合は、事前にテスト結果をエクスポートしたファイルを共有フォルダ等を経由して受け渡し、テスト結果を読み込みたい側の LatteArt の`latteart-repository/public/imports/` ディレクトリ配下にコピーし、[データインポート](#データインポート)し、テスト結果を読み込んでください。
+:bulb: If you want to read the test results of other developers, pass the file that you exported the test results in advance via a shared folder, etc., copy it under the directory `latteart-repository/public/imports/` of the LatteArt on the side where you want to read the test results, and click [Import data](#import-data) to load the test results.
 
-:warning: テスト結果名は、テスト結果ディレクトリ配下の`log.json`内の`name`欄で確認できます。
+:warning: You can check the test result name in the `name` field in `log.json` under the test result directory.
 
-## 操作記録の再生
+## Replay operation capture
 
-- テストの一部または全部を再現したい場合、およびスクリーンショットや各種モデルだけではテストの内容を理解しにくい場合に用います。
+- It is used when you want to reproduce part or all of the test, and when it is difficult to understand the contents of the test only with screenshots and various models.
 
-- メニューボタンの一覧から「履歴を再生する」、もしくは枠内右クリックで表示されるメニューから「自動再生」を選択をすることで、記録時の操作ログを元に、ブラウザの操作を再現することができます。
+- By selecting "履歴を再生する" from the menu button list or selecting "自動再生" from the menu displayed by right-clicking inside the frame, browser operations can be reproduced based on the operation log at the time of recording. can do.
 
-## スクリプト生成
+## Generate script
 
-- 現在表示しているテスト結果を元にテストスクリプトを生成します。
-  詳細は「[テストスクリプト自動生成](/docs/manual/common/test-script-generation.md)」をご参照ください。
+- Generate a test script based on the currently displayed test results.
+  For details, please refer to "[Automatic test script generation](/docs/manual/common/test-script-generation.md)".
 
-## データインポート
+## Import data
 
-- 旧バージョンでテスト記録や他開発者の記録操作を閲覧したい場合に用います。
+- Used when you want to view test records or other developer's capturing operations in the old version.
 
-- リポジトリの`latteart-repository\public\imports`フォルダ配下に置かれている zip ファイルをインポートします。
-  - メニューボタンの一覧からデータインポートを押下します。
-  - zip ファイル一覧が表示されるのでファイルを選択します。
+- Import the zip file located under the `latteart-repository\public\imports` folder of the repository.
+  - Press the data import from the list of menu buttons.
+  - A list of zip files will be displayed, so select the file.
 
-## データエクスポート
+## Export data
 
-- 他開発者へテスト結果を渡したい場合に用います。
+- Used when you want to pass test results to other developers.
 
-- メニューボタンの一覧から押下すると現在表示しているテスト結果をエクスポートすることができます。
+- You can export the currently displayed test results by pressing from the list of menu buttons.
 
-## スクリーンショット出力
+## Screenshot output
 
-- テスト結果の全スクリーンショットを出力したい場合に用います。
+- Used when you want to output all screenshots of test results.
 
-- メニューボタンの一覧から押下すると現在表示しているテスト結果のスクリーンショットをダウンロードすることができます。
+- You can download a screenshot of the currently displayed test result by pressing it from the menu button list.
 
-## テスト結果の削除
+## Delete test results
 
-- テスト結果を削除したい場合に用います。
+- Used when you want to delete test results.
 
-- メニューボタンの一覧から押下すると現在表示しているテスト結果を削除することができます。
+- You can delete the currently displayed test results by pressing from the list of menu buttons.
 
-# おわりに
+# Conclusion
 
-本書では、LatteArt の「操作記録機能」を中心に紹介しました。
+In this manual, we have mainly introduced LatteArt's operation capturing function.
 
-LatteArt を用いてテストを行う方は、「[LatteArt チュートリアル（テスト実践編）](/docs/tutorial/management/tutorial-management.md)」もご参照下さい。
+For those who use LatteArt for testing, please also refer to "[LatteArt Tutorial (test management)](/docs/tutorial/management/tutorial-management.md)".
