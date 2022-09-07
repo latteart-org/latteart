@@ -588,6 +588,12 @@ const actions: ActionTree<TestManagementState, RootState> = {
       storyId: payload.storyId,
       session: parsedSession,
     });
+
+    await new UpdateSessionAction(
+      context.rootState.repositoryContainer
+    ).updateSession(context.state.projectId, payload.sessionId, {
+      testingTime: parsedSession.testingTime,
+    });
   },
 
   async deleteSession(
