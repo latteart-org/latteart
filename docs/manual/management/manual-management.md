@@ -1,455 +1,479 @@
-# 管理ツール 操作説明書
+# Management Tool Manual
 
-管理ツールはテスト管理を行うツールです。
-本ツールは以下の画面から構成されます。
+A management tool is a tool that performs test management.
+This tool consists of the following screens.
 
-- [メイン画面](#メイン画面)
-  - [ヘッダー](#ヘッダー)
-  - [テスト管理情報](#テスト管理情報)
-- [テスト計画編集画面](#テスト計画編集画面)
-  - [テストマトリクス追加ボタン](#テストマトリクス追加ボタン)
-  - [テストマトリクス編集欄](#テストマトリクス編集欄)
-  - [グループ・テスト対象編集欄](#グループテスト対象編集欄)
-  - [TOP に戻るボタン](#top-に戻るボタン)
-- [ストーリー編集画面](#ストーリー編集画面)
-  - [ストーリーのステータス](#ストーリーのステータス)
-  - [セッションレビューボタン](#セッションレビューボタン)
-  - [セッション](#セッション)
-- [レビュー画面](#レビュー画面)
-  - [テストストーリーへ戻るボタン](#テストストーリーへ戻るボタン)
-  - [キャプチャ設定ボタン](#キャプチャ設定ボタン-1)
-  - [レビュー用操作履歴](#レビュー用操作履歴)
-- [設定画面](#設定画面)
-  - [画面要素カバレッジの設定](#画面要素カバレッジの設定)
-  - [画面遷移の定義](#画面遷移の定義)
+- [Main screen](#main-screen)
+  - [Header](#header)
+  - [Test management information](#test-management-information)
+- [Test plan edit screen](#test-plan-edit-screen)
+  - [Add test matrix button](#add-test-matrix-button)
+  - [Edit test matrix](#edit-test-matrix)
+  - [Edit field for group test](#edit-field-for-group-test)
+  - [Button to return to TOP](#button-to-return-to-top)
+- [Story edit screen](#story-edit-screen)
+  - [Story Status](#story-status)
+  - [Session review button](#session-review-button)
+  - [Session](#session)
+- [Review screen](#review-screen)
+  - [Return to test story button](#return-to-test-story-button)
+  - [Screenshot output button](#screenshot-output-button)
+  - [Test script generation button](#test-script-generation-button)
+  - [Capture settings button](#capture-settings-button)
+  - [Operation history for review](#operation-history-for-review)
+- [Setting screen](#setting-screen)
+  - [Set screen element coverage](#set-screen-element-coverage)
+  - [Screen transition definition](#screen-transition-definition)
 
-# メイン画面
+# Main screen
 
-## ヘッダー
+## Header
 
 <img src="images/header.png" />
 
-### テスト管理情報切り替えタブ
+### Test management information switching tab
 
 <img src="images/tab.png" />
 
-表示中の以下テスト管理情報を切り替えることができます。
+You can switch between the following test management information that is being displayed.
 
 - TOP
-  - テストマトリクスを表示します。
-- 進捗管理
-  - 進捗状況を表示します。
-  - テストマトリクスが 1 つ以上作成されている場合のみ切り替えできます。
-- 品質管理
-  - 品質状況を表示します。
-  - テストマトリクスが 1 つ以上作成されている場合のみ切り替えできます。
+   - Display the test matrix.
+- Progress management
+   - Show progress.
+   - Can be switched only when one or more test matrices have been created.
+- quality management
+   - Display quality status.
+   - Can be switched only when one or more test matrices have been created.
 
-各テスト管理情報の詳細は、「[テスト管理情報](#テスト管理情報)」を参照してください。
+For details of each test management information, see "[Test management information](#test-management-information)".
 
-### テスト計画編集ボタン
+### Edit Test Plan Button
 
 <img src="images/edit-button.png" />
 
-押下すると「[テスト計画編集画面](#テスト計画編集画面)」を表示します。
+When pressed, "[Test plan edit screen](#test-plan-edit-screen)" will be displayed.
 
-### キャプチャ設定ボタン
+### Capture Settings Button
 
 <img src="images/config-button.png" />
 
-押下すると「[設定画面](#設定画面)」を表示します。
+When pressed, "[Setting screen](#setting-screen)" will be displayed.
 
-### オプション機能ボタン
+### Option function button
 
 <img src="images/option-button.png" />
 
-押下すると以下のオプション機能の一覧を表示します。
+Press to display the list of optional functions below.
 
-- スナップショット出力
-- テストスクリプト生成
-- データインポート
-- データエクスポート
+- snapshot output
+- test script generation
+- Data import
+- Data export
 
-#### スナップショット出力
+#### snapshot output
 
-オプション機能の一覧から押下すると、すべてのテスト計画やセッションのスナップショットが zip ファイルとして出力されます。
-スナップショットはサーバーを介さない閲覧用（編集不可）の HTML と、テストマトリクスごとにセッションに添付されたテスト結果の「テスト目的」「テスト中の気づき」といったデータを一覧化した Excel ファイルから構成されます。
+When pressed from the list of optional functions, all test plans and session snapshots are output as a zip file.
+A snapshot consists of an HTML file for browsing (not editable) without going through a server, and an Excel file that lists data such as "test purpose" and "notices during the test" of the test results attached to the session for each test matrix. increase.
 
-:warning: Excel ファイルのファイル名は`テストマトリクス名.xlsx`で出力されますが、テストマトリクス名にファイルパスとして使用できない記号が含まれている場合、その記号は`_`に置換されて出力されます。
+:warning: The file name of the Excel file is output as `test_matrix_name.xlsx`, but if the test matrix name contains a symbol that cannot be used as a file path, that symbol will be replaced with `_` and output. 
 
-#### テストスクリプト生成
+#### Generate Test Script
 
-オプション機能の一覧から押下すると登録された全てのセッションを元にテストスクリプトを生成します。
-詳細は「[テストスクリプト自動生成](../common/test-script-generation.md)」をご参照ください。
+When pressed from the list of optional functions, a test script is generated based on all registered sessions.
+For details, see "[Generate test script automatically](../common/test-script-generation.md)".
 
-#### データインポート
+#### Data Import
 
-オプション機能の一覧から押下するとインポート対象ファイル選択ダイアログが表示されます。
+When you press from the list of optional functions, the import target file selection dialog is displayed.
 
 <img src="images/import-dialog.png" />
 
-`latteart-repository\public\imports`フォルダ配下の zip ファイル名一覧を取得してプルダウンリストに表示され、プロジェクト情報、テスト結果情報のチェックボックスでインポート対象を選択可能です。  
-OK ボタンを押下し、データがインポートされます。
+A list of zip file names under the `latteart-repository\public\imports` folder is acquired and displayed in the pull-down list, and the import target can be selected with the check boxes for project information and test result information.
+Press the OK button and the data will be imported.
 
-:bulb: プロジェクト情報とは、管理ツールで表示されている全てのテストマトリクスを指します。
+:bulb: Project information refers to all test matrices displayed in the administration tool.
 
-インポートファイル(zip)内の構成は以下の通り
+The contents in the import file (zip) is as follows
 
 - project_YYYYDDMM_HHmmss.zip
 
 ```
   - projects/
-      └ プロジェクトID/
-        ├ ストーリーID/
-        │   └ セッションID/
-        │     └ attached/
-        │       └ 添付ファイル
-        └ プロジェクト情報(project.json)
+      └ Project ID/
+        ├ Story ID/
+        │ └ Session ID/
+        │   └ attached/
+        │     └ Attachment
+        └ Project information (project.json)
   - test-results/
-      └ テスト結果ID/
-        ├ スクリーンショット
-        └ テスト結果情報(log.json)
+      └ Test result ID/
+        ├ Screenshot
+        └ Test result information (log.json)
+
 ```
 
-:bulb: zip ファイル名はエクスポート時は上記のように出力されるがファイル名の指定は自由となります。  
-:bulb: 過去バージョンからデータをインポートしたい場合は
-`latteart-repository\public`配下を選択し、zip にしたものをインポートします。
+:bulb: The zip file name is output as above when exporting, but the file name can be specified freely.
+:bulb: If you want to import data from the previous version, select `latteart-repository\public` and import the zip file.
 
-#### データエクスポート
+#### Data Export
 
-オプション機能の一覧から押下するとエクスポート対象選択ダイアログが表示されます。
+When you press from the list of optional functions, the export target selection dialog is displayed.
 
 <img src="images/export-dialog.png" />
 
-プロジェクト情報、テスト結果情報のチェックボックスでエクスポート対象を選択可能です。  
-OK ボタンを押下し、データがエクスポートされます。
+Project information and test result information checkboxes allow you to select export targets.
+Press the OK button and the data will be exported.
 
-エクスポートファイル(zip)内の構成は以下の通り
+The contents in the export file (zip) is as follows.
 
 - project_YYYYDDMM_HHmmss.zip
 
 ```
   - projects/
-      └ プロジェクトID/
-        ├ ストーリーID/
-        │   └ セッションID/
-        │     └ attached/
-        │       └ 添付ファイル
-        └ プロジェクト情報(project.json)
+      └ Project ID/
+        ├ Story ID/
+        │ └ Session ID/
+        │   └ attached/
+        │     └ Attachment
+        └ Project information (project.json)
   - test-results/
-      └ テスト結果ID/
-        ├ スクリーンショット
-        └ テスト結果情報(log.json)
+      └ Test result ID/
+        ├ Screenshot
+        └ Test result information (log.json)
+
 ```
 
-### 言語
+### Language
 
 <img src="images/locale.png" />
 
-表示言語を切り替えることができます。
+You can switch the display language.
 
-- ja（日本語）
-- en（英語）
+- ja (Japanese)
+- en (English)
 
-### リポジトリ URL 入力欄
+### Repository URL input field
 
 <img src="images/repository-url.png"/>
 
-リポジトリ URL を入力する欄です。  
-プルダウンを開くと過去に接続したリポジトリ URL が選択候補として表示されます。
+This is the field to enter the repository URL.
+When you open the pull-down, repository URLs that have been connected in the past are displayed as selection candidates.
 
-### 接続ボタン
+### Connect button
 
 <img src="images/connect.png"/>
 
-リポジトリ URL に記載された URL に接続することができます。  
-リポジトリ URL 入力欄に URL を入力すると接続ボタンが押下可能となります。
+You can connect to the URL mentioned in repository URL.
+When you enter the URL in the repository URL input field, you can press the connect button.
 
-:bulb:他者のリポジトリ URL（latteart-repositoryURL）を指定することで、他者の環境のデータへアクセス、更新することができます。
+:bulb: By specifying the repository URL of others (latteart-repositoryURL), you can access and update the data of others' environments.
 
-## テスト管理情報
+## Test management information
 
-プロジェクトの以下情報を確認することができます。
+You can check the following information of the project.
 
-- テストマトリクス
-- 進捗状況
-- 品質状況
+- Test matrix
+- Progress
+- Quality status
 
-各情報を表示する画面の詳細を以下に示します。
+Details of the screens that display each information are shown below.
 
-### テストマトリクス
+### Test Matrix
 
 <img src="images/top.png" />
 
-「[テスト計画編集画面](#テスト計画編集画面)」から登録したテストマトリクス一覧をタブごとに管理して確認できます。
-任意のテスト対象・テスト観点のセルをクリックすることで対応するストーリー編集画面に遷移できます。
+You can manage and check the list of test matrices registered from "[Test plan edit screen](#test-plan-edit-screen)" for each tab.
+By clicking any test target/test viewpoint cell, you can transition to the corresponding story edit screen.
 
-### 進捗状況
+### Progress
 
 <img src="images/progress.png" />
 
-直前に表示していたテストマトリクスについて、セッションの消化状況をバーンダウンチャートで確認できます。
+You can check the completion status of the session on the burndown chart for the test matrix that was displayed immediately before.
 
-期間・グループ・テスト対象で表示結果のフィルタリングができます。
+You can filter the display results by period, group, and test target.
 
-### 品質状況
+### Quality status
 
 <img src="images/quality.png" />
 
-直前に表示していたテストマトリクスについて、PB 曲線と起票されたバグ起票状況を確認できます。
+You can check the PB curve and the filed bug filed status for the previously displayed test matrix.
 
-グループ・テスト対象で表示結果のフィルタリングができます。
-また、バグ起票状況は全件数と１セッションあたりの件数を切り替えて確認ができます。
+You can filter the displayed results by group test target.
+In addition, you can check the bug reporting status by switching between all cases and the number of cases per session.
 
-# テスト計画編集画面
+# Test plan edit screen
 
 <img src="images/test-edit.png" />
 
-プロジェクト全体のテストの計画を行うことができます。
-本画面で使用する各用語の説明は以下になります。
+You can plan the tests for the entire project.
+The terms used on this screen are explained below.
 
-- テスト対象
-  - テスト対象となる項目です。
-    :bulb: 例えば、機能結合テストの場合は「ユースケース」、処理結合テストの場合は「画面」や「機能」が相当します。
-- グループ
-  - テスト対象をまとめたグループです。
-- テスト観点
-  - 各テスト対象に対して実施するテストの観点です。
-- テストマトリクス
-  - テストを管理する単位です。
-  - 機能結合テストと処理結合テストのように異なるスコープのテストを行う場合等、別のテスト観点のセットを用いてテストを行いたい場合は、テストマトリクスを分けてください。
+- Test target
+   - Items to be tested.
+     :bulb: For example, "use case" corresponds to a function integration test, and "screen" or "function" corresponds to a process integration test.
+- Group
+   - A group of test targets.
+- Test viewpoint
+   - It is the aspect of the test to be performed for each test object.
+- Test matrix
+   - A unit that manages tests.
+   - If you want to test using different sets of test viewpoints, such as when performing tests in different scopes such as functional integration tests and process integration tests, please separate the test matrices.
 
-## テストマトリクス追加ボタン
+## Add test matrix button
 
 <img src="images/matrix-addition-button.png" />
 
-押下すると以下のようなテストマトリクス作成ダイアログが表示され、任意のテスト観点のテストマトリクスを作成することができます。
-ゴミ箱マーク右横の矢印を押下すると詳細入力欄が表示され、観点の説明を入力することができます。
-観点入力欄横の矢印で観点の順番を変更することができます。
-複数テストマトリクスを作成した場合は、タブで切り替えることができます。
+When you press it, the following test matrix creation dialog will be displayed, and you can create a test matrix from any test perspective.
+When you press the arrow to the right of the trash can mark, the detail input field is displayed and you can enter the explanation of the viewpoint.
+You can change the order of viewpoints with the arrows next to the viewpoint input field.
+If you have created multiple test matrices, you can switch between them using the tabs.
 
 <img src="images/test-matrix.png" />
 
-テスト観点のセットはプリセットのものを使用することもできますが、独自のテスト観点を作成することもできます。
+You can use a preset set of test viewpoints, or you can create your own test viewpoints.
 
-## テストマトリクス編集欄
+## Edit test matrix
 
 <img src="images/matrix-area.png" />
 
-テストマトリクスに対する設定・削除やグループの追加・削除が行えます。
+You can set/delete the test matrix and add/delete groups.
 
-### テストマトリクス設定ボタン
+### Test matrix setting button
 
 <img src="images/matrix-config-button.png" />
 
-押下するとテストマトリクス設定ダイアログが表示され、テストマトリクス名やテスト観点の再設定を行うことができます。
+When you press it, the test matrix setting dialog is displayed, and you can reconfigure the test matrix name and test viewpoint.
 
-### テストマトリクス削除ボタン
+### Delete test matrix button
 
 <img src="images/matrix-deletion-button.png" />
 
-押下するとテストマトリクスが削除されます。
+When pressed, the test matrix is deleted.
 
-### グループ追加ボタン
+### Add Group button
 
 <img src="images/group-addition-button.png" />
 
-押下するとグループが追加されます。
+Press to add a group.
 
-:warning: 新規で追加されたグループはデフォルトで「グループ」という名称が付与されるため、適宜変更してください。
+:warning: Newly added groups are given the name "グループ" by default, so please change it accordingly.
 
-## グループ・テスト対象編集欄
+## Edit field for group test
 
 <img src="images/group-area.png" />
 
-グループの削除、テスト対象の追加・削除や、テスト対象に対して、各観点で実施するテストの予定セッション数を指定できます。
-また、テスト対象左のごみ箱アイコンのボタンにより、テスト対象を削除できます。
-各観点の右にある info マークにカーソルを合わせるとテスト対象の詳細を確認することができます。
+You can delete groups, add/delete test targets, and specify the number of scheduled test sessions to be performed from each viewpoint for test targets.
+You can also delete the test target with the trash can icon button on the left of the test target.
+Hover the cursor over the info mark to the right of each viewpoint to see details about the test target.
 
-### グループ削除ボタン
+### Delete group button
 
 <img src="images/matrix-deletion-button.png" />
 
-押下するとグループが削除されます。
+Press to delete the group.
 
-### テスト対象追加ボタン
+### Add test target button
 
 <img src="images/test-target-addition-button.png" />
 
-任意の名称を指定し、「追加」ボタンを押下することでテスト対象を追加できます。
+You can add a test target by specifying an arbitrary name and pressing the "Add" button.
 
-## TOP に戻るボタン
+## Button to return to TOP
 
 <img src="images/back-to-top-button.png" />
 
-押下すると「[メイン画面](#メイン画面)」に戻ります。
+Press to return to "[Main screen](#main-screen)".
 
-変更は自動で保存されます。
+Changes are saved automatically.
 
-# ストーリー編集画面
+# Story edit screen
 
 <img src="images/story.png" />
 
-テストマトリクスで選択したストーリーについて、セッションの作成・編集を行うことができます。
+You can create and edit sessions for stories selected in the test matrix.
 
-## ストーリーのステータス
+## Story Status
 
 <img src="images/story-status.png" />
 
-ストーリーのステータスを変更することができます。
+You can change the story status.
 
-:warning: 自動で変更はされないため、ストーリーの状況に応じてテスト管理者が適宜手動で変更してください。
+:warning: This is not automatically changed, so the test administrator should change it manually as appropriate according to the story situation.
 
-## セッションレビューボタン
+## Session review button
 
 <img src="images/review-button.png" />
 
-テスト結果が読み込まれたセッション群からレビュー対象のセッションを選択し、ボタンを押下すると「[レビュー画面](#レビュー画面)」が表示されます。
+Select the session to be reviewed from among the sessions loaded with the test results, and press the button to display the "[Review screen](#review-screen)".
 
-## セッション
+## Session
 
-1 回のセッションにおける、テスト実施者への指示やテスト実施者から受け取ったテストの読み取り・確認を行うことができます。
+In a single session, you can give instructions to testers and read and review tests received from testers.
 
-### セッション完了チェックボックス
+### Session complete checkbox
 
 <img src="images/session-completion-checkbox.png" />
 
-押下するとセッションが完了状態になり、ストーリー完了セッション数が加算されます。
-また、完了になったセッション内に起票状態のバグ・気づきが存在する場合、ストーリーの摘出バグ数が加算されます。
+When pressed, the session will be completed and the number of story completed sessions will be added.
+Also, if there are bugs/notices that have been submitted in the completed session, the number of extracted bugs in the story will be added.
 
-### セッション削除ボタン
+### Delete session button
 
 <img src="images/session-deletion-button.png" />
 
-押下するとセッションが削除されます。
+Press to delete the session.
 
-### チャーター部
+### Charter section
 
 <img src="images/charter.png" />
 
-テスト実施者への指示として、以下項目を記載できます。
+The following items can be included as instructions to the tester.
 
-- テスター名
-  - テスト実施者の名前を記載してください。
-- メモ
-  - テスト時にテスト実施者が使用する資材(操作説明書等)やセッションを行う際に特に注意すべき点がある場合等、テスト実施者へのより細かい指示を記載してください。
+- Tester name("テスター名")
+   - Please state the name of the tester.
+- Notes("メモ")
+   - Please provide more detailed instructions to the testers, such as the materials (operation manuals, etc.) that the testers will use during the test, and if there are any special points to note when conducting the session.
 
-### レポート部
+### Report section
 
 <img src="images/report.png" />
 
-記録ツールの起動、テスト結果の読み込み、テスト証跡等のファイルの添付や、テスト実施者が実際に挙げた気づきを一覧で確認することができます。
+You can start the recording tool, load test results, attach files such as test trails, and check the list of observations actually made by the tester.
 
-- テスト実行モデル
-  - 記録ツールを管理ツールから起動することができます。
-    - テスト結果が読み込まれていない場合は新規でテスト結果が作成され、読み込まれている場合は、読み込まれているテスト結果が記録ツールを起動した際に表示されます。
-  - 記録ツールで記録されたテスト結果を読み込むことができます。
-  - 読み込んだテスト結果は「[レビュー画面](#レビュー画面)」で詳細を確認することができます。
-  - 読み込んだテスト結果は再読込アイコンのボタンから再読込することができます。
-  - 読み込んだテスト結果はゴミ箱アイコンのボタンから削除することができます。
-- 添付ファイル
-  - 任意のファイルを添付することができます。テスト証跡等を添付したい場合に使用してください。
-  - 添付したファイルはゴミ箱アイコンのボタンから削除することができます。
-- 実施されたテスト
-  - 読み込んだテスト結果内に記録されている「テスト目的」が表示されます。
-- テスト中の気づき
-  - 読み込んだテスト結果内に記録されている「気づき」が表示されます。
-  - 各気づきの「詳細」ボタンを押下すると詳細情報を確認することができます。
+- Test execution model("テスト実行モデル")
+  - You can launch the recording tool from the administration tool.
+    - If the test result is not loaded, a new test result will be created, and if it is loaded, the loaded test result will be displayed when the recording tool is started.
+  - You can read the test results captured by the capturing tool.
+  - You can check the details of the loaded test results on "[Review screen](#review-screen)".
+  - The loaded test results can be reloaded from the reload icon button.
+  - Loaded test results can be deleted from the trash can icon button.
+- Attachments("添付ファイル")
+  - You can attach any file. Use this when you want to attach a test trail, etc.
+  - Attached files can be deleted from the trash can icon button.
+- Tests performed("実施されたテスト")
+  - The "test purpose" recorded in the loaded test result is displayed.
+- Awareness during testing("テスト中の気づき")
+  - "Notices" recorded in the loaded test results are displayed.
+  - You can check detailed information by pressing the "詳細" button for each notice.
 
-# レビュー画面
+# Review screen
 
 <img src="images/review.png" />
 
-テスト実施者が行ったセッションのレビューを行うことができます。
+You can review sessions conducted by testers.
 
-## テストストーリーへ戻るボタン
+## Return to test story button
 
 <img src="images/back-to-story-button.png" />
 
-押下すると「[ストーリー編集画面](#ストーリー編集画面)」に戻ります。
+Press to return to the "[Story edit screen] (#story-edit-screen)".
 
-## スクリーンショット出力ボタン
+## Screenshot output button
 
 <img src="./images/screenshot-button.png"/>
 
-押下するとレビュー画面で表示しているテスト結果のスクリーンショットをダウンロードすることができます。  
-スクリーンショットファイル(zip)内の構成は以下の通り
+You can download the screenshot of the test result displayed on the review screen by pressing it.
+The structure in the screenshot file (zip) is as follows.
 
-- screenshots\_{テスト結果名}\_YYYYDDMM_HHmmss.zip
+- screenshots\_{test result name}\_YYYYDDMM_HHmmss.zip
+
+# Review screen
+
+<img src="images/review.png" />
+
+You can review sessions conducted by testers.
+
+## Return to test story button
+
+<img src="images/back-to-story-button.png" />
+
+Press to return to the "[Story edit screen](#story-edit-screen)".
+
+## Screenshot output button
+
+<img src="./images/screenshot-button.png"/>
+
+You can download the screenshot of the test result displayed on the review screen by pressing it.
+The structure in the screenshot file (zip) is as follows
+
+- screenshots\_{test result name}\_YYYYDDMM_HHmmss.zip
 
 ```
-  - スクリーンショット(ファイル名：{連番}.webp/{連番}.png)
+   - Screenshot(file name: {serial number}.webp/{serial number}.png)
 ```
 
-## テストスクリプト生成ボタン
+## Test script generation button
 
 <img src="images/script-button.png" />
 
-レビュー画面で表示しているテスト結果のテストスクリプトを生成します。
-選択オプションや処理はメイン画面「[テストスクリプト生成ボタン](#テストスクリプト生成ボタン)」と同様。
+Generate a test script for the test results displayed on the review screen.
+Selection options and processing are the same as the main screen "[Test script generation button](#test-script-generation-button)".
 
-## キャプチャ設定ボタン
+## Capture settings button
 
 <img src="images/config-button.png" />
 
-押下すると「[設定画面](#設定画面)」を表示します。
+When pressed, "[Setting screen] (#setting-screen)" will be displayed.
 
-## レビュー用操作履歴
+## Operation history for review
 
-「[記録ツールの履歴画面](/docs/manual/capture/manual-capture.md#履歴画面)」と同じようにシーケンス図モデルや画面遷移図モデルで確認ができます。
-また、レビュー画面では記録ツールのように操作履歴に対する編集はできませんが、シーケンス図上の「テスト中の気づき」の吹き出しを右クリックすることで、その「テスト中の気づき」をバグトラッキングシステム等に起票するか選択することができます。  
-:warning: LatteArt 自身にはバグトラッキング機能/バグトラッキングシステムとの連携機能はありません。
+You can check the sequence diagram model and screen transition diagram model in the same way as "[History screen of the capturing tool](/docs/manual/capture/manual-capture.md#history-screen)".
+In addition, unlike the capturing tool, you cannot edit the operation history on the review screen, but by right-clicking the balloon of "Notice during the test" on the sequence diagram, you can save the "Notice during the test" to the bug tracking system, etc. You can choose to vote.
+:warning: LatteArt itself does not have a bug tracking function / a function to link with a bug tracking system.
 
-# 設定画面
+# Setting screen
 
 <img src="images/config.png" />
 
-記録された操作群を可視化する際の表示設定を行えます。
-各種設定は変更時にリアルタイムで保存されます。
+You can configure display settings when visualizing recorded operations.
+Various settings are saved in real time when changed.
 
-## 画面要素カバレッジの設定
+## Set screen element coverage
 
 <img src="./images/coverage-config.png"/>
 
-画面要素カバレッジに関する設定を行うことができます。
+You can configure screen element coverage settings.
 
-- カバレッジ計算に含めるタグ
-  - 画面要素カバレッジの計算に含めるタグを指定することができます。
+- Tags to include in coverage calculations
+  - You can specify the tags to include in the calculation of screen element coverage.
 
-## 画面遷移の定義
+## Screen transition definition
 
 <img src="./images/screen-config.png"/>
 
-レビュー画面での各種モデルで「画面」として認識する粒度を設定することができます。
+You can set the granularity to recognize as "screen" for each model on the review screen.
 
-### デフォルト画面定義
+### Default screen definition
 
-ページタイトルで画面を認識するか、URL で画面を認識するかを選択します。
+Select whether to recognize screens by page title or by URL.
 
-- タイトルで画面遷移を判断する。
-  - ON にすると、履歴画面の各種モデルでページタイトルの同じ画面が同一画面としてまとめられるようになります。
-- URL で画面遷移を判断する。
-  - ON にすると、履歴画面の各種モデルで URL の同じ画面が同一画面としてまとめられるようになります。
+- Judge the screen transition by the title.
+   - When turned ON, screens with the same page title will be grouped together as the same screen for each model of the history screen.
+- Judge the screen transition by URL.
+   - When turned ON, screens with the same URL will be grouped together as the same screen in for each model of the history screen.
 
-### 優先条件
+### Priority condition
 
-優先的に使用する画面定義で、デフォルト画面定義よりも優先されます。
-特定の条件を満たす画面のみ例外的に別の画面と認識させたい場合は本設定にて詳細な設定を行ってください。
-優先条件は最上位から順にマッチしたものがまとめられます。
+A preferred screen definition that takes precedence over the default screen definition.
+If you want to recognize only screens that meet specific conditions as other screens as an exception, please make detailed settings in this setting.
+Priority conditions are grouped in order from the highest priority.
 
-- 追加ボタン
-  - 優先的に使用する画面定義を追加します。
-- 有効/無効（優先条件） チェックボックス
-  - ON にすると、優先条件が有効になります。
-- 定義名
-  - 詳細条件をすべて満たすと同一画面としてまとめられ、「定義名」で指定した画面名に置き換えられます。
-- 定義削除ボタン
-  - 定義を削除します。
-- 詳細条件を追加するボタン
-  - 詳細条件を追加します。
-- 詳細条件
-  - 有効/無効（詳細条件）チェックボックス
-    - ON にすると、該当行の詳細条件が有効になります。
-  - 詳細条件（マッチ種別・テキスト・マッチ方法）
-    - 指定されたテキストがマッチ種別で選択した「URL/タイトル/キーワード」に、マッチ方法で選択した「文字列が含まれている/文字列と一致している/正規表現がマッチしている」でマッチしているか判定します。
-  - 詳細条件削除ボタン
-    - 該当行の詳細条件を削除します。詳細条件が 2 行以上存在する場合のみ表示されます。詳細条件を全て削除したい場合は定義を削除してください。
+- Add button
+  - Add a screen definition to be used preferentially.
+- Enable/disable (priority condition) checkbox
+  - ON enables the priority condition.
+- Definition name
+  - If all detailed conditions are met, the screens will be grouped together and replaced with the screen name specified in "Definition Name".
+- Delete definition button
+  - Delete definition.
+- Button to add detailed conditions
+  - Add advanced conditions.
+- Detailed conditions
+  - Enable/disable (detailed conditions) checkbox
+    - When set to ON, detailed conditions for the corresponding row are enabled.
+  - Detailed conditions (match type, text, match method)
+    - The specified text is "URL/Title/Keyword" selected in Match Type and "Contains String/Matches String/Matches regular expression" selected in Match Method to determine if it matches.
+  - Detailed condition delete button
+    - Delete the detailed condition of the corresponding line. Displayed only when there are two or more detailed conditions. If you want to delete all detailed conditions, delete the definition.

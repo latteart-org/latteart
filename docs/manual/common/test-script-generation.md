@@ -1,47 +1,47 @@
-# テストスクリプト自動生成
+# Generate test script automatically
 
-テストで行われた操作を元に、スモークテスト向けの End-to-End テストスクリプトとして、ページオブジェクト（`page_objects`）・テストケース（`test.spec.js`）・テストデータ（`test_data`）が生成されます。
-テストスクリプトは JavaScript で記述されています。
+Page objects (`page_objects`), test cases (`test.spec.js`), and test data (`test_data`) as end-to-end test scripts for smoke tests based on the operations performed in the tests are generated.
+Test scripts are written in JavaScript.
 
-また、`doc/index.html` にJSDocを用いたテストスクリプトの説明書が生成されます。
-各ページオブジェクトとテストケースが画面遷移図やスクリーンショットを用いて説明されているため、生成されたテストスクリプトの理解に役立ちます。
+It also generates a JSDoc-based test script documentation in `doc/index.html`.
+Each page object and test case are explained using screen transition diagrams and screenshots, which helps you understand the generated test scripts.
 
-## 生成されるテストスクリプトの特徴
+## Characteristics of generated test scripts
 
-- ページオブジェクトパターンを採用しており保守しやすい
-  - ページオブジェクトは「画面遷移の定義」で定められた画面と一対一で対応
-  - 1つの画面で行われた操作をメソッドとして抽出
-- テストで記録された全ての画面遷移を少なくとも一度は行う
-- データ駆動テストに対応
+- Uses the page object pattern for easy maintenance.
+   - Page objects correspond one-to-one with screens defined in "Definition of screen transitions".
+   - Extract operations performed on one screen as methods.
+- Perform all screen transitions captured in the test at least once.
+- Supports data-driven tests.
 
-### :warning: 制限事項
+### :warning: restrictions
 
-- テストで行った操作をそのまま再現するテストスクリプトではありません。
-- 記録されていない操作や画面遷移はスクリプト化されません。
-- 生成されたテストケースはアプリケーションの状態を考慮しないため、実行するために修正が必要な場合があります。
+- It is not a test script that reproduces the operation performed in the test as it is.
+- Uncaptured actions and screen transitions are not scripted.
+- Generated test cases do not take into account the state of the application and may need modification to run.
 
-## 生成されるテストケースの例
+## Generated test case example
 
-各画面遷移を行うための操作がメソッドとしてページオブジェクト内に定義されます。
-テストケースはそれらのメソッドを呼び出すことで構成されます。
+Operations for performing each screen transition are defined in the page object as methods.
+A test case consists of calling those methods.
 
-下図のテストケースは [Spring Petclinic](https://projects.spring.io/spring-petclinic/) に対して行われたテストを元に生成されたテストケースの1つです。
-このテストケースは赤・青・緑・橙の画面遷移があり、それぞれが1つのメソッド呼出と対応しています。
+The test case in the figure below is one of the test cases generated based on the tests performed for [Spring Petclinic](https://projects.spring.io/spring-petclinic/).
+This test case has red, blue, green, and orange screen transitions, each corresponding to one method call.
 
 ![テストケース](images/test-case.png)
 
-## オプション
+## Options
 
-生成時に以下のオプションが設定可能です。
+The following options can be set during generation.
 
-- データ駆動方式を使用する
-  - チェックを入れると、 `test_data/TestData.js` に定義されたデータを入力値とするテストを生成します。
-  - チェックを入れない場合、`test.spec.js` に入力値が埋め込まれます。
-- 最大数
-  - 画面ごとに生成されるテストデータの最大数を指定します。`0` を指定した場合は、具体的な値は生成されず雛形のみが生成されます。
+- Use data driven method
+   - If checked, a test will be generated with the data defined in `test_data/TestData.js` as the input value.
+   - If unchecked, input values will be embedded in `test.spec.js`.
+- Maximum number
+   - Specify the maximum number of test data generated per screen. If `0` is specified, no concrete value is generated, only a skeleton is generated.
 
-## テストスクリプトの実行
-テストスクリプトは [WebdriverIO](https://webdriver.io/) を用いて実行できます。
+## Run test script
+Test scripts can be run using [WebdriverIO](https://webdriver.io/).
 
-以下のテンプレートを用いることで、すぐにお試しいただくことができます。
+Use the template below to get started right away.
 https://github.com/latteart-org/test_script_runner
