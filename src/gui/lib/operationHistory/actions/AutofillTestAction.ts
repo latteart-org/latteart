@@ -24,7 +24,14 @@ export class AutofillTestAction {
     url: string
   ): ActionResult<AutofillConditionGroup[] | null> {
     const matchGroup = conditionGroups.filter((conditionGroup) => {
-      return conditionGroup.url === url && conditionGroup.title === title;
+      return (
+        conditionGroup.url === url &&
+        conditionGroup.title === title &&
+        conditionGroup.isEnabled &&
+        conditionGroup.inputValueConditions.some(
+          (inputValue) => inputValue.isEnabled
+        )
+      );
     });
 
     return new ActionSuccess(matchGroup.length > 0 ? matchGroup : null);
