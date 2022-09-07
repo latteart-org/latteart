@@ -318,7 +318,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: { autofillConditionGroup: AutofillConditionGroup }
   ) {
     await context.rootState.clientSideCaptureServiceDispatcher.autofill(
-      payload.autofillConditionGroup.inputValueConditions
+      payload.autofillConditionGroup.inputValueConditions.filter(
+        (inputValue) => inputValue.isEnabled
+      )
     );
   },
 
