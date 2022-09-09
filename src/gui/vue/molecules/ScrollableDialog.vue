@@ -23,6 +23,7 @@
     v-model="openedDialog"
     :transition="noTransition ? false : 'dialog-transition'"
     :fullscreen="fullscreen"
+    @keydown="cancelKeydown"
   >
     <v-card>
       <v-card-title class="headline" primary-title>
@@ -63,6 +64,10 @@ export default class ScrollableDialog extends Vue {
     setTimeout(() => {
       this.openedDialog = newValue;
     }, 100);
+  }
+
+  private cancelKeydown(event: Event) {
+    event.stopPropagation();
   }
 }
 </script>
