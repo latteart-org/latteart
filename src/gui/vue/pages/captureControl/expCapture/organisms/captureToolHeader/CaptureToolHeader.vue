@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row>
+  <v-layout justify-start align-center row @keydown="cancelKeydown">
     <url-text-field />
     <test-result-name-text-field />
 
@@ -65,5 +65,9 @@ import MenuButton from "./MenuButton.vue";
     "menu-button": MenuButton,
   },
 })
-export default class CaptureToolHeader extends Vue {}
+export default class CaptureToolHeader extends Vue {
+  private cancelKeydown(event: Event) {
+    event.stopPropagation();
+  }
+}
 </script>
