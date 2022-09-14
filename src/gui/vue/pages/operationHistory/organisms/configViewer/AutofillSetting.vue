@@ -61,10 +61,11 @@
 
 <script lang="ts">
 import {
+  AutofillSetting as AutofillSettingConfig,
   AutofillCondition,
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import AutoFillInputValueContainer from "./AutoFillInputValueContainer.vue";
 
 @Component({
@@ -73,60 +74,96 @@ import AutoFillInputValueContainer from "./AutoFillInputValueContainer.vue";
   },
 })
 export default class AutofillSetting extends Vue {
+  @Prop({
+    type: Object,
+    default: null,
+  })
+  public readonly autofillSetting!: AutofillSettingConfig;
+
+  private config: AutofillSettingConfig = this.autofillSetting;
+
+  @Watch("autofillSetting")
+  propAutofillSetting(): void {
+    this.config = this.autofillSetting;
+  }
+
+  @Watch("config")
+  saveAutofillSetting(): void {
+    this.$store.dispatch("operationHistory/updateAutofillSetting", this.config);
+  }
+
   private get conditionGroups(): AutofillConditionGroup[] {
-    console.log("get");
-    console.log(this.$store.state.operationHistory.config.autofillSetting);
-    return this.$store.state.operationHistory.config.autofillSetting
-      .conditionGroups;
+    return this.config.conditionGroups;
   }
 
   private get autoPopupRegistrationDialog(): boolean {
-    return this.$store.state.operationHistory.config.autofillSetting
-      .autoPopupRegistrationDialog;
+    return this.config.autoPopupRegistrationDialog;
   }
 
   private set autoPopupRegistrationDialog(
     autoPopupRegistrationDialog: boolean
   ) {
-    this.$store.dispatch("operationHistory/updateAutofillSetting", {
+    this.config = {
+      ...this.config,
       autoPopupRegistrationDialog,
-    });
+    };
   }
 
   private get autoPopupSelectionDialog(): boolean {
-    return this.$store.state.operationHistory.config.autofillSetting
-      .autoPopupSelectionDialog;
+    return this.config.autoPopupSelectionDialog;
   }
 
   private set autoPopupSelectionDialog(autoPopupSelectionDialog: boolean) {
-    this.$store.dispatch("operationHistory/updateAutofillSetting", {
+    this.config = {
+      ...this.config,
       autoPopupSelectionDialog,
-    });
+    };
   }
 
   private addConditionGroup() {
-    this.$store.dispatch("operationHistory/updateAutofillConditionGroup", {
-      conditionGroup: {},
-      index: -1,
+    const config = { ...this.config };
+    config.conditionGroups.push({
+      isEnabled: true,
+      settingName: "",
+      url: "",
+      title: "",
+      inputValueConditions: [],
     });
-  }
-
-  private addCondition(index: number) {
-    this.$store.dispatch("operationHistory/updateAutofillCondition", {
-      condition: {},
-      conditionIndex: -1,
-      conditionGroupIndex: index,
-    });
+    this.config = config;
   }
 
   private updateConditionGroup(
     conditionGroup: Partial<AutofillConditionGroup>,
     index: number
   ) {
-    this.$store.dispatch("operationHistory/updateAutofillConditionGroup", {
-      conditionGroup,
-      index,
+    const config = { ...this.config };
+    config.conditionGroups = config.conditionGroups.map((group, i) => {
+      if (index === i) {
+        return {
+          ...group,
+          ...conditionGroup,
+        };
+      }
+      return group;
     });
+    this.config = config;
+  }
+
+  private addCondition(index: number) {
+    const config = { ...this.config };
+    config.conditionGroups = config.conditionGroups.map((g, i) => {
+      if (index === i) {
+        g.inputValueConditions.push({
+          isEnabled: true,
+          locatorType: "id",
+          locator: "",
+          locatorMatchType: "equals",
+          inputValue: "",
+        });
+      }
+      return g;
+    });
+    this.config = config;
   }
 
   private updateCondition(
@@ -134,24 +171,37 @@ export default class AutofillSetting extends Vue {
     conditionIndex: number,
     conditionGroupIndex: number
   ) {
-    this.$store.dispatch("operationHistory/updateAutofillCondition", {
-      condition,
-      conditionIndex,
-      conditionGroupIndex,
+    const config = { ...this.config };
+    config.conditionGroups = config.conditionGroups.map((g, i) => {
+      if (conditionGroupIndex === i) {
+        g.inputValueConditions = g.inputValueConditions.map((c, j) => {
+          return conditionIndex === j ? { ...c, ...condition } : c;
+        });
+      }
+      return g;
     });
+    this.config = config;
   }
 
   private deleteConditionGroup(index: number) {
-    this.$store.dispatch("operationHistory/deleteAutofillConditionGroup", {
-      index,
-    });
+    const config = { ...this.config };
+    config.conditionGroups = config.conditionGroups.filter(
+      (c, i) => index !== i
+    );
+    this.config = config;
   }
 
   private deleteCondition(conditionIndex: number, conditionGroupIndex: number) {
-    this.$store.dispatch("operationHistory/deleteAutofillCondition", {
-      conditionIndex,
-      conditionGroupIndex,
+    const config = { ...this.config };
+    config.conditionGroups = config.conditionGroups.map((g, i) => {
+      if (conditionGroupIndex === i) {
+        g.inputValueConditions = g.inputValueConditions.filter(
+          (c, j) => conditionIndex !== j
+        );
+      }
+      return g;
     });
+    this.config = config;
   }
 }
 </script>
