@@ -574,9 +574,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         testerName: updatedSession.testerName,
         memo: updatedSession.memo,
         attachedFiles: updatedSession.attachedFiles,
-        testResultFiles: payload.params.testResultFiles
-          ? updatedSession.testResultFiles
-          : undefined,
+        testResultFiles: updatedSession.testResultFiles ?? undefined,
         issues: updatedSession.issues,
         testingTime: updatedSession.testingTime,
       },
@@ -589,11 +587,13 @@ const actions: ActionTree<TestManagementState, RootState> = {
       session: parsedSession,
     });
 
-    await new UpdateSessionAction(
-      context.rootState.repositoryContainer
-    ).updateSession(context.state.projectId, payload.sessionId, {
-      testingTime: parsedSession.testingTime,
-    });
+    if (updatedSession.testingTime !== parsedSession.testingTime) {
+      await new UpdateSessionAction(
+        context.rootState.repositoryContainer
+      ).updateSession(context.state.projectId, payload.sessionId, {
+        testingTime: parsedSession.testingTime,
+      });
+    }
   },
 
   async deleteSession(
