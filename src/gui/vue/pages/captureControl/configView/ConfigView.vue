@@ -192,6 +192,20 @@ export default class ConfigView extends Vue {
           await this.$store.dispatch("operationHistory/resume", {
             testResultId,
           });
+          const history = this.$store.getters["operationHistory/getHistory"]();
+          const readResultData = await this.$store.dispatch(
+            "operationHistory/getTestResult",
+            {
+              testResultId,
+            }
+          );
+          const testingTime = Util.calculateElapsedEpochMillis(
+            readResultData?.startTimeStamp ?? 0,
+            history
+          );
+          this.$store.dispatch("captureControl/resetTimer", {
+            millis: testingTime,
+          });
         } catch (error) {
           if (error instanceof Error) {
             console.error(error);
