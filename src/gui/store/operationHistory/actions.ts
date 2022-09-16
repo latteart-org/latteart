@@ -39,7 +39,7 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
+import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
@@ -65,8 +65,8 @@ import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNotice
 import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -749,62 +749,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async resume(context, payload: { testResultId: string }) {
+  async loadHistory(context, payload: { testResultId: string }) {
     context.commit(
       "captureControl/setIsResuming",
       { isResuming: true },
       { root: true }
     );
 
-    const result = await new ResumeAction(
-      {
-        clearTestStepIds: () => {
-          context.commit("clearTestStepIds");
-        },
-        registerTestStepId: (testStepId: string) => {
-          context.commit("addTestStepId", { testStepId });
-          const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
-          return sequence;
-        },
-        setResumedData: async (data) => {
-          context.commit("clearHistory");
-          context.commit("clearModels");
-          context.commit("clearInputValueTable");
-          context.commit("selectWindow", { windowHandle: "" });
-
-          context.commit("resetAllCoverageSources", {
-            coverageSources: data.coverageSources,
-          });
-          context.commit("resetHistory", {
-            historyItems: data.historyItems,
-          });
-          context.commit(
-            "captureControl/setUrl",
-            { url: data.url },
-            { root: true }
-          );
-          context.commit("setTestResultInfo", {
-            repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-            ...data.testResultInfo,
-          });
-
-          await context.dispatch(
-            "captureControl/resumeWindowHandles",
-            { history: context.state.history },
-            { root: true }
-          );
-
-          await context.dispatch("updateScreenHistory");
-        },
-      },
+    const result = await new LoadHistoryAction(
       context.rootState.repositoryContainer
-    ).resume(payload.testResultId);
-
-    context.commit(
-      "captureControl/setIsResuming",
-      { isResuming: false },
-      { root: true }
-    );
+    ).loadHistory(payload.testResultId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -814,6 +768,60 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+
+    context.commit("clearTestStepIds");
+
+    for (const testStepId of result.data.testStepIds) {
+      context.commit("addTestStepId", { testStepId });
+    }
+
+    context.commit("clearHistory");
+    context.commit("clearModels");
+    context.commit("clearInputValueTable");
+    context.commit("selectWindow", { windowHandle: "" });
+
+    context.commit("resetAllCoverageSources", {
+      coverageSources: result.data.coverageSources,
+    });
+    context.commit("resetHistory", {
+      historyItems: result.data.historyItems,
+    });
+    context.commit(
+      "captureControl/setUrl",
+      { url: result.data.url },
+      { root: true }
+    );
+    context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      ...result.data.testResultInfo,
+    });
+
+    await context.dispatch(
+      "captureControl/resumeWindowHandles",
+      { history: context.state.history },
+      { root: true }
+    );
+
+    await context.dispatch("updateScreenHistory");
+
+    const history = context.getters.getHistory();
+
+    const testingTime = calculateElapsedEpochMillis(
+      result.data.startTimeStamp,
+      history
+    );
+
+    context.dispatch(
+      "captureControl/resetTimer",
+      { millis: testingTime },
+      { root: true }
+    );
+
+    context.commit(
+      "captureControl/setIsResuming",
+      { isResuming: false },
+      { root: true }
+    );
   },
 
   /**
@@ -1458,34 +1466,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const changedName = result.data;
     context.commit("setTestResultName", { name: changedName });
-  },
-
-  async getTestResult(
-    context,
-    payload: { testResultId: string }
-  ): Promise<{
-    id: string;
-    name: string;
-    startTimeStamp: number;
-    endTimeStamp: number;
-    initialUrl: string;
-  }> {
-    const result = await new GetTestResultAction(
-      context.rootState.repositoryContainer
-    ).getTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    console.log(result);
-
-    return result.data;
   },
 
   async getScreenshots(context, payload: { testResultId: string }) {
