@@ -234,7 +234,9 @@ export default class ReviewView extends Vue {
       this.isResuming = true;
 
       try {
-        await this.$store.dispatch("operationHistory/resume", { testResultId });
+        await this.$store.dispatch("operationHistory/loadHistory", {
+          testResultId,
+        });
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);

@@ -496,7 +496,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "resume_failed": "テスト結果の読み込みに失敗しました。",
+      "load_history_failed": "テスト結果の読み込みに失敗しました。",
       "illegal_test_result": "テスト結果のフォーマットが不正です。",
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",

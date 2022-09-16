@@ -492,7 +492,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
-      "resume_failed": "Failed to load a test result.",
+      "load_history_failed": "Failed to load a test result.",
       "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
