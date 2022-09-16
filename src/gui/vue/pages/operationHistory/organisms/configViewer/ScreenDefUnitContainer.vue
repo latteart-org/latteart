@@ -16,31 +16,33 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-btn @click="addScreenDefinitionConditions">{{
+    <v-btn @click="addConditionGroup">{{
       $store.getters.message("config-view.screen-def.advanced-add")
     }}</v-btn>
     <draggable
       :list="conditionGroups"
       @start="dragging = true"
       @end="dragging = false"
-      @change="changeConditionGroups"
+      @change="changeOrder"
     >
       <screen-def-unit
         v-for="(item, index) in conditionGroups"
         :key="index + item.screenName"
         :conditionGroup="item"
         :index="index"
-        @update-unit="updateScreenDefinitionConditions"
+        @update-condition-group="updateConditionGroup"
+        @delete-condition-group="deleteConditionGroup"
       ></screen-def-unit>
     </draggable>
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import draggable from "vuedraggable";
+import { ScreenDefinition } from "@/lib/common/settings/Settings";
 
 @Component({
   components: {
@@ -49,22 +51,26 @@ import draggable from "vuedraggable";
   },
 })
 export default class ScreenDefUnitContainer extends Vue {
+  @Prop({ type: Object, default: null })
+  public readonly screenDefinition!: ScreenDefinition;
+
   private get conditionGroups(): Array<ScreenDefinitionConditionGroup> {
-    return (
-      this.$store.state.operationHistory.config.screenDefinition
-        .conditionGroups ?? []
-    );
+    return this.screenDefinition?.conditionGroups ?? [];
   }
 
-  private changeConditionGroups(): void {
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      canUpdateModels: true,
-    });
+  private set conditionGroups(
+    conditionGroups: Array<ScreenDefinitionConditionGroup>
+  ) {
+    this.$emit("update-condition-groups", conditionGroups);
   }
 
-  private addScreenDefinitionConditions() {
-    const addConditions = this.conditionGroups.slice();
-    addConditions.push({
+  private changeOrder() {
+    this.conditionGroups = [...this.conditionGroups];
+  }
+
+  private addConditionGroup() {
+    const conditionGroups = this.conditionGroups;
+    conditionGroups.push({
       isEnabled: true,
       screenName: "",
       conditions: [
@@ -76,56 +82,26 @@ export default class ScreenDefUnitContainer extends Vue {
         },
       ],
     });
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          screenDefinition: {
-            screenDefType:
-              this.$store.state.operationHistory.config.screenDefinition
-                .screenDefType,
-            conditionGroups: addConditions,
-          },
-        },
-      });
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        canUpdateModels: true,
-      });
-    })();
+    this.conditionGroups = conditionGroups;
   }
 
-  private updateScreenDefinitionConditions(screenDefinitionConditionsWithindex: {
-    conditionGroup?: ScreenDefinitionConditionGroup;
+  private deleteConditionGroup(groupIndex: number) {
+    console.log(groupIndex);
+    this.conditionGroups = this.conditionGroups.filter(
+      (g, i) => i !== groupIndex
+    );
+    console.log(this.conditionGroups);
+  }
+
+  private updateConditionGroup(conditionGroupWithindex: {
+    conditionGroup: ScreenDefinitionConditionGroup;
     index: number;
   }) {
-    const conditionGroups = screenDefinitionConditionsWithindex.conditionGroup
-      ? this.conditionGroups.map((def, index) => {
-          if (index === screenDefinitionConditionsWithindex.index) {
-            return screenDefinitionConditionsWithindex.conditionGroup;
-          }
-          return def;
-        })
-      : this.conditionGroups.filter((def, index) => {
-          if (index === screenDefinitionConditionsWithindex.index) {
-            return false;
-          }
-          return true;
-        });
-
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          screenDefinition: {
-            screenDefType:
-              this.$store.state.operationHistory.config.screenDefinition
-                .screenDefType,
-            conditionGroups,
-          },
-        },
-      });
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        canUpdateModels: true,
-      });
-    })();
+    this.conditionGroups = this.conditionGroups.map((c, i) => {
+      return conditionGroupWithindex.index !== i
+        ? c
+        : conditionGroupWithindex.conditionGroup;
+    });
   }
 }
 </script>

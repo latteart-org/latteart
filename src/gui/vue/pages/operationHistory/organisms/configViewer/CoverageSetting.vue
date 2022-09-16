@@ -36,7 +36,7 @@
               {{ tag }}
             </v-flex>
             <v-flex xs2 ma-0 pa-0 align-right>
-              <v-checkbox v-model="checkBoxList" :value="tag" />
+              <v-checkbox v-model="tags" :value="tag" />
             </v-flex>
           </v-layout>
         </v-card-text>
@@ -51,32 +51,30 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class CoverageSetting extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Array, default: () => [] })
+  public readonly includeTags!: string[];
+  @Prop({ type: Array, default: () => [] }) public defaultTagList!: string[];
 
   private inclusionTagMap = new Map();
-  private tagList = [];
+  private tags: string[] = [];
+  private displayInclusionList: string[] = [];
+  private tagList: string[] = [];
 
-  private get checkBoxList() {
-    this.initInclusionTagMap();
-    this.$store.state.operationHistory.config.coverage.include.tags.forEach(
-      (tag: string) => {
-        this.inclusionTagMap.set(tag, true);
-      }
+  @Watch("includeTags")
+  private changeIncludeTags() {
+    this.tags = this.includeTags;
+    this.displayInclusionList = Array.from(
+      new Set(this.tags.concat(this.defaultTagList))
     );
-    return this.$store.state.operationHistory.config.coverage.include.tags;
+    this.createInclusionTagMap();
   }
 
-  private set checkBoxList(list: string[]) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          coverage: { include: { tags: list } },
-        },
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        canUpdateModels: true,
-      });
-    })();
+  @Watch("tags")
+  private changeTags() {
+    this.$emit("save-config", {
+      coverage: { include: { tags: this.tags } },
+    });
+    this.createInclusionTagMap();
   }
 
   @Watch("opened")
@@ -84,39 +82,32 @@ export default class CoverageSetting extends Vue {
     if (!opened) {
       return;
     }
-    this.initInclusionTagMap();
-    this.$store.state.operationHistory.config.coverage.include.tags.forEach(
-      (tag: string) => {
-        this.inclusionTagMap.set(tag, true);
-      }
-    );
 
-    this.tagList = this.$store.state.operationHistory.displayInclusionList.sort(
-      (a: string, b: string) => {
-        const aVal = this.inclusionTagMap.get(a);
-        const bVal = this.inclusionTagMap.get(b);
-        if (!!aVal > !!bVal) {
-          return -1;
-        } else if (!!aVal < !!bVal) {
-          return 1;
-        }
-        if (a < b) {
-          return -1;
-        } else if (a > b) {
-          return 1;
-        }
-        return 0;
+    this.tagList = this.displayInclusionList.sort((a: string, b: string) => {
+      const aVal = this.inclusionTagMap.get(a);
+      const bVal = this.inclusionTagMap.get(b);
+      if (!!aVal > !!bVal) {
+        return -1;
+      } else if (!!aVal < !!bVal) {
+        return 1;
       }
-    );
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
-  private initInclusionTagMap() {
+  private createInclusionTagMap() {
     const tagMap = new Map();
-    this.$store.state.operationHistory.displayInclusionList.forEach(
-      (tag: string) => {
-        tagMap.set(tag, false);
-      }
-    );
+    this.displayInclusionList.forEach((tag: string) => {
+      tagMap.set(tag, false);
+    });
+    this.tags.forEach((tag) => {
+      tagMap.set(tag, true);
+    });
     this.inclusionTagMap = tagMap;
   }
 }

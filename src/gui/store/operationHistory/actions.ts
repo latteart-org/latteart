@@ -1501,133 +1501,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return result.data.url;
   },
 
-  async updateAutofillSetting(
-    context,
-    payload: {
-      autoPopupRegistrationDialog?: boolean;
-      autoPopupSelectionDialog?: boolean;
+  async fetchConfig(context) {
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryContainer
+    ).readSettings();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
-  ) {
-    await context.dispatch("writeSettings", {
-      config: {
-        autofillSetting: {
-          ...context.state.config.autofillSetting,
-          ...payload,
-        },
-      },
-    });
-  },
-
-  async updateAutofillConditionGroup(
-    context,
-    payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
-  ) {
-    const autofillSetting = { ...context.state.config.autofillSetting };
-    autofillSetting.conditionGroups =
-      payload.index < 0
-        ? [
-            ...autofillSetting.conditionGroups,
-            {
-              isEnabled: true,
-              settingName: "",
-              url: "",
-              title: "",
-              inputValueConditions: [],
-              ...payload.conditionGroup,
-            },
-          ]
-        : context.state.config.autofillSetting.conditionGroups.map(
-            (group, index) => {
-              return index !== payload.index
-                ? group
-                : { ...group, ...payload.conditionGroup };
-            }
-          );
-    await context.dispatch("writeSettings", {
-      config: {
-        autofillSetting,
-      },
-    });
-  },
-
-  async deleteAutofillConditionGroup(context, payload: { index: number }) {
-    const autofillSetting = context.state.config.autofillSetting;
-    (autofillSetting.conditionGroups =
-      context.state.config.autofillSetting.conditionGroups.filter(
-        (group, index) => index !== payload.index
-      )),
-      await context.dispatch("writeSettings", {
-        config: {
-          autofillSetting,
-        },
-      });
-  },
-
-  /**
-   *
-   * @param context
-   */
-  async updateAutofillCondition(
-    context,
-    payload: {
-      condition: Partial<AutofillCondition>;
-      conditionIndex: number;
-      conditionGroupIndex: number;
-    }
-  ) {
-    if (
-      context.state.config.autofillSetting.conditionGroups.length <=
-      payload.conditionGroupIndex
-    ) {
-      return;
-    }
-    const targetGroup =
-      context.state.config.autofillSetting.conditionGroups[
-        payload.conditionGroupIndex
-      ];
-
-    if (targetGroup.inputValueConditions.length <= payload.conditionIndex) {
-      return;
-    }
-    payload.conditionIndex < 0
-      ? targetGroup.inputValueConditions.push({
-          isEnabled: true,
-          locatorType: "id",
-          locator: "",
-          locatorMatchType: "equals",
-          inputValue: "",
-        })
-      : (targetGroup.inputValueConditions[payload.conditionIndex] = {
-          ...targetGroup.inputValueConditions[payload.conditionIndex],
-          ...payload.condition,
-        });
-
-    await context.dispatch("updateAutofillConditionGroup", {
-      conditionGroup: targetGroup,
-      index: payload.conditionGroupIndex,
-    });
-  },
-
-  async deleteAutofillCondition(
-    context,
-    payload: { conditionIndex: number; conditionGroupIndex: number }
-  ) {
-    const newGroup = context.state.config.autofillSetting.conditionGroups.map(
-      (group, index) => {
-        if (index === payload.conditionGroupIndex) {
-          group.inputValueConditions = group.inputValueConditions.filter(
-            (condition, index) => index !== payload.conditionIndex
-          );
-        }
-
-        return group;
-      }
-    );
-
-    await context.dispatch("updateAutofillConditionGroup", {
-      conditionGroup: newGroup,
-      index: payload.conditionGroupIndex,
-    });
+    return result.data;
   },
 };
 

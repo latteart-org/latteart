@@ -89,7 +89,7 @@ export default class AutofillSetting extends Vue {
 
   @Watch("config")
   saveAutofillSetting(): void {
-    this.$store.dispatch("operationHistory/updateAutofillSetting", this.config);
+    this.$emit("save-config", { autofillSetting: this.config });
   }
 
   private get conditionGroups(): AutofillConditionGroup[] {

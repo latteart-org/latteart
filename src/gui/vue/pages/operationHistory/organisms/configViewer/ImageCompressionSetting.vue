@@ -23,6 +23,7 @@
           :label="
             $store.getters.message('config-view.image-compression-enabled')
           "
+          @change="saveConfig"
         >
         </v-checkbox>
       </v-flex>
@@ -35,6 +36,7 @@
             )
           "
           :disabled="!isEnableCompression"
+          @change="saveConfig"
         >
         </v-checkbox>
       </v-flex>
@@ -43,45 +45,30 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { ImageCompression } from "@/lib/common/settings/Settings";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class ImageCompressionSetting extends Vue {
-  private get isEnableCompression(): boolean {
-    return this.$store.state.operationHistory.config.imageCompression.isEnabled;
-  }
-  private set isEnableCompression(isEnabled: boolean) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          imageCompression: {
-            isEnabled,
-            isDeleteSrcImage:
-              this.$store.state.operationHistory.config.imageCompression
-                .isDeleteSrcImage,
-          },
-        },
-      });
-    })();
+  @Prop({ type: Object, default: null })
+  public readonly imageCompression!: ImageCompression;
+
+  private isEnableCompression = false;
+  private isDeleteSrcImage = false;
+
+  @Watch("imageCompression")
+  private setConfig() {
+    this.isEnableCompression = this.imageCompression.isEnabled;
+    this.isDeleteSrcImage = this.imageCompression.isDeleteSrcImage;
   }
 
-  private get isDeleteSrcImage(): boolean {
-    return this.$store.state.operationHistory.config.imageCompression
-      .isDeleteSrcImage;
-  }
-  private set isDeleteSrcImage(isDelete: boolean) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          imageCompression: {
-            isEnabled:
-              this.$store.state.operationHistory.config.imageCompression
-                .isEnabled,
-            isDeleteSrcImage: isDelete,
-          },
-        },
-      });
-    })();
+  private saveConfig() {
+    this.$emit("save-config", {
+      imageCompression: {
+        isEnabled: this.isEnableCompression,
+        isDeleteSrcImage: this.isDeleteSrcImage,
+      },
+    });
   }
 }
 </script>

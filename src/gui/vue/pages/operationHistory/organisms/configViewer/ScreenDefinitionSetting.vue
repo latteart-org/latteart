@@ -26,7 +26,7 @@
           }}
         </h4>
         <v-radio-group
-          :value="screenDefType"
+          :value="config.screenDefType"
           class="py-0 my-0"
           row
           @change="changeScreenDefType"
@@ -51,14 +51,20 @@
             $store.getters.message("config-view.screen-def.priority-condition")
           }}
         </h4>
-        <screen-def-unit-container></screen-def-unit-container>
+        <screen-def-unit-container
+          :screenDefinition="config"
+          @update-condition-groups="updateConditionGroups"
+        ></screen-def-unit-container>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
+import { ScreenDefinition } from "@/lib/common/settings/Settings";
+import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
 
 @Component({
@@ -67,27 +73,36 @@ import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
   },
 })
 export default class ScreenDefinitionSetting extends Vue {
-  private changeScreenDefType(screenDefType: string): void {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          screenDefinition: {
-            screenDefType,
-            conditionGroups:
-              this.$store.state.operationHistory.config.screenDefinition
-                .conditionGroups,
-          },
-        },
-      });
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        canUpdateModels: true,
-      });
-    })();
+  @Prop({ type: Object, default: null })
+  public readonly screenDefinition!: ScreenDefinition;
+
+  private config: ScreenDefinition = this.screenDefinition;
+
+  @Watch("screenDefinition")
+  private getScreenDefType() {
+    this.config = this.screenDefinition;
   }
 
-  private get screenDefType() {
-    return this.$store.state.operationHistory.config.screenDefinition
-      .screenDefType;
+  @Watch("config")
+  saveAutofillSetting(): void {
+    this.$emit("save-config", { screenDefinition: this.config });
+  }
+
+  private updateConditionGroups(
+    conditionGroups: ScreenDefinitionConditionGroup[]
+  ) {
+    console.log(conditionGroups);
+    this.config = {
+      ...this.config,
+      conditionGroups,
+    };
+  }
+
+  private changeScreenDefType(screenDefType: ScreenDefType): void {
+    this.config = {
+      ...this.config,
+      screenDefType,
+    };
   }
 }
 </script>

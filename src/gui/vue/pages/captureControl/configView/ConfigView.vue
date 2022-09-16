@@ -89,8 +89,8 @@
                 }}
               </template>
               <image-compression-setting
-                :isEnableCompression="isEnableCompression"
-                :isDeleteSrcImage="isDeleteSrcImage"
+                :imageCompression="imageCompression"
+                @save-config="saveConfig"
               >
               </image-compression-setting>
             </v-expansion-panel-content>
@@ -101,7 +101,12 @@
                   $store.getters.message("config-view.setting-inclusion-tags")
                 }}
               </template>
-              <coverage-setting :opened="coverageOpened" :tags="includeTags">
+              <coverage-setting
+                :opened="coverageOpened"
+                :include-tags="includeTags"
+                :default-tag-list="defaultTagList"
+                @save-config="saveConfig"
+              >
               </coverage-setting>
             </v-expansion-panel-content>
 
@@ -109,7 +114,10 @@
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
-              <screen-definition-setting :screenDefinition="screenDefinition">
+              <screen-definition-setting
+                :screenDefinition="screenDefinition"
+                @save-config="saveConfig"
+              >
               </screen-definition-setting>
             </v-expansion-panel-content>
 
@@ -117,7 +125,10 @@
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>
-              <autofill-setting :autofillSetting="autofillSetting">
+              <autofill-setting
+                :autofillSetting="autofillSetting"
+                @save-config="saveConfig"
+              >
               </autofill-setting>
             </v-expansion-panel-content>
           </v-expansion-panel>
@@ -146,7 +157,11 @@ import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
-import Settings, { ScreenDefinition } from "@/lib/common/settings/Settings";
+import Settings, {
+  Coverage,
+  ImageCompression,
+  ScreenDefinition,
+} from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import { AutofillSetting } from "@/lib/operationHistory/types";
 
@@ -181,16 +196,21 @@ export default class ConfigView extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  private get isEnableCompression(): boolean {
-    return this.settings?.config?.imageCompression.isEnabled ?? false;
-  }
-
-  private get isDeleteSrcImage(): boolean {
-    return this.settings?.config.imageCompression.isDeleteSrcImage ?? false;
+  private get imageCompression(): ImageCompression {
+    return (
+      this.settings?.config?.imageCompression ?? {
+        isEnabled: false,
+        isDeleteSrcImage: false,
+      }
+    );
   }
 
   private get includeTags(): string[] {
     return this.settings?.config.coverage.include.tags ?? [];
+  }
+
+  private get defaultTagList(): string[] {
+    return this.$store.state.operationHistory.defaultTagList;
   }
 
   private get screenDefinition(): ScreenDefinition {
@@ -388,6 +408,21 @@ export default class ConfigView extends Vue {
   private async initialize(): Promise<void> {
     await this.$store.dispatch("operationHistory/readSettings");
     await this.$store.dispatch("testManagement/readDataFile");
+  }
+
+  private async saveConfig(config: {
+    autofillSetting?: AutofillSetting;
+    screenDefinition?: ScreenDefinition;
+    coverage?: Coverage;
+    imageCompression?: ImageCompression;
+  }) {
+    await this.$store.dispatch("operationHistory/writeSettings", { config });
+
+    if (config.screenDefinition || config.coverage) {
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    }
   }
 }
 </script>
