@@ -86,11 +86,9 @@ export default class ScreenDefUnitContainer extends Vue {
   }
 
   private deleteConditionGroup(groupIndex: number) {
-    console.log(groupIndex);
     this.conditionGroups = this.conditionGroups.filter(
       (g, i) => i !== groupIndex
     );
-    console.log(this.conditionGroups);
   }
 
   private updateConditionGroup(conditionGroupWithindex: {

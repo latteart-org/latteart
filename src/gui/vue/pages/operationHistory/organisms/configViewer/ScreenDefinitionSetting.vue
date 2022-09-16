@@ -91,7 +91,6 @@ export default class ScreenDefinitionSetting extends Vue {
   private updateConditionGroups(
     conditionGroups: ScreenDefinitionConditionGroup[]
   ) {
-    console.log(conditionGroups);
     this.config = {
       ...this.config,
       conditionGroups,
