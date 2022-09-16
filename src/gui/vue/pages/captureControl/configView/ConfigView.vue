@@ -259,7 +259,7 @@ export default class ConfigView extends Vue {
             await this.initialize();
           }
 
-          await this.$store.dispatch("operationHistory/resume", {
+          await this.$store.dispatch("operationHistory/loadHistory", {
             testResultId,
           });
         } catch (error) {
