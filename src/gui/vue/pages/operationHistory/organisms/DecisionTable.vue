@@ -201,7 +201,9 @@ export default class DecisionTable extends Vue {
   private selectedColumnNotes = [];
   private selectedColumnTestSteps = [];
 
-  private isViewerMode = (this as any).$isViewerMode ?? false;
+  private get isViewerMode(): boolean {
+    return (this as any).$isViewerMode ?? false;
+  }
 
   private get inputValueTable(): InputValueTable {
     return this.$store.state.operationHistory.inputValueTable;
