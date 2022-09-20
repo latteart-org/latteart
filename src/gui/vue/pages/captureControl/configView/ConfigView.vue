@@ -88,7 +88,11 @@
                   )
                 }}
               </template>
-              <image-compression-setting> </image-compression-setting>
+              <image-compression-setting
+                :imageCompression="imageCompression"
+                @save-config="saveConfig"
+              >
+              </image-compression-setting>
             </v-expansion-panel-content>
 
             <v-expansion-panel-content v-if="configureCaptureSettings">
@@ -97,21 +101,35 @@
                   $store.getters.message("config-view.setting-inclusion-tags")
                 }}
               </template>
-              <coverage-setting :opened="coverageOpened"> </coverage-setting>
+              <coverage-setting
+                :opened="coverageOpened"
+                :include-tags="includeTags"
+                :default-tag-list="defaultTagList"
+                @save-config="saveConfig"
+              >
+              </coverage-setting>
             </v-expansion-panel-content>
 
             <v-expansion-panel-content v-if="configureCaptureSettings">
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
-              <screen-definition-setting> </screen-definition-setting>
+              <screen-definition-setting
+                :screenDefinition="screenDefinition"
+                @save-config="saveConfig"
+              >
+              </screen-definition-setting>
             </v-expansion-panel-content>
 
             <v-expansion-panel-content v-if="configureCaptureSettings">
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>
-              <autofill-setting> </autofill-setting>
+              <autofill-setting
+                :autofillSetting="autofillSetting"
+                @save-config="saveConfig"
+              >
+              </autofill-setting>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
@@ -129,20 +147,31 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import { PlatformName, Browser } from "@/lib/common/enum/SettingsEnum";
+import {
+  PlatformName,
+  Browser,
+  ScreenDefType,
+} from "@/lib/common/enum/SettingsEnum";
 import * as Util from "@/lib/common/util";
 import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer/CoverageSetting.vue";
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
-import AutofillSetting from "@/vue/pages/operationHistory/organisms/configViewer/AutofillSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import Settings, {
+  Coverage,
+  ImageCompression,
+  ScreenDefinition,
+} from "@/lib/common/settings/Settings";
+import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
+import { AutofillSetting } from "@/lib/operationHistory/types";
+
 @Component({
   components: {
     "number-field": NumberField,
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
-    "autofill-setting": AutofillSetting,
+    "autofill-setting": AutofillSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
@@ -161,8 +190,46 @@ export default class ConfigView extends Vue {
     osVersion: string;
   }[] = [];
 
+  private settings: Settings | null = null;
+
   private get locale() {
     return this.$store.getters.getLocale();
+  }
+
+  private get imageCompression(): ImageCompression {
+    return (
+      this.settings?.config?.imageCompression ?? {
+        isEnabled: false,
+        isDeleteSrcImage: false,
+      }
+    );
+  }
+
+  private get includeTags(): string[] {
+    return this.settings?.config.coverage.include.tags ?? [];
+  }
+
+  private get defaultTagList(): string[] {
+    return this.$store.state.operationHistory.defaultTagList;
+  }
+
+  private get screenDefinition(): ScreenDefinition {
+    return (
+      this.settings?.config.screenDefinition ?? {
+        screenDefType: ScreenDefType.Title,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autofillSetting(): AutofillSetting {
+    return (
+      this.settings?.config.autofillSetting ?? {
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      }
+    );
   }
 
   @Watch("locale")
@@ -172,7 +239,10 @@ export default class ConfigView extends Vue {
     });
   }
 
-  private created() {
+  private async created() {
+    this.settings = await this.$store.dispatch("operationHistory/fetchConfig");
+    console.log(this.settings);
+
     this.updateWindowTitle();
     this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
 
@@ -338,6 +408,21 @@ export default class ConfigView extends Vue {
   private async initialize(): Promise<void> {
     await this.$store.dispatch("operationHistory/readSettings");
     await this.$store.dispatch("testManagement/readDataFile");
+  }
+
+  private async saveConfig(config: {
+    autofillSetting?: AutofillSetting;
+    screenDefinition?: ScreenDefinition;
+    coverage?: Coverage;
+    imageCompression?: ImageCompression;
+  }) {
+    await this.$store.dispatch("operationHistory/writeSettings", { config });
+
+    if (config.screenDefinition || config.coverage) {
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    }
   }
 }
 </script>
