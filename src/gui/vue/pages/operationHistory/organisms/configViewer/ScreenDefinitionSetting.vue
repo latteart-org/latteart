@@ -26,7 +26,7 @@
           }}
         </h4>
         <v-radio-group
-          :value="config.screenDefType"
+          :value="tempConfig.screenDefType"
           class="py-0 my-0"
           row
           @change="changeScreenDefType"
@@ -52,7 +52,7 @@
           }}
         </h4>
         <screen-def-unit-container
-          :screenDefinition="config"
+          :screenDefinition="tempConfig"
           @update-condition-groups="updateConditionGroups"
         ></screen-def-unit-container>
       </v-flex>
@@ -76,30 +76,30 @@ export default class ScreenDefinitionSetting extends Vue {
   @Prop({ type: Object, default: null })
   public readonly screenDefinition!: ScreenDefinition;
 
-  private config: ScreenDefinition = this.screenDefinition;
+  private tempConfig: ScreenDefinition = this.screenDefinition;
 
   @Watch("screenDefinition")
-  private getScreenDefType() {
-    this.config = this.screenDefinition;
+  private updateTempConfig() {
+    this.tempConfig = this.screenDefinition;
   }
 
-  @Watch("config")
-  saveAutofillSetting(): void {
-    this.$emit("save-config", { screenDefinition: this.config });
+  @Watch("tempConfig")
+  saveConfig(): void {
+    this.$emit("save-config", { screenDefinition: this.tempConfig });
   }
 
   private updateConditionGroups(
     conditionGroups: ScreenDefinitionConditionGroup[]
   ) {
-    this.config = {
-      ...this.config,
+    this.tempConfig = {
+      ...this.tempConfig,
       conditionGroups,
     };
   }
 
   private changeScreenDefType(screenDefType: ScreenDefType): void {
-    this.config = {
-      ...this.config,
+    this.tempConfig = {
+      ...this.tempConfig,
       screenDefType,
     };
   }

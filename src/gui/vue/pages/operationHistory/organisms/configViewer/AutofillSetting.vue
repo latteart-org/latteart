@@ -80,48 +80,48 @@ export default class AutofillSetting extends Vue {
   })
   public readonly autofillSetting!: AutofillSettingConfig;
 
-  private config: AutofillSettingConfig = this.autofillSetting;
+  private tempConfig: AutofillSettingConfig = this.autofillSetting;
 
   @Watch("autofillSetting")
-  propAutofillSetting(): void {
-    this.config = this.autofillSetting;
+  updateTempConfig(): void {
+    this.tempConfig = this.autofillSetting;
   }
 
-  @Watch("config")
-  saveAutofillSetting(): void {
-    this.$emit("save-config", { autofillSetting: this.config });
+  @Watch("tempConfig")
+  saveConfig(): void {
+    this.$emit("save-config", { autofillSetting: this.tempConfig });
   }
 
   private get conditionGroups(): AutofillConditionGroup[] {
-    return this.config.conditionGroups;
+    return this.tempConfig.conditionGroups;
   }
 
   private get autoPopupRegistrationDialog(): boolean {
-    return this.config.autoPopupRegistrationDialog;
+    return this.tempConfig.autoPopupRegistrationDialog;
   }
 
   private set autoPopupRegistrationDialog(
     autoPopupRegistrationDialog: boolean
   ) {
-    this.config = {
-      ...this.config,
+    this.tempConfig = {
+      ...this.tempConfig,
       autoPopupRegistrationDialog,
     };
   }
 
   private get autoPopupSelectionDialog(): boolean {
-    return this.config.autoPopupSelectionDialog;
+    return this.tempConfig.autoPopupSelectionDialog;
   }
 
   private set autoPopupSelectionDialog(autoPopupSelectionDialog: boolean) {
-    this.config = {
-      ...this.config,
+    this.tempConfig = {
+      ...this.tempConfig,
       autoPopupSelectionDialog,
     };
   }
 
   private addConditionGroup() {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups.push({
       isEnabled: true,
       settingName: "",
@@ -129,14 +129,14 @@ export default class AutofillSetting extends Vue {
       title: "",
       inputValueConditions: [],
     });
-    this.config = config;
+    this.tempConfig = config;
   }
 
   private updateConditionGroup(
     conditionGroup: Partial<AutofillConditionGroup>,
     index: number
   ) {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.map((group, i) => {
       if (index === i) {
         return {
@@ -146,11 +146,11 @@ export default class AutofillSetting extends Vue {
       }
       return group;
     });
-    this.config = config;
+    this.tempConfig = config;
   }
 
   private addCondition(index: number) {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.map((g, i) => {
       if (index === i) {
         g.inputValueConditions.push({
@@ -163,7 +163,7 @@ export default class AutofillSetting extends Vue {
       }
       return g;
     });
-    this.config = config;
+    this.tempConfig = config;
   }
 
   private updateCondition(
@@ -171,7 +171,7 @@ export default class AutofillSetting extends Vue {
     conditionIndex: number,
     conditionGroupIndex: number
   ) {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.map((g, i) => {
       if (conditionGroupIndex === i) {
         g.inputValueConditions = g.inputValueConditions.map((c, j) => {
@@ -180,19 +180,19 @@ export default class AutofillSetting extends Vue {
       }
       return g;
     });
-    this.config = config;
+    this.tempConfig = config;
   }
 
   private deleteConditionGroup(index: number) {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.filter(
       (c, i) => index !== i
     );
-    this.config = config;
+    this.tempConfig = config;
   }
 
   private deleteCondition(conditionIndex: number, conditionGroupIndex: number) {
-    const config = { ...this.config };
+    const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.map((g, i) => {
       if (conditionGroupIndex === i) {
         g.inputValueConditions = g.inputValueConditions.filter(
@@ -201,7 +201,7 @@ export default class AutofillSetting extends Vue {
       }
       return g;
     });
-    this.config = config;
+    this.tempConfig = config;
   }
 }
 </script>

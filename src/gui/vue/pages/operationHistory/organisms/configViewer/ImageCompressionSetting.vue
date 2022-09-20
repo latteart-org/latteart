@@ -19,7 +19,7 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-checkbox
-          v-model="isEnableCompression"
+          v-model="tempConfig.isEnabled"
           :label="
             $store.getters.message('config-view.image-compression-enabled')
           "
@@ -29,13 +29,13 @@
       </v-flex>
       <v-flex xs12>
         <v-checkbox
-          v-model="isDeleteSrcImage"
+          v-model="tempConfig.isDeleteSrcImage"
           :label="
             $store.getters.message(
               'config-view.image-compression-delete-source-image'
             )
           "
-          :disabled="!isEnableCompression"
+          :disabled="!tempConfig.isEnabled"
           @change="saveConfig"
         >
         </v-checkbox>
@@ -53,21 +53,19 @@ export default class ImageCompressionSetting extends Vue {
   @Prop({ type: Object, default: null })
   public readonly imageCompression!: ImageCompression;
 
-  private isEnableCompression = false;
-  private isDeleteSrcImage = false;
+  private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
+    isEnabled: false,
+    isDeleteSrcImage: false,
+  };
 
   @Watch("imageCompression")
-  private setConfig() {
-    this.isEnableCompression = this.imageCompression.isEnabled;
-    this.isDeleteSrcImage = this.imageCompression.isDeleteSrcImage;
+  private updateTempConfig() {
+    this.tempConfig = this.imageCompression;
   }
 
   private saveConfig() {
     this.$emit("save-config", {
-      imageCompression: {
-        isEnabled: this.isEnableCompression,
-        isDeleteSrcImage: this.isDeleteSrcImage,
-      },
+      imageCompression: this.tempConfig,
     });
   }
 }

@@ -70,7 +70,7 @@ export default class CoverageSetting extends Vue {
   }
 
   @Watch("tags")
-  private changeTags() {
+  private saveTags() {
     this.$emit("save-config", {
       coverage: { include: { tags: this.tags } },
     });
@@ -78,7 +78,7 @@ export default class CoverageSetting extends Vue {
   }
 
   @Watch("opened")
-  private changeOpened(opened: boolean) {
+  private updateTagList(opened: boolean) {
     if (!opened) {
       return;
     }
