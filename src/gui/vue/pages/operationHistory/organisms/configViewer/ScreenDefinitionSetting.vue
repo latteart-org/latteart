@@ -76,7 +76,7 @@ export default class ScreenDefinitionSetting extends Vue {
   @Prop({ type: Object, default: null })
   public readonly screenDefinition!: ScreenDefinition;
 
-  private tempConfig: ScreenDefinition = this.screenDefinition;
+  private tempConfig: ScreenDefinition = { ...this.screenDefinition };
 
   @Watch("screenDefinition")
   private updateTempConfig() {

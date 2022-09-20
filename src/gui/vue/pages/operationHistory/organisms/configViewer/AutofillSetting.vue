@@ -80,7 +80,7 @@ export default class AutofillSetting extends Vue {
   })
   public readonly autofillSetting!: AutofillSettingConfig;
 
-  private tempConfig: AutofillSettingConfig = this.autofillSetting;
+  private tempConfig: AutofillSettingConfig = { ...this.autofillSetting };
 
   @Watch("autofillSetting")
   updateTempConfig(): void {
