@@ -1481,6 +1481,38 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return result.data.url;
   },
 
+  async updateAutofillConditionGroup(
+    context,
+    payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
+  ) {
+    const autofillSetting = { ...context.state.config.autofillSetting };
+    autofillSetting.conditionGroups =
+      payload.index < 0
+        ? [
+            ...autofillSetting.conditionGroups,
+            {
+              isEnabled: true,
+              settingName: "",
+              url: "",
+              title: "",
+              inputValueConditions: [],
+              ...payload.conditionGroup,
+            },
+          ]
+        : context.state.config.autofillSetting.conditionGroups.map(
+            (group, index) => {
+              return index !== payload.index
+                ? group
+                : { ...group, ...payload.conditionGroup };
+            }
+          );
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting,
+      },
+    });
+  },
+
   async fetchConfig(context) {
     const result = await new ReadSettingAction(
       context.rootState.repositoryContainer
