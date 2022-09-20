@@ -80,7 +80,7 @@ export default class ScreenDefinitionSetting extends Vue {
 
   @Watch("screenDefinition")
   private updateTempConfig() {
-    this.tempConfig = this.screenDefinition;
+    this.tempConfig = { ...this.screenDefinition };
   }
 
   @Watch("tempConfig")

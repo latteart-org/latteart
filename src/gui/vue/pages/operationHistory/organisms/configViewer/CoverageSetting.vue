@@ -67,7 +67,7 @@ export default class CoverageSetting extends Vue {
 
   @Watch("includeTags")
   private updateTempConfig() {
-    this.tempTags = this.includeTags;
+    this.tempTags = [...this.includeTags];
     this.tempDisplayInclusionList = Array.from(
       new Set(this.tempTags.concat(this.defaultTagList))
     );

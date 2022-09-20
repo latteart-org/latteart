@@ -60,7 +60,7 @@ export default class ImageCompressionSetting extends Vue {
 
   @Watch("imageCompression")
   private updateTempConfig() {
-    this.tempConfig = this.imageCompression;
+    this.tempConfig = { ...this.imageCompression };
   }
 
   private saveConfig() {
