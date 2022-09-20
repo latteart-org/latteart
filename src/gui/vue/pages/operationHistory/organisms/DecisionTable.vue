@@ -343,6 +343,7 @@ export default class DecisionTable extends Vue {
     const key =
       this.inputValueTable.headerColumns[header.intentionIndex].intention;
     const data = this.inputValueTable.getScreenTransitionWithIntention(key);
+    console.log(data);
     if (!data) {
       return null;
     }
@@ -355,6 +356,7 @@ export default class DecisionTable extends Vue {
     if (operationWithNotes === null) {
       return;
     }
+    console.log(operationWithNotes);
 
     this.$store.commit("operationHistory/setAutofillRegisterDialog", {
       title: operationWithNotes.operation.title,
