@@ -76,7 +76,7 @@
             >
               {{ header.text }}
               <v-icon
-                v-if="index > 2"
+                v-if="index > 2 && !isViewerMode && hasInputElements(header)"
                 class="mx-1"
                 color="blue lighten-3"
                 @click="registerAutofillSetting(header)"
@@ -163,7 +163,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { MessageProvider } from "@/lib/operationHistory/types";
+import {
+  MessageProvider,
+  OperationWithNotes,
+} from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "@/vue/molecules/NoteListDialog.vue";
 
@@ -197,6 +200,8 @@ export default class DecisionTable extends Vue {
   private opened = false;
   private selectedColumnNotes = [];
   private selectedColumnTestSteps = [];
+
+  private isViewerMode = (this as any).$isViewerMode ?? false;
 
   private get inputValueTable(): InputValueTable {
     return this.$store.state.operationHistory.inputValueTable;
@@ -325,15 +330,31 @@ export default class DecisionTable extends Vue {
     return elementType === "hidden";
   }
 
-  private registerAutofillSetting(header: any): void {
+  private hasInputElements(header: any): boolean {
+    return (
+      (this.getOperationWithNotesAtScreenTransitionFromHeader(header)?.operation
+        .inputElements?.length ?? 0) > 0
+    );
+  }
+
+  private getOperationWithNotesAtScreenTransitionFromHeader(
+    header: any
+  ): OperationWithNotes | null {
     const key =
       this.inputValueTable.headerColumns[header.intentionIndex].intention;
     const data = this.inputValueTable.getScreenTransitionWithIntention(key);
     if (!data) {
+      return null;
+    }
+    return data[header.index].history[data[header.index].history.length - 1];
+  }
+
+  private registerAutofillSetting(header: any): void {
+    const operationWithNotes =
+      this.getOperationWithNotesAtScreenTransitionFromHeader(header);
+    if (operationWithNotes === null) {
       return;
     }
-    const operationWithNotes =
-      data[header.index].history[data[header.index].history.length - 1];
 
     this.$store.commit("operationHistory/setAutofillRegisterDialog", {
       title: operationWithNotes.operation.title,
