@@ -747,7 +747,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       callback: () => void;
     } | null
   ) {
-    console.log(payload);
     state.autofillRegisterDialogData = payload;
   },
 };

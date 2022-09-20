@@ -332,33 +332,38 @@ export default class DecisionTable extends Vue {
     return elementType === "hidden";
   }
 
-  private hasInputElements(header: any): boolean {
+  private hasInputElements(header: {
+    intentionIndex: number;
+    index: number;
+  }): boolean {
     return (
       (this.getOperationWithNotesAtScreenTransitionFromHeader(header)?.operation
         .inputElements?.length ?? 0) > 0
     );
   }
 
-  private getOperationWithNotesAtScreenTransitionFromHeader(
-    header: any
-  ): OperationWithNotes | null {
+  private getOperationWithNotesAtScreenTransitionFromHeader(header: {
+    intentionIndex: number;
+    index: number;
+  }): OperationWithNotes | null {
     const key =
       this.inputValueTable.headerColumns[header.intentionIndex].intention;
     const data = this.inputValueTable.getScreenTransitionWithIntention(key);
-    console.log(data);
     if (!data) {
       return null;
     }
     return data[header.index].history[data[header.index].history.length - 1];
   }
 
-  private registerAutofillSetting(header: any): void {
+  private registerAutofillSetting(header: {
+    intentionIndex: number;
+    index: number;
+  }): void {
     const operationWithNotes =
       this.getOperationWithNotesAtScreenTransitionFromHeader(header);
     if (operationWithNotes === null) {
       return;
     }
-    console.log(operationWithNotes);
 
     this.$store.commit("operationHistory/setAutofillRegisterDialog", {
       title: operationWithNotes.operation.title,
