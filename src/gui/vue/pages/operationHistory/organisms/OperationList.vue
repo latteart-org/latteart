@@ -47,7 +47,7 @@
             textFilterPredicate,
             noteFilterPredicate,
           ]"
-          :shortcut="shortcutEnabled"
+          shortcut
           sortBy="operation.sequence"
           descending
           :rowsPerPage="10"
@@ -140,7 +140,11 @@
       </v-flex>
     </v-layout>
 
-    <v-layout id="operation-search" style="height: 50px">
+    <v-layout
+      id="operation-search"
+      style="height: 50px"
+      @keydown="cancelKeydown"
+    >
       <span class="search-title"
         ><v-icon>search</v-icon>{{ message("operation.search") }}</span
       >
@@ -158,8 +162,6 @@
         class="search-item"
         v-model="search"
         :label="message('operation.query')"
-        @focus="shortcutEnabled = false"
-        @blur="shortcutEnabled = true"
       ></v-text-field>
     </v-layout>
 
@@ -225,8 +227,6 @@ export default class OperationList extends Vue {
     sequence: -1,
     selectedSequences: [],
   };
-
-  private shortcutEnabled = true;
 
   private get headers(): {
     text: string;
@@ -450,6 +450,10 @@ export default class OperationList extends Vue {
         intention: operationWithNotes.intention,
       };
     });
+  }
+
+  private cancelKeydown(event: Event) {
+    event.stopPropagation();
   }
 }
 </script>

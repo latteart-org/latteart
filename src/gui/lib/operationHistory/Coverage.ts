@@ -18,10 +18,6 @@ import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import { ElementInfo } from "@/lib/operationHistory/types";
 import { normalizeXPath } from "@/lib/common/util";
 
-export interface ExclusionElements {
-  tags: string[];
-}
-
 export interface InclusionTableItem {
   text: string;
   isInclude: boolean;

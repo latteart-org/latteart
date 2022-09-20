@@ -44,9 +44,6 @@ describe("captureControlストアのgettersは", () => {
                 isRegex: false,
                 screenDefList: [],
               },
-              exclusionElements: {
-                tags: [],
-              },
             },
           },
         },

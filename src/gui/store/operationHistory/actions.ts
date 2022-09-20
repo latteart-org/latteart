@@ -39,7 +39,7 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
+import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
@@ -65,8 +65,8 @@ import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNotice
 import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -85,10 +85,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     await context.dispatch("writeSettings", {
       config: {
+        autofillSetting: config.autofillSetting,
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
-        autofillSetting: config.autofillSetting,
       },
     });
   },
@@ -749,62 +749,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async resume(context, payload: { testResultId: string }) {
+  async loadHistory(context, payload: { testResultId: string }) {
     context.commit(
       "captureControl/setIsResuming",
       { isResuming: true },
       { root: true }
     );
 
-    const result = await new ResumeAction(
-      {
-        clearTestStepIds: () => {
-          context.commit("clearTestStepIds");
-        },
-        registerTestStepId: (testStepId: string) => {
-          context.commit("addTestStepId", { testStepId });
-          const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
-          return sequence;
-        },
-        setResumedData: async (data) => {
-          context.commit("clearHistory");
-          context.commit("clearModels");
-          context.commit("clearInputValueTable");
-          context.commit("selectWindow", { windowHandle: "" });
-
-          context.commit("resetAllCoverageSources", {
-            coverageSources: data.coverageSources,
-          });
-          context.commit("resetHistory", {
-            historyItems: data.historyItems,
-          });
-          context.commit(
-            "captureControl/setUrl",
-            { url: data.url },
-            { root: true }
-          );
-          context.commit("setTestResultInfo", {
-            repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-            ...data.testResultInfo,
-          });
-
-          await context.dispatch(
-            "captureControl/resumeWindowHandles",
-            { history: context.state.history },
-            { root: true }
-          );
-
-          await context.dispatch("updateScreenHistory");
-        },
-      },
+    const result = await new LoadHistoryAction(
       context.rootState.repositoryContainer
-    ).resume(payload.testResultId);
-
-    context.commit(
-      "captureControl/setIsResuming",
-      { isResuming: false },
-      { root: true }
-    );
+    ).loadHistory(payload.testResultId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -814,6 +768,60 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+
+    context.commit("clearTestStepIds");
+
+    for (const testStepId of result.data.testStepIds) {
+      context.commit("addTestStepId", { testStepId });
+    }
+
+    context.commit("clearHistory");
+    context.commit("clearModels");
+    context.commit("clearInputValueTable");
+    context.commit("selectWindow", { windowHandle: "" });
+
+    context.commit("resetAllCoverageSources", {
+      coverageSources: result.data.coverageSources,
+    });
+    context.commit("resetHistory", {
+      historyItems: result.data.historyItems,
+    });
+    context.commit(
+      "captureControl/setUrl",
+      { url: result.data.url },
+      { root: true }
+    );
+    context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      ...result.data.testResultInfo,
+    });
+
+    await context.dispatch(
+      "captureControl/resumeWindowHandles",
+      { history: context.state.history },
+      { root: true }
+    );
+
+    await context.dispatch("updateScreenHistory");
+
+    const history = context.getters.getHistory();
+
+    const testingTime = calculateElapsedEpochMillis(
+      result.data.startTimeStamp,
+      history
+    );
+
+    context.dispatch(
+      "captureControl/resetTimer",
+      { millis: testingTime },
+      { root: true }
+    );
+
+    context.commit(
+      "captureControl/setIsResuming",
+      { isResuming: false },
+      { root: true }
+    );
   },
 
   /**
@@ -1460,34 +1468,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setTestResultName", { name: changedName });
   },
 
-  async getTestResult(
-    context,
-    payload: { testResultId: string }
-  ): Promise<{
-    id: string;
-    name: string;
-    startTimeStamp: number;
-    endTimeStamp: number;
-    initialUrl: string;
-  }> {
-    const result = await new GetTestResultAction(
-      context.rootState.repositoryContainer
-    ).getTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    console.log(result);
-
-    return result.data;
-  },
-
   async getScreenshots(context, payload: { testResultId: string }) {
     const result =
       await context.rootState.repositoryContainer.screenshotRepository.getScreenshots(
@@ -1499,23 +1479,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data.url;
-  },
-
-  async updateAutofillSetting(
-    context,
-    payload: {
-      autoPopupRegistrationDialog?: boolean;
-      autoPopupSelectionDialog?: boolean;
-    }
-  ) {
-    await context.dispatch("writeSettings", {
-      config: {
-        autofillSetting: {
-          ...context.state.config.autofillSetting,
-          ...payload,
-        },
-      },
-    });
   },
 
   async updateAutofillConditionGroup(
@@ -1531,7 +1494,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               isEnabled: true,
               settingName: "",
               url: "",
-              title: "url",
+              title: "",
               inputValueConditions: [],
               ...payload.conditionGroup,
             },
@@ -1550,84 +1513,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     });
   },
 
-  async deleteAutofillConditionGroup(context, payload: { index: number }) {
-    const autofillSetting = context.state.config.autofillSetting;
-    (autofillSetting.conditionGroups =
-      context.state.config.autofillSetting.conditionGroups.filter(
-        (group, index) => index !== payload.index
-      )),
-      await context.dispatch("writeSettings", {
-        config: {
-          autofillSetting,
-        },
-      });
-  },
+  async fetchConfig(context) {
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryContainer
+    ).readSettings();
 
-  /**
-   *
-   * @param context
-   */
-  async updateAutofillCondition(
-    context,
-    payload: {
-      condition: Partial<AutofillCondition>;
-      conditionIndex: number;
-      conditionGroupIndex: number;
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
     }
-  ) {
-    if (
-      context.state.config.autofillSetting.conditionGroups.length <=
-      payload.conditionGroupIndex
-    ) {
-      return;
-    }
-    const targetGroup =
-      context.state.config.autofillSetting.conditionGroups[
-        payload.conditionGroupIndex
-      ];
-
-    if (targetGroup.inputValueConditions.length <= payload.conditionIndex) {
-      return;
-    }
-    payload.conditionIndex < 0
-      ? targetGroup.inputValueConditions.push({
-          isEnabled: true,
-          locatorType: "id",
-          locator: "",
-          locatorMatchType: "equals",
-          inputValue: "",
-        })
-      : (targetGroup.inputValueConditions[payload.conditionIndex] = {
-          ...targetGroup.inputValueConditions[payload.conditionIndex],
-          ...payload.condition,
-        });
-
-    await context.dispatch("updateAutofillConditionGroup", {
-      conditionGroup: targetGroup,
-      index: payload.conditionGroupIndex,
-    });
-  },
-
-  async deleteAutofillCondition(
-    context,
-    payload: { conditionIndex: number; conditionGroupIndex: number }
-  ) {
-    const newGroup = context.state.config.autofillSetting.conditionGroups.map(
-      (group, index) => {
-        if (index === payload.conditionGroupIndex) {
-          group.inputValueConditions = group.inputValueConditions.filter(
-            (condition, index) => index !== payload.conditionIndex
-          );
-        }
-
-        return group;
-      }
-    );
-
-    await context.dispatch("updateAutofillConditionGroup", {
-      conditionGroup: newGroup,
-      index: payload.conditionGroupIndex,
-    });
+    return result.data;
   },
 };
 

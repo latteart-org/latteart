@@ -39,7 +39,7 @@
         <v-list-tile
           v-for="(testResult, index) in testResults"
           :key="index"
-          @click="resume(testResult.id)"
+          @click="loadHistory(testResult.id)"
           :disabled="!testResult.id"
         >
           <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
@@ -57,7 +57,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 
 @Component({
@@ -117,7 +116,7 @@ export default class LoadHistoryButton extends Vue {
     });
   }
 
-  private async resume(testResultId: string) {
+  private async loadHistory(testResultId: string) {
     if (!testResultId) {
       return;
     }
@@ -128,20 +127,8 @@ export default class LoadHistoryButton extends Vue {
           message: this.$store.getters.message("remote-access.load"),
         });
 
-        await this.$store.dispatch("operationHistory/resume", { testResultId });
-        const history = this.$store.getters["operationHistory/getHistory"]();
-        const readResultData = await this.$store.dispatch(
-          "operationHistory/getTestResult",
-          {
-            testResultId,
-          }
-        );
-        const testingTime = calculateElapsedEpochMillis(
-          readResultData?.startTimeStamp ?? 0,
-          history
-        );
-        this.$store.dispatch("captureControl/resetTimer", {
-          millis: testingTime,
+        await this.$store.dispatch("operationHistory/loadHistory", {
+          testResultId,
         });
       } catch (error) {
         if (error instanceof Error) {

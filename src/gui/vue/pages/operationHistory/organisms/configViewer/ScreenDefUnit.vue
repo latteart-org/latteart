@@ -23,7 +23,7 @@
             <v-layout row>
               <v-checkbox
                 :input-value="conditionGroup.isEnabled"
-                @change="(value) => updateEnableScreenDefinitions(value)"
+                @change="(value) => updateConditionGroup({ isEnabled: value })"
                 class="default-flex"
               >
               </v-checkbox>
@@ -32,9 +32,9 @@
                   $store.getters.message('config-view.screen-def.screen-name')
                 "
                 :value="conditionGroup.screenName"
-                @change="(value) => updateScreenName(value)"
+                @change="(value) => updateConditionGroup({ screenName: value })"
               ></v-text-field>
-              <v-btn @click="deleteScreenDefinitionConditions" color="error"
+              <v-btn @click="deleteConditionGroup" color="error"
                 >{{
                   $store.getters.message(
                     "config-view.screen-def.delete-definition"
@@ -68,7 +68,9 @@
               <v-flex xs1 style="text-align: center">
                 <v-checkbox
                   :input-value="item.isEnabled"
-                  @change="(value) => updateEnableCondition(index, value)"
+                  @change="
+                    (value) => updateCondition(index, { isEnabled: value })
+                  "
                   style="display: inline-block"
                 ></v-checkbox>
               </v-flex>
@@ -77,7 +79,10 @@
                 <v-flex xs3>
                   <v-select
                     :value="item.definitionType"
-                    @change="(value) => updateDefinitionType(index, value)"
+                    @change="
+                      (value) =>
+                        updateCondition(index, { definitionType: value })
+                    "
                     :items="definitionTypeList"
                     item-text="label"
                     item-value="value"
@@ -89,7 +94,7 @@
                 <v-flex xs4>
                   <v-text-field
                     :value="item.word"
-                    @change="(value) => updateWord(index, value)"
+                    @change="(value) => updateCondition(index, { word: value })"
                     class="select-with-word"
                   ></v-text-field>
                   <span style="margin-left: 10px">という</span>
@@ -98,7 +103,9 @@
                 <v-flex xs3>
                   <v-select
                     :value="item.matchType"
-                    @change="(value) => updateMatchType(index, value)"
+                    @change="
+                      (value) => updateCondition(index, { matchType: value })
+                    "
                     :items="matchType"
                     item-text="label"
                     item-value="value"
@@ -110,7 +117,10 @@
                 <v-flex xs3>
                   <v-select
                     :value="item.definitionType"
-                    @change="(value) => updateDefinitionType(index, value)"
+                    @change="
+                      (value) =>
+                        updateCondition(index, { definitionType: value })
+                    "
                     :items="definitionTypeList"
                     item-text="label"
                     item-value="value"
@@ -121,7 +131,9 @@
                 <v-flex xs3 class="pr-4">
                   <v-select
                     :value="item.matchType"
-                    @change="(value) => updateMatchType(index, value)"
+                    @change="
+                      (value) => updateCondition(index, { matchType: value })
+                    "
                     :items="matchType"
                     item-text="label"
                     item-value="value"
@@ -131,7 +143,7 @@
                 <v-flex xs4 class="pl-4">
                   <v-text-field
                     :value="item.word"
-                    @change="(value) => updateWord(index, value)"
+                    @change="(value) => updateCondition(index, { word: value })"
                   ></v-text-field>
                 </v-flex>
               </template>
@@ -156,7 +168,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
+import {
+  ScreenDefinitionConditionGroup,
+  ScreenDefinitionType,
+  ScreenMatchType,
+} from "@/lib/operationHistory/types";
 
 @Component
 export default class ScreenDefUnit extends Vue {
@@ -203,103 +219,63 @@ export default class ScreenDefUnit extends Vue {
     ];
   }
 
-  private updateEnableScreenDefinitions(isEnabled: boolean): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.isEnabled = isEnabled;
-    this.$emit("update-unit", {
+  private updateConditionGroup(group: Partial<ScreenDefinitionConditionGroup>) {
+    const conditionGroup = {
+      ...this.conditionGroup,
+      ...group,
+    };
+    this.$emit("update-condition-group", {
       conditionGroup,
       index: this.index,
     });
   }
 
-  private updateEnableCondition(
+  private updateCondition(
     index: number,
-    isEnabled: boolean | null
+    condition: {
+      isEnabled?: boolean;
+      definitionType?: ScreenDefinitionType;
+      matchType?: ScreenMatchType;
+      word?: string;
+    }
   ): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions[index].isEnabled = isEnabled ?? false;
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
-  }
-
-  private updateDefinitionType(
-    index: number,
-    definitionType: "url" | "title" | "keyword"
-  ): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions[index].definitionType = definitionType;
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
-  }
-
-  private updateMatchType(
-    index: number,
-    matchType: "contains" | "equals" | "regex"
-  ): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions[index].matchType = matchType;
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
-  }
-
-  private updateWord(index: number, word: string): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions[index].word = word;
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
-  }
-
-  private updateScreenName(screenName: string): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.screenName = screenName;
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
+    const conditionGroup = {
+      ...this.conditionGroup,
+      conditions: this.conditionGroup.conditions.map((c, i) => {
+        return i !== index ? c : { ...c, ...condition };
+      }),
+    };
+    this.updateConditionGroup(conditionGroup);
   }
 
   private addCondition(): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions.push({
-      isEnabled: true,
-      definitionType: "url",
-      matchType: "contains",
-      word: "",
-    });
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
+    const conditionGroup: ScreenDefinitionConditionGroup = {
+      ...this.conditionGroup,
+      conditions: [
+        ...this.conditionGroup.conditions,
+        {
+          isEnabled: true,
+          definitionType: "url",
+          matchType: "contains",
+          word: "",
+        },
+      ],
+    };
+    this.updateConditionGroup(conditionGroup);
   }
 
   private deleteCondition(conditionIndex: number): void {
-    const conditionGroup = Object.assign({}, this.conditionGroup);
-    conditionGroup.conditions = conditionGroup.conditions.filter(
-      (def, defIndex) => {
-        if (defIndex === conditionIndex) {
-          return false;
-        }
-        return true;
-      }
-    );
-    this.$emit("update-unit", {
-      conditionGroup,
-      index: this.index,
-    });
+    const conditionGroup = {
+      ...this.conditionGroup,
+      conditions: this.conditionGroup.conditions.filter(
+        (c, i) => i !== conditionIndex
+      ),
+    };
+    this.updateConditionGroup(conditionGroup);
   }
 
-  private deleteScreenDefinitionConditions(): void {
-    this.$emit("update-unit", {
-      index: this.index,
-    });
+  private deleteConditionGroup(): void {
+    this.$emit("delete-condition-group", this.index);
   }
 }
 </script>

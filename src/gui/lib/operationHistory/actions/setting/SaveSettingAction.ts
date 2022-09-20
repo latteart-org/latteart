@@ -26,19 +26,51 @@ const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
 export class SaveSettingAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "settingRepository">
+    private repositoryContainer: Pick<
+      RepositoryContainer,
+      "settingRepository" | "localStorageSettingRepository"
+    >
   ) {}
 
   public async saveSettings(
     settings: Settings
   ): Promise<ActionResult<Settings>> {
+    const putSettingsRequest = {
+      ...settings,
+      config: {
+        ...settings.config,
+        autofillSetting: {
+          conditionGroups: settings.config.autofillSetting.conditionGroups,
+        },
+      },
+    };
     const putSettingsResult =
-      await this.repositoryContainer.settingRepository.putSettings(settings);
+      await this.repositoryContainer.settingRepository.putSettings(
+        putSettingsRequest
+      );
+    const putAutoPopupSettingsResult =
+      await this.repositoryContainer.localStorageSettingRepository.putAutoPopupSettings(
+        settings.config.autofillSetting
+      );
 
-    if (putSettingsResult.isFailure()) {
+    if (
+      putSettingsResult.isFailure() ||
+      putAutoPopupSettingsResult.isFailure()
+    ) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(putSettingsResult.data);
+    const savedSettings = {
+      ...putSettingsResult.data,
+      config: {
+        ...putSettingsResult.data.config,
+        autofillSetting: {
+          ...putSettingsResult.data.config.autofillSetting,
+          ...putAutoPopupSettingsResult.data,
+        },
+      },
+    };
+
+    return new ActionSuccess(savedSettings);
   }
 }

@@ -19,6 +19,7 @@ import {
   RepositoryAccessSuccess,
 } from "@/lib/captureControl/Reply";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
+import { AutoPopupSettings } from "@/lib/operationHistory/types";
 
 export class LocalStorageSettingRepository {
   /**
@@ -99,6 +100,53 @@ export class LocalStorageSettingRepository {
 
     return new RepositoryAccessSuccess({
       data: deviceSettings as DeviceSettings,
+    });
+  }
+
+  /**
+   * Get autoPopup settings information.
+   * @returns autoPopup settings information
+   */
+  public async getAutoPopupSettings(): Promise<
+    RepositoryAccessResult<AutoPopupSettings>
+  > {
+    const tmpAutoPopupSettings = localStorage.getItem(
+      "latteart-config-autoPopupSettings"
+    );
+
+    const autoPopupSettings = tmpAutoPopupSettings
+      ? JSON.parse(tmpAutoPopupSettings)
+      : {
+          autoPopupRegistrationDialog: false,
+          autoPopupSelectionDialog: false,
+        };
+
+    return new RepositoryAccessSuccess({
+      data: autoPopupSettings as AutoPopupSettings,
+    });
+  }
+
+  /**
+   * Save autoPopup settings information.
+   * @param autoPopupSettings  AutoPopup settings information.
+   * @returns  Saved autoPopup settings information.
+   */
+  public async putAutoPopupSettings(
+    autoPopupSettings: AutoPopupSettings
+  ): Promise<RepositoryAccessResult<AutoPopupSettings>> {
+    const tmpAutoPopupSettings = {
+      autoPopupRegistrationDialog:
+        autoPopupSettings.autoPopupRegistrationDialog,
+      autoPopupSelectionDialog: autoPopupSettings.autoPopupSelectionDialog,
+    };
+
+    localStorage.setItem(
+      "latteart-config-autoPopupSettings",
+      JSON.stringify(tmpAutoPopupSettings)
+    );
+
+    return new RepositoryAccessSuccess({
+      data: autoPopupSettings as AutoPopupSettings,
     });
   }
 }

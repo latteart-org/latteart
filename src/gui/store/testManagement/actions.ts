@@ -562,10 +562,38 @@ const actions: ActionTree<TestManagementState, RootState> = {
       );
     }
 
+    const updatedSession = result.data;
+
+    const parsedSession = await new StoryDataConverter().convertToSession(
+      {
+        name: updatedSession.name,
+        id: updatedSession.id,
+        isDone: updatedSession.isDone,
+        doneDate: updatedSession.doneDate,
+        testItem: updatedSession.testItem,
+        testerName: updatedSession.testerName,
+        memo: updatedSession.memo,
+        attachedFiles: updatedSession.attachedFiles,
+        testResultFiles: updatedSession.testResultFiles ?? undefined,
+        issues: updatedSession.issues,
+        testingTime: updatedSession.testingTime,
+      },
+      context.rootState.repositoryContainer,
+      session
+    );
+
     context.commit("setSession", {
       storyId: payload.storyId,
-      session: result.data,
+      session: parsedSession,
     });
+
+    if (updatedSession.testingTime !== parsedSession.testingTime) {
+      await new UpdateSessionAction(
+        context.rootState.repositoryContainer
+      ).updateSession(context.state.projectId, payload.sessionId, {
+        testingTime: parsedSession.testingTime,
+      });
+    }
   },
 
   async deleteSession(
