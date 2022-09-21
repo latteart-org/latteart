@@ -18,6 +18,7 @@
   <v-app>
     <router-view></router-view>
     <progress-dialog></progress-dialog>
+    <autofill-register-dialog />
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -30,11 +31,13 @@
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "./vue/pages/common/ErrorMessageDialog.vue";
 import ProgressDialog from "./vue/pages/common/ProgressDialog.vue";
+import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vue";
 
 @Component({
   components: {
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
 export default class Root extends Vue {

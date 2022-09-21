@@ -109,14 +109,6 @@ export type ScreenDefinitionType = "url" | "title" | "keyword";
 export type ScreenMatchType = "contains" | "equals" | "regex";
 export type LocatorMatchType = "equals" | "regex";
 
-export type AutofillCondition = {
-  isEnabled: boolean;
-  locatorType: string;
-  locator: string;
-  locatorMatchType: LocatorMatchType;
-  inputValue: string;
-};
-
 /**
  * Screen configuration information.
  */
@@ -150,6 +142,14 @@ export interface AutofillConditionGroup {
   title: string;
   inputValueConditions: Array<AutofillCondition>;
 }
+
+export type AutofillCondition = {
+  isEnabled: boolean;
+  locatorType: string;
+  locator: string;
+  locatorMatchType: LocatorMatchType;
+  inputValue: string;
+};
 
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;

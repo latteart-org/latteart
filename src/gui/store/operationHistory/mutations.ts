@@ -23,7 +23,6 @@ import {
   OperationHistory,
   CoverageSource,
   ScreenTransition,
-  InputElementInfo,
   AutofillConditionGroup,
   ElementInfo,
 } from "@/lib/operationHistory/types";

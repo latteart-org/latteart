@@ -19,7 +19,7 @@
     <div class="head-label">
       {{ $store.getters.message("config-view.include-coverage") }}
     </div>
-    <v-flex v-if="tagList.length <= 0">
+    <v-flex v-if="tempTagList.length <= 0">
       <v-card color="#EEE">
         <v-card-text>
           <v-layout align-center>
@@ -28,7 +28,12 @@
         </v-card-text>
       </v-card>
     </v-flex>
-    <v-flex style="width: 150px" v-for="tag in tagList" v-bind:key="tag" pa-1>
+    <v-flex
+      style="width: 150px"
+      v-for="tag in tempTagList"
+      v-bind:key="tag"
+      pa-1
+    >
       <v-card class="ma-1 pa-1" color="#EEE">
         <v-card-text class="my-0 py-0">
           <v-layout align-center ma-0 pa-0>
@@ -36,7 +41,7 @@
               {{ tag }}
             </v-flex>
             <v-flex xs2 ma-0 pa-0 align-right>
-              <v-checkbox v-model="checkBoxList" :value="tag" />
+              <v-checkbox v-model="tempTags" :value="tag" />
             </v-flex>
           </v-layout>
         </v-card-text>
@@ -51,50 +56,42 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class CoverageSetting extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Array, default: () => [] })
+  public readonly includeTags!: string[];
+  @Prop({ type: Array, default: () => [] }) public defaultTagList!: string[];
 
-  private inclusionTagMap = new Map();
-  private tagList = [];
+  private tempInclusionTagMap = new Map();
+  private tempTags: string[] = [];
+  private tempDisplayInclusionList: string[] = [];
+  private tempTagList: string[] = [];
 
-  private get checkBoxList() {
-    this.initInclusionTagMap();
-    this.$store.state.operationHistory.config.coverage.include.tags.forEach(
-      (tag: string) => {
-        this.inclusionTagMap.set(tag, true);
-      }
+  @Watch("includeTags")
+  private updateTempConfig() {
+    this.tempTags = [...this.includeTags];
+    this.tempDisplayInclusionList = Array.from(
+      new Set(this.tempTags.concat(this.defaultTagList))
     );
-    return this.$store.state.operationHistory.config.coverage.include.tags;
+    this.createInclusionTagMap();
   }
 
-  private set checkBoxList(list: string[]) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          coverage: { include: { tags: list } },
-        },
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        canUpdateModels: true,
-      });
-    })();
+  @Watch("tempTags")
+  private saveTags() {
+    this.$emit("save-config", {
+      coverage: { include: { tags: this.tempTags } },
+    });
+    this.createInclusionTagMap();
   }
 
   @Watch("opened")
-  private changeOpened(opened: boolean) {
+  private updateTagList(opened: boolean) {
     if (!opened) {
       return;
     }
-    this.initInclusionTagMap();
-    this.$store.state.operationHistory.config.coverage.include.tags.forEach(
-      (tag: string) => {
-        this.inclusionTagMap.set(tag, true);
-      }
-    );
 
-    this.tagList = this.$store.state.operationHistory.displayInclusionList.sort(
+    this.tempTagList = this.tempDisplayInclusionList.sort(
       (a: string, b: string) => {
-        const aVal = this.inclusionTagMap.get(a);
-        const bVal = this.inclusionTagMap.get(b);
+        const aVal = this.tempInclusionTagMap.get(a);
+        const bVal = this.tempInclusionTagMap.get(b);
         if (!!aVal > !!bVal) {
           return -1;
         } else if (!!aVal < !!bVal) {
@@ -110,14 +107,15 @@ export default class CoverageSetting extends Vue {
     );
   }
 
-  private initInclusionTagMap() {
+  private createInclusionTagMap() {
     const tagMap = new Map();
-    this.$store.state.operationHistory.displayInclusionList.forEach(
-      (tag: string) => {
-        tagMap.set(tag, false);
-      }
-    );
-    this.inclusionTagMap = tagMap;
+    this.tempDisplayInclusionList.forEach((tag: string) => {
+      tagMap.set(tag, false);
+    });
+    this.tempTags.forEach((tag) => {
+      tagMap.set(tag, true);
+    });
+    this.tempInclusionTagMap = tagMap;
   }
 }
 </script>
