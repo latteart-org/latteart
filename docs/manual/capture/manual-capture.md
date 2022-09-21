@@ -403,9 +403,11 @@ USB で接続されているデバイスを選択することができます。
 - Locator Type
   - 自動入力対象となる画面要素の Locator のタイプです。ID と xpath を選択できます。
 - Locator Match Type
-  - 自動入力対象となる画面要素と Locator との一致の仕方を指定します。equals（完全一致）と regex（正規表現）を指定できます。
+  - 自動入力対象となる画面要素と Locator との一致の仕方を指定します。
+    - Locator Type が ID の場合は equals（完全一致）と contains（部分一致）を指定できます。
+    - xpath の場合は equals（完全一致）のみの指定になります。
 - Locator
-  - 自動入力対象となる画面要素の Locator です。ID を指定した場合は ID、xpath を指定した場合は xpath を入力します。（Locator Match Type を regex に指定した場合、正規表現の入力が可能です）
+  - 自動入力対象となる画面要素の Locator です。ID を指定した場合は ID、xpath を指定した場合は xpath を入力します。
 - 入力値
   - 入力要素に入力する値を設定します。
 - 入力値削除ボタン
