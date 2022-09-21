@@ -61,16 +61,15 @@ import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 })
 export default class AutofillSelectDialog extends Vue {
   private selectedIndex = -1;
+  private opened = false;
 
   private get dialogData(): {
     autofillConditionGroups: AutofillConditionGroup[];
     message: string;
   } | null {
+    const data = this.$store.state.operationHistory?.autofillSelectDialogData;
+    this.opened = !!data?.autofillConditionGroups;
     return this.$store.state.operationHistory?.autofillSelectDialogData ?? null;
-  }
-
-  private get opened(): boolean {
-    return !!this.dialogData?.autofillConditionGroups;
   }
 
   private get autofillConditionGroups(): AutofillConditionGroup[] {
@@ -101,10 +100,12 @@ export default class AutofillSelectDialog extends Vue {
     await this.$store.dispatch("captureControl/autofill", {
       autofillConditionGroup: this.autofillConditionGroups[this.selectedIndex],
     });
-    this.close();
+    await this.close();
   }
 
-  private close(): void {
+  private async close(): Promise<void> {
+    this.opened = false;
+    await new Promise((s) => setTimeout(s, 300));
     this.$store.commit("operationHistory/setAutofillSelectDialog", {
       autofillConditionGroups: null,
     });

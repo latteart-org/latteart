@@ -87,7 +87,7 @@
             @change="
               (locatorMatchType) => updateCondition(index, { locatorMatchType })
             "
-            :items="locatorMatchType"
+            :items="locatorMatchType(item.locatorType)"
             class="px-1"
           ></v-select>
         </v-flex>
@@ -147,16 +147,10 @@ export default class AutoFillInputValueContainer extends Vue {
     return ["id", "xpath"];
   }
 
-  private get definitionTypeList() {
-    return ["url", "title", "keyword"];
-  }
-
   private get locatorMatchType() {
-    return ["equals", "regex"];
-  }
-
-  private get screenMatchTypeList() {
-    return ["contains", "equals", "regex"];
+    return (locatorType: "id" | "xpath") => {
+      return locatorType === "id" ? ["equals", "contains"] : ["equals"];
+    };
   }
 
   private addCondition() {
@@ -173,6 +167,9 @@ export default class AutoFillInputValueContainer extends Vue {
     index: number,
     condition: Partial<AutofillCondition>
   ) {
+    if (condition.locatorType === "xpath") {
+      condition.locatorMatchType = "equals";
+    }
     this.$emit("update-condition", condition, index, this.index);
   }
 

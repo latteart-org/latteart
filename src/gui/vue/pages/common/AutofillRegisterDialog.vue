@@ -61,6 +61,7 @@ import {
 })
 export default class AutofillRegisterDialog extends Vue {
   private settingName = "";
+  private opened = false;
 
   private get autofillRegisterDialogData(): {
     title: string;
@@ -72,6 +73,8 @@ export default class AutofillRegisterDialog extends Vue {
     this.settingName =
       this.$store.state.operationHistory?.autofillRegisterDialogData?.title ??
       "";
+    this.opened =
+      !!this.$store.state.operationHistory?.autofillRegisterDialogData;
     return (
       this.$store.state.operationHistory?.autofillRegisterDialogData ?? null
     );
@@ -79,10 +82,6 @@ export default class AutofillRegisterDialog extends Vue {
 
   private get message(): string {
     return this.autofillRegisterDialogData?.message ?? "";
-  }
-
-  private get opened(): boolean {
-    return !!this.autofillRegisterDialogData;
   }
 
   private async accept(): Promise<void> {
@@ -117,10 +116,12 @@ export default class AutofillRegisterDialog extends Vue {
       conditionGroup: autofillConditionGroup,
       index: -1,
     });
-    this.close();
+    await this.close();
   }
 
-  private close(): void {
+  private async close(): Promise<void> {
+    this.opened = false;
+    await new Promise((s) => setTimeout(s, 300));
     const callback = this.autofillRegisterDialogData?.callback;
     this.$store.commit("operationHistory/setAutofillRegisterDialog", null);
     if (callback) {
