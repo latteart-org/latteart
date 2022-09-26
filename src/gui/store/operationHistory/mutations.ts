@@ -23,7 +23,8 @@ import {
   OperationHistory,
   CoverageSource,
   ScreenTransition,
-  InputElementInfo,
+  AutofillConditionGroup,
+  ElementInfo,
 } from "@/lib/operationHistory/types";
 import { Note } from "@/lib/operationHistory/Note";
 
@@ -377,41 +378,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set Empty input element informations to the State.
-   * @param state State.
-   */
-  clearInputElementInfos(state) {
-    Vue.set(state, "inputElementInfos", []);
-  },
-
-  /**
-   * Reset input element informations to the State.
-   * @param payload.inputElementInfos input element informations.
-   */
-  resetInputElementInfos(
-    state,
-    payload: { inputElementInfos: InputElementInfo[] }
-  ) {
-    state.inputElementInfos.splice(
-      0,
-      state.inputElementInfos.length,
-      ...payload.inputElementInfos
-    );
-  },
-
-  /**
-   * register a new input element information to the State.
-   * @param state State.
-   * @param payload.coverageSource Element informations for calculating screen element coverage.
-   */
-  registerInputElementInfo(
-    state,
-    payload: { inputElementInfo: InputElementInfo }
-  ) {
-    state.inputElementInfos.push(payload.inputElementInfo);
-  },
-
-  /**
    * Set a sequence diagram to the State.
    * @param state State.
    * @param payload.graph Sequence diagram.
@@ -757,6 +723,31 @@ const mutations: MutationTree<OperationHistoryState> = {
       }
       return operationWithNotes;
     });
+  },
+
+  setAutofillSelectDialog(
+    state,
+    payload: {
+      dialogData: {
+        autofillConditionGroups: AutofillConditionGroup[];
+        message: string;
+      } | null;
+    }
+  ) {
+    state.autofillSelectDialogData = payload.dialogData;
+  },
+
+  setAutofillRegisterDialog(
+    state,
+    payload: {
+      title: string;
+      url: string;
+      message: string;
+      inputElements: ElementInfo[];
+      callback: () => void;
+    } | null
+  ) {
+    state.autofillRegisterDialogData = payload;
   },
 };
 

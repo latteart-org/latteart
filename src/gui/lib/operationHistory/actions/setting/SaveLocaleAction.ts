@@ -21,37 +21,26 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const GET_IMPORT_TEST_RESULTS_FAILED_MESSAGE_KEY =
-  "error.operation_history.get_import_test_results_failed";
+const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
-export class GetImportTestResultListAction {
+export class SaveLocaleAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "importTestResultRepository" | "serviceUrl"
+      "localStorageSettingRepository"
     >
   ) {}
 
-  public async getImportTestResults(): Promise<
-    ActionResult<Array<{ url: string; name: string }>>
-  > {
-    const getTestResultsResult =
-      await this.repositoryContainer.importTestResultRepository.getTestResults();
+  public async saveLocale(locale: string): Promise<ActionResult<string>> {
+    const putLocaleResult =
+      await this.repositoryContainer.localStorageSettingRepository.putLocale(
+        locale
+      );
 
-    if (getTestResultsResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: GET_IMPORT_TEST_RESULTS_FAILED_MESSAGE_KEY,
-      });
+    if (putLocaleResult.isFailure()) {
+      return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    const serviceUrl = this.repositoryContainer.serviceUrl;
-    const data = getTestResultsResult.data.map(({ url, name }) => {
-      return {
-        url: `${serviceUrl}/${url}`,
-        name,
-      };
-    });
-
-    return new ActionSuccess(data);
+    return new ActionSuccess(putLocaleResult.data);
   }
 }

@@ -18,7 +18,9 @@ import {
   OperationWithNotes,
   CoverageSource,
   ScreenTransition,
-  InputElementInfo,
+  AutofillConditionGroup,
+  AutofillSetting,
+  ElementInfo,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
@@ -62,6 +64,11 @@ export interface OperationHistoryState {
    * Config.
    */
   config: {
+    /**
+     * Autofill condition settings.
+     */
+    autofillSetting: AutofillSetting;
+
     /**
      * Screen definition settings.
      */
@@ -116,11 +123,6 @@ export interface OperationHistoryState {
    * Element informations for calculating screen element coverage.
    */
   coverageSources: CoverageSource[];
-
-  /**
-   * Element informations for calculating screen element coverage.
-   */
-  inputElementInfos: InputElementInfo[];
 
   /**
    * Sequence diagram.
@@ -244,6 +246,25 @@ export interface OperationHistoryState {
   } | null;
 
   /**
+   * Dialog to select autofill.
+   */
+  autofillSelectDialogData: {
+    autofillConditionGroups: AutofillConditionGroup[];
+    message: string;
+  } | null;
+
+  /**
+   * Dialogg to register autofill settings.
+   */
+  autofillRegisterDialogData: {
+    title: string;
+    url: string;
+    message: string;
+    inputElements: ElementInfo[];
+    callback: () => void;
+  } | null;
+
+  /**
    * The function to open the dialog for editing a note.
    */
   openNoteEditDialog: (
@@ -291,6 +312,11 @@ const state: OperationHistoryState = {
     name: "",
   },
   config: {
+    autofillSetting: {
+      autoPopupRegistrationDialog: false,
+      autoPopupSelectionDialog: false,
+      conditionGroups: [],
+    },
     screenDefinition: {
       screenDefType: ScreenDefType.Title,
       conditionGroups: [],
@@ -312,7 +338,6 @@ const state: OperationHistoryState = {
   displayInclusionList: [],
   defaultTagList: [],
   coverageSources: [],
-  inputElementInfos: [],
   sequenceDiagramGraph: null,
   windowHandleToScreenTransitionDiagramGraph: {},
   elementCoverages: [],
@@ -326,6 +351,8 @@ const state: OperationHistoryState = {
   selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
+  autofillSelectDialogData: null,
+  autofillRegisterDialogData: null,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

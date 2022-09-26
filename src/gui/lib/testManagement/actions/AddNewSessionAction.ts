@@ -15,33 +15,32 @@
  */
 
 import {
-  ActionResult,
   ActionFailure,
+  ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { Session } from "../types";
 
-export class ExportAction {
-  constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
-  ) {}
+export class AddNewSessionAction {
+  public async addNewSession(
+    payload: {
+      projectId: string;
+      storyId: string;
+    },
+    repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+  ): Promise<ActionResult<Session>> {
+    const storyResult = await repositoryContainer.sessionRepository.postSession(
+      payload.projectId,
+      { storyId: payload.storyId }
+    );
 
-  public async exportZip(
-    projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<ActionResult<string>> {
-    const postProjectForExportResult =
-      await this.repositoryContainer.projectRepository.postProjectForExport(
-        projectId,
-        selectOption
-      );
-
-    if (postProjectForExportResult.isFailure()) {
+    if (storyResult.isFailure()) {
       return new ActionFailure({
-        messageKey: "error.import_export.create-export-data-error",
+        messageKey: storyResult.error.message ?? "",
       });
     }
 
-    return new ActionSuccess(postProjectForExportResult.data.url);
+    return new ActionSuccess(storyResult.data);
   }
 }

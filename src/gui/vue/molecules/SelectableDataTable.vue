@@ -143,6 +143,12 @@ export default class SelectableDataTable<T> extends Vue {
       : sortedItems;
   }
 
+  private get currentItemIndex() {
+    return this.visibleItems.findIndex(
+      ({ index }) => index === this.selectedItemIndexes[0]
+    );
+  }
+
   private get visibleItemsStr() {
     return JSON.stringify(this.visibleItems);
   }
@@ -228,47 +234,54 @@ export default class SelectableDataTable<T> extends Vue {
       return;
     }
 
-    const currentItemIndex = this.visibleItems.findIndex(
-      ({ index }) => index === this.selectedItemIndexes[0]
-    );
+    const keyToAction = new Map([
+      ["ArrowUp", this.prev],
+      ["ArrowDown", this.next],
+      ["ArrowRight", this.pageForward],
+      ["ArrowLeft", this.pageBack],
+    ]);
 
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      const destItem = this.visibleItems[currentItemIndex - 1];
+    const action = keyToAction.get(event.key) ?? (() => undefined);
 
-      if (destItem) {
-        this.selectItems(destItem.index);
-      }
-    } else if (event.key === "ArrowDown") {
-      event.preventDefault();
-      const destItem = this.visibleItems[currentItemIndex + 1];
+    action();
+  }
 
-      if (destItem) {
-        this.selectItems(destItem.index);
-      }
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      const destIndex = currentItemIndex + this.pagination.rowsPerPage;
-      const destItem =
-        this.visibleItems[
-          destIndex > this.visibleItems.length - 1
-            ? this.visibleItems.length - 1
-            : destIndex
-        ];
+  private prev() {
+    const destItem = this.visibleItems[this.currentItemIndex - 1];
 
-      if (destItem) {
-        this.selectItems(destItem.index);
-      }
-    } else if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      const destIndex = currentItemIndex - this.pagination.rowsPerPage;
-      const destItem = this.visibleItems[destIndex < 0 ? 0 : destIndex];
+    if (destItem) {
+      this.selectItems(destItem.index);
+    }
+  }
 
-      if (destItem) {
-        this.selectItems(destItem.index);
-      }
-    } else {
-      return;
+  private next() {
+    const destItem = this.visibleItems[this.currentItemIndex + 1];
+
+    if (destItem) {
+      this.selectItems(destItem.index);
+    }
+  }
+
+  private pageForward() {
+    const destIndex = this.currentItemIndex + this.pagination.rowsPerPage;
+    const destItem =
+      this.visibleItems[
+        destIndex > this.visibleItems.length - 1
+          ? this.visibleItems.length - 1
+          : destIndex
+      ];
+
+    if (destItem) {
+      this.selectItems(destItem.index);
+    }
+  }
+
+  private pageBack() {
+    const destIndex = this.currentItemIndex - this.pagination.rowsPerPage;
+    const destItem = this.visibleItems[destIndex < 0 ? 0 : destIndex];
+
+    if (destItem) {
+      this.selectItems(destItem.index);
     }
   }
 }

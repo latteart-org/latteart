@@ -1,4 +1,4 @@
-import { ExportAction } from "@/lib/testManagement/actions/ExportAction";
+import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
 import {
   RESTClient,
   RESTClientResponse,
@@ -13,8 +13,8 @@ const baseRestClient: RESTClient = {
   httpDelete: jest.fn(),
 };
 
-describe("ExportAction", () => {
-  describe("#exportZip", () => {
+describe("ExportProjectAction", () => {
+  describe("#export", () => {
     describe("指定のプロジェクトをファイルにエクスポートする", () => {
       const expectedData = { url: "url" };
       const resSuccess: RESTClientResponse = {
@@ -38,11 +38,11 @@ describe("ExportAction", () => {
           ...baseRestClient,
           httpPost: jest.fn().mockResolvedValue(resSuccess),
         };
-        const action = new ExportAction({
+        const action = new ExportProjectAction({
           projectRepository: new ProjectRESTRepository(restClient),
         });
 
-        const result = await action.exportZip(projectId, selectOption);
+        const result = await action.export(projectId, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(
           `/projects/${projectId}/export`,
@@ -60,11 +60,11 @@ describe("ExportAction", () => {
           ...baseRestClient,
           httpPost: jest.fn().mockResolvedValue(resFailure),
         };
-        const action = new ExportAction({
+        const action = new ExportProjectAction({
           projectRepository: new ProjectRESTRepository(restClient),
         });
 
-        const result = await action.exportZip(projectId, selectOption);
+        const result = await action.export(projectId, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(
           `/projects/${projectId}/export`,

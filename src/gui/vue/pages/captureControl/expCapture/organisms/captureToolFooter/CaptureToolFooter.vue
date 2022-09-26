@@ -27,6 +27,8 @@
 
     <v-divider vertical class="mx-3" />
 
+    <autofill-button />
+
     <note-register-button />
 
     <v-divider vertical class="mx-3" />
@@ -48,6 +50,7 @@ import GoHistoryViewButton from "./GoHistoryViewButton.vue";
 import NoteRegisterButton from "./NoteRegisterButton.vue";
 import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
+import AutofillButton from "./AutofillButton.vue";
 
 @Component({
   components: {
@@ -59,6 +62,7 @@ import SelectWindowButton from "./SelectWindowButton.vue";
     "go-config-view-button": GoConfigViewButton,
     "go-history-view-button": GoHistoryViewButton,
     "recording-time": RecordingTime,
+    "autofill-button": AutofillButton,
   },
 })
 export default class CaptureToolFooter extends Vue {}

@@ -16,7 +16,7 @@
 <template>
   <scrollable-dialog :opened="opened">
     <template v-slot:title>{{
-      $store.getters.message("import-export-dialog.export-title")
+      $store.getters.message("import-export-dialog.project-export-title")
     }}</template>
     <template v-slot:content>
       <v-container class="px-0" fluid id="export-option-dialog">

@@ -51,6 +51,7 @@ export interface ManagedGroup {
 
 export interface ManagedStory {
   id: string;
+  index: number;
   testMatrixId: string;
   testTargetId: string;
   viewPointId: string;

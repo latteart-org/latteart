@@ -20,7 +20,8 @@ import { Note } from "../operationHistory/Note";
 
 export function convertTestStepOperation(
   testStepOperation: TestStepOperation,
-  serviceUrl: string
+  serviceUrl: string,
+  sequence?: number
 ): Operation {
   const operation = Operation.createOperation({
     input: testStepOperation.input,
@@ -35,6 +36,7 @@ export function convertTestStepOperation(
     timestamp: testStepOperation.timestamp,
     inputElements: testStepOperation.inputElements,
     keywordSet: new Set(testStepOperation.keywordTexts),
+    sequence,
   });
 
   return operation;
@@ -71,7 +73,8 @@ export function convertNote(
     imageFileUrl?: string;
     tags?: string[];
   },
-  serviceUrl: string
+  serviceUrl: string,
+  sequence?: number
 ): Note {
   const data = new Note({
     id: item.id,
@@ -81,6 +84,7 @@ export function convertNote(
     imageFilePath: item.imageFileUrl
       ? new URL(item.imageFileUrl, serviceUrl).toString()
       : "",
+    sequence,
   });
 
   return data;

@@ -15,39 +15,31 @@
  */
 
 import {
-  ActionResult,
   ActionFailure,
+  ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.import_test_result_failed";
+export class DeleteSessionAction {
+  public async deleteSession(
+    payload: {
+      projectId: string;
+      sessionId: string;
+    },
+    repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+  ): Promise<ActionResult<void>> {
+    const result = await repositoryContainer.sessionRepository.deleteSession(
+      payload.projectId,
+      payload.sessionId
+    );
 
-export class ImportTestResultAction {
-  constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "importTestResultRepository"
-    >
-  ) {}
-
-  public async importWithTestResult(
-    source: { testResultFileUrl: string },
-    dest?: { testResultId?: string }
-  ): Promise<ActionResult<{ testResultId: string }>> {
-    const postTestResultResult =
-      await this.repositoryContainer.importTestResultRepository.postTestResult(
-        source,
-        dest
-      );
-
-    if (postTestResultResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: result.error.message ?? "",
       });
     }
 
-    return new ActionSuccess(postTestResultResult.data);
+    return new ActionSuccess(result.data);
   }
 }

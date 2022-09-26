@@ -161,6 +161,23 @@ export default class InputValueTable {
       .reverse();
   }
 
+  /**
+   * Get screen transition with intention.
+   * @param key Intention.
+   * @returns Screen transition.
+   */
+  public getScreenTransitionWithIntention(key: string):
+    | {
+        sourceScreenDef: string;
+        targetScreenDef: string;
+        history: OperationWithNotes[];
+        screenElements: ElementInfo[];
+        inputElements: ElementInfo[];
+      }[]
+    | undefined {
+    return this.intentionToScreenTransitions.get(key);
+  }
+
   private static getDefaultValueOfElement(targetElement: ElementInfo) {
     if (targetElement.tagname.toLowerCase() === "input") {
       if (

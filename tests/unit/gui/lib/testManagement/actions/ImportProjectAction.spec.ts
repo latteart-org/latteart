@@ -1,4 +1,4 @@
-import { ImportAction } from "@/lib/testManagement/actions/ImportAction";
+import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
 import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
 import {
   RESTClient,
@@ -13,8 +13,8 @@ const baseRestClient: RESTClient = {
   httpDelete: jest.fn(),
 };
 
-describe("ImportAction", () => {
-  describe("#importZip", () => {
+describe("ImportProjectAction", () => {
+  describe("#import", () => {
     describe("指定のプロジェクトファイルをリポジトリにインポートする", () => {
       const expectedData = { projectId: "projectId" };
       const resSuccess: RESTClientResponse = {
@@ -27,7 +27,7 @@ describe("ImportAction", () => {
         data: { code: "errorcode", message: "errormessage" },
       };
 
-      const source = { projectFileUrl: "projectFileUrl" };
+      const source = { projectFile: { data: "data", name: "name" } };
       const selectOption = {
         includeProject: true,
         includeTestResults: false,
@@ -38,11 +38,11 @@ describe("ImportAction", () => {
           ...baseRestClient,
           httpPost: jest.fn().mockResolvedValue(resSuccess),
         };
-        const action = new ImportAction({
+        const action = new ImportProjectAction({
           importProjectRepository: new ImportProjectRepository(restClient),
         });
 
-        const result = await action.importZip(source, selectOption);
+        const result = await action.import(source, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
           source,
@@ -61,11 +61,11 @@ describe("ImportAction", () => {
           ...baseRestClient,
           httpPost: jest.fn().mockResolvedValue(resFailure),
         };
-        const action = new ImportAction({
+        const action = new ImportProjectAction({
           importProjectRepository: new ImportProjectRepository(restClient),
         });
 
-        const result = await action.importZip(source, selectOption);
+        const result = await action.import(source, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
           source,

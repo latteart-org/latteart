@@ -42,13 +42,23 @@
                     $store.getters.message("config-view.setting-inclusion-tags")
                   }}
                 </template>
-                <coverage-setting :opened="coverageOpened"> </coverage-setting>
+                <coverage-setting
+                  :opened="coverageOpened"
+                  :include-tags="includeTags"
+                  :default-tag-list="defaultTagList"
+                  @save-config="saveConfig"
+                >
+                </coverage-setting>
               </v-expansion-panel-content>
               <v-expansion-panel-content>
                 <template v-slot:header class="py-0">
                   {{ $store.getters.message("config-view.setting-screen") }}
                 </template>
-                <screen-definition-setting> </screen-definition-setting>
+                <screen-definition-setting
+                  :screenDefinition="screenDefinition"
+                  @save-config="saveConfig"
+                >
+                </screen-definition-setting>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-flex>
@@ -62,6 +72,13 @@
 import CoverageSetting from "./CoverageSetting.vue";
 import ScreenDefinitionSetting from "./ScreenDefinitionSetting.vue";
 import { Component, Vue } from "vue-property-decorator";
+import Settings, {
+  Coverage,
+  ImageCompression,
+  ScreenDefinition,
+} from "@/lib/common/settings/Settings";
+import { AutofillSetting } from "@/lib/operationHistory/types";
+import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 
 @Component({
   components: {
@@ -71,6 +88,18 @@ import { Component, Vue } from "vue-property-decorator";
 })
 export default class ConfigViewer extends Vue {
   private panel: null | number = null;
+  private settings: Settings | null = null;
+
+  private async created() {
+    this.settings = await this.$store.dispatch("operationHistory/fetchConfig");
+  }
+
+  private get includeTags(): string[] {
+    return this.settings?.config.coverage.include.tags ?? [];
+  }
+  private get defaultTagList(): string[] {
+    return this.$store.state.operationHistory.defaultTagList;
+  }
 
   private get dialog() {
     return this.$store.state.openedConfigViewer;
@@ -84,12 +113,36 @@ export default class ConfigViewer extends Vue {
     return this.panel === 0;
   }
 
+  private get screenDefinition(): ScreenDefinition {
+    return (
+      this.settings?.config.screenDefinition ?? {
+        screenDefType: ScreenDefType.Title,
+        conditionGroups: [],
+      }
+    );
+  }
+
   private async close() {
     this.dialog = false;
   }
 
   private toBack() {
     this.$router.back();
+  }
+
+  private async saveConfig(config: {
+    autofillSetting?: AutofillSetting;
+    screenDefinition?: ScreenDefinition;
+    coverage?: Coverage;
+    imageCompression?: ImageCompression;
+  }) {
+    await this.$store.dispatch("operationHistory/writeSettings", { config });
+
+    if (config.screenDefinition || config.coverage) {
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        canUpdateModels: true,
+      });
+    }
   }
 }
 </script>

@@ -15,14 +15,27 @@
  */
 
 import { RESTClient } from "../RESTClient";
-import Settings from "@/lib/common/settings/Settings";
+import Settings, {
+  ScreenDefinition,
+  Coverage,
+  ImageCompression,
+} from "@/lib/common/settings/Settings";
 import {
   RepositoryAccessResult,
   RepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
+import { AutofillSetting } from "@/lib/operationHistory/types";
+
+type SettingsFromDB = Omit<Settings, "config"> & {
+  config: {
+    screenDefinition: ScreenDefinition;
+    autofillSetting: Pick<AutofillSetting, "conditionGroups">;
+    coverage: Coverage;
+    imageCompression: ImageCompression;
+  };
+};
 
 export class SettingRepository {
   constructor(private restClient: RESTClient) {}
@@ -31,7 +44,7 @@ export class SettingRepository {
    * Get setting information.
    * @returns Setting information.
    */
-  public async getSettings(): Promise<RepositoryAccessResult<Settings>> {
+  public async getSettings(): Promise<RepositoryAccessResult<SettingsFromDB>> {
     try {
       const response = await this.restClient.httpGet(`/projects/1/configs`);
 
@@ -40,7 +53,7 @@ export class SettingRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as Settings,
+        data: response.data as SettingsFromDB,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -53,8 +66,8 @@ export class SettingRepository {
    * @returns Saved setting information.
    */
   public async putSettings(
-    settings: Settings
-  ): Promise<RepositoryAccessResult<Settings>> {
+    settings: SettingsFromDB
+  ): Promise<RepositoryAccessResult<SettingsFromDB>> {
     try {
       const response = await this.restClient.httpPut(
         `/projects/1/configs`,
@@ -66,57 +79,7 @@ export class SettingRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as Settings,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
-   * Get device settings information.
-   * @returns Device settings information
-   */
-  public async getDeviceSettings(): Promise<
-    RepositoryAccessResult<DeviceSettings>
-  > {
-    try {
-      const response = await this.restClient.httpGet(
-        `/projects/1/device-configs`
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return new RepositoryAccessSuccess({
-        data: response.data as DeviceSettings,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
-   * Save device settings information.
-   * @param deviceSettings  Device settings information.
-   * @returns  Saved device settings information.
-   */
-  public async putDeviceSettings(
-    deviceSettings: DeviceSettings
-  ): Promise<RepositoryAccessResult<DeviceSettings>> {
-    try {
-      const response = await this.restClient.httpPut(
-        `/projects/1/device-configs`,
-        deviceSettings
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return new RepositoryAccessSuccess({
-        data: response.data as DeviceSettings,
+        data: response.data as SettingsFromDB,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
