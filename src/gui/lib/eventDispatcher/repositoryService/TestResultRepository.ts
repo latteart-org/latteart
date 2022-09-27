@@ -21,7 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
-import { TestResult } from "@/lib/operationHistory/types";
+import { TestResult, TestResultSummary } from "@/lib/operationHistory/types";
 
 export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
@@ -86,7 +86,7 @@ export class TestResultRepository {
   public async postEmptyTestResult(
     initialUrl?: string,
     name?: string
-  ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
+  ): Promise<RepositoryAccessResult<TestResultSummary>> {
     try {
       const url = `/test-results`;
       const response = await this.restClient.httpPost(url, {
@@ -99,7 +99,7 @@ export class TestResultRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as { id: string; name: string },
+        data: response.data as TestResultSummary,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -111,7 +111,7 @@ export class TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<{ id: string; name: string }>>
+    RepositoryAccessResult<Array<TestResultSummary>>
   > {
     try {
       const response = await this.restClient.httpGet(`/test-results`);

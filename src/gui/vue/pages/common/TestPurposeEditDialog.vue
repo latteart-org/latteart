@@ -50,7 +50,7 @@
           :dark="canSave"
           color="green"
           @click="
-            saveIntention();
+            saveTestPurpose();
             close();
           "
           >{{ $store.getters.message("common.ok") }}</v-btn
@@ -87,7 +87,7 @@ import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class IntentionEditDialog extends Vue {
+export default class TestPurposeEditDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private oldNote = "";
@@ -138,7 +138,7 @@ export default class IntentionEditDialog extends Vue {
     });
   }
 
-  private saveIntention() {
+  private saveTestPurpose() {
     const args: NoteEditInfo = {
       oldSequence: this.oldSequence ?? undefined,
       newSequence: this.newTargetSequence ?? undefined,
@@ -149,9 +149,15 @@ export default class IntentionEditDialog extends Vue {
     };
     (async () => {
       try {
-        await this.$store.dispatch("operationHistory/saveIntention", {
-          noteEditInfo: args,
-        });
+        if (this.oldNote === "") {
+          await this.$store.dispatch("operationHistory/addTestPurpose", {
+            noteEditInfo: args,
+          });
+        } else {
+          await this.$store.dispatch("operationHistory/editTestPurpose", {
+            noteEditInfo: args,
+          });
+        }
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -186,7 +192,7 @@ export default class IntentionEditDialog extends Vue {
       return false;
     }
 
-    for (const seq of this.hasIntentionSeqences) {
+    for (const seq of this.collectTestPurposeSequences) {
       if (seq === this.newTargetSequence) {
         return true;
       }
@@ -194,7 +200,7 @@ export default class IntentionEditDialog extends Vue {
     return false;
   }
 
-  private get hasIntentionSeqences(): number[] {
+  private get collectTestPurposeSequences(): number[] {
     const seqs = [];
     const history = this.$store.getters["operationHistory/getHistory"]();
 
