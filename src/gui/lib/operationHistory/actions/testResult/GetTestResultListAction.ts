@@ -20,6 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { TestResultSummary } from "../../types";
 
 const GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY =
   "error.operation_history.get_test_result_list_failed";
@@ -33,7 +34,7 @@ export class GetTestResultListAction {
   ) {}
 
   public async getTestResults(): Promise<
-    ActionResult<Array<{ id: string; name: string }>>
+    ActionResult<Array<TestResultSummary>>
   > {
     const getTestResultsResult =
       await this.repositoryContainer.testResultRepository.getTestResults();

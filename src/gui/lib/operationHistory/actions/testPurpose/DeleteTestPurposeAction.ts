@@ -24,7 +24,7 @@ import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 const DELETE_TEST_PURPOSE_FAILED_MESSAGE_KEY =
   "error.operation_history.delete_test_purpose_failed";
 
-export class DeleteIntentionAction {
+export class DeleteTestPurposeAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
@@ -37,7 +37,7 @@ export class DeleteIntentionAction {
    * @param testResultId  Test result ID.
    * @param testStepId  Test step id of the target test step.
    */
-  public async deleteIntention(
+  public async delete(
     testResultId: string,
     testStepId: string
   ): Promise<ActionResult<string>> {

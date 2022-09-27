@@ -86,18 +86,18 @@
         <v-card flat>
           <v-card-text>
             <v-text-field
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.summary')"
-              v-model="newIntention"
+              v-model="newTestPurpose"
             ></v-text-field>
             <v-textarea
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.details')"
-              v-model="newIntentionDetails"
+              v-model="newTestPurposeDetails"
             ></v-textarea>
 
             <v-checkbox
-              v-model="shouldContinueSameIntention"
+              v-model="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.continue-same-purpose')"
             ></v-checkbox>
           </v-card-text>
@@ -160,9 +160,9 @@ export default class NoteEditDialog extends Vue {
   private maxSequence: number | null = null;
   private shouldTakeScreenshot = false;
   private shouldRecordAsIssue = false;
-  private newIntention = "";
-  private newIntentionDetails = "";
-  private shouldContinueSameIntention = false;
+  private newTestPurpose = "";
+  private newTestPurposeDetails = "";
+  private shouldContinueSameTestPurpose = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -189,9 +189,9 @@ export default class NoteEditDialog extends Vue {
     this.maxSequence = this.$store.state.operationHistory.history.length;
     this.shouldTakeScreenshot = false;
     this.shouldRecordAsIssue = false;
-    this.newIntention = "";
-    this.newIntentionDetails = "";
-    this.shouldContinueSameIntention = false;
+    this.newTestPurpose = "";
+    this.newTestPurposeDetails = "";
+    this.shouldContinueSameTestPurpose = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -213,8 +213,8 @@ export default class NoteEditDialog extends Vue {
         const intentionInfo = {
           oldSequence: this.newTargetSequence ?? undefined,
           newSequence: this.newTargetSequence ?? undefined,
-          note: this.newIntention,
-          noteDetails: this.newIntentionDetails,
+          note: this.newTestPurpose,
+          noteDetails: this.newTestPurposeDetails,
           tags: [],
           shouldTakeScreenshot: false,
         } as NoteEditInfo;
@@ -225,10 +225,11 @@ export default class NoteEditDialog extends Vue {
           });
         }
 
-        if (!this.shouldContinueSameIntention) {
-          await this.$store.dispatch("operationHistory/saveIntention", {
-            noteEditInfo: intentionInfo,
-          });
+        if (!this.shouldContinueSameTestPurpose) {
+          await this.$store.dispatch(
+            "operationHistory/addUnassignedTestPurpose",
+            { noteEditInfo: intentionInfo }
+          );
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -258,7 +259,7 @@ export default class NoteEditDialog extends Vue {
       return false;
     }
 
-    if (!this.shouldContinueSameIntention && this.newIntention === "") {
+    if (!this.shouldContinueSameTestPurpose && this.newTestPurpose === "") {
       return false;
     }
 

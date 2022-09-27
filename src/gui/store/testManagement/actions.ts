@@ -45,6 +45,7 @@ import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestM
 import { DeleteGroupAction } from "@/lib/testManagement/actions/DeleteGroupAction";
 import { AddNewTestTargetAction } from "@/lib/testManagement/actions/AddNewTestTargetAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
+import { TestResultSummary } from "@/lib/operationHistory/types";
 import { CollectProgressDatasAction } from "@/lib/testManagement/actions/CollectProgressDatasAction";
 import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/ProjectFileRepository";
 import { UpdateStoryAction } from "@/lib/testManagement/actions/UpdateStoryAction";
@@ -108,12 +109,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param context Action context.
    * @returns Test results.
    */
-  async getTestResults(context): Promise<
-    {
-      name: string;
-      id: string;
-    }[]
-  > {
+  async getTestResults(context): Promise<TestResultSummary[]> {
     const result = await new GetTestResultListAction(
       context.rootState.repositoryContainer
     ).getTestResults();
@@ -126,8 +122,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
         )
       );
     }
-
-    console.log(result.data);
 
     return result.data;
   },

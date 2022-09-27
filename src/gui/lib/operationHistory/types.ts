@@ -199,3 +199,5 @@ export interface TestResult {
   }[];
   coverageSources: CoverageSource[];
 }
+
+export type TestResultSummary = Pick<TestResult, "id" | "name">;

@@ -20,6 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { TestResultSummary } from "../../types";
 
 const CREATE_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.create_test_result_failed";
@@ -35,7 +36,7 @@ export class CreateTestResultAction {
   public async createTestResult(
     initialUrl?: string,
     name?: string
-  ): Promise<ActionResult<{ id: string; name: string }>> {
+  ): Promise<ActionResult<TestResultSummary>> {
     const postEmptyTestResultResult =
       await this.repositoryContainer.testResultRepository.postEmptyTestResult(
         initialUrl,

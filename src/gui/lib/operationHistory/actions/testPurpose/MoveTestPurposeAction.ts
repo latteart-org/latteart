@@ -22,17 +22,11 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export interface MoveIntentionActionObserver {
-  moveIntention(oldSequence: number, newIntention: Note): void;
-  getTestStepId(sequence: number): string;
-}
-
 const MOVE_TEST_PURPOSE_FAILED_MESSAGE_KEY =
   "error.operation_history.move_test_purpose_failed";
 
-export class MoveIntentionAction {
+export class MoveTestPurposeAction {
   constructor(
-    private observer: MoveIntentionActionObserver,
     private repositoryContainer: Pick<
       RepositoryContainer,
       "testStepRepository" | "noteRepository" | "serviceUrl"
@@ -41,12 +35,9 @@ export class MoveIntentionAction {
 
   public async move(
     testResultId: string,
-    fromSequence: number,
-    destSequence: number
-  ): Promise<ActionResult<void>> {
-    const fromTestStepId = this.observer.getTestStepId(fromSequence);
-    const destTestStepId = this.observer.getTestStepId(destSequence);
-
+    fromTestStepId: string,
+    destTestStepId: string
+  ): Promise<ActionResult<Note>> {
     const testStepsResult =
       await this.repositoryContainer.testStepRepository.getTestSteps(
         testResultId,
@@ -97,27 +88,15 @@ export class MoveIntentionAction {
     const note = getNotesResult.data;
 
     const serviceUrl = this.repositoryContainer.serviceUrl;
-    const movedNote = note
-      ? new Note({
-          value: note.value,
-          details: note.details,
-          imageFilePath: note.imageFileUrl
-            ? new URL(note.imageFileUrl, serviceUrl).toString()
-            : "",
-          tags: note.tags,
-        })
-      : null;
+    const movedNote = new Note({
+      value: note.value,
+      details: note.details,
+      imageFilePath: note.imageFileUrl
+        ? new URL(note.imageFileUrl, serviceUrl).toString()
+        : "",
+      tags: note.tags,
+    });
 
-    if (movedNote) {
-      this.observer.moveIntention(
-        fromSequence,
-        Note.createFromOtherNote({
-          other: movedNote,
-          overrideParams: { sequence: destSequence },
-        })
-      );
-    }
-
-    return new ActionSuccess(undefined);
+    return new ActionSuccess(movedNote);
   }
 }
