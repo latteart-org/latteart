@@ -65,6 +65,7 @@ import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoti
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
+import { Operation } from "@/lib/operationHistory/Operation";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -84,6 +85,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     await context.dispatch("writeSettings", {
       config: {
         autofillSetting: config.autofillSetting,
+        autoOperationSetting: config.autoOperationSetting,
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
@@ -107,6 +109,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         autofillSetting:
           payload.config.autofillSetting ??
           context.state.config.autofillSetting,
+        autoOperationSetting:
+          payload.config.autoOperationSetting ??
+          context.state.config.autoOperationSetting,
         screenDefinition:
           payload.config.screenDefinition ??
           context.state.config.screenDefinition,
@@ -829,6 +834,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     context.commit("clearHistory");
+    context.commit("clearCheckedOperations");
     context.commit("clearModels");
     context.commit("clearInputValueTable");
     context.commit("selectWindow", { windowHandle: "" });
@@ -944,6 +950,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   resetHistory(context) {
     context.commit("clearHistory");
+    context.commit("clearCheckedOperations");
     context.commit("captureControl/clearWindowHandles", null, { root: true });
     context.commit("clearUnassignedTestPurposes");
     context.commit("clearAllCoverageSources");
@@ -1562,6 +1569,26 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     await context.dispatch("writeSettings", {
       config: {
         autofillSetting,
+      },
+    });
+  },
+
+  async registerAutoOperation(
+    context,
+    payload: { settingName: string; checkedOperations: Operation[] }
+  ) {
+    const conditionGroup = {
+      isEnabled: true,
+      settingName: payload.settingName,
+      autoOperations: payload.checkedOperations,
+    };
+    const autoOperationSetting = {
+      ...context.state.config.autoOperationSetting,
+    };
+    autoOperationSetting.conditionGroups.push(conditionGroup);
+    await context.dispatch("writeSettings", {
+      config: {
+        autoOperationSetting,
       },
     });
   },

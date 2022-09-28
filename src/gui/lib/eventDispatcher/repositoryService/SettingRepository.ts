@@ -26,12 +26,16 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
-import { AutofillSetting } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  AutoOperationSetting,
+} from "@/lib/operationHistory/types";
 
 type SettingsFromDB = Omit<Settings, "config"> & {
   config: {
-    screenDefinition: ScreenDefinition;
     autofillSetting: Pick<AutofillSetting, "conditionGroups">;
+    autoOperationSetting: AutoOperationSetting;
+    screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
   };

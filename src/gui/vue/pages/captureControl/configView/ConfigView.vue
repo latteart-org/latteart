@@ -163,7 +163,10 @@ import Settings, {
   ScreenDefinition,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
-import { AutofillSetting } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  AutoOperationSetting,
+} from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -412,6 +415,7 @@ export default class ConfigView extends Vue {
 
   private async saveConfig(config: {
     autofillSetting?: AutofillSetting;
+    autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinition;
     coverage?: Coverage;
     imageCompression?: ImageCompression;

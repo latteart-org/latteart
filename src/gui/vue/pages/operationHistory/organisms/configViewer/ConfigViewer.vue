@@ -77,7 +77,10 @@ import Settings, {
   ImageCompression,
   ScreenDefinition,
 } from "@/lib/common/settings/Settings";
-import { AutofillSetting } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  AutoOperationSetting,
+} from "@/lib/operationHistory/types";
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 
 @Component({
@@ -132,6 +135,7 @@ export default class ConfigViewer extends Vue {
 
   private async saveConfig(config: {
     autofillSetting?: AutofillSetting;
+    autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinition;
     coverage?: Coverage;
     imageCompression?: ImageCompression;
