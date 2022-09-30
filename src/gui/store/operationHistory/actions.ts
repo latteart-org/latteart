@@ -1575,17 +1575,23 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async registerAutoOperation(
     context,
-    payload: { settingName: string; checkedOperations: Operation[] }
+    payload: {
+      settingName: string;
+      settingDetails?: string;
+      checkedOperations: Operation[];
+    }
   ) {
     const conditionGroup = {
       isEnabled: true,
       settingName: payload.settingName,
+      details: payload.settingDetails,
       autoOperations: payload.checkedOperations,
     };
     const autoOperationSetting = {
       ...context.state.config.autoOperationSetting,
     };
     autoOperationSetting.conditionGroups.push(conditionGroup);
+
     await context.dispatch("writeSettings", {
       config: {
         autoOperationSetting,

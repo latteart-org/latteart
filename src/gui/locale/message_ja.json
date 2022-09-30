@@ -35,7 +35,10 @@
     "intention": "テストの目的",
     "note": "メモ",
     "bug": "バグ",
-    "notice": "気づき"
+    "notice": "気づき",
+    "register-operation": "操作の登録",
+    "select-operation": "操作の選択",
+    "execute-operation": "操作の実行"
   },
   "replay": {
     "done-title": "履歴再生の終了",
@@ -181,6 +184,17 @@
   },
   "autofill-button": {
     "message": "入力値セット名を選択してください。"
+  },
+  "auto-operation-register-dialog": {
+    "title": "自動操作：登録",
+    "message": "選択した操作を登録しますか？登録する場合は操作セット名を入力してください。",
+    "name": "操作セット名",
+    "details": "詳細(非必須)"
+  },
+  "auto-operation-select-dialog": {
+    "title": "自動操作：選択",
+    "message": "自動操作する場合は操作セット名を選択してください。",
+    "name": "操作セット名"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",
@@ -491,7 +505,8 @@
       "device_not_connected": "デバイスが接続されていません。",
       "create_test_result_directory_failed": "テスト結果ディレクトリの作成に失敗しました。保存先ディレクトリパスが有効かご確認ください。",
       "test_result_directory_already_exists": "保存先ディレクトリと同名のディレクトリが既に存在します。ご指定の保存先ディレクトリを変更してください。",
-      "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。"
+      "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
+      "run_auto_operations_failed": "自動操作実行中にエラーが発生しました。"
     },
     "operation_history": {
       "compress_operation_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",

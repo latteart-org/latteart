@@ -20,19 +20,19 @@
       :disabled="isDisabled"
       color="blue"
       :dark="!isDisabled"
-      @click="openDialog"
+      @click="dialogOpened = true"
       fab
       small
-      title="操作の登録"
+      :title="$store.getters.message('app.register-operation')"
     >
       <v-icon>library_add</v-icon>
     </v-btn>
 
     <auto-operation-register-dialog
-      :opened="autoOptionRegisterDialogOpened"
+      :opened="dialogOpened"
       :checked-operations="checkedOperations"
       @ok="clearCheckedOperations"
-      @close="autoOptionRegisterDialogOpened = false"
+      @close="dialogOpened = false"
     />
   </div>
 </template>
@@ -48,7 +48,7 @@ import { Component, Vue } from "vue-property-decorator";
   },
 })
 export default class AutoOperationButton extends Vue {
-  private autoOptionRegisterDialogOpened = false;
+  private dialogOpened = false;
 
   private get checkedOperations(): Operation[] {
     return this.$store.state.operationHistory.checkedOperations;
@@ -58,13 +58,9 @@ export default class AutoOperationButton extends Vue {
     return this.checkedOperations.length < 1;
   }
 
-  private openDialog() {
-    this.autoOptionRegisterDialogOpened = true;
-  }
-
   private clearCheckedOperations() {
     this.$store.commit("operationHistory/clearCheckedOperations");
-    this.autoOptionRegisterDialogOpened = false;
+    this.dialogOpened = false;
   }
 }
 </script>

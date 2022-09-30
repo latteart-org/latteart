@@ -27,6 +27,8 @@
 
     <v-divider vertical class="mx-3" />
 
+    <run-auto-operation-button />
+
     <auto-operation-button />
 
     <autofill-button />
@@ -54,6 +56,7 @@ import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import AutoOperationButton from "./AutoOperationButton.vue";
+import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 
 @Component({
   components: {
@@ -67,6 +70,7 @@ import AutoOperationButton from "./AutoOperationButton.vue";
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
     "auto-operation-button": AutoOperationButton,
+    "run-auto-operation-button": RunAutoOperationButton,
   },
 })
 export default class CaptureToolFooter extends Vue {}

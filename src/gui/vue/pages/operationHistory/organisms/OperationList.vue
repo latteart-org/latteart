@@ -56,7 +56,7 @@
             <td class="check-col">
               <v-checkbox
                 class="mx-1 check-item"
-                title="操作の選択"
+                :title="message('app.select-operation')"
                 v-model="columns.isChecked"
                 @change="
                   (value) =>

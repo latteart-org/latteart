@@ -17,22 +17,19 @@
 <template>
   <scrollable-dialog :opened="opened">
     <template v-slot:title>{{
-      $store.getters.message("auto-operation-register-dialog.title")
+      $store.getters.message("auto-operation-select-dialog.title")
     }}</template>
     <template v-slot:content>
       <div class="pre-wrap break-word">
-        {{ $store.getters.message("auto-operation-register-dialog.message") }}
+        {{ $store.getters.message("auto-operation-select-dialog.message") }}
       </div>
-      <v-text-field
-        v-model="settingName"
-        :label="$store.getters.message('auto-operation-register-dialog.name')"
-      ></v-text-field>
-      <v-textarea
-        :label="
-          $store.getters.message('auto-operation-register-dialog.details')
-        "
-        v-model="settingDetails"
-      ></v-textarea>
+      <v-select
+        :label="$store.getters.message('auto-operation-select-dialog.name')"
+        :items="selectList"
+        item-text="settingName"
+        item-value="index"
+        @change="selectGroup"
+      ></v-select>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
@@ -56,22 +53,30 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
   },
 })
-export default class AutoOperationRegisterDialog extends Vue {
+export default class AutoOperationSelectDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Array, default: () => [] })
-  public readonly checkedOperations!: Operation[];
-  private settingName = "";
-  private settingDetails = "";
+  @Prop({ type: Array, default: [] })
+  public readonly autoOperationConditionGroups!: AutoOperationConditionGroup[];
+  private selectedIndex = -1;
+
+  private get selectList() {
+    return this.autoOperationConditionGroups.map((group, index) => {
+      return {
+        settingName: group.settingName,
+        index,
+      };
+    });
+  }
 
   private get okButtonIsDisabled() {
-    return !this.settingName ? true : false;
+    return this.selectedIndex < 0;
   }
 
   @Watch("opened")
@@ -79,24 +84,17 @@ export default class AutoOperationRegisterDialog extends Vue {
     if (!this.opened) {
       return;
     }
-    this.settingName = "";
-    this.settingDetails = "";
   }
 
-  private ok() {
-    const sortedOperations = this.checkedOperations.sort(
-      (a, b) => a.sequence - b.sequence
-    );
-    this.$store.dispatch("operationHistory/registerAutoOperation", {
-      settingName: this.settingName,
-      settingDetails: this.settingDetails,
-      checkedOperations: sortedOperations,
-    });
-
-    this.$emit("ok");
+  private selectGroup(index: number) {
+    this.selectedIndex = index;
   }
 
-  private close(): void {
+  private async ok(): Promise<void> {
+    this.$emit("ok", this.selectedIndex);
+  }
+
+  private async close(): Promise<void> {
     this.$emit("close");
   }
 }

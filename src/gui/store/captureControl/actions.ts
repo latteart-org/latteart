@@ -329,7 +329,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.operations Operations.
    */
-  async runOperations(context, payload: { operations: Operation[] }) {
+  async runOperations(
+    context,
+    payload: { operations: Operation[]; waitTime?: number }
+  ) {
     const isReplayCaptureMode = (context.rootState as any).captureControl
       .replayOption.replayCaptureMode;
     const isReplaying = (context.rootState as any).captureControl.isReplaying;
@@ -374,11 +377,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           payload.operations[index - 1].timestamp
         );
         const current = new TimestampImpl(payload.operations[index].timestamp);
+        const intervalTime = payload.waitTime ?? current.diff(previous);
 
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve();
-          }, current.diff(previous));
+          }, intervalTime);
         });
       }
 
@@ -418,7 +422,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       }
     }
-    context.dispatch("endCapture");
+    if (isReplayCaptureMode || isReplaying) {
+      context.dispatch("endCapture");
+    }
   },
 
   /**

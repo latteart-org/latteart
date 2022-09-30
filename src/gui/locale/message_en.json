@@ -31,7 +31,10 @@
     "manage-title": "Management Tool",
     "intention": "Test Purpose",
     "note": "Note",
-    "notice": "Finding"
+    "notice": "Finding",
+    "register-operation": "Operation Registration",
+    "select-operation": "Operation Selection",
+    "execute-operation": "Operation Execution"
   },
   "replay": {
     "done-title": "Replay is done",
@@ -177,6 +180,17 @@
   },
   "autofill-button": {
     "message": "Please select an input value set name."
+  },
+  "auto-operation-register-dialog": {
+    "title": "Auto operation: Registration",
+    "message": "Do you want to register the selected operation? When registering, enter the operation set name.",
+    "name": "Operation Set Name",
+    "details": "Details(optional)"
+  },
+  "auto-operation-select-dialog": {
+    "title": "Auto Operation: Select",
+    "message": "For automatic operation, select the operation set name.",
+    "name": "Operation Set Name"
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
@@ -487,7 +501,8 @@
       "device_not_connected": "Device is not connected.",
       "create_test_result_directory_failed": "Failed to make test result directory . Please check if a correct path to the directory is set.",
       "test_result_directory_already_exists": "A directory with the same name as the test result directory has already exists. Please specify a different directory.",
-      "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version."
+      "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
+      "run_auto_operations_failed": "An error occurred during automatic operation execution."
     },
     "operation_history": {
       "compress_operation_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",

@@ -158,6 +158,7 @@ export interface AutoOperationSetting {
 export interface AutoOperationConditionGroup {
   isEnabled: boolean;
   settingName: string;
+  details?: string;
   autoOperations: Operation[];
 }
 
