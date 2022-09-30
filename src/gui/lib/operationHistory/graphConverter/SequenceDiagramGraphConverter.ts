@@ -42,6 +42,48 @@ export interface SequenceDiagramGraphCallback {
   ) => void;
 }
 
+function buildParticipantText(screenIndex: number, screenDef: string) {
+  return `participant s${screenIndex} as ${screenDef}`;
+}
+
+function buildDummyNoteText(
+  position: "left of" | "right of",
+  screenIndex: number
+) {
+  return `Note ${position} s${screenIndex}: DUMMY_COMMENT`;
+}
+
+function buildNoteText(
+  position: "left of" | "right of",
+  screenIndex: number,
+  value: string
+) {
+  return `Note ${position} s${screenIndex}: ${value}`;
+}
+
+function buildScreenTransitionText(
+  sourceScreenIndex: number,
+  destScreenIndex: number,
+  description: string
+) {
+  return `s${sourceScreenIndex} ->> s${destScreenIndex}: ${description}`;
+}
+
+function buildNoScreenTransitionText(
+  sourceScreenIndex: number,
+  destScreenIndex: number
+) {
+  return `s${sourceScreenIndex} --x s${destScreenIndex}: `;
+}
+
+function buildActivateText(screenIndex: number) {
+  return `activate s${screenIndex}`;
+}
+
+function buildDeactivateText(screenIndex: number) {
+  return `deactivate s${screenIndex}`;
+}
+
 /**
  * A class that performs conversions related to Mermaid's sequence diagram display.
  */
@@ -85,17 +127,16 @@ export default class SequenceDiagramGraphConverter {
     const appearedScreens = screenHistory.appearedScreens;
 
     // Text of the screen definition part in the mermaid graph.
-    const screenDefinitionText = appearedScreens.reduce(
-      (acc, currentScreen, currentIndex) => {
+    const screenDefinitionTexts = appearedScreens.map(
+      (currentScreen, currentIndex) => {
         const screenDef = SequenceDiagramGraphConverter.displayScreenDefOptimal(
           currentIndex,
           newNameMap,
           currentScreen.screenDef,
           15
         );
-        return `${acc}participant ${currentIndex} as ${screenDef};` + "\n";
-      },
-      ""
+        return `${buildParticipantText(currentIndex, screenDef)}`;
+      }
     );
 
     // Build mermaid graph text.
@@ -123,7 +164,7 @@ export default class SequenceDiagramGraphConverter {
         currentScreenId > preScreenId ? "left of" : "right of";
 
       graphTextSteps.push(
-        `Note ${dummyCommentPosition} ${currentScreenId}: DUMMY_COMMENT`
+        buildDummyNoteText(dummyCommentPosition, currentScreenId)
       );
     };
 
@@ -160,15 +201,21 @@ export default class SequenceDiagramGraphConverter {
           currentScreen.operationHistory[0]?.operation.windowHandle
         ) {
           graphTextSteps.push(
-            `${preScreenId} ->> ${currentScreenId}: ${transitionText}`
+            buildScreenTransitionText(
+              preScreenId,
+              currentScreenId,
+              transitionText
+            )
           );
 
-          graphTextSteps.push(`deactivate ${preScreenId}`);
-          graphTextSteps.push(`activate ${currentScreenId}`);
+          graphTextSteps.push(buildDeactivateText(preScreenId));
+          graphTextSteps.push(buildActivateText(currentScreenId));
         } else {
-          graphTextSteps.push(`${preScreenId} --x ${preScreenId}: `);
+          graphTextSteps.push(
+            buildNoScreenTransitionText(preScreenId, preScreenId)
+          );
 
-          graphTextSteps.push(`deactivate ${preScreenId}`);
+          graphTextSteps.push(buildDeactivateText(preScreenId));
         }
 
         edges.push({
@@ -292,7 +339,7 @@ export default class SequenceDiagramGraphConverter {
                 );
 
               graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
-              graphTextSteps.push(`activate ${currentScreenId}`);
+              graphTextSteps.push(buildActivateText(currentScreenId));
               startWindowHandleScope = true;
               hasBugOrNoticeInScopeOfWindowHandle = false;
             }
@@ -311,7 +358,7 @@ export default class SequenceDiagramGraphConverter {
               const preWindowHandle =
                 summarizedOperations[index - 1]?.windowHandle;
               if (currentWindowHandle !== preWindowHandle) {
-                graphTextSteps.push(`activate ${currentScreenId}`);
+                graphTextSteps.push(buildActivateText(currentScreenId));
               }
 
               hasBugOrNoticeInScopeOfWindowHandle = false;
@@ -323,14 +370,15 @@ export default class SequenceDiagramGraphConverter {
               tags: string[]
             ) => {
               const tagsText = tags.map((tag) => `[${tag}]`).join("");
+              const noteValue = `${TextUtil.lineBreak(
+                `(${id})${tagsText}`,
+                16
+              )}<br/>${"-".repeat(1)}<br/>${TextUtil.escapeSpecialCharacters(
+                TextUtil.lineBreak(value, 16)
+              )}`;
 
               graphTextSteps.push(
-                `Note right of ${currentScreenId}: ${TextUtil.lineBreak(
-                  `(${id})${tagsText}`,
-                  16
-                )}<br/>${"-".repeat(1)}<br/>${TextUtil.escapeSpecialCharacters(
-                  TextUtil.lineBreak(value, 16)
-                )}`
+                buildNoteText("right of", currentScreenId, noteValue)
               );
             };
 
@@ -387,7 +435,7 @@ export default class SequenceDiagramGraphConverter {
             addDummyComment(preScreenId, currentScreenId);
           }
 
-          graphTextSteps.push(`deactivate ${currentScreenId}`);
+          graphTextSteps.push(buildDeactivateText(currentScreenId));
 
           graphTextSteps.push("end");
         }
@@ -417,10 +465,11 @@ export default class SequenceDiagramGraphConverter {
       nameMap = newNameMap;
     }
 
-    const graphText = graphTextSteps.reduce((acc, currentStepText) => {
-      // Convert to text.
-      return `${acc}${currentStepText};` + "\n";
-    }, "sequenceDiagram;" + "\n" + screenDefinitionText);
+    const graphText = `${[
+      "sequenceDiagram",
+      ...screenDefinitionTexts,
+      ...graphTextSteps,
+    ].join(";\n")};\n`;
 
     const graphExtender = new SequenceDiagramGraphExtender({
       callback: {

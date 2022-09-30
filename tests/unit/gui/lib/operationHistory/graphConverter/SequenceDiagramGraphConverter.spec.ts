@@ -46,11 +46,11 @@ describe("SequenceDiagramGraphConverterは", () => {
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
-deactivate 0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
 end;
 `
         );
@@ -71,12 +71,12 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
-deactivate 0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
 end;
 end;
 `
@@ -97,11 +97,11 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+deactivate s0;
 end;
 `
         );
@@ -121,11 +121,11 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)<br/>-<br/>notice1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)<br/>-<br/>notice1;
+deactivate s0;
 end;
 `
         );
@@ -145,11 +145,11 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[tag1][tag2<br/>]<br/>-<br/>notice1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[tag1][tag2<br/>]<br/>-<br/>notice1;
+deactivate s0;
 end;
 `
         );
@@ -173,12 +173,12 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+deactivate s0;
 end;
 end;
 `
@@ -203,12 +203,12 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)<br/>-<br/>notice1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)<br/>-<br/>notice1;
+deactivate s0;
 end;
 end;
 `
@@ -232,12 +232,12 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-Note right of 0: (1-0)<br/>-<br/>notice1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+Note right of s0: (1-0)<br/>-<br/>notice1;
+deactivate s0;
 end;
 `
         );
@@ -264,13 +264,13 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-Note right of 0: (1-0)<br/>-<br/>notice1;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+Note right of s0: (1-0)<br/>-<br/>notice1;
+deactivate s0;
 end;
 end;
 `
@@ -349,19 +349,19 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-Note right of 0: (1-0)<br/>-<br/>notice1;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+Note right of s0: (1-0)<br/>-<br/>notice1;
 end;
 end;
 alt (2)intent2;
 opt (2)window1-text;
-Note right of 0: (2-0)[bug]<br/>-<br/>bug2;
-Note right of 0: (2-0)<br/>-<br/>notice2;
-deactivate 0;
+Note right of s0: (2-0)[bug]<br/>-<br/>bug2;
+Note right of s0: (2-0)<br/>-<br/>notice2;
+deactivate s0;
 end;
 end;
 `
@@ -393,18 +393,18 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
 end;
 end;
 alt (2)intent2;
 opt (2)window1-text;
-Note right of 0: (2-0)[bug]<br/>-<br/>bug2;
-Note right of 0: (2-0)<br/>-<br/>notice2;
-deactivate 0;
+Note right of s0: (2-0)[bug]<br/>-<br/>bug2;
+Note right of s0: (2-0)<br/>-<br/>notice2;
+deactivate s0;
 end;
 end;
 `
@@ -524,32 +524,32 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1;
-Note right of 0: (1-0)<br/>-<br/>notice1;
-0 ->> 1: (1)type1: elementValue1;
-deactivate 0;
-activate 1;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
+Note right of s0: (1-0)<br/>-<br/>notice1;
+s0 ->> s1: (1)type1: elementValue1;
+deactivate s0;
+activate s1;
 end;
 end;
 alt (2)intent2;
 opt (2)window1-text;
-Note right of 1: (2-0)[bug]<br/>-<br/>bug2;
-Note right of 1: (2-0)<br/>-<br/>notice2;
-1 ->> 0: (2)type2: elementValue2;
-deactivate 1;
-activate 0;
+Note right of s1: (2-0)[bug]<br/>-<br/>bug2;
+Note right of s1: (2-0)<br/>-<br/>notice2;
+s1 ->> s0: (2)type2: elementValue2;
+deactivate s1;
+activate s0;
 end;
 end;
 alt (3)intent3;
 opt (3)window1-text;
-Note right of 0: (3-0)[bug]<br/>-<br/>bug3;
-Note right of 0: (3-0)<br/>-<br/>notice3;
-deactivate 0;
+Note right of s0: (3-0)[bug]<br/>-<br/>bug3;
+Note right of s0: (3-0)<br/>-<br/>notice3;
+deactivate s0;
 end;
 end;
 `
@@ -618,14 +618,14 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-0 ->> 0: (1)type1: elementValue1;
-deactivate 0;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
-deactivate 0;
+activate s0;
+s0 ->> s0: (1)type1: elementValue1;
+deactivate s0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
 end;
 `
         );
@@ -693,15 +693,15 @@ end;
           ).graphText
         ).toEqual(
           `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)screen_transition: ;
-deactivate 0;
-activate 1;
-Note left of 1: DUMMY_COMMENT;
-deactivate 1;
+activate s0;
+s0 ->> s1: (1)screen_transition: ;
+deactivate s0;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
 end;
 `
         );
@@ -746,12 +746,12 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as hogehogehugahug<br/>apiyopiyofoobar<br/>hogehogehugahug<br/>...;
+participant s0 as hogehogehugahug<br/>apiyopiyofoobar<br/>hogehogehugahug<br/>...;
 alt (1)intent1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
-deactivate 0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
 end;
 end;
 `
@@ -800,12 +800,12 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
+participant s0 as screenDef1;
 opt (1)window1-text;
-activate 0;
-Note right of 0: (1-0)[bug]<br/>-<br/>bug1bug1バグ1バ<br/>グ1bug1bug1;
-Note right of 0: (1-0)<br/>-<br/>notice1notice1気<br/>づき1not;
-deactivate 0;
+activate s0;
+Note right of s0: (1-0)[bug]<br/>-<br/>bug1bug1バグ1バ<br/>グ1bug1bug1;
+Note right of s0: (1-0)<br/>-<br/>notice1notice1気<br/>づき1not;
+deactivate s0;
 end;
 `
       );
@@ -870,15 +870,15 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)type1: element Value1;
-deactivate 0;
-activate 1;
-Note left of 1: DUMMY_COMMENT;
-deactivate 1;
+activate s0;
+s0 ->> s1: (1)type1: element Value1;
+deactivate s0;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
 end;
 `
       );
@@ -937,15 +937,15 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa;
-deactivate 0;
-activate 1;
-Note left of 1: DUMMY_COMMENT;
-deactivate 1;
+activate s0;
+s0 ->> s1: (1)type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa;
+deactivate s0;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
 end;
 `
       );
@@ -1004,15 +1004,15 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)type1: aaaaaaaaaaaaaaaaaaaa...;
-deactivate 0;
-activate 1;
-Note left of 1: DUMMY_COMMENT;
-deactivate 1;
+activate s0;
+s0 ->> s1: (1)type1: aaaaaaaaaaaaaaaaaaaa...;
+deactivate s0;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
 end;
 `
       );
@@ -1098,20 +1098,20 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef3;
+participant s0 as screenDef1;
+participant s1 as screenDef3;
 opt (1)window1-text;
-activate 0;
-0 --x 0: ;
-deactivate 0;
+activate s0;
+s0 --x s0: ;
+deactivate s0;
 end;
 opt (2)window2-text;
-activate 0;
-0 ->> 1: (2)type2: elementValue2;
-deactivate 0;
-activate 1;
-Note left of 1: DUMMY_COMMENT;
-deactivate 1;
+activate s0;
+s0 ->> s1: (2)type2: elementValue2;
+deactivate s0;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
 end;
 `
       );
@@ -1190,21 +1190,21 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
-participant 2 as screenDef3;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
+participant s2 as screenDef3;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)type1: elementValue1;
-deactivate 0;
-activate 1;
-1 --x 1: ;
-deactivate 1;
+activate s0;
+s0 ->> s1: (1)type1: elementValue1;
+deactivate s0;
+activate s1;
+s1 --x s1: ;
+deactivate s1;
 end;
 opt (3)window2-text;
-activate 2;
-Note left of 2: DUMMY_COMMENT;
-deactivate 2;
+activate s2;
+Note left of s2: DUMMY_COMMENT;
+deactivate s2;
 end;
 `
       );
@@ -1283,22 +1283,22 @@ end;
         ).graphText
       ).toEqual(
         `sequenceDiagram;
-participant 0 as screenDef1;
-participant 1 as screenDef2;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
 opt (1)window1-text;
-activate 0;
-0 ->> 1: (1)type1: elementValue1;
-deactivate 0;
-activate 1;
-1 --x 1: ;
-deactivate 1;
-Note right of 0: DUMMY_COMMENT;
+activate s0;
+s0 ->> s1: (1)type1: elementValue1;
+deactivate s0;
+activate s1;
+s1 --x s1: ;
+deactivate s1;
+Note right of s0: DUMMY_COMMENT;
 end;
 alt (3)intent3;
 opt (3)window2-text;
-activate 0;
-Note right of 0: DUMMY_COMMENT;
-deactivate 0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
 end;
 end;
 `
