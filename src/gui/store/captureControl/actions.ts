@@ -211,14 +211,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const sourceTestResultId = (context.rootState as any).operationHistory
         .testResultInfo.id;
 
-      const pauseCapturingIndex = payload.operations.findIndex((operation) => {
-        return operation.type === "pause_capturing";
-      });
-
-      const operations =
-        pauseCapturingIndex > 0
-          ? payload.operations.slice(0, pauseCapturingIndex)
-          : payload.operations;
+      const operations = convertOperationsForReplay(payload.operations);
 
       const replayOption = context.state.replayOption;
 
@@ -252,6 +245,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     } finally {
       context.commit("setIsReplaying", { isReplaying: false });
     }
+  },
+
+  async runAutoOperations(
+    context,
+    payload: { operations: Operation[] }
+  ): Promise<void> {
+    const operations = convertOperationsForReplay(payload.operations);
+
+    await context.dispatch("runOperations", { operations, waitTime: 1000 });
   },
 
   /**
@@ -690,3 +692,23 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 };
 
 export default actions;
+
+function convertOperationsForReplay(operations: Operation[]) {
+  const pauseCapturingIndex = operations.findIndex((operation) => {
+    return operation.type === "pause_capturing";
+  });
+
+  const tempOperations =
+    pauseCapturingIndex > 0
+      ? operations.slice(0, pauseCapturingIndex)
+      : operations;
+
+  const a = tempOperations.filter((tempOperation) => {
+    return !(
+      tempOperation.type === "click" &&
+      tempOperation.elementInfo?.attributes.type === "date"
+    );
+  });
+
+  return a;
+}

@@ -81,18 +81,9 @@ export default class RunAutoOperationButton extends Vue {
     try {
       const tempOperations =
         this.autoOperationConditionGroups[index].autoOperations;
-      const pauseCapturingIndex = tempOperations.findIndex((operation) => {
-        return operation.type === "pause_capturing";
-      });
 
-      const operations =
-        pauseCapturingIndex > 0
-          ? tempOperations.slice(0, pauseCapturingIndex)
-          : tempOperations;
-
-      await this.$store.dispatch("captureControl/runOperations", {
-        operations: operations,
-        waitTime: 1000,
+      await this.$store.dispatch("captureControl/runAutoOperations", {
+        operations: tempOperations,
       });
     } catch (error) {
       this.errorDialogMessage = this.$store.getters.message(
