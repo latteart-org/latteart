@@ -127,8 +127,7 @@ export default class ClientSideCaptureServiceDispatcher {
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
       onPause: () => void;
       onResume: () => void;
-    },
-    isReplaying?: boolean
+    }
   ): Promise<Reply<void>> {
     try {
       let occurredError: ServerError | null = null;
@@ -151,10 +150,10 @@ export default class ClientSideCaptureServiceDispatcher {
         this.socketIOClient?.emit("start_capture", url, target);
       };
 
-      const onStart = (data?: unknown) => {
+      const onStart = async (data?: unknown) => {
         console.info(`onStart: ${JSON.stringify(data)}`);
 
-        eventListeners.onStart();
+        await eventListeners.onStart();
       };
 
       const onGetOperation = (data?: unknown) => {
@@ -219,9 +218,6 @@ export default class ClientSideCaptureServiceDispatcher {
           message: error.message,
           details: error.details,
         };
-        if (isReplaying) {
-          this.socketIOClient?.emit("stop_capture");
-        }
       };
 
       await this.socketIOClient
@@ -363,7 +359,10 @@ export default class ClientSideCaptureServiceDispatcher {
   public async runOperation(operation: Operation): Promise<void> {
     await this.socketIOClient?.invoke(
       "run_operation",
-      "run_operation_completed",
+      {
+        completed: "run_operation_completed",
+        failed: "run_operation_failed",
+      },
       operation
     );
   }

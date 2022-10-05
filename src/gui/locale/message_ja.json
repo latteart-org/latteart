@@ -500,6 +500,7 @@
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
       "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
+      "element_not_found": "画面要素が見つからないため、履歴再生を中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",

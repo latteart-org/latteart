@@ -86,10 +86,12 @@ export default class RunAutoOperationButton extends Vue {
         operations: tempOperations,
       });
     } catch (error) {
-      this.errorDialogMessage = this.$store.getters.message(
-        "error.capture_control.run_auto_operations_failed"
-      );
-      this.errorDialogOpened = true;
+      if (error instanceof Error) {
+        this.errorDialogOpened = true;
+        this.errorDialogMessage = error.message;
+      } else {
+        throw error;
+      }
     } finally {
       this.autoOperationSelectDialogOpened = false;
     }

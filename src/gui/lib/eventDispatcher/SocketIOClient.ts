@@ -103,13 +103,29 @@ export default class SocketIOClient {
    */
   public invoke(
     eventName: string,
-    replyEventName: string,
+    replyEventName:
+      | {
+          completed: string;
+          failed: string;
+        }
+      | string,
     ...args: unknown[]
   ): Promise<unknown> {
-    return new Promise<unknown>((resolve) => {
-      this.socket.once(replyEventName, (data: unknown) => {
+    const completedEventName =
+      typeof replyEventName === "string"
+        ? replyEventName
+        : replyEventName.completed;
+    return new Promise<unknown>((resolve, reject) => {
+      this.socket.once(completedEventName, (data: unknown) => {
         resolve(data);
       });
+
+      if (typeof replyEventName !== "string") {
+        this.socket.once(replyEventName.failed, (data: unknown) => {
+          reject(data);
+        });
+      }
+
       this.socket.emit(eventName, ...args.map((arg) => JSON.stringify(arg)));
     });
   }

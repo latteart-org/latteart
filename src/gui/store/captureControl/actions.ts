@@ -251,9 +251,16 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { operations: Operation[] }
   ): Promise<void> {
-    const operations = convertOperationsForReplay(payload.operations);
+    try {
+      const operations = convertOperationsForReplay(payload.operations);
 
-    await context.dispatch("runOperations", { operations, waitTime: 1000 });
+      await context.dispatch("runOperations", { operations, waitTime: 1000 });
+    } catch (error) {
+      const errorMessage = context.rootGetters.message(
+        `error.capture_control.run_auto_operations_failed`
+      );
+      throw new Error(errorMessage);
+    }
   },
 
   /**
@@ -424,9 +431,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       }
     }
-    if (isReplayCaptureMode || isReplaying) {
-      context.dispatch("endCapture");
-    }
   },
 
   /**
@@ -511,8 +515,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               }
 
               if (isReplaying) {
-                const operations = payload.operations;
-                context.dispatch("runOperations", { operations });
+                try {
+                  const operations = payload.operations;
+                  await context.dispatch("runOperations", { operations });
+                } finally {
+                  context.dispatch("endCapture");
+                }
               }
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {
@@ -611,8 +619,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             onResume: () => {
               context.commit("setPaused", { isPaused: false });
             },
-          },
-          isReplaying
+          }
         );
 
       if (reply.error) {
