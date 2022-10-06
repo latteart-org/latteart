@@ -15,6 +15,7 @@
  */
 
 import io from "socket.io-client";
+import { ServerError } from "../captureControl/Reply";
 
 /**
  * Client for Socket.IO communication.
@@ -41,16 +42,25 @@ export default class SocketIOClient {
   public connect(
     onConnect: () => void,
     ...eventListeners: SocketIOEventListener[]
-  ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  ): Promise<{
+    error?: ServerError | undefined;
+  }> {
+    return new Promise<{
+      error?: ServerError | undefined;
+    }>((resolve, reject) => {
       this.socket.on("reconnect_failed", () => {
         reject(new Error("reconnect failed"));
       });
 
       this.socket.once("connect", () => {
         for (const eventListener of eventListeners) {
-          this.socket.on(eventListener.eventName, (data?: string) => {
-            eventListener.eventHandler(data ? JSON.parse(data) : data);
+          this.socket.on(eventListener.eventName, async (data?: string) => {
+            const result = await eventListener.eventHandler(
+              data ? JSON.parse(data) : data
+            );
+            if (result.error) {
+              resolve(result);
+            }
           });
         }
 
@@ -67,7 +77,7 @@ export default class SocketIOClient {
             reject(new Error("disconnected"));
           } else {
             console.info(message);
-            resolve();
+            resolve({});
           }
         });
 
@@ -103,13 +113,32 @@ export default class SocketIOClient {
    */
   public invoke(
     eventName: string,
-    replyEventName: string,
+    replyEventName:
+      | {
+          completed: string;
+          failed: string;
+        }
+      | string,
     ...args: unknown[]
-  ): Promise<unknown> {
-    return new Promise<unknown>((resolve) => {
-      this.socket.once(replyEventName, (data: unknown) => {
-        resolve(data);
+  ): Promise<{ data: unknown; error?: ServerError }> {
+    const completedEventName =
+      typeof replyEventName === "string"
+        ? replyEventName
+        : replyEventName.completed;
+    return new Promise<{ data: unknown; error?: ServerError }>((resolve) => {
+      this.socket.once(completedEventName, (data: unknown) => {
+        resolve({ data });
       });
+
+      if (typeof replyEventName !== "string") {
+        this.socket.once(replyEventName.failed, (data: unknown) => {
+          resolve({
+            data: undefined,
+            error: JSON.parse(data as string) as ServerError,
+          });
+        });
+      }
+
       this.socket.emit(eventName, ...args.map((arg) => JSON.stringify(arg)));
     });
   }
@@ -117,5 +146,5 @@ export default class SocketIOClient {
 
 interface SocketIOEventListener {
   eventName: string;
-  eventHandler: (data?: unknown) => void;
+  eventHandler: (data?: unknown) => Promise<{ error?: ServerError }>;
 }

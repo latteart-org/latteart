@@ -151,6 +151,17 @@ export type AutofillCondition = {
   inputValue: string;
 };
 
+export interface AutoOperationSetting {
+  conditionGroups: AutoOperationConditionGroup[];
+}
+
+export interface AutoOperationConditionGroup {
+  isEnabled: boolean;
+  settingName: string;
+  details?: string;
+  autoOperations: Operation[];
+}
+
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;
   screenName: string;

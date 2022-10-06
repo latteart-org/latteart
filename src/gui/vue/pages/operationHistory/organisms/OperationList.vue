@@ -53,6 +53,17 @@
           :rowsPerPage="10"
         >
           <template v-slot:row="{ columns }">
+            <td class="check-col">
+              <v-checkbox
+                class="mx-1 check-item"
+                :title="message('app.select-operation')"
+                v-model="columns.isChecked"
+                @change="
+                  (value) =>
+                    updateCheckedOperationList(value, columns.operation)
+                "
+              ></v-checkbox>
+            </td>
             <td class="seq-col">
               {{ columns.operation.sequence }}
             </td>
@@ -228,6 +239,10 @@ export default class OperationList extends Vue {
     selectedSequences: [],
   };
 
+  private get checkedOperations(): Operation[] {
+    return this.$store.state.operationHistory.checkedOperations;
+  }
+
   private get headers(): {
     text: string;
     value: string;
@@ -236,6 +251,13 @@ export default class OperationList extends Vue {
     sortable?: boolean;
   }[] {
     return [
+      {
+        text: "",
+        value: "",
+        class: "check-col",
+        width: "30",
+        sortable: false,
+      },
       {
         text: this.message("operation.sequence"),
         value: "operation.sequence",
@@ -439,6 +461,7 @@ export default class OperationList extends Vue {
       };
 
       return {
+        isChecked: false,
         operation: Operation.createFromOtherOperation({
           other: operationWithNotes.operation,
           overrideParams: {
@@ -454,6 +477,27 @@ export default class OperationList extends Vue {
 
   private cancelKeydown(event: Event) {
     event.stopPropagation();
+  }
+
+  private updateCheckedOperationList(
+    isChecked: boolean,
+    operation: Operation
+  ): void {
+    const checkedOperationList = [...this.checkedOperations];
+
+    if (isChecked) {
+      checkedOperationList.push(operation);
+      this.$store.commit("operationHistory/setCheckedOperations", {
+        operations: checkedOperationList,
+      });
+    } else {
+      const filteredList = checkedOperationList.filter((checkedOperation) => {
+        return checkedOperation.sequence !== operation.sequence;
+      });
+      this.$store.commit("operationHistory/setCheckedOperations", {
+        operations: filteredList,
+      });
+    }
   }
 }
 </script>
@@ -480,6 +524,15 @@ td
 
 .icon-col
   padding: 0 !important
+
+.check-col
+  padding: 0 !important
+
+.check-item
+  height: 30px
+  width: 30px
+  padding-left: 0.75em
+  padding-top: 0.25em
 
 .seq-col
   padding-right: 8px !important

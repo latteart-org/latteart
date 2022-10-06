@@ -34,6 +34,7 @@ import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWi
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import { ServerError } from "@/lib/captureControl/Reply";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -211,14 +212,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const sourceTestResultId = (context.rootState as any).operationHistory
         .testResultInfo.id;
 
-      const pauseCapturingIndex = payload.operations.findIndex((operation) => {
-        return operation.type === "pause_capturing";
-      });
-
-      const operations =
-        pauseCapturingIndex > 0
-          ? payload.operations.slice(0, pauseCapturingIndex)
-          : payload.operations;
+      const operations = convertOperationsForReplay(payload.operations);
 
       const replayOption = context.state.replayOption;
 
@@ -251,6 +245,24 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       });
     } finally {
       context.commit("setIsReplaying", { isReplaying: false });
+    }
+  },
+
+  async runAutoOperations(
+    context,
+    payload: { operations: Operation[] }
+  ): Promise<void> {
+    const operations = convertOperationsForReplay(payload.operations);
+
+    const result = await context.dispatch("runOperations", {
+      operations,
+      waitTime: 1000,
+    });
+    if (result.error) {
+      const errorMessage = context.rootGetters.message(
+        `error.capture_control.run_auto_operations_failed`
+      );
+      throw new Error(errorMessage);
     }
   },
 
@@ -329,7 +341,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.operations Operations.
    */
-  async runOperations(context, payload: { operations: Operation[] }) {
+  async runOperations(
+    context,
+    payload: { operations: Operation[]; waitTime?: number }
+  ) {
     const isReplayCaptureMode = (context.rootState as any).captureControl
       .replayOption.replayCaptureMode;
     const isReplaying = (context.rootState as any).captureControl.isReplaying;
@@ -374,11 +389,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           payload.operations[index - 1].timestamp
         );
         const current = new TimestampImpl(payload.operations[index].timestamp);
+        const intervalTime = payload.waitTime ?? current.diff(previous);
 
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve();
-          }, current.diff(previous));
+          }, intervalTime);
         });
       }
 
@@ -413,12 +429,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           replayTargetOperation
         );
       } else if (replayTargetOperation.type !== "screen_transition") {
-        await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
-          replayTargetOperation
-        );
+        const result =
+          await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
+            replayTargetOperation
+          );
+        if (result.error) {
+          return result;
+        }
       }
     }
-    context.dispatch("endCapture");
+
+    return {};
   },
 
   /**
@@ -504,8 +525,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
               if (isReplaying) {
                 const operations = payload.operations;
-                context.dispatch("runOperations", { operations });
+                const result: { error?: ServerError } = await context.dispatch(
+                  "runOperations",
+                  {
+                    operations,
+                  }
+                );
+
+                context.dispatch("endCapture");
+                return result;
               }
+              return {};
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {
               if (capturedOperation.type === "switch_window") {
@@ -554,7 +584,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 { root: true }
               );
             },
-            onChangeBrowserHistory: (browserStatus: {
+            onChangeBrowserHistory: async (browserStatus: {
               canGoBack: boolean;
               canGoForward: boolean;
             }) => {
@@ -566,7 +596,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 canDoBrowserForward: browserStatus.canGoForward,
               });
             },
-            onUpdateAvailableWindows: (updatedWindowsInfo: {
+            onUpdateAvailableWindows: async (updatedWindowsInfo: {
               windowHandles: string[];
               currentWindowHandle: string;
             }) => {
@@ -594,17 +624,16 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 payload.callbacks.onChangeNumberOfWindows();
               }
             },
-            onChangeAlertVisibility: (data: { isVisible: boolean }) => {
+            onChangeAlertVisibility: async (data: { isVisible: boolean }) => {
               context.commit("setAlertVisible", data);
             },
-            onPause: () => {
+            onPause: async () => {
               context.commit("setPaused", { isPaused: true });
             },
-            onResume: () => {
+            onResume: async () => {
               context.commit("setPaused", { isPaused: false });
             },
-          },
-          isReplaying
+          }
         );
 
       if (reply.error) {
@@ -684,3 +713,23 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 };
 
 export default actions;
+
+function convertOperationsForReplay(operations: Operation[]) {
+  const pauseCapturingIndex = operations.findIndex((operation) => {
+    return operation.type === "pause_capturing";
+  });
+
+  const tempOperations =
+    pauseCapturingIndex > 0
+      ? operations.slice(0, pauseCapturingIndex)
+      : operations;
+
+  const a = tempOperations.filter((tempOperation) => {
+    return !(
+      tempOperation.type === "click" &&
+      tempOperation.elementInfo?.attributes.type === "date"
+    );
+  });
+
+  return a;
+}

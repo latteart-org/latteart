@@ -21,6 +21,7 @@ import {
   AutofillConditionGroup,
   AutofillSetting,
   ElementInfo,
+  AutoOperationSetting,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
@@ -35,6 +36,7 @@ import {
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import { Operation } from "@/lib/operationHistory/Operation";
 
 /**
  * State for operation history.
@@ -68,6 +70,11 @@ export interface OperationHistoryState {
      * Autofill condition settings.
      */
     autofillSetting: AutofillSetting;
+
+    /**
+     * Auto Operationg condition settings.
+     */
+    autoOperationSetting: AutoOperationSetting;
 
     /**
      * Screen definition settings.
@@ -264,6 +271,8 @@ export interface OperationHistoryState {
     callback: () => void;
   } | null;
 
+  checkedOperations: Operation[];
+
   /**
    * The function to open the dialog for editing a note.
    */
@@ -317,6 +326,9 @@ const state: OperationHistoryState = {
       autoPopupSelectionDialog: false,
       conditionGroups: [],
     },
+    autoOperationSetting: {
+      conditionGroups: [],
+    },
     screenDefinition: {
       screenDefType: ScreenDefType.Title,
       conditionGroups: [],
@@ -353,6 +365,7 @@ const state: OperationHistoryState = {
   tmpNoteInfoForEdit: null,
   autofillSelectDialogData: null,
   autofillRegisterDialogData: null,
+  checkedOperations: [],
   openNoteEditDialog: () => {
     /* Do nothing. */
   },
