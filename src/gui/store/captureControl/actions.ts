@@ -34,6 +34,7 @@ import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWi
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import { ServerError } from "@/lib/captureControl/Reply";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -251,11 +252,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { operations: Operation[] }
   ): Promise<void> {
-    try {
-      const operations = convertOperationsForReplay(payload.operations);
+    const operations = convertOperationsForReplay(payload.operations);
 
-      await context.dispatch("runOperations", { operations, waitTime: 1000 });
-    } catch (error) {
+    const result = await context.dispatch("runOperations", {
+      operations,
+      waitTime: 1000,
+    });
+    if (result.error) {
       const errorMessage = context.rootGetters.message(
         `error.capture_control.run_auto_operations_failed`
       );
@@ -426,11 +429,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           replayTargetOperation
         );
       } else if (replayTargetOperation.type !== "screen_transition") {
-        await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
-          replayTargetOperation
-        );
+        const result =
+          await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
+            replayTargetOperation
+          );
+        if (result.error) {
+          return result;
+        }
       }
     }
+
+    return {};
   },
 
   /**
@@ -515,13 +524,18 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               }
 
               if (isReplaying) {
-                try {
-                  const operations = payload.operations;
-                  await context.dispatch("runOperations", { operations });
-                } finally {
-                  context.dispatch("endCapture");
-                }
+                const operations = payload.operations;
+                const result: { error?: ServerError } = await context.dispatch(
+                  "runOperations",
+                  {
+                    operations,
+                  }
+                );
+
+                context.dispatch("endCapture");
+                return result;
               }
+              return {};
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {
               if (capturedOperation.type === "switch_window") {
@@ -570,7 +584,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 { root: true }
               );
             },
-            onChangeBrowserHistory: (browserStatus: {
+            onChangeBrowserHistory: async (browserStatus: {
               canGoBack: boolean;
               canGoForward: boolean;
             }) => {
@@ -582,7 +596,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 canDoBrowserForward: browserStatus.canGoForward,
               });
             },
-            onUpdateAvailableWindows: (updatedWindowsInfo: {
+            onUpdateAvailableWindows: async (updatedWindowsInfo: {
               windowHandles: string[];
               currentWindowHandle: string;
             }) => {
@@ -610,13 +624,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 payload.callbacks.onChangeNumberOfWindows();
               }
             },
-            onChangeAlertVisibility: (data: { isVisible: boolean }) => {
+            onChangeAlertVisibility: async (data: { isVisible: boolean }) => {
               context.commit("setAlertVisible", data);
             },
-            onPause: () => {
+            onPause: async () => {
               context.commit("setPaused", { isPaused: true });
             },
-            onResume: () => {
+            onResume: async () => {
               context.commit("setPaused", { isPaused: false });
             },
           }
