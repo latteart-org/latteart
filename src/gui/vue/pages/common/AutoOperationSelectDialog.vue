@@ -27,9 +27,15 @@
         :label="$store.getters.message('auto-operation-select-dialog.name')"
         :items="selectList"
         item-text="settingName"
-        item-value="index"
+        item-value="value"
         @change="selectGroup"
       ></v-select>
+      <v-textarea
+        :label="$store.getters.message('auto-operation-select-dialog.details')"
+        readonly
+        no-resize
+        v-model="selectedDetails"
+      ></v-textarea>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
@@ -65,12 +71,13 @@ export default class AutoOperationSelectDialog extends Vue {
   @Prop({ type: Array, default: [] })
   public readonly autoOperationConditionGroups!: AutoOperationConditionGroup[];
   private selectedIndex = -1;
+  private selectedDetails = "";
 
   private get selectList() {
     return this.autoOperationConditionGroups.map((group, index) => {
       return {
         settingName: group.settingName,
-        index,
+        value: { index, details: group.details },
       };
     });
   }
@@ -86,8 +93,9 @@ export default class AutoOperationSelectDialog extends Vue {
     }
   }
 
-  private selectGroup(index: number) {
-    this.selectedIndex = index;
+  private selectGroup(value: { index: number; details: string }) {
+    this.selectedIndex = value.index;
+    this.selectedDetails = value.details;
   }
 
   private async ok(): Promise<void> {

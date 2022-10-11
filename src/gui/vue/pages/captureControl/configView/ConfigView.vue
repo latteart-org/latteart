@@ -131,6 +131,19 @@
               >
               </autofill-setting>
             </v-expansion-panel-content>
+
+            <v-expansion-panel-content v-if="configureCaptureSettings">
+              <template v-slot:header class="py-0">
+                {{
+                  $store.getters.message("config-view.setting-auto-operation")
+                }}
+              </template>
+              <auto-operation-setting
+                :autoOperationSetting="autoOperationSetting"
+                @save-config="saveConfig"
+              >
+              </auto-operation-setting>
+            </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
       </v-layout>
@@ -167,6 +180,7 @@ import {
   AutofillSetting,
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
+import { default as AutoOperationSettingComponent } from "../../operationHistory/organisms/configViewer/AutoOperationSetting.vue";
 
 @Component({
   components: {
@@ -175,6 +189,7 @@ import {
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
     "autofill-setting": AutofillSettingComponent,
+    "auto-operation-setting": AutoOperationSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
@@ -230,6 +245,14 @@ export default class ConfigView extends Vue {
       this.settings?.config.autofillSetting ?? {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autoOperationSetting(): AutoOperationSetting {
+    return (
+      this.settings?.config.autoOperationSetting ?? {
         conditionGroups: [],
       }
     );

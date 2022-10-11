@@ -129,6 +129,7 @@
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
+    "setting-auto-operation": "Auto Operation Setting",
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
@@ -165,7 +166,10 @@
       "auto-popup-selection": "Automatically display popup to select input value",
       "input-value": "Input Value"
     },
-
+    "autoOperation": {
+      "name": "Setting Name",
+      "details": "Setting Details"
+    },
     "settings": "Settings"
   },
   "autofill-register-dialog": {
@@ -190,7 +194,8 @@
   "auto-operation-select-dialog": {
     "title": "Auto Operation: Select",
     "message": "For automatic operation, select the operation set name.",
-    "name": "Operation Set Name"
+    "name": "Operation Set Name",
+    "details": "Operation Set Details"
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
