@@ -26,10 +26,16 @@
       <v-select
         :label="$store.getters.message('auto-operation-select-dialog.name')"
         :items="selectList"
+        v-model="selectedItem"
         item-text="settingName"
-        item-value="index"
-        @change="selectGroup"
+        item-value="value"
       ></v-select>
+      <v-textarea
+        :label="$store.getters.message('auto-operation-select-dialog.details')"
+        readonly
+        no-resize
+        :value="selectedItem ? selectedItem.details : ''"
+      ></v-textarea>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
@@ -64,19 +70,23 @@ export default class AutoOperationSelectDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Array, default: [] })
   public readonly autoOperationConditionGroups!: AutoOperationConditionGroup[];
-  private selectedIndex = -1;
+  private selectedItem: {
+    index: number;
+    setingName: string;
+    details: string;
+  } | null = null;
 
   private get selectList() {
     return this.autoOperationConditionGroups.map((group, index) => {
       return {
         settingName: group.settingName,
-        index,
+        value: { index, details: group.details },
       };
     });
   }
 
   private get okButtonIsDisabled() {
-    return this.selectedIndex < 0;
+    return this.selectedItem === null;
   }
 
   @Watch("opened")
@@ -84,14 +94,11 @@ export default class AutoOperationSelectDialog extends Vue {
     if (!this.opened) {
       return;
     }
-  }
-
-  private selectGroup(index: number) {
-    this.selectedIndex = index;
+    this.selectedItem = null;
   }
 
   private async ok(): Promise<void> {
-    this.$emit("ok", this.selectedIndex);
+    this.$emit("ok", this.selectedItem?.index);
   }
 
   private async close(): Promise<void> {
