@@ -17,20 +17,21 @@
 <template>
   <v-container class="mt-1 pt-0" style="background-color: #eee">
     <v-layout row>
-      <v-flex xs1>
-        <v-checkbox
-          :input-value="conditionGroup.isEnabled"
-          @change="(isEnabled) => updateconditionGroup({ isEnabled })"
-          class="default-flex"
-        >
-        </v-checkbox>
-      </v-flex>
-      <v-flex xs9 class="mt-2">
-        <v-text-field
-          :label="$store.getters.message('config-view.autoOperation.name')"
-          :value="conditionGroup.settingName"
-          @change="(settingName) => updateconditionGroup({ settingName })"
-        ></v-text-field>
+      <v-flex xs10 class="mt-2">
+        <v-layout row>
+          <v-checkbox
+            :style="{ maxWidth: '40px' }"
+            :input-value="conditionGroup.isEnabled"
+            @change="(isEnabled) => updateconditionGroup({ isEnabled })"
+            class="default-flex"
+          >
+          </v-checkbox>
+          <v-text-field
+            :label="$store.getters.message('config-view.autoOperation.name')"
+            :value="conditionGroup.settingName"
+            @change="(settingName) => updateconditionGroup({ settingName })"
+          ></v-text-field>
+        </v-layout>
       </v-flex>
       <v-flex xs2 class="mt-2">
         <v-btn @click="deleteConditionGroup" color="error">{{
@@ -39,9 +40,10 @@
       </v-flex>
     </v-layout>
     <v-layout row>
-      <v-flex xs1> </v-flex>
-      <v-flex xs9>
+      <v-flex xs10>
         <v-textarea
+          hide-details
+          :style="{ paddingLeft: '40px !important' }"
           :label="$store.getters.message('config-view.autoOperation.details')"
           :value="conditionGroup.details"
           @change="(details) => updateconditionGroup({ details })"
