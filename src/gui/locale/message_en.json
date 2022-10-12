@@ -130,7 +130,7 @@
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
     "setting-auto-operation": "Auto Operation Setting",
-    "no-data": "Operation Set Not Registered",
+    "no-data": "Operation Set not registered",
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
