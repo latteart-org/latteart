@@ -18,6 +18,9 @@
   <v-container class="mt-0 pt-0">
     <v-layout row wrap>
       <v-flex xs12 class="py-0 my-0">
+        <p v-if="conditionGroups < 1">
+          {{ $store.getters.message("config-view.no-data") }}
+        </p>
         <auto-operation-container
           v-for="(group, index) in conditionGroups"
           :key="index"
