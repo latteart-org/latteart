@@ -134,6 +134,7 @@
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
     "setting-auto-operation": "自動操作設定",
+    "no-data": "データがありません",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
