@@ -18,8 +18,8 @@
     "resume-capturing": "記録の再開",
     "reset": "履歴をリセット",
     "import": "過去のテスト結果の読み込み",
-    "replay": "履歴を再生する",
-    "stop-replay": "履歴再生を中止する",
+    "replay": "テスト結果のリプレイ",
+    "stop-replay": "リプレイの中止",
     "history": "テスト履歴",
     "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
@@ -41,9 +41,9 @@
     "execute-operation": "操作の実行"
   },
   "replay": {
-    "done-title": "履歴再生の終了",
-    "done-run-operations": "履歴再生が終了しました。",
-    "run-operations-canceled": "履歴再生を中止しました。"
+    "done-title": "テスト結果のリプレイ終了",
+    "done-run-operations": "リプレイが終了しました。",
+    "run-operations-canceled": "リプレイを中止しました。"
   },
   "navigate": {
     "back": "ブラウザバックを行う",
@@ -66,10 +66,10 @@
     "sequence": "シーケンス図モデル",
     "screen-transition": "画面遷移図モデル",
     "element-coverage": "画面部品カバレッジ",
-    "auto-play-to": "通番 {value} まで自動再生",
-    "auto-play-from": "通番 {value} から自動再生",
-    "auto-play-from-to": "通番 {value1} から {value2} まで自動再生",
-    "generate-testscript": "スクリプト生成",
+    "auto-play-to": "通番 {value} までリプレイ",
+    "auto-play-from": "通番 {value} からリプレイ",
+    "auto-play-from-to": "通番 {value1} から {value2} までリプレイ",
+    "generate-testscript": "テストスクリプト生成",
     "generate-testscript-title": "テストスクリプト生成",
     "generate-testscript-option": "オプション",
     "testdata": "テストデータ",
@@ -217,9 +217,9 @@
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
   },
   "replay-option": {
-    "start-replay": "履歴を再生する",
+    "start-replay": "テスト結果のリプレイ",
     "test-result-name": "テスト結果名",
-    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
+    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
   },
   "test-option": {
     "start-testing": "テストを始める",
@@ -500,13 +500,13 @@
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",
       "client_side_capture_service_not_found": "'latteart-capture-cl'サーバに接続できません。'latteart-capture-cl'サーバが起動しているかご確認ください。",
       "capture_socket_disconnected": "記録中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト開始」ボタンを押して記録を再開してください。",
-      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「履歴を再生する」ボタンを押して再度リプレイを実施してください。",
+      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト結果のリプレイ」ボタンを押して再度リプレイを実施してください。",
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
-      "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
-      "element_not_found": "画面要素が見つからないため、履歴再生を中止しました。",
+      "invalid_operation": "無効な操作が含まれているため、リプレイを中止しました。",
+      "element_not_found": "画面要素が見つからないため、リプレイを中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
