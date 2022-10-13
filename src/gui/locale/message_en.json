@@ -169,7 +169,9 @@
     },
     "autoOperation": {
       "name": "Setting Name",
-      "details": "Setting Details"
+      "details": "Setting Details",
+      "title": "Auto operation: Set Content",
+      "details-list": "Details"
     },
     "settings": "Settings"
   },
@@ -249,7 +251,8 @@
     "text": "Text",
     "type": "Event Type",
     "input": "Input Value",
-    "timestamp": "Timestamp"
+    "timestamp": "Timestamp",
+    "url": "Url"
   },
   "sequence": {
     "window-title": "Sequence Diagram"
