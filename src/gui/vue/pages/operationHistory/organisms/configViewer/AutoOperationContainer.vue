@@ -34,9 +34,14 @@
         </v-layout>
       </v-flex>
       <v-flex xs2 class="mt-2">
-        <v-btn @click="deleteConditionGroup" color="error">{{
-          $store.getters.message("common.delete")
-        }}</v-btn>
+        <v-layout row>
+          <v-btn @click="dialogOpened = true">{{
+            $store.getters.message("config-view.autoOperation.details-list")
+          }}</v-btn>
+          <v-btn @click="deleteConditionGroup" color="error">{{
+            $store.getters.message("common.delete")
+          }}</v-btn>
+        </v-layout>
       </v-flex>
     </v-layout>
     <v-layout row>
@@ -51,17 +56,25 @@
         ></v-textarea>
       </v-flex>
     </v-layout>
+    <auto-operation-dialog
+      :opened="dialogOpened"
+      :autoOperations="conditionGroup.autoOperations"
+      :rowsPerPage="10"
+      @close="dialogOpened = false"
+    />
   </v-container>
 </template>
 
 <script lang="ts">
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import AutoOperationDialog from "@/vue/pages/common/AutoOperationDialog.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 
 @Component({
   components: {
     "screen-def-unit": ScreenDefUnit,
+    "auto-operation-dialog": AutoOperationDialog,
   },
 })
 export default class AutoOperationContainer extends Vue {
@@ -73,6 +86,7 @@ export default class AutoOperationContainer extends Vue {
 
   @Prop({ type: Number, default: null })
   public readonly index!: number;
+  private dialogOpened = false;
 
   private updateconditionGroup(
     conditionGroup: Partial<AutoOperationConditionGroup>

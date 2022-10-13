@@ -173,7 +173,9 @@
     },
     "autoOperation": {
       "name": "操作セット名",
-      "details": "操作セット詳細"
+      "details": "操作セット詳細",
+      "title": "自動操作：セット内容",
+      "details-list": "詳細"
     },
     "settings": "設定"
   },
@@ -253,7 +255,8 @@
     "text": "テキスト",
     "type": "イベント種別",
     "input": "入力値",
-    "timestamp": "時刻"
+    "timestamp": "時刻",
+    "url": "URL"
   },
   "sequence": {
     "window-title": "シーケンス図"
