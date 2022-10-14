@@ -17,34 +17,71 @@
 <template>
   <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
     <v-data-table
+      v-model="selected"
       :headers="tableHeaders"
       :items="visibleItems"
       :pagination.sync="pagination"
       :hide-headers="hideHeaders"
       :hide-actions="hideFooters"
       must-sort
+      select-all
     >
-      <template v-slot:items="{ index, item }">
+      <template v-slot:headers="props">
+        <tr>
+          <th :style="{ width: '30px' }">
+            <v-checkbox
+              :input-value="props.all"
+              :indeterminate="isIndeterminate"
+              primary
+              hide-details
+              @click.stop="toggleAll"
+            ></v-checkbox>
+          </th>
+          <th
+            v-for="header in props.headers"
+            :key="header.text"
+            :width="header.width"
+            :sortable="header.sortable"
+            align="left"
+            :class="[
+              'column sortable',
+              pagination.descending ? 'desc' : 'asc',
+              header.value === pagination.sortBy ? 'active' : '',
+              header.class ?? '',
+            ]"
+            @click="changeSort(header.value)"
+          >
+            {{ header.text }}
+            <v-icon small>arrow_upward</v-icon>
+          </th>
+        </tr>
+      </template>
+
+      <template v-slot:items="props">
         <tr
-          :key="index"
+          :key="props.item.index"
           :class="{
-            selected: selectedItemIndexes.includes(item.index),
+            selected: selectedItemIndexes.includes(props.item.index),
             'py-0': true,
             'my-0': true,
-            disabled: disabledItemIndexes.includes(item.index),
+            disabled: disabledItemIndexes.includes(props.item.index),
           }"
-          @click.exact="selectItems(item.index)"
+          @click.exact="selectItems(props.item.index)"
           @click.shift="
             selectItems(
               ...getIndexesFromRange(
-                selectedItemIndexes[0] || item.index,
-                item.index
+                selectedItemIndexes[0] || props.item.index,
+                props.item.index
               )
             )
           "
-          @contextmenu="contextmenu(item.index, $event)"
+          @contextmenu="contextmenu(props.item.index, $event)"
         >
-          <slot name="row" :columns="item.columns"></slot>
+          <slot
+            name="row"
+            :columns="props.item.columns"
+            :selected="props.selected"
+          ></slot>
         </tr>
       </template>
     </v-data-table>
@@ -54,6 +91,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { filterTableRows, sortTableRows } from "@/lib/common/table";
+import { Operation } from "@/lib/operationHistory/Operation";
 
 @Component
 export default class SelectableDataTable<T> extends Vue {
@@ -84,6 +122,8 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly hideHeaders!: boolean;
   @Prop({ type: Boolean, default: false })
   private readonly hideFooters!: boolean;
+
+  private selected: any[] = [];
 
   private pagination: {
     descending?: boolean;
@@ -153,6 +193,17 @@ export default class SelectableDataTable<T> extends Vue {
     return JSON.stringify(this.visibleItems);
   }
 
+  private get isIndeterminate() {
+    return (
+      this.checkedOperations.length > 0 &&
+      this.visibleItems.length > this.checkedOperations.length
+    );
+  }
+
+  private get checkedOperations(): Operation[] {
+    return this.$store.state.operationHistory.checkedOperations;
+  }
+
   created(): void {
     this.$nextTick(() => {
       this.resetPosition();
@@ -185,6 +236,13 @@ export default class SelectableDataTable<T> extends Vue {
 
       this.switchTablePage(rowIndex, rowsPerPage);
       this.scrollToTableRow(rowIndex, rowsPerPage);
+    }
+  }
+
+  @Watch("checkedOperations")
+  private resetSelected() {
+    if (this.checkedOperations.length === 0) {
+      this.selected = [];
     }
   }
 
@@ -282,6 +340,31 @@ export default class SelectableDataTable<T> extends Vue {
 
     if (destItem) {
       this.selectItems(destItem.index);
+    }
+  }
+
+  private toggleAll() {
+    if (this.selected.length) {
+      this.$store.commit("operationHistory/clearCheckedOperations");
+      this.selected = [];
+    } else {
+      this.selected = this.visibleItems.slice();
+
+      const visibleOperations = this.selected.map((item) => {
+        return item.columns.operation;
+      });
+      this.$store.commit("operationHistory/setCheckedOperations", {
+        operations: visibleOperations,
+      });
+    }
+  }
+
+  private changeSort(column: string) {
+    if (this.pagination.sortBy === column) {
+      this.pagination.descending = !this.pagination.descending;
+    } else {
+      this.pagination.sortBy = column;
+      this.pagination.descending = false;
     }
   }
 }

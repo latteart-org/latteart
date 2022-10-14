@@ -52,12 +52,13 @@
           descending
           :rowsPerPage="10"
         >
-          <template v-slot:row="{ columns }">
-            <td class="check-col">
+          <template v-slot:row="{ columns, selected }">
+            <td>
               <v-checkbox
-                class="mx-1 check-item"
+                class="mr-1 check-item"
+                hide-details
                 :title="message('app.select-operation')"
-                v-model="columns.isChecked"
+                :input-value="selected"
                 @change="
                   (value) =>
                     updateCheckedOperationList(value, columns.operation)
@@ -251,13 +252,6 @@ export default class OperationList extends Vue {
     sortable?: boolean;
   }[] {
     return [
-      {
-        text: "",
-        value: "",
-        class: "check-col",
-        width: "30",
-        sortable: false,
-      },
       {
         text: this.message("operation.sequence"),
         value: "operation.sequence",
@@ -461,7 +455,6 @@ export default class OperationList extends Vue {
       };
 
       return {
-        isChecked: false,
         operation: Operation.createFromOtherOperation({
           other: operationWithNotes.operation,
           overrideParams: {
@@ -531,8 +524,7 @@ td
 .check-item
   height: 30px
   width: 30px
-  padding-left: 0.75em
-  padding-top: 0.25em
+  padding-top: 0.2em
 
 .seq-col
   padding-right: 8px !important
