@@ -343,15 +343,13 @@ export default class SelectableDataTable<T> extends Vue {
     }
   }
 
-  private async toggleAll() {
+  private toggleAll() {
     if (this.selected.length) {
-      await this.$store.dispatch("operationHistory/clearCheckedOperations");
+      this.$emit("clearCheck");
       this.selected = [];
     } else {
       this.selected = this.visibleItems.slice();
-      await this.$store.dispatch("operationHistory/updateCheckedOperations", {
-        visibleItems: this.visibleItems,
-      });
+      this.$emit("checkAll", this.selected);
     }
   }
 

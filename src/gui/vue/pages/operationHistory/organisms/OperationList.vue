@@ -38,6 +38,8 @@
         <selectable-data-table
           @selectItems="onSelectOperations"
           @contextmenu="openOperationContextMenu"
+          @clearCheck="clearCheckedOperations"
+          @checkAll="setCheckedAllOperations"
           :selected-item-indexes="selectedOperationIndexes"
           :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
@@ -470,6 +472,21 @@ export default class OperationList extends Vue {
 
   private cancelKeydown(event: Event) {
     event.stopPropagation();
+  }
+
+  private clearCheckedOperations() {
+    this.$store.commit("operationHistory/clearCheckedOperations");
+  }
+
+  private setCheckedAllOperations(
+    list: { index: number; columns: OperationWithNotes }[]
+  ) {
+    const visibleOperations = list.map((item) => {
+      return item.columns.operation;
+    });
+    this.$store.commit("operationHistory/setCheckedOperations", {
+      operations: visibleOperations,
+    });
   }
 
   private updateCheckedOperationList(

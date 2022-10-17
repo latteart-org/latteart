@@ -1614,22 +1614,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
     return result.data;
   },
-
-  async clearCheckedOperations(context) {
-    context.commit("clearCheckedOperations");
-  },
-
-  async updateCheckedOperations(
-    context,
-    payload: { visibleItems: { index: number; columns: OperationWithNotes }[] }
-  ) {
-    const visibleOperations = payload.visibleItems.map((item) => {
-      return item.columns.operation;
-    });
-    context.commit("setCheckedOperations", {
-      operations: visibleOperations,
-    });
-  },
 };
 
 export default actions;
