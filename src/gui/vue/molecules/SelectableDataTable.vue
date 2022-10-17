@@ -31,7 +31,7 @@
           <th :style="{ width: '30px', paddingRight: '0px' }">
             <v-checkbox
               :input-value="props.all"
-              :indeterminate="isIndeterminate"
+              :indeterminate="isPartiallyChecked"
               primary
               hide-details
               @click.stop="toggleAll"
@@ -193,7 +193,7 @@ export default class SelectableDataTable<T> extends Vue {
     return JSON.stringify(this.visibleItems);
   }
 
-  private get isIndeterminate() {
+  private get isPartiallyChecked() {
     return (
       this.checkedOperations.length > 0 &&
       this.visibleItems.length > this.checkedOperations.length
