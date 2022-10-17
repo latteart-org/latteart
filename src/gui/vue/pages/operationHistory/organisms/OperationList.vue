@@ -53,7 +53,7 @@
           :rowsPerPage="10"
         >
           <template v-slot:row="{ columns, selected }">
-            <td>
+            <td class="check-col">
               <v-checkbox
                 class="mr-1 check-item"
                 hide-details
@@ -519,7 +519,7 @@ td
   padding: 0 !important
 
 .check-col
-  padding: 0 !important
+  padding-right: 0 !important
 
 .check-item
   height: 30px
@@ -527,7 +527,7 @@ td
   padding-top: 0.2em
 
 .seq-col
-  padding-right: 8px !important
+  padding-right: 0px !important
 
 .search-checkbox
   flex: none

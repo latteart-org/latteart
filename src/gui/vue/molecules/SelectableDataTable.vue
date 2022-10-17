@@ -28,7 +28,7 @@
     >
       <template v-slot:headers="props">
         <tr>
-          <th :style="{ width: '30px' }">
+          <th :style="{ width: '30px', paddingRight: '0px' }">
             <v-checkbox
               :input-value="props.all"
               :indeterminate="isIndeterminate"
