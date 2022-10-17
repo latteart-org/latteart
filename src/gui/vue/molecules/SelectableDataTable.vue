@@ -123,7 +123,7 @@ export default class SelectableDataTable<T> extends Vue {
   @Prop({ type: Boolean, default: false })
   private readonly hideFooters!: boolean;
 
-  private selected: any[] = [];
+  private selected: { index: number; columns: T }[] = [];
 
   private pagination: {
     descending?: boolean;
@@ -343,18 +343,14 @@ export default class SelectableDataTable<T> extends Vue {
     }
   }
 
-  private toggleAll() {
+  private async toggleAll() {
     if (this.selected.length) {
-      this.$store.commit("operationHistory/clearCheckedOperations");
+      await this.$store.dispatch("operationHistory/clearCheckedOperations");
       this.selected = [];
     } else {
       this.selected = this.visibleItems.slice();
-
-      const visibleOperations = this.selected.map((item) => {
-        return item.columns.operation;
-      });
-      this.$store.commit("operationHistory/setCheckedOperations", {
-        operations: visibleOperations,
+      await this.$store.dispatch("operationHistory/updateCheckedOperations", {
+        visibleItems: this.visibleItems,
       });
     }
   }
