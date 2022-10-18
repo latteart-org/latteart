@@ -1578,14 +1578,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     payload: {
       settingName: string;
       settingDetails?: string;
-      checkedOperations: Operation[];
+      operations: Operation[];
     }
   ) {
     const conditionGroup = {
       isEnabled: true,
       settingName: payload.settingName,
       details: payload.settingDetails,
-      autoOperations: payload.checkedOperations,
+      autoOperations: payload.operations,
     };
     const autoOperationSetting = {
       ...context.state.config.autoOperationSetting,

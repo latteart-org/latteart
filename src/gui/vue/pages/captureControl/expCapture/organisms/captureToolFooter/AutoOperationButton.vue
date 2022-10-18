@@ -30,7 +30,7 @@
 
     <auto-operation-register-dialog
       :opened="dialogOpened"
-      :checked-operations="checkedOperations"
+      :target-operations="targetOperations"
       @ok="clearCheckedOperations"
       @close="dialogOpened = false"
     />
@@ -50,12 +50,19 @@ import { Component, Vue } from "vue-property-decorator";
 export default class AutoOperationButton extends Vue {
   private dialogOpened = false;
 
-  private get checkedOperations(): Operation[] {
-    return this.$store.state.operationHistory.checkedOperations;
+  private get targetOperations(): Operation[] {
+    return (
+      this.$store.state.operationHistory.checkedOperations as {
+        index: number;
+        operation: Operation;
+      }[]
+    ).map((item) => {
+      return item.operation;
+    });
   }
 
   private get isDisabled(): boolean {
-    return this.checkedOperations.length < 1;
+    return this.targetOperations.length < 1;
   }
 
   private clearCheckedOperations() {

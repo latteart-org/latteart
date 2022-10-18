@@ -750,8 +750,11 @@ const mutations: MutationTree<OperationHistoryState> = {
     state.autofillRegisterDialogData = payload;
   },
 
-  setCheckedOperations(state, payload: { operations: Operation[] }) {
-    state.checkedOperations = payload.operations;
+  setCheckedOperations(
+    state,
+    payload: { checkedOperations: { index: number; operation: Operation }[] }
+  ) {
+    state.checkedOperations = payload.checkedOperations;
   },
 
   clearCheckedOperations(state) {

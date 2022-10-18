@@ -271,7 +271,7 @@ export interface OperationHistoryState {
     callback: () => void;
   } | null;
 
-  checkedOperations: Operation[];
+  checkedOperations: { index: number; operation: Operation }[];
 
   /**
    * The function to open the dialog for editing a note.

@@ -17,34 +17,81 @@
 <template>
   <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
     <v-data-table
+      :value="selected"
       :headers="tableHeaders"
       :items="visibleItems"
       :pagination.sync="pagination"
       :hide-headers="hideHeaders"
       :hide-actions="hideFooters"
       must-sort
+      select-all
     >
-      <template v-slot:items="{ index, item }">
+      <template v-slot:headers="props">
+        <tr>
+          <th class="check-col">
+            <v-checkbox
+              :input-value="props.all"
+              :indeterminate="isPartiallyChecked"
+              primary
+              hide-details
+              @click.stop="toggleAll"
+            ></v-checkbox>
+          </th>
+          <th
+            v-for="header in props.headers"
+            :key="header.text"
+            :width="header.width"
+            :sortable="header.sortable"
+            align="left"
+            :class="[
+              'column sortable',
+              pagination.descending ? 'desc' : 'asc',
+              header.value === pagination.sortBy ? 'active' : '',
+              header.class ?? '',
+            ]"
+            @click="changeSort(header.value)"
+          >
+            {{ header.text }}
+            <v-icon small>arrow_upward</v-icon>
+          </th>
+        </tr>
+      </template>
+
+      <template v-slot:items="props">
         <tr
-          :key="index"
+          :key="props.item.index"
           :class="{
-            selected: selectedItemIndexes.includes(item.index),
+            selected: selectedItemIndexes.includes(props.item.index),
             'py-0': true,
             'my-0': true,
-            disabled: disabledItemIndexes.includes(item.index),
+            disabled: disabledItemIndexes.includes(props.item.index),
           }"
-          @click.exact="selectItems(item.index)"
+          @click.exact="selectItems(props.item.index)"
           @click.shift="
             selectItems(
               ...getIndexesFromRange(
-                selectedItemIndexes[0] || item.index,
-                item.index
+                selectedItemIndexes[0] || props.item.index,
+                props.item.index
               )
             )
           "
-          @contextmenu="contextmenu(item.index, $event)"
+          @contextmenu="contextmenu(props.item.index, $event)"
         >
-          <slot name="row" :columns="item.columns"></slot>
+          <td class="check-col check-item">
+            <v-checkbox
+              class="mr-1"
+              hide-details
+              :input-value="
+                selected.find(({ index }) => {
+                  return index === props.item.index;
+                }) !== undefined
+              "
+              @change="
+                (value) => changeItemCheckStatuses(props.item.index, value)
+              "
+            ></v-checkbox>
+          </td>
+          <slot name="row" :columns="props.item.columns"></slot>
         </tr>
       </template>
     </v-data-table>
@@ -59,6 +106,8 @@ import { filterTableRows, sortTableRows } from "@/lib/common/table";
 export default class SelectableDataTable<T> extends Vue {
   @Prop({ type: Array, default: () => [] })
   private readonly selectedItemIndexes!: number[];
+  @Prop({ type: Array, default: () => [] })
+  private readonly checkedItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] })
   private readonly disabledItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] }) private readonly headers!: {
@@ -84,6 +133,8 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly hideHeaders!: boolean;
   @Prop({ type: Boolean, default: false })
   private readonly hideFooters!: boolean;
+
+  private selected: { index: number; columns: T }[] = [];
 
   private pagination: {
     descending?: boolean;
@@ -153,6 +204,13 @@ export default class SelectableDataTable<T> extends Vue {
     return JSON.stringify(this.visibleItems);
   }
 
+  private get isPartiallyChecked() {
+    return (
+      this.selected.length > 0 &&
+      this.visibleItems.length > this.selected.length
+    );
+  }
+
   created(): void {
     this.$nextTick(() => {
       this.resetPosition();
@@ -186,6 +244,13 @@ export default class SelectableDataTable<T> extends Vue {
       this.switchTablePage(rowIndex, rowsPerPage);
       this.scrollToTableRow(rowIndex, rowsPerPage);
     }
+  }
+
+  @Watch("checkedItemIndexes")
+  private resetSelected() {
+    this.selected = this.visibleItems.filter((item) => {
+      return this.checkedItemIndexes.includes(item.index);
+    });
   }
 
   private switchTablePage(rowIndex: number, rowsPerPage: number) {
@@ -284,6 +349,51 @@ export default class SelectableDataTable<T> extends Vue {
       this.selectItems(destItem.index);
     }
   }
+
+  private toggleAll() {
+    if (this.selected.length) {
+      this.selected = [];
+    } else {
+      this.selected = this.visibleItems.slice();
+    }
+
+    const checkedIndexes = this.selected.map((item) => {
+      return item.index;
+    });
+
+    this.$emit("checkItems", checkedIndexes);
+  }
+
+  private changeItemCheckStatuses(index: number, isChecked: boolean) {
+    if (isChecked) {
+      const checkedItems = this.visibleItems.find((item) => {
+        return item.index === index;
+      });
+      if (checkedItems) {
+        this.selected.push(checkedItems);
+      }
+    } else {
+      this.selected = this.selected
+        .filter((item) => {
+          return item.index !== index;
+        })
+        .slice();
+    }
+    const checkedIndexes = this.selected.map((item) => {
+      return item.index;
+    });
+
+    this.$emit("checkItems", checkedIndexes);
+  }
+
+  private changeSort(column: string) {
+    if (this.pagination.sortBy === column) {
+      this.pagination.descending = !this.pagination.descending;
+    } else {
+      this.pagination.sortBy = column;
+      this.pagination.descending = false;
+    }
+  }
 }
 </script>
 
@@ -301,4 +411,11 @@ table tr
   color: #888
   font-style: italic
   background-color: rgba(0,0,0,0.12)
+
+.check-col
+  padding-right: 0 !important
+  width: 30px
+
+.check-item
+  height: 30px
 </style>

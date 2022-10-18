@@ -66,7 +66,7 @@ import { Operation } from "@/lib/operationHistory/Operation";
 export default class AutoOperationRegisterDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Array, default: () => [] })
-  public readonly checkedOperations!: Operation[];
+  public readonly targetOperations!: Operation[];
   private settingName = "";
   private settingDetails = "";
 
@@ -81,16 +81,17 @@ export default class AutoOperationRegisterDialog extends Vue {
     }
     this.settingName = "";
     this.settingDetails = "";
+    console.log(`targetOperations:${JSON.stringify(this.targetOperations)}`);
   }
 
   private ok() {
-    const sortedOperations = this.checkedOperations.sort(
+    const sortedOperations = this.targetOperations.sort(
       (a, b) => a.sequence - b.sequence
     );
     this.$store.dispatch("operationHistory/registerAutoOperation", {
       settingName: this.settingName,
       settingDetails: this.settingDetails,
-      checkedOperations: sortedOperations,
+      operations: sortedOperations,
     });
 
     this.$emit("ok");
