@@ -17,7 +17,7 @@
 <template>
   <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
     <v-data-table
-      v-model="selected"
+      :value="selected"
       :headers="tableHeaders"
       :items="visibleItems"
       :pagination.sync="pagination"
@@ -28,7 +28,7 @@
     >
       <template v-slot:headers="props">
         <tr>
-          <th :style="{ width: '30px', paddingRight: '0px' }">
+          <th class="check-col">
             <v-checkbox
               :input-value="props.all"
               :indeterminate="isPartiallyChecked"
@@ -77,11 +77,21 @@
           "
           @contextmenu="contextmenu(props.item.index, $event)"
         >
-          <slot
-            name="row"
-            :columns="props.item.columns"
-            :selected="props.selected"
-          ></slot>
+          <td class="check-col check-item">
+            <v-checkbox
+              class="mr-1"
+              hide-details
+              :input-value="
+                selected.find(({ index }) => {
+                  return index === props.item.index;
+                }) !== undefined
+              "
+              @change="
+                (value) => changeItemCheckStatuses(props.item.index, value)
+              "
+            ></v-checkbox>
+          </td>
+          <slot name="row" :columns="props.item.columns"></slot>
         </tr>
       </template>
     </v-data-table>
@@ -91,12 +101,13 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { filterTableRows, sortTableRows } from "@/lib/common/table";
-import { Operation } from "@/lib/operationHistory/Operation";
 
 @Component
 export default class SelectableDataTable<T> extends Vue {
   @Prop({ type: Array, default: () => [] })
   private readonly selectedItemIndexes!: number[];
+  @Prop({ type: Array, default: () => [] })
+  private readonly checkedItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] })
   private readonly disabledItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] }) private readonly headers!: {
@@ -195,13 +206,9 @@ export default class SelectableDataTable<T> extends Vue {
 
   private get isPartiallyChecked() {
     return (
-      this.checkedOperations.length > 0 &&
-      this.visibleItems.length > this.checkedOperations.length
+      this.selected.length > 0 &&
+      this.visibleItems.length > this.selected.length
     );
-  }
-
-  private get checkedOperations(): Operation[] {
-    return this.$store.state.operationHistory.checkedOperations;
   }
 
   created(): void {
@@ -239,11 +246,11 @@ export default class SelectableDataTable<T> extends Vue {
     }
   }
 
-  @Watch("checkedOperations")
+  @Watch("checkedItemIndexes")
   private resetSelected() {
-    if (this.checkedOperations.length === 0) {
-      this.selected = [];
-    }
+    this.selected = this.visibleItems.filter((item) => {
+      return this.checkedItemIndexes.includes(item.index);
+    });
   }
 
   private switchTablePage(rowIndex: number, rowsPerPage: number) {
@@ -345,12 +352,38 @@ export default class SelectableDataTable<T> extends Vue {
 
   private toggleAll() {
     if (this.selected.length) {
-      this.$emit("clearCheck");
       this.selected = [];
     } else {
       this.selected = this.visibleItems.slice();
-      this.$emit("checkAll", this.selected);
     }
+
+    const checkedIndexes = this.selected.map((item) => {
+      return item.index;
+    });
+
+    this.$emit("checkItems", checkedIndexes);
+  }
+
+  private changeItemCheckStatuses(index: number, isChecked: boolean) {
+    if (isChecked) {
+      const checkedItems = this.visibleItems.find((item) => {
+        return item.index === index;
+      });
+      if (checkedItems) {
+        this.selected.push(checkedItems);
+      }
+    } else {
+      this.selected = this.selected
+        .filter((item) => {
+          return item.index !== index;
+        })
+        .slice();
+    }
+    const checkedIndexes = this.selected.map((item) => {
+      return item.index;
+    });
+
+    this.$emit("checkItems", checkedIndexes);
   }
 
   private changeSort(column: string) {
@@ -378,4 +411,11 @@ table tr
   color: #888
   font-style: italic
   background-color: rgba(0,0,0,0.12)
+
+.check-col
+  padding-right: 0 !important
+  width: 30px
+
+.check-item
+  height: 30px
 </style>
