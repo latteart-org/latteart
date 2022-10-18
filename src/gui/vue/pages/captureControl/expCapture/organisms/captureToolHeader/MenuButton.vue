@@ -30,8 +30,8 @@
       </template>
       <v-list>
         <test-result-import-button />
-        <generate-test-script-button />
         <test-tesult-export-button />
+        <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
           <v-list-tile
