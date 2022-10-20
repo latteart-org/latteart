@@ -50,7 +50,6 @@
           ]"
           shortcut
           sortBy="operation.sequence"
-          descending
           :rowsPerPage="10"
         >
           <template v-slot:row="{ columns }">

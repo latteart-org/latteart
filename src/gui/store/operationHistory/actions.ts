@@ -827,18 +827,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     }
 
-    context.commit("clearTestStepIds");
+    await context.dispatch("resetHistory");
 
     for (const testStepId of result.data.testStepIds) {
       context.commit("addTestStepId", { testStepId });
     }
-
-    context.commit("clearHistory");
-    context.commit("clearCheckedOperations");
-    context.commit("clearModels");
-    context.commit("clearInputValueTable");
-    context.commit("selectWindow", { windowHandle: "" });
-
     context.commit("resetAllCoverageSources", {
       coverageSources: result.data.coverageSources,
     });
