@@ -51,7 +51,7 @@ import InformationMessageDialog from "../../common/InformationMessageDialog.vue"
     "information-message-dialog": InformationMessageDialog,
   },
 })
-export default class ReplayButton extends Vue {
+export default class ReplayOperationsButton extends Vue {
   private errorDialogOpened = false;
   private errorDialogMessage = "";
 
