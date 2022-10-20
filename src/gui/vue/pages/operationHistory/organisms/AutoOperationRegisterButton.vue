@@ -21,11 +21,8 @@
       color="blue"
       :dark="!isDisabled"
       @click="dialogOpened = true"
-      fab
       small
-      :title="$store.getters.message('app.register-operation')"
-    >
-      <v-icon>library_add</v-icon>
+      >{{ $store.getters.message("app.register-operation") }}
     </v-btn>
 
     <auto-operation-register-dialog
@@ -47,7 +44,7 @@ import { Component, Vue } from "vue-property-decorator";
     "auto-operation-register-dialog": AutoOperationRegisterDialog,
   },
 })
-export default class AutoOperationButton extends Vue {
+export default class AutoOperationRegisterButton extends Vue {
   private dialogOpened = false;
 
   private get targetOperations(): Operation[] {
@@ -61,8 +58,12 @@ export default class AutoOperationButton extends Vue {
     });
   }
 
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
   private get isDisabled(): boolean {
-    return this.targetOperations.length < 1;
+    return this.targetOperations.length < 1 || this.isReplaying;
   }
 
   private clearCheckedOperations() {

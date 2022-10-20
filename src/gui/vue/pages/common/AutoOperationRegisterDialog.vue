@@ -81,7 +81,6 @@ export default class AutoOperationRegisterDialog extends Vue {
     }
     this.settingName = "";
     this.settingDetails = "";
-    console.log(`targetOperations:${JSON.stringify(this.targetOperations)}`);
   }
 
   private ok() {

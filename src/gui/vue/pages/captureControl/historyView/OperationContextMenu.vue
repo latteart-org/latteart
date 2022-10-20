@@ -42,31 +42,8 @@
         >
           <v-list-tile-title>{{ notice.label }}</v-list-tile-title>
         </v-list-tile>
-
-        <v-divider></v-divider>
-
-        <v-subheader>{{ $store.getters.message("app.replay") }}</v-subheader>
-        <v-list-tile
-          v-for="replay in replayItems"
-          :key="replay.label"
-          @click="replay.onClick"
-          :disabled="replay.disabled"
-        >
-          <v-list-tile-title>{{ replay.label }}</v-list-tile-title>
-        </v-list-tile>
       </v-list>
     </v-menu>
-    <information-message-dialog
-      :opened="informationMessageDialogOpened"
-      :title="$store.getters.message('replay.done-title')"
-      :message="informationMessage"
-      @close="informationMessageDialogOpened = false"
-    />
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
   </div>
 </template>
 
@@ -74,15 +51,8 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { Note } from "@/lib/operationHistory/Note";
 import { Operation } from "@/lib/operationHistory/Operation";
-import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
-import InformationMessageDialog from "@/vue/pages/common/InformationMessageDialog.vue";
 
-@Component({
-  components: {
-    "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
-  },
-})
+@Component
 export default class OperationContextMenu extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Number, default: 0 }) public readonly x!: number;
@@ -101,16 +71,6 @@ export default class OperationContextMenu extends Vue {
   } | null = null;
   private intentionItems: Array<{ label: string; onClick: () => void }> = [];
   private noticeItems: Array<{ label: string; onClick: () => void }> = [];
-  private replayItems: Array<{
-    label: string;
-    onClick: () => void;
-    disabled: boolean;
-  }> = [];
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-
-  private informationMessageDialogOpened = false;
-  private informationMessage = "";
 
   private get show() {
     if (this.opened) {
@@ -119,7 +79,6 @@ export default class OperationContextMenu extends Vue {
       ](this.operationInfo.sequence);
       this.initializeIntentionMenu();
       this.initializeNoticesMenu();
-      this.initializeReplayMenu();
     }
 
     return this.opened;
@@ -228,111 +187,6 @@ export default class OperationContextMenu extends Vue {
         });
       }
     );
-  }
-
-  private initializeReplayMenu(): void {
-    this.replayItems = [];
-
-    const operations: Operation[] =
-      this.$store.getters["operationHistory/getOperations"]();
-    const disabled = !!(
-      this.$store.state.captureControl.isReplaying ||
-      this.$store.state.captureControl.isCapturing ||
-      this.$store.state.captureControl.isResuming
-    );
-
-    this.replayItems.push({
-      label: this.$store.getters.message("history-view.auto-play-to", {
-        value: this.operationInfo.sequence,
-      }),
-      onClick: async () => {
-        const extractOperations = operations.slice(
-          0,
-          this.operationInfo.sequence
-        );
-        try {
-          await this.$store.dispatch("captureControl/replayOperations", {
-            operations: extractOperations,
-          });
-
-          this.informationMessageDialogOpened = true;
-          this.informationMessage = this.$store.getters.message(
-            `replay.done-run-operations`
-          );
-        } catch (error) {
-          if (!(error instanceof Error)) {
-            throw error;
-          }
-          this.errorMessageDialogOpened = true;
-          this.errorMessage = error.message;
-        }
-      },
-      disabled,
-    });
-
-    this.replayItems.push({
-      label: this.$store.getters.message("history-view.auto-play-from", {
-        value: this.operationInfo.sequence,
-      }),
-      onClick: async () => {
-        const extractOperations = operations.slice(
-          this.operationInfo.sequence - 1
-        );
-        try {
-          await this.$store.dispatch("captureControl/replayOperations", {
-            operations: extractOperations,
-          });
-
-          this.informationMessageDialogOpened = true;
-          this.informationMessage = this.$store.getters.message(
-            `replay.done-run-operations`
-          );
-        } catch (error) {
-          if (!(error instanceof Error)) {
-            throw error;
-          }
-          this.errorMessageDialogOpened = true;
-          this.errorMessage = error.message;
-        }
-      },
-      disabled,
-    });
-
-    if (
-      this.operationInfo.selectedSequences.includes(this.operationInfo.sequence)
-    ) {
-      const from = this.operationInfo.selectedSequences[0];
-      const to =
-        this.operationInfo.selectedSequences[
-          this.operationInfo.selectedSequences.length - 1
-        ];
-      this.replayItems.push({
-        label: this.$store.getters.message("history-view.auto-play-from-to", {
-          value1: from,
-          value2: to,
-        }),
-        onClick: async () => {
-          const extractOperations = operations.slice(from - 1, to);
-          try {
-            await this.$store.dispatch("captureControl/replayOperations", {
-              operations: extractOperations,
-            });
-
-            this.informationMessageDialogOpened = true;
-            this.informationMessage = this.$store.getters.message(
-              `replay.done-run-operations`
-            );
-          } catch (error) {
-            if (!(error instanceof Error)) {
-              throw error;
-            }
-            this.errorMessageDialogOpened = true;
-            this.errorMessage = error.message;
-          }
-        },
-        disabled,
-      });
-    }
   }
 }
 </script>
