@@ -292,7 +292,7 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
-    this.selectLastOperation();
+    this.selectFirstOperation();
     this.updateWindowTitle();
   }
 
@@ -310,6 +310,14 @@ export default class HistoryDisplay extends Vue {
       return;
     }
     this.selectOperation(lastOperation.operation.sequence);
+  }
+
+  private selectFirstOperation() {
+    const firstOperation = this.history[0];
+    if (!firstOperation) {
+      return;
+    }
+    this.selectOperation(firstOperation.operation.sequence);
   }
 
   private selectOperation(selectedOperationSequence: number) {
