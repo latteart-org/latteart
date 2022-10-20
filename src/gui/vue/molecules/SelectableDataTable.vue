@@ -264,6 +264,26 @@ export default class SelectableDataTable<T> extends Vue {
     });
   }
 
+  private selectCurrentPageRows() {
+    if (this.pagination.rowsPerPage <= 0) {
+      return this.visibleItems;
+    }
+
+    const filteredItems = this.visibleItems.filter((item, index) => {
+      if (index < this.pagination.rowsPerPage * (this.pagination.page - 1)) {
+        return false;
+      }
+
+      if (index >= this.pagination.rowsPerPage * this.pagination.page) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return filteredItems;
+  }
+
   private selectItems(...indexes: number[]) {
     this.$emit("selectItems", ...indexes);
   }
@@ -352,9 +372,16 @@ export default class SelectableDataTable<T> extends Vue {
 
   private toggleAll() {
     if (this.selected.length) {
-      this.selected = [];
+      const currentPageItems = this.selectCurrentPageRows().map(
+        ({ index }) => index
+      );
+      this.selected = this.selected
+        .filter((item) => {
+          return !currentPageItems.includes(item.index);
+        })
+        .slice();
     } else {
-      this.selected = this.visibleItems.slice();
+      this.selected = this.selectCurrentPageRows().slice();
     }
 
     const checkedIndexes = this.selected.map((item) => {
