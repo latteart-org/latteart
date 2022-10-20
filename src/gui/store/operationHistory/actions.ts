@@ -1300,31 +1300,29 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         });
       };
 
-      const filterOperation = (displayedOperationSequences: number[]) => {
-        context.commit("setDisplayedOperations", {
-          sequences: displayedOperationSequences,
-        });
-
-        if (displayedOperationSequences.length > 0) {
-          context.commit("selectOperation", {
-            sequence:
-              displayedOperationSequences[
-                displayedOperationSequences.length - 1
-              ],
-          });
-        }
-      };
-
       await context.dispatch("buildSequenceDiagramGraph", {
         screenHistory: context.state.screenHistory,
         windowHandles,
         callback: {
+          onClickActivationBox: (history: OperationWithNotes[]) => {
+            const firstItem = history[0] as OperationWithNotes | undefined;
+
+            if (!firstItem) {
+              return;
+            }
+
+            selectOperation(firstItem.operation.sequence);
+          },
           onClickEdge: (edge: Edge) => {
-            filterOperation(
-              edge.operationHistory.map((item) => {
-                return item.operation.sequence;
-              })
-            );
+            const lastItem = edge.operationHistory[
+              edge.operationHistory.length - 1
+            ] as OperationWithNotes | undefined;
+
+            if (!lastItem) {
+              return;
+            }
+
+            selectOperation(lastItem.operation.sequence);
           },
           onClickScreenRect: selectOperation,
           onClickNote: (note: {
@@ -1333,7 +1331,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: string;
           }) => {
             if (!!note && (note.type === "notice" || note.type === "bug")) {
-              filterOperation([note.sequence]);
+              selectOperation(note.sequence);
             }
           },
           onRightClickNote: context.state.openNoteMenu,

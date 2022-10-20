@@ -15,7 +15,11 @@
  */
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import { Edge, WindowHandle } from "@/lib/operationHistory/types";
+import {
+  Edge,
+  WindowHandle,
+  OperationWithNotes,
+} from "@/lib/operationHistory/types";
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
 import SequenceDiagramGraphExtender from "../mermaidGraph/extender/SequenceDiagramGraphExtender";
 import TextUtil from "./TextUtil";
@@ -29,6 +33,7 @@ interface NoteInfo {
 }
 
 export interface SequenceDiagramGraphCallback {
+  onClickActivationBox: (history: OperationWithNotes[]) => void;
   onClickEdge: (edge: Edge) => void;
   onClickScreenRect: (screenRectIndex: number) => void;
   onClickNote: (note: NoteInfo) => void;
@@ -103,6 +108,9 @@ export default class SequenceDiagramGraphConverter {
     screenHistory: ScreenHistory,
     windowHandles: WindowHandle[],
     callback: SequenceDiagramGraphCallback = {
+      onClickActivationBox: () => {
+        /* Do nothing */
+      },
       onClickEdge: () => {
         /* Do nothing */
       },
@@ -473,6 +481,8 @@ export default class SequenceDiagramGraphConverter {
 
     const graphExtender = new SequenceDiagramGraphExtender({
       callback: {
+        onClickActivationBox: (index: number) =>
+          callback.onClickActivationBox(edges[index].operationHistory),
         onClickEdge: (index: number) => callback.onClickEdge(edges[index]),
         onClickScreenRect: (index: number) =>
           callback.onClickScreenRect(
