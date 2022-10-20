@@ -292,7 +292,7 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
-    this.selectFirstOperation();
+    this.selectLastOperation();
     this.updateWindowTitle();
   }
 
