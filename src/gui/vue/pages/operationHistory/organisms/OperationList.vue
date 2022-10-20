@@ -23,9 +23,6 @@
     fill-height
   >
     <v-layout align-center style="height: 40px">
-      <v-btn @click="resetFilter" color="info" small>{{
-        message("operation.reset")
-      }}</v-btn>
       <auto-operation-register-button />
       <replay-operations-button />
     </v-layout>

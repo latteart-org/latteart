@@ -312,6 +312,14 @@ export default class HistoryDisplay extends Vue {
     this.selectOperation(lastOperation.operation.sequence);
   }
 
+  private selectFirstOperation() {
+    const firstOperation = this.history[0];
+    if (!firstOperation) {
+      return;
+    }
+    this.selectOperation(firstOperation.operation.sequence);
+  }
+
   private selectOperation(selectedOperationSequence: number) {
     this.$store.commit("operationHistory/selectOperation", {
       sequence: selectedOperationSequence,

@@ -24,6 +24,7 @@ export default class SequenceDiagramGraphExtender
   implements MermaidGraphExtender
 {
   private callback: {
+    onClickActivationBox: (index: number) => void;
     onClickEdge: (index: number) => void;
     onClickScreenRect: (index: number) => void;
     onClickNote: (index: number) => void;
@@ -53,6 +54,7 @@ export default class SequenceDiagramGraphExtender
    */
   constructor(args: {
     callback: {
+      onClickActivationBox: (index: number) => void;
       onClickEdge: (index: number) => void;
       onClickScreenRect: (index: number) => void;
       onClickNote: (index: number) => void;
@@ -80,6 +82,9 @@ export default class SequenceDiagramGraphExtender
    */
   public clearEvent(): void {
     this.callback = {
+      onClickActivationBox: () => {
+        /* Do nothing. */
+      },
       onClickEdge: () => {
         /* Do nothing. */
       },
@@ -130,7 +135,7 @@ export default class SequenceDiagramGraphExtender
         (nodes[i] as Node).parentNode as d3.BaseType
       );
       activationBoxArea.on("click", () => {
-        this.callback.onClickEdge(i);
+        this.callback.onClickActivationBox(i);
       });
     });
 
