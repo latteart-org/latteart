@@ -26,6 +26,8 @@
       <v-btn @click="resetFilter" color="info" small>{{
         message("operation.reset")
       }}</v-btn>
+      <auto-operation-register-button />
+      <replay-button />
     </v-layout>
     <v-layout
       align-space-around
@@ -190,11 +192,15 @@ import { Note } from "@/lib/operationHistory/Note";
 import { Operation } from "@/lib/operationHistory/Operation";
 import SelectableDataTable from "@/vue/molecules/SelectableDataTable.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
+import ReplayButton from "./ReplayButton.vue";
 
 @Component({
   components: {
     "operation-context-menu": OperationContextMenu,
     "selectable-data-table": SelectableDataTable,
+    "auto-operation-register-button": AutoOperationRegisterButton,
+    "replay-button": ReplayButton,
   },
 })
 export default class OperationList extends Vue {

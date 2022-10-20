@@ -27,7 +27,7 @@
       select-all
     >
       <template v-slot:headers="props">
-        <tr>
+        <tr :style="{ height: '40px !important' }">
           <th class="check-col">
             <v-checkbox
               :input-value="props.all"

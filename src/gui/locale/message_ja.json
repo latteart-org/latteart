@@ -19,6 +19,7 @@
     "reset": "履歴をリセット",
     "import": "過去のテスト結果の読み込み",
     "replay": "テスト結果のリプレイ",
+    "replay-operations": "操作のリプレイ",
     "stop-replay": "リプレイの中止",
     "history": "テスト履歴",
     "target": "テスト対象設定",

@@ -29,8 +29,6 @@
 
     <run-auto-operation-button />
 
-    <auto-operation-button />
-
     <autofill-button />
 
     <note-register-button />
@@ -55,7 +53,6 @@ import NoteRegisterButton from "./NoteRegisterButton.vue";
 import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
-import AutoOperationButton from "./AutoOperationButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 
 @Component({
@@ -69,7 +66,6 @@ import RunAutoOperationButton from "./RunAutoOperationButton.vue";
     "go-history-view-button": GoHistoryViewButton,
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
-    "auto-operation-button": AutoOperationButton,
     "run-auto-operation-button": RunAutoOperationButton,
   },
 })
