@@ -292,16 +292,18 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
-    this.selectLastOperation();
+    this.selectFirstOperation();
     this.updateWindowTitle();
   }
 
   @Watch("history")
   private onChangeHistory(newValue: [], oldValue: []) {
-    if (newValue.length !== oldValue.length) {
+    if (oldValue.length === 0) {
+      this.selectFirstOperation();
+    } else if (newValue.length !== oldValue.length) {
       this.selectLastOperation();
-      this.scrollGraphArea();
     }
+    this.scrollGraphArea();
   }
 
   private selectLastOperation() {
