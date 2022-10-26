@@ -1,518 +1,520 @@
-# Capturing Tool Manual
+# 記録ツール 操作説明書
 
-A capturing tool is a tool that captures user actions performed on the tested site.
-This tool consists of the following screens.
+記録ツールはテスト対象サイト上で行われたユーザー操作を記録するツールです。
+本ツールは以下の画面から構成されます。
 
-- [Header](#header)
-  - [URL input field](#url-input-field)
-  - [Test result name input field](#test-result-name-input-field)
-  - [Test start/end button](#test-startend-button)
-  - [Operation capture pause/resume button](#operation-capture-pauseresume-button)
-  - [History reset button](#history-reset-button)
-  - [Past test result load button](#past-test-result-load-button)
-  - [Menu button](#menu-button)
-    - [Import data](#import-data)
-    - [Generate script](#generate-script)
-    - [Export data](#export-data)
-    - [Play history/Stop playing history](#play-historystop-playing-history)
-    - [Screenshot output](#screenshot-output)
-    - [Delete test results](#deletettest-results)
-  - [Language](#language)
-  - [Repository URL input field](#repository-url-input-field)
-  - [Connect button](#connect-button)
-- [Footer](#Footer)
-  - [Browser back/forward button](#browser-backforward-button)
-  - [Tab window switching button](#tab-window-switching-button)
-  - [Memo button](#memo-button)
-  - [Screen switch button](#screen-switch-button)
-  - [Elapsed time](#elapsed-time)
-- [Setting screen](#setting-screen)
-  - [Test target settings](#test-target-settings)
-  - [Advanced device settings](#advanced-device-settings)
-  - [Image compression settings](#image-compression-settings)
-  - [Set screen element coverage](#set-screen-element-coverage)
-  - [Screen transition definition](#screen-transition-definition)
-- [History screen](#history-screen)
-  - [Screenshot output button](#screenshot-output-button)
-  - [Model coverage update button](#model-coverage-update-button)
-  - [Sequence diagram model](#sequence-diagram-model)
-  - [Screen transition diagram model](#screen-transition-diagram-model)
-  - [Screen element coverage](#screen-element-coverage)
+- [ヘッダー](#ヘッダー)
+  - [URL 入力欄](#url-入力欄)
+  - [テスト結果名入力欄](#テスト結果名入力欄)
+  - [テスト開始/終了ボタン](#テスト開始終了ボタン)
+  - [操作記録の一時停止/再開ボタン](#操作記録の一時停止再開ボタン)
+  - [履歴リセットボタン](#履歴リセットボタン)
+  - [過去のテスト結果の読み込みボタン](#過去のテスト結果の読み込みボタン)
+  - [メニューボタン](#メニューボタン)
+    - [データインポート](#データインポート)
+    - [スクリプト生成](#スクリプト生成)
+    - [データエクスポート](#データエクスポート)
+    - [履歴を再生する/履歴再生を中止する](#履歴を再生・中止する)
+    - [スクリーンショット出力](#スクリーンショット出力)
+    - [テスト結果の削除](#テスト結果の削除)
+  - [言語](#言語)
+  - [リポジトリ URL](#リポジトリ-url-入力欄)
+  - [接続ボタン](#接続ボタン)
+- [フッター](#フッター)
+  - [ブラウザバック・フォワードボタン](#ブラウザバックフォワードボタン)
+  - [タブ・ウィンドウ切り替えボタン](#タブウィンドウ切り替えボタン)
+  - [メモボタン](#メモボタン)
+  - [画面切り替えボタン](#画面切り替えボタン)
+  - [経過時間](#経過時間)
+- [設定画面](#設定画面)
+  - [テスト対象設定](#テスト対象設定)
+  - [デバイスの詳細設定](#デバイスの詳細設定)
+  - [画像圧縮設定](#画像圧縮設定)
+  - [画面要素カバレッジの設定](#画面要素カバレッジの設定)
+  - [画面遷移の定義](#画面遷移の定義)
+- [履歴画面](#履歴画面)
+  - [スクリーンショット出力ボタン](#スクリーンショット出力ボタン)
+  - [モデル・カバレッジ更新ボタン](#モデル・カバレッジ更新ボタン)
+  - [シーケンス図モデル](#シーケンス図モデル)
+  - [画面遷移図モデル](#画面遷移図モデル)
+  - [画面要素カバレッジ](#画面要素カバレッジ)
 
-# Header
+# ヘッダー
 
 <img src="./images/header.png"/>
 
-You can start and end tests, load past test results, replay captured actions, and more.
+テストの開始や終了、過去のテスト結果の読み込み、記録した操作のリプレイなどを行うことができます。
 
-## URL input field
+## URL 入力欄
 
 <img src="./images/url.png"/>
 
-This is the field to enter the URL of the site to be tested.
+テスト対象サイトの URL を入力する欄です。
 
-## Test result name input field
+## テスト結果名入力欄
 
 <img src="./images/test-result-name.png"/>
 
-This is a field to enter the name of the test result.
-Any name can be given, and it will be given automatically if it is not entered.
+テスト結果の名称を入力する欄です。
+任意の名称を付与することができ、未記入の場合は自動的に付与されます。
 
-## Test start/end button
+## テスト開始/終了ボタン
 
 <img src="./images/start-recording.png"/>
 <img src="./images/end-recording.png"/>
 
-If you enter a valid URL in the "URL input field", it will be activated, and when you press it, you can enter settings such as whether to test using the test purpose from the following dialog, and in that case, what to do with the first test purpose.
+「URL 入力欄」に有効な URL を入力すると活性化され、押下すると以下のダイアログからテスト目的を使用してテストをするか、その場合最初のテスト目的はどうするかといった設定を入力することができます。
 
-:bulb: If you want to proceed with the test without deciding the purpose of the test, such as an ad-hoc test, you can start by turning off the check box.
+:bulb: アドホックテスト等、特にテスト目的を決めずにテストを進めたい場合はチェックボックスを OFF にして始めることもできます。
 
-:bulb: If you are connected remotely, you can upload the test results to the remote connection when the test is finished.
+:bulb: リモート接続中の場合は、テスト終了時にテスト結果をリモート接続先にアップロードすることができます。
 
 <img src="./images/start-testing.png" width="400px" />
 
-When you press the "OK" button in the dialog, the browser will be launched, the page of the URL entered in the "URL input field" will be displayed, and recording will start.
+ダイアログの「OK」ボタンを押下するとブラウザが立ち上がり、「URL 入力欄」で入力された URL のページを表示し、記録が開始されます。
 
-:bulb: Operation contents are saved in `latteart.sqlite` under `latteart-repository/`.
-:bulb: For LatteArt version 1.7.5 or earlier, it will be saved in the directory under `latteart-repository/public/test-results/`.
+:bulb: 操作内容は`latteart-repository/`配下の`latteart.sqlite`に保存されます。  
+:bulb: バージョン 1.7.5 以前の LatteArt の場合は`latteart-repository/public/test-results/`配下のディレクトリに保存されます。
 
-:warning: While capturing with LatteArt, when opening a new page by screen transition etc., LatteArt may not be able to capture correctly if you operate before the page is loaded. Please allow the page to fully load before proceeding.
+:warning: LatteArt での記録中に画面遷移等で新しいページを開く際、ページが読み込まれる前に操作をすると LatteArt が正しく記録できない場合があります。完全にページがロードされてから操作するようにしてください。
 
-If you press it again after capturing starts, the browser will close and capturing will end.
+記録開始後に再度押下するとブラウザが閉じ、記録が終了されます。
 
-## Operation capture pause/resume button
+## 操作記録の一時停止/再開ボタン
 
 <img src="./images/pause-recording.png"/>
 <img src="./images/resume-recording.png"/>
 
-When pressed during testing, operation capturing in LatteArt is paused.
-While capturing is stopped, LatteArt will not record any input operations such as clicking or entering text on the test site.
-If you press it again while stopped, the stopped state will be canceled and subsequent operations will be recorded in LatteArt as usual.
+テスト中に押下すると、LatteArt での操作記録を一時停止します。
+記録の停止中は、テスト対象サイト上でクリックやテキスト入力等の入力操作を行っても LatteArt に記録されません。
+停止中に再度押下すると、停止状態が解除され、以降の操作は通常通り LatteArt に記録されるようになります。
 
-:bulb: Depending on the test site, even if you operate screen elements while capturing with LatteArt, it may not work properly (clicks do not respond, etc.). In that case, please use this function as a workaround.
+:bulb: テスト対象サイトによっては、LatteArt での記録中に画面要素を操作しても正しく動作しない場合がございます（クリックが反応しない等）。その場合は回避策として本機能をご利用ください。
 
-:warning: The operation history that paused capturing during the test may not work properly when used with the "Replay history" function or "Generate script" function.
+:warning: テスト中に記録の一時停止を行った操作履歴は、「履歴再生」機能や「スクリプト生成」機能で利用した際に、正しく動作しない場合があります。
 
-## History reset button
+## 履歴リセットボタン
 
 <img src="./images/reset.png"/>
 
-Press to clear the captured test history. Use this when you want to start the test from the beginning.
+押下すると記録されているテスト履歴をクリアします。テストを最初から行いたい場合等に使用してください。
 
-:bulb: Past test results are saved, so if you accidentally reset them, you can restore them by pressing the "Load past test results button".
+:bulb: 過去のテスト結果は保存されているため、誤ってリセットしてしまった場合は、「過去のテスト結果の読み込みボタン」により復元できます。
 
-## Past test result load button
+## 過去のテスト結果の読み込みボタン
 
 <img src="./images/import.png"/>
 
-When pressed, a list of saved test result names is displayed, and the selected test result can be loaded.
-The loaded test results can be tested from the continuation of the session by pressing the "Test start button" again.
+押下すると保存されているテスト結果名の一覧が表示され、選択したテスト結果を読み込むことができます。  
+読み込んだテスト結果は再度「テスト開始ボタン」を押下することで、セッションの続きからテストを行うことができます。
 
-## Menu button
+## メニューボタン
 
 <img src="./images/horizontal-three-point-reader.png"/>
 
-When pressed, the following function list is displayed.
+押下すると以下の機能一覧を表示します。
 
-- Import data
-- Generate script
-- Export data
-- Play history/Stop playing history
-- Screenshot output
-- Delete test results
+- データインポート
+- スクリプト生成
+- データエクスポート
+- 履歴を再生する
+- スクリーンショット出力
+- テスト結果の削除
 
-### Import data
+### データインポート
 
-When you press it from the list of menu buttons, you can get and display a list of zip file names under the `latteart-repository\public\imports` folder, and you can import the selected test results.
-The imported test results can be read by selecting the test results from the "Load past test results button".
-The contents in the import file (zip) are as follows.
-
-- test_result_YYYYDDMM_HHmmss.zip
-
-```
-  - Screenshots
-  - Test result information (log.json)
-```
-
-:bulb: The zip file name is output as above when exporting, but the file name can be specified freely.
-:bulb: If you want to import LatteArt data before version 1.7.5, select and zipped all image files and log.json under the folder starting with `session` under `latteart-repository\public\test-results` and then import it.
-
-### Generate script
-
-When you press it from the list of menu buttons, a test script is generated based on the currently displayed test results.
-For details, see "[Generate test script automatically](../common/test-script-generation.md)".
-
-### Export data
-
-You can export the currently displayed test results by pressing from the list of menu buttons.
-The contents in the export file (zip) are as follows.
+メニューボタンの一覧から押下すると`latteart-repository\public\imports`フォルダ配下の zip ファイル名一覧を取得して表示され、選択したテスト結果をインポートすることができます。  
+インポートしたテスト結果は「過去のテスト結果の読み込みボタン」からテスト結果を選択することで読み込むことができます。  
+インポートファイル(zip)内の構成は以下の通り
 
 - test_result_YYYYDDMM_HHmmss.zip
 
 ```
-   - Screenshots
-   - Test result information (log.json)
+  - スクリーンショット
+  - テスト結果情報(log.json)
 ```
 
-### Play history/Stop playing history
+:bulb: zip ファイル名はエクスポート時は上記のように出力されるがファイル名の指定は自由となります。  
+:bulb: バージョン 1.7.5 以前の LatteArt のデータをインポートしたい場合は
+`latteart-repository\public\test-results`配下の`session`から始まるフォルダ配下の全ての画像ファイルと log.json を選択して zip したものをインポートします。
 
-When you press the button from the list of menu buttons, the browser is launched and the captured operation including the timing of the operation is automatically repeated as it is.
-If you press "Stop Playing History" from the list of menu buttons after playback has started, the browser will close and playback will stop.
+### スクリプト生成
 
-### Screenshot output
+メニューボタンの一覧から押下すると現在表示しているテスト結果を元にテストスクリプトを生成します。
+詳細は「[テストスクリプト自動生成](../common/test-script-generation.md)」をご参照ください。
 
-You can download a screenshot of the currently displayed test result by pressing it from the list of menu buttons.
-The structure in the screenshot file (zip) is as follows.
+### データエクスポート
 
-- screenshots\_{test result name}\_YYYYDDMM_HHmmss.zip
+メニューボタンの一覧から押下すると現在表示しているテスト結果をエクスポートすることができます。  
+エクスポートファイル(zip)内の構成は以下の通り
+
+- test_result_YYYYDDMM_HHmmss.zip
 
 ```
-  - Screenshots (file name: {serial number}.webp/{serial number}.png)
+  - スクリーンショット
+  - テスト結果情報(log.json)
 ```
 
-### Delete test results
+### 履歴を再生・中止する
 
-You can delete the currently displayed test results by pressing from the list of menu buttons.
+メニューボタンの一覧から押下するとブラウザが立ち上がり、操作のタイミング含め、記録された操作がそのまま自動的に繰り返されます。
+再生開始後にメニューボタンの一覧から「履歴再生を中止する」を押下するとブラウザが閉じ、再生が中止されます。
 
-## Language
+### スクリーンショット出力
+
+メニューボタンの一覧から押下すると現在表示しているテスト結果のスクリーンショットをダウンロードすることができます。  
+スクリーンショットファイル(zip)内の構成は以下の通り
+
+- screenshots\_{テスト結果名}\_YYYYDDMM_HHmmss.zip
+
+```
+  - スクリーンショット(ファイル名：{連番}.webp/{連番}.png)
+```
+
+### テスト結果の削除
+
+メニューボタンの一覧から押下すると現在表示しているテスト結果を削除することができます。
+
+## 言語
 
 <img src="./images/locale.png"/>
 
-You can switch the display language.
+表示言語を切り替えることができます。
 
-- ja (Japanese)
-- en (English)
+- ja（日本語）
+- en（英語）
 
-## Repository URL input field
+## リポジトリ URL 入力欄
 
 <img src="./images/repository-url.png"/>
 
-This is the field to enter the repository URL.
-When you open the pull-down, repository URLs that have been connected in the past are displayed as selection candidates.
+リポジトリ URL を入力する欄です。  
+プルダウンを開くと過去に接続したリポジトリ URL が選択候補として表示されます。
 
-## Connect button
+## 接続ボタン
 
 <img src="./images/connect.png"/>
 
-You can connect to the URL mentioned in Repository URL.
-When you enter the URL in the repository URL input field, you can press the connect button.
+リポジトリ URL に記載された URL に接続することができます。  
+リポジトリ URL 入力欄に URL を入力すると接続ボタンが押下可能となります。
 
-:bulb:By specifying the repository URL of others (latteart-repositoryURL), you can access and update the data of others' environments.
+:bulb:他者のリポジトリ URL（latteart-repositoryURL）を指定することで、他者の環境のデータへアクセス、更新することができます。
 
-# Footer
+# フッター
 
 <img src="./images/footer.png"/>
 
-Mainly, you can add comments during capturing and perform some operations on the test target browser.
+主に、記録中におけるコメントの付与やテスト対象ブラウザへの一部の操作を行うことができます。
 
-## Browser back/forward button
+## ブラウザバック・フォワードボタン
 
 <img src="./images/browser-back-forward.png"/>
 
-When pressed during the test, "Back" and "Forward" are executed on the test target browser and captured as operations in LatteArt.
+テスト中に押下すると、テスト対象ブラウザ上で「戻る」・「進む」が実行され、LatteArt に操作として記録されます。
 
-:warning: If you use the browser's "back" and "forward" buttons directly without using this button, "back" and "forward" operations will not be captured. Please use this button instead of the "back" and "forward" buttons of the test target browser during the test.
+:warning: 本ボタンを使わずに、ブラウザの「戻る」・「進む」をボタンを直接使用した場合、「戻る」・「進む」といった操作は記録されません。テスト中はテスト対象ブラウザの「戻る」・「進む」ボタンは使用せずに本ボタンを使用してください。
 
-:warning: If the test site is implemented to call the browser's "back" and "forward" functions, it will not be possible to correctly link with the information managed by LatteArt, and the state of this button will be strange. You might. If such an implementation is implemented, please do not use this button together with the operation of the corresponding part (capturing of browser back/forward).
+:warning: テスト対象サイト側でブラウザの「戻る」・「進む」機能を呼び出すというような実装がされている場合、LatteArt 側で管理している情報と正しく連動できなくなり、本ボタンの状態がおかしくなる場合があります。そのような実装がされている場合は、該当箇所の操作と本ボタンでの操作（ブラウザバック・フォワードの記録）は併用しないてください。
 
-## Tab window switching button
+## タブ・ウィンドウ切り替えボタン
 
 <img src="./images/select-window.png"/>
 
-When pressed during the test, a dialog will be displayed, allowing you to switch between tabs and windows to be captured.
-Tab windows are displayed with serial numbers in the form of `window1` and `window2` in the order they are detected.
+テスト中に押下するとダイアログが表示され、記録対象のタブ・ウィンドウを切り替えることができます。
+タブ・ウィンドウは検出された順に`window1`、`window2`という形で通番が振られて表示されます。
 
-:warning: When you switch the active tab/window on the tested browser, LatteArt automatically recognizes the newly active tab/window as the target for capturing, but other tabs with different domains open windows will not switch automatically.
-In that case, use this button to manually switch the tab/window to be captured.
+:warning: テスト対象ブラウザ上でアクティブなタブ・ウィンドウを切り替えた場合、LatteArt は自動的に新しくアクティブとなったタブ・ウィンドウを記録対象と認識しますが、ドメインの異なる画面を開いている他タブ・ウインドウに対しては自動的に切り替わりません。
+その場合は、本ボタンを使用して記録対象タブ・ウィンドウを手動で切り替えてください。
 
-:warning: The tab/window switching dialog is automatically opened when a new tab/window is opened in addition to when this button is pressed.
+:warning: タブ・ウィンドウ切り替えダイアログは、本ボタン押下時以外に、別タブ・ウインドウが新しく開かれた際にも自動的に開かれます。
 
-:warning: Inactive tab windows are dimmed and do not accept clicks or other actions.
+:warning: 非アクティブなタブ・ウィンドウは薄暗く表示され、クリックなどの操作を受け付けません。
 
-## Memo button
+## メモボタン
 
 <img src="./images/add-note-button.png"/>
 
-If you set **Use test purpose** at the start of the test, pressing this button during the test will display the following dialog and you can leave a memo.
-In the memo, you can enter the result of testing according to the test purpose and the purpose of the next test.
+テスト開始時に**テスト目的を使用する**ように設定した場合は、テスト中に本ボタンを押下すると以下のダイアログが表示され、メモを残すことができます。
+メモではテスト目的に従ってテストした際の結果や次に行うテスト目的を入力することができます。
 
-:bulb: Recorded memos can be edited and deleted from the sequence diagram and operation list.
+:bulb: 記録したメモの編集・削除はシーケンス図、操作一覧からできます。
 
 <img src="./images/add-note.png" width="400px" />
 
-You can add tags when recording notes during the test.
-In addition to the tags that are prepared in advance, you can also enter an arbitrary character string to add it.
+メモにてテスト中の気づきを記録する際、タグを付与することができます。
+タグはあらかじめ用意されているものの他、任意の文字列を入力して付与することもできます。
 
 <img src="./images/add-tag.png" width="400px" />
 
-If you set **Do not use test purpose** at the start of the test, you will see the following dialog where you can enter only your observations during the test.
+テスト開始時に**テスト目的を使用しない**ように設定した場合は、テスト中の気づきのみを入力できる以下のダイアログが表示されます。
 
 <img src="./images/add-notice.png" width="400px" />
 
-## Screen switch button
+## 画面切り替えボタン
 
-When pressed, you can switch the screen of the currently displayed capturing tool.
+押下すると現在表示中の記録ツールの画面を切り替えることができます。
 
-- Switch to [Setting screen](#setting-screen)
+- [設定画面](#設定画面)に切り替える
   <img src="./images/switch-to-config.png"/>
 
-- Switch to [History screen](#history-screen)
+- [履歴画面](#履歴画面)に切り替える
   <img src="./images/switch-to-history.png"/>
 
-## Elapsed time
+## 経過時間
 
 <img src="./images/time.png"/>
 
-Elapsed time from the start of the test is displayed.
+テスト開始からの経過時間が表示されます。
 
-## Setting screen
+## 設定画面
 
 <img src="./images/config-view.png"/>
 
-You can set the test target and display settings for visualizing the captured operations.
-Various settings are saved in real time when changed.
+テスト対象の設定や記録された操作群を可視化する際の表示設定を行えます。
+各種設定は変更時にリアルタイムで保存されます。
 
-## Test target settings
+## テスト対象設定
 
 <img src="./images/test-target-config.png"/>
 
-You can set the test target.
+テスト対象の設定を行うことができます。
 
-- Platform
-   - This field specifies the platform to be tested.
-- Browser
-   - This field specifies the browser to be tested.
-- Reload on browser startup
-   - A field to specify the number of seconds to automatically reload the browser after capturing starts. Specify 0 seconds if you do not want to reload.
-   - :bulb: When using the remote debugging function of Chrome DevTools for testing on mobile devices, etc., the device recognition may be delayed depending on the timing of browser startup on the connected device, and the page may not be displayed correctly.
-     In that case, you can display the correct page by specifying this setting value so that it will be reloaded after the number of seconds that the device is recognized.
+- プラットフォーム
+  - テスト対象プラットフォームを指定する欄です。
+- ブラウザ
+  - テスト対象ブラウザを指定する欄です。
+- ブラウザ起動時にリロードする
+  - 記録開始後自動的にブラウザをリロードする秒数を指定する欄です。リロードさせない場合は 0 秒を指定してください。
+  - :bulb: モバイル端末に対するテスト等で Chrome DevTools のリモートデバッグ機能を用いる際、接続された端末のブラウザ起動のタイミングによってはデバイスの認識が遅れ、ページを正しく表示できない場合があります。
+    その場合はデバイスが認識される秒数の後にリロードされるように本設定値で指定することで正しいページを表示させることができます。
 
-## Advanced device settings
+## デバイスの詳細設定
 
 <img src="./images/device-config.png"/>
 
-You can select a device connected by USB.
-It is activated when `Android` or `iOS` is selected in the 'Platform' field of 'Test Target Settings'.
+USB で接続されているデバイスを選択することができます。
+「テスト対象設定」の「プラットフォーム」欄で`Android`もしくは`iOS`を選択した場合に活性化されます。
 
-- Update device information
-   - Press to search for connected devices again.
-   - :bulb: If you connect the device after opening the settings screen, the information may not be up to date. In that case, please press this button to obtain the latest information.
-- Device selection
-   - You can select the device to be tested when there are multiple devices connected.
-- OS version
-   - Displays the OS version of the selected device under test.
+- デバイス情報更新
+  - 押下すると接続されているデバイスが再検索されます。
+  - :bulb: 設定画面を開いた後にデバイスを接続した場合は情報が最新化されていない可能性があります。その場合は本ボタンを押下して最新の情報を取得してください。
+- デバイス選択
+  - 接続されているデバイスが複数存在する場合に、テスト対象のデバイスを選択することができます。
+- OS バージョン
+  - 選択されたテスト対象のデバイスの OS バージョンが表示されます。
 
-## Image compression settings
+## 画像圧縮設定
 
 <img src="./images/compression-config.png"/>
 
-You can configure compression settings for screenshot images.
+スクリーンショットの画像の圧縮設定を行うことができます。
 
-- Compress captured screenshots
-  - When turned ON, captured screenshots will be compressed and saved in the repository. It is effective when you want to save disk space.
-- Delete original image
-  - When turned ON, the original data before compression is deleted when compressing screenshots. If you want to keep the original data before compression as a backup, turn it off.
+- 取得したスクリーンショットを圧縮する
+  - ON にすると、取得したスクリーンショットを圧縮してリポジトリに保存するようになります。ディスク容量を節約したい場合に有効です。
+- 元画像を削除する
+  - ON にすると、スクリーンショットを圧縮する際に圧縮前のオリジナルデータを削除します。圧縮前のオリジナルデータもバックアップとして残しておきたい場合は OFF にしてください。
 
-:warning: Image compression may fail if you continuously operate quickly or under high CPU load.
+:warning: 続けて素早く操作を行う、もしくは CPU に高負荷がかかっている状態だと画像の圧縮に失敗することがあります。
 
-## Set screen element coverage
+## 画面要素カバレッジの設定
 
 <img src="./images/coverage-config.png"/>
 
-You can configure screen element coverage settings.
+画面要素カバレッジに関する設定を行うことができます。
 
-- Tags to include in coverage calculations
-  - You can specify the tags to include in the calculation of screen element coverage.
+- カバレッジ計算に含めるタグ
+  - 画面要素カバレッジの計算に含めるタグを指定することができます。
 
-## Screen transition definition
+## 画面遷移の定義
 
 <img src="./images/screen-config.png"/>
 
-You can set the granularity to be recognized as a "screen" for each model on the history screen.
+履歴画面での各種モデルで「画面」として認識する粒度を設定することができます。
 
-### Default screen definition
+### デフォルト画面定義
 
-Select whether to recognize screens by page title or by URL.
+ページタイトルで画面を認識するか、URL で画面を認識するかを選択します。
 
-- Judge the screen transition by the title.
-   - When turned ON, screens with the same page title will be grouped together as the same screen in various models of the history screen.
-- Judge the screen transition by URL.
-   - When turned ON, screens with the same URL will be grouped together as the same screen in various models of the history screen.
+- タイトルで画面遷移を判断する。
+  - ON にすると、履歴画面の各種モデルでページタイトルの同じ画面が同一画面としてまとめられるようになります。
+- URL で画面遷移を判断する。
+  - ON にすると、履歴画面の各種モデルで URL の同じ画面が同一画面としてまとめられるようになります。
 
-### Priorities
+### 優先条件
 
-A preferred screen definition that takes precedence over the default screen definition.
-If you want to recognize only screens that meet specific conditions as other screens as an exception, please make detailed settings in this setting.
-Priority conditions are grouped in order from the highest priority.
+優先的に使用する画面定義で、デフォルト画面定義よりも優先されます。
+特定の条件を満たす画面のみ例外的に別の画面と認識させたい場合は本設定にて詳細な設定を行ってください。
+優先条件は最上位から順にマッチしたものがまとめられます。
 
-- Add button
-  - Add a screen definition to be used preferentially.
-- Enable/disable (priority condition) checkbox
-  - ON enables the priority condition.
-- Definition name
-  - If all detailed conditions are met, the screens will be grouped together and replaced with the screen name specified in "Definition Name".
-- Delete definition button
-  - Delete definition.
-- Button to add detailed conditions
-  - Add detailed conditions.
-- Detailed conditions
-  - Enable/disable (detailed conditions) checkbox
-    - When set to ON, detailed conditions for the corresponding row are enabled.
-  - Detailed conditions (match type, text, match method)
-    - The specified text is "URL/Title/Keyword" selected in Match Type and "Contains String/Matches String/Matches regular expression" selected in Match Method to determine if it matches.
-  - Detailed condition delete button
-    - Delete the detailed condition of the corresponding line. Displayed only when there are two or more detailed conditions. If you want to delete all detailed conditions, delete the definition.
+- 追加ボタン
+  - 優先的に使用する画面定義を追加します。
+- 有効/無効（優先条件） チェックボックス
+  - ON にすると、優先条件が有効になります。
+- 定義名
+  - 詳細条件をすべて満たすと同一画面としてまとめられ、「定義名」で指定した画面名に置き換えられます。
+- 定義削除ボタン
+  - 定義を削除します。
+- 詳細条件を追加するボタン
+  - 詳細条件を追加します。
+- 詳細条件
+  - 有効/無効（詳細条件）チェックボックス
+    - ON にすると、該当行の詳細条件が有効になります。
+  - 詳細条件（マッチ種別・テキスト・マッチ方法）
+    - 指定されたテキストがマッチ種別で選択した「URL/タイトル/キーワード」に、マッチ方法で選択した「文字列が含まれている/文字列と一致している/正規表現がマッチしている」でマッチしているか判定します。
+  - 詳細条件削除ボタン
+    - 該当行の詳細条件を削除します。詳細条件が 2 行以上存在する場合のみ表示されます。詳細条件を全て削除したい場合は定義を削除してください。
 
-# History screen
+# 履歴画面
 
 <img src="./images/history-view.png"/>
 
-You can check the history of captured operations and the visualized model.
+記録された操作郡の履歴、及び可視化されたモデルを確認できます。
 
-## Screenshot output button
+## スクリーンショット出力ボタン
 
 <img src="./images/screen-shot.png"/>
 
-When you press it, you can open the displayed screenshot in a separate tab and download it with any name.
+押下すると、表示されているスクリーンショットを別タブで開き、任意の名前でダウンロードできます。
 
-## Model coverage update button
+## モデル・カバレッジ更新ボタン
 
 <img src="./images/update-models.png"/>
 
-It is activated when the operation history and settings are updated, and when pressed, the display of "sequence diagram model", "screen transition diagram model", and "screen element coverage" is updated.
+操作履歴や設定が更新された場合に活性化され、押下すると「シーケンス図モデル」、「画面遷移図モデル」、「画面要素カバレッジ」の表示が最新化されます。
 
-## Sequence diagram model
+## シーケンス図モデル
 
 <img src="./images/sequence-diagram-model.png"/>
 
-You can check the flow of the test and the notes recorded during the test (test purpose, what you noticed during the test).
+テストの流れとテスト中に記録されたメモ（テスト目的、テスト中の気づき）を確認することができます。
 
-### Sequence Diagram
+### シーケンス図
 
 <img src="./images/sequence-diagram.png"/>
 
-A sequence diagram that visualizes the rough flow of the test and the following captured information is displayed.
+テストの大まかな流れと記録した以下情報を可視化したシーケンス図が表示されます。
 
-- Screen
-  - Shown in the diagram as an actor (the square at the top of the diagram).
-  - When clicked, a screenshot of the corresponding operation will be displayed in the display area on the upper right of the screen, and the "operation list" display at the bottom of the screen will be narrowed down to only related operations.
-- Window
-  - Displayed as a frame in the diagram. The window border text displays the window names, such as `window1` and `window2`.
-- Operations performed on the screen
-  - Displayed as activation boxes (thin vertical squares) in diagrams.
-  - When clicked, a screenshot of the corresponding operation will be displayed in the upper right display area of ​​the screen, and the "operation list" display at the bottom of the screen will be narrowed down to only the operations performed at that location.
-- Screen transition
-  - Appears as an arrow in the diagram.
-  - If you click the text, a screenshot of the corresponding operation will be displayed in the upper right display area of ​​the screen, and the "operation list" display at the bottom of the screen will be narrowed down to only the operations performed on the transition source screen.
-- Test purposes
-  - Displayed as a frame in the diagram.
-  - By right-clicking the text in the frame, you can edit the memo (modify the content, change the operation of the linked destination) or delete it.
-- Awareness during testing
-  - Appears as a square in the diagram.
-    - If a `bug` tag is attached, it will be displayed in red, otherwise it will be displayed in purple.
-  - When clicked, a screenshot of the corresponding operation will be displayed in the display area on the upper right of the screen, and the "operation list" display at the bottom of the screen will be narrowed down to only related operations.
-  - By right-clicking, you can edit the memo (modify the content, change the operation of the linked destination) or delete it.
+- 画面
+  - 図内にアクター（図上部の四角）として表示されます。
+  - クリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「操作一覧」の表示が関連する操作のみに絞り込まれます。
+- ウィンドウ
+  - 図内に枠として表示されます。ウィンドウ枠のテキストには、`window1`や`window2`といったウィンドウ名が表示されます。
+- 画面で行われた操作群
+  - 図内にアクティベーションボックス（縦長の細い四角）で表示されます。
+  - クリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「操作一覧」の表示が該当箇所で行われた操作群のみに絞り込まれます。
+- 画面遷移
+  - 図内に矢印として表示されます。
+  - テキストをクリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「操作一覧」の表示が遷移元画面で行われた操作群のみに絞り込まれます。
+- テスト目的
+  - 図内に枠として表示されます。
+  - 枠のテキストを右クリックすることで、メモの編集（内容の修正、紐づけ先の操作の変更）・削除を行うことができます。
+- テスト中の気付き
+  - 図内に四角として表示されます。
+    - `bug`タグが付与されている場合は赤色、それ以外は紫色で表示されます。
+  - クリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「操作一覧」の表示が関連する操作のみに絞り込まれます。
+  - 右クリックすることで、メモの編集（内容の修正、紐づけ先の操作の変更）・削除を行うことができます。
 
-You can enlarge/reduce the figure with the +/- button on the upper left of the figure.
-"(number)" in the figure means the serial number of the recorded operation.
+図左上の+/-ボタンで図の拡大/縮小が行えます。
+図内の「（数字）」は記録された操作の通番を意味します。
 
-### Filter reset button
+### フィルタリセットボタン
 
 <img src="./images/filter-reset.png"/>
 
-Restores the display of the operation list narrowed down by the operation of the sequence diagram.
+シーケンス図の操作により絞り込まれた操作一覧の表示を元に戻します。
 
-### Operation list
+### 操作一覧
 
 <img src="./images/operation-list.png"/>
 
-The following information of the operation history captured during the test is displayed as a table.
+テスト中に記録された操作履歴の以下情報がテーブルとして表示されます。
 
-- serial number("通番")
-  - The order in which the tests were performed is displayed.
-- page title("ページタイトル")
-  - The title of the screen where the operation was performed is displayed.
-- element tag("要素タグ")
-  - Displays the tag of the screen element where the operation was performed.
-- element name("要素名")
-  - Displays the name of the screen element where the operation was performed.
-- text("テキスト")
-  - Displays the display string of the screen element where the operation was performed.
-- event type("イベント種別")
-  - Displays the type of event triggered by the operation. In addition to normal events, the following event types unique to LatteArt are also displayed.
+- 通番
+  - テストを行った順番が表示されます。
+- ページタイトル
+  - 操作が行われた画面のタイトルが表示されます。
+- 要素タグ
+  - 操作が行われた画面要素のタグが表示されます。
+- 要素名
+  - 操作が行われた画面要素の名前が表示されます。
+- テキスト
+  - 操作が行われた画面要素の表示文字列が表示されます。
+- イベント種別
+  - 操作により発火されるイベントの種別が表示されます。また、通常のイベントの他に LatteArt 独自の以下イベント種別も表示されます。
     - `screen_transition`
-      - Means that a screen transition was detected.
+      - 画面遷移を検出したことを意味します。
     - `switch_window`
-      - Means that a tab/window switch was performed.
+      - タブ・ウィンドウ切り替えが行われたことを意味します。
     - `browser_back`
-      - Means that the browser back indicated by the capturing tool was performed.
+      - 記録ツールにて指示されたブラウザバックが行わえたことを意味します。
     - `browser_forward`
-      - Means that the browser forward indicated by the capturing tool was performed.
-- Input value("入力値")
-  - Displays the value entered in the operation.
-- Times of Day("時刻")
-  - Displays the time when the operation was performed.
+      - 記録ツールにて指示されたブラウザフォワードが行われたことを意味します。
+- 入力値
+  - 操作にて入力された値が表示されます。
+- 時刻
+  - 操作を行った時刻が表示されます。
 
-Each line corresponds to one operation, and you can check the information and input values of the screen elements related to the operation. Clicking each line displays the screenshot of the corresponding operation in the display area on the upper right of the screen.
-Also, by clicking the table header, you can sort (ascending/descending/capturing order), change the number of rows displayed at one time, and change the page at the bottom of the table.
+各行が 1 操作に対応し、操作に関連する画面要素の情報や入力値を確認することができ、各行をクリックすると、対応する操作のスクリーンショットが画面右上の表示領域に表示されます。
+また、テーブルの見出しをクリックすることでソート（昇順/降順/記録順）、テーブル下部で一度に表示される行数の変更や改ページを行うことができます。
 
-### Search field
+### 検索欄
 
 <img src="./images/search.png"/>
 
-- Purpose/awareness check box
-  - Depending on the check box, you can narrow down the "Operation list" table to only rows with a purpose or awareness.
+- 目的・気づきチェックボックス
 
-- Character string input field
-  - By entering any character string, you can narrow down the "Operation list" table to only the rows that contain the specified character string.
+  - チェックボックスに応じて「操作一覧」のテーブルを目的や気づきを持つ行のみに絞り込むことができます。
 
-:warning: Filtering by this input field will not be reset even if you press the "Filter reset button". If you want to reset the narrowing down in this search field, please empty the search field.
+- 文字列入力欄
+  - 任意の文字列を入力すると、「操作一覧」のテーブルを指定の文字列を含む行のみに絞り込むことができます。
 
-## Screen transition diagram model
+:warning: 本入力欄による絞り込みは「フィルタリセットボタン」を押下してもリセットされません。本検索欄での絞り込みをリセットしたい場合は検索欄を空にしてください。
 
-You can check the screens reached during the test and the information at each screen transition.
+## 画面遷移図モデル
+
+テスト中に到達した画面と各画面遷移時の情報を確認することができます。
 
 <img src="./images/screen-transition-diagram-model.png"/>
 
-### Screen transition diagram
+### 画面遷移図
 
 <img src="./images/screen-transition-diagram.png"/>
 
-A screen transition diagram that visualizes the following information recorded during the test is displayed.
-A figure is generated for each recorded window, and you can select the figure to display in "Target tab/window(対象タブ/ウィンドウ)".
+テスト中に記録した以下情報を可視化した画面遷移図が表示されます。
+図は記録されたウィンドウ毎に生成され、「対象タブ/ウィンドウ」で表示する図を選択することができます。
 
-- Screen
-  - Appears as a square in the diagram.
-  - When clicked, a screenshot of the corresponding operation is displayed in the display area on the upper right of the screen, and the input value information of all screen transition groups that transition from the clicked screen is displayed in the "Input value list" at the bottom of the screen.
-- Transition opportunity
-  - Appears as an arrow in the diagram.
-  - When you click the text, a screenshot of the corresponding operation is displayed in the upper right display area of ​​the screen, and the input value information of the clicked screen transition is displayed in the "Input value list" at the bottom of the screen.
+- 画面
+  - 図内に四角として表示されます。
+  - クリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「入力値一覧」にクリックした画面から遷移する全ての画面遷移群の入力値情報が表示されます。
+- 遷移契機
+  - 図内に矢印として表示されます。
+  - テキストをクリックすると対応する操作のスクリーンショットが画面右上の表示領域に表示され、画面下部の「入力値一覧」にクリックした画面遷移の入力値情報が表示されます。
 
-You can enlarge/reduce the figure with the +/- button on the upper left of the figure.
+図左上の+/-ボタンで図の拡大/縮小が行えます。
 
-### List of input values
+### 入力値一覧
 
 <img src="./images/input-value-list.png"/>
 
-At the time of screen transition, the set of values ​​entered in each screen element of that screen is displayed in a table.
+画面遷移時、その画面の各画面要素に入力されている値のセットをテーブルで表示します。
 
-Each line corresponds to one screen element, and you can check the values ​​entered for each screen element at each screen transition. Clicking on each line displays a screenshot of the corresponding screen element in the display area at the top right of the screen.
-If the same screen transition is performed multiple times, the input value group at each screen transition is displayed as a column.
-You can also change the number of rows displayed at one time and page breaks at the bottom of the table.
+各行は 1 画面要素に対応し、各画面遷移時における各画面要素に入力されていた値を確認することができ、各行をクリックすると、対応する画面要素のスクリーンショットが画面右上の表示領域に表示されます。
+同一画面遷移が複数回行われた場合は、それぞれの画面遷移時の入力値群が列として表示されます。
+また、テーブル下部で一度に表示される行数の変更や改ページを行うことができます。
 
-The display of the input value list can be customized by the following check boxes.
+入力値一覧の表示は以下のチェックボックスにより、カスタマイズすることができます。
 
-- Gray out values ​​other than explicitly entered values
-  - When this check box is turned ON, cells other than the values ​​explicitly entered in the operation under test (values ​​originally included in screen elements such as default values) are displayed grayed out.
-- do not show hidden elements
-  - When set to ON, the hidden element is hidden from the input value list.
+- 明示的に入力された値以外をグレーアウトする
+  - 本チェックボックスを ON にすると、テスト中の操作にて明示的に入力された値以外（デフォルト値等の元々画面要素に入っていた値）のセルをグレーアウトして表示します。
+- hidden 要素は表示しない
+  - ON にすると入力値一覧から hidden 要素が非表示になります。
 
-## Screen element coverage
+## 画面要素カバレッジ
 
 <img src="./images/coverage-model.png"/>
 
-You can check the operation coverage of screen elements in each screen reached during the test.
+テスト中に到達した各画面内における、画面要素の操作網羅率を確認することができます。
 
-:bulb: Tags to be included in coverage calculation can be customized in the settings screen.
+:bulb: カバレッジの計算対象に含めるタグは設定画面にてカスタマイズできます。
 
-When you click each screen name, a list of screen elements in the screen is displayed. Screen elements that have not been operated are displayed in red, and screen elements that have been operated are displayed in green.
+各画面名をクリックすると、画面内の画面要素一覧が表示され、一度も操作されていない画面要素は赤色、操作済の画面要素は緑色の行として表示されます。
