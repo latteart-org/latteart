@@ -40,7 +40,6 @@
   "replay": {
     "done-title": "履歴再生の終了",
     "done-run-operations": "履歴再生が終了しました。",
-    "done-run-operations-because-skipped": "「記録の一時停止」により記録されなかった操作があるため、履歴再生を中止しました。",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {
@@ -90,12 +89,16 @@
     "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
   },
   "import-export-dialog": {
-    "import-title": "データインポート",
-    "export-title": "データエクスポート",
+    "test-result-import-title": "テスト結果のインポート",
+    "project-import-title": "プロジェクトのインポート",
+    "test-result-export-title": "テスト結果のエクスポート",
+    "project-export-title": "プロジェクトのエクスポート",
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
-    "select-file": "インポート対象のプロジェクトファイル選択",
-    "select-test-result-file": "インポート対象のテスト結果ファイル選択",
+    "select-test-result-file-label": "テスト結果ファイル",
+    "select-test-result-file-button": "選択",
+    "select-project-file-label": "プロジェクトファイル",
+    "select-project-file-button": "選択",
     "creating-export-data": "エクスポートデータ作成中",
     "importing-data": "データインポート中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",
@@ -126,6 +129,7 @@
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
+    "setting-autofill": "自動入力設定",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
@@ -151,7 +155,32 @@
       "description": "詳細条件を複数設定した場合、その全てが満たされると定義名が適用されます",
       "and": "かつ"
     },
+    "autofill": {
+      "setting-name": "入力値セット名",
+      "add-setting": "入力値セットの追加",
+      "adding-autofill-values": "入力値の追加",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
+      "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
+      "input-value": "入力値"
+    },
+
     "settings": "設定"
+  },
+  "autofill-register-dialog": {
+    "title": "自動入力：登録",
+    "message": "ただいま入力した入力値を登録しますか？　登録する場合は入力値セット名を入力してください。",
+    "form-label": "入力値セット名"
+  },
+  "autofill-select-dialog": {
+    "title": "自動入力：選択",
+    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は入力値セット名を選択してください。",
+    "form-label": "入力値セット名"
+  },
+  "autofill-button": {
+    "message": "入力値セット名を選択してください。"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",
@@ -167,6 +196,11 @@
     "continue-same-purpose": "同じテスト目的で続ける",
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
   },
+  "replay-option": {
+    "start-replay": "履歴を再生する",
+    "test-result-name": "テスト結果名",
+    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
+  },
   "test-option": {
     "start-testing": "テストを始める",
     "use-test-purpose": "テスト目的を使用してテストする",
@@ -178,7 +212,8 @@
     "element-name": "要素名",
     "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
-    "hide-hidden-elements": "hidden要素は表示しない"
+    "hide-hidden-elements": "hidden要素は表示しない",
+    "autofill-dialog-message": "入力値セット名を入力してください。"
   },
   "note-list-dialog": {
     "note-list": "メモ一覧",
@@ -233,8 +268,8 @@
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "import-option": "データインポート",
-    "export-option": "データエクスポート",
+    "import-option": "プロジェクトのインポート",
+    "export-option": "プロジェクトのエクスポート",
     "optional-function": "オプション機能",
     "locale": "言語"
   },
@@ -431,11 +466,7 @@
     "connecting-remote-url": "リポジトリに接続中",
     "connect-remote-url-succeeded": "{url}に接続しました。",
     "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
-    "register-confirm": "リモートリポジトリに接続されています。\nテスト結果をリモートリポジトリに登録しますか？",
-    "registering-testresults": "テスト結果登録中",
-    "delete-warning": "登録したテスト結果をローカルリポジトリから削除しますか？",
     "delete-testresults": "テスト結果削除中",
-    "register-delete-succeeded": "リモートリポジトリへのテスト結果登録・ローカルリポジトリのテスト結果の削除が完了致しました。",
     "load": "読み込み中"
   },
   "error": {
@@ -454,6 +485,7 @@
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
+      "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
@@ -464,7 +496,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "resume_failed": "テスト結果の読み込みに失敗しました。",
+      "load_history_failed": "テスト結果の読み込みに失敗しました。",
       "illegal_test_result": "テスト結果のフォーマットが不正です。",
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
@@ -475,7 +507,6 @@
       "delete_note_failed": "気づきの削除に失敗しました。",
       "edit_note_failed": "気づきの編集に失敗しました。",
       "move_note_failed": "気づきの移動に失敗しました。",
-      "get_import_test_results_failed": "インポートファイル一覧の取得に失敗しました。",
       "import_test_result_failed": "テスト結果のインポートに失敗しました。",
       "delete_test_purpose_failed": "テスト目的の削除に失敗しました。",
       "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
@@ -488,7 +519,6 @@
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
       "illegal_test_management_data": "テスト管理データのフォーマットが不正です。",
-      "get_import_project_list_failed": "インポートファイル一覧の取得に失敗しました。",
       "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
@@ -500,9 +530,6 @@
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
-    },
-    "remote_access": {
-      "upload-request-error": "テスト結果の登録に失敗しました。"
     }
   }
 }

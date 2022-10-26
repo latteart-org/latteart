@@ -21,7 +21,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { Operation } from "../Operation";
-import { CoverageSource, InputElementInfo } from "../types";
+import { CoverageSource } from "../types";
 import { convertTestStepOperation } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
@@ -50,7 +50,6 @@ export class RegisterOperationAction {
       id: string;
       operation: Operation;
       coverageSource: CoverageSource;
-      inputElementInfo: InputElementInfo;
     }>
   > {
     const postTestStepsResult =
@@ -69,7 +68,6 @@ export class RegisterOperationAction {
       id,
       operation: testStepOperation,
       coverageSource,
-      inputElementInfo,
     } = postTestStepsResult.data;
     const serviceUrl = this.repositoryContainer.serviceUrl;
 
@@ -79,7 +77,6 @@ export class RegisterOperationAction {
       id,
       operation,
       coverageSource,
-      inputElementInfo,
     };
 
     return new ActionSuccess(data);

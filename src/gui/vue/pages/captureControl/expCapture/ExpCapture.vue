@@ -48,6 +48,8 @@
       @close="noticeEditDialogOpened = false"
     />
 
+    <autofill-select-dialog />
+
     <context-menu
       :opened="contextMenuOpened"
       :x="contextMenuX"
@@ -83,6 +85,7 @@ import CaptureToolHeader from "./organisms/captureToolHeader/CaptureToolHeader.v
 import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import AutofillSelectDialog from "@/vue/pages/common/AutofillSelectDialog.vue";
 
 @Component({
   components: {
@@ -94,6 +97,7 @@ import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
     "context-menu": ContextMenu,
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "autofill-select-dialog": AutofillSelectDialog,
   },
 })
 export default class ExpCapture extends Vue {

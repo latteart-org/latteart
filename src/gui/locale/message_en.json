@@ -36,7 +36,6 @@
   "replay": {
     "done-title": "Replay is done",
     "done-run-operations": "Replay is finished.",
-    "done-run-operations-because-skipped": "Replay was interrupted because the test contains some unrecorded operations due to capture pause.",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
@@ -86,12 +85,16 @@
     "delete-test-result-succeeded": "Test Result deletion has finished."
   },
   "import-export-dialog": {
-    "import-title": "Import",
-    "export-title": "Export",
+    "test-result-import-title": "Import Test Result",
+    "project-import-title": "Import Project",
+    "test-result-export-title": "Export Test Result",
+    "project-export-title": "Export Project",
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
-    "select-file": "Select the file to be imported",
-    "select-test-result-file": "Select test result file to be imported",
+    "select-test-result-file-label": "Test result file",
+    "select-test-result-file-button": "Select",
+    "select-project-file-label": "Project file",
+    "select-project-file-button": "Select",
     "creating-export-data": "Creating export data",
     "importing-data": "Importing data",
     "create-export-data-succeeded": "Data export is complete.",
@@ -122,6 +125,7 @@
     "include-coverage": "Tags to include in coverage calculation",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
+    "setting-autofill": "Autofill Setting",
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
@@ -147,7 +151,32 @@
       "description": "When multiple detailed conditions are set, the definition name will be applied if all of them are satisfied.",
       "and": "and"
     },
+    "autofill": {
+      "setting-name": "Setting Name",
+      "add-setting": "Add Setting",
+      "adding-autofill-values": "Adding Autofill Values",
+      "locator": "Locater",
+      "locator-type": "Locater Type",
+      "locator-match-type": "Locater Match Type",
+      "auto-popup-registration": "Automatically display a popup to register input values",
+      "auto-popup-selection": "Automatically display popup to select input value",
+      "input-value": "Input Value"
+    },
+
     "settings": "Settings"
+  },
+  "autofill-register-dialog": {
+    "title": "Autofill: Registration",
+    "message": "Do you want to register the input value you just entered? Enter an input value set name during registration.",
+    "form-label": "Input Value Set Name"
+  },
+  "autofill-select-dialog": {
+    "title": "Autofill: Select",
+    "message": "Found an autofillable form. Select the input value set name to autofill.",
+    "form-label": "Input Value Set Name"
+  },
+  "autofill-button": {
+    "message": "Please select an input value set name."
   },
   "note-edit": {
     "take-screenshot": "Take Screenshot",
@@ -163,6 +192,11 @@
     "continue-same-purpose": "Same as Before",
     "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
   },
+  "replay-option": {
+    "start-replay": "Replay",
+    "test-result-name": "Test result name",
+    "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
+  },
   "test-option": {
     "start-testing": "Start Session",
     "use-test-purpose": "Use test purpose in this session",
@@ -174,7 +208,8 @@
     "element-name": "Name",
     "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
-    "hide-hidden-elements": "Don't Display Hidden Elements"
+    "hide-hidden-elements": "Don't Display Hidden Elements",
+    "autofill-dialog-message": "Please select an input value set name."
   },
   "note-list-dialog": {
     "note-list": "Note List",
@@ -229,8 +264,8 @@
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
     "generate-script-succeeded": "Test script generation has finished.",
-    "import-option": "Data Import",
-    "export-option": "Data Export",
+    "import-option": "Import Project",
+    "export-option": "Export Project",
     "optional-function": "Optional function",
     "locale": "locale"
   },
@@ -427,11 +462,7 @@
     "connecting-remote-url": "Connecting to a repository.",
     "connect-remote-url-succeeded": "Connected to {url}.",
     "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
-    "register-confirm": "You are connected to a remote repository. \nDo you want to register the test result in the remote repository?",
-    "registering-testresults": "Registering test results.",
-    "delete-warning": "Do you want to delete the registered test result from the local repository?",
     "delete-testresults": "Deleting test results.",
-    "register-delete-succeeded": "Registration of test results in the remote repository.\nAnd deletion of test results in the local repository have been completed.",
     "load": "Loading"
   },
   "error": {
@@ -450,6 +481,7 @@
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
       "capture_failed": "An error has occurred during capturing operation.",
+      "invalid_operation": "Replay was interrupted because the test contains some invalid operations.",
       "web_driver_not_ready": "Failed to start WebDriver. Please check if a correct path to WebDriver is set.",
       "appium_not_started": "Appium is not started.",
       "device_not_connected": "Device is not connected.",
@@ -460,7 +492,7 @@
     "operation_history": {
       "compress_operation_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
-      "resume_failed": "Failed to load a test result.",
+      "load_history_failed": "Failed to load a test result.",
       "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
@@ -471,7 +503,6 @@
       "delete_note_failed": "Failed to delete note.",
       "edit_note_failed": "Failed to update note.",
       "move_note_failed": "Failed to move note.",
-      "get_import_test_results_failed": "Failed to get import file list.",
       "import_test_result_failed": "Failed to import test result.",
       "delete_test_purpose_failed": "Failed to delete test purpose.",
       "move_test_purpose_failed": "Failed to move test purpose.",
@@ -484,7 +515,6 @@
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
       "illegal_test_management_data": "Illegal format of test management data.",
-      "get_import_project_list_failed": "Failed to get import file list.",
       "read_project_data_failed": "Failed to read project data.",
       "update_session_failed": "Failed to update session.",
       "save_project_failed": "Failed to save project data.",
@@ -496,9 +526,6 @@
       "import-project-not-exist": "Project information does not exist.",
       "import-test-result-not-exist": "Test result information does not exist.",
       "create-export-data-error": "Data export failed."
-    },
-    "remote_access": {
-      "upload-request-error": "Failed to register the test result."
     }
   }
 }

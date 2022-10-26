@@ -19,22 +19,24 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-checkbox
-          v-model="isEnableCompression"
+          v-model="tempConfig.isEnabled"
           :label="
             $store.getters.message('config-view.image-compression-enabled')
           "
+          @change="saveConfig"
         >
         </v-checkbox>
       </v-flex>
       <v-flex xs12>
         <v-checkbox
-          v-model="isDeleteSrcImage"
+          v-model="tempConfig.isDeleteSrcImage"
           :label="
             $store.getters.message(
               'config-view.image-compression-delete-source-image'
             )
           "
-          :disabled="!isEnableCompression"
+          :disabled="!tempConfig.isEnabled"
+          @change="saveConfig"
         >
         </v-checkbox>
       </v-flex>
@@ -43,45 +45,28 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { ImageCompression } from "@/lib/common/settings/Settings";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class ImageCompressionSetting extends Vue {
-  private get isEnableCompression(): boolean {
-    return this.$store.state.operationHistory.config.imageCompression.isEnabled;
-  }
-  private set isEnableCompression(isEnabled: boolean) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          imageCompression: {
-            isEnabled,
-            isDeleteSrcImage:
-              this.$store.state.operationHistory.config.imageCompression
-                .isDeleteSrcImage,
-          },
-        },
-      });
-    })();
+  @Prop({ type: Object, default: null })
+  public readonly imageCompression!: ImageCompression;
+
+  private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
+    isEnabled: false,
+    isDeleteSrcImage: false,
+  };
+
+  @Watch("imageCompression")
+  private updateTempConfig() {
+    this.tempConfig = { ...this.imageCompression };
   }
 
-  private get isDeleteSrcImage(): boolean {
-    return this.$store.state.operationHistory.config.imageCompression
-      .isDeleteSrcImage;
-  }
-  private set isDeleteSrcImage(isDelete: boolean) {
-    (async () => {
-      await this.$store.dispatch("operationHistory/writeSettings", {
-        config: {
-          imageCompression: {
-            isEnabled:
-              this.$store.state.operationHistory.config.imageCompression
-                .isEnabled,
-            isDeleteSrcImage: isDelete,
-          },
-        },
-      });
-    })();
+  private saveConfig() {
+    this.$emit("save-config", {
+      imageCompression: this.tempConfig,
+    });
   }
 }
 </script>

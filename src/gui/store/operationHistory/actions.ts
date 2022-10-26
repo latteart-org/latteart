@@ -25,8 +25,9 @@ import {
   ScreenTransition,
   OperationWithNotes,
   ElementInfo,
+  AutofillConditionGroup,
+  AutofillCondition,
 } from "@/lib/operationHistory/types";
-import { Operation } from "@/lib/operationHistory/Operation";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
@@ -38,23 +39,19 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
+import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
 import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
 import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
 import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
-import { ImportTestResultAction } from "@/lib/operationHistory/actions/import/ImportTestResultAction";
+import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
-import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
-import { UploadTestResultAction } from "@/lib/operationHistory/actions/testResult/UploadTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
 import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
-import { GetImportTestResultListAction } from "@/lib/operationHistory/actions/import/GetImportTestResultListAction";
-import { GetImportProjectListAction } from "@/lib/operationHistory/actions/import/GetImportProjectListAction";
 import { CreateTestResultAction } from "@/lib/operationHistory/actions/testResult/CreateTestResultAction";
 import { CompressNoteImageAction } from "@/lib/operationHistory/actions/image/CompressNoteImageAction";
 import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/image/CompressTestStepImageAction";
@@ -68,7 +65,8 @@ import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNotice
 import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
+import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
+import { calculateElapsedEpochMillis } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -87,6 +85,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     await context.dispatch("writeSettings", {
       config: {
+        autofillSetting: config.autofillSetting,
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
@@ -107,6 +106,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       captureSettings:
         context.rootState.settingsProvider.settings.captureSettings,
       config: {
+        autofillSetting:
+          payload.config.autofillSetting ??
+          context.state.config.autofillSetting,
         screenDefinition:
           payload.config.screenDefinition ??
           context.state.config.screenDefinition,
@@ -376,7 +378,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (context.state.config.imageCompression.isEnabled) {
-      console.log("== bug ==");
       setTimeout(async () => {
         const result = await new CompressNoteImageAction(
           repositoryContainer
@@ -726,112 +727,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
-  async importTestResultFromRemoteRepository(
-    context,
-    payload?: { destTestResultId?: string }
-  ) {
-    const { serviceUrl, isRemote } = context.rootState.repositoryContainer;
-
-    try {
-      const exportFileUrl: string = await context.dispatch("exportData", {
-        testResultId: context.state.testResultInfo.id,
-        shouldSaveTemporary: true,
-      });
-
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: context.rootState.localRepositoryServiceUrl,
-            isRemote: false,
-          }),
-        },
-        { root: true }
-      );
-
-      const result: {
-        testResultId: string;
-      } = await context.dispatch("importData", {
-        source: {
-          testResultFileUrl: new URL(
-            exportFileUrl,
-            context.state.testResultInfo.repositoryUrl
-          ).toString(),
-        },
-        dest: { testResultId: payload?.destTestResultId },
-      });
-
-      return result;
-    } catch (error) {
-      throw new Error(
-        context.rootGetters.message(`error.import_export.${error.message}`)
-      );
-    } finally {
-      context.commit(
-        "setRepositoryContainer",
-        {
-          repositoryContainer: new RepositoryContainerImpl({
-            url: serviceUrl,
-            isRemote,
-          }),
-        },
-        { root: true }
-      );
-    }
-  },
-
-  async uploadTestResultsToRemote(
-    context,
-    payload: { localTestResultId: string; remoteTestResultId?: string }
-  ) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-    const result = await new UploadTestResultAction(
-      localRepositoryContainer
-    ).uploadTestResult(
-      { testResultId: payload.localTestResultId },
-      {
-        repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-        testResultId: payload.remoteTestResultId,
-      }
-    );
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async deleteLocalTestResult(context, payload: { testResultId: string }) {
-    const localUrl = context.rootState.localRepositoryServiceUrl;
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: localUrl,
-      isRemote: false,
-    });
-
-    const result = await new DeleteTestResultAction(
-      localRepositoryContainer
-    ).deleteTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-  },
-
   async deleteCurrentTestResult(context) {
     const testResultId = context.state.testResultInfo.id;
 
@@ -854,65 +749,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async resume(context, payload: { testResultId: string }) {
+  async loadHistory(context, payload: { testResultId: string }) {
     context.commit(
       "captureControl/setIsResuming",
       { isResuming: true },
       { root: true }
     );
 
-    const result = await new ResumeAction(
-      {
-        clearTestStepIds: () => {
-          context.commit("clearTestStepIds");
-        },
-        registerTestStepId: (testStepId: string) => {
-          context.commit("addTestStepId", { testStepId });
-          const sequence = context.state.testStepIds.indexOf(testStepId) + 1;
-          return sequence;
-        },
-        setResumedData: async (data) => {
-          context.commit("clearHistory");
-          context.commit("clearModels");
-          context.commit("clearInputValueTable");
-          context.commit("selectWindow", { windowHandle: "" });
-
-          context.commit("resetAllCoverageSources", {
-            coverageSources: data.coverageSources,
-          });
-          context.commit("resetInputElementInfos", {
-            inputElementInfos: data.inputElementInfos,
-          });
-          context.commit("resetHistory", {
-            historyItems: data.historyItems,
-          });
-          context.commit(
-            "captureControl/setUrl",
-            { url: data.url },
-            { root: true }
-          );
-          context.commit("setTestResultInfo", {
-            repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
-            ...data.testResultInfo,
-          });
-
-          await context.dispatch(
-            "captureControl/resumeWindowHandles",
-            { history: context.state.history },
-            { root: true }
-          );
-
-          await context.dispatch("updateScreenHistory");
-        },
-      },
+    const result = await new LoadHistoryAction(
       context.rootState.repositoryContainer
-    ).resume(payload.testResultId);
-
-    context.commit(
-      "captureControl/setIsResuming",
-      { isResuming: false },
-      { root: true }
-    );
+    ).loadHistory(payload.testResultId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -922,6 +768,60 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+
+    context.commit("clearTestStepIds");
+
+    for (const testStepId of result.data.testStepIds) {
+      context.commit("addTestStepId", { testStepId });
+    }
+
+    context.commit("clearHistory");
+    context.commit("clearModels");
+    context.commit("clearInputValueTable");
+    context.commit("selectWindow", { windowHandle: "" });
+
+    context.commit("resetAllCoverageSources", {
+      coverageSources: result.data.coverageSources,
+    });
+    context.commit("resetHistory", {
+      historyItems: result.data.historyItems,
+    });
+    context.commit(
+      "captureControl/setUrl",
+      { url: result.data.url },
+      { root: true }
+    );
+    context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      ...result.data.testResultInfo,
+    });
+
+    await context.dispatch(
+      "captureControl/resumeWindowHandles",
+      { history: context.state.history },
+      { root: true }
+    );
+
+    await context.dispatch("updateScreenHistory");
+
+    const history = context.getters.getHistory();
+
+    const testingTime = calculateElapsedEpochMillis(
+      result.data.startTimeStamp,
+      history
+    );
+
+    context.dispatch(
+      "captureControl/resetTimer",
+      { millis: testingTime },
+      { root: true }
+    );
+
+    context.commit(
+      "captureControl/setIsResuming",
+      { isResuming: false },
+      { root: true }
+    );
   },
 
   /**
@@ -934,13 +834,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async importData(
     context,
     payload: {
-      source: { testResultFileUrl: string };
+      source: { testResultFile: { data: string; name: string } };
       dest?: { testResultId?: string };
     }
   ) {
     const result = await new ImportTestResultAction(
       context.rootState.repositoryContainer
-    ).importWithTestResult(payload.source, payload.dest);
+    ).import(payload.source, payload.dest);
 
     if (result.isFailure()) {
       throw new Error(
@@ -994,7 +894,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("captureControl/clearWindowHandles", null, { root: true });
     context.commit("clearUnassignedIntentions");
     context.commit("clearAllCoverageSources");
-    context.commit("clearInputElementInfos");
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     context.commit("clearModels");
     context.commit("selectWindow", { windowHandle: "" });
@@ -1058,13 +957,70 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     }
 
-    const { id, operation, coverageSource, inputElementInfo } = result.data;
+    const { id, operation, coverageSource } = result.data;
+
+    const openAutofillSelectDialogCallBack = () => {
+      if (
+        operation.isScreenTransition() &&
+        context.state.config.autofillSetting &&
+        context.state.config.autofillSetting.autoPopupSelectionDialog &&
+        context.state.config.autofillSetting.conditionGroups.length > 0
+      ) {
+        const matchGroup =
+          new AutofillTestAction().extractMatchingAutofillConditionGroup(
+            context.state.config.autofillSetting.conditionGroups,
+            operation.title,
+            operation.url
+          );
+        if (matchGroup.isFailure()) {
+          throw new Error();
+        }
+        context.commit("setAutofillSelectDialog", {
+          dialogData: {
+            autofillConditionGroups: matchGroup.data,
+            message: context.rootGetters.message(
+              "autofill-select-dialog.message"
+            ),
+          },
+        });
+      } else {
+        context.commit("setAutofillSelectDialog", {
+          autofillConditionGroups: null,
+        });
+      }
+    };
+
+    const beforeOperation =
+      context.state.history[context.state.history.length - 1]?.operation;
+    if (
+      operation.isScreenTransition() &&
+      context.state.config.autofillSetting.autoPopupRegistrationDialog &&
+      beforeOperation &&
+      (beforeOperation?.inputElements ?? []).length > 0
+    ) {
+      context.commit("setAutofillRegisterDialog", {
+        title: beforeOperation.title,
+        url: beforeOperation.url,
+        message: context.rootGetters.message(
+          "autofill-register-dialog.message"
+        ),
+        inputElements: beforeOperation.inputElements?.map((element) => {
+          return {
+            ...element,
+            xpath: element.xpath.toLowerCase(),
+          };
+        }),
+        callback: openAutofillSelectDialogCallBack,
+      });
+    } else {
+      context.commit("setAutofillRegisterDialog", null);
+      openAutofillSelectDialogCallBack();
+    }
 
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
 
     operation.sequence = sequence;
-    operation.inputElements = inputElementInfo?.inputElements ?? [];
 
     context.commit("addHistory", {
       entry: { operation, intention: null, bugs: null, notices: null },
@@ -1075,14 +1031,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     });
 
     context.commit("registerCoverageSource", { coverageSource });
-    if (
-      !!inputElementInfo &&
-      !!inputElementInfo.inputElements &&
-      inputElementInfo.inputElements.length !== 0
-    ) {
-      context.commit("registerInputElementInfo", { inputElementInfo });
-    }
-
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (
@@ -1485,48 +1433,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return result.data;
   },
 
-  async getImportTestResults(context) {
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-    const result = await new GetImportTestResultListAction(
-      localRepositoryContainer
-    ).getImportTestResults();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  async getImportProjects(context) {
-    const localRepositoryContainer = new RepositoryContainerImpl({
-      url: context.rootState.localRepositoryServiceUrl,
-      isRemote: false,
-    });
-    const result = await new GetImportProjectListAction(
-      localRepositoryContainer
-    ).getImportProjects();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
   async changeCurrentTestResult(
     context,
     payload: { startTime?: number | null; initialUrl?: string }
@@ -1562,34 +1468,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setTestResultName", { name: changedName });
   },
 
-  async getTestResult(
-    context,
-    payload: { testResultId: string }
-  ): Promise<{
-    id: string;
-    name: string;
-    startTimeStamp: number;
-    endTimeStamp: number;
-    initialUrl: string;
-  }> {
-    const result = await new GetTestResultAction(
-      context.rootState.repositoryContainer
-    ).getTestResult(payload.testResultId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    console.log(result);
-
-    return result.data;
-  },
-
   async getScreenshots(context, payload: { testResultId: string }) {
     const result =
       await context.rootState.repositoryContainer.screenshotRepository.getScreenshots(
@@ -1601,6 +1479,54 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data.url;
+  },
+
+  async updateAutofillConditionGroup(
+    context,
+    payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
+  ) {
+    const autofillSetting = { ...context.state.config.autofillSetting };
+    autofillSetting.conditionGroups =
+      payload.index < 0
+        ? [
+            ...autofillSetting.conditionGroups,
+            {
+              isEnabled: true,
+              settingName: "",
+              url: "",
+              title: "",
+              inputValueConditions: [],
+              ...payload.conditionGroup,
+            },
+          ]
+        : context.state.config.autofillSetting.conditionGroups.map(
+            (group, index) => {
+              return index !== payload.index
+                ? group
+                : { ...group, ...payload.conditionGroup };
+            }
+          );
+    await context.dispatch("writeSettings", {
+      config: {
+        autofillSetting,
+      },
+    });
+  },
+
+  async fetchConfig(context) {
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryContainer
+    ).readSettings();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+    return result.data;
   },
 };
 

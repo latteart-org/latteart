@@ -126,7 +126,7 @@ export default class TestMatrixEditor extends Vue {
   private expandedPanelIndex: number | null = null;
 
   private get expandedGroupPanelIndexKey(): string {
-    return `expandedEditorGroupPanelIndex_${this.testMatrixId}`;
+    return `latteart-management-expandedEditorGroupPanelIndex_${this.testMatrixId}`;
   }
 
   created(): void {

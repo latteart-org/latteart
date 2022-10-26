@@ -76,6 +76,13 @@
             >
               {{ header.text }}
               <v-icon
+                v-if="index > 2 && !isViewerMode && hasInputElements(header)"
+                class="mx-1"
+                color="blue lighten-3"
+                @click="registerAutofillSetting(header)"
+                >control_point</v-icon
+              >
+              <v-icon
                 v-if="header.notes.length > 0"
                 :title="message('app.note')"
                 class="mx-1"
@@ -156,7 +163,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { MessageProvider } from "@/lib/operationHistory/types";
+import {
+  MessageProvider,
+  OperationWithNotes,
+} from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "@/vue/molecules/NoteListDialog.vue";
 
@@ -190,6 +200,10 @@ export default class DecisionTable extends Vue {
   private opened = false;
   private selectedColumnNotes = [];
   private selectedColumnTestSteps = [];
+
+  private get isViewerMode(): boolean {
+    return (this as any).$isViewerMode ?? false;
+  }
 
   private get inputValueTable(): InputValueTable {
     return this.$store.state.operationHistory.inputValueTable;
@@ -252,10 +266,10 @@ export default class DecisionTable extends Vue {
           },
         ],
       },
-      ...this.inputValueTable.headerColumns.map((item) => {
+      ...this.inputValueTable.headerColumns.map((item, intentionIndex) => {
         return {
           intention: item.intention,
-          values: item.screenTransitions.map((screenTransition) => {
+          values: item.screenTransitions.map((screenTransition, index) => {
             return {
               text: `${screenTransition.index + 1}${this.message(
                 "input-value.times"
@@ -266,6 +280,8 @@ export default class DecisionTable extends Vue {
               trigger: screenTransition.trigger,
               notes: screenTransition.notes,
               operationHistory: screenTransition.operationHistory,
+              index,
+              intentionIndex,
             };
           }),
         };
@@ -314,6 +330,57 @@ export default class DecisionTable extends Vue {
 
   private elementTypeIsHidden(elementType: string): boolean {
     return elementType === "hidden";
+  }
+
+  private hasInputElements(header: {
+    intentionIndex: number;
+    index: number;
+  }): boolean {
+    return (
+      (this.getOperationWithNotesAtScreenTransitionFromHeader(header)?.operation
+        .inputElements?.length ?? 0) > 0
+    );
+  }
+
+  private getOperationWithNotesAtScreenTransitionFromHeader(header: {
+    intentionIndex: number;
+    index: number;
+  }): OperationWithNotes | null {
+    const key =
+      this.inputValueTable.headerColumns[header.intentionIndex].intention;
+    const data = this.inputValueTable.getScreenTransitionWithIntention(key);
+    if (!data) {
+      return null;
+    }
+    return data[header.index].history[data[header.index].history.length - 1];
+  }
+
+  private registerAutofillSetting(header: {
+    intentionIndex: number;
+    index: number;
+  }): void {
+    const operationWithNotes =
+      this.getOperationWithNotesAtScreenTransitionFromHeader(header);
+    if (operationWithNotes === null) {
+      return;
+    }
+
+    this.$store.commit("operationHistory/setAutofillRegisterDialog", {
+      title: operationWithNotes.operation.title,
+      url: operationWithNotes.operation.url,
+      message: this.$store.getters.message(
+        "input-value.autofill-dialog-message"
+      ),
+      inputElements: operationWithNotes.operation.inputElements?.map(
+        (element) => {
+          return {
+            ...element,
+            xpath: element.xpath.toLowerCase(),
+          };
+        }
+      ),
+      callback: null,
+    });
   }
 }
 </script>

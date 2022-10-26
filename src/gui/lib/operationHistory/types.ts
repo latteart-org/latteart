@@ -105,6 +105,10 @@ export type OperationHistory = OperationWithNotes[];
 
 export type MessageProvider = (message: string, args?: any) => string;
 
+export type ScreenDefinitionType = "url" | "title" | "keyword";
+export type ScreenMatchType = "contains" | "equals" | "regex";
+export type LocatorMatchType = "equals" | "regex";
+
 /**
  * Screen configuration information.
  */
@@ -123,13 +127,37 @@ export interface InputElementInfo {
   inputElements: ElementInfo[];
 }
 
+export type AutoPopupSettings = Omit<AutofillSetting, "conditionGroups">;
+
+export interface AutofillSetting {
+  autoPopupRegistrationDialog: boolean;
+  autoPopupSelectionDialog: boolean;
+  conditionGroups: AutofillConditionGroup[];
+}
+
+export interface AutofillConditionGroup {
+  isEnabled: boolean;
+  settingName: string;
+  url: string;
+  title: string;
+  inputValueConditions: Array<AutofillCondition>;
+}
+
+export type AutofillCondition = {
+  isEnabled: boolean;
+  locatorType: string;
+  locator: string;
+  locatorMatchType: LocatorMatchType;
+  inputValue: string;
+};
+
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;
   screenName: string;
   conditions: Array<{
     isEnabled: boolean;
-    definitionType: "url" | "title" | "keyword";
-    matchType: "contains" | "equals" | "regex";
+    definitionType: ScreenDefinitionType;
+    matchType: ScreenMatchType;
     word: string;
   }>;
 }
@@ -170,5 +198,4 @@ export interface TestResult {
     notices: ApiNote[];
   }[];
   coverageSources: CoverageSource[];
-  inputElementInfos: InputElementInfo[];
 }

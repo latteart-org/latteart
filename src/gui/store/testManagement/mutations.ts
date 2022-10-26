@@ -78,29 +78,69 @@ const mutations: MutationTree<TestManagementState> = {
   /**
    * Replace the specified index story in the State.
    * @param state State.
-   * @param payload.index Story index.
    * @param payload.data New story.
    */
-  setStory(state, payload: { index: number; data: Story }) {
-    state.stories[payload.index] = payload.data;
+  setStory(state, payload: { data: Story }) {
+    state.stories = state.stories.map((story) => {
+      return story.id === payload.data.id ? payload.data : story;
+    });
   },
 
   /**
-   * Replace the specified index session in the State.
+   * Add a session to the State.
    * @param state State.
-   * @param payload.storyIndex Story index.
-   * @param payload.sessionIndex Session index.
-   * @param payload.data New session.
+   * @param payload.storyId Story id.
+   * @param payload.session New Session.
    */
-  setSession(
-    state,
-    payload: { storyIndex: number; sessionIndex: number; data: Session }
-  ) {
-    state.stories[payload.storyIndex].sessions.splice(
-      payload.sessionIndex,
-      1,
-      payload.data
-    );
+  addSession(state, payload: { storyId: string; session: Session }) {
+    state.stories = state.stories.map((story) => {
+      return story.id !== payload.storyId
+        ? story
+        : {
+            ...story,
+            sessions: [...story.sessions, payload.session],
+          };
+    });
+  },
+
+  /**
+   * Replace the session in the State.
+   * @param state State.
+   * @param payload.storyId Story id.
+   * @param payload.session New session.
+   */
+  setSession(state, payload: { storyId: string; session: Session }) {
+    state.stories = state.stories.map((story) => {
+      if (story.id !== payload.storyId) {
+        return story;
+      }
+      return {
+        ...story,
+        sessions: story.sessions.map((session) => {
+          return session.id === payload.session.id ? payload.session : session;
+        }),
+      };
+    });
+  },
+
+  /**
+   * Delete a session to the State.
+   * @param state State.
+   * @param payload.storyId Story id.
+   * @param payload.sessionId Session id.
+   */
+  deleteSession(state, payload: { storyId: string; sessionId: string }) {
+    state.stories = state.stories.map((story) => {
+      if (story.id !== payload.storyId) {
+        return story;
+      }
+      return {
+        ...story,
+        sessions: story.sessions.filter(
+          (session) => session.id !== payload.sessionId
+        ),
+      };
+    });
   },
 
   /**

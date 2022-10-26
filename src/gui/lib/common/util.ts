@@ -156,6 +156,28 @@ export const parseJsonBlob = async <T>(blob: Blob): Promise<T> => {
 };
 
 /**
+ * Load file as base64.
+ * @param targetFile target file.
+ * @returns base64 data and filename.
+ */
+export const loadFileAsBase64 = (
+  targetFile: File
+): Promise<{ data: string; name: string }> => {
+  return new Promise<{ data: string; name: string }>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result ? reader.result.toString() : "";
+      const keyword = "base64,";
+      const data = result.substring(result.indexOf(keyword) + keyword.length);
+
+      resolve({ data, name: targetFile.name });
+    };
+
+    reader.readAsDataURL(targetFile);
+  });
+};
+
+/**
  * Search for values recursively.
  * @param keyPath  Key you want to search.
  * @param target  Search target.

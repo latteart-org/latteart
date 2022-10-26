@@ -20,38 +20,32 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { AutoPopupSettings } from "../../types";
 
-const GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY =
-  "error.test_management.get_import_project_list_failed";
+const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
-export class GetImportProjectListAction {
+export class SaveAutoPopupSettingAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "importProjectRepository" | "serviceUrl"
+      "localStorageSettingRepository"
     >
   ) {}
 
-  public async getImportProjects(): Promise<
-    ActionResult<Array<{ url: string; name: string }>>
-  > {
-    const getProjectsResult =
-      await this.repositoryContainer.importProjectRepository.getProjects();
+  public async saveAutoPopupSettings(
+    autoPopupSettings: AutoPopupSettings
+  ): Promise<ActionResult<AutoPopupSettings>> {
+    const putAutoPopupSettingsResult =
+      await this.repositoryContainer.localStorageSettingRepository.putAutoPopupSettings(
+        autoPopupSettings
+      );
 
-    if (getProjectsResult.isFailure()) {
+    if (putAutoPopupSettingsResult.isFailure()) {
       return new ActionFailure({
-        messageKey: GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY,
+        messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY,
       });
     }
 
-    const serviceUrl = this.repositoryContainer.serviceUrl;
-    const data = getProjectsResult.data.map(({ url, name }) => {
-      return {
-        url: `${serviceUrl}/${url}`,
-        name,
-      };
-    });
-
-    return new ActionSuccess(data);
+    return new ActionSuccess(putAutoPopupSettingsResult.data);
   }
 }
