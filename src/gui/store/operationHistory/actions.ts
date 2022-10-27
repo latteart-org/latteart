@@ -996,7 +996,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
-    capturedOperation.isAutomation = (
+    capturedOperation.isAutomatic = (
       context.rootState as any
     ).captureControl.isAutoOperation;
 

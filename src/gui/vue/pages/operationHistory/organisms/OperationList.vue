@@ -413,7 +413,7 @@ export default class OperationList extends Vue {
   private get autoOperationIndexes() {
     const autoOperationIndexes = [];
     for (const [index, { operation }] of this.history.entries()) {
-      if (operation.isAutomation) {
+      if (operation.isAutomatic) {
         autoOperationIndexes.push(index);
       }
     }

@@ -184,7 +184,7 @@ export interface TestStepOperation {
   inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: string[];
-  isAutomation: boolean;
+  isAutomatic: boolean;
 }
 
 interface ApiNote {
