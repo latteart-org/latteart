@@ -48,6 +48,11 @@ export interface CaptureControlState {
   isPaused: boolean;
 
   /**
+   * Whether it is auto operation or not.
+   */
+  isAutoOperation: boolean;
+
+  /**
    * Current window handles.
    */
   windowHandles: WindowHandle[];
@@ -113,6 +118,7 @@ const state: CaptureControlState = {
   isReplaying: false,
   isResuming: false,
   isPaused: false,
+  isAutoOperation: false,
   windowHandles: [],
   config: new CaptureConfig(),
   capturingWindowInfo: {

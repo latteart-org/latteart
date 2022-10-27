@@ -35,6 +35,7 @@ export class Operation {
    * @param args.timestamp  Time of operation.
    * @param args.compressedImageFilePath  Compressed image file path.
    * @param args.inputElements  Input information.
+   * @param args.isAutomation  Autofill flag.
    */
   public static createOperation(args: {
     sequence?: number;
@@ -50,6 +51,7 @@ export class Operation {
     compressedImageFilePath?: string;
     inputElements?: ElementInfo[];
     keywordSet?: Set<string>;
+    isAutomation: boolean;
   }): Operation {
     const operation = new Operation(
       args.sequence ?? 1,
@@ -60,6 +62,7 @@ export class Operation {
       args.url ?? "",
       args.screenDef ?? "",
       args.imageFilePath ?? "",
+      args.isAutomation,
       args.windowHandle,
       args.keywordSet
     );
@@ -94,6 +97,7 @@ export class Operation {
    * @param args.overrideParams.timestamp  Time of operation.
    * @param args.overrideParams.compressedImageFilePath  Compressed image file path.
    * @param args.overrideparams.inputElements  Input information.
+   * @param args.overrideparams.isAutomation  Autofill flag.
    */
   public static createFromOtherOperation(args: {
     other: Operation;
@@ -111,6 +115,7 @@ export class Operation {
       compressedImageFilePath?: string;
       inputElements?: ElementInfo[];
       keywordSet?: Set<string>;
+      isAutomation?: boolean;
     };
   }): Operation {
     if (args.overrideParams === undefined) {
@@ -123,6 +128,7 @@ export class Operation {
         args.other.url,
         args.other.screenDef,
         args.other.imageFilePath,
+        args.other.isAutomation,
         args.other.windowHandle,
         args.other.keywordSet
       );
@@ -157,6 +163,7 @@ export class Operation {
       args.overrideParams.imageFilePath !== undefined
         ? args.overrideParams.imageFilePath
         : args.other.imageFilePath,
+      args.overrideParams.isAutomation ?? args.other.isAutomation,
       args.overrideParams.windowHandle !== undefined
         ? args.overrideParams.windowHandle
         : args.other.windowHandle,
@@ -243,6 +250,11 @@ export class Operation {
   public keywordSet?: Set<string>;
 
   /**
+   * Autofill flag
+   */
+  public isAutomation: boolean;
+
+  /**
    * Constructor.
    * @param sequence Sequence number.
    * @param input  Input value.
@@ -263,6 +275,7 @@ export class Operation {
     url: string,
     screenDef: string,
     imageFilePath: string,
+    isAutomation: boolean,
     windowHandle?: string,
     keywordSet?: Set<string>
   ) {
@@ -274,6 +287,7 @@ export class Operation {
     this.url = url;
     this.screenDef = screenDef;
     this.imageFilePath = imageFilePath;
+    this.isAutomation = isAutomation;
     this.timestamp = new TimestampImpl().unix().toString();
     this.windowHandle = windowHandle === undefined ? "" : windowHandle;
     this.keywordSet = keywordSet;

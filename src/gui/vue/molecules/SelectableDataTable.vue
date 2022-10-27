@@ -64,6 +64,7 @@
             selected: selectedItemIndexes.includes(props.item.index),
             'py-0': true,
             'my-0': true,
+            marked: markedItemIndexes.includes(props.item.index),
             disabled: disabledItemIndexes.includes(props.item.index),
           }"
           @click.exact="selectItems(props.item.index)"
@@ -108,6 +109,8 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly selectedItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] })
   private readonly checkedItemIndexes!: number[];
+  @Prop({ type: Array, default: () => [] })
+  private readonly markedItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] })
   private readonly disabledItemIndexes!: number[];
   @Prop({ type: Array, default: () => [] }) private readonly headers!: {
@@ -433,6 +436,10 @@ table tr
   background-color: lemonchiffon !important
   font-weight: bold
   color: chocolate
+
+.marked
+  color: #44A
+  background-color: #F3F3FF
 
 .disabled
   color: #888
