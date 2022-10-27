@@ -254,9 +254,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   ): Promise<void> {
     const operations = convertOperationsForReplay(payload.operations);
 
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: true,
+    });
     const result = await context.dispatch("runOperations", {
       operations,
       waitTime: 1000,
+    });
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: false,
     });
     if (result.error) {
       const errorMessage = context.rootGetters.message(
@@ -329,11 +335,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { autofillConditionGroup: AutofillConditionGroup }
   ) {
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: true,
+    });
     await context.rootState.clientSideCaptureServiceDispatcher.autofill(
       payload.autofillConditionGroup.inputValueConditions.filter(
         (inputValue) => inputValue.isEnabled
       )
     );
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: false,
+    });
   },
 
   /**

@@ -5,7 +5,7 @@ describe("Operationは", () => {
     let operation: Operation;
 
     beforeEach(() => {
-      operation = new Operation(1, "", "", null, "", "", "", "");
+      operation = new Operation(1, "", "", null, "", "", "", "", false);
     });
 
     it("elementInfoがnullの場合は空文字を返す", () => {
@@ -59,7 +59,7 @@ describe("Operationは", () => {
     let operation: Operation;
 
     beforeEach(() => {
-      operation = new Operation(1, "", "", null, "", "", "", "");
+      operation = new Operation(1, "", "", null, "", "", "", "", false);
     });
 
     it("elementInfoがnullの場合は空文字を返す", () => {

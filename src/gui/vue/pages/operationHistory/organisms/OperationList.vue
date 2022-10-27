@@ -40,6 +40,7 @@
           @checkItems="updateCheckedOperationList"
           :selected-item-indexes="selectedOperationIndexes"
           :checked-item-indexes="checkedOperationIndexes"
+          :marked-item-indexes="autoOperationIndexes"
           :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
           :items="displayedHistory"
@@ -407,6 +408,17 @@ export default class OperationList extends Vue {
     return this.checkedOperations.map(({ index }) => {
       return index;
     });
+  }
+
+  private get autoOperationIndexes() {
+    const autoOperationIndexes = [];
+    for (const [index, { operation }] of this.history.entries()) {
+      if (operation.isAutomatic) {
+        autoOperationIndexes.push(index);
+      }
+    }
+    console.log(autoOperationIndexes);
+    return autoOperationIndexes;
   }
 
   private get disabledOperationIndexes() {

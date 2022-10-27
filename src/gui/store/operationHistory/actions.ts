@@ -996,6 +996,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
+    capturedOperation.isAutomatic = (
+      context.rootState as any
+    ).captureControl.isAutoOperation;
 
     const result = await new RegisterOperationAction(
       repositoryContainer
