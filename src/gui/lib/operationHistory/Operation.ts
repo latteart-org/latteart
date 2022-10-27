@@ -35,7 +35,7 @@ export class Operation {
    * @param args.timestamp  Time of operation.
    * @param args.compressedImageFilePath  Compressed image file path.
    * @param args.inputElements  Input information.
-   * @param args.isAutomatic  Autofill flag.
+   * @param args.isAutomatic  Automatic or not.
    */
   public static createOperation(args: {
     sequence?: number;
@@ -97,7 +97,7 @@ export class Operation {
    * @param args.overrideParams.timestamp  Time of operation.
    * @param args.overrideParams.compressedImageFilePath  Compressed image file path.
    * @param args.overrideparams.inputElements  Input information.
-   * @param args.overrideparams.isAutomatic  Autofill flag.
+   * @param args.overrideparams.isAutomatic  Automatic or not.
    */
   public static createFromOtherOperation(args: {
     other: Operation;
@@ -250,7 +250,7 @@ export class Operation {
   public keywordSet?: Set<string>;
 
   /**
-   * Autofill flag
+   * Automatic or not.
    */
   public isAutomatic: boolean;
 
