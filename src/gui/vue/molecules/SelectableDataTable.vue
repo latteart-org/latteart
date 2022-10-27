@@ -67,15 +67,7 @@
             marked: markedItemIndexes.includes(props.item.index),
             disabled: disabledItemIndexes.includes(props.item.index),
           }"
-          @click.exact="selectItems(props.item.index)"
-          @click.shift="
-            selectItems(
-              ...getIndexesFromRange(
-                selectedItemIndexes[0] || props.item.index,
-                props.item.index
-              )
-            )
-          "
+          @click="selectItems(props.item.index)"
           @contextmenu="contextmenu(props.item.index, $event)"
         >
           <td class="check-col check-item">
@@ -87,8 +79,11 @@
                   return index === props.item.index;
                 }) !== undefined
               "
-              @change="
-                (value) => changeItemCheckStatuses(props.item.index, value)
+              @click.exact.stop="
+                () => changeItemCheckStatuses(props.item.index)
+              "
+              @click.shift.stop="
+                () => changeItemCheckStatuses(props.item.index, true)
               "
             ></v-checkbox>
           </td>
@@ -138,6 +133,8 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly hideFooters!: boolean;
 
   private selected: { index: number; columns: T }[] = [];
+  private lastCheckedRowIndex = -1;
+  private lastUncheckedRowIndex = -1;
 
   private pagination: {
     descending?: boolean;
@@ -159,11 +156,15 @@ export default class SelectableDataTable<T> extends Vue {
   @Watch("pagination.page")
   private notifyPageChange() {
     this.$emit("changePage", this.pagination.page);
+    this.lastCheckedRowIndex = -1;
+    this.lastUncheckedRowIndex = -1;
   }
 
   @Watch("pagination.rowsPerPage")
   private notifyRowsPerPageChange() {
     this.$emit("changeRowsPerPage", this.pagination.rowsPerPage);
+    this.lastCheckedRowIndex = -1;
+    this.lastUncheckedRowIndex = -1;
   }
 
   @Watch("pagination.sortBy")
@@ -373,42 +374,76 @@ export default class SelectableDataTable<T> extends Vue {
     }
   }
 
-  private toggleAll() {
-    if (this.selected.length) {
-      const currentPageItems = this.selectCurrentPageRows().map(
-        ({ index }) => index
-      );
-      this.selected = this.selected
-        .filter((item) => {
-          return !currentPageItems.includes(item.index);
-        })
-        .slice();
+  private changeItemCheckStatuses(index: number, isMultiple = false) {
+    const range = (a: number, b: number) => {
+      return b > a
+        ? [...Array(b - a + 1).keys()].map((k) => k + a)
+        : [...Array(a - b + 1).keys()].map((k) => k + b);
+    };
+
+    const isChecked =
+      this.selected.find((item) => item.index === index) != undefined;
+
+    if (isChecked) {
+      const indexes =
+        isMultiple && this.lastUncheckedRowIndex >= 0
+          ? range(index, this.lastUncheckedRowIndex)
+          : [index];
+
+      this.uncheckRows(...indexes);
+      this.lastUncheckedRowIndex = index;
     } else {
-      this.selected = this.selectCurrentPageRows().slice();
+      const indexes =
+        isMultiple && this.lastCheckedRowIndex >= 0
+          ? range(index, this.lastCheckedRowIndex)
+          : [index];
+
+      this.checkRows(...indexes);
+      this.lastCheckedRowIndex = index;
     }
-
-    const checkedIndexes = this.selected.map((item) => {
-      return item.index;
-    });
-
-    this.$emit("checkItems", checkedIndexes);
   }
 
-  private changeItemCheckStatuses(index: number, isChecked: boolean) {
-    if (isChecked) {
-      const checkedItems = this.visibleItems.find((item) => {
-        return item.index === index;
-      });
-      if (checkedItems) {
-        this.selected.push(checkedItems);
-      }
+  private toggleAll() {
+    const currentPageRows = this.selectCurrentPageRows();
+    const currentPageRowIndexes = currentPageRows.map(({ index }) => index);
+    const allPageCheckedRowIndexes = this.selected.map(({ index }) => index);
+
+    if (
+      currentPageRowIndexes.every((index) =>
+        allPageCheckedRowIndexes.includes(index)
+      )
+    ) {
+      this.uncheckRows(...currentPageRows.map(({ index }) => index));
     } else {
-      this.selected = this.selected
-        .filter((item) => {
-          return item.index !== index;
-        })
-        .slice();
+      this.checkRows(...currentPageRows.map(({ index }) => index));
     }
+
+    this.lastCheckedRowIndex = -1;
+    this.lastUncheckedRowIndex = -1;
+  }
+
+  private checkRows(...targetRowIndexes: number[]) {
+    const targetRows = this.visibleItems.filter(({ index }) =>
+      targetRowIndexes.includes(index)
+    );
+    const otherSelectedRows = this.selected.filter(
+      ({ index }) => !targetRowIndexes.includes(index)
+    );
+
+    this.toggleRows(...otherSelectedRows, ...targetRows);
+  }
+
+  private uncheckRows(...targetRowIndexes: number[]) {
+    const otherSelectedRows = this.selected.filter(
+      ({ index }) => !targetRowIndexes.includes(index)
+    );
+
+    this.toggleRows(...otherSelectedRows);
+  }
+
+  private toggleRows(...targetRows: { index: number; columns: T }[]) {
+    this.selected = targetRows.slice();
+
     const checkedIndexes = this.selected.map((item) => {
       return item.index;
     });
