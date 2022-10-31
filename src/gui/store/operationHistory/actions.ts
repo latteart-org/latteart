@@ -66,6 +66,7 @@ import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { Operation } from "@/lib/operationHistory/Operation";
+import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -924,6 +925,27 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const result = await new ExportTestResultAction(
       context.rootState.repositoryContainer
     ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
+  },
+
+  /**
+   * Configuration file output.
+   * @param context Action context.
+   */
+  async exportConfig(context) {
+    const result = await new ExportConfigAction(
+      context.rootState.repositoryContainer
+    ).exportSettings();
 
     if (result.isFailure()) {
       throw new Error(
