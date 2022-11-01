@@ -24,7 +24,7 @@
     </template>
     <template v-slot:content>
       <span class="pre-wrap break-word">{{ message }}</span>
-      <a :href="linkUrl" class="px-2" download>{{
+      <a :href="linkUrl" class="px-2" download target="_blank">{{
         $store.getters.message("common.download-link")
       }}</a>
       <p class="pre-wrap break-word alert-message">{{ alertMessage }}</p>

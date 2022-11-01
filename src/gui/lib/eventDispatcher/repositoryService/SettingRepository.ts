@@ -89,4 +89,28 @@ export class SettingRepository {
       return createConnectionRefusedFailure();
     }
   }
+
+  /**
+   * Configuration file output.
+   * @param projectId Project id.
+   * @returns Config file URL.
+   */
+  public async exportSettings(
+    projectId: string
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
+    try {
+      const response = await this.restClient.httpPost(
+        `/projects/${projectId}/configs/export`
+      );
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
 }
