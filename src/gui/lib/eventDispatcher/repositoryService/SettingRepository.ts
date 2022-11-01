@@ -92,15 +92,14 @@ export class SettingRepository {
 
   /**
    * Configuration file output.
-   * @param projectId Project id.
    * @returns Config file URL.
    */
-  public async exportSettings(
-    projectId: string
-  ): Promise<RepositoryAccessResult<{ url: string }>> {
+  public async exportSettings(): Promise<
+    RepositoryAccessResult<{ url: string }>
+  > {
     try {
       const response = await this.restClient.httpPost(
-        `/projects/${projectId}/configs/export`
+        "/projects/1/configs/export"
       );
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
