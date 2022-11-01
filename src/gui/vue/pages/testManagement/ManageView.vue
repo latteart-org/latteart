@@ -143,7 +143,8 @@
     </export-option-dialog>
     <config-import-dialog
       :opened="configImportDialogIsOpened"
-      @close="closeConfigImportDialog"
+      @execute="closeConfigImportDialog"
+      @close="configImportDialogIsOpened = false"
     ></config-import-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"

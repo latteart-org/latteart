@@ -30,18 +30,8 @@ export class ExportConfigAction {
   ) {}
 
   public async exportSettings(): Promise<ActionResult<{ url: string }>> {
-    const getProjectsResult =
-      await this.repositoryContainer.projectRepository.getProjects();
-    if (getProjectsResult.isFailure()) {
-      throw new Error();
-    }
-    const projectIds = getProjectsResult.data.map(({ id }) => id);
-    const targetProjectId = projectIds[projectIds.length - 1];
-
     const result =
-      await this.repositoryContainer.settingRepository.exportSettings(
-        targetProjectId
-      );
+      await this.repositoryContainer.settingRepository.exportSettings();
 
     if (result.isFailure()) {
       return new ActionFailure({ messageKey: "" });

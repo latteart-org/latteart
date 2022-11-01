@@ -102,6 +102,7 @@ export default class ConfigImportDialog extends Vue {
       await this.$store.dispatch("operationHistory/setSettings", {
         settings: JSON.parse(configText),
       });
+      this.$emit("execute");
 
       this.close();
     })(this.targetFile);

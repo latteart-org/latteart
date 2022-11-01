@@ -28,7 +28,8 @@
 
     <config-import-dialog
       :opened="configImportDialogOpened"
-      @close="closeConfigImportDialog"
+      @execute="closeConfigImportDialog"
+      @close="configImportDialogOpened = false"
     />
 
     <information-message-dialog
