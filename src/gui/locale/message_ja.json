@@ -112,8 +112,8 @@
     "import-config": "設定のインポート",
     "export-config": "設定のエクスポート",
     "select-config-file": "設定ファイルを選択してください。",
-    "completed-export": "設定ファイルの出力が完了しました。",
-    "completed-import": "設定ファイルの読込が完了しました。"
+    "completed-export": "設定ファイルのエクスポートが完了しました。",
+    "completed-import": "設定ファイルのインポートが完了しました。"
   },
   "config-view": {
     "window-title": "記録ツール [設定]",
