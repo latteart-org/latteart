@@ -186,7 +186,7 @@ export default class ManageView extends Vue {
   public outputHtmlProcessing = false;
   public exportDataProcessing = false;
   public importDataProcessing = false;
-  public exportConfigprocessing = false;
+  public exportConfigProcessing = false;
   public tabNum = 0;
   public locales: string[] = ["ja", "en"];
 
@@ -260,7 +260,7 @@ export default class ManageView extends Vue {
 
   private exportConfig() {
     (async () => {
-      this.exportConfigprocessing = true;
+      this.exportConfigProcessing = true;
 
       try {
         this.$store.dispatch("openProgressDialog", {
@@ -289,7 +289,7 @@ export default class ManageView extends Vue {
           throw error;
         }
       } finally {
-        this.exportConfigprocessing = false;
+        this.exportConfigProcessing = false;
       }
     })();
   }
