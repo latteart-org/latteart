@@ -261,6 +261,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       operations,
       waitTime: 1000,
     });
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
     context.commit("setIsAutoOperation", {
       isAutoOperation: false,
     });
@@ -343,6 +348,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         (inputValue) => inputValue.isEnabled
       )
     );
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
     context.commit("setIsAutoOperation", {
       isAutoOperation: false,
     });
@@ -370,7 +380,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       );
     }
 
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         resolve();
       }, 1000);
@@ -403,7 +413,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         const current = new TimestampImpl(payload.operations[index].timestamp);
         const intervalTime = payload.waitTime ?? current.diff(previous);
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve();
           }, intervalTime);
