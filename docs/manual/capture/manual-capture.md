@@ -170,7 +170,7 @@
 
 エクスポートファイル(json)配下のファイル名で出力されます。
 
-- config\_{TimeStamp}.json
+- config_YYYYDDMM_HHmmss.json
 
 ### テストスクリプト生成
 

@@ -160,7 +160,7 @@ OK ボタンを押下し、設定がインポートされます。
 
 エクスポートファイル(json)配下のファイル名で出力されます。
 
-- config\_{TimeStamp}.json
+- config_YYYYDDMM_HHmmss.json
 
 ### 言語
 
