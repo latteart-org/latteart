@@ -23,6 +23,7 @@
       @click="openDialog"
       fab
       small
+      :title="$store.getters.message('app.autofill')"
     >
       <v-icon>edit</v-icon>
     </v-btn>
