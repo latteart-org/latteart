@@ -35,7 +35,8 @@
     "notice": "Finding",
     "register-operation": "Operation Registration",
     "select-operation": "Operation Selection",
-    "execute-operation": "Operation Execution"
+    "auto-operation": "Auto Operation",
+    "autofill": "Autofill"
   },
   "replay": {
     "done-title": "Replay is done",

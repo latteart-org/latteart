@@ -23,7 +23,7 @@
       @click="autoOperationSelectDialogOpened = true"
       fab
       small
-      :title="$store.getters.message('app.execute-operation')"
+      :title="$store.getters.message('app.auto-operation')"
     >
       <v-icon>video_library</v-icon>
     </v-btn>

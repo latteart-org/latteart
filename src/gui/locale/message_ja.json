@@ -39,7 +39,8 @@
     "notice": "気づき",
     "register-operation": "操作の登録",
     "select-operation": "操作の選択",
-    "execute-operation": "操作の実行"
+    "auto-operation": "自動操作",
+    "autofill": "自動入力"
   },
   "replay": {
     "done-title": "テスト結果のリプレイ終了",
