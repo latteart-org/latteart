@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-1 pt-0" style="background-color: #eee">
     <v-layout row>
-      <v-flex xs10 class="mt-2">
+      <v-flex xs12 class="mt-2">
         <v-layout row>
           <v-checkbox
             :style="{ maxWidth: '40px' }"
@@ -31,10 +31,6 @@
             :value="conditionGroup.settingName"
             @change="(settingName) => updateconditionGroup({ settingName })"
           ></v-text-field>
-        </v-layout>
-      </v-flex>
-      <v-flex xs2 class="mt-2">
-        <v-layout row>
           <v-btn @click="dialogOpened = true">{{
             $store.getters.message("config-view.autoOperation.details-list")
           }}</v-btn>
@@ -45,7 +41,7 @@
       </v-flex>
     </v-layout>
     <v-layout row>
-      <v-flex xs10>
+      <v-flex xs12>
         <v-textarea
           hide-details
           :style="{ paddingLeft: '40px !important' }"
