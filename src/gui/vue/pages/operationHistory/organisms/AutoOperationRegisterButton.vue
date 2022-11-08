@@ -82,10 +82,11 @@ export default class AutoOperationRegisterButton extends Vue {
     this.registerDialogOpened = false;
   }
 
-  private openInvalidTypeErrorDialog() {
+  private openInvalidTypeErrorDialog(invalidTypes: string[]) {
     this.registerDialogOpened = false;
     this.errorMessage = this.$store.getters.message(
-      "error.operation_history.register_failed_with_invalid_type"
+      "error.operation_history.register_failed_with_invalid_type",
+      { value: invalidTypes.join(",") }
     );
     this.errorMessageDialogOpened = true;
   }

@@ -69,6 +69,7 @@ export default class AutoOperationRegisterDialog extends Vue {
   public readonly targetOperations!: Operation[];
   private settingName = "";
   private settingDetails = "";
+  private invalidTypes = ["switch_window"];
 
   private get okButtonIsDisabled() {
     return !this.settingName ? true : false;
@@ -83,9 +84,15 @@ export default class AutoOperationRegisterDialog extends Vue {
     this.settingDetails = "";
   }
 
+  private get invalidOperations() {
+    return this.targetOperations.filter((operation) => {
+      return this.invalidTypes.includes(operation.type);
+    });
+  }
+
   private ok() {
-    if (this.hasInvalidOperation(this.targetOperations)) {
-      this.$emit("error");
+    if (this.invalidOperations.length > 0) {
+      this.$emit("error", this.invalidTypes);
       return;
     }
     const sortedOperations = this.targetOperations.sort(
@@ -102,14 +109,6 @@ export default class AutoOperationRegisterDialog extends Vue {
 
   private close(): void {
     this.$emit("close");
-  }
-
-  private hasInvalidOperation(targetOperations: Operation[]) {
-    const invalidTypes = ["switch_window"];
-    const targetTypes = targetOperations.filter((operation) => {
-      return invalidTypes.includes(operation.type);
-    });
-    return targetTypes.length > 0;
   }
 }
 </script>

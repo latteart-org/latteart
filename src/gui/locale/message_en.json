@@ -545,7 +545,7 @@
       "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "register_operation_failed": "Failed to register operation.",
-      "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:switch_window"
+      "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}"
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",
