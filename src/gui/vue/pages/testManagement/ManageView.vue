@@ -115,6 +115,7 @@
       :message="downloadLinkDialogMessage"
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
+      :downloadFileName="downloadFileName"
       @close="downloadLinkDialogOpened = false"
     />
     <script-generation-option-dialog
@@ -205,6 +206,7 @@ export default class ManageView extends Vue {
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
+  private downloadFileName = "";
 
   private informationMessageDialogOpened = false;
   private informationTitle = "";
@@ -272,6 +274,9 @@ export default class ManageView extends Vue {
           .catch((error) => {
             console.error(error);
           });
+        const blob = await (
+          await fetch(`${this.currentRepositoryUrl}/${result.url}`)
+        ).blob();
         this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
@@ -279,7 +284,8 @@ export default class ManageView extends Vue {
           "config-io.completed-export"
         );
         this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${result.url}`;
+        this.downloadLinkDialogLinkUrl = window.URL.createObjectURL(blob);
+        this.downloadFileName = result.url.split("/").pop();
         this.downloadLinkDialogOpened = true;
       } catch (error) {
         this.$store.dispatch("closeProgressDialog");
