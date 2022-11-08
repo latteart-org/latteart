@@ -28,7 +28,7 @@
     >
       <template v-slot:headers="props">
         <tr :style="{ height: '40px !important' }">
-          <th class="check-col">
+          <th class="check-col" v-if="!hideCheckBox">
             <v-checkbox
               :input-value="props.all"
               :indeterminate="isPartiallyChecked"
@@ -70,7 +70,7 @@
           @click="selectItems(props.item.index)"
           @contextmenu="contextmenu(props.item.index, $event)"
         >
-          <td class="check-col check-item">
+          <td class="check-col check-item" v-if="!hideCheckBox">
             <v-checkbox
               class="mr-1"
               hide-details
@@ -131,6 +131,8 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly hideHeaders!: boolean;
   @Prop({ type: Boolean, default: false })
   private readonly hideFooters!: boolean;
+  @Prop({ type: Boolean, default: false })
+  private readonly hideCheckBox!: boolean;
 
   private selected: { index: number; columns: T }[] = [];
   private lastCheckedRowIndex = -1;
