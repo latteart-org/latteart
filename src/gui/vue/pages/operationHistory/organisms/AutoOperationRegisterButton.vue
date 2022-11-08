@@ -30,7 +30,7 @@
       :target-operations="targetOperations"
       @ok="clearCheckedOperations"
       @close="registerDialogOpened = false"
-      @error="invalidTypeError"
+      @error="openInvalidTypeErrorDialog"
     />
 
     <error-message-dialog
@@ -82,7 +82,7 @@ export default class AutoOperationRegisterButton extends Vue {
     this.registerDialogOpened = false;
   }
 
-  private invalidTypeError() {
+  private openInvalidTypeErrorDialog() {
     this.registerDialogOpened = false;
     this.errorMessage = this.$store.getters.message(
       "error.operation_history.register_failed_with_invalid_type"

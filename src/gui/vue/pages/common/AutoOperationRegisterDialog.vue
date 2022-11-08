@@ -84,7 +84,7 @@ export default class AutoOperationRegisterDialog extends Vue {
   }
 
   private ok() {
-    if (this.invalidTypeCheck(this.targetOperations)) {
+    if (this.hasInvalidOperation(this.targetOperations)) {
       this.$emit("error");
       return;
     }
@@ -104,7 +104,7 @@ export default class AutoOperationRegisterDialog extends Vue {
     this.$emit("close");
   }
 
-  private invalidTypeCheck(targetOperations: Operation[]) {
+  private hasInvalidOperation(targetOperations: Operation[]) {
     const invalidTypes = ["switch_window"];
     const targetTypes = targetOperations.filter((operation) => {
       return invalidTypes.includes(operation.type);
