@@ -16,6 +16,7 @@
 
 import { ElementInfo } from "./types";
 import { TimestampImpl } from "../common/Timestamp";
+import { convertInputValue } from "../common/util";
 
 /**
  * Class that handles operation information.
@@ -309,20 +310,8 @@ export class Operation {
   public get inputValue(): string {
     // TODO: When the separation and cooperation of ClientSideCaptureService is completed,
     // stop building the input field on the backend and aggregate it here, and name this getter input.
-    if (!this.elementInfo) {
-      return "";
-    }
 
-    if (
-      this.elementInfo.tagname.toLowerCase() === "input" &&
-      !!this.elementInfo.attributes.type &&
-      (this.elementInfo.attributes.type.toLowerCase() === "checkbox" ||
-        this.elementInfo.attributes.type.toLowerCase() === "radio")
-    ) {
-      return this.elementInfo.checked ? "on" : "off";
-    }
-
-    return this.input;
+    return convertInputValue(this.elementInfo, this.input);
   }
 
   /**

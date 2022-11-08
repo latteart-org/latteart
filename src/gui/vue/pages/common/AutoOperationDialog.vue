@@ -50,6 +50,7 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import { Operation } from "@/lib/operationHistory/Operation";
+import { convertInputValue } from "@/lib/common/util";
 
 @Component({
   components: {
@@ -137,26 +138,9 @@ export default class AutoOperationDialog extends Vue {
           ? operation.elementInfo.text.substring(0, 60)
           : "",
         type: operation.type,
-        input: this.convertInputValue(operation),
+        input: convertInputValue(operation.elementInfo, operation.input),
       };
     });
-  }
-
-  private convertInputValue(operation: Operation) {
-    if (!operation.elementInfo) {
-      return "";
-    }
-
-    if (
-      operation.elementInfo.tagname.toLowerCase() === "input" &&
-      !!operation.elementInfo.attributes.type &&
-      (operation.elementInfo.attributes.type.toLowerCase() === "checkbox" ||
-        operation.elementInfo.attributes.type.toLowerCase() === "radio")
-    ) {
-      return operation.elementInfo.checked ? "on" : "off";
-    }
-
-    return operation.input;
   }
 
   private async close(): Promise<void> {
