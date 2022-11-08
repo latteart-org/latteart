@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { OperationWithNotes } from "@/lib/operationHistory/types";
+import { OperationWithNotes, ElementInfo } from "@/lib/operationHistory/types";
 import { TimestampImpl } from "./Timestamp";
 
 /**
@@ -266,4 +266,30 @@ const extractKeywordsFromInnerText = (element: HTMLElement): string | null => {
     return element.innerText;
   }
   return null;
+};
+
+/**
+ * Convert the input value of the operation.
+ * @param elementInfo  ElementInfo.
+ * @param input  Input value.
+ * @returns Input value
+ */
+export const convertInputValue = (
+  elementInfo: ElementInfo | null,
+  input: string
+): string => {
+  if (!elementInfo) {
+    return "";
+  }
+
+  if (
+    elementInfo.tagname.toLowerCase() === "input" &&
+    !!elementInfo.attributes.type &&
+    (elementInfo.attributes.type.toLowerCase() === "checkbox" ||
+      elementInfo.attributes.type.toLowerCase() === "radio")
+  ) {
+    return elementInfo.checked ? "on" : "off";
+  }
+
+  return input;
 };
