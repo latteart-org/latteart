@@ -93,9 +93,9 @@ export default class ConfigImportButton extends Vue {
     this.informationTitle = this.$store.getters.message(
       "config-io.import-config"
     );
-    this.informationMessage = this.$store.getters.message(
+    this.informationMessage = `${this.$store.getters.message(
       "config-io.completed-import"
-    );
+    )}\n${this.$store.getters.message("config-io.please-redisplay")}`;
     this.informationMessageDialogOpened = true;
   }
 

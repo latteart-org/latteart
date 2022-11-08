@@ -110,7 +110,8 @@
     "export-config": "Export config.",
     "select-config-file": "Choose a config file.",
     "completed-export": "Config export is complete.",
-    "completed-import": "Config import is complete."
+    "completed-import": "Config import is complete.",
+    "please-redisplay": "Please redisplay the setting screen."
   },
   "config-view": {
     "window-title": "Capturing Tool [Config]",
