@@ -23,7 +23,7 @@
     fill-height
   >
     <v-layout align-center style="height: 40px">
-      <auto-operation-register-button />
+      <auto-operation-register-button v-if="!isViewerMode" />
     </v-layout>
     <v-layout
       align-space-around
@@ -51,6 +51,7 @@
           shortcut
           sortBy="operation.sequence"
           :rowsPerPage="10"
+          :hide-check-box="isViewerMode"
         >
           <template v-slot:row="{ columns }">
             <td class="seq-col">
@@ -215,6 +216,10 @@ export default class OperationList extends Vue {
   @Prop({ type: Function }) public readonly message!: MessageProvider;
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;
+
+  private isViewerMode = (this as any).$isViewerMode
+    ? (this as any).$isViewerMode
+    : false;
 
   private search = "";
   private selectedSequences: number[] = [];
