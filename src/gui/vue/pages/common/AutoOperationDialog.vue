@@ -137,9 +137,26 @@ export default class AutoOperationDialog extends Vue {
           ? operation.elementInfo.text.substring(0, 60)
           : "",
         type: operation.type,
-        input: operation.input.substring(0, 60),
+        input: this.convertInputValue(operation),
       };
     });
+  }
+
+  private convertInputValue(operation: Operation) {
+    if (!operation.elementInfo) {
+      return "";
+    }
+
+    if (
+      operation.elementInfo.tagname.toLowerCase() === "input" &&
+      !!operation.elementInfo.attributes.type &&
+      (operation.elementInfo.attributes.type.toLowerCase() === "checkbox" ||
+        operation.elementInfo.attributes.type.toLowerCase() === "radio")
+    ) {
+      return operation.elementInfo.checked ? "on" : "off";
+    }
+
+    return operation.input;
   }
 
   private async close(): Promise<void> {
