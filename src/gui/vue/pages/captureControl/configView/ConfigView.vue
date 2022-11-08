@@ -90,6 +90,7 @@
               </template>
               <image-compression-setting
                 :imageCompression="imageCompression"
+                :opened="imageCompressionSettingOpened"
                 @save-config="saveConfig"
               >
               </image-compression-setting>
@@ -115,6 +116,7 @@
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
               <screen-definition-setting
+                :opened="screenDefinitionSettingOpened"
                 :screenDefinition="screenDefinition"
                 @save-config="saveConfig"
               >
@@ -126,6 +128,7 @@
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>
               <autofill-setting
+                :opened="autofillSettingOpened"
                 :autofillSetting="autofillSetting"
                 @save-config="saveConfig"
               >
@@ -139,6 +142,7 @@
                 }}
               </template>
               <auto-operation-setting
+                :opened="autoOperationSettingOpened"
                 :autoOperationSetting="autoOperationSetting"
                 @save-config="saveConfig"
               >
@@ -208,15 +212,13 @@ export default class ConfigView extends Vue {
     osVersion: string;
   }[] = [];
 
-  private settings: Settings | null = null;
-
   private get locale() {
     return this.$store.getters.getLocale();
   }
 
   private get imageCompression(): ImageCompression {
     return (
-      this.settings?.config?.imageCompression ?? {
+      this.config?.imageCompression ?? {
         isEnabled: false,
         isDeleteSrcImage: false,
       }
@@ -224,7 +226,7 @@ export default class ConfigView extends Vue {
   }
 
   private get includeTags(): string[] {
-    return this.settings?.config.coverage.include.tags ?? [];
+    return this.config?.coverage.include.tags ?? [];
   }
 
   private get defaultTagList(): string[] {
@@ -233,7 +235,7 @@ export default class ConfigView extends Vue {
 
   private get screenDefinition(): ScreenDefinition {
     return (
-      this.settings?.config.screenDefinition ?? {
+      this.config?.screenDefinition ?? {
         screenDefType: ScreenDefType.Title,
         conditionGroups: [],
       }
@@ -242,7 +244,7 @@ export default class ConfigView extends Vue {
 
   private get autofillSetting(): AutofillSetting {
     return (
-      this.settings?.config.autofillSetting ?? {
+      this.config?.autofillSetting ?? {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false,
         conditionGroups: [],
@@ -252,7 +254,7 @@ export default class ConfigView extends Vue {
 
   private get autoOperationSetting(): AutoOperationSetting {
     return (
-      this.settings?.config.autoOperationSetting ?? {
+      this.config?.autoOperationSetting ?? {
         conditionGroups: [],
       }
     );
@@ -265,44 +267,60 @@ export default class ConfigView extends Vue {
     });
   }
 
-  private async created() {
-    this.settings = await this.$store.dispatch("operationHistory/fetchConfig");
-    console.log(this.settings);
+  private get config(): Settings["config"] {
+    return this.$store.state.operationHistory.config;
+  }
 
+  private async created() {
     this.updateWindowTitle();
     this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
 
     const testResultId = this.$route.query.testResultId as string;
 
     if (testResultId) {
-      (async () => {
-        try {
-          if (this.$route.query.remoteRepository) {
-            await this.$store.dispatch("connectRemoteUrl", {
-              targetUrl: this.$route.query.remoteRepository,
-            });
-
-            await this.initialize();
-          }
-
-          await this.$store.dispatch("operationHistory/loadHistory", {
-            testResultId,
+      try {
+        if (this.$route.query.remoteRepository) {
+          await this.$store.dispatch("connectRemoteUrl", {
+            targetUrl: this.$route.query.remoteRepository,
           });
-        } catch (error) {
-          if (error instanceof Error) {
-            console.error(error);
-            this.errorMessageDialogOpened = true;
-            this.errorMessage = error.message;
-          } else {
-            throw error;
-          }
+
+          await this.$store.dispatch("testManagement/readDataFile");
         }
-      })();
+
+        await this.$store.dispatch("operationHistory/loadHistory", {
+          testResultId,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error);
+          this.errorMessageDialogOpened = true;
+          this.errorMessage = error.message;
+        } else {
+          throw error;
+        }
+      }
     }
+    await this.$store.dispatch("operationHistory/readSettings");
+  }
+
+  private get imageCompressionSettingOpened() {
+    return this.panel === 1;
   }
 
   private get coverageOpened() {
     return this.panel === 2;
+  }
+
+  private get screenDefinitionSettingOpened() {
+    return this.panel === 3;
+  }
+
+  private get autofillSettingOpened() {
+    return this.panel === 4;
+  }
+
+  private get autoOperationSettingOpened() {
+    return this.panel === 5;
   }
 
   private get otherThanWindows() {
@@ -372,7 +390,6 @@ export default class ConfigView extends Vue {
       osVersion: string;
     }[]
   ) {
-    console.log(devices);
     return devices.length > 0
       ? devices[0]
       : { deviceName: "", modelNumber: "", osVersion: "" };
@@ -431,19 +448,14 @@ export default class ConfigView extends Vue {
     });
   }
 
-  private async initialize(): Promise<void> {
-    await this.$store.dispatch("operationHistory/readSettings");
-    await this.$store.dispatch("testManagement/readDataFile");
-  }
-
-  private async saveConfig(config: {
+  private saveConfig(config: {
     autofillSetting?: AutofillSetting;
     autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinition;
     coverage?: Coverage;
     imageCompression?: ImageCompression;
   }) {
-    await this.$store.dispatch("operationHistory/writeSettings", { config });
+    this.$store.dispatch("operationHistory/writeSettings", { config });
 
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {

@@ -50,23 +50,28 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class ImageCompressionSetting extends Vue {
+  @Prop({ type: Boolean, required: true })
+  public readonly opened!: boolean;
   @Prop({ type: Object, default: null })
   public readonly imageCompression!: ImageCompression;
 
   private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
-    isEnabled: false,
-    isDeleteSrcImage: false,
+    ...this.imageCompression,
   };
 
   @Watch("imageCompression")
   private updateTempConfig() {
-    this.tempConfig = { ...this.imageCompression };
+    if (!this.opened) {
+      this.tempConfig = { ...this.imageCompression };
+    }
   }
 
   private saveConfig() {
-    this.$emit("save-config", {
-      imageCompression: this.tempConfig,
-    });
+    if (this.opened) {
+      this.$emit("save-config", {
+        imageCompression: this.tempConfig,
+      });
+    }
   }
 }
 </script>

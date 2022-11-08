@@ -48,6 +48,8 @@ import AutoOperationContainer from "./AutoOperationContainer.vue";
   },
 })
 export default class AutoOperationSetting extends Vue {
+  @Prop({ type: Boolean, required: true })
+  public readonly opened!: boolean;
   @Prop({
     type: Object,
     default: null,
@@ -60,12 +62,16 @@ export default class AutoOperationSetting extends Vue {
 
   @Watch("autoOperationSetting")
   updateTempConfig(): void {
-    this.tempConfig = { ...this.autoOperationSetting };
+    if (!this.opened) {
+      this.tempConfig = { ...this.autoOperationSetting };
+    }
   }
 
   @Watch("tempConfig")
   saveConfig(): void {
-    this.$emit("save-config", { autoOperationSetting: this.tempConfig });
+    if (this.opened) {
+      this.$emit("save-config", { autoOperationSetting: this.tempConfig });
+    }
   }
 
   private get conditionGroups(): AutoOperationConditionGroup[] {

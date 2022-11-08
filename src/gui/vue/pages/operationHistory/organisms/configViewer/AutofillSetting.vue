@@ -74,6 +74,8 @@ import AutoFillInputValueContainer from "./AutoFillInputValueContainer.vue";
   },
 })
 export default class AutofillSetting extends Vue {
+  @Prop({ type: Boolean, required: true })
+  public readonly opened!: boolean;
   @Prop({
     type: Object,
     default: null,
@@ -84,12 +86,16 @@ export default class AutofillSetting extends Vue {
 
   @Watch("autofillSetting")
   updateTempConfig(): void {
-    this.tempConfig = { ...this.autofillSetting };
+    if (!this.opened) {
+      this.tempConfig = { ...this.autofillSetting };
+    }
   }
 
   @Watch("tempConfig")
   saveConfig(): void {
-    this.$emit("save-config", { autofillSetting: this.tempConfig });
+    if (this.opened) {
+      this.$emit("save-config", { autofillSetting: this.tempConfig });
+    }
   }
 
   private get conditionGroups(): AutofillConditionGroup[] {

@@ -55,18 +55,28 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class CoverageSetting extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Array, default: () => [] })
+  @Prop({ type: Boolean, required: true }) public readonly opened!: boolean;
+  @Prop({ type: Array, required: true })
   public readonly includeTags!: string[];
-  @Prop({ type: Array, default: () => [] }) public defaultTagList!: string[];
+  @Prop({ type: Array, required: true }) public defaultTagList!: string[];
 
   private tempInclusionTagMap = new Map();
   private tempTags: string[] = [];
   private tempDisplayInclusionList: string[] = [];
   private tempTagList: string[] = [];
 
+  created(): void {
+    this.updateTempTagsAndTempDisplayInclusionList();
+  }
+
   @Watch("includeTags")
   private updateTempConfig() {
+    if (!this.opened) {
+      this.updateTempTagsAndTempDisplayInclusionList();
+    }
+  }
+
+  private updateTempTagsAndTempDisplayInclusionList() {
     this.tempTags = [...this.includeTags];
     this.tempDisplayInclusionList = Array.from(
       new Set(this.tempTags.concat(this.defaultTagList))
@@ -76,9 +86,11 @@ export default class CoverageSetting extends Vue {
 
   @Watch("tempTags")
   private saveTags() {
-    this.$emit("save-config", {
-      coverage: { include: { tags: this.tempTags } },
-    });
+    if (this.opened) {
+      this.$emit("save-config", {
+        coverage: { include: { tags: this.tempTags } },
+      });
+    }
     this.createInclusionTagMap();
   }
 
