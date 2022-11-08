@@ -73,6 +73,8 @@ import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
   },
 })
 export default class ScreenDefinitionSetting extends Vue {
+  @Prop({ type: Boolean, required: true })
+  public readonly opened!: boolean;
   @Prop({ type: Object, default: null })
   public readonly screenDefinition!: ScreenDefinition;
 
@@ -80,12 +82,16 @@ export default class ScreenDefinitionSetting extends Vue {
 
   @Watch("screenDefinition")
   private updateTempConfig() {
-    this.tempConfig = { ...this.screenDefinition };
+    if (!this.opened) {
+      this.tempConfig = { ...this.screenDefinition };
+    }
   }
 
   @Watch("tempConfig")
   saveConfig(): void {
-    this.$emit("save-config", { screenDefinition: this.tempConfig });
+    if (this.opened) {
+      this.$emit("save-config", { screenDefinition: this.tempConfig });
+    }
   }
 
   private updateConditionGroups(

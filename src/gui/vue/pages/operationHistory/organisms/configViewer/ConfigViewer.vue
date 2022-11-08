@@ -55,6 +55,7 @@
                   {{ $store.getters.message("config-view.setting-screen") }}
                 </template>
                 <screen-definition-setting
+                  :opened="screenDefinitionSettingOpened"
                   :screenDefinition="screenDefinition"
                   @save-config="saveConfig"
                 >
@@ -91,14 +92,13 @@ import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 })
 export default class ConfigViewer extends Vue {
   private panel: null | number = null;
-  private settings: Settings | null = null;
 
-  private async created() {
-    this.settings = await this.$store.dispatch("operationHistory/fetchConfig");
+  private get config(): Settings["config"] {
+    return this.$store.state.operationHistory.config;
   }
 
   private get includeTags(): string[] {
-    return this.settings?.config.coverage.include.tags ?? [];
+    return this.config?.coverage.include.tags ?? [];
   }
   private get defaultTagList(): string[] {
     return this.$store.state.operationHistory.defaultTagList;
@@ -116,9 +116,13 @@ export default class ConfigViewer extends Vue {
     return this.panel === 0;
   }
 
+  private get screenDefinitionSettingOpened() {
+    return this.panel === 1;
+  }
+
   private get screenDefinition(): ScreenDefinition {
     return (
-      this.settings?.config.screenDefinition ?? {
+      this.config.screenDefinition ?? {
         screenDefType: ScreenDefType.Title,
         conditionGroups: [],
       }
@@ -140,7 +144,7 @@ export default class ConfigViewer extends Vue {
     coverage?: Coverage;
     imageCompression?: ImageCompression;
   }) {
-    await this.$store.dispatch("operationHistory/writeSettings", { config });
+    this.$store.dispatch("operationHistory/writeSettings", { config });
 
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {
