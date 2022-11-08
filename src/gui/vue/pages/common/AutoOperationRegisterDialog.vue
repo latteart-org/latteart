@@ -84,6 +84,10 @@ export default class AutoOperationRegisterDialog extends Vue {
   }
 
   private ok() {
+    if (this.invalidTypeCheck(this.targetOperations)) {
+      this.$emit("error");
+      return;
+    }
     const sortedOperations = this.targetOperations.sort(
       (a, b) => a.sequence - b.sequence
     );
@@ -98,6 +102,14 @@ export default class AutoOperationRegisterDialog extends Vue {
 
   private close(): void {
     this.$emit("close");
+  }
+
+  private invalidTypeCheck(targetOperations: Operation[]) {
+    const invalidTypes = ["switch_window"];
+    const targetTypes = targetOperations.filter((operation) => {
+      return invalidTypes.includes(operation.type);
+    });
+    return targetTypes.length > 0;
   }
 }
 </script>

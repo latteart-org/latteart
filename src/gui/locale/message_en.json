@@ -544,7 +544,8 @@
       "create_test_result_failed": "Failed to create test result.",
       "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
-      "register_operation_failed": "Failed to register operation."
+      "register_operation_failed": "Failed to register operation.",
+      "register_failed_with_invalid_type": "Could not be registered because it contains operations that are not replayable.\nUnsupported operation:switch_window"
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

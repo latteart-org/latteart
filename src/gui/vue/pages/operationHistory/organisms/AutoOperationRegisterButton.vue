@@ -20,16 +20,23 @@
       :disabled="isDisabled"
       color="blue"
       :dark="!isDisabled"
-      @click="dialogOpened = true"
+      @click="registerDialogOpened = true"
       small
       >{{ $store.getters.message("app.register-operation") }}
     </v-btn>
 
     <auto-operation-register-dialog
-      :opened="dialogOpened"
+      :opened="registerDialogOpened"
       :target-operations="targetOperations"
       @ok="clearCheckedOperations"
-      @close="dialogOpened = false"
+      @close="registerDialogOpened = false"
+      @error="invalidTypeError"
+    />
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
     />
   </div>
 </template>
@@ -38,14 +45,18 @@
 import { Operation } from "@/lib/operationHistory/Operation";
 import AutoOperationRegisterDialog from "@/vue/pages/common/AutoOperationRegisterDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
     "auto-operation-register-dialog": AutoOperationRegisterDialog,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class AutoOperationRegisterButton extends Vue {
-  private dialogOpened = false;
+  private registerDialogOpened = false;
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
 
   private get targetOperations(): Operation[] {
     return (
@@ -68,7 +79,15 @@ export default class AutoOperationRegisterButton extends Vue {
 
   private clearCheckedOperations() {
     this.$store.commit("operationHistory/clearCheckedOperations");
-    this.dialogOpened = false;
+    this.registerDialogOpened = false;
+  }
+
+  private invalidTypeError() {
+    this.registerDialogOpened = false;
+    this.errorMessage = this.$store.getters.message(
+      "error.operation_history.register_failed_with_invalid_type"
+    );
+    this.errorMessageDialogOpened = true;
   }
 }
 </script>
