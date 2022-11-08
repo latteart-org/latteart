@@ -31,6 +31,7 @@
       :message="downloadLinkDialogMessage"
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
+      :downloadFileName="downloadFileName"
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-tile>
@@ -56,6 +57,7 @@ export default class ConfigExportButton extends Vue {
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
+  private downloadFileName = "";
 
   private isExportingData = false;
 
@@ -93,6 +95,10 @@ export default class ConfigExportButton extends Vue {
           .catch((error) => {
             console.error(error);
           });
+        const blob = await (
+          await fetch(`${this.currentRepositoryUrl}/${result.url}`)
+        ).blob();
+
         this.$store.dispatch("closeProgressDialog");
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
@@ -100,7 +106,8 @@ export default class ConfigExportButton extends Vue {
           "config-io.completed-export"
         );
         this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${result.url}`;
+        this.downloadLinkDialogLinkUrl = window.URL.createObjectURL(blob);
+        this.downloadFileName = result.url.split("/").pop();
         this.downloadLinkDialogOpened = true;
       } catch (error) {
         this.$store.dispatch("closeProgressDialog");
