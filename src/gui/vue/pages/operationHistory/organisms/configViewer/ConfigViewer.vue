@@ -105,6 +105,9 @@ export default class ConfigViewer extends Vue {
   }
 
   private get dialog() {
+    if (!this.$store.state.openedConfigViewer) {
+      this.panel = null;
+    }
     return this.$store.state.openedConfigViewer;
   }
 
