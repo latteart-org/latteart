@@ -138,7 +138,10 @@ export default class AutoOperationDialog extends Vue {
           ? operation.elementInfo.text.substring(0, 60)
           : "",
         type: operation.type,
-        input: convertInputValue(operation.elementInfo, operation.input),
+        input: convertInputValue(
+          operation.elementInfo,
+          operation.input
+        ).substring(0, 60),
       };
     });
   }
