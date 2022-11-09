@@ -403,7 +403,55 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     const replayWindowHandles: string[] = [];
 
+    const isDateInputOperation = (
+      target: Pick<OperationForReplay, "type" | "elementInfo">,
+      type: "click" | "change"
+    ) => {
+      return (
+        target.type === type &&
+        target.elementInfo?.tagname.toLowerCase() === "input" &&
+        target.elementInfo.attributes.type === "date"
+      );
+    };
+
+    const isNumberInputOperation = (
+      target: Pick<OperationForReplay, "type" | "elementInfo">,
+      type: "click" | "change"
+    ) => {
+      return (
+        target.type === type &&
+        target.elementInfo?.tagname.toLowerCase() === "input" &&
+        target.elementInfo.attributes.type === "number"
+      );
+    };
+
     for (const [index, operation] of payload.operations.entries()) {
+      if (isDateInputOperation(operation, "change")) {
+        const nextOperation: OperationForReplay | undefined =
+          payload.operations[index + 1];
+
+        if (
+          nextOperation &&
+          isDateInputOperation(nextOperation, "change") &&
+          operation.elementInfo?.xpath === nextOperation.elementInfo?.xpath
+        ) {
+          continue;
+        }
+      }
+
+      if (isNumberInputOperation(operation, "click")) {
+        const preOperation: OperationForReplay | undefined =
+          payload.operations[index - 1];
+
+        if (
+          preOperation &&
+          isNumberInputOperation(preOperation, "change") &&
+          operation.elementInfo?.xpath === preOperation.elementInfo?.xpath
+        ) {
+          continue;
+        }
+      }
+
       if (index > 0) {
         if (!isReplayCaptureMode && isReplaying) {
           context.commit(
