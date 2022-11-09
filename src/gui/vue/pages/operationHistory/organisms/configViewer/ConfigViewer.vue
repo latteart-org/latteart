@@ -61,6 +61,32 @@
                 >
                 </screen-definition-setting>
               </v-expansion-panel-content>
+
+              <v-expansion-panel-content>
+                <template v-slot:header class="py-0">
+                  {{ $store.getters.message("config-view.setting-autofill") }}
+                </template>
+                <autofill-setting
+                  :opened="autofillSettingOpened"
+                  :autofillSetting="autofillSetting"
+                  @save-config="saveConfig"
+                >
+                </autofill-setting>
+              </v-expansion-panel-content>
+
+              <v-expansion-panel-content>
+                <template v-slot:header class="py-0">
+                  {{
+                    $store.getters.message("config-view.setting-auto-operation")
+                  }}
+                </template>
+                <auto-operation-setting
+                  :opened="autoOperationSettingOpened"
+                  :autoOperationSetting="autoOperationSetting"
+                  @save-config="saveConfig"
+                >
+                </auto-operation-setting>
+              </v-expansion-panel-content>
             </v-expansion-panel>
           </v-flex>
         </v-layout>
@@ -83,11 +109,15 @@ import {
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
+import { default as AutofillSettingComponent } from "./AutofillSetting.vue";
+import { default as AutoOperationSettingComponent } from "./AutoOperationSetting.vue";
 
 @Component({
   components: {
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
+    "autofill-setting": AutofillSettingComponent,
+    "auto-operation-setting": AutoOperationSettingComponent,
   },
 })
 export default class ConfigViewer extends Vue {
@@ -123,10 +153,36 @@ export default class ConfigViewer extends Vue {
     return this.panel === 1;
   }
 
+  private get autofillSettingOpened() {
+    return this.panel === 2;
+  }
+
+  private get autoOperationSettingOpened() {
+    return this.panel === 3;
+  }
+
   private get screenDefinition(): ScreenDefinition {
     return (
       this.config.screenDefinition ?? {
         screenDefType: ScreenDefType.Title,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autofillSetting(): AutofillSetting {
+    return (
+      this.config?.autofillSetting ?? {
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autoOperationSetting(): AutoOperationSetting {
+    return (
+      this.config?.autoOperationSetting ?? {
         conditionGroups: [],
       }
     );
