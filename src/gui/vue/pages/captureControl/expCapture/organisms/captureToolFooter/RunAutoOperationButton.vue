@@ -69,12 +69,11 @@ export default class RunAutoOperationButton extends Vue {
     });
   }
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
   private get isDisabled(): boolean {
-    return !this.isCapturing;
+    return (
+      !this.$store.state.captureControl.isCapturing ||
+      this.$store.state.captureControl.isAutoOperation
+    );
   }
 
   private async runAutoOperations(index: number) {
