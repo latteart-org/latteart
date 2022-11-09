@@ -72,7 +72,8 @@ export default class RunAutoOperationButton extends Vue {
   private get isDisabled(): boolean {
     return (
       !this.$store.state.captureControl.isCapturing ||
-      this.$store.state.captureControl.isAutoOperation
+      this.$store.state.captureControl.isAutoOperation ||
+      this.autoOperationConditionGroups.length < 1
     );
   }
 
