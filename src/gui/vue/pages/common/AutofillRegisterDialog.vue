@@ -62,6 +62,7 @@ import {
 export default class AutofillRegisterDialog extends Vue {
   private settingName = "";
   private opened = false;
+  private isProcessing = false;
 
   private get autofillRegisterDialogData(): {
     title: string;
@@ -85,6 +86,10 @@ export default class AutofillRegisterDialog extends Vue {
   }
 
   private async accept(): Promise<void> {
+    if (this.isProcessing) {
+      return;
+    }
+    this.isProcessing = true;
     const autofillConditionGroup: AutofillConditionGroup = {
       isEnabled: true,
       settingName: this.settingName,
@@ -129,6 +134,7 @@ export default class AutofillRegisterDialog extends Vue {
         callback();
       });
     }
+    this.isProcessing = false;
   }
 }
 </script>

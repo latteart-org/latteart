@@ -70,9 +70,10 @@ export default class AutoOperationRegisterDialog extends Vue {
   private settingName = "";
   private settingDetails = "";
   private invalidTypes = ["switch_window"];
+  private isProcessing = false;
 
   private get okButtonIsDisabled() {
-    return !this.settingName ? true : false;
+    return this.isProcessing || !this.settingName ? true : false;
   }
 
   @Watch("opened")
@@ -80,6 +81,7 @@ export default class AutoOperationRegisterDialog extends Vue {
     if (!this.opened) {
       return;
     }
+    this.isProcessing = false;
     this.settingName = "";
     this.settingDetails = "";
   }
@@ -91,8 +93,13 @@ export default class AutoOperationRegisterDialog extends Vue {
   }
 
   private ok() {
+    if (this.isProcessing) {
+      return;
+    }
+    this.isProcessing = true;
     if (this.invalidOperations.length > 0) {
       this.$emit("error", this.invalidTypes);
+      this.isProcessing = false;
       return;
     }
     const sortedOperations = this.targetOperations
