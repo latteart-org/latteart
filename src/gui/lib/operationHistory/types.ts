@@ -159,7 +159,7 @@ export interface AutoOperationConditionGroup {
   isEnabled: boolean;
   settingName: string;
   details?: string;
-  autoOperations: Operation[];
+  autoOperations: MinimumOperation[];
 }
 
 export interface ScreenDefinitionConditionGroup {
@@ -213,3 +213,17 @@ export interface TestResult {
 }
 
 export type TestResultSummary = Pick<TestResult, "id" | "name">;
+
+export type MinimumOperation = {
+  input: string;
+  type: string;
+  elementInfo: ElementInfo | null;
+  title: string;
+  url: string;
+};
+
+export type ReplayOperationType = MinimumOperation & {
+  sequence?: number;
+  timestamp?: string;
+  windowHandle?: string;
+};
