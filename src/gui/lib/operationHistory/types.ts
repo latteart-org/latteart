@@ -159,7 +159,7 @@ export interface AutoOperationConditionGroup {
   isEnabled: boolean;
   settingName: string;
   details?: string;
-  autoOperations: Operation[];
+  autoOperations: AutoOperation[];
 }
 
 export interface ScreenDefinitionConditionGroup {
@@ -213,3 +213,17 @@ export interface TestResult {
 }
 
 export type TestResultSummary = Pick<TestResult, "id" | "name">;
+
+export type AutoOperation = {
+  input: string;
+  type: string;
+  elementInfo: ElementInfo | null;
+  title: string;
+  url: string;
+};
+
+export type OperationForReplay = AutoOperation & {
+  sequence?: number;
+  timestamp?: string;
+  windowHandle?: string;
+};

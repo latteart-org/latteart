@@ -78,8 +78,17 @@ export default class RunAutoOperationButton extends Vue {
 
   private async runAutoOperations(index: number) {
     try {
-      const tempOperations =
-        this.autoOperationConditionGroups[index].autoOperations;
+      const tempOperations = this.autoOperationConditionGroups[
+        index
+      ].autoOperations.map((operation) => {
+        return {
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+          title: operation.title,
+          url: operation.url,
+        };
+      });
 
       await this.$store.dispatch("captureControl/runAutoOperations", {
         operations: tempOperations,

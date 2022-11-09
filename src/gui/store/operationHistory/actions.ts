@@ -26,6 +26,7 @@ import {
   OperationWithNotes,
   ElementInfo,
   AutofillConditionGroup,
+  AutoOperation,
 } from "@/lib/operationHistory/types";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
@@ -1594,7 +1595,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     payload: {
       settingName: string;
       settingDetails?: string;
-      operations: Operation[];
+      operations: AutoOperation[];
     }
   ) {
     const conditionGroup = {

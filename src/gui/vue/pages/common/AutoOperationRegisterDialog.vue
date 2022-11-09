@@ -95,9 +95,17 @@ export default class AutoOperationRegisterDialog extends Vue {
       this.$emit("error", this.invalidTypes);
       return;
     }
-    const sortedOperations = this.targetOperations.sort(
-      (a, b) => a.sequence - b.sequence
-    );
+    const sortedOperations = this.targetOperations
+      .sort((a, b) => a.sequence - b.sequence)
+      .map((operation) => {
+        return {
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+          title: operation.title,
+          url: operation.url,
+        };
+      });
     this.$store.dispatch("operationHistory/registerAutoOperation", {
       settingName: this.settingName,
       settingDetails: this.settingDetails,

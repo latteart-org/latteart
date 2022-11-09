@@ -21,10 +21,11 @@ import {
   WindowHandle,
   OperationWithNotes,
   AutofillConditionGroup,
+  AutoOperation,
+  OperationForReplay,
 } from "@/lib/operationHistory/types";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
-import { Operation } from "@/lib/operationHistory/Operation";
 import {
   CapturedOperation,
   CapturedScreenTransition,
@@ -202,7 +203,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async replayOperations(
     context,
-    payload: { operations: Operation[] }
+    payload: { operations: OperationForReplay[] }
   ): Promise<void> {
     context.commit("setIsReplaying", { isReplaying: true });
 
@@ -250,7 +251,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
   async runAutoOperations(
     context,
-    payload: { operations: Operation[] }
+    payload: { operations: AutoOperation[] }
   ): Promise<void> {
     const operations = convertOperationsForReplay(payload.operations);
 
@@ -365,7 +366,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async runOperations(
     context,
-    payload: { operations: Operation[]; waitTime?: number }
+    payload: { operations: OperationForReplay[]; waitTime?: number }
   ) {
     const isReplayCaptureMode = (context.rootState as any).captureControl
       .replayOption.replayCaptureMode;
@@ -386,13 +387,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }, 1000);
     });
 
-    const recordedWindowHandles = payload.operations
+    const tempWindowHandles = payload.operations
       .map((operation) => {
         return operation.windowHandle;
       })
-      .filter((windowHandle, index, array) => {
-        return array.indexOf(windowHandle) === index;
+      .filter((windowHandle) => {
+        return windowHandle;
       });
+    const recordedWindowHandles =
+      tempWindowHandles.length > 0
+        ? tempWindowHandles.filter((windowHandle, index, array) => {
+            return array.indexOf(windowHandle) === index;
+          })
+        : [];
 
     const replayWindowHandles: string[] = [];
 
@@ -430,20 +437,38 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const replayTargetOperation = (() => {
         if (operation.type !== "switch_window") {
-          return operation;
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
+        }
+
+        if (recordedWindowHandles.length < 1) {
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
         }
 
         const handleKey = recordedWindowHandles.indexOf(operation.input);
 
         if (handleKey === -1) {
-          return operation;
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
         }
 
         const switchHandleId = replayWindowHandles[handleKey];
-        return Operation.createFromOtherOperation({
-          other: operation,
-          overrideParams: { input: switchHandleId },
-        });
+
+        return {
+          input: switchHandleId,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+        };
       })();
 
       if (payload.operations[index + 1]?.type === "screen_transition") {
@@ -477,7 +502,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
-      operations?: Operation[];
+      operations?: OperationForReplay[];
       callbacks: {
         onChangeNumberOfWindows: () => void;
       };
@@ -736,7 +761,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
 export default actions;
 
-function convertOperationsForReplay(operations: Operation[]) {
+function convertOperationsForReplay(operations: OperationForReplay[]) {
   const pauseCapturingIndex = operations.findIndex((operation) => {
     return operation.type === "pause_capturing";
   });

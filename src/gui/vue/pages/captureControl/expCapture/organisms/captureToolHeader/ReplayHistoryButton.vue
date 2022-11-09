@@ -92,8 +92,20 @@ export default class ReplayHistoryButton extends Vue {
   private async replayOperations() {
     (async () => {
       try {
+        const tempOperations = this.operations.map((operation) => {
+          return {
+            sequence: operation.sequence,
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+            title: operation.title,
+            url: operation.url,
+            timestamp: operation.timestamp,
+            windowHandle: operation.windowHandle,
+          };
+        });
         await this.$store.dispatch("captureControl/replayOperations", {
-          operations: this.operations,
+          operations: tempOperations,
         });
 
         this.informationMessageDialogOpened = true;
