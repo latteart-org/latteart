@@ -21,8 +21,8 @@ import {
   WindowHandle,
   OperationWithNotes,
   AutofillConditionGroup,
-  MinimumOperation,
-  ReplayOperationType,
+  AutoOperation,
+  OperationForReplay,
 } from "@/lib/operationHistory/types";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
@@ -203,7 +203,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async replayOperations(
     context,
-    payload: { operations: ReplayOperationType[] }
+    payload: { operations: OperationForReplay[] }
   ): Promise<void> {
     context.commit("setIsReplaying", { isReplaying: true });
 
@@ -251,7 +251,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
   async runAutoOperations(
     context,
-    payload: { operations: MinimumOperation[] }
+    payload: { operations: AutoOperation[] }
   ): Promise<void> {
     const operations = convertOperationsForReplay(payload.operations);
 
@@ -366,7 +366,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async runOperations(
     context,
-    payload: { operations: ReplayOperationType[]; waitTime?: number }
+    payload: { operations: OperationForReplay[]; waitTime?: number }
   ) {
     const isReplayCaptureMode = (context.rootState as any).captureControl
       .replayOption.replayCaptureMode;
@@ -441,8 +441,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             input: operation.input,
             type: operation.type,
             elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
           };
         }
 
@@ -451,8 +449,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             input: operation.input,
             type: operation.type,
             elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
           };
         }
 
@@ -463,8 +459,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             input: operation.input,
             type: operation.type,
             elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
           };
         }
 
@@ -474,8 +468,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           input: switchHandleId,
           type: operation.type,
           elementInfo: operation.elementInfo,
-          title: operation.title,
-          url: operation.url,
         };
       })();
 
@@ -510,7 +502,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
-      operations?: ReplayOperationType[];
+      operations?: OperationForReplay[];
       callbacks: {
         onChangeNumberOfWindows: () => void;
       };
@@ -769,7 +761,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
 export default actions;
 
-function convertOperationsForReplay(operations: ReplayOperationType[]) {
+function convertOperationsForReplay(operations: OperationForReplay[]) {
   const pauseCapturingIndex = operations.findIndex((operation) => {
     return operation.type === "pause_capturing";
   });

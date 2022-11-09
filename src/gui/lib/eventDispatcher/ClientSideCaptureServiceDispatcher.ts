@@ -23,7 +23,8 @@ import {
   CapturedScreenTransition,
 } from "../operationHistory/CapturedOperation";
 import RESTClientImpl from "./RESTClient";
-import { AutofillCondition, MinimumOperation } from "../operationHistory/types";
+import { AutofillCondition } from "../operationHistory/types";
+import { Operation } from "../operationHistory/Operation";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -372,7 +373,9 @@ export default class ClientSideCaptureServiceDispatcher {
   /**
    * Run Operation.
    */
-  public async runOperation(operation: MinimumOperation): Promise<{
+  public async runOperation(
+    operation: Pick<Operation, "input" | "type" | "elementInfo">
+  ): Promise<{
     error?: ServerError | undefined;
   }> {
     if (!this.socketIOClient) {
@@ -392,7 +395,7 @@ export default class ClientSideCaptureServiceDispatcher {
    * Run Operation And Screen Transition.
    */
   public async runOperationAndScreenTransition(
-    operation: MinimumOperation
+    operation: Pick<Operation, "input" | "type" | "elementInfo">
   ): Promise<void> {
     await this.socketIOClient?.invoke(
       "run_operation",
