@@ -396,10 +396,19 @@ export default class ClientSideCaptureServiceDispatcher {
    */
   public async runOperationAndScreenTransition(
     operation: Pick<Operation, "input" | "type" | "elementInfo">
-  ): Promise<void> {
-    await this.socketIOClient?.invoke(
-      "run_operation",
-      "run_operation_and_screen_transition_completed",
+  ): Promise<{
+    error?: ServerError | undefined;
+  }> {
+    if (!this.socketIOClient) {
+      return {};
+    }
+
+    return await this.socketIOClient?.invoke(
+      "run_operation_and_screen_transition",
+      {
+        completed: "run_operation_and_screen_transition_completed",
+        failed: "run_operation_and_screen_transition_failed",
+      },
       operation
     );
   }
