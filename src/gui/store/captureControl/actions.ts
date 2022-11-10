@@ -520,14 +520,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       })();
 
       if (payload.operations[index + 1]?.type === "screen_transition") {
-        await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
-          replayTargetOperation
-        );
+        const result =
+          await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
+            replayTargetOperation
+          );
+        if (result.error) {
+          return result;
+        }
       } else if (replayTargetOperation.type !== "screen_transition") {
         const result =
           await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
             replayTargetOperation
           );
+
         if (result.error) {
           return result;
         }
