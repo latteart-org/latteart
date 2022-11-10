@@ -15,11 +15,17 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("auto-operation-select-dialog.title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('auto-operation-select-dialog.title')"
+    @accept="
+      ok();
+      close();
+    "
+    @cancel="close()"
+    :acceptButtonDisabled="okButtonIsDisabled"
+  >
+    <template>
       <div class="pre-wrap break-word">
         {{ $store.getters.message("auto-operation-select-dialog.message") }}
       </div>
@@ -37,33 +43,17 @@
         :value="selectedItem ? selectedItem.details : ''"
       ></v-textarea>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        :disabled="okButtonIsDisabled"
-        :dark="!okButtonIsDisabled"
-        color="red"
-        @click="
-          ok();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn color="white" @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
   },
 })
 export default class AutoOperationSelectDialog extends Vue {

@@ -15,41 +15,32 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{ title }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="title"
+    @accept="
+      accept();
+      close();
+    "
+    @cancel="
+      cancel();
+      close();
+    "
+    strong
+  >
+    <template>
       <span class="pre-wrap break-word">{{ message }}</span>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="red"
-        dark
-        @click="
-          accept();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn
-        color="white"
-        @click="
-          cancel();
-          close();
-        "
-        >{{ $store.getters.message("common.cancel") }}</v-btn
-      >
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
   },
 })
 export default class ConfirmDialog extends Vue {
