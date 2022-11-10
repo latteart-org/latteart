@@ -16,11 +16,20 @@
 
 <template>
   <div>
-    <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        $store.getters.message("app.record-bug")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="opened"
+      :title="$store.getters.message('app.record-bug')"
+      @accept="
+        saveBug();
+        close();
+      "
+      @cancel="
+        cancel();
+        close();
+      "
+      :acceptButtonDisabled="!canSave"
+    >
+      <template>
         <number-field
           v-if="oldSequence !== null"
           :label="$store.getters.message('note-edit.target-sequence')"
@@ -46,28 +55,7 @@
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!canSave"
-          :dark="canSave"
-          color="red"
-          @click="
-            saveBug();
-            close();
-          "
-        >
-          {{ $store.getters.message("common.ok") }}
-        </v-btn>
-        <v-btn
-          @click="
-            cancel();
-            close();
-          "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
-        >
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -81,13 +69,13 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })

@@ -14,11 +14,16 @@
  limitations under the License.
 -->
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("history-view.generate-testscript-title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('history-view.generate-testscript-title')"
+    @accept="
+      execute();
+      close();
+    "
+    @cancel="close()"
+  >
+    <template>
       {{ $store.getters.message("history-view.generate-testscript-option") }}
       <v-container fluid pa-1 fill-height id="simple-test-script-generation">
         <v-layout row wrap>
@@ -72,32 +77,17 @@
         </v-layout>
       </v-container>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="blue"
-        dark
-        @click="
-          execute();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import NumberField from "@/vue/molecules/NumberField.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "number-field": NumberField,
   },
 })

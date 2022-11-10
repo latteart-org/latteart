@@ -15,11 +15,17 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("auto-operation-register-dialog.title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('auto-operation-register-dialog.title')"
+    @accept="
+      ok();
+      close();
+    "
+    @cancel="close()"
+    :acceptButtonDisabled="okButtonIsDisabled"
+  >
+    <template>
       <div class="pre-wrap break-word">
         {{ $store.getters.message("auto-operation-register-dialog.message") }}
       </div>
@@ -34,33 +40,17 @@
         v-model="settingDetails"
       ></v-textarea>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        :disabled="okButtonIsDisabled"
-        :dark="!okButtonIsDisabled"
-        color="red"
-        @click="
-          ok();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn color="white" @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import { Operation } from "@/lib/operationHistory/Operation";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
   },
 })
 export default class AutoOperationRegisterDialog extends Vue {
@@ -70,10 +60,9 @@ export default class AutoOperationRegisterDialog extends Vue {
   private settingName = "";
   private settingDetails = "";
   private invalidTypes = ["switch_window"];
-  private isProcessing = false;
 
   private get okButtonIsDisabled() {
-    return this.isProcessing || !this.settingName ? true : false;
+    return !this.settingName ? true : false;
   }
 
   @Watch("opened")
@@ -81,7 +70,6 @@ export default class AutoOperationRegisterDialog extends Vue {
     if (!this.opened) {
       return;
     }
-    this.isProcessing = false;
     this.settingName = "";
     this.settingDetails = "";
   }
@@ -93,13 +81,8 @@ export default class AutoOperationRegisterDialog extends Vue {
   }
 
   private ok() {
-    if (this.isProcessing) {
-      return;
-    }
-    this.isProcessing = true;
     if (this.invalidOperations.length > 0) {
       this.$emit("error", this.invalidTypes);
-      this.isProcessing = false;
       return;
     }
     const sortedOperations = this.targetOperations

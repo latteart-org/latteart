@@ -14,11 +14,19 @@
  limitations under the License.
 -->
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("import-export-dialog.test-result-import-title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="
+      $store.getters.message('import-export-dialog.test-result-import-title')
+    "
+    @accept="
+      execute();
+      close();
+    "
+    @cancel="close()"
+    :acceptButtonDisabled="okButtonIsDisabled"
+  >
+    <template>
       <v-container class="px-0 pt-0 pb-0" fluid id="import-option-dialog">
         <v-layout column>
           <v-flex xs12>
@@ -45,34 +53,18 @@
         </v-layout>
       </v-container>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        :disabled="okButtonIsDisabled"
-        :dark="!okButtonIsDisabled"
-        color="blue"
-        @click="
-          execute();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import { loadFileAsBase64 } from "@/lib/common/util";
 import SelectFileButton from "@/vue/molecules/SelectFileButton.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "select-file-button": SelectFileButton,
   },
 })

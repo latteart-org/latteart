@@ -15,9 +15,14 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{ dialogTitle }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="dialogTitle"
+    @accept="update"
+    @cancel="closeDialog"
+    :acceptButtonDisabled="testMatrix.name === ''"
+  >
+    <template>
       <v-container class="ma-0 pa-0">
         <v-layout row wrap class="mt-0 pt-0">
           <v-flex xs12 class="py-0 my-0">
@@ -122,32 +127,19 @@
         </v-layout>
       </v-container>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="blue"
-        :disabled="testMatrix.name === ''"
-        :dark="testMatrix.name !== ''"
-        @click="update"
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn color="white" @click="closeDialog">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import UpDownArrows from "@/vue/molecules/UpDownArrows.vue";
 import { UpdateTestMatrixObject } from "../ManageEditTypes";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "up-down-arrows": UpDownArrows,
   },
 })
