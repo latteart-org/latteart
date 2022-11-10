@@ -758,6 +758,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       context.dispatch("endCapture");
 
       context.commit("setCapturing", { isCapturing: false });
+      context.commit("setIsAutoOperation", {
+        isAutoOperation: false,
+      });
       context.commit("setPaused", { isPaused: false });
       context.commit("setCurrentWindow", { currentWindow: "" });
       context.commit("setAvailableWindows", { availableWindows: [] });

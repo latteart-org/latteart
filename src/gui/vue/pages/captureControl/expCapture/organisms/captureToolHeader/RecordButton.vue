@@ -162,10 +162,6 @@ export default class RecordButton extends Vue {
           );
         }
 
-        this.$store.commit("captureControl/setIsAutoOperation", {
-          isAutoOperation: false,
-        });
-
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           config: this.config,
