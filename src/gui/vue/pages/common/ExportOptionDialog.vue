@@ -14,11 +14,17 @@
  limitations under the License.
 -->
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("import-export-dialog.project-export-title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('import-export-dialog.project-export-title')"
+    @accept="
+      execute();
+      close();
+    "
+    @cancel="close()"
+    :acceptButtonDisabled="okButtonIsDisabled"
+  >
+    <template>
       <v-container class="px-0" fluid id="export-option-dialog">
         <v-checkbox
           :label="$store.getters.message('import-export-dialog.project-data')"
@@ -34,32 +40,16 @@
         </v-checkbox>
       </v-container>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        :disabled="okButtonIsDisabled"
-        :dark="!okButtonIsDisabled"
-        color="blue"
-        @click="
-          execute();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
   },
 })
 export default class ExportOptionDialog extends Vue {

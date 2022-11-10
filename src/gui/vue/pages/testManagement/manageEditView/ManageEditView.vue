@@ -53,30 +53,20 @@
     >
     </test-matrix-dialog>
 
-    <scrollable-dialog :opened="editDialogOpened">
-      <template v-slot:title>{{
-        $store.getters.message("manage-edit-view.edit-viewPoint")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="editDialogOpened"
+      :title="$store.getters.message('manage-edit-view.edit-viewPoint')"
+      @accept="
+        acceptEditDialog();
+        editDialogOpened = false;
+      "
+      @cancel="editDialogOpened = false"
+      :acceptButtonDisabled="editDialogValue === ''"
+    >
+      <template>
         <v-text-field v-model="editDialogValue" class="pt-0"></v-text-field>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="editDialogValue === ''"
-          color="blue"
-          dark
-          @click="
-            acceptEditDialog();
-            editDialogOpened = false;
-          "
-          >{{ $store.getters.message("common.ok") }}</v-btn
-        >
-        <v-btn color="white" @click="editDialogOpened = false">{{
-          $store.getters.message("common.cancel")
-        }}</v-btn>
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
@@ -94,16 +84,16 @@ import ManageEditFooter from "./organisms/ManageEditFooter.vue";
 import TestMatrixDialog from "./organisms/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "./ManageEditTypes";
 import { TestMatrix } from "@/lib/testManagement/types";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
 import TestMatrixEditor from "./organisms/TestMatrixEditor.vue";
 import TabSelector from "@/vue/molecules/TabSelector.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "test-matrix-dialog": TestMatrixDialog,
     "manage-edit-footer": ManageEditFooter,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "confirm-dialog": ConfirmDialog,
     "test-matrix-editor": TestMatrixEditor,
     "tab-selector": TabSelector,

@@ -16,11 +16,20 @@
 
 <template>
   <div>
-    <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        $store.getters.message("app.record-note")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="opened"
+      :title="$store.getters.message('app.record-note')"
+      @accept="
+        saveNote();
+        close();
+      "
+      @cancel="
+        cancel();
+        close();
+      "
+      :acceptButtonDisabled="!canSave"
+    >
+      <template>
         <h3 class="title mb-0">
           {{ $store.getters.message("note-edit.note-for-current-purpose") }}
         </h3>
@@ -103,28 +112,7 @@
           </v-card-text>
         </v-card>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!canSave"
-          :dark="canSave"
-          color="blue"
-          @click="
-            saveNote();
-            close();
-          "
-        >
-          {{ $store.getters.message("common.ok") }}
-        </v-btn>
-        <v-btn
-          @click="
-            cancel();
-            close();
-          "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
-        >
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -138,14 +126,14 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
