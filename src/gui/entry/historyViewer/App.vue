@@ -39,14 +39,14 @@ import {
   MessageProvider,
   OperationWithNotes,
   CoverageSource,
-  InputElementInfo,
 } from "../../../gui/lib/operationHistory/types";
-import { Note } from "../../../gui/lib/operationHistory/Note";
 import { Operation } from "../../../gui/lib/operationHistory/Operation";
 import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
+import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
+import { Note } from "@/lib/operationHistory/Note";
 
 @Component({
   components: {
@@ -59,9 +59,14 @@ export default class App extends Vue {
 
   private created() {
     (async () => {
-      this.$store.commit("setSettings", { settings: this.settings });
-      this.$store.dispatch("operationHistory/setSettings", {
-        settings: this.settings,
+      this.$store.commit("operationHistory/setDefaultTagList", {
+        defaultTagList: this.settings.defaultTagList,
+      });
+      this.$store.commit("operationHistory/setDisplayInclusionList", {
+        displayInclusionList: [],
+      });
+      this.$store.commit("operationHistory/setConfig", {
+        config: this.settings.config,
       });
 
       this.i18n = createI18n(this.settings.locale);
@@ -100,16 +105,26 @@ export default class App extends Vue {
     history: OperationWithNotes[];
     coverageSources: CoverageSource[];
   } {
+    const screenDefFactory = new ScreenDefFactory(
+      this.settings.config.screenDefinition
+    );
+
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
+        const { title, url, keywordSet } = item.operation;
+
+        const screenDef = screenDefFactory.createFrom(title, url, keywordSet);
+        const operation = Operation.createFromOtherOperation({
+          other: item.operation,
+          overrideParams: {
+            screenDef,
+            imageFilePath: item.operation.imageFileUrl,
+            keywordSet: new Set(item.operation.keywordTexts),
+          },
+        });
+
         return {
-          operation: Operation.createFromOtherOperation({
-            other: item.operation,
-            overrideParams: {
-              imageFilePath: item.operation.imageFileUrl,
-              keywordSet: new Set(item.operation.keywordTexts),
-            },
-          }),
+          operation,
           bugs:
             item.bugs?.map((bug: any) =>
               Note.createFromOtherNote({
