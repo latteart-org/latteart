@@ -22,14 +22,14 @@ jobs:
       - name: Checkout 'LatteArt Capture CL' Repository
         uses: actions/checkout@v2
         with:
-          repository: "latteart-org/latteart-capture-cl"
+          repository: ${{ github.repository_owner }}/latteart-capture-cl
           ref: ${{ github.ref }}
           path: latteart-capture-cl
 
       - name: Checkout 'LatteArt Repository' Repository
         uses: actions/checkout@v2
         with:
-          repository: "latteart-org/latteart-repository"
+          repository: ${{ github.repository_owner }}/latteart-repository
           ref: ${{ github.ref }}
           path: latteart-repository
 

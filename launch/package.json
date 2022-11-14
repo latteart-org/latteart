@@ -27,5 +27,9 @@
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-node-externals": "^2.5.2"
+  },
+  "resolutions": {
+    "glob-parent": "^5.1.2",
+    "braces": "^2.3.1"
   }
 }

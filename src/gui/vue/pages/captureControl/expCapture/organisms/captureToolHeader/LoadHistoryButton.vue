@@ -58,6 +58,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import { TestResultSummary } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -70,7 +71,7 @@ export default class LoadHistoryButton extends Vue {
   private menuY = 0;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private testResults: Array<{ id: string; name: string }> = [];
+  private testResults: Array<TestResultSummary> = [];
 
   private get isDisabled(): boolean {
     return this.isCapturing || this.isReplaying || this.isResuming;

@@ -30,8 +30,19 @@
       </template>
       <v-list>
         <test-result-import-button />
-        <generate-test-script-button />
         <test-tesult-export-button />
+        <config-import-button />
+        <config-export-button v-slot:default="slotProps">
+          <v-list-tile
+            @click="slotProps.obj.execute"
+            :disabled="slotProps.obj.isDisabled"
+          >
+            <v-list-tile-title>{{
+              $store.getters.message("config-io.export-config")
+            }}</v-list-tile-title>
+          </v-list-tile>
+        </config-export-button>
+        <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
           <v-list-tile
@@ -58,6 +69,8 @@ import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import TestResultFileImportButton from "./TestResultFileImportButton.vue";
 import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
+import ConfigImportButton from "@/vue/pages/common/ConfigImportButton.vue";
+import ConfigExportButton from "@/vue/pages/common/ConfigExportButton.vue";
 
 @Component({
   components: {
@@ -67,6 +80,8 @@ import DeleteTestResultButton from "./DeleteTestResultButton.vue";
     "test-result-import-button": TestResultFileImportButton,
     "screenshots-download-button": ScreenshotsDownloadButton,
     "delete-test-result-button": DeleteTestResultButton,
+    "config-import-button": ConfigImportButton,
+    "config-export-button": ConfigExportButton,
   },
 })
 export default class MenuButton extends Vue {

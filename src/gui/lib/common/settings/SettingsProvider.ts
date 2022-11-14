@@ -168,6 +168,15 @@ export class SettingsProvider {
       }
     }
 
+    if (source.config && source.config.autoOperationSetting) {
+      const sourceAutoOperationSetting = source.config.autoOperationSetting;
+
+      if (sourceAutoOperationSetting.conditionGroups) {
+        target.config.autoOperationSetting.conditionGroups =
+          sourceAutoOperationSetting.conditionGroups;
+      }
+    }
+
     if (source.config && source.config.screenDefinition) {
       const sourceScreenDefinition = source.config.screenDefinition;
 

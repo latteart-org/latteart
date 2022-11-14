@@ -22,9 +22,9 @@ import {
   CapturedOperation,
   CapturedScreenTransition,
 } from "../operationHistory/CapturedOperation";
-import { Operation } from "../operationHistory/Operation";
 import RESTClientImpl from "./RESTClient";
 import { AutofillCondition } from "../operationHistory/types";
+import { Operation } from "../operationHistory/Operation";
 
 /**
  * A class that processes the acquisition of client-side information through the service.
@@ -111,7 +111,7 @@ export default class ClientSideCaptureServiceDispatcher {
     url: string,
     config: CaptureConfig,
     eventListeners: {
-      onStart: () => Promise<void>;
+      onStart: () => Promise<{ error?: ServerError }>;
       onGetOperation: (capturedOperation: CapturedOperation) => Promise<void>;
       onGetScreenTransition: (
         capturedScreenTransition: CapturedScreenTransition
@@ -119,16 +119,15 @@ export default class ClientSideCaptureServiceDispatcher {
       onChangeBrowserHistory: (browserStatus: {
         canGoBack: boolean;
         canGoForward: boolean;
-      }) => void;
+      }) => Promise<void>;
       onUpdateAvailableWindows: (updatedWindowsInfo: {
         windowHandles: string[];
         currentWindowHandle: string;
-      }) => void;
-      onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
-      onPause: () => void;
-      onResume: () => void;
-    },
-    isReplaying?: boolean
+      }) => Promise<void>;
+      onChangeAlertVisibility: (data: { isVisible: boolean }) => Promise<void>;
+      onPause: () => Promise<void>;
+      onResume: () => Promise<void>;
+    }
   ): Promise<Reply<void>> {
     try {
       let occurredError: ServerError | null = null;
@@ -151,31 +150,33 @@ export default class ClientSideCaptureServiceDispatcher {
         this.socketIOClient?.emit("start_capture", url, target);
       };
 
-      const onStart = (data?: unknown) => {
+      const onStart = async (data?: unknown) => {
         console.info(`onStart: ${JSON.stringify(data)}`);
 
-        eventListeners.onStart();
+        return await eventListeners.onStart();
       };
 
-      const onGetOperation = (data?: unknown) => {
+      const onGetOperation = async (data?: unknown) => {
         // console.info(`onGetOperation: ${JSON.stringify(data)}`);
 
         // TODO: Type check
         const capturedOperation = data as CapturedOperation;
 
-        eventListeners.onGetOperation(capturedOperation);
+        await eventListeners.onGetOperation(capturedOperation);
+        return {};
       };
 
-      const onGetScreenTransition = (data?: unknown) => {
+      const onGetScreenTransition = async (data?: unknown) => {
         // console.info(`onGetScreenTransition: ${JSON.stringify(data)}`);
 
         // TODO: Type check
         const capturedScreenTransition = data as CapturedScreenTransition;
 
-        eventListeners.onGetScreenTransition(capturedScreenTransition);
+        await eventListeners.onGetScreenTransition(capturedScreenTransition);
+        return {};
       };
 
-      const onChangeBrowserHistory = (data?: unknown) => {
+      const onChangeBrowserHistory = async (data?: unknown) => {
         console.info(`onChangeBrowserHistory: ${JSON.stringify(data)}`);
 
         const browserStatus = data as {
@@ -183,10 +184,11 @@ export default class ClientSideCaptureServiceDispatcher {
           canGoForward: boolean;
         };
 
-        eventListeners.onChangeBrowserHistory(browserStatus);
+        await eventListeners.onChangeBrowserHistory(browserStatus);
+        return {};
       };
 
-      const onUpdateAvailableWindows = (data?: unknown) => {
+      const onUpdateAvailableWindows = async (data?: unknown) => {
         console.info(`onUpdateAvailableWindows: ${JSON.stringify(data)}`);
 
         // TODO: Type check
@@ -195,22 +197,28 @@ export default class ClientSideCaptureServiceDispatcher {
           currentWindowHandle: string;
         };
 
-        eventListeners.onUpdateAvailableWindows(updateWindowsInfo);
+        await eventListeners.onUpdateAvailableWindows(updateWindowsInfo);
+        return {};
       };
 
-      const onChangeAlertVisibility = (data?: unknown) => {
-        eventListeners.onChangeAlertVisibility(data as { isVisible: boolean });
+      const onChangeAlertVisibility = async (data?: unknown) => {
+        await eventListeners.onChangeAlertVisibility(
+          data as { isVisible: boolean }
+        );
+        return {};
       };
 
-      const onPause = () => {
-        eventListeners.onPause();
+      const onPause = async () => {
+        await eventListeners.onPause();
+        return {};
       };
 
-      const onResume = () => {
-        eventListeners.onResume();
+      const onResume = async () => {
+        await eventListeners.onResume();
+        return {};
       };
 
-      const onError = (data?: unknown) => {
+      const onError = async (data?: unknown) => {
         console.info(`onError: ${JSON.stringify(data)}`);
 
         const error = data as ServerError;
@@ -219,12 +227,12 @@ export default class ClientSideCaptureServiceDispatcher {
           message: error.message,
           details: error.details,
         };
-        if (isReplaying) {
-          this.socketIOClient?.emit("stop_capture");
-        }
+        return {};
       };
 
-      await this.socketIOClient
+      const result: {
+        error?: ServerError | undefined;
+      } = await this.socketIOClient
         .connect(
           onConnect,
           ...[
@@ -258,13 +266,19 @@ export default class ClientSideCaptureServiceDispatcher {
               message: "Disconnected from client side capture service.",
             };
 
-            return;
+            return {};
           }
 
           throw error;
         });
 
       this.socketIOClient = null;
+      if (result.error) {
+        return new ReplyImpl({
+          status: 500,
+          error: result.error,
+        });
+      }
 
       return new ReplyImpl({
         status: 500,
@@ -299,10 +313,9 @@ export default class ClientSideCaptureServiceDispatcher {
       return "";
     }
 
-    const screenshot = await this.socketIOClient.invoke(
-      "take_screenshot",
-      "screenshot_taken"
-    );
+    const screenshot = (
+      await this.socketIOClient.invoke("take_screenshot", "screenshot_taken")
+    ).data;
 
     console.info(`takeScreenshot: ${screenshot}`);
 
@@ -360,10 +373,20 @@ export default class ClientSideCaptureServiceDispatcher {
   /**
    * Run Operation.
    */
-  public async runOperation(operation: Operation): Promise<void> {
-    await this.socketIOClient?.invoke(
+  public async runOperation(
+    operation: Pick<Operation, "input" | "type" | "elementInfo">
+  ): Promise<{
+    error?: ServerError | undefined;
+  }> {
+    if (!this.socketIOClient) {
+      return {};
+    }
+    return this.socketIOClient.invoke(
       "run_operation",
-      "run_operation_completed",
+      {
+        completed: "run_operation_completed",
+        failed: "run_operation_failed",
+      },
       operation
     );
   }
@@ -372,11 +395,20 @@ export default class ClientSideCaptureServiceDispatcher {
    * Run Operation And Screen Transition.
    */
   public async runOperationAndScreenTransition(
-    operation: Operation
-  ): Promise<void> {
-    await this.socketIOClient?.invoke(
-      "run_operation",
-      "run_operation_and_screen_transition_completed",
+    operation: Pick<Operation, "input" | "type" | "elementInfo">
+  ): Promise<{
+    error?: ServerError | undefined;
+  }> {
+    if (!this.socketIOClient) {
+      return {};
+    }
+
+    return await this.socketIOClient?.invoke(
+      "run_operation_and_screen_transition",
+      {
+        completed: "run_operation_and_screen_transition_completed",
+        failed: "run_operation_and_screen_transition_failed",
+      },
       operation
     );
   }

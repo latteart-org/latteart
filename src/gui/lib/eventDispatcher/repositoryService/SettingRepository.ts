@@ -26,12 +26,16 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
-import { AutofillSetting } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  AutoOperationSetting,
+} from "@/lib/operationHistory/types";
 
 type SettingsFromDB = Omit<Settings, "config"> & {
   config: {
-    screenDefinition: ScreenDefinition;
     autofillSetting: Pick<AutofillSetting, "conditionGroups">;
+    autoOperationSetting: AutoOperationSetting;
+    screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
   };
@@ -80,6 +84,29 @@ export class SettingRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as SettingsFromDB,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  /**
+   * Configuration file output.
+   * @returns Config file URL.
+   */
+  public async exportSettings(): Promise<
+    RepositoryAccessResult<{ url: string }>
+  > {
+    try {
+      const response = await this.restClient.httpPost(
+        "/projects/1/configs/export"
+      );
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as { url: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

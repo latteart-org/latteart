@@ -23,6 +23,7 @@
       @click="openDialog"
       fab
       small
+      :title="$store.getters.message('app.autofill')"
     >
       <v-icon>edit</v-icon>
     </v-btn>
@@ -42,7 +43,10 @@ export default class AutofillButton extends Vue {
   private autofillConditionGroup: AutofillConditionGroup[] | null = null;
 
   private get isDisabled(): boolean {
-    if (!this.$store.state.captureControl.isCapturing) {
+    if (
+      !this.$store.state.captureControl.isCapturing ||
+      this.$store.state.captureControl.isAutoOperation
+    ) {
       this.setMatchedAutofillConditionGroup(null);
       return true;
     }

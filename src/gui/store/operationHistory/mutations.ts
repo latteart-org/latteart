@@ -110,53 +110,53 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set unassigned intentions to the State.
+   * Set unassigned test purpose to the State.
    * @param state State
-   * @param payload.unassignedIntention target intention info
+   * @param payload.unassignedTestPurpose target intention info
    */
-  setUnassignedIntention(
+  setUnassignedTestPurpose(
     state,
     payload: {
-      unassignedIntention: {
+      unassignedTestPurpose: {
         sequence: number;
         note: string;
         noteDetails?: string;
       };
     }
   ) {
-    const i = state.unassignedIntentions.findIndex((item) => {
-      return item.sequence === payload.unassignedIntention.sequence;
+    const i = state.unassignedTestPurposes.findIndex((item) => {
+      return item.sequence === payload.unassignedTestPurpose.sequence;
     });
     if (i === -1) {
-      state.unassignedIntentions.push(payload.unassignedIntention);
+      state.unassignedTestPurposes.push(payload.unassignedTestPurpose);
     } else {
-      state.unassignedIntentions[i] = payload.unassignedIntention;
+      state.unassignedTestPurposes[i] = payload.unassignedTestPurpose;
     }
   },
 
   /**
-   * Remove unassigned intentions from the State.
+   * Remove unassigned test purpose from the State.
    * @param state State
    * @param payload.index index of target unassigned intention
    */
-  removeUnassignedIntention(state, payload: { index: number }) {
-    state.unassignedIntentions.splice(payload.index);
+  removeUnassignedTestPurpose(state, payload: { index: number }) {
+    state.unassignedTestPurposes.splice(payload.index);
   },
 
   /**
-   * Empty unassigned intentions in the State.
+   * Clear unassigned test purposes in the State.
    * @param state State
    */
-  clearUnassignedIntentions(state) {
-    Vue.set(state, "unassignedIntentions", []);
+  clearUnassignedTestPurposes(state) {
+    Vue.set(state, "unassignedTestPurposes", []);
   },
 
   /**
-   * Set a test intention to operation with note history in the State.
+   * Set a test purpose to operation with note history in the State.
    * @param state State.
    * @param payload.intention Test intention.
    */
-  setIntention(state, payload: { intention: Note }) {
+  setTestPurpose(state, payload: { intention: Note }) {
     const targetIndex = state.history.findIndex((item) => {
       return item.operation.sequence === payload.intention.sequence;
     });
@@ -169,11 +169,11 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Delete a test intention from operation with note history in the State.
+   * Delete a test purpose from operation with note history in the State.
    * @param state State.
    * @param payload.sequence Sequence number of the test intention.
    */
-  deleteIntention(state, payload: { sequence: number }) {
+  deleteTestPurpose(state, payload: { sequence: number }) {
     const targetIndex = state.history.findIndex((item) => {
       return item.operation.sequence === payload.sequence;
     });
@@ -748,6 +748,17 @@ const mutations: MutationTree<OperationHistoryState> = {
     } | null
   ) {
     state.autofillRegisterDialogData = payload;
+  },
+
+  setCheckedOperations(
+    state,
+    payload: { checkedOperations: { index: number; operation: Operation }[] }
+  ) {
+    state.checkedOperations = payload.checkedOperations;
+  },
+
+  clearCheckedOperations(state) {
+    Vue.set(state, "checkedOperations", []);
   },
 };
 

@@ -16,11 +16,20 @@
 
 <template>
   <div>
-    <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        $store.getters.message("test-option.start-testing")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="opened"
+      :title="$store.getters.message('test-option.start-testing')"
+      @accept="
+        ok();
+        close();
+      "
+      @cancel="
+        cancel();
+        close();
+      "
+      :acceptButtonDisabled="okButtonIsDisabled"
+    >
+      <template>
         <v-checkbox
           :label="$store.getters.message('test-option.use-test-purpose')"
           v-model="shouldRecordTestPurpose"
@@ -51,28 +60,7 @@
           </v-card-text>
         </v-card>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="okButtonIsDisabled"
-          :dark="!okButtonIsDisabled"
-          color="blue"
-          @click="
-            ok();
-            close();
-          "
-        >
-          {{ $store.getters.message("common.ok") }}
-        </v-btn>
-        <v-btn
-          @click="
-            cancel();
-            close();
-          "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
-        >
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -84,13 +72,13 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })

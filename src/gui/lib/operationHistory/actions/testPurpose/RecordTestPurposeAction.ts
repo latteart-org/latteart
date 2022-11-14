@@ -27,78 +27,62 @@ import {
 import { convertNoteWithoutId } from "@/lib/eventDispatcher/replyDataConverter";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-export interface RecordIntentionActionObserver {
-  setIntention(value: Note): void;
-  getTestStepId(sequence: number): string;
-}
-
-export interface Sequential {
-  sequence: number;
-}
-
 const RECORD_TEST_PURPOSE_FAILED_MESSAGE_KEY =
   "error.operation_history.record_test_purpose_failed";
 
-export class RecordIntentionAction {
+export class RecordTestPurposeAction {
   constructor(
-    private observer: RecordIntentionActionObserver,
     private repositoryContainer: Pick<
       RepositoryContainer,
       "testStepRepository" | "noteRepository" | "serviceUrl"
     >
   ) {}
 
-  public async record(
-    history: {
-      intention: Sequential | null;
-    }[],
+  public async add(
+    testResultId: string,
+    testStepId: string,
     note: {
-      testResultId: string;
-      sequence: number;
       summary: string;
       details: string;
     }
-  ): Promise<ActionResult<void>> {
-    const historyHasTargetIntention = history.find((item) => {
-      return item.intention?.sequence === note.sequence;
+  ): Promise<ActionResult<Note>> {
+    const result = await this.doAddTestPurpose(testResultId, testStepId, {
+      summary: note.summary,
+      details: note.details,
     });
 
-    const testStepId = this.observer.getTestStepId(note.sequence);
-
-    const editIntentionResult = historyHasTargetIntention
-      ? await this.editIntention(note.testResultId, testStepId, {
-          summary: note.summary,
-          details: note.details,
-        })
-      : await this.addIntention(note.testResultId, testStepId, {
-          summary: note.summary,
-          details: note.details,
-        });
-
-    if (editIntentionResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
         messageKey: RECORD_TEST_PURPOSE_FAILED_MESSAGE_KEY,
       });
     }
 
-    if (editIntentionResult.data) {
-      this.observer.setIntention(
-        Note.createFromOtherNote({
-          other: editIntentionResult.data,
-          overrideParams: { sequence: note.sequence },
-        })
-      );
-    }
-    return new ActionSuccess(undefined);
+    return new ActionSuccess(result.data);
   }
-  /**
-   * Add intention information to the test step with the specified sequence number.
-   * @param testResultId  Test result ID
-   * @param testStepId  Test step id of the target test step.
-   * @param intention  Intention information to add
-   * @returns Added intention information.
-   */
-  private async addIntention(
+
+  public async edit(
+    testResultId: string,
+    testStepId: string,
+    note: {
+      summary: string;
+      details: string;
+    }
+  ): Promise<ActionResult<Note>> {
+    const result = await this.doEditTestPurpose(testResultId, testStepId, {
+      summary: note.summary,
+      details: note.details,
+    });
+
+    if (result.isFailure()) {
+      return new ActionFailure({
+        messageKey: RECORD_TEST_PURPOSE_FAILED_MESSAGE_KEY,
+      });
+    }
+
+    return new ActionSuccess(result.data);
+  }
+
+  private async doAddTestPurpose(
     testResultId: string,
     testStepId: string,
     intention: {
@@ -146,14 +130,7 @@ export class RecordIntentionAction {
     });
   }
 
-  /**
-   * Edit the intention information of the specified sequence number.
-   * @param testResultId  Test result ID.
-   * @param testStepId  Test step id of the target test step.
-   * @param intention  Intention information to edit.
-   * @returns Edited intention information.
-   */
-  private async editIntention(
+  private async doEditTestPurpose(
     testResultId: string,
     testStepId: string,
     intention: {

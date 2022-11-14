@@ -25,9 +25,9 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-    <intention-edit-dialog
-      :opened="intentionEditDialogOpened"
-      @close="intentionEditDialogOpened = false"
+    <test-purpose-edit-dialog
+      :opened="testPurposeEditDialogOpened"
+      @close="testPurposeEditDialogOpened = false"
     />
     <bug-edit-dialog
       :opened="bugEditDialogOpened"
@@ -53,7 +53,7 @@ import ConfigViewer from "@/vue/pages/operationHistory/organisms/configViewer/Co
 import AlertDialog from "@/vue/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
-import IntentionEditDialog from "../common/IntentionEditDialog.vue";
+import TestPurposeEditDialog from "../common/TestPurposeEditDialog.vue";
 import BugEditDialog from "../common/BugEditDialog.vue";
 import NoticeEditDialog from "../common/NoticeEditDialog.vue";
 import ConfirmDialog from "../common/ConfirmDialog.vue";
@@ -63,7 +63,7 @@ import ConfirmDialog from "../common/ConfirmDialog.vue";
     "config-viewer": ConfigViewer,
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "intention-edit-dialog": IntentionEditDialog,
+    "test-purpose-edit-dialog": TestPurposeEditDialog,
     "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
     "confirm-dialog": ConfirmDialog,
@@ -74,7 +74,7 @@ export default class Manager extends Vue {
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private intentionEditDialogOpened = false;
+  private testPurposeEditDialogOpened = false;
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
@@ -135,7 +135,7 @@ export default class Manager extends Vue {
             index: index ?? null,
           },
         });
-        this.intentionEditDialogOpened = true;
+        this.testPurposeEditDialogOpened = true;
         return;
       case "bug":
         this.$store.commit("operationHistory/selectOperationNote", {
@@ -193,7 +193,9 @@ export default class Manager extends Vue {
   private deleteNote(noteType: string, sequence: number, index: number) {
     switch (noteType) {
       case "intention":
-        this.$store.dispatch("operationHistory/deleteIntention", { sequence });
+        this.$store.dispatch("operationHistory/deleteTestPurpose", {
+          sequence,
+        });
         return;
       case "bug":
         this.$store.dispatch("operationHistory/deleteBug", { sequence, index });

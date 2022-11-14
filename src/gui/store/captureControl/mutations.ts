@@ -166,6 +166,15 @@ const mutations: MutationTree<CaptureControlState> = {
   ) {
     state.replayOption = payload.replayOption;
   },
+
+  /**
+   * Set isAutoOperation.
+   * @param state State.
+   * @param payload.isAutoOperation Whether it is auto operation or not.
+   */
+  setIsAutoOperation(state, payload: { isAutoOperation: boolean }) {
+    state.isAutoOperation = payload.isAutoOperation;
+  },
 };
 
 export default mutations;

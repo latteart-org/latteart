@@ -24,7 +24,7 @@
     </template>
     <template v-slot:content>
       <span class="pre-wrap break-word">{{ message }}</span>
-      <a :href="linkUrl" class="px-2" download>{{
+      <a :href="linkUrl" class="px-2" :download="downloadFileName">{{
         $store.getters.message("common.download-link")
       }}</a>
       <p class="pre-wrap break-word alert-message">{{ alertMessage }}</p>
@@ -53,6 +53,8 @@ export default class DownloadLinkDialog extends Vue {
   @Prop({ type: String, default: "" }) public readonly message!: string;
   @Prop({ type: String, default: "" }) public readonly alertMessage?: string;
   @Prop({ type: String, default: "" }) public readonly linkUrl!: string;
+  @Prop({ type: String, default: "" })
+  public readonly downloadFileName!: string;
   @Prop({ type: Object, default: null }) public readonly iconOpts!: {
     text: string;
     color?: string;

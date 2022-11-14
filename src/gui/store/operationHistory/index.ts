@@ -21,6 +21,7 @@ import {
   AutofillConditionGroup,
   AutofillSetting,
   ElementInfo,
+  AutoOperationSetting,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
@@ -35,6 +36,7 @@ import {
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import { Operation } from "@/lib/operationHistory/Operation";
 
 /**
  * State for operation history.
@@ -70,6 +72,11 @@ export interface OperationHistoryState {
     autofillSetting: AutofillSetting;
 
     /**
+     * Auto Operationg condition settings.
+     */
+    autoOperationSetting: AutoOperationSetting;
+
+    /**
      * Screen definition settings.
      */
     screenDefinition: ScreenDefinition;
@@ -101,9 +108,9 @@ export interface OperationHistoryState {
   screenHistory: ScreenHistory;
 
   /**
-   * Intentions unassigned to any operation.
+   * Test purposes unassigned to any operation.
    */
-  unassignedIntentions: {
+  unassignedTestPurposes: {
     sequence: number;
     note: string;
     noteDetails?: string;
@@ -264,6 +271,8 @@ export interface OperationHistoryState {
     callback: () => void;
   } | null;
 
+  checkedOperations: { index: number; operation: Operation }[];
+
   /**
    * The function to open the dialog for editing a note.
    */
@@ -317,6 +326,9 @@ const state: OperationHistoryState = {
       autoPopupSelectionDialog: false,
       conditionGroups: [],
     },
+    autoOperationSetting: {
+      conditionGroups: [],
+    },
     screenDefinition: {
       screenDefType: ScreenDefType.Title,
       conditionGroups: [],
@@ -334,7 +346,7 @@ const state: OperationHistoryState = {
   testStepIds: [],
   history: [],
   screenHistory: new ScreenHistory(),
-  unassignedIntentions: [],
+  unassignedTestPurposes: [],
   displayInclusionList: [],
   defaultTagList: [],
   coverageSources: [],
@@ -353,6 +365,7 @@ const state: OperationHistoryState = {
   tmpNoteInfoForEdit: null,
   autofillSelectDialogData: null,
   autofillRegisterDialogData: null,
+  checkedOperations: [],
   openNoteEditDialog: () => {
     /* Do nothing. */
   },
