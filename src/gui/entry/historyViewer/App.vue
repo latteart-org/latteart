@@ -62,7 +62,7 @@ export default class App extends Vue {
       this.$store.commit("operationHistory/setDefaultTagList", {
         defaultTagList: this.settings.defaultTagList,
       });
-      this.$store.commit("operationHistory/setDefaultTagList", {
+      this.$store.commit("operationHistory/setDisplayInclusionList", {
         displayInclusionList: [],
       });
       this.$store.commit("operationHistory/setConfig", {
@@ -105,7 +105,7 @@ export default class App extends Vue {
     history: OperationWithNotes[];
     coverageSources: CoverageSource[];
   } {
-    const screenDefCreator = new ScreenDefFactory(
+    const screenDefFactory = new ScreenDefFactory(
       this.settings.config.screenDefinition
     );
 
@@ -113,7 +113,7 @@ export default class App extends Vue {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
         const { title, url, keywordSet } = item.operation;
 
-        const screenDef = screenDefCreator.createFrom(title, url, keywordSet);
+        const screenDef = screenDefFactory.createFrom(title, url, keywordSet);
         const operation = Operation.createFromOtherOperation({
           other: item.operation,
           overrideParams: {
