@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { Story } from "../types";
 
 export class UpdateStoryAction {
@@ -28,9 +28,9 @@ export class UpdateStoryAction {
       id: string;
       status?: string;
     },
-    repositoryContainer: Pick<RepositoryContainer, "storyRepository">
+    repositoryService: Pick<RepositoryService, "storyRepository">
   ): Promise<ActionResult<Story>> {
-    const storyResult = await repositoryContainer.storyRepository.patchStory(
+    const storyResult = await repositoryService.storyRepository.patchStory(
       payload.id,
       {
         status: payload.status,

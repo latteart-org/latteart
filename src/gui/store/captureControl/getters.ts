@@ -17,27 +17,8 @@
 import { GetterTree } from "vuex";
 import { CaptureControlState } from ".";
 import { RootState } from "..";
-import { PlatformName } from "@/lib/common/enum/SettingsEnum";
 
 const getters: GetterTree<CaptureControlState, RootState> = {
-  /**
-   * Get device config from the State.
-   * @param state State.
-   * @returns Device config.
-   */
-  getDeviceConfig: (state) => () => {
-    return state.config;
-  },
-
-  /**
-   * Whether a mobile device is selected for testing or not.
-   * @param state State.
-   * @returns 'true': A mobile device is selected, 'false': A mobile device is not selected.
-   */
-  hasMobileDeviceSelected: (state) => () => {
-    return state.config.platformName !== PlatformName.PC;
-  },
-
   /**
    * Whether the test target URL is valid or not.
    * @param state State.

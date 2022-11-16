@@ -19,17 +19,14 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 const CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.update_test_result_failed";
 
 export class ChangeTestResultAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
   public async changeTestResult(
@@ -39,7 +36,7 @@ export class ChangeTestResultAction {
     initialUrl?: string
   ): Promise<ActionResult<string>> {
     const patchTestResultResult =
-      await this.repositoryContainer.testResultRepository.patchTestResult(
+      await this.repositoryService.testResultRepository.patchTestResult(
         testResultId,
         name,
         startTime,

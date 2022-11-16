@@ -113,7 +113,7 @@ export default class GenerateTestScriptButton extends Vue {
   }
 
   private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryContainer.serviceUrl;
+    return this.$store.state.repositoryService.serviceUrl;
   }
 
   private generateTestScript(option: {

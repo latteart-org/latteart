@@ -18,77 +18,30 @@ import { ActionTree } from "vuex";
 import { CaptureControlState } from ".";
 import { RootState } from "..";
 import {
-  WindowHandle,
-  OperationWithNotes,
   AutofillConditionGroup,
   AutoOperation,
   OperationForReplay,
 } from "@/lib/operationHistory/types";
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
-import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
+import { OperationHistoryState } from "../operationHistory/index";
 import {
-  CapturedOperation,
-  CapturedScreenTransition,
-} from "@/lib/operationHistory/CapturedOperation";
-import { ResumeWindowHandlesAction } from "@/lib/captureControl/actions/ResumeWindowHandlesAction";
-import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWindowHandlesAction";
-import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
-import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
-import { TimestampImpl } from "@/lib/common/Timestamp";
-import { ServerError } from "@/lib/captureControl/Reply";
+  convertTestStepOperation,
+  convertNote,
+} from "@/lib/common/replyDataConverter";
+import { ServiceResult } from "../../../common/service/result";
+import {
+  TestStep,
+  TestStepNote,
+  CoverageSource,
+  Operation,
+  CaptureConfig,
+} from "../../../common/types";
+import { CaptureEventListeners } from "../../../common/service/capture/cl";
+import { NoteEditInfo } from "@/lib/captureControl/types";
+import { DeviceSettings } from "@/lib/common/settings/Settings";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
-  /**
-   * Set device settings to the State.
-   * @param context Action context.
-   * @param payload.deviceSettings Device settings.
-   */
-  async setDeviceSettings(
-    context,
-    payload: { deviceSettings: DeviceSettings }
-  ) {
-    const config = payload.deviceSettings.config;
-
-    await context.dispatch("writeDeviceSettings", {
-      config: {
-        browser: config.browser,
-        platformName: config.platformName,
-        waitTimeForStartupReload: config.waitTimeForStartupReload,
-        platformVersion: config.platformVersion,
-        executablePaths: config.executablePaths,
-      },
-    });
-  },
-
-  /**
-   * Restore window handles from history.
-   * @param context Action context.
-   * @param payload.history History.
-   */
-  resumeWindowHandles(context, payload: { history: OperationWithNotes[] }) {
-    new ResumeWindowHandlesAction({
-      setWindowHandles: (windowHandles) => {
-        context.commit("setWindowHandles", { windowHandles });
-      },
-      setIsResuming: (isResuming) => {
-        context.commit("setIsResuming", { isResuming });
-      },
-    }).resume(payload.history.map(({ operation }) => operation));
-  },
-
-  /**
-   * Set selectable window handles.
-   * @param context Action context.
-   * @param payload.availableWindowHandles Window handles.
-   */
-  updateWindowHandles(context, payload: { availableWindowHandles: string[] }) {
-    new UpdateWindowHandlesAction({
-      setWindowHandles: (windowHandles) => {
-        context.commit("setWindowHandles", { windowHandles });
-      },
-    }).update(context.state.windowHandles, payload.availableWindowHandles);
-  },
-
   /**
    * Acquires a list of devices connected to the terminal where the recording agent is located.
    * @param context Action context.
@@ -104,96 +57,18 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       osVersion: string;
     }[]
   > {
-    const dispatcher = context.rootState.clientSideCaptureServiceDispatcher;
+    const captureCl = context.rootState.captureClService;
 
-    const reply = await dispatcher.recognizeDevices(payload.platformName);
+    const result = await captureCl.recognizeDevices(payload.platformName);
 
-    if (reply.succeeded) {
-      return reply.data ?? [];
-    } else {
+    if (result.isFailure()) {
       const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error!.code}`
+        `error.capture_control.${result.error.errorCode}`
       );
       throw new Error(errorMessage);
     }
-  },
 
-  /**
-   * Load device settings from the repository.
-   * @param context Action context.
-   */
-  async readDeviceSettings(context) {
-    const result = await new ReadDeviceSettingAction(
-      context.rootState.repositoryContainer
-    ).readDeviceSettings();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    await context.dispatch("setDeviceSettings", {
-      deviceSettings: result.data,
-    });
-  },
-
-  /**
-   * Save device settings in the repository.
-   * @param context Action context.
-   * @param payload.config Capture config.
-   */
-  async writeDeviceSettings(
-    context,
-    payload: { config: Partial<CaptureConfig> }
-  ) {
-    const deviceSettings: DeviceSettings = {
-      config: {
-        platformName:
-          payload.config.platformName ?? context.state.config.platformName,
-        browser: payload.config.browser ?? context.state.config.browser,
-        device: payload.config.device ?? context.state.config.device,
-        platformVersion:
-          payload.config.platformVersion ?? context.state.config.platformName,
-        waitTimeForStartupReload:
-          payload.config.waitTimeForStartupReload ??
-          context.state.config.waitTimeForStartupReload,
-        executablePaths:
-          payload.config.executablePaths ??
-          context.state.config.executablePaths,
-      },
-    };
-
-    const result = await new SaveDeviceSettingAction(
-      context.rootState.repositoryContainer
-    ).saveDeviceSettings(deviceSettings);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    const captureConfig: CaptureConfig = {
-      platformName: result.data.config.platformName
-        ? result.data.config.platformName
-        : context.state.config.platformName,
-      browser: result.data.config.browser
-        ? result.data.config.browser
-        : context.state.config.browser,
-      device: result.data.config.device,
-      platformVersion: result.data.config.platformVersion,
-      waitTimeForStartupReload: result.data.config.waitTimeForStartupReload,
-      executablePaths: result.data.config.executablePaths,
-    };
-
-    context.commit("setCaptureConfig", { captureConfig });
+    return result.data ?? [];
   },
 
   /**
@@ -203,48 +78,87 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async replayOperations(
     context,
-    payload: { operations: OperationForReplay[] }
+    payload: {
+      initialUrl: string;
+      filterPredicate?: (_: TestStep, index: number) => boolean;
+    }
   ): Promise<void> {
     context.commit("setIsReplaying", { isReplaying: true });
 
     try {
-      const initialUrl = payload.operations[0].url;
+      const operationHistoryState: OperationHistoryState = (
+        context.rootState as any
+      ).operationHistory;
 
-      const sourceTestResultId = (context.rootState as any).operationHistory
-        .testResultInfo.id;
-
-      const operations = convertOperationsForReplay(payload.operations);
+      const sourceTestResultId = operationHistoryState.testResultInfo.id;
 
       const replayOption = context.state.replayOption;
+
+      const captureCl = context.rootState.captureClService;
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          sourceTestResultId
+        );
+      const config: CaptureConfig = context.rootState.deviceSettings;
+      const client = captureCl.createCaptureClient(testResult, {
+        config,
+        eventListeners: await context.dispatch("createCaptureEventListeners"),
+      });
+
+      const filterPredicate = payload.filterPredicate ?? (() => true);
+      const preScript = async (_: TestStep, index: number) => {
+        context.commit(
+          "operationHistory/selectOperation",
+          { sequence: index + 1 },
+          { root: true }
+        );
+      };
 
       if (replayOption.replayCaptureMode) {
         await context.dispatch("operationHistory/resetHistory", null, {
           root: true,
         });
-        await context.dispatch(
-          "operationHistory/createTestResult",
-          {
-            initialUrl,
-            name: `${replayOption.testResultName}`,
-            source: sourceTestResultId,
-          },
-          {
-            root: true,
-          }
-        );
       }
 
-      await context.dispatch("startCapture", {
-        url: initialUrl,
-        config: (context.rootState as any).operationHistory.config,
-        operations,
-        callbacks: {
-          onChangeNumberOfWindows: () => {
-            /* Do nothing */
-          },
-        },
-      });
+      const result = await (async () => {
+        if (!replayOption.replayCaptureMode) {
+          return client.replay(payload.initialUrl, {
+            filterPredicate,
+            preScript,
+          });
+        }
+
+        const createResult =
+          await context.rootState.repositoryService.createEmptyTestResult({
+            initialUrl: payload.initialUrl,
+            name: replayOption.testResultName,
+            source: sourceTestResultId,
+          });
+
+        if (createResult.isFailure()) {
+          return createResult;
+        }
+
+        const destTestResult =
+          context.rootState.repositoryService.createTestResultAccessor(
+            createResult.data.id
+          );
+        return client.replayAndSave(payload.initialUrl, destTestResult, {
+          filterPredicate,
+          preScript,
+          compressScreenshots:
+            context.rootState.projectSettings.config.imageCompression.isEnabled,
+        });
+      })();
+
+      if (result.isFailure()) {
+        const errorMessage = context.rootGetters.message(
+          `error.capture_control.run_operations_failed`
+        );
+        throw new Error(errorMessage);
+      }
     } finally {
+      context.dispatch("endCapture");
       context.commit("setIsReplaying", { isReplaying: false });
     }
   },
@@ -253,24 +167,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { operations: AutoOperation[] }
   ): Promise<void> {
+    if (!context.state.captureSession) {
+      return;
+    }
+
     const operations = convertOperationsForReplay(payload.operations);
 
-    context.commit("setIsAutoOperation", {
-      isAutoOperation: true,
-    });
-    const result = await context.dispatch("runOperations", {
-      operations,
-      waitTime: 1000,
-    });
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 2000);
-    });
-    context.commit("setIsAutoOperation", {
-      isAutoOperation: false,
-    });
-    if (result.error) {
+    const result = await context.state.captureSession
+      .automate()
+      .runOperations(...operations);
+
+    if (result.isFailure()) {
       const errorMessage = context.rootGetters.message(
         `error.capture_control.run_auto_operations_failed`
       );
@@ -292,17 +199,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param payload.to Destination window handle.
    */
   switchCapturingWindow(context, payload: { to: string }) {
-    context.rootState.clientSideCaptureServiceDispatcher.switchCapturingWindow(
-      payload.to
-    );
+    context.state.captureSession?.switchWindow(payload.to);
   },
 
   switchCancel(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.switchCancel();
+    context.state.captureSession?.unprotectWindows();
   },
 
   selectCapturingWindow(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.selectCapturingWindow();
+    context.state.captureSession?.protectWindows();
   },
 
   /**
@@ -310,7 +215,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   browserBack(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.browserBack();
+    context.state.captureSession?.navigate().back();
   },
 
   /**
@@ -318,7 +223,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   browserForward(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.browserForward();
+    context.state.captureSession?.navigate().forward();
   },
 
   /**
@@ -326,7 +231,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   pauseCapturing(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.pauseCapturing();
+    context.state.captureSession?.pauseCapture();
   },
 
   /**
@@ -334,212 +239,267 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   resumeCapturing(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
+    context.state.captureSession?.resumeCapture();
   },
 
   async autofill(
     context,
     payload: { autofillConditionGroup: AutofillConditionGroup }
   ) {
-    context.commit("setIsAutoOperation", {
-      isAutoOperation: true,
-    });
-    await context.rootState.clientSideCaptureServiceDispatcher.autofill(
-      payload.autofillConditionGroup.inputValueConditions.filter(
-        (inputValue) => inputValue.isEnabled
-      )
-    );
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 2000);
-    });
-    context.commit("setIsAutoOperation", {
-      isAutoOperation: false,
-    });
+    const targetAndValues = payload.autofillConditionGroup.inputValueConditions
+      .filter((inputValue) => inputValue.isEnabled)
+      .map((condition) => {
+        return {
+          target: {
+            locatorType: condition.locatorType,
+            locator: condition.locator,
+            locatorMatchType: condition.locatorMatchType,
+          },
+          value: condition.inputValue,
+        };
+      });
+
+    await context.state.captureSession
+      ?.automate()
+      .enterValues(...targetAndValues);
   },
 
-  /**
-   * Run operations.
-   * @param context Action context.
-   * @param payload.operations Operations.
-   */
-  async runOperations(
+  openAutofillDialog(
     context,
-    payload: { operations: OperationForReplay[]; waitTime?: number }
+    payload: {
+      targetPage: { title: string; url: string };
+      beforeOperation: OperationForGUI;
+    }
   ) {
-    const isReplayCaptureMode = (context.rootState as any).captureControl
-      .replayOption.replayCaptureMode;
-    const isReplaying = (context.rootState as any).captureControl.isReplaying;
-    if (!isReplayCaptureMode && isReplaying) {
-      context.commit(
-        "operationHistory/selectOperation",
-        { sequence: payload.operations[0].sequence },
-        {
-          root: true,
-        }
-      );
-    }
-
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 1000);
-    });
-
-    const tempWindowHandles = payload.operations
-      .map((operation) => {
-        return operation.windowHandle;
-      })
-      .filter((windowHandle) => {
-        return windowHandle;
-      });
-    const recordedWindowHandles =
-      tempWindowHandles.length > 0
-        ? tempWindowHandles.filter((windowHandle, index, array) => {
-            return array.indexOf(windowHandle) === index;
-          })
-        : [];
-
-    const replayWindowHandles: string[] = [];
-
-    const isDateInputOperation = (
-      target: Pick<OperationForReplay, "type" | "elementInfo">,
-      type: "click" | "change"
-    ) => {
-      return (
-        target.type === type &&
-        target.elementInfo?.tagname.toLowerCase() === "input" &&
-        target.elementInfo.attributes.type === "date"
-      );
-    };
-
-    const isNumberInputOperation = (
-      target: Pick<OperationForReplay, "type" | "elementInfo">,
-      type: "click" | "change"
-    ) => {
-      return (
-        target.type === type &&
-        target.elementInfo?.tagname.toLowerCase() === "input" &&
-        target.elementInfo.attributes.type === "number"
-      );
-    };
-
-    for (const [index, operation] of payload.operations.entries()) {
-      if (isDateInputOperation(operation, "change")) {
-        const nextOperation: OperationForReplay | undefined =
-          payload.operations[index + 1];
-
-        if (
-          nextOperation &&
-          isDateInputOperation(nextOperation, "change") &&
-          operation.elementInfo?.xpath === nextOperation.elementInfo?.xpath
-        ) {
-          continue;
-        }
-      }
-
-      if (isNumberInputOperation(operation, "click")) {
-        const preOperation: OperationForReplay | undefined =
-          payload.operations[index - 1];
-
-        if (
-          preOperation &&
-          isNumberInputOperation(preOperation, "change") &&
-          operation.elementInfo?.xpath === preOperation.elementInfo?.xpath
-        ) {
-          continue;
-        }
-      }
-
-      if (index > 0) {
-        if (!isReplayCaptureMode && isReplaying) {
-          context.commit(
-            "operationHistory/selectOperation",
-            { sequence: operation.sequence },
-            {
-              root: true,
-            }
+    const openAutofillSelectDialogCallBack = () => {
+      if (
+        context.rootState.projectSettings.config.autofillSetting &&
+        context.rootState.viewSettings.autofill.autoPopupSelectionDialog &&
+        context.rootState.projectSettings.config.autofillSetting.conditionGroups
+          .length > 0
+      ) {
+        const matchGroup =
+          new AutofillTestAction().extractMatchingAutofillConditionGroup(
+            context.rootState.projectSettings.config.autofillSetting
+              .conditionGroups,
+            payload.targetPage.title,
+            payload.targetPage.url
           );
+        if (matchGroup.isFailure()) {
+          throw new Error();
         }
-        const previous = new TimestampImpl(
-          payload.operations[index - 1].timestamp
+        context.commit(
+          "captureControl/setAutofillSelectDialog",
+          {
+            dialogData: {
+              autofillConditionGroups: matchGroup.data,
+              message: context.rootGetters.message(
+                "autofill-select-dialog.message"
+              ),
+            },
+          },
+          { root: true }
         );
-        const current = new TimestampImpl(payload.operations[index].timestamp);
-        const intervalTime = payload.waitTime ?? current.diff(previous);
-
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, intervalTime);
-        });
+      } else {
+        context.commit(
+          "captureControl/setAutofillSelectDialog",
+          {
+            autofillConditionGroups: null,
+          },
+          { root: true }
+        );
       }
+    };
 
-      const availableWindows =
-        context.state.capturingWindowInfo.availableWindows;
-      for (const availableWindow of availableWindows) {
-        if (!replayWindowHandles.includes(availableWindow.value)) {
-          replayWindowHandles.push(availableWindow.value);
-        }
-      }
-
-      const replayTargetOperation = (() => {
-        if (operation.type !== "switch_window") {
-          return {
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-          };
-        }
-
-        if (recordedWindowHandles.length < 1) {
-          return {
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-          };
-        }
-
-        const handleKey = recordedWindowHandles.indexOf(operation.input);
-
-        if (handleKey === -1) {
-          return {
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-          };
-        }
-
-        const switchHandleId = replayWindowHandles[handleKey];
-
-        return {
-          input: switchHandleId,
-          type: operation.type,
-          elementInfo: operation.elementInfo,
-        };
-      })();
-
-      if (payload.operations[index + 1]?.type === "screen_transition") {
-        const result =
-          await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
-            replayTargetOperation
-          );
-        if (result.error) {
-          return result;
-        }
-      } else if (replayTargetOperation.type !== "screen_transition") {
-        const result =
-          await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
-            replayTargetOperation
-          );
-
-        if (result.error) {
-          return result;
-        }
-      }
+    if (
+      context.rootState.viewSettings.autofill.autoPopupRegistrationDialog &&
+      payload.beforeOperation &&
+      (payload.beforeOperation?.inputElements ?? []).length > 0
+    ) {
+      context.commit(
+        "captureControl/setAutofillRegisterDialog",
+        {
+          title: payload.beforeOperation.title,
+          url: payload.beforeOperation.url,
+          message: context.rootGetters.message(
+            "autofill-register-dialog.message"
+          ),
+          inputElements: payload.beforeOperation.inputElements?.map(
+            (element) => {
+              return {
+                ...element,
+                xpath: element.xpath.toLowerCase(),
+              };
+            }
+          ),
+          callback: openAutofillSelectDialogCallBack,
+        },
+        { root: true }
+      );
+    } else {
+      context.commit("captureControl/setAutofillRegisterDialog", null, {
+        root: true,
+      });
+      openAutofillSelectDialogCallBack();
     }
+  },
 
-    return {};
+  createCaptureEventListeners(
+    context,
+    payload: {
+      callbacks?: {
+        onEnd?: (error?: Error) => void;
+      };
+    } = {}
+  ) {
+    const postRegisterOperation = async (data: {
+      id: string;
+      operation: OperationForGUI;
+      coverageSource: CoverageSource;
+    }) => {
+      const { id, operation, coverageSource } = data;
+
+      const operationHistoryState: OperationHistoryState = (
+        context.rootState as any
+      ).operationHistory;
+
+      context.commit(
+        "operationHistory/addTestStepId",
+        { testStepId: id },
+        { root: true }
+      );
+      const sequence = operationHistoryState.testStepIds.indexOf(id) + 1;
+
+      operation.sequence = sequence;
+
+      context.commit(
+        "operationHistory/addHistory",
+        {
+          entry: { operation, intention: null, bugs: null, notices: null },
+        },
+        { root: true }
+      );
+      context.commit(
+        "operationHistory/registerCoverageSource",
+        {
+          coverageSource,
+        },
+        { root: true }
+      );
+      context.commit(
+        "operationHistory/setCanUpdateModels",
+        {
+          canUpdateModels: true,
+        },
+        { root: true }
+      );
+    };
+
+    const callbacks = {
+      onEnd: () => undefined,
+      ...payload.callbacks,
+    };
+
+    const captureEventListeners: CaptureEventListeners = {
+      onAddTestStep: async (testStep: {
+        id: string;
+        operation: Operation;
+        coverageSource: CoverageSource;
+      }) => {
+        const operationHistoryState: OperationHistoryState = (
+          context.rootState as any
+        ).operationHistory;
+        const beforeOperation =
+          operationHistoryState.history[
+            operationHistoryState.history.length - 1
+          ]?.operation;
+
+        await postRegisterOperation({
+          ...testStep,
+          operation: convertTestStepOperation(testStep.operation),
+        });
+
+        if (testStep.operation.type === "screen_transition") {
+          const { title, url } = testStep.operation;
+
+          context.dispatch("openAutofillDialog", {
+            targetPage: { title, url },
+            beforeOperation,
+          });
+        }
+      },
+      onAddNote: async (testStepNote: TestStepNote) => {
+        const operationHistoryState: OperationHistoryState = (
+          context.rootState as any
+        ).operationHistory;
+        const sequence =
+          operationHistoryState.testStepIds.indexOf(testStepNote.testStep.id) +
+          1;
+
+        context.commit(
+          "operationHistory/setNotice",
+          {
+            notice: convertNote(testStepNote.note, sequence),
+            index: testStepNote.testStep.notices.length - 1,
+          },
+          { root: true }
+        );
+        context.commit(
+          "operationHistory/setCanUpdateModels",
+          { canUpdateModels: true },
+          { root: true }
+        );
+      },
+      onAddTestPurpose: async (testStepNote: TestStepNote) => {
+        const operationHistoryState: OperationHistoryState = (
+          context.rootState as any
+        ).operationHistory;
+        const sequence =
+          operationHistoryState.testStepIds.indexOf(testStepNote.testStep.id) +
+          1;
+
+        context.commit(
+          "operationHistory/setTestPurpose",
+          {
+            intention: convertNote(testStepNote.note, sequence),
+          },
+          { root: true }
+        );
+        context.commit(
+          "operationHistory/setCanUpdateModels",
+          { canUpdateModels: true },
+          { root: true }
+        );
+      },
+      onAddWindow: async (windowHandle: string) => {
+        context.commit(
+          "operationHistory/addAvailableWindow",
+          { windowHandle },
+          { root: true }
+        );
+      },
+      onPause: async () => {
+        context.commit("setPaused", { isPaused: true });
+      },
+      onResume: async () => {
+        context.commit("setPaused", { isPaused: false });
+      },
+      onEnd: async (result: ServiceResult<void>) => {
+        context.dispatch("postEndCapture");
+
+        if (result.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.${result.error.errorCode}`
+          );
+          callbacks.onEnd(new Error(errorMessage));
+          return;
+        }
+
+        callbacks.onEnd();
+      },
+    };
+
+    return captureEventListeners;
   },
 
   /**
@@ -547,223 +507,67 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.url Target URL.
    * @param payload.config Capture config.
-   * @param payload.callbacks.onChangeNumberOfWindows
    * The callback when the number of opened windows on the test target browser.
    */
   async startCapture(
     context,
     payload: {
       url: string;
-      config: CaptureConfig;
-      operations?: OperationForReplay[];
+      config: DeviceSettings;
       callbacks: {
-        onChangeNumberOfWindows: () => void;
+        onEnd: (error?: Error) => void;
       };
     }
   ) {
     const config: CaptureConfig = Object.assign(
       payload.config,
-      context.state.config
+      context.rootState.deviceSettings
     );
 
-    const replayOption = (context.rootState as any).captureControl.replayOption;
-
-    const isReplaying = (context.rootState as any).captureControl.isReplaying;
-
     try {
-      const reply =
-        await context.rootState.clientSideCaptureServiceDispatcher.startCapture(
-          payload.url,
-          config,
-          {
-            onStart: async () => {
-              context.dispatch("stopTimer");
-              context.dispatch("startTimer");
+      const operationHistoryState: OperationHistoryState = (
+        context.rootState as any
+      ).operationHistory;
 
-              context.commit("setCapturing", { isCapturing: true });
-              context.commit(
-                "operationHistory/clearUnassignedTestPurposes",
-                null,
-                {
-                  root: true,
-                }
-              );
-
-              const testOption = (context.rootState as any).captureControl
-                .testOption;
-
-              if (testOption.firstTestPurpose) {
-                const { sequence } = (context.rootState as any).operationHistory
-                  .selectedOperationNote;
-
-                context.commit(
-                  "operationHistory/selectOperationNote",
-                  {
-                    selectedOperationNote: { sequence: null, index: null },
-                  },
-                  {
-                    root: true,
-                  }
-                );
-
-                await context.dispatch(
-                  "operationHistory/addUnassignedTestPurpose",
-                  {
-                    noteEditInfo: {
-                      oldSequence: sequence ?? undefined,
-                      newSequence: sequence ?? undefined,
-                      note: testOption.firstTestPurpose,
-                      noteDetails: testOption.firstTestPurposeDetails,
-                      shouldTakeScreenshot: false,
-                    },
-                  },
-                  {
-                    root: true,
-                  }
-                );
-              }
-
-              if (isReplaying) {
-                const operations = payload.operations;
-                const result: { error?: ServerError } = await context.dispatch(
-                  "runOperations",
-                  {
-                    operations,
-                  }
-                );
-
-                context.dispatch("endCapture");
-                return result;
-              }
-              return {};
-            },
-            onGetOperation: async (capturedOperation: CapturedOperation) => {
-              if (capturedOperation.type === "switch_window") {
-                context.commit("setCurrentWindow", {
-                  currentWindow: capturedOperation.input,
-                });
-              }
-
-              if (!replayOption.replayCaptureMode && isReplaying) {
-                return;
-              }
-
-              await context.dispatch(
-                "operationHistory/registerOperation",
-                {
-                  operation: capturedOperation,
-                },
-                { root: true }
-              );
-            },
-            onGetScreenTransition: async (
-              capturedScreenTransition: CapturedScreenTransition
-            ) => {
-              if (!replayOption.replayCaptureMode && isReplaying) {
-                return;
-              }
-              const capturedOperation = {
-                input: "",
-                type: "screen_transition",
-                elementInfo: null,
-                title: capturedScreenTransition.title,
-                url: capturedScreenTransition.url,
-                imageData: capturedScreenTransition.imageData,
-                windowHandle: capturedScreenTransition.windowHandle,
-                timestamp: capturedScreenTransition.timestamp,
-                screenElements: [],
-                pageSource: capturedScreenTransition.pageSource,
-                inputElements: [],
-              };
-
-              await context.dispatch(
-                "operationHistory/registerOperation",
-                {
-                  operation: capturedOperation,
-                },
-                { root: true }
-              );
-            },
-            onChangeBrowserHistory: async (browserStatus: {
-              canGoBack: boolean;
-              canGoForward: boolean;
-            }) => {
-              console.log(JSON.stringify(browserStatus));
-              context.commit("setCanDoBrowserBack", {
-                canDoBrowserBack: browserStatus.canGoBack,
-              });
-              context.commit("setCanDoBrowserForward", {
-                canDoBrowserForward: browserStatus.canGoForward,
-              });
-            },
-            onUpdateAvailableWindows: async (updatedWindowsInfo: {
-              windowHandles: string[];
-              currentWindowHandle: string;
-            }) => {
-              if (updatedWindowsInfo.windowHandles.length === 0) {
-                return;
-              }
-
-              context.dispatch("updateWindowHandles", {
-                availableWindowHandles: updatedWindowsInfo.windowHandles,
-              });
-
-              context.commit("setAvailableWindows", {
-                availableWindows: context.state.windowHandles.filter(
-                  (windowHandle: WindowHandle) => {
-                    return windowHandle.available;
-                  }
-                ),
-              });
-
-              context.commit("setCurrentWindow", {
-                currentWindow: updatedWindowsInfo.currentWindowHandle,
-              });
-
-              if (updatedWindowsInfo.windowHandles.length > 1) {
-                payload.callbacks.onChangeNumberOfWindows();
-              }
-            },
-            onChangeAlertVisibility: async (data: { isVisible: boolean }) => {
-              context.commit("setAlertVisible", data);
-            },
-            onPause: async () => {
-              context.commit("setPaused", { isPaused: true });
-            },
-            onResume: async () => {
-              context.commit("setPaused", { isPaused: false });
-            },
-          }
+      const captureCl = context.rootState.captureClService;
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          operationHistoryState.testResultInfo.id
         );
-
-      if (reply.error) {
-        let errorCode: string;
-        if (isReplaying) {
-          errorCode =
-            reply.error.code === "unknown_error"
-              ? "run_operations_failed"
-              : reply.error.code;
-        } else {
-          errorCode =
-            reply.error.code === "unknown_error"
-              ? "capture_failed"
-              : reply.error.code;
-        }
-        const errorMessage = context.rootGetters.message(
-          `error.capture_control.${errorCode}`
-        );
-        throw new Error(errorMessage);
-      }
-    } finally {
-      context.dispatch("endCapture");
-
-      context.commit("setCapturing", { isCapturing: false });
-      context.commit("setIsAutoOperation", {
-        isAutoOperation: false,
+      const client = captureCl.createCaptureClient(testResult, {
+        config,
+        eventListeners: await context.dispatch("createCaptureEventListeners", {
+          callbacks: payload.callbacks,
+        }),
       });
-      context.commit("setPaused", { isPaused: false });
-      context.commit("setCurrentWindow", { currentWindow: "" });
-      context.commit("setAvailableWindows", { availableWindows: [] });
+
+      const session = await client.startCapture(payload.url, {
+        compressScreenshots:
+          context.rootState.projectSettings.config.imageCompression.isEnabled,
+      });
+
+      const testOption = (context.rootState as any).captureControl.testOption;
+
+      if (testOption.firstTestPurpose) {
+        context.commit(
+          "operationHistory/selectOperationNote",
+          { selectedOperationNote: { sequence: null, index: null } },
+          { root: true }
+        );
+
+        session.setNextTestPurpose({
+          value: testOption.firstTestPurpose,
+          details: testOption.firstTestPurposeDetails,
+        });
+      }
+
+      context.dispatch("stopTimer");
+      context.dispatch("startTimer");
+
+      context.commit("setCapturing", { isCapturing: true });
+      context.commit("setCaptureSession", { session });
+    } catch (error) {
+      context.dispatch("endCapture");
     }
   },
 
@@ -772,8 +576,48 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    */
   endCapture(context) {
+    if (!context.state.captureSession) {
+      return;
+    }
+
+    try {
+      context.state.captureSession.endCapture();
+    } finally {
+      context.dispatch("postEndCapture");
+    }
+  },
+
+  postEndCapture(context) {
     context.dispatch("stopTimer");
-    context.rootState.clientSideCaptureServiceDispatcher.endCapture();
+    context.commit("setCapturing", { isCapturing: false });
+    context.commit("setPaused", { isPaused: false });
+    context.commit("deleteCaptureSession");
+  },
+
+  takeNote(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const note = {
+      value: payload.noteEditInfo.note,
+      details: payload.noteEditInfo.noteDetails,
+      tags: payload.noteEditInfo.tags,
+    };
+
+    const option = {
+      screenshot: payload.noteEditInfo.shouldTakeScreenshot,
+      compressScreenshot:
+        payload.noteEditInfo.shouldTakeScreenshot &&
+        context.rootState.projectSettings.config.imageCompression.isEnabled,
+    };
+
+    context.state.captureSession?.takeNote(note, option);
+  },
+
+  setNextTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    if (context.state.captureSession) {
+      context.state.captureSession.setNextTestPurpose({
+        value: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails,
+      });
+    }
   },
 
   /**
@@ -799,19 +643,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   resetTimer(context, payload?: { millis: number }) {
     context.state.timer.reset(payload?.millis);
-  },
-
-  /**
-   * Take a screenshot of current screen on the test target browser.
-   * @param context Action context.
-   * @returns Screenshot.(base64)
-   */
-  async takeScreenshot(context) {
-    if (!context.state.isCapturing) {
-      return;
-    }
-
-    return await context.rootState.clientSideCaptureServiceDispatcher.takeScreenshot();
   },
 };
 

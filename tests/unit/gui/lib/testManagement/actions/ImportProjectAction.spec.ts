@@ -1,11 +1,9 @@
 import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
-import { ImportProjectRepository } from "@/lib/eventDispatcher/repositoryService/ImportProjectRepository";
-import {
-  RESTClient,
-  RESTClientResponse,
-} from "@/lib/eventDispatcher/RESTClient";
+import { ImportProjectRepository } from "src/common/repository/importProject";
+import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -44,7 +42,7 @@ describe("ImportProjectAction", () => {
 
         const result = await action.import(source, selectOption);
 
-        expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
+        expect(restClient.httpPost).toBeCalledWith(`api/v1/imports/projects`, {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
@@ -67,7 +65,7 @@ describe("ImportProjectAction", () => {
 
         const result = await action.import(source, selectOption);
 
-        expect(restClient.httpPost).toBeCalledWith(`/imports/projects`, {
+        expect(restClient.httpPost).toBeCalledWith(`api/v1/imports/projects`, {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,

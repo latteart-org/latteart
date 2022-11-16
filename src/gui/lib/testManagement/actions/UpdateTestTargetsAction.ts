@@ -15,7 +15,7 @@
  */
 
 import { ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { Group, Plan } from "../types";
 
 export class UpdateTestTargetsAction {
@@ -30,15 +30,15 @@ export class UpdateTestTargetsAction {
         plans?: Plan[];
       }[];
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testTargetRepository" | "testTargetGroupRepository"
     >
   ): Promise<ActionResult<Group>> {
     await Promise.all(
       payload.testTargets.map(async (testTarget) => {
         const testTargetResult =
-          await repositoryContainer.testTargetRepository.patchTestTarget(
+          await repositoryService.testTargetRepository.patchTestTarget(
             testTarget.id,
             {
               name: testTarget.name,
@@ -54,7 +54,7 @@ export class UpdateTestTargetsAction {
     );
 
     const testTargetGroup =
-      await repositoryContainer.testTargetGroupRepository.getTestTargetGroup(
+      await repositoryService.testTargetGroupRepository.getTestTargetGroup(
         payload.groupId
       );
 

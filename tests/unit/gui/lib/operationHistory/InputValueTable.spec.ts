@@ -1,14 +1,14 @@
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import { Operation } from "@/lib/operationHistory/Operation";
-import { ElementInfo, OperationWithNotes } from "@/lib/operationHistory/types";
-import { operationHistory } from "@/store/operationHistory";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { OperationWithNotes } from "@/lib/operationHistory/types";
+import { ElementInfo } from "src/common/types";
 
 function createTestOperation(
   sequence: number,
   elementInfo: ElementInfo
 ): OperationWithNotes {
   return {
-    operation: new Operation(
+    operation: new OperationForGUI(
       sequence,
       `input${sequence}`,
       `eventType${sequence}`,
@@ -59,7 +59,7 @@ describe("InputValueTableは", () => {
       const operation1 = createTestOperation(1, element1);
       const operation2 = createTestOperation(2, element2);
       const operation3 = {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createTestOperation(3, element2).operation,
           overrideParams: {
             input: "input2-2",
@@ -128,7 +128,7 @@ describe("InputValueTableは", () => {
       const operation1 = createTestOperation(1, element1);
       const operation2 = createTestOperation(2, element2);
       const operation3 = {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createTestOperation(3, element2).operation,
           overrideParams: {
             input: "input2-2",

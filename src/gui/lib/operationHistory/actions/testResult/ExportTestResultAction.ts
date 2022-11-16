@@ -19,17 +19,14 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.import_export.create-export-data-error";
 
 export class ExportTestResultAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
   public async exportWithTestResult(
@@ -37,7 +34,7 @@ export class ExportTestResultAction {
     shouldSaveTemporary = false
   ): Promise<ActionResult<string>> {
     const postTestResultForExportResult =
-      await this.repositoryContainer.testResultRepository.postTestResultForExport(
+      await this.repositoryService.testResultRepository.postTestResultForExport(
         testResultId,
         shouldSaveTemporary
       );

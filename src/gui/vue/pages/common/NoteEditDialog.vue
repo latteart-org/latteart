@@ -124,7 +124,6 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
-import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
@@ -165,10 +164,8 @@ export default class NoteEditDialog extends Vue {
       return;
     }
 
-    const { sequence, index } =
+    const { sequence } =
       this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes =
-      this.$store.getters["operationHistory/findHistoryItem"](sequence);
 
     this.newNote = "";
     this.newNoteDetails = "";
@@ -208,16 +205,15 @@ export default class NoteEditDialog extends Vue {
         } as NoteEditInfo;
 
         if (this.shouldRecordAsIssue) {
-          await this.$store.dispatch("operationHistory/saveNotice", {
+          await this.$store.dispatch("captureControl/takeNote", {
             noteEditInfo: noteInfo,
           });
         }
 
         if (!this.shouldContinueSameTestPurpose) {
-          await this.$store.dispatch(
-            "operationHistory/addUnassignedTestPurpose",
-            { noteEditInfo: intentionInfo }
-          );
+          await this.$store.dispatch("captureControl/setNextTestPurpose", {
+            noteEditInfo: intentionInfo,
+          });
         }
       } catch (error) {
         if (error instanceof Error) {

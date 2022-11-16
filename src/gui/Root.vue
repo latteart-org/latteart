@@ -48,8 +48,9 @@ export default class Root extends Vue {
     (async () => {
       try {
         await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("operationHistory/readSettings");
-        await this.$store.dispatch("captureControl/readDeviceSettings");
+        await this.$store.dispatch("readSettings");
+        await this.$store.dispatch("readViewSettings");
+        await this.$store.dispatch("readDeviceSettings");
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;

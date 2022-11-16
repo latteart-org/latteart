@@ -1,5 +1,4 @@
-import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
-import { ScreenDefinition } from "@/lib/common/settings/Settings";
+import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 
 describe("ScreenDefFactoryは", () => {
@@ -18,8 +17,8 @@ describe("ScreenDefFactoryは", () => {
       };
     };
     it("画面定義タイプ: title", () => {
-      const screenDefinitionConfig: ScreenDefinition = {
-        screenDefType: ScreenDefType.Title,
+      const screenDefinitionConfig: ScreenDefinitionSetting = {
+        screenDefType: "title",
         conditionGroups: [
           {
             isEnabled: true,
@@ -159,8 +158,8 @@ describe("ScreenDefFactoryは", () => {
     });
 
     it("画面定義タイプ: url", () => {
-      const screenDefinitionConfig: ScreenDefinition = {
-        screenDefType: ScreenDefType.Url,
+      const screenDefinitionConfig: ScreenDefinitionSetting = {
+        screenDefType: "url",
         conditionGroups: [
           {
             isEnabled: true,
@@ -199,8 +198,8 @@ describe("ScreenDefFactoryは", () => {
 
     describe("優先条件が複数(2条件)", () => {
       it("両方有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,
@@ -225,8 +224,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("一つ目が有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,
@@ -251,8 +250,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("二つ目が有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: false,
@@ -277,8 +276,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("両方無効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: false,
@@ -305,8 +304,8 @@ describe("ScreenDefFactoryは", () => {
 
     describe("詳細条件が複数(2条件)", () => {
       it("両方有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,
@@ -329,8 +328,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("一つ目が有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,
@@ -353,8 +352,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("二つ目が有効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,
@@ -377,8 +376,8 @@ describe("ScreenDefFactoryは", () => {
       });
 
       it("両方無効", () => {
-        const screenDefinitionConfig: ScreenDefinition = {
-          screenDefType: ScreenDefType.Title,
+        const screenDefinitionConfig: ScreenDefinitionSetting = {
+          screenDefType: "title",
           conditionGroups: [
             {
               isEnabled: true,

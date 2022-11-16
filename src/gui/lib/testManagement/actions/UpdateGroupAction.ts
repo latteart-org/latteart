@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { TestMatrix } from "../types";
 
 export class UpdateGroupAction {
@@ -29,13 +29,13 @@ export class UpdateGroupAction {
       groupId: string;
       name: string;
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testTargetGroupRepository" | "testMatrixRepository"
     >
   ): Promise<ActionResult<TestMatrix>> {
     const testTargetGroupResult =
-      await repositoryContainer.testTargetGroupRepository.patchTestTargetGroup(
+      await repositoryService.testTargetGroupRepository.patchTestTargetGroup(
         payload.groupId,
         payload.name
       );
@@ -47,7 +47,7 @@ export class UpdateGroupAction {
     }
 
     const testMatrixResult =
-      await repositoryContainer.testMatrixRepository.getTestMatrix(
+      await repositoryService.testMatrixRepository.getTestMatrix(
         payload.testMatrixId
       );
 

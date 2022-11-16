@@ -87,7 +87,7 @@ export default class ScreenshotsDownloadButton extends Vue {
         { testResultId: this.testResultId }
       );
       this.$store.dispatch("closeProgressDialog");
-      this.linkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${url}`;
+      this.linkUrl = `${this.$store.state.repositoryService.serviceUrl}/${url}`;
       this.dialogOpened = true;
     } catch (e) {
       this.$store.dispatch("closeProgressDialog");

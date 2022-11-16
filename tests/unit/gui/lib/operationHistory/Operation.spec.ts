@@ -1,11 +1,11 @@
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 describe("Operationは", () => {
   describe("inputValueが呼ばれたとき、入力値欄に表示する文字列を取得する", () => {
-    let operation: Operation;
+    let operation: OperationForGUI;
 
     beforeEach(() => {
-      operation = new Operation(1, "", "", null, "", "", "", "", false);
+      operation = new OperationForGUI(1, "", "", null, "", "", "", "", false);
     });
 
     it("elementInfoがnullの場合は空文字を返す", () => {
@@ -56,10 +56,10 @@ describe("Operationは", () => {
   });
 
   describe("textValueが呼ばれたとき、要素の表示文字列を取得する", () => {
-    let operation: Operation;
+    let operation: OperationForGUI;
 
     beforeEach(() => {
-      operation = new Operation(1, "", "", null, "", "", "", "", false);
+      operation = new OperationForGUI(1, "", "", null, "", "", "", "", false);
     });
 
     it("elementInfoがnullの場合は空文字を返す", () => {

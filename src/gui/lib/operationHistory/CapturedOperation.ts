@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ElementInfo } from "./types";
+import { ElementInfo } from "src/common/types";
 
 /**
  * Operation information acquired by capture.

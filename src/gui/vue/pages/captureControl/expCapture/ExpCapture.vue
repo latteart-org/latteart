@@ -39,10 +39,6 @@
       :opened="testPurposeEditDialogOpened"
       @close="testPurposeEditDialogOpened = false"
     />
-    <bug-edit-dialog
-      :opened="bugEditDialogOpened"
-      @close="bugEditDialogOpened = false"
-    />
     <notice-edit-dialog
       :opened="noticeEditDialogOpened"
       @close="noticeEditDialogOpened = false"
@@ -78,7 +74,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import TestPurposeEditDialog from "@/vue/pages/common/TestPurposeEditDialog.vue";
-import BugEditDialog from "@/vue/pages/common/BugEditDialog.vue";
 import NoticeEditDialog from "@/vue/pages/common/NoticeEditDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import CaptureToolHeader from "./organisms/captureToolHeader/CaptureToolHeader.vue";
@@ -92,7 +87,6 @@ import AutofillSelectDialog from "@/vue/pages/common/AutofillSelectDialog.vue";
     "capture-tool-header": CaptureToolHeader,
     "capture-tool-footer": CaptureToolFooter,
     "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
     "context-menu": ContextMenu,
     "confirm-dialog": ConfirmDialog,
@@ -102,7 +96,6 @@ import AutofillSelectDialog from "@/vue/pages/common/AutofillSelectDialog.vue";
 })
 export default class ExpCapture extends Vue {
   private testPurposeEditDialogOpened = false;
-  private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
   private contextMenuOpened = false;
@@ -247,14 +240,6 @@ export default class ExpCapture extends Vue {
         this.testPurposeEditDialogOpened = true;
         return;
       case "bug":
-        this.$store.commit("operationHistory/selectOperationNote", {
-          selectedOperationNote: {
-            sequence: sequence ?? null,
-            index: index ?? null,
-          },
-        });
-        this.bugEditDialogOpened = true;
-        return;
       case "notice":
         this.$store.commit("operationHistory/selectOperationNote", {
           selectedOperationNote: {
@@ -280,12 +265,6 @@ export default class ExpCapture extends Vue {
 
             return;
           case "bug":
-            await this.$store.dispatch("operationHistory/deleteBug", {
-              sequence,
-              index,
-            });
-
-            return;
           case "notice":
             await this.$store.dispatch("operationHistory/deleteNotice", {
               sequence,

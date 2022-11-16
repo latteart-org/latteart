@@ -88,42 +88,42 @@
                   )
                 }}
               </template>
-              <image-compression-setting
+              <image-compression-config
                 :imageCompression="imageCompression"
                 :opened="imageCompressionSettingOpened"
                 @save-config="saveConfig"
               >
-              </image-compression-setting>
+              </image-compression-config>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content>
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message("config-view.setting-inclusion-tags")
                 }}
               </template>
-              <coverage-setting
+              <coverage-config
                 :opened="coverageOpened"
                 :include-tags="includeTags"
                 :default-tag-list="defaultTagList"
                 @save-config="saveConfig"
               >
-              </coverage-setting>
+              </coverage-config>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content>
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
-              <screen-definition-setting
+              <screen-definition-config
                 :opened="screenDefinitionSettingOpened"
                 :screenDefinition="screenDefinition"
                 @save-config="saveConfig"
               >
-              </screen-definition-setting>
+              </screen-definition-config>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content>
               <template v-slot:header class="py-0">
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>
@@ -135,7 +135,7 @@
               </autofill-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content>
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message("config-view.setting-auto-operation")
@@ -164,20 +164,17 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import {
-  PlatformName,
-  Browser,
-  ScreenDefType,
-} from "@/lib/common/enum/SettingsEnum";
-import * as Util from "@/lib/common/util";
-import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer/CoverageSetting.vue";
-import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
-import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
+import CoverageConfig from "@/vue/pages/operationHistory/organisms/configViewer/CoverageConfig.vue";
+import ScreenDefinitionConfig from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionConfig.vue";
+import ImageCompressionConfig from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionConfig.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
-import Settings, {
-  Coverage,
-  ImageCompression,
-  ScreenDefinition,
+import {
+  CoverageSetting,
+  ImageCompressionSetting,
+  ScreenDefinitionSetting,
+  DeviceSettings,
+  ProjectSettings,
+  ViewSettings,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import {
@@ -185,13 +182,14 @@ import {
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
 import { default as AutoOperationSettingComponent } from "../../operationHistory/organisms/configViewer/AutoOperationSetting.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "coverage-setting": CoverageSetting,
-    "screen-definition-setting": ScreenDefinitionSetting,
-    "image-compression-setting": ImageCompressionSetting,
+    "coverage-config": CoverageConfig,
+    "screen-definition-config": ScreenDefinitionConfig,
+    "image-compression-config": ImageCompressionConfig,
     "autofill-setting": AutofillSettingComponent,
     "auto-operation-setting": AutoOperationSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
@@ -202,9 +200,13 @@ export default class ConfigView extends Vue {
   private errorMessage = "";
   private panel: null | number = null;
 
-  private platformNames: string[] = Util.getEnumValues(PlatformName);
+  private platformNames: DeviceSettings["platformName"][] = [
+    "PC",
+    "Android",
+    "iOS",
+  ];
 
-  private browsers: string[] = [];
+  private browsers: DeviceSettings["browser"][] = [];
 
   private devices: {
     deviceName: string;
@@ -212,11 +214,23 @@ export default class ConfigView extends Vue {
     osVersion: string;
   }[] = [];
 
+  private get projectSettings(): ProjectSettings | undefined {
+    return (this.$store.state as RootState).projectSettings;
+  }
+
+  private get viewSettings(): ViewSettings | undefined {
+    return (this.$store.state as RootState).viewSettings;
+  }
+
+  private get deviceSettings(): DeviceSettings | undefined {
+    return (this.$store.state as RootState).deviceSettings;
+  }
+
   private get locale() {
     return this.$store.getters.getLocale();
   }
 
-  private get imageCompression(): ImageCompression {
+  private get imageCompression(): ImageCompressionSetting {
     return (
       this.config?.imageCompression ?? {
         isEnabled: false,
@@ -230,26 +244,28 @@ export default class ConfigView extends Vue {
   }
 
   private get defaultTagList(): string[] {
-    return this.$store.state.operationHistory.defaultTagList;
+    return this.$store.state.projectSettings.defaultTagList;
   }
 
-  private get screenDefinition(): ScreenDefinition {
+  private get screenDefinition(): ScreenDefinitionSetting {
     return (
       this.config?.screenDefinition ?? {
-        screenDefType: ScreenDefType.Title,
+        screenDefType: "title",
         conditionGroups: [],
       }
     );
   }
 
   private get autofillSetting(): AutofillSetting {
-    return (
-      this.config?.autofillSetting ?? {
+    if (!this.config?.autofillSetting || !this.viewSettings?.autofill) {
+      return {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false,
         conditionGroups: [],
-      }
-    );
+      };
+    }
+
+    return { ...this.config.autofillSetting, ...this.viewSettings.autofill };
   }
 
   private get autoOperationSetting(): AutoOperationSetting {
@@ -267,8 +283,8 @@ export default class ConfigView extends Vue {
     });
   }
 
-  private get config(): Settings["config"] {
-    return this.$store.state.operationHistory.config;
+  private get config() {
+    return this.projectSettings?.config;
   }
 
   private async created() {
@@ -279,9 +295,9 @@ export default class ConfigView extends Vue {
 
     if (testResultId) {
       try {
-        if (this.$route.query.remoteRepository) {
-          await this.$store.dispatch("connectRemoteUrl", {
-            targetUrl: this.$route.query.remoteRepository,
+        if (this.$route.query.repository) {
+          await this.$store.dispatch("connectRepository", {
+            targetUrl: this.$route.query.repository,
           });
 
           await this.$store.dispatch("testManagement/readDataFile");
@@ -300,7 +316,8 @@ export default class ConfigView extends Vue {
         }
       }
     }
-    await this.$store.dispatch("operationHistory/readSettings");
+    await this.$store.dispatch("readSettings");
+    await this.$store.dispatch("readViewSettings");
   }
 
   private get imageCompressionSettingOpened() {
@@ -327,12 +344,12 @@ export default class ConfigView extends Vue {
     return this.selectedPlatformName !== this.platformNames[0];
   }
 
-  private get selectedPlatformName(): string {
-    return this.$store.state.captureControl.config.platformName;
+  private get selectedPlatformName() {
+    return this.deviceSettings?.platformName ?? "PC";
   }
 
-  private get selectedBrowser(): string {
-    return this.$store.state.captureControl.config.browser;
+  private get selectedBrowser() {
+    return this.deviceSettings?.browser ?? "Chrome";
   }
 
   private get selectedDevice(): {
@@ -340,28 +357,30 @@ export default class ConfigView extends Vue {
     modelNumber: string;
     osVersion: string;
   } {
-    return this.$store.state.captureControl.config.device;
+    return (
+      this.deviceSettings?.device ?? {
+        deviceName: "",
+        modelNumber: "",
+        osVersion: "",
+      }
+    );
   }
 
   private get isDisabledDeviceConfig() {
-    return this.selectedPlatformName === PlatformName.PC;
+    return this.selectedPlatformName === "PC";
   }
 
   private get waitTimeForStartupReload() {
-    return this.$store.state.captureControl.config.waitTimeForStartupReload;
+    return this.deviceSettings?.waitTimeForStartupReload ?? 0;
   }
 
-  private get configureCaptureSettings() {
-    return this.$store.getters.getSetting("debug.configureCaptureSettings");
-  }
-
-  private async selectPlatform(platformName: string) {
+  private async selectPlatform(platformName: DeviceSettings["platformName"]) {
     this.browsers = [...this.collectBrowsers(platformName)];
     const browser = this.browsers[0];
 
     this.devices = [...(await this.recognizeDevices(platformName))];
 
-    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+    await this.$store.dispatch("writeDeviceSettings", {
       config: {
         platformName,
         browser,
@@ -370,15 +389,17 @@ export default class ConfigView extends Vue {
     });
   }
 
-  private collectBrowsers(platformName: string) {
-    if (platformName === PlatformName.Android) return [Browser.Chrome];
-    if (platformName === PlatformName.iOS) return [Browser.Safari];
+  private collectBrowsers(
+    platformName: DeviceSettings["platformName"]
+  ): DeviceSettings["browser"][] {
+    if (platformName === "Android") return ["Chrome"];
+    if (platformName === "iOS") return ["Safari"];
 
-    return [Browser.Chrome, Browser.Edge];
+    return ["Chrome", "Edge"];
   }
 
   private async selectBrowser(browser: string) {
-    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+    await this.$store.dispatch("writeDeviceSettings", {
       config: { browser },
     });
   }
@@ -401,7 +422,7 @@ export default class ConfigView extends Vue {
         ...(await this.recognizeDevices(this.selectedPlatformName)),
       ];
 
-      await this.$store.dispatch("captureControl/writeDeviceSettings", {
+      await this.$store.dispatch("writeDeviceSettings", {
         config: {
           device: this.getDefaultDevice(this.devices),
         },
@@ -435,7 +456,7 @@ export default class ConfigView extends Vue {
     modelNumber: string;
     osVersion: string;
   }) {
-    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+    await this.$store.dispatch("writeDeviceSettings", {
       config: { device },
     });
   }
@@ -443,7 +464,7 @@ export default class ConfigView extends Vue {
   private async updateWaitTimeForStartupReload(
     waitTimeForStartupReload: number
   ) {
-    await this.$store.dispatch("captureControl/writeDeviceSettings", {
+    await this.$store.dispatch("writeDeviceSettings", {
       config: { waitTimeForStartupReload },
     });
   }
@@ -451,11 +472,34 @@ export default class ConfigView extends Vue {
   private saveConfig(config: {
     autofillSetting?: AutofillSetting;
     autoOperationSetting?: AutoOperationSetting;
-    screenDefinition?: ScreenDefinition;
-    coverage?: Coverage;
-    imageCompression?: ImageCompression;
+    screenDefinition?: ScreenDefinitionSetting;
+    coverage?: CoverageSetting;
+    imageCompression?: ImageCompressionSetting;
   }) {
-    this.$store.dispatch("operationHistory/writeSettings", { config });
+    const projectConfig = {
+      ...config,
+      autofillSetting: config.autofillSetting
+        ? {
+            conditionGroups: config.autofillSetting.conditionGroups,
+          }
+        : undefined,
+    };
+    this.$store.dispatch("writeConfig", {
+      config: projectConfig,
+    });
+
+    if (config.autofillSetting) {
+      this.$store.dispatch("writeViewSettings", {
+        viewSettings: {
+          autofill: {
+            autoPopupRegistrationDialog:
+              config.autofillSetting.autoPopupRegistrationDialog,
+            autoPopupSelectionDialog:
+              config.autofillSetting.autoPopupSelectionDialog,
+          },
+        },
+      });
+    }
 
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {

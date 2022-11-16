@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../../../common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "../../../../common/InformationMessageDialog.vue";
@@ -71,7 +71,7 @@ export default class ReplayHistoryButton extends Vue {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get operations(): Operation[] {
+  private get operations(): OperationForGUI[] {
     return this.$store.getters["operationHistory/getOperations"]();
   }
 
@@ -92,20 +92,8 @@ export default class ReplayHistoryButton extends Vue {
   private async replayOperations() {
     (async () => {
       try {
-        const tempOperations = this.operations.map((operation) => {
-          return {
-            sequence: operation.sequence,
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
-            timestamp: operation.timestamp,
-            windowHandle: operation.windowHandle,
-          };
-        });
         await this.$store.dispatch("captureControl/replayOperations", {
-          operations: tempOperations,
+          initialUrl: this.operations[0].url,
         });
 
         this.informationMessageDialogOpened = true;

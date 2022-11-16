@@ -365,7 +365,7 @@ export default class DecisionTable extends Vue {
       return;
     }
 
-    this.$store.commit("operationHistory/setAutofillRegisterDialog", {
+    this.$store.commit("captureControl/setAutofillRegisterDialog", {
       title: operationWithNotes.operation.title,
       url: operationWithNotes.operation.url,
       message: this.$store.getters.message(

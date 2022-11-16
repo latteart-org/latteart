@@ -73,13 +73,13 @@ export default class RemoteAccessField extends Vue {
   private targetUrl = this.url;
 
   private get urls(): string[] {
-    const localUrl = this.$store.state.localRepositoryServiceUrl;
-    const remoteUrls = this.$store.state.remoteRepositoryUrls;
+    const localUrl = this.$store.state.repositoryService.serviceUrl;
+    const remoteUrls = this.$store.state.repositoryUrls;
     return [localUrl, ...remoteUrls];
   }
 
   private get url(): string {
-    return this.$store.state.repositoryContainer.serviceUrl;
+    return this.$store.state.repositoryService.serviceUrl;
   }
 
   private get isCapturing(): boolean {
@@ -104,7 +104,8 @@ export default class RemoteAccessField extends Vue {
 
   private async initialize(): Promise<void> {
     await this.$store.dispatch("loadLocaleFromSettings");
-    await this.$store.dispatch("operationHistory/readSettings");
+    await this.$store.dispatch("readSettings");
+    await this.$store.dispatch("readViewSettings");
     await this.$store.dispatch("operationHistory/resetHistory");
     await this.$store.dispatch("captureControl/resetTimer");
     await this.$store.dispatch("testManagement/readDataFile");
@@ -119,7 +120,7 @@ export default class RemoteAccessField extends Vue {
       });
 
       try {
-        const url = await this.$store.dispatch("connectRemoteUrl", {
+        const url = await this.$store.dispatch("connectRepository", {
           targetUrl,
         });
 

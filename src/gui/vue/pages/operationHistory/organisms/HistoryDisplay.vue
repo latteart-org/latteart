@@ -70,7 +70,7 @@
               v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
               :diagramType="diagramType"
               :screenHistory="screenHistory"
-              :windowHandles="windowHandles"
+              :windows="windows"
               :message="message"
             ></history-summary-diagram>
           </v-flex>
@@ -129,7 +129,7 @@ import "splitpanes/dist/splitpanes.css";
 import {
   ScreenTransition,
   OperationHistory,
-  WindowHandle,
+  WindowInfo,
   ScreenDef,
   MessageProvider,
 } from "@/lib/operationHistory/types";
@@ -183,7 +183,7 @@ export default class HistoryDisplay extends Vue {
   @Prop({ type: Array, default: [] })
   public readonly rawHistory!: OperationHistory;
   @Prop({ type: Array, default: () => [] })
-  public readonly windowHandles!: WindowHandle[];
+  public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;

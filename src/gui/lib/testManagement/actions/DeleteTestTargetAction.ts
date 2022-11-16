@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { Group } from "../types";
 
 export class DeleteTestTargetAction {
@@ -29,17 +29,17 @@ export class DeleteTestTargetAction {
       groupId: string;
       testTargetId: string;
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testTargetRepository" | "testTargetGroupRepository"
     >
   ): Promise<ActionResult<Group>> {
-    await repositoryContainer.testTargetRepository.deleteTestTarget(
+    await repositoryService.testTargetRepository.deleteTestTarget(
       payload.testTargetId
     );
 
     const testTargetGroupResult =
-      await repositoryContainer.testTargetGroupRepository.getTestTargetGroup(
+      await repositoryService.testTargetGroupRepository.getTestTargetGroup(
         payload.groupId
       );
 

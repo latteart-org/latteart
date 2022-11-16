@@ -41,7 +41,7 @@ import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import {
   OperationWithNotes,
   Edge,
-  WindowHandle,
+  WindowInfo,
   MessageProvider,
 } from "@/lib/operationHistory/types";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
@@ -57,16 +57,16 @@ export default class ScreenTransitionDiagram extends Vue {
   @Prop({ type: Object, default: {} })
   public readonly screenHistory!: ScreenHistory;
   @Prop({ type: Array, default: [] })
-  public readonly windowHandles!: WindowHandle[];
+  public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private edges: Edge[] = [];
   private nameMap: Map<number, string> = new Map();
 
   private created() {
-    if (this.selectedWindowHandle === "" && this.windowHandles.length >= 1) {
+    if (this.selectedWindowHandle === "" && this.windows.length >= 1) {
       this.$store.commit("operationHistory/selectWindow", {
-        windowHandle: this.windowHandles[0].value,
+        windowHandle: this.windows[0].value,
       });
     }
   }
@@ -88,8 +88,8 @@ export default class ScreenTransitionDiagram extends Vue {
     );
   }
 
-  @Watch("windowHandles")
-  private initSelectedWindowHandle(newValue: WindowHandle[]) {
+  @Watch("windows")
+  private initSelectedWindowHandle(newValue: WindowInfo[]) {
     if (this.selectedWindowHandle === "" && newValue.length >= 1) {
       this.$store.commit("operationHistory/selectWindow", {
         windowHandle: newValue[0].value,
@@ -97,8 +97,8 @@ export default class ScreenTransitionDiagram extends Vue {
     }
   }
 
-  private get usedWindowHandles(): WindowHandle[] {
-    return this.windowHandles.filter((windowHandle: WindowHandle) => {
+  private get usedWindowHandles(): WindowInfo[] {
+    return this.windows.filter((windowInfo: WindowInfo) => {
       const existsHistory = this.screenHistory.body.find(
         (value: {
           url: string;
@@ -109,7 +109,7 @@ export default class ScreenTransitionDiagram extends Vue {
           const existsHandle = value.operationHistory.find(
             (operationWithNotes: OperationWithNotes) => {
               return (
-                operationWithNotes.operation.windowHandle === windowHandle.value
+                operationWithNotes.operation.windowHandle === windowInfo.value
               );
             }
           );

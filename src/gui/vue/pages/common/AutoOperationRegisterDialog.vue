@@ -45,8 +45,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Operation } from "@/lib/operationHistory/Operation";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 @Component({
   components: {
@@ -56,7 +56,7 @@ import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 export default class AutoOperationRegisterDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Array, default: () => [] })
-  public readonly targetOperations!: Operation[];
+  public readonly targetOperations!: OperationForGUI[];
   private settingName = "";
   private settingDetails = "";
   private invalidTypes = ["switch_window"];

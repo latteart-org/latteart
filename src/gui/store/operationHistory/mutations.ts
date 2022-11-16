@@ -21,16 +21,15 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import {
   OperationWithNotes,
   OperationHistory,
-  CoverageSource,
   ScreenTransition,
-  AutofillConditionGroup,
-  ElementInfo,
+  WindowInfo,
 } from "@/lib/operationHistory/types";
-import { Note } from "@/lib/operationHistory/Note";
+import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { CoverageSource } from "src/common/types";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**
@@ -78,7 +77,7 @@ const mutations: MutationTree<OperationHistoryState> = {
         ...state.history.map((item, index) => {
           return {
             ...item,
-            operation: Operation.createFromOtherOperation({
+            operation: OperationForGUI.createFromOtherOperation({
               other: item.operation,
               overrideParams: { sequence: index + 1 },
             }),
@@ -110,53 +109,11 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set unassigned test purpose to the State.
-   * @param state State
-   * @param payload.unassignedTestPurpose target intention info
-   */
-  setUnassignedTestPurpose(
-    state,
-    payload: {
-      unassignedTestPurpose: {
-        sequence: number;
-        note: string;
-        noteDetails?: string;
-      };
-    }
-  ) {
-    const i = state.unassignedTestPurposes.findIndex((item) => {
-      return item.sequence === payload.unassignedTestPurpose.sequence;
-    });
-    if (i === -1) {
-      state.unassignedTestPurposes.push(payload.unassignedTestPurpose);
-    } else {
-      state.unassignedTestPurposes[i] = payload.unassignedTestPurpose;
-    }
-  },
-
-  /**
-   * Remove unassigned test purpose from the State.
-   * @param state State
-   * @param payload.index index of target unassigned intention
-   */
-  removeUnassignedTestPurpose(state, payload: { index: number }) {
-    state.unassignedTestPurposes.splice(payload.index);
-  },
-
-  /**
-   * Clear unassigned test purposes in the State.
-   * @param state State
-   */
-  clearUnassignedTestPurposes(state) {
-    Vue.set(state, "unassignedTestPurposes", []);
-  },
-
-  /**
    * Set a test purpose to operation with note history in the State.
    * @param state State.
    * @param payload.intention Test intention.
    */
-  setTestPurpose(state, payload: { intention: Note }) {
+  setTestPurpose(state, payload: { intention: NoteForGUI }) {
     const targetIndex = state.history.findIndex((item) => {
       return item.operation.sequence === payload.intention.sequence;
     });
@@ -183,67 +140,12 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set a bug to operation with note history in the State.
-   * @param state State.
-   * @param payload.bug Bug.
-   * @param payload.index Index for bugs related to the same operation.
-   */
-  setBug(state, payload: { bug: Note; index: number }) {
-    const history = state.history as OperationHistory;
-    const targetIndex = history.findIndex((item) => {
-      return item.operation.sequence === payload.bug.sequence;
-    });
-    if (targetIndex === -1) {
-      return;
-    }
-
-    if (!history[targetIndex].bugs) {
-      history[targetIndex].bugs = [];
-    }
-
-    if (history[targetIndex].bugs!.length > payload.index) {
-      // update
-      history[targetIndex].bugs![payload.index] = payload.bug;
-    } else {
-      // add
-      history[targetIndex].bugs!.push(payload.bug);
-    }
-  },
-
-  /**
-   * Delete a bug from operation with note history in the State.
-   * @param state State.
-   * @param payload.sequence Sequence number of the bug.
-   * @param payload.index Index for bugs related to the same operation.
-   */
-  deleteBug(state, payload: { sequence: number; index: number }) {
-    const targetIndex = state.history.findIndex((item) => {
-      return item.operation.sequence === payload.sequence;
-    });
-    if (targetIndex !== -1) {
-      const targetBugs = state.history[targetIndex].bugs;
-      if (!targetBugs) {
-        return;
-      }
-
-      state.history[targetIndex].bugs = targetBugs.filter(
-        (bug: Note, index: number) => {
-          if (payload.index === index) {
-            return false;
-          }
-          return true;
-        }
-      );
-    }
-  },
-
-  /**
    * Set a notice to operation with note history in the State.
    * @param state State.
    * @param payload.notice Notice.
    * @param payload.index Index for notices related to the same operation.
    */
-  setNotice(state, payload: { notice: Note; index: number }) {
+  setNotice(state, payload: { notice: NoteForGUI; index: number }) {
     const history = state.history as OperationHistory;
     const targetIndex = history.findIndex((item) => {
       return item.operation.sequence === payload.notice.sequence;
@@ -282,7 +184,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       }
 
       state.history[targetIndex].notices = targetNotices.filter(
-        (notice: Note, index: number) => {
+        (notice: NoteForGUI, index: number) => {
           if (payload.index === index) {
             return false;
           }
@@ -290,42 +192,6 @@ const mutations: MutationTree<OperationHistoryState> = {
         }
       );
     }
-  },
-
-  setConfig(state, payload: { config: OperationHistoryState["config"] }) {
-    Vue.set(state, "config", payload.config);
-  },
-
-  /**
-   * Set default selectable tags as exclusion elements for screen element coverage to the State.
-   * @param state State.
-   * @param payload.defaultTagList Default selectable tags as exclusion elements for screen element coverage.
-   */
-  setDefaultTagList(state, payload: { defaultTagList: string[] }) {
-    state.defaultTagList = payload.defaultTagList;
-  },
-
-  /**
-   * Set selectable tags as exclusion elements for screen element coverage to the State.
-   * @param state State.
-   * @param payload.displayInclusionList Selectable tags as exclusion elements for screen element coverage.
-   */
-  setDisplayInclusionList(state, payload: { displayInclusionList: string[] }) {
-    const displayInclusionTagList = payload.displayInclusionList
-      .concat(state.config.coverage.include.tags)
-      .concat(state.defaultTagList);
-    state.displayInclusionList = Array.from(new Set(displayInclusionTagList));
-  },
-
-  /**
-   * Revert selectable tags as exclusion elements for screen element coverage to default.
-   * @param state State.
-   */
-  setDefaultDisplayExclusionList(state) {
-    const displayExclusionTagList = state.defaultTagList.concat(
-      state.config.coverage.include.tags
-    );
-    state.displayInclusionList = Array.from(new Set(displayExclusionTagList));
   },
 
   /**
@@ -665,100 +531,57 @@ const mutations: MutationTree<OperationHistoryState> = {
     state.testResultInfo.name = payload.name;
   },
 
-  /**
-   * Replace imageFilePath.
-   * @param state  State.
-   * @param payload.sequence  Sequence number.
-   * @param payload.imageFileUrl  File name to replace.
-   */
-  replaceTestStepsImageFileUrl(
-    state,
-    payload: { sequence: number; imageFileUrl: string }
-  ) {
-    state.history = state.history.map((operationWithNotes) => {
-      if (operationWithNotes.operation.sequence === payload.sequence) {
-        operationWithNotes.operation.imageFilePath = payload.imageFileUrl;
-      }
-      return operationWithNotes;
-    });
-  },
-
-  /**
-   * Replace imageFilePath.
-   * @param state  State.
-   * @param payload.type  Note type(bug or notice).
-   * @param payload.sequence  Sequence number of the note.
-   * @param payload.index  Index for notes related to the same operation.
-   * @param payload.imageFileUrl  File name to replace.
-   */
-  replaceNoteImageFileUrl(
-    state,
-    payload: {
-      type: string;
-      sequence: number;
-      index: number;
-      imageFileUrl: string;
-    }
-  ) {
-    state.history = state.history.map((operationWithNotes) => {
-      if (operationWithNotes.operation.sequence === payload.sequence) {
-        if (payload.type === "bug") {
-          const targetBug = operationWithNotes?.bugs?.find(
-            (bug, index) => payload.index === index
-          );
-          if (!targetBug) {
-            throw new Error("The target bug does not exist in the store");
-          }
-          targetBug.imageFilePath = payload.imageFileUrl;
-        }
-        if (payload.type === "notice") {
-          const targetNotice = operationWithNotes?.notices?.find(
-            (bug, index) => payload.index === index
-          );
-          if (!targetNotice) {
-            throw new Error("The target notice does not exist in the store");
-          }
-          targetNotice.imageFilePath = payload.imageFileUrl;
-        }
-      }
-      return operationWithNotes;
-    });
-  },
-
-  setAutofillSelectDialog(
-    state,
-    payload: {
-      dialogData: {
-        autofillConditionGroups: AutofillConditionGroup[];
-        message: string;
-      } | null;
-    }
-  ) {
-    state.autofillSelectDialogData = payload.dialogData;
-  },
-
-  setAutofillRegisterDialog(
-    state,
-    payload: {
-      title: string;
-      url: string;
-      message: string;
-      inputElements: ElementInfo[];
-      callback: () => void;
-    } | null
-  ) {
-    state.autofillRegisterDialogData = payload;
-  },
-
   setCheckedOperations(
     state,
-    payload: { checkedOperations: { index: number; operation: Operation }[] }
+    payload: {
+      checkedOperations: { index: number; operation: OperationForGUI }[];
+    }
   ) {
     state.checkedOperations = payload.checkedOperations;
   },
 
   clearCheckedOperations(state) {
     Vue.set(state, "checkedOperations", []);
+  },
+
+  /**
+   * Set window handles to the State.
+   * @param state State.
+   * @param payload.windowHandles Window handles.
+   */
+  setWindows(state, payload: { windowHandles: string[] }) {
+    state.windows = payload.windowHandles.map((windowHandle, index) => {
+      const text = `window${index + 1}`;
+
+      return {
+        text,
+        value: windowHandle,
+        available: false,
+      };
+    });
+  },
+
+  /**
+   * Add window handles to the State.
+   * @param state State.
+   * @param payload.windowHandles Window handles.
+   */
+  addAvailableWindow(state, payload: { windowHandle: string }) {
+    const text = `window${state.windows.length + 1}`;
+
+    state.windows.push({
+      text,
+      value: payload.windowHandle,
+      available: true,
+    });
+  },
+
+  /**
+   * Clear window handles in the State.
+   * @param state State.
+   */
+  clearWindows(state) {
+    Vue.set(state, "windows", []);
   },
 };
 

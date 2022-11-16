@@ -24,7 +24,7 @@
     <template>
       <v-select
         :items="capturingWindowInfo.availableWindows"
-        v-model="capturingWindowInfo.currentWindow"
+        v-model="capturingWindowInfo.currentWindowHandle"
       >
       </v-select>
     </template>
@@ -33,8 +33,10 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { WindowHandle } from "@/lib/operationHistory/types";
+import { WindowInfo } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -45,23 +47,28 @@ export default class WindowSelectorDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private capturingWindowInfo: {
-    currentWindow: string;
-    availableWindows: WindowHandle[];
+    currentWindowHandle: string;
+    availableWindows: WindowInfo[];
   } = {
-    currentWindow: "",
+    currentWindowHandle: "",
     availableWindows: [],
   };
 
   @Watch("opened")
   private openWindowSelector(): void {
-    if (this.opened) {
+    const captureControlState = this.$store.state
+      .captureControl as CaptureControlState;
+    const operationHistoryState = this.$store.state
+      .operationHistory as OperationHistoryState;
+
+    if (this.opened && captureControlState.captureSession) {
       this.$store.dispatch("captureControl/selectCapturingWindow");
-      this.capturingWindowInfo.currentWindow =
-        this.$store.state.captureControl.capturingWindowInfo.currentWindow;
+      this.capturingWindowInfo.currentWindowHandle =
+        captureControlState.captureSession.currentWindowHandle;
       this.capturingWindowInfo.availableWindows.splice(
         0,
         this.capturingWindowInfo.availableWindows.length,
-        ...this.$store.state.captureControl.capturingWindowInfo.availableWindows
+        ...operationHistoryState.windows.filter(({ available }) => available)
       );
     }
   }
@@ -69,7 +76,7 @@ export default class WindowSelectorDialog extends Vue {
   private onAcceptWindowSelector(): void {
     (async () => {
       await this.$store.dispatch("captureControl/switchCapturingWindow", {
-        to: this.capturingWindowInfo.currentWindow,
+        to: this.capturingWindowInfo.currentWindowHandle,
       });
 
       this.$emit("close");

@@ -22,7 +22,7 @@
           <history-display
             :rawHistory="testResult.history"
             :coverageSources="testResult.coverageSources"
-            :windowHandles="windowHandles"
+            :windows="windows"
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
           ></history-display>
@@ -34,19 +34,20 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { ScreenDefinition } from "../../lib/common/settings/Settings";
+import { ScreenDefinitionSetting } from "../../lib/common/settings/Settings";
 import {
   MessageProvider,
   OperationWithNotes,
-  CoverageSource,
 } from "../../../gui/lib/operationHistory/types";
-import { Operation } from "../../../gui/lib/operationHistory/Operation";
+import { NoteForGUI } from "../../lib/operationHistory/NoteForGUI";
+import { OperationForGUI } from "../../lib/operationHistory/OperationForGUI";
 import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
-import { Note } from "@/lib/operationHistory/Note";
+import { CoverageSource } from "src/common/types";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -59,15 +60,7 @@ export default class App extends Vue {
 
   private created() {
     (async () => {
-      this.$store.commit("operationHistory/setDefaultTagList", {
-        defaultTagList: this.settings.defaultTagList,
-      });
-      this.$store.commit("operationHistory/setDisplayInclusionList", {
-        displayInclusionList: [],
-      });
-      this.$store.commit("operationHistory/setConfig", {
-        config: this.settings.config,
-      });
+      this.$store.commit("setProjectSettings", { settings: this.settings });
 
       this.i18n = createI18n(this.settings.locale);
 
@@ -84,21 +77,9 @@ export default class App extends Vue {
     })();
   }
 
-  private get windowHandles() {
-    return this.testResult.history
-      .map((operationWithNotes) => {
-        return operationWithNotes.operation.windowHandle;
-      })
-      .filter((windowHandle, index, array) => {
-        return array.indexOf(windowHandle) === index;
-      })
-      .map((windowHandle, index) => {
-        return {
-          text: `window${index + 1}`,
-          value: windowHandle,
-          available: false,
-        };
-      });
+  private get windows() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .windows;
   }
 
   private get testResult(): {
@@ -113,21 +94,18 @@ export default class App extends Vue {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
         const { title, url, keywordSet } = item.operation;
 
-        const screenDef = screenDefFactory.createFrom(title, url, keywordSet);
-        const operation = Operation.createFromOtherOperation({
-          other: item.operation,
-          overrideParams: {
-            screenDef,
-            imageFilePath: item.operation.imageFileUrl,
-            keywordSet: new Set(item.operation.keywordTexts),
-          },
-        });
-
         return {
-          operation,
+          operation: OperationForGUI.createFromOtherOperation({
+            other: item.operation,
+            overrideParams: {
+              screenDef: screenDefFactory.createFrom(title, url, keywordSet),
+              imageFilePath: item.operation.imageFileUrl,
+              keywordSet: new Set(item.operation.keywordTexts),
+            },
+          }),
           bugs:
             item.bugs?.map((bug: any) =>
-              Note.createFromOtherNote({
+              NoteForGUI.createFromOtherNote({
                 other: bug,
                 overrideParams: {
                   imageFilePath: bug.imageFileUrl,
@@ -136,7 +114,7 @@ export default class App extends Vue {
             ) ?? [],
           notices:
             item.notices?.map((notice: any) =>
-              Note.createFromOtherNote({
+              NoteForGUI.createFromOtherNote({
                 other: notice,
                 overrideParams: {
                   imageFilePath: notice.imageFileUrl,
@@ -144,7 +122,7 @@ export default class App extends Vue {
               })
             ) ?? [],
           intention: item.intention
-            ? Note.createFromOtherNote({ other: item.intention })
+            ? NoteForGUI.createFromOtherNote({ other: item.intention })
             : null,
         };
       }),
@@ -156,7 +134,7 @@ export default class App extends Vue {
     return (this as any).$settings;
   }
 
-  private get screenDefinitionConfig(): ScreenDefinition {
+  private get screenDefinitionConfig(): ScreenDefinitionSetting {
     return this.settings.config.screenDefinition;
   }
 

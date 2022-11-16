@@ -2,7 +2,7 @@
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import SequenceDiagramGraphConverter from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 describe("SequenceDiagramGraphConverterは", () => {
   describe("convertが呼ばれた場合、screenHistoryをMermaidのシーケンス図形式の文字列に変換して返す", () => {
@@ -20,7 +20,7 @@ describe("SequenceDiagramGraphConverterは", () => {
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   elementInfo: { text: "elementValue1" } as any,
                   sequence: 1,
                   windowHandle: "window1-value",
@@ -293,7 +293,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   elementInfo: { text: "elementValue1" } as any,
                   sequence: 1,
                   windowHandle: "window1-value",
@@ -304,7 +304,7 @@ end;
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   elementInfo: { text: "elementValue2" } as any,
                   sequence: 2,
                   windowHandle: "window1-value",
@@ -429,7 +429,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type1",
                   elementInfo: { text: "elementValue1" } as any,
                   sequence: 1,
@@ -450,7 +450,7 @@ end;
             screenDef: "screenDef2",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type2",
                   elementInfo: { text: "elementValue2" } as any,
                   sequence: 2,
@@ -471,7 +471,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type3",
                   elementInfo: { text: "elementValue3" } as any,
                   sequence: 3,
@@ -577,7 +577,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type1",
                   elementInfo: { text: "elementValue1" } as any,
                   sequence: 1,
@@ -598,7 +598,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type2",
                   elementInfo: { text: "elementValue2" } as any,
                   sequence: 3,
@@ -647,6 +647,7 @@ end;
       ];
 
       beforeEach(() => {
+        OperationForGUI;
         testScreenHistory = new ScreenHistory([
           {
             url: "url1",
@@ -654,7 +655,7 @@ end;
             screenDef: "screenDef1",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "screen_transition",
                   elementInfo: null,
                   sequence: 1,
@@ -675,7 +676,7 @@ end;
             screenDef: "screenDef2",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type2",
                   elementInfo: { text: "elementValue2" } as any,
                   sequence: 2,
@@ -732,7 +733,7 @@ end;
           screenDef: "hogehogehugahugapiyopiyofoobarhogehogehugahugapiyopiyo",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue1" } as any,
                 sequence: 1,
                 windowHandle: "window1-value",
@@ -783,7 +784,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue1" } as any,
                 sequence: 1,
                 windowHandle: "window1-value",
@@ -837,7 +838,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: "element\r\nValue1" } as any,
                 sequence: 1,
@@ -858,7 +859,7 @@ end;
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -906,7 +907,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: 'aa##;;<<>>""aa' } as any,
                 sequence: 1,
@@ -927,7 +928,7 @@ end;
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -975,7 +976,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: "aaaaaaaaaaaaaaaaaaaaa" } as any,
                 sequence: 1,
@@ -996,7 +997,7 @@ end;
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -1051,7 +1052,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: "elementValue1" } as any,
                 sequence: 1,
@@ -1072,7 +1073,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -1093,7 +1094,7 @@ end;
           screenDef: "screenDef3",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type3",
                 elementInfo: { text: "elementValue3" } as any,
                 sequence: 3,
@@ -1146,7 +1147,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: "elementValue1" } as any,
                 sequence: 1,
@@ -1167,7 +1168,7 @@ end;
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -1188,7 +1189,7 @@ end;
           screenDef: "screenDef3",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type3",
                 elementInfo: { text: "elementValue3" } as any,
                 sequence: 3,
@@ -1242,7 +1243,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type1",
                 elementInfo: { text: "elementValue1" } as any,
                 sequence: 1,
@@ -1263,7 +1264,7 @@ end;
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type2",
                 elementInfo: { text: "elementValue2" } as any,
                 sequence: 2,
@@ -1284,7 +1285,7 @@ end;
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "type3",
                 elementInfo: { text: "elementValue3" } as any,
                 sequence: 3,

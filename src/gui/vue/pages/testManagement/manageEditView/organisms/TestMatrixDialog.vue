@@ -136,6 +136,7 @@ import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import UpDownArrows from "@/vue/molecules/UpDownArrows.vue";
 import { UpdateTestMatrixObject } from "../ManageEditTypes";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -161,7 +162,7 @@ export default class TestMatrixDialog extends Vue {
   private panel = [];
 
   private get viewPointsPresets(): ViewPointsPreset[] {
-    return this.$store.getters.getSetting("viewPointsPreset");
+    return (this.$store.state as RootState).projectSettings.viewPointsPreset;
   }
 
   private get viewPointsPresetsWithUnselected(): ViewPointsPreset[] {

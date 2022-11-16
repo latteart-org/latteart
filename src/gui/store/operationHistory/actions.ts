@@ -17,14 +17,12 @@
 import { ActionTree } from "vuex";
 import { OperationHistoryState } from ".";
 import { RootState } from "..";
-import Settings from "@/lib/common/settings/Settings";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import {
-  WindowHandle,
+  WindowInfo,
   Edge,
   ScreenTransition,
   OperationWithNotes,
-  ElementInfo,
   AutofillConditionGroup,
   AutoOperation,
 } from "@/lib/operationHistory/types";
@@ -38,191 +36,53 @@ import ScreenTransitionDiagramGraphConverter, {
 } from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
-import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/RecordTestPurposeAction";
-import { MoveTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/MoveTestPurposeAction";
 import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
-import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
-import { DeleteTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/DeleteTestPurposeAction";
-import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
-import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
-import { CreateTestResultAction } from "@/lib/operationHistory/actions/testResult/CreateTestResultAction";
-import { CompressNoteImageAction } from "@/lib/operationHistory/actions/image/CompressNoteImageAction";
-import { CompressTestStepImageAction } from "@/lib/operationHistory/actions/image/CompressTestStepImageAction";
-import { RegisterOperationAction } from "@/lib/operationHistory/actions/RegisterOperationAction";
-import { AddBugAction } from "@/lib/operationHistory/actions/bug/AddBugAction";
-import { EditBugAction } from "@/lib/operationHistory/actions/bug/EditBugAction";
-import { MoveBugAction } from "@/lib/operationHistory/actions/bug/MoveBugAction";
-import { DeleteBugAction } from "@/lib/operationHistory/actions/bug/DeleteBugAction";
-import { DeleteNoticeAction } from "@/lib/operationHistory/actions/notice/DeleteNoticeAction";
-import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNoticeAction";
-import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
-import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
-import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
-import { Operation } from "@/lib/operationHistory/Operation";
-import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
+import { convertNote } from "@/lib/common/replyDataConverter";
+import { ServiceSuccess } from "../../../common/service/result";
+import { extractWindowHandles } from "@/lib/common/windowHandle";
+import { ElementInfo } from "src/common/types";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
-  /**
-   * Set settings to the State.
-   * @param context Action context.
-   * @param payload.settings Settings.
-   */
-  async setSettings(context, payload: { settings: Settings }) {
-    const config = payload.settings.config;
-    if (!config) {
-      return;
-    }
-    context.commit("setDefaultTagList", {
-      defaultTagList: payload.settings.defaultTagList,
-    });
-    context.commit("setDisplayInclusionList", { displayInclusionList: [] });
-    await context.dispatch("writeSettings", {
-      config: {
-        autofillSetting: config.autofillSetting,
-        autoOperationSetting: config.autoOperationSetting,
-        screenDefinition: config.screenDefinition,
-        coverage: config.coverage,
-        imageCompression: config.imageCompression,
-      },
-    });
-  },
-
-  /**
-   * Save settings in the repository.
-   * @param context Action context.
-   * @param payload.config Settings.
-   */
-  async writeSettings(
-    context,
-    payload: { config: Partial<OperationHistoryState["config"]> }
-  ) {
-    const settings: Settings = {
-      captureSettings:
-        context.rootState.settingsProvider.settings.captureSettings,
-      config: {
-        autofillSetting:
-          payload.config.autofillSetting ??
-          context.state.config.autofillSetting,
-        autoOperationSetting:
-          payload.config.autoOperationSetting ??
-          context.state.config.autoOperationSetting,
-        screenDefinition:
-          payload.config.screenDefinition ??
-          context.state.config.screenDefinition,
-        coverage: payload.config.coverage ?? context.state.config.coverage,
-        imageCompression:
-          payload.config.imageCompression ??
-          context.state.config.imageCompression,
-      },
-      debug: context.rootState.settingsProvider.settings.debug,
-      defaultTagList:
-        context.rootState.settingsProvider.settings.defaultTagList,
-      locale: context.rootState.settingsProvider.settings.locale,
-      mode: context.rootState.settingsProvider.settings.mode,
-      viewPointsPreset:
-        context.rootState.settingsProvider.settings.viewPointsPreset,
-    };
-
-    const result = await new SaveSettingAction(
-      context.rootState.repositoryContainer
-    ).saveSettings(settings);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    context.commit("setConfig", { config: result.data.config });
-  },
-
-  /**
-   * Load settings from the repository and update the State.
-   * If the settings are passed as an argument, use it.
-   * @param context Action context.
-   * @param payload.settings Settings.
-   */
-  async readSettings(context) {
-    const result = await new ReadSettingAction(
-      context.rootState.repositoryContainer
-    ).readSettings();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    context.commit("setSettings", { settings: result.data }, { root: true });
-    context.dispatch("setSettings", { settings: result.data });
-  },
-
-  addUnassignedTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const lastItemIndex = context.state.history.length - 1;
-    const sequence =
-      (context.state.history[lastItemIndex]?.operation.sequence ?? 0) + 1;
-
-    context.commit("setUnassignedTestPurpose", {
-      unassignedTestPurpose: {
-        sequence,
-        note: payload.noteEditInfo.note,
-        noteDetails: payload.noteEditInfo.noteDetails,
-      },
-    });
-  },
-
   /**
    * Add a test purpose.
    * @param context Action context.
    * @param payload.noteEditInfo Test purpose information.
    */
   async addTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const testStepId = payload.noteEditInfo.oldSequence
-      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
-      : "";
+    const sequence = payload.noteEditInfo.oldSequence;
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        context.state.testResultInfo.id
+      );
+    const testPurpose = {
+      value: payload.noteEditInfo.note,
+      details: payload.noteEditInfo.noteDetails ?? "",
+    };
+    const testStepId =
+      sequence != null ? context.state.testStepIds[sequence - 1] : "";
 
-    if (!testStepId) {
-      return;
-    }
-
-    // add
-    const recordAction = new RecordTestPurposeAction(
-      context.rootState.repositoryContainer
-    );
-    const result = await recordAction.add(
-      context.state.testResultInfo.id,
-      testStepId,
-      {
-        summary: payload.noteEditInfo.note,
-        details: payload.noteEditInfo.noteDetails ?? "",
-      }
+    const result = await testResult.addTestPurposeToTestStep(
+      testPurpose,
+      testStepId
     );
 
     if (result.isFailure()) {
-      const { messageKey, variables } = result.error;
-      throw new Error(context.rootGetters.message(messageKey, variables));
+      throw new Error(
+        context.rootGetters.message(
+          `error.operation_history.${result.error.errorCode}`
+        )
+      );
     }
 
-    // set to store
     context.commit("setTestPurpose", {
-      intention: Note.createFromOtherNote({
-        other: result.data,
-        overrideParams: { sequence: payload.noteEditInfo.oldSequence },
-      }),
+      intention: convertNote(result.data.note, sequence),
     });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
@@ -236,44 +96,61 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const fromTestStepId = payload.noteEditInfo.oldSequence
       ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
       : "";
-
     if (!fromTestStepId) {
       return;
     }
-
     const destTestStepId = payload.noteEditInfo.newSequence
       ? context.state.testStepIds[payload.noteEditInfo.newSequence - 1]
       : "";
 
-    // edit and move
     const result = await (async () => {
-      const repositoryContainer = context.rootState.repositoryContainer;
-      const testResultId = context.state.testResultInfo.id;
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
+        );
 
-      const recordAction = new RecordTestPurposeAction(repositoryContainer);
-      const recordActionResult = await recordAction.edit(
-        testResultId,
-        fromTestStepId,
-        {
-          summary: payload.noteEditInfo.note,
-          details: payload.noteEditInfo.noteDetails ?? "",
-        }
-      );
+      const getTestStepResult = await testResult.getTestStep(fromTestStepId);
+      if (getTestStepResult.isFailure()) {
+        return getTestStepResult;
+      }
+      const testStep = getTestStepResult.data;
 
-      if (recordActionResult.isFailure() || !destTestStepId) {
-        return recordActionResult;
+      const noteId = testStep.intention ?? "";
+
+      const editTestPurposeResult = await testResult.editTestPurpose(noteId, {
+        value: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails ?? "",
+      });
+      if (editTestPurposeResult.isFailure()) {
+        return editTestPurposeResult;
       }
 
-      const moveAction = new MoveTestPurposeAction(repositoryContainer);
-      return moveAction.move(testResultId, fromTestStepId, destTestStepId);
+      if (!destTestStepId) {
+        return new ServiceSuccess({
+          note: editTestPurposeResult.data,
+          testStep,
+        });
+      }
+
+      const removeTestPurposeResult =
+        await testResult.removeTestPurposeFromTestStep(
+          editTestPurposeResult.data.id,
+          fromTestStepId
+        );
+      if (removeTestPurposeResult.isFailure()) {
+        return removeTestPurposeResult;
+      }
+      return testResult.addTestPurposeToTestStep(
+        editTestPurposeResult.data,
+        destTestStepId
+      );
     })();
 
     if (result.isFailure()) {
-      const { messageKey, variables } = result.error;
-      throw new Error(context.rootGetters.message(messageKey, variables));
+      const messageKey = `error.operation_history.${result.error.errorCode}`;
+      throw new Error(context.rootGetters.message(messageKey));
     }
 
-    // set to store
     if (payload.noteEditInfo.oldSequence !== undefined) {
       context.commit("deleteTestPurpose", {
         sequence: payload.noteEditInfo.oldSequence,
@@ -283,10 +160,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       ? payload.noteEditInfo.oldSequence
       : payload.noteEditInfo.newSequence;
     context.commit("setTestPurpose", {
-      intention: Note.createFromOtherNote({
-        other: result.data,
-        overrideParams: { sequence },
-      }),
+      intention: convertNote(result.data.note, sequence),
     });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
@@ -297,464 +171,159 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.sequence Sequence number of the test purpose.
    */
   async deleteTestPurpose(context, payload: { sequence: number }) {
-    const testStepId = context.state.testStepIds[payload.sequence - 1];
-
-    const result = await new DeleteTestPurposeAction(
-      context.rootState.repositoryContainer
-    ).delete(context.state.testResultInfo.id, testStepId);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        context.state.testResultInfo.id
       );
-    }
-
-    if (result.data) {
-      context.commit("deleteTestPurpose", { sequence: payload.sequence });
-      context.commit("setCanUpdateModels", { canUpdateModels: true });
-    }
-  },
-
-  /**
-   * Record a bug.
-   * @param context Action context.
-   * @param payload.noteEditInfo Bug information.
-   */
-  async saveBug(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const {
-      oldSequence,
-      oldIndex,
-      newSequence,
-      note,
-      noteDetails,
-      shouldTakeScreenshot,
-    } = payload.noteEditInfo;
-
-    await context.dispatch("recordBug", {
-      summary: note,
-      details: noteDetails,
-      sequence:
-        oldSequence !== null
-          ? oldSequence
-          : (() => {
-              const lastIndex = context.state.history.length - 1;
-              return context.state.history[lastIndex]?.operation.sequence ?? 1;
-            })(),
-      index: oldIndex !== null ? oldIndex : undefined,
-      shouldTakeScreenshot,
-    });
-
-    if (oldSequence !== null && oldIndex !== null && newSequence !== null) {
-      await context.dispatch("moveBug", {
-        from: {
-          sequence: oldSequence,
-          index: oldIndex,
-        },
-        dest: {
-          sequence: newSequence,
-        },
-      });
-    }
-  },
-
-  /**
-   * Save a bug in the repository.
-   * @param context Action context.
-   * @param payload.summary Summary of the bug.
-   * @param payload.details Details of the bug.
-   * @param payload.sequence Sequence number of the bug.
-   * @param payload.index Index for bugs related to the same operation.
-   * @param payload.shouldTakeScreenshot Whether to take a screenshot or not.
-   */
-  async recordBug(
-    context,
-    payload: {
-      summary: string;
-      details: string;
-      sequence: number;
-      index?: number;
-      shouldTakeScreenshot: boolean;
-    }
-  ) {
-    // Take a screenshot.
-    const imageData: string | undefined = payload.shouldTakeScreenshot
-      ? await context.dispatch("captureControl/takeScreenshot", null, {
-          root: true,
-        })
-      : undefined;
-    const repositoryContainer = context.rootState.repositoryContainer;
-
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const recordedNoteResult = await (async () => {
-      // update
-      if (payload.index !== undefined) {
-        return new EditBugAction(repositoryContainer).editBug(
-          context.state.testResultInfo.id,
-          testStepId,
-          payload.index,
-          {
-            summary: payload.summary,
-            details: payload.details,
-          }
-        );
+    const result = await (async () => {
+      const getTestStepResult = await testResult.getTestStep(testStepId);
+      if (getTestStepResult.isFailure()) {
+        return getTestStepResult;
       }
 
-      // add
-      return new AddBugAction(repositoryContainer).addBug(
-        context.state.testResultInfo.id,
-        testStepId,
-        {
-          summary: payload.summary,
-          details: payload.details,
-          imageData,
-        }
-      );
+      const { intention: noteId } = getTestStepResult.data;
+
+      return testResult.removeTestPurposeFromTestStep(noteId ?? "", testStepId);
     })();
 
-    if (recordedNoteResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          recordedNoteResult.error.messageKey,
-          recordedNoteResult.error.variables
-        )
-      );
-    }
-
-    const recordedNote = recordedNoteResult.data;
-
-    context.commit("setBug", {
-      bug: Note.createFromOtherNote({
-        other: recordedNote.bug,
-        overrideParams: {
-          sequence: payload.sequence,
-        },
-      }),
-      index: recordedNote.index,
-    });
-    context.commit("setCanUpdateModels", { canUpdateModels: true });
-
-    if (context.state.config.imageCompression.isEnabled) {
-      setTimeout(async () => {
-        const result = await new CompressNoteImageAction(
-          repositoryContainer
-        ).compressNoteImage(
-          context.state.testResultInfo.id,
-          recordedNote.bug.id as string
-        );
-
-        if (result.isFailure()) {
-          throw new Error(
-            context.rootGetters.message(
-              result.error.messageKey,
-              result.error.variables
-            )
-          );
-        }
-
-        context.commit("replaceNoteImageFileUrl", {
-          type: "bug",
-          sequence: payload.sequence,
-          index: recordedNote.index,
-          imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
-        });
-      }, 1);
-    }
-  },
-
-  /**
-   * Move a bug.
-   * @param context Action context.
-   * @param payload.from.sequence Sequence number of the source bug.
-   * @param payload.from.index Index for source bugs related to the same operation.
-   * @param payload.dest.sequence Sequence number of the destination bug.
-   */
-  async moveBug(
-    context,
-    payload: {
-      from: {
-        sequence: number;
-        index: number;
-      };
-      dest: {
-        sequence: number;
-      };
-    }
-  ) {
-    const result = await new MoveBugAction(
-      context.rootState.repositoryContainer
-    ).moveBug(
-      context.state.testResultInfo.id,
-      {
-        testStepId: context.state.testStepIds[payload.from.sequence - 1],
-        index: payload.from.index,
-      },
-      {
-        testStepId: context.state.testStepIds[payload.dest.sequence - 1],
-      }
-    );
-
     if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
+          "error.operation_history.delete_test_purpose_failed"
         )
       );
     }
 
-    const movedNote = result.data;
-
-    context.commit("deleteBug", payload.from);
-    context.commit("setBug", {
-      bug: Note.createFromOtherNote({
-        other: movedNote.bug,
-        overrideParams: { sequence: payload.dest.sequence },
-      }),
-      index: movedNote.index,
-    });
+    context.commit("deleteTestPurpose", { sequence: payload.sequence });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
-  /**
-   * Delete a bug.
-   * @param context Action context.
-   * @param payload.sequence Sequence number of the bug.
-   * @param payload.index Index for bugs related to the same operation.
-   */
-  async deleteBug(context, payload: { sequence: number; index: number }) {
-    const testStepId = context.state.testStepIds[payload.sequence - 1];
+  async addNote(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const sequence =
+      payload.noteEditInfo.oldSequence != null
+        ? payload.noteEditInfo.oldSequence
+        : (() => {
+            const lastIndex = context.state.history.length - 1;
+            return context.state.history[lastIndex]?.operation.sequence ?? 1;
+          })();
+    const testStepId = context.state.testStepIds[sequence - 1];
 
-    const result = await new DeleteBugAction(
-      context.rootState.repositoryContainer
-    ).deleteBug(context.state.testResultInfo.id, testStepId, payload.index);
+    const result = await (() => {
+      const note = {
+        value: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails,
+        tags: payload.noteEditInfo.tags,
+      };
+      const option = {
+        screenshot: payload.noteEditInfo.shouldTakeScreenshot,
+        compressScreenshot:
+          payload.noteEditInfo.shouldTakeScreenshot &&
+          context.rootState.projectSettings.config.imageCompression.isEnabled,
+      };
 
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    const { index } = result.data;
-
-    context.commit("deleteBug", { sequence: payload.sequence, index });
-    context.commit("setCanUpdateModels", { canUpdateModels: true });
-  },
-
-  /**
-   * Record a notice.
-   * @param context Action context.
-   * @param payload.noteEditInfo Notice information.
-   */
-  async saveNotice(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const {
-      oldSequence,
-      oldIndex,
-      newSequence,
-      note,
-      noteDetails,
-      shouldTakeScreenshot,
-      tags,
-    } = payload.noteEditInfo;
-
-    await context.dispatch("recordNotice", {
-      summary: note,
-      details: noteDetails,
-      tags: tags,
-      sequence:
-        oldSequence !== null
-          ? oldSequence
-          : (() => {
-              const lastIndex = context.state.history.length - 1;
-              return context.state.history[lastIndex]?.operation.sequence ?? 1;
-            })(),
-      index: oldIndex !== null ? oldIndex : undefined,
-      shouldTakeScreenshot,
-    });
-
-    if (
-      oldSequence !== null &&
-      oldIndex !== null &&
-      newSequence !== null &&
-      oldSequence !== newSequence
-    ) {
-      await context.dispatch("moveNotice", {
-        from: {
-          sequence: oldSequence,
-          index: oldIndex,
-        },
-        dest: {
-          sequence: newSequence,
-        },
-      });
-    }
-  },
-
-  /**
-   * Save a notice in the repository.
-   * @param context Action context.
-   * @param payload.summary Summary of the notice.
-   * @param payload.details Details of the notice.
-   * @param payload.sequence Sequence number of the notice.
-   * @param payload.index Index for notices related to the same operation.
-   * @param payload.shouldTakeScreenshot Whether to take a screenshot or not.
-   */
-  async recordNotice(
-    context,
-    payload: {
-      summary: string;
-      details: string;
-      tags: string[];
-      sequence: number;
-      index?: number;
-      shouldTakeScreenshot: boolean;
-    }
-  ) {
-    // Take a screenshot.
-    const imageData: string | undefined = payload.shouldTakeScreenshot
-      ? await context.dispatch("captureControl/takeScreenshot", null, {
-          root: true,
-        })
-      : undefined;
-    const repositoryContainer = context.rootState.repositoryContainer;
-
-    const testStepId = context.state.testStepIds[payload.sequence - 1];
-
-    const recordedNoteResult = await (async () => {
-      // update
-      if (payload.index !== undefined) {
-        return new EditNoticeAction(repositoryContainer).editNotice(
-          context.state.testResultInfo.id,
-          testStepId,
-          payload.index,
-          {
-            summary: payload.summary,
-            details: payload.details,
-            tags: payload.tags,
-          }
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
         );
-      }
 
-      // add
-      return new AddNoticeAction(repositoryContainer).addNotice(
-        context.state.testResultInfo.id,
-        testStepId,
-        {
-          summary: payload.summary,
-          details: payload.details,
-          tags: payload.tags,
-          imageData,
-        }
-      );
+      return testResult.addNoteToTestStep(note, testStepId, option);
     })();
 
-    if (recordedNoteResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          recordedNoteResult.error.messageKey,
-          recordedNoteResult.error.variables
-        )
-      );
-    }
-
-    const recordedNote = recordedNoteResult.data;
-
-    context.commit("setNotice", {
-      notice: Note.createFromOtherNote({
-        other: recordedNote.notice,
-        overrideParams: { sequence: payload.sequence },
-      }),
-      index: recordedNote.index,
-    });
-    context.commit("setCanUpdateModels", { canUpdateModels: true });
-
-    if (
-      payload.shouldTakeScreenshot &&
-      context.state.config.imageCompression.isEnabled
-    ) {
-      setTimeout(async () => {
-        const result = await new CompressNoteImageAction(
-          repositoryContainer
-        ).compressNoteImage(
-          context.state.testResultInfo.id,
-          recordedNote.notice.id as string
-        );
-
-        if (result.isFailure()) {
-          throw new Error(
-            context.rootGetters.message(
-              result.error.messageKey,
-              result.error.variables
-            )
-          );
-        }
-
-        context.commit("replaceNoteImageFileUrl", {
-          type: "notice",
-          sequence: payload.sequence,
-          index: recordedNote.index,
-          imageFileUrl: `${repositoryContainer.serviceUrl}/${result.data.imageFileUrl}`,
-        });
-      }, 1);
-    }
-  },
-
-  /**
-   * Move a notice.
-   * @param context Action context.
-   * @param payload.from.sequence Sequence number of the source notice.
-   * @param payload.from.index Index for source notices related to the same operation.
-   * @param payload.dest.sequence Sequence number of the destination notice.
-   */
-  async moveNotice(
-    context,
-    payload: {
-      from: {
-        sequence: number;
-        index: number;
-      };
-      dest: {
-        sequence: number;
-      };
-    }
-  ) {
-    const result = await new MoveNoticeAction(
-      context.rootState.repositoryContainer
-    ).moveNotice(
-      context.state.testResultInfo.id,
-      {
-        testStepId: context.state.testStepIds[payload.from.sequence - 1],
-        index: payload.from.index,
-      },
-      {
-        testStepId: context.state.testStepIds[payload.dest.sequence - 1],
-      }
-    );
-
     if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
+          `error.operation_history.${result.error.errorCode}`
         )
       );
     }
 
-    const movedNote = result.data;
-
-    context.commit("deleteNotice", payload.from);
     context.commit("setNotice", {
-      notice: Note.createFromOtherNote({
-        other: movedNote.notice,
-        overrideParams: { sequence: payload.dest.sequence },
-      }),
-      index: movedNote.index,
+      notice: convertNote(result.data.note, sequence),
+      index: result.data.testStep.notices.length - 1,
+    });
+    context.commit("setCanUpdateModels", { canUpdateModels: true });
+  },
+
+  async editNote(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const lastOperationSequence = (() => {
+      const lastIndex = context.state.history.length - 1;
+      return context.state.history[lastIndex]?.operation.sequence ?? 1;
+    })();
+    const fromTestStepId = payload.noteEditInfo.oldSequence
+      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
+      : context.state.testStepIds[lastOperationSequence - 1];
+    if (!fromTestStepId) {
+      return;
+    }
+    const destTestStepId = payload.noteEditInfo.newSequence
+      ? context.state.testStepIds[payload.noteEditInfo.newSequence - 1]
+      : "";
+
+    const result = await (async () => {
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
+        );
+
+      const getTestStepResult = await testResult.getTestStep(fromTestStepId);
+      if (getTestStepResult.isFailure()) {
+        return getTestStepResult;
+      }
+      const testStep = getTestStepResult.data;
+
+      const noteId =
+        payload.noteEditInfo.oldIndex != null
+          ? testStep.notices[payload.noteEditInfo.oldIndex]
+          : "";
+
+      const editNoteResult = await testResult.editNote(noteId, {
+        value: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails ?? "",
+        tags: payload.noteEditInfo.tags,
+      });
+      if (editNoteResult.isFailure()) {
+        return editNoteResult;
+      }
+
+      if (!destTestStepId) {
+        return new ServiceSuccess({
+          note: editNoteResult.data,
+          testStep,
+        });
+      }
+
+      const removeNoteResult = await testResult.removeNoteFromTestStep(
+        editNoteResult.data.id,
+        fromTestStepId
+      );
+      if (removeNoteResult.isFailure()) {
+        return removeNoteResult;
+      }
+      return testResult.addNoteToTestStep(editNoteResult.data, destTestStepId);
+    })();
+
+    if (result.isFailure()) {
+      const messageKey = `error.operation_history.${result.error.errorCode}`;
+      throw new Error(context.rootGetters.message(messageKey));
+    }
+
+    if (payload.noteEditInfo.oldSequence !== undefined) {
+      context.commit("deleteNotice", {
+        sequence: payload.noteEditInfo.oldSequence,
+        index: payload.noteEditInfo.oldIndex,
+      });
+    }
+    const sequence = !destTestStepId
+      ? payload.noteEditInfo.oldSequence
+      : payload.noteEditInfo.newSequence;
+    const index = !destTestStepId
+      ? payload.noteEditInfo.oldIndex
+      : result.data.testStep.notices.length - 1;
+    context.commit("setNotice", {
+      notice: convertNote(result.data.note, sequence),
+      index,
     });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
@@ -766,24 +335,38 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.index Index for notices related to the same operation.
    */
   async deleteNotice(context, payload: { sequence: number; index: number }) {
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        context.state.testResultInfo.id
+      );
+
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const result = await new DeleteNoticeAction(
-      context.rootState.repositoryContainer
-    ).deleteNotice(context.state.testResultInfo.id, testStepId, payload.index);
+    const result = await (async () => {
+      const getTestStepResult = await testResult.getTestStep(testStepId);
+      if (getTestStepResult.isFailure()) {
+        const messageKey = `error.operation_history.${getTestStepResult.error.errorCode}`;
+        throw new Error(context.rootGetters.message(messageKey));
+      }
+
+      const { notices } = getTestStepResult.data;
+      const noteId = notices[payload.index];
+
+      return testResult.removeNoteFromTestStep(noteId, testStepId);
+    })();
 
     if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
+          "error.operation_history.delete_note_failed"
         )
       );
     }
 
-    const { index } = result.data;
-
-    context.commit("deleteNotice", { sequence: payload.sequence, index });
+    context.commit("deleteNotice", {
+      sequence: payload.sequence,
+      index: payload.index,
+    });
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
@@ -791,7 +374,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const testResultId = context.state.testResultInfo.id;
 
     const result = await new DeleteTestResultAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).deleteTestResult(testResultId);
 
     if (result.isFailure()) {
@@ -817,7 +400,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     );
 
     const result = await new LoadHistoryAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).loadHistory(payload.testResultId);
 
     if (result.isFailure()) {
@@ -846,25 +429,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { root: true }
     );
     context.commit("setTestResultInfo", {
-      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      repositoryUrl: context.rootState.repositoryService.serviceUrl,
       ...result.data.testResultInfo,
     });
-
-    await context.dispatch(
-      "captureControl/resumeWindowHandles",
-      { history: context.state.history },
+    context.commit(
+      "operationHistory/setWindows",
+      {
+        windowHandles: extractWindowHandles(context.state.history),
+      },
       { root: true }
     );
-
     await context.dispatch("updateScreenHistory");
-
     const history = context.getters.getHistory();
-
     const testingTime = calculateElapsedEpochMillis(
       result.data.startTimeStamp,
       history
     );
-
     context.dispatch(
       "captureControl/resetTimer",
       { millis: testingTime },
@@ -893,7 +473,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new ImportTestResultAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).import(payload.source, payload.dest);
 
     if (result.isFailure()) {
@@ -924,29 +504,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new ExportTestResultAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    return result.data;
-  },
-
-  /**
-   * Configuration file output.
-   * @param context Action context.
-   */
-  async exportConfig(context) {
-    const result = await new ExportConfigAction(
-      context.rootState.repositoryContainer
-    ).exportSettings();
 
     if (result.isFailure()) {
       throw new Error(
@@ -967,10 +526,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   resetHistory(context) {
     context.commit("clearHistory");
     context.commit("clearCheckedOperations");
-    context.commit("captureControl/clearWindowHandles", null, { root: true });
-    context.commit("clearUnassignedTestPurposes");
+    context.commit("clearWindows");
     context.commit("clearAllCoverageSources");
-    context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     context.commit("clearModels");
     context.commit("selectWindow", { windowHandle: "" });
     context.commit("clearInputValueTable");
@@ -980,165 +537,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       name: "",
     });
     context.commit("clearTestStepIds");
-  },
-
-  async saveUnassignedTestPurpose(context, payload: { destSequence: number }) {
-    const unassignedTestPurposeIndex =
-      context.state.unassignedTestPurposes.findIndex((item) => {
-        return item.sequence === payload.destSequence;
-      });
-
-    if (unassignedTestPurposeIndex !== -1) {
-      const unassignedTestPurpose =
-        context.state.unassignedTestPurposes[unassignedTestPurposeIndex];
-
-      await context.dispatch("addTestPurpose", {
-        noteEditInfo: {
-          note: unassignedTestPurpose.note,
-          noteDetails: unassignedTestPurpose.noteDetails,
-          shouldTakeScreenshot: false,
-          oldSequence: unassignedTestPurpose.sequence,
-          tags: [],
-        },
-      });
-
-      context.commit("removeUnassignedTestPurpose", {
-        index: unassignedTestPurposeIndex,
-      });
-    }
-  },
-
-  /**
-   * Save a operation in the repository.
-   * @param context Action context.
-   * @param payload.operation Operation.
-   */
-  async registerOperation(context, payload: { operation: CapturedOperation }) {
-    const repositoryContainer = context.rootState.repositoryContainer;
-    const capturedOperation = payload.operation;
-    if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
-      capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
-    }
-    capturedOperation.isAutomatic = (
-      context.rootState as any
-    ).captureControl.isAutoOperation;
-
-    const result = await new RegisterOperationAction(
-      repositoryContainer
-    ).registerOperation(context.state.testResultInfo.id, capturedOperation);
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    const { id, operation, coverageSource } = result.data;
-
-    const openAutofillSelectDialogCallBack = () => {
-      if (
-        operation.isScreenTransition() &&
-        context.state.config.autofillSetting &&
-        context.state.config.autofillSetting.autoPopupSelectionDialog &&
-        context.state.config.autofillSetting.conditionGroups.length > 0
-      ) {
-        const matchGroup =
-          new AutofillTestAction().extractMatchingAutofillConditionGroup(
-            context.state.config.autofillSetting.conditionGroups,
-            operation.title,
-            operation.url
-          );
-        if (matchGroup.isFailure()) {
-          throw new Error();
-        }
-        context.commit("setAutofillSelectDialog", {
-          dialogData: {
-            autofillConditionGroups: matchGroup.data,
-            message: context.rootGetters.message(
-              "autofill-select-dialog.message"
-            ),
-          },
-        });
-      } else {
-        context.commit("setAutofillSelectDialog", {
-          autofillConditionGroups: null,
-        });
-      }
-    };
-
-    const beforeOperation =
-      context.state.history[context.state.history.length - 1]?.operation;
-    if (
-      operation.isScreenTransition() &&
-      context.state.config.autofillSetting.autoPopupRegistrationDialog &&
-      beforeOperation &&
-      (beforeOperation?.inputElements ?? []).length > 0
-    ) {
-      context.commit("setAutofillRegisterDialog", {
-        title: beforeOperation.title,
-        url: beforeOperation.url,
-        message: context.rootGetters.message(
-          "autofill-register-dialog.message"
-        ),
-        inputElements: beforeOperation.inputElements?.map((element) => {
-          return {
-            ...element,
-            xpath: element.xpath.toLowerCase(),
-          };
-        }),
-        callback: openAutofillSelectDialogCallBack,
-      });
-    } else {
-      context.commit("setAutofillRegisterDialog", null);
-      openAutofillSelectDialogCallBack();
-    }
-
-    context.commit("addTestStepId", { testStepId: id });
-    const sequence = context.state.testStepIds.indexOf(id) + 1;
-
-    operation.sequence = sequence;
-
-    context.commit("addHistory", {
-      entry: { operation, intention: null, bugs: null, notices: null },
-    });
-
-    await context.dispatch("saveUnassignedTestPurpose", {
-      destSequence: operation.sequence,
-    });
-
-    context.commit("registerCoverageSource", { coverageSource });
-    context.commit("setCanUpdateModels", { canUpdateModels: true });
-
-    if (
-      context.state.config.imageCompression.isEnabled &&
-      operation.imageFilePath
-    ) {
-      setTimeout(async () => {
-        const testStepId = context.state.testStepIds[operation.sequence - 1];
-        const result2 = await new CompressTestStepImageAction(
-          repositoryContainer
-        ).compressTestStepImage(context.state.testResultInfo.id, testStepId);
-
-        if (result2.isFailure()) {
-          throw new Error(
-            context.rootGetters.message(
-              result2.error.messageKey,
-              result2.error.variables
-            )
-          );
-        }
-
-        if (result2.data) {
-          context.commit("replaceTestStepsImageFileUrl", {
-            sequence: operation.sequence,
-            imageFileUrl: `${repositoryContainer.serviceUrl}/${result2.data.imageFileUrl}`,
-          });
-        }
-      }, 1);
-    }
   },
 
   /**
@@ -1152,13 +550,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: {
       screenHistory: ScreenHistory;
-      windowHandles: WindowHandle[];
+      windows: WindowInfo[];
       callback: SequenceDiagramGraphCallback;
     }
   ) {
     const graph = await SequenceDiagramGraphConverter.convert(
       payload.screenHistory,
-      payload.windowHandles,
+      payload.windows,
       payload.callback
     );
 
@@ -1261,21 +659,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       context.commit("clearModels");
 
-      const windowHandles = context.state.history
-        .map((operationWithNotes) => {
-          return operationWithNotes.operation.windowHandle;
-        })
-        .filter((windowHandle, index, array) => {
-          return array.indexOf(windowHandle) === index;
-        })
-        .map((windowHandle, index) => {
-          return {
-            text: `window${index + 1}`,
-            value: windowHandle,
-            available: false,
-          };
-        });
-
       const selectScreenTransition = (
         screenTransition: ScreenTransition | null
       ) => {
@@ -1321,7 +704,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("buildSequenceDiagramGraph", {
         screenHistory: context.state.screenHistory,
-        windowHandles,
+        windows: context.state.windows,
         callback: {
           onClickActivationBox: (history: OperationWithNotes[]) => {
             const firstItem = history[0] as OperationWithNotes | undefined;
@@ -1360,7 +743,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("buildScreenTransitionDiagramGraph", {
         screenHistory: context.state.screenHistory,
-        windowHandles: windowHandles.map((windowHandle) => windowHandle.value),
+        windowHandles: context.state.windows.map(({ value }) => value),
         callback: {
           onClickEdge: (edge: Edge) => {
             if (!edge.operationHistory[0]) {
@@ -1392,10 +775,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("buildElementCoverages", {
         screenHistory: context.state.screenHistory,
-        inclusionTags: context.state.config.coverage?.include?.tags ?? [],
+        inclusionTags:
+          context.rootState.projectSettings.config.coverage?.include?.tags ??
+          [],
       });
-
-      await context.dispatch("updateDisplayExclusionList");
     } finally {
       context.commit("setScreenHistoryIsUpdating", {
         screenHistoryIsUpdating: false,
@@ -1422,9 +805,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const result = await new GenerateTestScriptsAction(
-      context.rootState.repositoryContainer,
+      context.rootState.repositoryService,
       payload.option
-    ).generateFromTestResult(context.state.testResultInfo.id);
+    ).generateFromTestResult(
+      context.state.testResultInfo.id,
+      context.rootState.projectSettings.config.screenDefinition
+    );
 
     if (result.isFailure()) {
       throw new Error(
@@ -1439,22 +825,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
-   * Update selectable tags as exclusion elements for screen element coverage from current coverage sources.
-   * @param context Action context.
-   */
-  async updateDisplayExclusionList(context) {
-    const tagSet = new Set(
-      context.state.coverageSources.flatMap(({ screenElements }) => {
-        return screenElements.map(({ tagname }) => tagname.toUpperCase());
-      })
-    );
-
-    context.commit("setDisplayInclusionList", {
-      displayInclusionList: Array.from(tagSet.values()),
-    });
-  },
-
-  /**
    * Create an empty test result in the repository.
    * @param context Action context.
    * @param payload.initialUrl Initial URL.
@@ -1466,15 +836,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
-    const result = await new CreateTestResultAction(
-      context.rootState.repositoryContainer
-    ).createTestResult(initialUrl, name);
+    const result =
+      await context.rootState.repositoryService.createEmptyTestResult({
+        initialUrl,
+        name,
+      });
 
     if (result.isFailure()) {
       throw new Error(
         context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
+          "error.operation_history.create_test_result_failed"
         )
       );
     }
@@ -1482,7 +853,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const testResultInfo = result.data;
 
     context.commit("setTestResultInfo", {
-      repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
+      repositoryUrl: context.rootState.repositoryService.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
     });
@@ -1495,7 +866,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async getTestResults(context) {
     const result = await new GetTestResultListAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).getTestResults();
 
     if (result.isFailure()) {
@@ -1524,7 +895,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const url = payload.initialUrl ?? undefined;
 
     const result = await new ChangeTestResultAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).changeTestResult(
       context.state.testResultInfo.id,
       name,
@@ -1547,7 +918,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   async getScreenshots(context, payload: { testResultId: string }) {
     const result =
-      await context.rootState.repositoryContainer.screenshotRepository.getScreenshots(
+      await context.rootState.repositoryService.screenshotRepository.getScreenshots(
         payload.testResultId
       );
 
@@ -1562,7 +933,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { conditionGroup: Partial<AutofillConditionGroup>; index: number }
   ) {
-    const autofillSetting = { ...context.state.config.autofillSetting };
+    const autofillSetting = {
+      ...context.rootState.projectSettings.config.autofillSetting,
+    };
     autofillSetting.conditionGroups =
       payload.index < 0
         ? [
@@ -1576,18 +949,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               ...payload.conditionGroup,
             },
           ]
-        : context.state.config.autofillSetting.conditionGroups.map(
+        : context.rootState.projectSettings.config.autofillSetting.conditionGroups.map(
             (group, index) => {
               return index !== payload.index
                 ? group
                 : { ...group, ...payload.conditionGroup };
             }
           );
-    await context.dispatch("writeSettings", {
-      config: {
-        autofillSetting,
+    await context.dispatch(
+      "writeConfig",
+      {
+        config: {
+          autofillSetting,
+        },
       },
-    });
+      { root: true }
+    );
   },
 
   async registerAutoOperation(
@@ -1605,31 +982,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       autoOperations: payload.operations,
     };
     const autoOperationSetting = {
-      ...context.state.config.autoOperationSetting,
+      ...context.rootState.projectSettings.config.autoOperationSetting,
     };
     autoOperationSetting.conditionGroups.push(conditionGroup);
 
-    await context.dispatch("writeSettings", {
-      config: {
-        autoOperationSetting,
+    await context.dispatch(
+      "writeConfig",
+      {
+        config: {
+          autoOperationSetting,
+        },
       },
-    });
-  },
-
-  async fetchConfig(context) {
-    const result = await new ReadSettingAction(
-      context.rootState.repositoryContainer
-    ).readSettings();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-    return result.data;
+      { root: true }
+    );
   },
 };
 

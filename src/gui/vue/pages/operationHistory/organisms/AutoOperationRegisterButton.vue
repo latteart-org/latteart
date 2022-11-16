@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import AutoOperationRegisterDialog from "@/vue/pages/common/AutoOperationRegisterDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
@@ -58,11 +58,11 @@ export default class AutoOperationRegisterButton extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private get targetOperations(): Operation[] {
+  private get targetOperations(): OperationForGUI[] {
     return (
       this.$store.state.operationHistory.checkedOperations as {
         index: number;
-        operation: Operation;
+        operation: OperationForGUI;
       }[]
     ).map((item) => {
       return item.operation;

@@ -49,8 +49,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Note } from "@/lib/operationHistory/Note";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 @Component
 export default class OperationContextMenu extends Vue {
@@ -64,10 +64,10 @@ export default class OperationContextMenu extends Vue {
   };
 
   private currentHistoryItem: {
-    operation: Operation;
-    bugs: Note[] | null;
-    notices: Note[] | null;
-    intention: Note | null;
+    operation: OperationForGUI;
+    bugs: NoteForGUI[] | null;
+    notices: NoteForGUI[] | null;
+    intention: NoteForGUI | null;
   } | null = null;
   private intentionItems: Array<{ label: string; onClick: () => void }> = [];
   private noticeItems: Array<{ label: string; onClick: () => void }> = [];
@@ -128,37 +128,39 @@ export default class OperationContextMenu extends Vue {
       },
     });
 
-    (this.currentHistoryItem?.bugs ?? []).forEach((bug: Note, i: number) => {
-      const value = bug.value;
-      this.noticeItems.push({
-        label: this.$store.getters.message("history-view.edit-bug", {
-          value,
-        }),
-        onClick: () => {
-          this.$store.state.operationHistory.openNoteEditDialog(
-            "bug",
-            this.operationInfo.sequence,
-            i
-          );
-        },
-      });
-      this.noticeItems.push({
-        label: this.$store.getters.message("history-view.delete-notice", {
-          value,
-        }),
-        onClick: () => {
-          this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
-            "bug",
-            bug.value,
-            this.operationInfo.sequence,
-            i
-          );
-        },
-      });
-    });
+    (this.currentHistoryItem?.bugs ?? []).forEach(
+      (bug: NoteForGUI, i: number) => {
+        const value = bug.value;
+        this.noticeItems.push({
+          label: this.$store.getters.message("history-view.edit-bug", {
+            value,
+          }),
+          onClick: () => {
+            this.$store.state.operationHistory.openNoteEditDialog(
+              "bug",
+              this.operationInfo.sequence,
+              i
+            );
+          },
+        });
+        this.noticeItems.push({
+          label: this.$store.getters.message("history-view.delete-notice", {
+            value,
+          }),
+          onClick: () => {
+            this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
+              "bug",
+              bug.value,
+              this.operationInfo.sequence,
+              i
+            );
+          },
+        });
+      }
+    );
 
     (this.currentHistoryItem?.notices ?? []).forEach(
-      (notice: Note, i: number) => {
+      (notice: NoteForGUI, i: number) => {
         const value = notice.value;
         this.noticeItems.push({
           label: this.$store.getters.message("history-view.edit-notice", {

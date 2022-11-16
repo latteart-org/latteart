@@ -19,24 +19,21 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 const DELETE_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.delete_test_result_failed";
 
 export class DeleteTestResultAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
   public async deleteTestResult(
     testResultId: string
   ): Promise<ActionResult<string>> {
     const deleteTestResultResult =
-      await this.repositoryContainer.testResultRepository.deleteTestResult(
+      await this.repositoryService.testResultRepository.deleteTestResult(
         testResultId
       );
 

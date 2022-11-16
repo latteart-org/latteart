@@ -24,7 +24,7 @@
     <screen-transition-diagram
       v-if="diagramType === DIAGRAM_TYPE_SCREEN_TRANSITION"
       :screenHistory="screenHistory"
-      :windowHandles="windowHandles"
+      :windows="windows"
       :message="message"
     ></screen-transition-diagram>
   </v-layout>
@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import { WindowHandle, MessageProvider } from "@/lib/operationHistory/types";
+import { WindowInfo, MessageProvider } from "@/lib/operationHistory/types";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ScreenTransitionDiagram from "@/vue/pages/operationHistory/organisms/ScreenTransitionDiagram.vue";
 import SequenceDiagram from "@/vue/pages/operationHistory/organisms/SequenceDiagram.vue";
@@ -48,7 +48,7 @@ export default class HistorySummaryDiagram extends Vue {
   @Prop({ type: Object, default: {} })
   public readonly screenHistory!: ScreenHistory;
   @Prop({ type: Array, default: () => [] })
-  public readonly windowHandles!: WindowHandle[];
+  public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";

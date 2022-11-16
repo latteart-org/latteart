@@ -219,7 +219,6 @@ export default class ManageView extends Vue {
     method: string;
     isEnabled: boolean;
   }> = [];
-  private remoteUrl = "";
 
   private get hasAnyTestMatrix(): boolean {
     return this.$store.state.testManagement.testMatrices.length > 0;
@@ -261,7 +260,7 @@ export default class ManageView extends Vue {
     this.informationMessageDialogOpened = true;
   }
 
-  private exportConfig() {
+  private exportProjectSettings() {
     (async () => {
       this.exportConfigProcessing = true;
 
@@ -270,7 +269,7 @@ export default class ManageView extends Vue {
           message: this.$store.getters.message("config-io.export-config"),
         });
         const result = await this.$store
-          .dispatch("operationHistory/exportConfig")
+          .dispatch("exportProjectSettings")
           .catch((error) => {
             console.error(error);
           });
@@ -341,7 +340,6 @@ export default class ManageView extends Vue {
   }
 
   private toViewerConfig() {
-    this.$store.commit("operationHistory/setDefaultDisplayExclusionList");
     this.$store.commit("openConfigViewer");
   }
 
@@ -510,11 +508,11 @@ export default class ManageView extends Vue {
     if (method === "export") {
       this.exportOptionDialogIsOpened = true;
     }
-    if (method === "importConfig") {
+    if (method === "importProjectSettings") {
       this.configImportDialogIsOpened = true;
     }
-    if (method === "exportConfig") {
-      this.exportConfig();
+    if (method === "exportProjectSettings") {
+      this.exportProjectSettings();
     }
   }
 
@@ -542,12 +540,12 @@ export default class ManageView extends Vue {
       },
       {
         title: this.$store.getters.message("config-io.import-config"),
-        method: "importConfig",
+        method: "importProjectSettings",
         isEnabled: true,
       },
       {
         title: this.$store.getters.message("config-io.export-config"),
-        method: "exportConfig",
+        method: "exportProjectSettings",
         isEnabled: true,
       },
     ];
@@ -555,7 +553,7 @@ export default class ManageView extends Vue {
   }
 
   private get currentRepositoryUrl() {
-    return this.$store.state.repositoryContainer.serviceUrl;
+    return this.$store.state.repositoryService.serviceUrl;
   }
 }
 </script>

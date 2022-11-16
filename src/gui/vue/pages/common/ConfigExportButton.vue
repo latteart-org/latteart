@@ -91,7 +91,7 @@ export default class ConfigExportButton extends Vue {
           message: this.$store.getters.message("config-io.export-config"),
         });
         const result = await this.$store
-          .dispatch("operationHistory/exportConfig")
+          .dispatch("exportProjectSettings")
           .catch((error) => {
             console.error(error);
           });
@@ -124,7 +124,7 @@ export default class ConfigExportButton extends Vue {
   }
 
   private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryContainer.serviceUrl;
+    return this.$store.state.repositoryService.serviceUrl;
   }
 }
 </script>

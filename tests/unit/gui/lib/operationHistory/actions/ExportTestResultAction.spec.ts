@@ -1,11 +1,9 @@
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
-import {
-  RESTClientResponse,
-  RESTClient,
-} from "@/lib/eventDispatcher/RESTClient";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
+import { RESTClientResponse, RESTClient } from "src/common/network/http/client";
+import { TestResultRepository } from "src/common/repository/testResult";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -45,7 +43,7 @@ describe("ExportTestResultAction", () => {
         );
 
         expect(restClient.httpPost).toBeCalledWith(
-          `/test-results/${testResultId}/export`,
+          `api/v1/test-results/${testResultId}/export`,
           { temp: shouldSaveTemporary }
         );
         if (result.isSuccess()) {
@@ -70,7 +68,7 @@ describe("ExportTestResultAction", () => {
         );
 
         expect(restClient.httpPost).toBeCalledWith(
-          `/test-results/${testResultId}/export`,
+          `api/v1/test-results/${testResultId}/export`,
           { temp: shouldSaveTemporary }
         );
         if (result.isSuccess()) {

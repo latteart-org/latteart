@@ -42,24 +42,24 @@
                     $store.getters.message("config-view.setting-inclusion-tags")
                   }}
                 </template>
-                <coverage-setting
+                <coverage-config
                   :opened="coverageOpened"
                   :include-tags="includeTags"
                   :default-tag-list="defaultTagList"
                   @save-config="saveConfig"
                 >
-                </coverage-setting>
+                </coverage-config>
               </v-expansion-panel-content>
               <v-expansion-panel-content>
                 <template v-slot:header class="py-0">
                   {{ $store.getters.message("config-view.setting-screen") }}
                 </template>
-                <screen-definition-setting
+                <screen-definition-config
                   :opened="screenDefinitionSettingOpened"
                   :screenDefinition="screenDefinition"
                   @save-config="saveConfig"
                 >
-                </screen-definition-setting>
+                </screen-definition-config>
               </v-expansion-panel-content>
 
               <v-expansion-panel-content>
@@ -96,26 +96,27 @@
 </template>
 
 <script lang="ts">
-import CoverageSetting from "./CoverageSetting.vue";
-import ScreenDefinitionSetting from "./ScreenDefinitionSetting.vue";
+import CoverageConfig from "./CoverageConfig.vue";
+import ScreenDefinitionConfig from "./ScreenDefinitionConfig.vue";
 import { Component, Vue } from "vue-property-decorator";
-import Settings, {
-  Coverage,
-  ImageCompression,
-  ScreenDefinition,
+import {
+  ProjectSettings,
+  CoverageSetting,
+  ImageCompressionSetting,
+  ScreenDefinitionSetting,
 } from "@/lib/common/settings/Settings";
 import {
   AutofillSetting,
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
-import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import { default as AutofillSettingComponent } from "./AutofillSetting.vue";
 import { default as AutoOperationSettingComponent } from "./AutoOperationSetting.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
-    "coverage-setting": CoverageSetting,
-    "screen-definition-setting": ScreenDefinitionSetting,
+    "coverage-config": CoverageConfig,
+    "screen-definition-config": ScreenDefinitionConfig,
     "autofill-setting": AutofillSettingComponent,
     "auto-operation-setting": AutoOperationSettingComponent,
   },
@@ -123,15 +124,15 @@ import { default as AutoOperationSettingComponent } from "./AutoOperationSetting
 export default class ConfigViewer extends Vue {
   private panel: null | number = null;
 
-  private get config(): Settings["config"] {
-    return this.$store.state.operationHistory.config;
+  private get config(): ProjectSettings["config"] {
+    return this.$store.state.projectSettings.config;
   }
 
   private get includeTags(): string[] {
     return this.config?.coverage.include.tags ?? [];
   }
   private get defaultTagList(): string[] {
-    return this.$store.state.operationHistory.defaultTagList;
+    return this.$store.state.projectSettings.defaultTagList;
   }
 
   private get dialog() {
@@ -161,23 +162,27 @@ export default class ConfigViewer extends Vue {
     return this.panel === 3;
   }
 
-  private get screenDefinition(): ScreenDefinition {
+  private get screenDefinition(): ScreenDefinitionSetting {
     return (
       this.config.screenDefinition ?? {
-        screenDefType: ScreenDefType.Title,
+        screenDefType: "title",
         conditionGroups: [],
       }
     );
   }
 
   private get autofillSetting(): AutofillSetting {
-    return (
-      this.config?.autofillSetting ?? {
+    const viewSettings = (this.$store.state as RootState).viewSettings;
+
+    if (!this.config?.autofillSetting || !viewSettings?.autofill) {
+      return {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false,
         conditionGroups: [],
-      }
-    );
+      };
+    }
+
+    return { ...this.config.autofillSetting, ...viewSettings.autofill };
   }
 
   private get autoOperationSetting(): AutoOperationSetting {
@@ -199,11 +204,34 @@ export default class ConfigViewer extends Vue {
   private async saveConfig(config: {
     autofillSetting?: AutofillSetting;
     autoOperationSetting?: AutoOperationSetting;
-    screenDefinition?: ScreenDefinition;
-    coverage?: Coverage;
-    imageCompression?: ImageCompression;
+    screenDefinition?: ScreenDefinitionSetting;
+    coverage?: CoverageSetting;
+    imageCompression?: ImageCompressionSetting;
   }) {
-    this.$store.dispatch("operationHistory/writeSettings", { config });
+    const projectConfig = {
+      ...config,
+      autofillSetting: config.autofillSetting
+        ? {
+            conditionGroups: config.autofillSetting.conditionGroups,
+          }
+        : undefined,
+    };
+    this.$store.dispatch("writeConfig", {
+      config: projectConfig,
+    });
+
+    if (config.autofillSetting) {
+      this.$store.dispatch("writeViewSettings", {
+        viewSettings: {
+          autofill: {
+            autoPopupRegistrationDialog:
+              config.autofillSetting.autoPopupRegistrationDialog,
+            autoPopupSelectionDialog:
+              config.autofillSetting.autoPopupSelectionDialog,
+          },
+        },
+      });
+    }
 
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {

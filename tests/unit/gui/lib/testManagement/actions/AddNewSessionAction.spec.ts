@@ -1,8 +1,9 @@
-import { SessionRepository } from "@/lib/eventDispatcher/repositoryService/SessionRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { SessionRepository } from "src/common/repository/session";
+import { RESTClient } from "src/common/network/http/client";
 import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -49,7 +50,7 @@ describe("AddNewSessionAction", () => {
       }
 
       expect(postSessionResponse.httpPost).toBeCalledWith(
-        "/projects/projectId/sessions/",
+        "api/v1/projects/projectId/sessions/",
         {
           storyId: "storyId",
         }

@@ -21,22 +21,25 @@
 </template>
 
 <script lang="ts">
-import { WindowHandle } from "@/lib/operationHistory/types";
+import { CaptureControlState } from "@/store/captureControl";
+import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class CurrentWindowInfo extends Vue {
   private get currentWindowName(): string {
-    const capturingWindowInfo: {
-      currentWindow: string;
-      availableWindows: WindowHandle[];
-    } = this.$store.state.captureControl.capturingWindowInfo;
+    const captureControlState = this.$store.state
+      .captureControl as CaptureControlState;
+    const operationHistoryState = this.$store.state
+      .operationHistory as OperationHistoryState;
 
-    const currentWindow = capturingWindowInfo.availableWindows.find(
-      (window) => {
-        return window.value === capturingWindowInfo.currentWindow;
-      }
-    );
+    const session = captureControlState.captureSession;
+
+    const currentWindow = operationHistoryState?.windows
+      .filter(({ available }) => available)
+      .find((window) => {
+        return session && window.value === session.currentWindowHandle;
+      });
 
     if (currentWindow === undefined) {
       return "No Window";

@@ -89,7 +89,7 @@ export default class ConfigImportDialog extends Vue {
 
     (async (targetFile) => {
       const configText = await loadFileAsText(targetFile);
-      await this.$store.dispatch("operationHistory/setSettings", {
+      await this.$store.dispatch("writeProjectSettings", {
         settings: JSON.parse(configText),
       });
       this.$emit("execute");

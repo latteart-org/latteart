@@ -94,6 +94,7 @@ import NumberField from "@/vue/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
 
 @Component({
   components: {
@@ -134,7 +135,9 @@ export default class NoticeEditDialog extends Vue {
       return;
     }
 
-    this.alertIsVisible = this.$store.state.captureControl.alertIsVisible;
+    this.alertIsVisible =
+      (this.$store.state.captureControl as CaptureControlState).captureSession
+        ?.isAlertVisible ?? false;
 
     const { sequence, index } =
       this.$store.state.operationHistory.selectedOperationNote;
@@ -185,9 +188,15 @@ export default class NoticeEditDialog extends Vue {
     } as NoteEditInfo;
     (async () => {
       try {
-        await this.$store.dispatch("operationHistory/saveNotice", {
-          noteEditInfo: args,
-        });
+        if (this.oldNote === "") {
+          await this.$store.dispatch("operationHistory/addNote", {
+            noteEditInfo: args,
+          });
+        } else {
+          await this.$store.dispatch("operationHistory/editNote", {
+            noteEditInfo: args,
+          });
+        }
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;

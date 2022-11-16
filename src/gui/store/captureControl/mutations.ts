@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-import Vue from "vue";
 import { MutationTree } from "vuex";
 import { CaptureControlState } from ".";
-import { WindowHandle } from "@/lib/operationHistory/types";
-import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
+import { AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { CaptureSession } from "src/common/service/capture/cl";
+import { ElementInfo } from "src/common/types";
 
 const mutations: MutationTree<CaptureControlState> = {
-  /**
-   * Empty current window handles in the State.
-   * @param state State.
-   */
-  clearWindowHandles(state) {
-    Vue.set(state, "windowHandles", []);
-  },
-
   /**
    * Set whether it is capturing or not to the State.
    * @param state State.
@@ -36,19 +28,6 @@ const mutations: MutationTree<CaptureControlState> = {
    */
   setCapturing(state, payload: { isCapturing: boolean }) {
     state.isCapturing = payload.isCapturing;
-  },
-
-  setCaptureConfig(state, payload: { captureConfig: CaptureConfig }) {
-    Vue.set(state, "config", payload.captureConfig);
-  },
-
-  /**
-   * Set window handles to the State.
-   * @param state State.
-   * @param payload.windowHandles Window handles.
-   */
-  setWindowHandles(state, payload: { windowHandles: WindowHandle[] }) {
-    state.windowHandles = payload.windowHandles;
   },
 
   /**
@@ -70,57 +49,12 @@ const mutations: MutationTree<CaptureControlState> = {
   },
 
   /**
-   * Set capture target window to the State.
-   * @param state State.
-   * @param payload.currentWindow Capture target window.
-   */
-  setCurrentWindow(state, payload: { currentWindow: string }) {
-    state.capturingWindowInfo.currentWindow = payload.currentWindow;
-  },
-
-  /**
-   * Set selectable windows to the State.
-   * @param state State.
-   * @param payload.availableWindows Selectable windows.
-   */
-  setAvailableWindows(state, payload: { availableWindows: WindowHandle[] }) {
-    state.capturingWindowInfo.availableWindows = payload.availableWindows;
-  },
-
-  /**
-   * Set whether it can go back to previous page or not on the test target browser.
-   * @param state State.
-   * @param payload.canDoBrowserBack Whether it can go back to previous page or not on the test target browser.
-   */
-  setCanDoBrowserBack(state, payload: { canDoBrowserBack: boolean }) {
-    state.canDoBrowserBack = payload.canDoBrowserBack;
-  },
-
-  /**
-   * Set whether it can go forward to next page or not on the test target browser.
-   * @param state State.
-   * @param payload.canDoBrowserForward Whether it can go forward to next page or not on the test target browser.
-   */
-  setCanDoBrowserForward(state, payload: { canDoBrowserForward: boolean }) {
-    state.canDoBrowserForward = payload.canDoBrowserForward;
-  },
-
-  /**
    * Set test target URL to the State.
    * @param state State.
    * @param payload.url Test target URL.
    */
   setUrl(state, payload: { url: string }) {
     state.url = payload.url;
-  },
-
-  /**
-   * Set alert visible status
-   * @param state  State.
-   * @param payload  Alert visible status.
-   */
-  setAlertVisible(state, payload: { isVisible: boolean }) {
-    state.alertIsVisible = payload.isVisible;
   },
 
   /**
@@ -167,13 +101,37 @@ const mutations: MutationTree<CaptureControlState> = {
     state.replayOption = payload.replayOption;
   },
 
-  /**
-   * Set isAutoOperation.
-   * @param state State.
-   * @param payload.isAutoOperation Whether it is auto operation or not.
-   */
-  setIsAutoOperation(state, payload: { isAutoOperation: boolean }) {
-    state.isAutoOperation = payload.isAutoOperation;
+  setCaptureSession(state, payload: { session: CaptureSession }) {
+    state.captureSession = payload.session;
+  },
+
+  deleteCaptureSession(state) {
+    state.captureSession = null;
+  },
+
+  setAutofillSelectDialog(
+    state,
+    payload: {
+      dialogData: {
+        autofillConditionGroups: AutofillConditionGroup[];
+        message: string;
+      } | null;
+    }
+  ) {
+    state.autofillSelectDialogData = payload.dialogData;
+  },
+
+  setAutofillRegisterDialog(
+    state,
+    payload: {
+      title: string;
+      url: string;
+      message: string;
+      inputElements: ElementInfo[];
+      callback: () => void;
+    } | null
+  ) {
+    state.autofillRegisterDialogData = payload;
   },
 };
 

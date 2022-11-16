@@ -62,7 +62,7 @@ export default class RunAutoOperationButton extends Vue {
 
   private get autoOperationConditionGroups() {
     const conditionGroups: AutoOperationConditionGroup[] =
-      this.$store.state.operationHistory.config.autoOperationSetting
+      this.$store.state.projectSettings.config.autoOperationSetting
         .conditionGroups;
     return conditionGroups.filter((group) => {
       return group.isEnabled;

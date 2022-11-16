@@ -20,33 +20,59 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { TestResult } from "../../types";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 const GET_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.get_test_result_failed";
 
 export class GetTestResultAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
+    private repositoryService: Pick<
+      RepositoryService,
+      "testResultRepository" | "serviceUrl"
     >
   ) {}
 
   public async getTestResult(
     testResultId: string
   ): Promise<ActionResult<TestResult>> {
-    const getTestResultResult =
-      await this.repositoryContainer.testResultRepository.getTestResult(
+    const result =
+      await this.repositoryService.testResultRepository.getTestResult(
         testResultId
       );
 
-    if (getTestResultResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
         messageKey: GET_TEST_RESULT_FAILED_MESSAGE_KEY,
       });
     }
 
-    return new ActionSuccess(getTestResultResult.data);
+    return new ActionSuccess({
+      ...result.data,
+      testSteps: result.data.testSteps.map((testStep) => {
+        const operation = {
+          ...testStep.operation,
+          imageFileUrl: new URL(
+            testStep.operation.imageFileUrl,
+            this.repositoryService.serviceUrl
+          ).toString(),
+        };
+
+        return {
+          ...testStep,
+          operation,
+          notices: [...testStep.bugs, ...testStep.notices].map((note) => {
+            return {
+              ...note,
+              imageFileUrl: new URL(
+                note.imageFileUrl,
+                this.repositoryService.serviceUrl
+              ).toString(),
+            };
+          }),
+          bugs: [],
+        };
+      }),
+    });
   }
 }

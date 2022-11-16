@@ -16,27 +16,18 @@
 
 import {
   OperationWithNotes,
-  CoverageSource,
   ScreenTransition,
-  AutofillConditionGroup,
-  AutofillSetting,
-  ElementInfo,
-  AutoOperationSetting,
+  WindowInfo,
 } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
-import {
-  ScreenDefinition,
-  Coverage,
-  ImageCompression,
-} from "@/lib/common/settings/Settings";
-import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { CoverageSource } from "src/common/types";
 
 /**
  * State for operation history.
@@ -63,36 +54,6 @@ export interface OperationHistoryState {
   };
 
   /**
-   * Config.
-   */
-  config: {
-    /**
-     * Autofill condition settings.
-     */
-    autofillSetting: AutofillSetting;
-
-    /**
-     * Auto Operationg condition settings.
-     */
-    autoOperationSetting: AutoOperationSetting;
-
-    /**
-     * Screen definition settings.
-     */
-    screenDefinition: ScreenDefinition;
-
-    /**
-     * Screen element coverage settings.
-     */
-    coverage: Coverage;
-
-    /**
-     * Screenshot image compression settings.
-     */
-    imageCompression: ImageCompression;
-  };
-
-  /**
    * Test step ids.
    */
   testStepIds: string[];
@@ -103,28 +64,14 @@ export interface OperationHistoryState {
   history: OperationWithNotes[];
 
   /**
+   * Window informations.
+   */
+  windows: WindowInfo[];
+
+  /**
    * Screen history.
    */
   screenHistory: ScreenHistory;
-
-  /**
-   * Test purposes unassigned to any operation.
-   */
-  unassignedTestPurposes: {
-    sequence: number;
-    note: string;
-    noteDetails?: string;
-  }[];
-
-  /**
-   * Selectable tags as exclusion elements for screen element coverage.
-   */
-  displayInclusionList: string[];
-
-  /**
-   * Default selectable tags as exclusion elements for screen element coverage.
-   */
-  defaultTagList: string[];
 
   /**
    * Element informations for calculating screen element coverage.
@@ -252,26 +199,7 @@ export interface OperationHistoryState {
     index: number;
   } | null;
 
-  /**
-   * Dialog to select autofill.
-   */
-  autofillSelectDialogData: {
-    autofillConditionGroups: AutofillConditionGroup[];
-    message: string;
-  } | null;
-
-  /**
-   * Dialogg to register autofill settings.
-   */
-  autofillRegisterDialogData: {
-    title: string;
-    url: string;
-    message: string;
-    inputElements: ElementInfo[];
-    callback: () => void;
-  } | null;
-
-  checkedOperations: { index: number; operation: Operation }[];
+  checkedOperations: { index: number; operation: OperationForGUI }[];
 
   /**
    * The function to open the dialog for editing a note.
@@ -320,35 +248,10 @@ const state: OperationHistoryState = {
     id: "",
     name: "",
   },
-  config: {
-    autofillSetting: {
-      autoPopupRegistrationDialog: false,
-      autoPopupSelectionDialog: false,
-      conditionGroups: [],
-    },
-    autoOperationSetting: {
-      conditionGroups: [],
-    },
-    screenDefinition: {
-      screenDefType: ScreenDefType.Title,
-      conditionGroups: [],
-    },
-    coverage: {
-      include: {
-        tags: [],
-      },
-    },
-    imageCompression: {
-      isEnabled: false,
-      isDeleteSrcImage: false,
-    },
-  },
   testStepIds: [],
   history: [],
+  windows: [],
   screenHistory: new ScreenHistory(),
-  unassignedTestPurposes: [],
-  displayInclusionList: [],
-  defaultTagList: [],
   coverageSources: [],
   sequenceDiagramGraph: null,
   windowHandleToScreenTransitionDiagramGraph: {},
@@ -363,8 +266,6 @@ const state: OperationHistoryState = {
   selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
-  autofillSelectDialogData: null,
-  autofillRegisterDialogData: null,
   checkedOperations: [],
   openNoteEditDialog: () => {
     /* Do nothing. */

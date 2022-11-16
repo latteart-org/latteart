@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "../../common/InformationMessageDialog.vue";
@@ -58,11 +58,11 @@ export default class ReplayOperationsButton extends Vue {
   private informationDialogOpened = false;
   private informationDialogMessage = "";
 
-  private get targetOperations(): Operation[] {
+  private get targetOperations(): OperationForGUI[] {
     return (
       this.$store.state.operationHistory.checkedOperations as {
         index: number;
-        operation: Operation;
+        operation: OperationForGUI;
       }[]
     ).map((item) => {
       return item.operation;

@@ -19,11 +19,11 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 export class ExportProjectAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
+    private repositoryService: Pick<RepositoryService, "projectRepository">
   ) {}
 
   public async export(
@@ -31,7 +31,7 @@ export class ExportProjectAction {
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<string>> {
     const postProjectForExportResult =
-      await this.repositoryContainer.projectRepository.postProjectForExport(
+      await this.repositoryService.projectRepository.postProjectForExport(
         projectId,
         selectOption
       );

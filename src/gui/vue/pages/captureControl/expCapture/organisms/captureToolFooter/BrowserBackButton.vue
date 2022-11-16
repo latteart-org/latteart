@@ -29,6 +29,7 @@
 </template>
 
 <script lang="ts">
+import { CaptureControlState } from "@/store/captureControl";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component
@@ -42,7 +43,10 @@ export default class BrowserBackButton extends Vue {
   }
 
   private get canDoBrowserBack() {
-    return this.$store.state.captureControl.canDoBrowserBack;
+    return (
+      (this.$store.state.captureControl as CaptureControlState).captureSession
+        ?.canNavigateBack ?? false
+    );
   }
 
   private browserBack(): void {

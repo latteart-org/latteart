@@ -60,7 +60,7 @@ export default class AutofillButton extends Vue {
     const lastOperation = history[history.length - 1].operation;
     const matchGroup =
       new AutofillTestAction().extractMatchingAutofillConditionGroup(
-        this.$store.state.operationHistory.config.autofillSetting
+        this.$store.state.projectSettings.config.autofillSetting
           .conditionGroups,
         lastOperation.title,
         lastOperation.url
@@ -77,7 +77,7 @@ export default class AutofillButton extends Vue {
   }
 
   private openDialog() {
-    this.$store.commit("operationHistory/setAutofillSelectDialog", {
+    this.$store.commit("captureControl/setAutofillSelectDialog", {
       dialogData: {
         autofillConditionGroups: this.autofillConditionGroup,
         message: this.$store.getters.message("autofill-button.message"),

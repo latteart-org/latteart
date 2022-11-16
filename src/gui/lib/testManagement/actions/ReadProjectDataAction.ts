@@ -16,8 +16,8 @@
 
 import {
   RepositoryAccessResult,
-  RepositoryAccessSuccess,
-} from "@/lib/captureControl/Reply";
+  createRepositoryAccessSuccess,
+} from "../../../../common/repository/result";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import { StoryConvertable } from "./WriteDataFileAction";
@@ -26,7 +26,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 export interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;
@@ -37,8 +37,8 @@ export interface ReadDataFileMutationObserver {
 export interface ProjectStoryConvertable {
   convertToStory(
     target: ManagedStory,
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "projectRepository" | "testResultRepository"
     >
   ): Promise<Story>;
@@ -51,8 +51,8 @@ export class ReadProjectDataAction {
   constructor(
     private observer: ReadDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "projectRepository" | "testResultRepository"
     >
   ) {}
@@ -77,8 +77,8 @@ export class ReadProjectDataAction {
         stories.map((story) =>
           this.storyDataConverter.convertToStory(
             story,
-            this.repositoryContainer as unknown as Pick<
-              RepositoryContainer,
+            this.repositoryService as unknown as Pick<
+              RepositoryService,
               "testResultRepository" | "projectRepository"
             >
           )
@@ -101,7 +101,7 @@ export class ReadProjectDataAction {
     }>
   > {
     const getProjectsResult =
-      await this.repositoryContainer.projectRepository.getProjects();
+      await this.repositoryService.projectRepository.getProjects();
 
     if (getProjectsResult.isFailure()) {
       return getProjectsResult;
@@ -111,7 +111,7 @@ export class ReadProjectDataAction {
 
     if (projectIds.length === 0) {
       const postProjectResult =
-        await this.repositoryContainer.projectRepository.postProject();
+        await this.repositoryService.projectRepository.postProject();
 
       if (postProjectResult.isFailure()) {
         return postProjectResult;
@@ -123,7 +123,7 @@ export class ReadProjectDataAction {
     const targetProjectId = projectIds[projectIds.length - 1];
 
     const getProjectResult =
-      await this.repositoryContainer.projectRepository.getProject(
+      await this.repositoryService.projectRepository.getProject(
         targetProjectId
       );
 
@@ -136,7 +136,7 @@ export class ReadProjectDataAction {
       projectId: targetProjectId,
     };
 
-    return new RepositoryAccessSuccess({
+    return createRepositoryAccessSuccess({
       data: data,
     });
   }

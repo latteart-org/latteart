@@ -20,7 +20,7 @@
       :locale="$store.state.i18n.locale"
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="history"
-      :windowHandles="windowHandles"
+      :windows="windows"
       :message="messageProvider"
       :screenDefinitionConfig="screenDefinitionConfig"
       scriptGenerationEnabled
@@ -37,6 +37,7 @@ import {
   MessageProvider,
 } from "@/lib/operationHistory/types";
 import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -45,7 +46,7 @@ import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDispla
 })
 export default class HistoryView extends Vue {
   private get screenDefinitionConfig() {
-    return this.$store.state.operationHistory.config.screenDefinition;
+    return this.$store.state.projectSettings.config.screenDefinition;
   }
 
   private get messageProvider(): MessageProvider {
@@ -53,12 +54,13 @@ export default class HistoryView extends Vue {
   }
 
   private get screenDefList() {
-    return this.$store.state.operationHistory.config.screenDefinition
+    return this.$store.state.projectSettings.config.screenDefinition
       .screenDefList;
   }
 
-  private get windowHandles() {
-    return this.$store.state.captureControl.windowHandles;
+  private get windows() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .windows;
   }
 
   private get history(): OperationHistory {

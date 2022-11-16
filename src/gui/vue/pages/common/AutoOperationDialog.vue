@@ -49,8 +49,8 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
-import { Operation } from "@/lib/operationHistory/Operation";
 import { convertInputValue } from "@/lib/common/util";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 @Component({
   components: {
@@ -60,7 +60,7 @@ import { convertInputValue } from "@/lib/common/util";
 export default class AutoOperationDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Array, default: [] })
-  public readonly autoOperations!: Operation[];
+  public readonly autoOperations!: OperationForGUI[];
   @Prop({ type: Number, default: 1 })
   private readonly page!: number;
   @Prop({ type: Number, default: -1 })

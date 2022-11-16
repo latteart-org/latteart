@@ -38,11 +38,9 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import {
-  AutofillConditionGroup,
-  ElementInfo,
-} from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { ElementInfo } from "src/common/types";
 
 @Component({
   components: {
@@ -61,13 +59,10 @@ export default class AutofillRegisterDialog extends Vue {
     callback: () => void;
   } | null {
     this.settingName =
-      this.$store.state.operationHistory?.autofillRegisterDialogData?.title ??
-      "";
+      this.$store.state.captureControl?.autofillRegisterDialogData?.title ?? "";
     this.opened =
-      !!this.$store.state.operationHistory?.autofillRegisterDialogData;
-    return (
-      this.$store.state.operationHistory?.autofillRegisterDialogData ?? null
-    );
+      !!this.$store.state.captureControl?.autofillRegisterDialogData;
+    return this.$store.state.captureControl?.autofillRegisterDialogData ?? null;
   }
 
   private get message(): string {
@@ -113,7 +108,7 @@ export default class AutofillRegisterDialog extends Vue {
     this.opened = false;
     await new Promise((s) => setTimeout(s, 300));
     const callback = this.autofillRegisterDialogData?.callback;
-    this.$store.commit("operationHistory/setAutofillRegisterDialog", null);
+    this.$store.commit("captureControl/setAutofillRegisterDialog", null);
     if (callback) {
       this.$nextTick(() => {
         callback();

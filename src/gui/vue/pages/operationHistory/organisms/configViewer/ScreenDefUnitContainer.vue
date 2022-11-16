@@ -42,7 +42,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import draggable from "vuedraggable";
-import { ScreenDefinition } from "@/lib/common/settings/Settings";
+import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 
 @Component({
   components: {
@@ -52,7 +52,7 @@ import { ScreenDefinition } from "@/lib/common/settings/Settings";
 })
 export default class ScreenDefUnitContainer extends Vue {
   @Prop({ type: Object, default: null })
-  public readonly screenDefinition!: ScreenDefinition;
+  public readonly screenDefinition!: ScreenDefinitionSetting;
 
   private get conditionGroups(): Array<ScreenDefinitionConditionGroup> {
     return this.screenDefinition?.conditionGroups ?? [];

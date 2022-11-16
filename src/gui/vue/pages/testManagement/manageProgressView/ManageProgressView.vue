@@ -137,7 +137,7 @@ import ProgressChart from "./organisms/ProgressChart.vue";
 import { TestMatrix } from "@/lib/testManagement/types";
 import Chart from "chart.js";
 import { TimestampImpl } from "@/lib/common/Timestamp";
-import { DailyTestProgress } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { DailyTestProgress } from "src/common/repository/project";
 
 @Component({
   components: {

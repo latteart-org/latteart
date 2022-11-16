@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { TestMatrix } from "@/lib/testManagement/types";
 
 export class UpdateTestMatrixAction {
@@ -35,14 +35,14 @@ export class UpdateTestMatrixAction {
       }[];
       oldTestMatrix: TestMatrix;
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testMatrixRepository" | "viewPointRepository" | "projectRepository"
     >
   ): Promise<ActionResult<TestMatrix[]>> {
     if (payload.newTestMatrix.name !== payload.oldTestMatrix.name) {
       const testMatrixResult =
-        await repositoryContainer.testMatrixRepository.patchTestMatrix(
+        await repositoryService.testMatrixRepository.patchTestMatrix(
           payload.newTestMatrix.id,
           payload.newTestMatrix.name
         );
@@ -57,7 +57,7 @@ export class UpdateTestMatrixAction {
       payload.newViewPoints.map(async (newViewPoint) => {
         if (!newViewPoint.id) {
           const result =
-            await repositoryContainer.viewPointRepository.postViewPoint({
+            await repositoryService.viewPointRepository.postViewPoint({
               testMatrixId: payload.oldTestMatrix.id,
               name: newViewPoint.name,
               description: newViewPoint.description,
@@ -83,7 +83,7 @@ export class UpdateTestMatrixAction {
             newViewPoint.index !== oldViewPoint.index)
         ) {
           const result =
-            await repositoryContainer.viewPointRepository.patchViewPoint(
+            await repositoryService.viewPointRepository.patchViewPoint(
               newViewPoint.id,
               {
                 name: newViewPoint.name,
@@ -112,14 +112,15 @@ export class UpdateTestMatrixAction {
 
     await Promise.all(
       deleteList.map(async (viewPoint) => {
-        return await repositoryContainer.viewPointRepository.deleteViewPoint(
+        return await repositoryService.viewPointRepository.deleteViewPoint(
           viewPoint.id
         );
       })
     );
 
-    const projectResult =
-      await repositoryContainer.projectRepository.getProject(payload.projectId);
+    const projectResult = await repositoryService.projectRepository.getProject(
+      payload.projectId
+    );
 
     if (projectResult.isFailure()) {
       return new ActionFailure({

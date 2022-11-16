@@ -1,12 +1,10 @@
 import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import {
-  RESTClient,
-  RESTClientResponse,
-} from "@/lib/eventDispatcher/RESTClient";
+import { TestResultRepository } from "src/common/repository/testResult";
+import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 import { TestResult } from "@/lib/operationHistory/types";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -57,7 +55,7 @@ describe("LoadHistoryAction", () => {
         const result = await action.loadHistory(testResultId);
 
         expect(restClient.httpGet).toBeCalledWith(
-          `/test-results/${testResultId}`
+          `api/v1/test-results/${testResultId}`
         );
 
         if (result.isSuccess()) {
@@ -81,7 +79,7 @@ describe("LoadHistoryAction", () => {
         const result = await action.loadHistory(testResultId);
 
         expect(restClient.httpGet).toBeCalledWith(
-          `/test-results/${testResultId}`
+          `api/v1/test-results/${testResultId}`
         );
 
         if (result.isSuccess()) {

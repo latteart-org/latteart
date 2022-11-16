@@ -1,11 +1,9 @@
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
-import {
-  RESTClientResponse,
-  RESTClient,
-} from "@/lib/eventDispatcher/RESTClient";
-import { ImportTestResultRepository } from "@/lib/eventDispatcher/repositoryService/ImportTestResultRepository";
+import { RESTClientResponse, RESTClient } from "src/common/network/http/client";
+import { ImportTestResultRepository } from "src/common/repository/importTestResult";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -43,10 +41,13 @@ describe("ImportTestResultAction", () => {
 
         const result = await action.import(source, dest);
 
-        expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
-          source,
-          dest,
-        });
+        expect(restClient.httpPost).toBeCalledWith(
+          `api/v1/imports/test-results`,
+          {
+            source,
+            dest,
+          }
+        );
         if (result.isSuccess()) {
           expect(result.data).toEqual({
             testResultId: expectedData.testResultId,
@@ -69,10 +70,13 @@ describe("ImportTestResultAction", () => {
 
         const result = await action.import(source, dest);
 
-        expect(restClient.httpPost).toBeCalledWith(`/imports/test-results`, {
-          source,
-          dest,
-        });
+        expect(restClient.httpPost).toBeCalledWith(
+          `api/v1/imports/test-results`,
+          {
+            source,
+            dest,
+          }
+        );
         if (result.isSuccess()) {
           throw new Error("failed");
         } else {

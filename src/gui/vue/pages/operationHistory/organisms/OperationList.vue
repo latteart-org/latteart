@@ -182,14 +182,14 @@ import {
   OperationWithNotes,
   OperationHistory,
   MessageProvider,
-  ElementInfo,
 } from "@/lib/operationHistory/types";
 import OperationContextMenu from "@/vue/pages/captureControl/historyView/OperationContextMenu.vue";
-import { Note } from "@/lib/operationHistory/Note";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import SelectableDataTable from "@/vue/molecules/SelectableDataTable.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
+import { ElementInfo } from "src/common/types";
 
 @Component({
   components: {
@@ -236,7 +236,10 @@ export default class OperationList extends Vue {
     selectedSequences: [],
   };
 
-  private get checkedOperations(): { index: number; operation: Operation }[] {
+  private get checkedOperations(): {
+    index: number;
+    operation: OperationForGUI;
+  }[] {
     return this.$store.state.operationHistory.checkedOperations;
   }
 
@@ -292,11 +295,14 @@ export default class OperationList extends Vue {
     this.selectedSequences = [this.selectedOperationSequence];
   }
 
-  private hasIntention(intention: Note | null): boolean {
+  private hasIntention(intention: NoteForGUI | null): boolean {
     return !!intention;
   }
 
-  private hasNote(notices: Note[] | null, bugs: Note[] | null): boolean {
+  private hasNote(
+    notices: NoteForGUI[] | null,
+    bugs: NoteForGUI[] | null
+  ): boolean {
     if (!!notices && notices.length > 0) {
       return true;
     }
@@ -468,7 +474,7 @@ export default class OperationList extends Vue {
       };
 
       return {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: operationWithNotes.operation,
           overrideParams: {
             elementInfo: elementInfoForDisplay,

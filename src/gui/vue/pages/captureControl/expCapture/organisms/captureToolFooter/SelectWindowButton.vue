@@ -36,9 +36,9 @@
 </template>
 
 <script lang="ts">
-import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
-import { PlatformName } from "@/lib/common/enum/SettingsEnum";
-import { Component, Vue } from "vue-property-decorator";
+import { DeviceSettings } from "@/lib/common/settings/Settings";
+import { CaptureControlState } from "@/store/captureControl";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import WindowSelectorDialog from "../WindowSelectorDialog.vue";
 
 @Component({
@@ -49,8 +49,8 @@ import WindowSelectorDialog from "../WindowSelectorDialog.vue";
 export default class SelectWindowButton extends Vue {
   private windowSelectorOpened = false;
 
-  private get config(): CaptureConfig {
-    return this.$store.state.operationHistory.config;
+  private get config(): DeviceSettings {
+    return this.$store.state.deviceSettings;
   }
 
   private get isCapturing(): boolean {
@@ -61,10 +61,24 @@ export default class SelectWindowButton extends Vue {
     if (!this.isCapturing) {
       return false;
     }
-    if (this.config.platformName === PlatformName.iOS) {
+    if (this.config.platformName === "iOS") {
       return false;
     }
     return true;
+  }
+
+  private get currentSessionWindowHandlesLength() {
+    return (
+      (this.$store.state.captureControl as CaptureControlState).captureSession
+        ?.windowHandles.length ?? 0
+    );
+  }
+
+  @Watch("currentSessionWindowHandlesLength")
+  private openWindowSelectorDialog() {
+    if (this.currentSessionWindowHandlesLength > 1) {
+      this.windowSelectorOpened = true;
+    }
   }
 }
 </script>

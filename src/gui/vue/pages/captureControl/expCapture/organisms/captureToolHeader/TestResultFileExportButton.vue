@@ -129,7 +129,7 @@ export default class TestResultFileExportButton extends Vue {
   }
 
   private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryContainer.serviceUrl;
+    return this.$store.state.repositoryService.serviceUrl;
   }
 }
 </script>

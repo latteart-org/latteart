@@ -50,7 +50,7 @@
     <history-display
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="testResult.history"
-      :windowHandles="windowHandles"
+      :windows="windows"
       :message="messageProvider"
       :screenDefinitionConfig="screenDefinitionConfig"
       :scriptGenerationEnabled="!$isViewerMode"
@@ -102,7 +102,6 @@ import { Component, Vue } from "vue-property-decorator";
 import {
   MessageProvider,
   OperationWithNotes,
-  CoverageSource,
   OperationHistory,
 } from "@/lib/operationHistory/types";
 import { Story } from "@/lib/testManagement/types";
@@ -112,6 +111,8 @@ import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
+import { CoverageSource } from "src/common/types";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -181,7 +182,7 @@ export default class ReviewView extends Vue {
           );
         }
 
-        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryContainer.serviceUrl}/${testScriptInfo.outputUrl}`;
+        this.downloadLinkDialogLinkUrl = `${this.$store.state.repositoryService.serviceUrl}/${testScriptInfo.outputUrl}`;
         this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
@@ -237,28 +238,16 @@ export default class ReviewView extends Vue {
   }
 
   private get screenDefinitionConfig() {
-    return this.$store.state.operationHistory.config.screenDefinition;
+    return this.$store.state.projectSettings.config.screenDefinition;
   }
 
   private get messageProvider(): MessageProvider {
     return this.$store.getters.message;
   }
 
-  private get windowHandles() {
-    return this.testResult.history
-      .map((operationWithNotes) => {
-        return operationWithNotes.operation.windowHandle;
-      })
-      .filter((windowHandle, index, array) => {
-        return array.indexOf(windowHandle) === index;
-      })
-      .map((windowHandle, index) => {
-        return {
-          text: `window${index + 1}`,
-          value: windowHandle,
-          available: false,
-        };
-      });
+  private get windows() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .windows;
   }
 
   private get tempStory() {

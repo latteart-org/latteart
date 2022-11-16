@@ -48,12 +48,6 @@
       @ok="startCapture"
     />
 
-    <window-selector-dialog
-      :opened="windowSelectorOpened"
-      @close="windowSelectorOpened = false"
-    >
-    </window-selector-dialog>
-
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -64,17 +58,15 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import TestOptionDialog from "../../../testOptionDialog/TestOptionDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
-import WindowSelectorDialog from "../WindowSelectorDialog.vue";
+import { DeviceSettings } from "@/lib/common/settings/Settings";
 
 @Component({
   components: {
     "test-option-dialog": TestOptionDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "window-selector-dialog": WindowSelectorDialog,
   },
 })
 export default class RecordButton extends Vue {
@@ -82,8 +74,6 @@ export default class RecordButton extends Vue {
   private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-
-  private windowSelectorOpened = false;
 
   private get testResultName(): string {
     return this.$store.state.operationHistory.testResultInfo.name;
@@ -97,8 +87,8 @@ export default class RecordButton extends Vue {
     this.$store.commit("captureControl/setUrl", { url: value });
   }
 
-  private get config(): CaptureConfig {
-    return this.$store.state.operationHistory.config;
+  private get config(): DeviceSettings {
+    return this.$store.state.deviceSettings;
   }
 
   private get isDisabled(): boolean {
@@ -166,8 +156,11 @@ export default class RecordButton extends Vue {
           url: this.url,
           config: this.config,
           callbacks: {
-            onChangeNumberOfWindows: () => {
-              this.windowSelectorOpened = true;
+            onEnd: (error?: Error) => {
+              if (error) {
+                this.errorMessage = error.message;
+                this.errorMessageDialogOpened = true;
+              }
             },
           },
         });

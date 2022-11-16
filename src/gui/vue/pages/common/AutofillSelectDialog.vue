@@ -57,9 +57,9 @@ export default class AutofillSelectDialog extends Vue {
     autofillConditionGroups: AutofillConditionGroup[];
     message: string;
   } | null {
-    const data = this.$store.state.operationHistory?.autofillSelectDialogData;
+    const data = this.$store.state.captureControl?.autofillSelectDialogData;
     this.opened = !!data?.autofillConditionGroups;
-    return this.$store.state.operationHistory?.autofillSelectDialogData ?? null;
+    return this.$store.state.captureControl?.autofillSelectDialogData ?? null;
   }
 
   private get autofillConditionGroups(): AutofillConditionGroup[] {
@@ -96,7 +96,7 @@ export default class AutofillSelectDialog extends Vue {
   private async close(): Promise<void> {
     this.opened = false;
     await new Promise((s) => setTimeout(s, 300));
-    this.$store.commit("operationHistory/setAutofillSelectDialog", {
+    this.$store.commit("captureControl/setAutofillSelectDialog", {
       autofillConditionGroups: null,
     });
   }

@@ -1,9 +1,10 @@
-import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
-import { TestMatrixRepository } from "@/lib/eventDispatcher/repositoryService/TestMatrixRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { ProjectRESTRepository } from "src/common/repository/project";
+import { TestMatrixRepository } from "src/common/repository/testMatrix";
+import { RESTClient } from "src/common/network/http/client";
 import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -50,10 +51,12 @@ describe("DeleteTestMatrixAction", () => {
       }
 
       expect(testMatrixResponse.httpDelete).toBeCalledWith(
-        "/test-matrices/testMatrixId"
+        "api/v1/test-matrices/testMatrixId"
       );
 
-      expect(projectResponse.httpGet).toBeCalledWith("/projects/projectId");
+      expect(projectResponse.httpGet).toBeCalledWith(
+        "api/v1/projects/projectId"
+      );
     });
   });
 });

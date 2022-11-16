@@ -19,16 +19,16 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 import { Timestamp } from "@/lib/common/Timestamp";
-import { DailyTestProgress } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { DailyTestProgress } from "src/common/repository/project";
 
 const COLLECT_PROGRESS_DATAS_FAILED_MESSAGE_KEY =
   "error.test_management.collect_progress_datas_failed";
 
 export class CollectProgressDatasAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "projectRepository">
+    private repositoryService: Pick<RepositoryService, "projectRepository">
   ) {}
 
   public async collect(
@@ -38,7 +38,7 @@ export class CollectProgressDatasAction {
     } = {}
   ): Promise<ActionResult<DailyTestProgress[]>> {
     const getTestProgressResult =
-      await this.repositoryContainer.projectRepository.getTestProgress(
+      await this.repositoryService.projectRepository.getTestProgress(
         projectId,
         {
           period: {

@@ -24,7 +24,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common/service/repository";
 
 export interface WriteDataFileMutationObserver {
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
@@ -34,8 +34,8 @@ export interface WriteDataFileMutationObserver {
 export interface StoryConvertable {
   convertToStory(
     target: ManagedStory,
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "projectRepository"
     >,
     oldStory?: Story
@@ -49,8 +49,8 @@ export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
     private storyDataConverter: StoryConvertable,
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "projectRepository"
     >
   ) {}
@@ -61,7 +61,7 @@ export class WriteDataFileAction {
     stories: Story[]
   ): Promise<ActionResult<void>> {
     const putProjectResult =
-      await this.repositoryContainer.projectRepository.putProject(
+      await this.repositoryService.projectRepository.putProject(
         projectId,
         testManagementData
       );
@@ -85,7 +85,7 @@ export class WriteDataFileAction {
 
         return this.storyDataConverter.convertToStory(
           story as ManagedStory,
-          this.repositoryContainer,
+          this.repositoryService,
           oldStory
         );
       })

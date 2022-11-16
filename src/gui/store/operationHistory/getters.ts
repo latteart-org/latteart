@@ -17,7 +17,7 @@
 import { GetterTree } from "vuex";
 import { OperationHistoryState } from ".";
 import { RootState } from "..";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import OperationHistorySelector from "@/lib/operationHistory/OperationHistorySelector";
@@ -25,20 +25,11 @@ import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 
 const getters: GetterTree<OperationHistoryState, RootState> = {
   /**
-   * Get config from the State.
-   * @param state State.
-   * @returns Config.
-   */
-  getConfig: (state) => () => {
-    return JSON.parse(JSON.stringify(state.config));
-  },
-
-  /**
    * Find an operation with notes from the history in the State by sequence number.
    * @param state State.
    * @returns Operation with notes.
    */
-  findHistoryItem: (state) => (sequence: number) => {
+  findHistoryItem: (state, _, rootState) => (sequence: number) => {
     const operationWithNotes = state.history.find((item) => {
       return item.operation.sequence === sequence;
     });
@@ -48,13 +39,13 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
     }
 
     const screenDefCreator = new ScreenDefFactory(
-      state.config.screenDefinition
+      rootState.projectSettings.config.screenDefinition
     );
     const { title, url, keywordSet } = operationWithNotes.operation;
     const screenDef = screenDefCreator.createFrom(title, url, keywordSet);
 
     return {
-      operation: Operation.createFromOtherOperation({
+      operation: OperationForGUI.createFromOtherOperation({
         other: operationWithNotes.operation,
         overrideParams: {
           screenDef,
@@ -86,16 +77,16 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
    * @param state State.
    * @returns Operation with notes history.
    */
-  getHistory: (state) => () => {
+  getHistory: (state, _, rootState) => () => {
     const screenDefCreator = new ScreenDefFactory(
-      state.config.screenDefinition
+      rootState.projectSettings.config.screenDefinition
     );
 
     return state.history.map((item) => {
       const { title, url, keywordSet } = item.operation;
 
       const screenDef = screenDefCreator.createFrom(title, url, keywordSet);
-      const operation = Operation.createFromOtherOperation({
+      const operation = OperationForGUI.createFromOtherOperation({
         other: item.operation,
         overrideParams: {
           screenDef,

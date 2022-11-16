@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { Operation } from "./Operation";
-import { ElementInfo, OperationWithNotes } from "./types";
+import { OperationForGUI } from "./OperationForGUI";
+import { OperationWithNotes } from "./types";
 import { normalizeXPath } from "../common/util";
-import { Note } from "./Note";
+import { NoteForGUI } from "./NoteForGUI";
+import { ElementInfo } from "src/common/types";
 
 export interface InputValueTableHeaderColumn {
   intention: string;
@@ -29,7 +30,7 @@ export interface InputValueTableHeaderColumn {
       elementText: string;
       eventType: string;
     };
-    notes: Note[];
+    notes: NoteForGUI[];
     operationHistory: OperationWithNotes[];
   }>;
 }
@@ -65,9 +66,9 @@ export default class InputValueTable {
         return {
           intention,
           screenTransitions: transitions.map((transition, index) => {
-            const triggerOperation: Operation | undefined =
+            const triggerOperation: OperationForGUI | undefined =
               transition.history[transition.history.length - 1]?.operation;
-            const transitionNotes: Note[] = transition.history.flatMap(
+            const transitionNotes: NoteForGUI[] = transition.history.flatMap(
               (item) => {
                 return [...(item.notices ?? []), ...(item.bugs ?? [])];
               }

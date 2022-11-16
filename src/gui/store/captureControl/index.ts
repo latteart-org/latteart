@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { WindowHandle } from "@/lib/operationHistory/types";
+import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
-import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
 import Timer from "@/lib/common/Timer";
+import { CaptureSession } from "src/common/service/capture/cl";
+import { ElementInfo } from "src/common/types";
 
 /**
  * Store for capture control.
@@ -48,52 +49,14 @@ export interface CaptureControlState {
   isPaused: boolean;
 
   /**
-   * Whether it is auto operation or not.
-   */
-  isAutoOperation: boolean;
-
-  /**
-   * Current window handles.
-   */
-  windowHandles: WindowHandle[];
-
-  /**
-   * Capture config.
-   */
-  config: CaptureConfig;
-
-  /**
-   * Capturing window information.
-   */
-  capturingWindowInfo: {
-    currentWindow: string;
-    availableWindows: WindowHandle[];
-  };
-
-  /**
    * Timer to measure capture time.
    */
   timer: Timer;
 
   /**
-   * Whether it can go back to previous page or not on the test target browser.
-   */
-  canDoBrowserBack: boolean;
-
-  /**
-   * Whether it can go forward to next page or not on the test target browser.
-   */
-  canDoBrowserForward: boolean;
-
-  /**
    * URL of the test target.
    */
   url: string;
-
-  /**
-   * Alert visible status
-   */
-  alertIsVisible: boolean;
 
   /**
    * Test option.
@@ -111,6 +74,27 @@ export interface CaptureControlState {
     testResultName: string;
     replayCaptureMode: boolean;
   };
+
+  captureSession: CaptureSession | null;
+
+  /**
+   * Dialog to select autofill.
+   */
+  autofillSelectDialogData: {
+    autofillConditionGroups: AutofillConditionGroup[];
+    message: string;
+  } | null;
+
+  /**
+   * Dialogg to register autofill settings.
+   */
+  autofillRegisterDialogData: {
+    title: string;
+    url: string;
+    message: string;
+    inputElements: ElementInfo[];
+    callback: () => void;
+  } | null;
 }
 
 const state: CaptureControlState = {
@@ -118,18 +102,7 @@ const state: CaptureControlState = {
   isReplaying: false,
   isResuming: false,
   isPaused: false,
-  isAutoOperation: false,
-  windowHandles: [],
-  config: new CaptureConfig(),
-  capturingWindowInfo: {
-    currentWindow: "",
-    availableWindows: [],
-  },
-  timer: new Timer(),
-  canDoBrowserBack: false,
-  canDoBrowserForward: false,
   url: "",
-  alertIsVisible: false,
   testOption: {
     firstTestPurpose: "",
     firstTestPurposeDetails: "",
@@ -139,6 +112,10 @@ const state: CaptureControlState = {
     testResultName: "",
     replayCaptureMode: false,
   },
+  autofillSelectDialogData: null,
+  autofillRegisterDialogData: null,
+  timer: new Timer(),
+  captureSession: null,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

@@ -1,11 +1,9 @@
 import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
-import {
-  RESTClient,
-  RESTClientResponse,
-} from "@/lib/eventDispatcher/RESTClient";
-import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
+import { ProjectRESTRepository } from "src/common/repository/project";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -45,7 +43,7 @@ describe("ExportProjectAction", () => {
         const result = await action.export(projectId, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(
-          `/projects/${projectId}/export`,
+          `api/v1/projects/${projectId}/export`,
           selectOption
         );
         if (result.isSuccess()) {
@@ -67,7 +65,7 @@ describe("ExportProjectAction", () => {
         const result = await action.export(projectId, selectOption);
 
         expect(restClient.httpPost).toBeCalledWith(
-          `/projects/${projectId}/export`,
+          `api/v1/projects/${projectId}/export`,
           selectOption
         );
         if (result.isSuccess()) {
