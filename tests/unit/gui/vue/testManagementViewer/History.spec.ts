@@ -71,68 +71,6 @@ describe("Historyは", () => {
     });
   });
 
-  describe("getTargetIssueで", () => {
-    const issue1: Issue = {
-      source: { type: "bug", sequence: 1, index: 0 },
-      status: "",
-      ticketId: "",
-      value: "",
-      details: "",
-      imageFilePath: "",
-    };
-    const issue2: Issue = {
-      source: { type: "bug", sequence: 1, index: 1 },
-      status: "",
-      ticketId: "",
-      value: "",
-      details: "",
-      imageFilePath: "",
-    };
-    const issue3: Issue = {
-      source: { type: "notice", sequence: 1, index: 2 },
-      status: "",
-      ticketId: "",
-      value: "",
-      details: "",
-      imageFilePath: "",
-    };
-    const session: Session = {
-      name: "session1",
-      id: "s1",
-      isDone: false,
-      doneDate: "",
-      testerName: "",
-      testItem: "",
-      memo: "",
-      attachedFiles: [],
-      initialUrl: "",
-      issues: [issue1, issue2, issue3],
-      intentions: [],
-    };
-
-    it("対象Issueが存在する場合、Issueを返す", () => {
-      expect(
-        History.getTargetIssue(session, {
-          id: "1",
-          sequence: 1,
-          index: 1,
-          type: "bug",
-        })
-      ).toEqual(issue2);
-    });
-
-    it("対象Issueが存在しない場合、nullを返す", () => {
-      expect(
-        History.getTargetIssue(session, {
-          id: "1",
-          sequence: 1,
-          index: 1,
-          type: "notice",
-        })
-      ).toBeNull();
-    });
-  });
-
   describe("changeIssueStatusで", () => {
     const issue1 = {
       source: { type: "bug", sequence: 1, index: 0 },

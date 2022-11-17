@@ -467,14 +467,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
-    "output": "Output as HTML",
-    "bug-draft": "Check as Reported",
-    "bug-none": "Check as Not Necessary to Report",
-    "bug-draft-withdraw": "Cancel Issue \"{ticketid}\" [Check as Not Necessary to Report]",
-    "bug-draft-edit": "Change the Number of Issue \"{ticketid}\"",
-    "enter-bug-number": "Enter Issue Number",
-    "session-not-found": "Session Not Found",
-    "issue-not-found": "Issue Not Found"
+    "output": "Output as HTML"
   },
   "manage-edit-view": {
     "window-title": "Management Tool [Edit Test Plan]",

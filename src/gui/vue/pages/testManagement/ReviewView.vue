@@ -94,13 +94,6 @@
       :message="errorMessage"
       @close="errorDialogOpened = false"
     ></error-message-dialog>
-    <context-menu
-      :opened="contextMenuOpened"
-      :x="contextMenuX"
-      :y="contextMenuY"
-      :items="contextMenuItems"
-      @contextMenuClose="contextMenuOpened = false"
-    />
   </div>
 </template>
 
@@ -114,11 +107,7 @@ import {
 } from "@/lib/operationHistory/types";
 import { Story } from "@/lib/testManagement/types";
 import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
-import IssueStatus from "@/lib/common/enum/IssueStatus";
-import * as History from "@/lib/testManagement/History";
-import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
-import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
@@ -129,7 +118,6 @@ import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
     "history-display": HistoryDisplay,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "context-menu": ContextMenu,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
     "screenshots-download-button": ScreenshotsDownloadButton,
@@ -143,10 +131,6 @@ export default class ReviewView extends Vue {
   private dialogValue = "";
   private errorDialogOpened = false;
   private errorMessage = "";
-  private contextMenuOpened = false;
-  private contextMenuX = -1;
-  private contextMenuY = -1;
-  private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
 
   private isGeneratingTestScripts = false;
   private scriptGenerationOptionDialogIsOpened = false;
@@ -218,10 +202,6 @@ export default class ReviewView extends Vue {
   private created() {
     const testResultId = this.$route.query.testResultId as string;
 
-    this.$store.commit("operationHistory/setOpenNoteMenu", {
-      menu: this.openNoteMenu,
-    });
-
     (async () => {
       this.isResuming = true;
 
@@ -281,17 +261,8 @@ export default class ReviewView extends Vue {
       });
   }
 
-  private get sessionId() {
-    const sessionId = this.$route.query.sessionId as string;
-    return sessionId;
-  }
-
   private get tempStory() {
     return this.$store.state.testManagement.tempStory as Story;
-  }
-
-  private get session() {
-    return History.getTargetSession(this.tempStory, this.sessionId);
   }
 
   private changeWindowTitle(windowTitle: string) {
@@ -300,150 +271,6 @@ export default class ReviewView extends Vue {
     this.$store.dispatch("changeWindowTitle", {
       title: `${windowTitleManagerPrefix} [${windowTitle}]`,
     });
-  }
-
-  private openNoteMenu(
-    note: { id: string; sequence: number; index: number; type: string },
-    eventInfo: { clientX: number; clientY: number }
-  ) {
-    if ((this as any).$isViewerMode) {
-      return;
-    }
-
-    if (!note || (note.type !== "notice" && note.type !== "bug")) {
-      return;
-    }
-
-    const targetSession = this.session;
-    if (!targetSession) {
-      return;
-    }
-    const targetIssue = History.getTargetIssue(targetSession, note);
-    if (!targetIssue) {
-      return;
-    }
-
-    this.contextMenuX = eventInfo.clientX;
-    this.contextMenuY = eventInfo.clientY;
-    this.contextMenuItems = [];
-
-    switch (targetIssue.status) {
-      case IssueStatus.Unreported:
-        this.contextMenuItems.push({
-          label: this.$store.getters.message("manager-history-view.bug-draft"),
-          onClick: () => {
-            this.dialogTitle = this.$store.getters.message(
-              "manager-history-view.enter-bug-number"
-            );
-            this.dialogValue = targetIssue.ticketId;
-            this.dialogOpened = true;
-            this.acceptEditDialog = () => {
-              this.updateIssue(note, IssueStatus.Reported, this.dialogValue);
-            };
-
-            this.contextMenuOpened = false;
-          },
-        });
-        break;
-
-      case IssueStatus.Reported:
-        this.contextMenuItems.push({
-          label: this.$store.getters.message(
-            "manager-history-view.bug-draft-edit",
-            { ticketid: TextUtil.ellipsis(targetIssue.ticketId, 30) }
-          ),
-          onClick: () => {
-            this.dialogTitle = this.$store.getters.message(
-              "manager-history-view.bug-draft-edit",
-              { ticketid: targetIssue.ticketId }
-            );
-            this.dialogValue = targetIssue.ticketId;
-            this.dialogOpened = true;
-            this.acceptEditDialog = () => {
-              this.updateIssue(note, "", this.dialogValue);
-            };
-
-            this.contextMenuOpened = false;
-          },
-        });
-
-        this.contextMenuItems.push({
-          label: this.$store.getters.message(
-            "manager-history-view.bug-draft-withdraw",
-            { ticketid: TextUtil.ellipsis(targetIssue.ticketId, 30) }
-          ),
-          onClick: () => {
-            this.updateIssue(note, IssueStatus.Unreported);
-
-            this.contextMenuOpened = false;
-          },
-        });
-        break;
-
-      default:
-        this.contextMenuItems.push({
-          label: this.$store.getters.message("manager-history-view.bug-draft"),
-          onClick: () => {
-            this.dialogTitle = this.$store.getters.message(
-              "manager-history-view.enter-bug-number"
-            );
-            this.dialogValue = targetIssue.ticketId;
-            this.dialogOpened = true;
-            this.acceptEditDialog = () => {
-              this.updateIssue(note, IssueStatus.Reported, this.dialogValue);
-            };
-
-            this.contextMenuOpened = false;
-          },
-        });
-
-        this.contextMenuItems.push({
-          label: this.$store.getters.message("manager-history-view.bug-none"),
-          onClick: () => {
-            this.updateIssue(note, IssueStatus.Unreported);
-
-            this.contextMenuOpened = false;
-          },
-        });
-        break;
-    }
-
-    this.contextMenuOpened = true;
-  }
-
-  private async updateIssue(
-    issueSource: {
-      sequence: number;
-      index: number;
-      type: string;
-    },
-    status: string,
-    ticketId?: string
-  ) {
-    if (!this.session) {
-      return;
-    }
-    const convertedIssueStatus = History.changeIssueStatus(
-      this.session.issues,
-      {
-        sequence: issueSource.sequence,
-        index: issueSource.index,
-        type: issueSource.type,
-      },
-      status,
-      ticketId
-    );
-    await this.$store.dispatch("testManagement/updateSession", {
-      storyId: this.tempStory.id,
-      sessionId: this.session.id,
-      params: {
-        issues: convertedIssueStatus,
-      },
-    });
-    const story = this.$store.state.testManagement.stories.find(
-      (story: Story) => story.id === this.tempStory.id
-    );
-    this.$store.commit("testManagement/setTempStory", { story });
   }
 
   private toViewerConfig() {

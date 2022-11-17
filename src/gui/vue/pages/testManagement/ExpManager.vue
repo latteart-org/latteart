@@ -37,6 +37,14 @@
       :opened="noticeEditDialogOpened"
       @close="noticeEditDialogOpened = false"
     />
+
+    <context-menu
+      :opened="contextMenuOpened"
+      :x="contextMenuX"
+      :y="contextMenuY"
+      :items="contextMenuItems"
+      @contextMenuClose="contextMenuOpened = false"
+    />
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
@@ -57,6 +65,7 @@ import TestPurposeEditDialog from "../common/TestPurposeEditDialog.vue";
 import BugEditDialog from "../common/BugEditDialog.vue";
 import NoticeEditDialog from "../common/NoticeEditDialog.vue";
 import ConfirmDialog from "../common/ConfirmDialog.vue";
+import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 
 @Component({
   components: {
@@ -67,6 +76,7 @@ import ConfirmDialog from "../common/ConfirmDialog.vue";
     "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
     "confirm-dialog": ConfirmDialog,
+    "context-menu": ContextMenu,
   },
 })
 export default class Manager extends Vue {
@@ -77,6 +87,11 @@ export default class Manager extends Vue {
   private testPurposeEditDialogOpened = false;
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
+
+  private contextMenuOpened = false;
+  private contextMenuX = -1;
+  private contextMenuY = -1;
+  private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
 
   private confirmDialogOpened = false;
   private confirmDialogTitle = "";
@@ -115,6 +130,73 @@ export default class Manager extends Vue {
         openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
       }
     );
+    this.$store.commit("operationHistory/setOpenNoteMenu", {
+      menu: this.openNoteMenu,
+    });
+
+    this.$store.commit("operationHistory/setDeleteNoteFunction", {
+      deleteNote: this.deleteNote,
+    });
+  }
+
+  private openNoteMenu(
+    note: { id: number; sequence: number; index: number; type: string },
+    eventInfo: { clientX: number; clientY: number }
+  ) {
+    if ((this as any).$isViewerMode) {
+      console.log("isViewerMode");
+      return;
+    }
+
+    const context = this.$store;
+
+    this.contextMenuX = eventInfo.clientX;
+    this.contextMenuY = eventInfo.clientY;
+    this.contextMenuItems = [];
+
+    this.contextMenuItems.push({
+      label: context.getters.message("history-view.edit-comment"),
+      onClick: () => {
+        if (context.state.operationHistory.tmpNoteInfoForEdit) {
+          context.state.operationHistory.openNoteEditDialog(
+            note.type,
+            note.sequence,
+            note.index
+          );
+        }
+
+        this.contextMenuOpened = false;
+        context.commit("operationHistory/setTmpNoteInfoForEdit", {
+          tmpNoteInfoForEdit: null,
+        });
+      },
+    });
+    this.contextMenuItems.push({
+      label: context.getters.message("history-view.delete-comment"),
+      onClick: () => {
+        if (context.state.operationHistory.tmpNoteInfoForEdit) {
+          context.state.operationHistory.deleteNote(
+            note.type,
+            note.sequence,
+            note.index
+          );
+        }
+
+        this.contextMenuOpened = false;
+        context.commit("operationHistory/setTmpNoteInfoForEdit", {
+          tmpNoteInfoForEdit: null,
+        });
+      },
+    });
+
+    context.commit("operationHistory/setTmpNoteInfoForEdit", {
+      tmpNoteInfoForEdit: {
+        noteType: note.type,
+        sequence: note.sequence,
+        index: note.index,
+      },
+    });
+    this.contextMenuOpened = true;
   }
 
   private openNoteEditDialog(
@@ -191,24 +273,41 @@ export default class Manager extends Vue {
   }
 
   private deleteNote(noteType: string, sequence: number, index: number) {
-    switch (noteType) {
-      case "intention":
-        this.$store.dispatch("operationHistory/deleteTestPurpose", {
-          sequence,
-        });
-        return;
-      case "bug":
-        this.$store.dispatch("operationHistory/deleteBug", { sequence, index });
-        return;
-      case "notice":
-        this.$store.dispatch("operationHistory/deleteNotice", {
-          sequence,
-          index,
-        });
-        return;
-      default:
-        return;
-    }
+    (async () => {
+      try {
+        switch (noteType) {
+          case "intention":
+            await this.$store.dispatch("operationHistory/deleteTestPurpose", {
+              sequence,
+            });
+
+            return;
+          case "bug":
+            await this.$store.dispatch("operationHistory/deleteBug", {
+              sequence,
+              index,
+            });
+
+            return;
+          case "notice":
+            await this.$store.dispatch("operationHistory/deleteNotice", {
+              sequence,
+              index,
+            });
+
+            return;
+          default:
+            return;
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessageDialogOpened = true;
+          this.errorMessage = error.message;
+        } else {
+          throw error;
+        }
+      }
+    })();
   }
 }
 </script>
