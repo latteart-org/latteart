@@ -25,7 +25,10 @@
       :title="pauseButtonTooltip"
       :color="pauseButtonColor"
     >
-      <v-icon>pause</v-icon>
+      <!-- <v-icon>stop</v-icon> -->
+      <v-icon v-if="!isCapturing">pause</v-icon>
+      <!-- <v-icon v-if="!isCapturing">motion_photos_pause_outlined</v-icon> -->
+      <v-icon v-else>pause_circle_outline</v-icon>
     </v-btn>
   </div>
 </template>
@@ -35,15 +38,15 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class PauseButton extends Vue {
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isPaused(): boolean {
+  public get isPaused(): boolean {
     return this.$store.state.captureControl.isPaused;
   }
 
-  private get pauseButtonTooltip(): string {
+  public get pauseButtonTooltip(): string {
     if (!this.isCapturing) {
       return "";
     }
@@ -52,11 +55,13 @@ export default class PauseButton extends Vue {
     );
   }
 
-  private get pauseButtonColor() {
-    return this.isPaused ? "yellow" : "grey darken-3";
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public get pauseButtonColor() {
+    return this.isPaused ? "red" : "grey darken-3";
   }
 
-  private pushPauseButton() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public pushPauseButton() {
     if (this.isPaused) {
       this.$store.dispatch("captureControl/resumeCapturing");
     } else {

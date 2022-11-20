@@ -16,7 +16,7 @@
 
 <template>
   <v-layout justify-start align-center row>
-    <v-icon class="pl-4 pr-1">save_alt</v-icon>
+    <v-icon class="pl-4 pr-1">input</v-icon>
     <v-text-field
       single-line
       :label="$store.getters.message('app.test-result-name')"
@@ -33,27 +33,28 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class TestResultNameTextField extends Vue {
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return this.isCapturing || this.isResuming;
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isResuming(): boolean {
+  public get isResuming(): boolean {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get testResultName(): string {
+  public get testResultName(): string {
     return this.$store.state.operationHistory.testResultInfo.name;
   }
 
-  private set testResultName(name: string) {
+  public set testResultName(name: string) {
     this.$store.commit("operationHistory/setTestResultName", { name });
   }
 
-  private changeCurrentTestResultName() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public changeCurrentTestResultName() {
     this.$store.dispatch("operationHistory/changeCurrentTestResult", {
       startTime: null,
       initialUrl: "",

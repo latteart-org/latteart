@@ -66,7 +66,8 @@ import MenuButton from "./MenuButton.vue";
   },
 })
 export default class CaptureToolHeader extends Vue {
-  private cancelKeydown(event: Event) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public cancelKeydown(event: Event) {
     event.stopPropagation();
   }
 }

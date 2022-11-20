@@ -16,10 +16,11 @@
 
 <template>
   <v-layout justify-start align-center row>
-    <v-icon class="pr-1">open_in_browser</v-icon>
+    <!-- <v-icon class="pr-1">upload_file</v-icon> -->
+    <v-icon class="pr-1">add_link</v-icon>
     <v-text-field
       single-line
-      label="URL"
+      label="URL Link"
       v-model="url"
       :disabled="isDisabled"
       id="urlTextField"
@@ -32,27 +33,27 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class URLTextField extends Vue {
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return this.isCapturing || this.isReplaying || this.isResuming;
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isReplaying(): boolean {
+  public get isReplaying(): boolean {
     return this.$store.state.captureControl.isReplaying;
   }
 
-  private get isResuming(): boolean {
+  public get isResuming(): boolean {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get url(): string {
+  public get url(): string {
     return this.$store.state.captureControl.url;
   }
 
-  private set url(value: string) {
+  public set url(value: string) {
     this.$store.commit("captureControl/setUrl", { url: value });
   }
 }

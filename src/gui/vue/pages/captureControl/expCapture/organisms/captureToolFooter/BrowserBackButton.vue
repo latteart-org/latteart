@@ -23,7 +23,8 @@
       :disabled="isDisabled"
       :title="$store.getters.message('navigate.back')"
     >
-      <v-icon dark>arrow_back</v-icon>
+      <!-- <v-icon dark>arrow_back</v-icon> -->
+      <v-icon dark>chevron_left</v-icon>
     </v-btn>
   </div>
 </template>
@@ -33,19 +34,20 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class BrowserBackButton extends Vue {
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return !this.isCapturing || !this.canDoBrowserBack;
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get canDoBrowserBack() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public get canDoBrowserBack() {
     return this.$store.state.captureControl.canDoBrowserBack;
   }
 
-  private browserBack(): void {
+  public browserBack(): void {
     this.$store.dispatch("captureControl/browserBack");
   }
 }

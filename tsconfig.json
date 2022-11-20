@@ -1,7 +1,37 @@
+// {
+//   "compilerOptions": {
+//     "target": "es6",
+//     "module": "es6",
+//     "strict": true,
+//     "jsx": "preserve",
+//     "importHelpers": true,
+//     "moduleResolution": "node",
+//     "experimentalDecorators": true,
+//     "skipLibCheck": true,
+//     "resolveJsonModule": true,
+//     "esModuleInterop": true,
+//     "allowSyntheticDefaultImports": true,
+//     "baseUrl": ".",
+//     "types": ["node", "webpack-env", "jest", "vuetify"],
+//     "paths": {
+//       "@/*": ["src/gui/*"]
+//     },
+//     "lib": ["esnext", "dom", "dom.iterable", "scripthost", "es6"]
+//   },
+//   "include": [
+//     "src/gui/**/*.ts",
+//     "src/gui/**/*.tsx",
+//     "src/gui/**/*.vue",
+//     "tests/**/*.ts",
+//     "tests/**/*.tsx"
+//   ],
+//   "exclude": ["node_modules"],
+// }
+
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es6",
+    "module": "es6",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -12,11 +42,24 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "types": ["node", "webpack-env", "jest", "vuetify"],
+    "types": [
+      "node",
+      "webpack-env",
+      "jest",
+      "vuetify"
+    ],
     "paths": {
-      "@/*": ["src/gui/*"]
+      "@/*": [
+        "src/gui/*"
+      ]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost",
+      "es6"
+    ]
   },
   "include": [
     "src/gui/**/*.ts",
@@ -25,5 +68,7 @@
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ],
 }

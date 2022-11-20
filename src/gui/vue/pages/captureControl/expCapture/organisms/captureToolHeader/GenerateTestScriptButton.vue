@@ -64,19 +64,19 @@ import { Component, Vue } from "vue-property-decorator";
   },
 })
 export default class GenerateTestScriptButton extends Vue {
-  private scriptGenerationOptionDialogIsOpened = false;
-  private isGeneratingTestScripts = false;
+  public scriptGenerationOptionDialogIsOpened = false;
+  public isGeneratingTestScripts = false;
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  public errorMessageDialogOpened = false;
+  public errorMessage = "";
 
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
+  public downloadLinkDialogOpened = false;
+  public downloadLinkDialogTitle = "";
+  public downloadLinkDialogMessage = "";
+  public downloadLinkDialogAlertMessage = "";
+  public downloadLinkDialogLinkUrl = "";
 
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return (
       this.isCapturing ||
       this.isReplaying ||
@@ -86,19 +86,20 @@ export default class GenerateTestScriptButton extends Vue {
     );
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isReplaying(): boolean {
+  public get isReplaying(): boolean {
     return this.$store.state.captureControl.isReplaying;
   }
 
-  private get isResuming(): boolean {
+  public get isResuming(): boolean {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get sequence() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public get sequence() {
     const history = this.$store.getters["operationHistory/getHistory"]();
     if (history.length === 0) {
       return 0;
@@ -106,17 +107,18 @@ export default class GenerateTestScriptButton extends Vue {
     return history[history.length - 1].operation.sequence;
   }
 
-  private get history(): OperationHistory {
+  public get history(): OperationHistory {
     return this.$store.getters[
       "operationHistory/getHistory"
     ]() as OperationWithNotes[];
   }
 
-  private get currentRepositoryUrl(): string {
+  public get currentRepositoryUrl(): string {
     return this.$store.state.repositoryContainer.serviceUrl;
   }
 
-  private generateTestScript(option: {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public generateTestScript(option: {
     testScript: {
       isSimple: boolean;
     };

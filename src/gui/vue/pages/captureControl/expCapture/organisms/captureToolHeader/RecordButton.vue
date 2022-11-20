@@ -27,19 +27,21 @@
       :title="$store.getters.message('app.start')"
       id="startButton"
     >
-      <v-icon>fiber_manual_record</v-icon>
+      <!-- <v-icon v-if="isDisabled">label_off</v-icon> -->
+      <v-icon v-if="isDisabled">block</v-icon>
+      <v-icon v-else>fiber_manual_record</v-icon>
     </v-btn>
     <v-btn
       v-else
       icon
       flat
       large
-      color="red"
+      color="green"
       @click="endCapture"
       :title="$store.getters.message('app.finish')"
       id="endButton"
     >
-      <v-icon>fiber_manual_record</v-icon>
+      <v-icon color="green">fiber_smart_record</v-icon>
     </v-btn>
 
     <test-option-dialog
@@ -78,30 +80,30 @@ import WindowSelectorDialog from "../WindowSelectorDialog.vue";
   },
 })
 export default class RecordButton extends Vue {
-  private testOptionDialogOpened = false;
-  private preparingForCapture = false;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  public testOptionDialogOpened = false;
+  public preparingForCapture = false;
+  public errorMessageDialogOpened = false;
+  public errorMessage = "";
 
-  private windowSelectorOpened = false;
+  public windowSelectorOpened = false;
 
-  private get testResultName(): string {
+  public get testResultName(): string {
     return this.$store.state.operationHistory.testResultInfo.name;
   }
 
-  private get url(): string {
+  public get url(): string {
     return this.$store.state.captureControl.url;
   }
 
-  private set url(value: string) {
+  public set url(value: string) {
     this.$store.commit("captureControl/setUrl", { url: value });
   }
 
-  private get config(): CaptureConfig {
+  public get config(): CaptureConfig {
     return this.$store.state.operationHistory.config;
   }
 
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return (
       !this.url ||
       this.isReplaying ||
@@ -112,23 +114,23 @@ export default class RecordButton extends Vue {
     );
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isReplaying(): boolean {
+  public get isReplaying(): boolean {
     return this.$store.state.captureControl.isReplaying;
   }
 
-  private get isResuming(): boolean {
+  public get isResuming(): boolean {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get urlIsValid(): boolean {
+  public get urlIsValid(): boolean {
     return this.$store.getters["captureControl/urlIsValid"]();
   }
 
-  private startCapture(): void {
+  public startCapture(): void {
     this.preparingForCapture = true;
     this.goToHistoryView();
 
@@ -185,11 +187,12 @@ export default class RecordButton extends Vue {
     })();
   }
 
-  private endCapture(): void {
+  public endCapture(): void {
     this.$store.dispatch("captureControl/endCapture");
   }
 
-  private goToHistoryView() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public goToHistoryView() {
     this.$router.push({ path: "history" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;

@@ -25,7 +25,12 @@
       :disabled="isDisabled"
       :title="$store.getters.message('app.import')"
     >
-      <v-icon>folder_open</v-icon>
+      <!-- <v-icon>folder_open</v-icon> -->
+      <!-- <v-icon>snippet_folder_rounded</v-icon> -->
+      <!-- <v-icon>drive_folder_upload</v-icon> -->
+      <!-- <v-icon>cloud_circle</v-icon> -->
+      <v-icon v-if="isDisabled">cancel_presentation</v-icon>
+      <v-icon v-else>cloud_circle</v-icon>
     </v-btn>
 
     <v-menu
@@ -65,30 +70,31 @@ import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
   },
 })
 export default class LoadHistoryButton extends Vue {
-  private showMenu = false;
-  private menuX = 0;
-  private menuY = 0;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-  private testResults: Array<{ id: string; name: string }> = [];
+  public showMenu = false;
+  public menuX = 0;
+  public menuY = 0;
+  public errorMessageDialogOpened = false;
+  public errorMessage = "";
+  public testResults: Array<{ id: string; name: string }> = [];
 
-  private get isDisabled(): boolean {
+  public get isDisabled(): boolean {
     return this.isCapturing || this.isReplaying || this.isResuming;
   }
 
-  private get isCapturing(): boolean {
+  public get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
   }
 
-  private get isReplaying(): boolean {
+  public get isReplaying(): boolean {
     return this.$store.state.captureControl.isReplaying;
   }
 
-  private get isResuming(): boolean {
+  public get isResuming(): boolean {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private updateTestResults(e: any) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public updateTestResults(e: any) {
     e.preventDefault();
 
     if (this.showMenu) {
@@ -116,7 +122,8 @@ export default class LoadHistoryButton extends Vue {
     });
   }
 
-  private async loadHistory(testResultId: string) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async loadHistory(testResultId: string) {
     if (!testResultId) {
       return;
     }

@@ -70,7 +70,8 @@ import DeleteTestResultButton from "./DeleteTestResultButton.vue";
   },
 })
 export default class MenuButton extends Vue {
-  private get isViewerMode() {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public get isViewerMode() {
     return (this as any).$isViewerMode ? (this as any).$isViewerMode : false;
   }
 }
