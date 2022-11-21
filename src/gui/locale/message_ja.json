@@ -471,14 +471,7 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
-    "output": "HTML出力",
-    "bug-draft": "バグ票を起票する",
-    "bug-none": "起票不要にする",
-    "bug-draft-withdraw": "バグ票「{ticketid}」を取り下げる（起票不要にする）",
-    "bug-draft-edit": "バグ票「{ticketid}」の起票番号を変更する",
-    "enter-bug-number": "起票番号入力",
-    "session-not-found": "Sessionが存在しません",
-    "issue-not-found": "Issueが存在しません"
+    "output": "HTML出力"
   },
   "manage-edit-view": {
     "window-title": "管理ツール [テスト計画編集]",
