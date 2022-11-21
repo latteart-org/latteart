@@ -16,36 +16,27 @@
 
 <template>
   <v-layout row wrap justify-center align-start>
-    <div class="main">
-      <section>
-        <input id="s1" type="checkbox" name="t1" />
-        <label for="s1">legend</label>
-        <div class="content">
-          <v-layout row wrap justify-center align-start>
-            <div
-              v-for="(legend, index) in legendInfos"
-              v-bind:key="index"
-              class="manage-show-legend"
-            >
-              <v-card class="pt-0 my-3">
-                <v-card-title
-                  primary-title
-                  class="py-2 my-0"
-                  v-bind:class="legend.class"
-                >
-                  <p class="card-center">{{ legend.status }}</p>
-                </v-card-title>
-              </v-card>
-              <p>{{ legend.text }}</p>
-            </div>
-            <div class="manage-show-legend mt-4">
-              {{ $store.getters.message("manage-show.legend1") }}<br />
-              {{ $store.getters.message("manage-show.legend2") }}<br />
-              {{ $store.getters.message("manage-show.legend3") }}<br />
-            </div>
-          </v-layout>
-        </div>
-      </section>
+    <div
+      v-for="(legend, index) in legendInfos"
+      v-bind:key="index"
+      class="manage-show-legend"
+    >
+      <v-card class="pt-0 my-3">
+        <v-card-title
+          primary-title
+          class="py-2 my-0"
+          v-bind:class="legend.class"
+        >
+          <p class="card-center">{{ legend.status }}</p>
+        </v-card-title>
+      </v-card>
+      <p>{{ legend.text }}</p>
+    </div>
+
+    <div class="manage-show-legend mt-4">
+      {{ $store.getters.message("manage-show.legend1") }}<br />
+      {{ $store.getters.message("manage-show.legend2") }}<br />
+      {{ $store.getters.message("manage-show.legend3") }}<br />
     </div>
   </v-layout>
 </template>
@@ -115,40 +106,4 @@ export default class LegendViewer extends Vue {
   background-color: #FBE9E0
   color: #EA5F1A
   font-weight: bold
-.main
-  section
-    label
-      cursor: pointer
-      display: block
-      padding: 15px 20px
-      color: #fff
-      position: relative
-      font-size: 22px
-      &::after
-        content: "\271B"
-        position: absolute
-        right: 20px
-        top: 50%
-        transform: translateY(-50%)
-        color: #fff
-        opacity: 0.5
-  .content
-    visbililty: hidden
-    max-height: 0
-    overflow: hidden
-    transition: all 0.8s ease
-    padding: 0 20px
-    *
-      opacity: 0
-      transition: all 0.8s ease
-  input
-    display: none
-    &:checked +label+div
-      visibility: visible
-      max-height: 100vh
-      opacity: 1
-      *
-        opacity: 1
-    &:checked+label::after
-      content: "\268A"
 </style>
