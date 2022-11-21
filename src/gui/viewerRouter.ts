@@ -16,13 +16,13 @@
 
 import Vue from "vue";
 import Router from "vue-router";
-import ExpManager from "./vue/pages/testManagement/ExpManager.vue";
-import ManageView from "./vue/pages/testManagement/ManageView.vue";
-import StoryView from "./vue/pages/testManagement/storyView/StoryView.vue";
-import HistoryFrame from "./vue/pages/operationHistory/HistoryFrame.vue";
-import ManageShowView from "./vue/pages/testManagement/manageShowView/ManageShowView.vue";
-import ManageProgressView from "./vue/pages/testManagement/manageProgressView/ManageProgressView.vue";
-import ManageQualityView from "./vue/pages/testManagement/manageQualityView/ManageQualityView.vue";
+import ExpManager from "./components/pages/testManagement/ExpManager.vue";
+import ManageView from "./components/pages/testManagement/ManageView.vue";
+import StoryView from "./components/pages/testManagement/storyView/StoryView.vue";
+import HistoryFrame from "./components/pages/operationHistory/HistoryFrame.vue";
+import ManageShowView from "./components/pages/testManagement/manageShowView/ManageShowView.vue";
+import ManageProgressView from "./components/pages/testManagement/manageProgressView/ManageProgressView.vue";
+import ManageQualityView from "./components/pages/testManagement/manageQualityView/ManageQualityView.vue";
 import Root from "./ViewerRoot.vue";
 
 Vue.use(Router);

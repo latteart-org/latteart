@@ -41,7 +41,7 @@ import {
 } from "../../../gui/lib/operationHistory/types";
 import { NoteForGUI } from "../../lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "../../lib/operationHistory/OperationForGUI";
-import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDisplay.vue";
+import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
 import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";

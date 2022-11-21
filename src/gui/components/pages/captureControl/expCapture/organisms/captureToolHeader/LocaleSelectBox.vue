@@ -15,42 +15,44 @@
 -->
 
 <template>
-  <v-app>
-    <router-view></router-view>
-    <progress-dialog></progress-dialog>
-    <autofill-register-dialog />
+  <div>
+    <v-select
+      :label="$store.getters.message('manage-header.locale')"
+      :items="locales"
+      :value="initLocale"
+      v-on:change="changeLocale"
+    ></v-select>
+
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-app>
+  </div>
 </template>
 
 <script lang="ts">
+import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
-import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
-import AutofillRegisterDialog from "@/components/pages/common/AutofillRegisterDialog.vue";
 
 @Component({
   components: {
-    "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
-export default class Root extends Vue {
+export default class LocaleSelectBox extends Vue {
+  private locales: string[] = ["ja", "en"];
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private mounted(): void {
+  public get initLocale(): string {
+    return this.$store.getters.getLocale();
+  }
+
+  private changeLocale(locale: string): void {
     (async () => {
       try {
-        await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("readSettings");
-        await this.$store.dispatch("readViewSettings");
-        await this.$store.dispatch("readDeviceSettings");
+        await this.$store.dispatch("changeLocale", { locale });
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -58,12 +60,6 @@ export default class Root extends Vue {
         } else {
           throw error;
         }
-      }
-
-      if (this.$route.query.mode === "manage") {
-        this.$router.push({ name: "manageShowView" });
-      } else {
-        this.$router.push({ name: "configView" });
       }
     })();
   }
