@@ -16,11 +16,20 @@
 
 <template>
   <div>
-    <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        $store.getters.message("app.record-intention")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="opened"
+      :title="$store.getters.message('app.record-intention')"
+      @accept="
+        saveTestPurpose();
+        close();
+      "
+      @cancel="
+        cancel();
+        close();
+      "
+      :acceptButtonDisabled="!canSave"
+    >
+      <template>
         <number-field
           v-if="oldSequence !== null"
           :label="$store.getters.message('note-edit.target-sequence')"
@@ -39,31 +48,7 @@
           v-model="newNoteDetails"
         ></v-textarea>
       </template>
-      <template v-slot:footer>
-        <v-icon v-if="isSaveWarning" color="red">error_outline</v-icon>
-        <p v-if="isSaveWarning" class="warningMessage">
-          {{ $store.getters.message("note-edit.save-warning") }}
-        </p>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!canSave"
-          :dark="canSave"
-          color="green"
-          @click="
-            saveIntention();
-            close();
-          "
-          >{{ $store.getters.message("common.ok") }}</v-btn
-        >
-        <v-btn
-          @click="
-            cancel();
-            close();
-          "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
-        >
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -77,17 +62,17 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class IntentionEditDialog extends Vue {
+export default class TestPurposeEditDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private oldNote = "";
@@ -138,7 +123,7 @@ export default class IntentionEditDialog extends Vue {
     });
   }
 
-  private saveIntention() {
+  private saveTestPurpose() {
     const args: NoteEditInfo = {
       oldSequence: this.oldSequence ?? undefined,
       newSequence: this.newTargetSequence ?? undefined,
@@ -149,9 +134,15 @@ export default class IntentionEditDialog extends Vue {
     };
     (async () => {
       try {
-        await this.$store.dispatch("operationHistory/saveIntention", {
-          noteEditInfo: args,
-        });
+        if (this.oldNote === "") {
+          await this.$store.dispatch("operationHistory/addTestPurpose", {
+            noteEditInfo: args,
+          });
+        } else {
+          await this.$store.dispatch("operationHistory/editTestPurpose", {
+            noteEditInfo: args,
+          });
+        }
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -186,7 +177,7 @@ export default class IntentionEditDialog extends Vue {
       return false;
     }
 
-    for (const seq of this.hasIntentionSeqences) {
+    for (const seq of this.collectTestPurposeSequences) {
       if (seq === this.newTargetSequence) {
         return true;
       }
@@ -194,7 +185,7 @@ export default class IntentionEditDialog extends Vue {
     return false;
   }
 
-  private get hasIntentionSeqences(): number[] {
+  private get collectTestPurposeSequences(): number[] {
     const seqs = [];
     const history = this.$store.getters["operationHistory/getHistory"]();
 

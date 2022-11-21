@@ -32,6 +32,7 @@ export interface CapturedOperation {
   pageSource: string;
   inputElements: ElementInfo[];
   keywordTexts: string[];
+  isAutomatic: boolean;
 }
 
 /**

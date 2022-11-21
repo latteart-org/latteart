@@ -16,11 +16,20 @@
 
 <template>
   <div>
-    <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        $store.getters.message("app.record-note")
-      }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="opened"
+      :title="$store.getters.message('app.record-note')"
+      @accept="
+        saveNote();
+        close();
+      "
+      @cancel="
+        cancel();
+        close();
+      "
+      :acceptButtonDisabled="!canSave"
+    >
+      <template>
         <h3 class="title mb-0">
           {{ $store.getters.message("note-edit.note-for-current-purpose") }}
         </h3>
@@ -86,45 +95,24 @@
         <v-card flat>
           <v-card-text>
             <v-text-field
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.summary')"
-              v-model="newIntention"
+              v-model="newTestPurpose"
             ></v-text-field>
             <v-textarea
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.details')"
-              v-model="newIntentionDetails"
+              v-model="newTestPurposeDetails"
             ></v-textarea>
 
             <v-checkbox
-              v-model="shouldContinueSameIntention"
+              v-model="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.continue-same-purpose')"
             ></v-checkbox>
           </v-card-text>
         </v-card>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!canSave"
-          :dark="canSave"
-          color="blue"
-          @click="
-            saveNote();
-            close();
-          "
-        >
-          {{ $store.getters.message("common.ok") }}
-        </v-btn>
-        <v-btn
-          @click="
-            cancel();
-            close();
-          "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
-        >
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -138,14 +126,14 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/vue/molecules/NumberField.vue";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
@@ -160,9 +148,9 @@ export default class NoteEditDialog extends Vue {
   private maxSequence: number | null = null;
   private shouldTakeScreenshot = false;
   private shouldRecordAsIssue = false;
-  private newIntention = "";
-  private newIntentionDetails = "";
-  private shouldContinueSameIntention = false;
+  private newTestPurpose = "";
+  private newTestPurposeDetails = "";
+  private shouldContinueSameTestPurpose = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -189,9 +177,9 @@ export default class NoteEditDialog extends Vue {
     this.maxSequence = this.$store.state.operationHistory.history.length;
     this.shouldTakeScreenshot = false;
     this.shouldRecordAsIssue = false;
-    this.newIntention = "";
-    this.newIntentionDetails = "";
-    this.shouldContinueSameIntention = false;
+    this.newTestPurpose = "";
+    this.newTestPurposeDetails = "";
+    this.shouldContinueSameTestPurpose = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -213,8 +201,8 @@ export default class NoteEditDialog extends Vue {
         const intentionInfo = {
           oldSequence: this.newTargetSequence ?? undefined,
           newSequence: this.newTargetSequence ?? undefined,
-          note: this.newIntention,
-          noteDetails: this.newIntentionDetails,
+          note: this.newTestPurpose,
+          noteDetails: this.newTestPurposeDetails,
           tags: [],
           shouldTakeScreenshot: false,
         } as NoteEditInfo;
@@ -225,10 +213,11 @@ export default class NoteEditDialog extends Vue {
           });
         }
 
-        if (!this.shouldContinueSameIntention) {
-          await this.$store.dispatch("operationHistory/saveIntention", {
-            noteEditInfo: intentionInfo,
-          });
+        if (!this.shouldContinueSameTestPurpose) {
+          await this.$store.dispatch(
+            "operationHistory/addUnassignedTestPurpose",
+            { noteEditInfo: intentionInfo }
+          );
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -258,7 +247,7 @@ export default class NoteEditDialog extends Vue {
       return false;
     }
 
-    if (!this.shouldContinueSameIntention && this.newIntention === "") {
+    if (!this.shouldContinueSameTestPurpose && this.newTestPurpose === "") {
       return false;
     }
 

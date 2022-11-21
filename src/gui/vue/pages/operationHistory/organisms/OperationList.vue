@@ -23,9 +23,7 @@
     fill-height
   >
     <v-layout align-center style="height: 40px">
-      <v-btn @click="resetFilter" color="info" small>{{
-        message("operation.reset")
-      }}</v-btn>
+      <auto-operation-register-button v-if="!isViewerMode" />
     </v-layout>
     <v-layout
       align-space-around
@@ -38,7 +36,10 @@
         <selectable-data-table
           @selectItems="onSelectOperations"
           @contextmenu="openOperationContextMenu"
+          @checkItems="updateCheckedOperationList"
           :selected-item-indexes="selectedOperationIndexes"
+          :checked-item-indexes="checkedOperationIndexes"
+          :marked-item-indexes="autoOperationIndexes"
           :disabled-item-indexes="disabledOperationIndexes"
           :headers="headers"
           :items="displayedHistory"
@@ -49,8 +50,8 @@
           ]"
           shortcut
           sortBy="operation.sequence"
-          descending
           :rowsPerPage="10"
+          :hide-check-box="isViewerMode"
         >
           <template v-slot:row="{ columns }">
             <td class="seq-col">
@@ -188,11 +189,13 @@ import { Note } from "@/lib/operationHistory/Note";
 import { Operation } from "@/lib/operationHistory/Operation";
 import SelectableDataTable from "@/vue/molecules/SelectableDataTable.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
 
 @Component({
   components: {
     "operation-context-menu": OperationContextMenu,
     "selectable-data-table": SelectableDataTable,
+    "auto-operation-register-button": AutoOperationRegisterButton,
   },
 })
 export default class OperationList extends Vue {
@@ -214,8 +217,13 @@ export default class OperationList extends Vue {
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;
 
+  private isViewerMode = (this as any).$isViewerMode
+    ? (this as any).$isViewerMode
+    : false;
+
   private search = "";
   private selectedSequences: number[] = [];
+  private checkedSequences: number[] = [];
 
   private purposeCheckbox = false;
   private noticeCheckbox = false;
@@ -227,6 +235,10 @@ export default class OperationList extends Vue {
     sequence: -1,
     selectedSequences: [],
   };
+
+  private get checkedOperations(): { index: number; operation: Operation }[] {
+    return this.$store.state.operationHistory.checkedOperations;
+  }
 
   private get headers(): {
     text: string;
@@ -394,6 +406,23 @@ export default class OperationList extends Vue {
     return this.selectedSequences.map((sequence) => sequence - 1);
   }
 
+  private get checkedOperationIndexes() {
+    return this.checkedOperations.map(({ index }) => {
+      return index;
+    });
+  }
+
+  private get autoOperationIndexes() {
+    const autoOperationIndexes = [];
+    for (const [index, { operation }] of this.history.entries()) {
+      if (operation.isAutomatic) {
+        autoOperationIndexes.push(index);
+      }
+    }
+    console.log(autoOperationIndexes);
+    return autoOperationIndexes;
+  }
+
   private get disabledOperationIndexes() {
     const disabledIndexes = [];
     let isCounting = false;
@@ -455,6 +484,19 @@ export default class OperationList extends Vue {
   private cancelKeydown(event: Event) {
     event.stopPropagation();
   }
+
+  private updateCheckedOperationList(indexes: number[]): void {
+    const checkedOperations = this.displayedHistory
+      .map((history, index) => {
+        return { index, operation: history.operation };
+      })
+      .filter(({ index }) => {
+        return indexes.includes(index);
+      });
+    this.$store.commit("operationHistory/setCheckedOperations", {
+      checkedOperations,
+    });
+  }
 }
 </script>
 
@@ -482,7 +524,7 @@ td
   padding: 0 !important
 
 .seq-col
-  padding-right: 8px !important
+  padding-right: 0px !important
 
 .search-checkbox
   flex: none

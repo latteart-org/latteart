@@ -151,6 +151,17 @@ export type AutofillCondition = {
   inputValue: string;
 };
 
+export interface AutoOperationSetting {
+  conditionGroups: AutoOperationConditionGroup[];
+}
+
+export interface AutoOperationConditionGroup {
+  isEnabled: boolean;
+  settingName: string;
+  details?: string;
+  autoOperations: AutoOperation[];
+}
+
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;
   screenName: string;
@@ -173,6 +184,7 @@ export interface TestStepOperation {
   inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: string[];
+  isAutomatic: boolean;
 }
 
 interface ApiNote {
@@ -199,3 +211,19 @@ export interface TestResult {
   }[];
   coverageSources: CoverageSource[];
 }
+
+export type TestResultSummary = Pick<TestResult, "id" | "name">;
+
+export type AutoOperation = {
+  input: string;
+  type: string;
+  elementInfo: ElementInfo | null;
+  title: string;
+  url: string;
+};
+
+export type OperationForReplay = AutoOperation & {
+  sequence?: number;
+  timestamp?: string;
+  windowHandle?: string;
+};

@@ -292,16 +292,18 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
-    this.selectLastOperation();
+    this.selectFirstOperation();
     this.updateWindowTitle();
   }
 
   @Watch("history")
   private onChangeHistory(newValue: [], oldValue: []) {
-    if (newValue.length !== oldValue.length) {
+    if (oldValue.length === 0) {
+      this.selectFirstOperation();
+    } else if (newValue.length !== oldValue.length) {
       this.selectLastOperation();
-      this.scrollGraphArea();
     }
+    this.scrollGraphArea();
   }
 
   private selectLastOperation() {
@@ -310,6 +312,14 @@ export default class HistoryDisplay extends Vue {
       return;
     }
     this.selectOperation(lastOperation.operation.sequence);
+  }
+
+  private selectFirstOperation() {
+    const firstOperation = this.history[0];
+    if (!firstOperation) {
+      return;
+    }
+    this.selectOperation(firstOperation.operation.sequence);
   }
 
   private selectOperation(selectedOperationSequence: number) {

@@ -18,8 +18,9 @@
     "resume-capturing": "記録の再開",
     "reset": "履歴をリセット",
     "import": "過去のテスト結果の読み込み",
-    "replay": "履歴を再生する",
-    "stop-replay": "履歴再生を中止する",
+    "replay": "テスト結果のリプレイ",
+    "replay-operations": "操作のリプレイ",
+    "stop-replay": "リプレイの中止",
     "history": "テスト履歴",
     "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
@@ -35,12 +36,16 @@
     "intention": "テストの目的",
     "note": "メモ",
     "bug": "バグ",
-    "notice": "気づき"
+    "notice": "気づき",
+    "register-operation": "操作の登録",
+    "select-operation": "操作の選択",
+    "auto-operation": "自動操作",
+    "autofill": "自動入力"
   },
   "replay": {
-    "done-title": "履歴再生の終了",
-    "done-run-operations": "履歴再生が終了しました。",
-    "run-operations-canceled": "履歴再生を中止しました。"
+    "done-title": "テスト結果のリプレイ終了",
+    "done-run-operations": "リプレイが終了しました。",
+    "run-operations-canceled": "リプレイを中止しました。"
   },
   "navigate": {
     "back": "ブラウザバックを行う",
@@ -63,10 +68,10 @@
     "sequence": "シーケンス図モデル",
     "screen-transition": "画面遷移図モデル",
     "element-coverage": "画面部品カバレッジ",
-    "auto-play-to": "通番 {value} まで自動再生",
-    "auto-play-from": "通番 {value} から自動再生",
-    "auto-play-from-to": "通番 {value1} から {value2} まで自動再生",
-    "generate-testscript": "スクリプト生成",
+    "auto-play-to": "通番 {value} までリプレイ",
+    "auto-play-from": "通番 {value} からリプレイ",
+    "auto-play-from-to": "通番 {value1} から {value2} までリプレイ",
+    "generate-testscript": "テストスクリプト生成",
     "generate-testscript-title": "テストスクリプト生成",
     "generate-testscript-option": "オプション",
     "testdata": "テストデータ",
@@ -104,6 +109,14 @@
     "create-export-data-succeeded": "データエクスポートが完了しました。",
     "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
+  "config-io": {
+    "import-config": "設定のインポート",
+    "export-config": "設定のエクスポート",
+    "select-config-file": "設定ファイルを選択してください。",
+    "completed-export": "設定ファイルのエクスポートが完了しました。",
+    "completed-import": "設定ファイルのインポートが完了しました。",
+    "please-redisplay": "設定画面を再表示してください。"
+  },
   "config-view": {
     "window-title": "記録ツール [設定]",
     "target": "テスト対象設定",
@@ -130,6 +143,8 @@
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
+    "setting-auto-operation": "自動操作設定",
+    "no-data": "操作セットが登録されていません",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
@@ -166,7 +181,12 @@
       "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
       "input-value": "入力値"
     },
-
+    "autoOperation": {
+      "name": "操作セット名",
+      "details": "操作セット詳細",
+      "title": "自動操作：セット内容",
+      "details-list": "詳細"
+    },
     "settings": "設定"
   },
   "autofill-register-dialog": {
@@ -181,6 +201,18 @@
   },
   "autofill-button": {
     "message": "入力値セット名を選択してください。"
+  },
+  "auto-operation-register-dialog": {
+    "title": "自動操作：登録",
+    "message": "選択した操作を登録しますか？登録する場合は操作セット名を入力してください。",
+    "name": "操作セット名",
+    "details": "詳細(非必須)"
+  },
+  "auto-operation-select-dialog": {
+    "title": "自動操作：選択",
+    "message": "自動操作する場合は操作セット名を選択してください。",
+    "name": "操作セット名",
+    "details": "操作セット詳細"
   },
   "note-edit": {
     "take-screenshot": "スクリーンショットも記録する",
@@ -197,9 +229,9 @@
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
   },
   "replay-option": {
-    "start-replay": "履歴を再生する",
+    "start-replay": "テスト結果のリプレイ",
     "test-result-name": "テスト結果名",
-    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
+    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
   },
   "test-option": {
     "start-testing": "テストを始める",
@@ -233,7 +265,8 @@
     "text": "テキスト",
     "type": "イベント種別",
     "input": "入力値",
-    "timestamp": "時刻"
+    "timestamp": "時刻",
+    "url": "URL"
   },
   "sequence": {
     "window-title": "シーケンス図"
@@ -261,7 +294,7 @@
     "edit-plan": "テスト計画編集",
     "creating-snapshot": "スナップショット作成中",
     "output-html": "スナップショット出力",
-    "capture-config": "キャプチャ設定",
+    "capture-config": "設定",
     "top": "TOP",
     "manage-progress": "進捗管理",
     "manage-quality": "品質管理",
@@ -480,18 +513,20 @@
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",
       "client_side_capture_service_not_found": "'latteart-capture-cl'サーバに接続できません。'latteart-capture-cl'サーバが起動しているかご確認ください。",
       "capture_socket_disconnected": "記録中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト開始」ボタンを押して記録を再開してください。",
-      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「履歴を再生する」ボタンを押して再度リプレイを実施してください。",
+      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト結果のリプレイ」ボタンを押して再度リプレイを実施してください。",
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
-      "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
+      "invalid_operation": "無効な操作が含まれているため、リプレイを中止しました。",
+      "element_not_found": "画面要素が見つからないため、リプレイを中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
       "create_test_result_directory_failed": "テスト結果ディレクトリの作成に失敗しました。保存先ディレクトリパスが有効かご確認ください。",
       "test_result_directory_already_exists": "保存先ディレクトリと同名のディレクトリが既に存在します。ご指定の保存先ディレクトリを変更してください。",
-      "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。"
+      "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
+      "run_auto_operations_failed": "自動操作実行中にエラーが発生しました。"
     },
     "operation_history": {
       "compress_operation_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
@@ -514,7 +549,8 @@
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
       "get_test_result_failed": "テスト結果の取得に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
-      "register_operation_failed": "操作の登録に失敗しました。"
+      "register_operation_failed": "操作の登録に失敗しました。",
+      "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

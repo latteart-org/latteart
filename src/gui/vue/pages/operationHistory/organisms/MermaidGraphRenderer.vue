@@ -80,7 +80,7 @@ export default class MermaidGraphRenderer extends Vue {
       return;
     }
     const svg = graph.children[0] as any;
-    const maxWidth = Number(svg.getAttribute("width").split("px")[0]);
+    const maxWidth = Number(svg.style.maxWidth.split("px")[0]);
     const width = Number(svg.style.width.split("px")[0]);
     if (width >= maxWidth) {
       this.isMaxSize = true;
@@ -142,11 +142,9 @@ export default class MermaidGraphRenderer extends Vue {
   private adaptSvgScaleOfScreenTransition() {
     const svg = (this.$refs.graph as HTMLElement).children[0] as any;
     svg.style.width = `${
-      svg.getAttribute("width").split("px")[0] * this.svgScalePercentage * 0.01
+      svg.style.maxWidth.split("px")[0] * this.svgScalePercentage * 0.01
     }px`;
-    svg.style.height = `${
-      svg.getAttribute("height").split("px")[0] * this.svgScalePercentage * 0.01
-    }px`;
+
     this.setIsMaxSizeAndIsMinSizeOfScreenTransition();
   }
 }

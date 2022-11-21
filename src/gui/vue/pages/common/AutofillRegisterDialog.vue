@@ -15,11 +15,16 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("autofill-register-dialog.title")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('autofill-register-dialog.title')"
+    @accept="
+      accept();
+      close();
+    "
+    @cancel="close()"
+  >
+    <template>
       <div class="pre-wrap break-word">
         {{ message }}
       </div>
@@ -28,35 +33,20 @@
         :label="$store.getters.message('autofill-register-dialog.form-label')"
       ></v-text-field>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="red"
-        dark
-        @click="
-          accept();
-          close();
-        "
-        >{{ $store.getters.message("common.ok") }}</v-btn
-      >
-      <v-btn color="white" @click="close()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+  </execute-dialog>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import {
   AutofillConditionGroup,
   ElementInfo,
 } from "@/lib/operationHistory/types";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
   },
 })
 export default class AutofillRegisterDialog extends Vue {

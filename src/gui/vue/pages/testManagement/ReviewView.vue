@@ -58,28 +58,20 @@
       operationContextEnabled
     ></history-display>
 
-    <scrollable-dialog :opened="dialogOpened">
-      <template v-slot:title>{{ dialogTitle }}</template>
-      <template v-slot:content>
+    <execute-dialog
+      :opened="dialogOpened"
+      :title="dialogTitle"
+      @accept="
+        acceptEditDialog();
+        closeDialog();
+      "
+      @cancel="closeDialog()"
+      :acceptButtonDisabled="dialogValue === ''"
+    >
+      <template>
         <v-text-field v-model="dialogValue" class="pt-0"></v-text-field>
       </template>
-      <template v-slot:footer>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="dialogValue === ''"
-          color="blue"
-          :dark="dialogValue !== ''"
-          @click="
-            acceptEditDialog();
-            closeDialog();
-          "
-          >{{ $store.getters.message("common.ok") }}</v-btn
-        >
-        <v-btn color="white" @click="closeDialog()">{{
-          $store.getters.message("common.cancel")
-        }}</v-btn>
-      </template>
-    </scrollable-dialog>
+    </execute-dialog>
 
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
@@ -125,17 +117,17 @@ import HistoryDisplay from "@/vue/pages/operationHistory/organisms/HistoryDispla
 import IssueStatus from "@/lib/common/enum/IssueStatus";
 import * as History from "@/lib/testManagement/History";
 import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
-import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
 import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
+import ExecuteDialog from "@/vue/molecules/ExecuteDialog.vue";
 
 @Component({
   components: {
     "history-display": HistoryDisplay,
-    "scrollable-dialog": ScrollableDialog,
+    "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
     "context-menu": ContextMenu,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,

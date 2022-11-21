@@ -21,10 +21,11 @@ import {
   WindowHandle,
   OperationWithNotes,
   AutofillConditionGroup,
+  AutoOperation,
+  OperationForReplay,
 } from "@/lib/operationHistory/types";
 import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import { CaptureConfig } from "@/lib/captureControl/CaptureConfig";
-import { Operation } from "@/lib/operationHistory/Operation";
 import {
   CapturedOperation,
   CapturedScreenTransition,
@@ -34,6 +35,7 @@ import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWi
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
 import { TimestampImpl } from "@/lib/common/Timestamp";
+import { ServerError } from "@/lib/captureControl/Reply";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -201,7 +203,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async replayOperations(
     context,
-    payload: { operations: Operation[] }
+    payload: { operations: OperationForReplay[] }
   ): Promise<void> {
     context.commit("setIsReplaying", { isReplaying: true });
 
@@ -211,14 +213,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const sourceTestResultId = (context.rootState as any).operationHistory
         .testResultInfo.id;
 
-      const pauseCapturingIndex = payload.operations.findIndex((operation) => {
-        return operation.type === "pause_capturing";
-      });
-
-      const operations =
-        pauseCapturingIndex > 0
-          ? payload.operations.slice(0, pauseCapturingIndex)
-          : payload.operations;
+      const operations = convertOperationsForReplay(payload.operations);
 
       const replayOption = context.state.replayOption;
 
@@ -251,6 +246,35 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       });
     } finally {
       context.commit("setIsReplaying", { isReplaying: false });
+    }
+  },
+
+  async runAutoOperations(
+    context,
+    payload: { operations: AutoOperation[] }
+  ): Promise<void> {
+    const operations = convertOperationsForReplay(payload.operations);
+
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: true,
+    });
+    const result = await context.dispatch("runOperations", {
+      operations,
+      waitTime: 1000,
+    });
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: false,
+    });
+    if (result.error) {
+      const errorMessage = context.rootGetters.message(
+        `error.capture_control.run_auto_operations_failed`
+      );
+      throw new Error(errorMessage);
     }
   },
 
@@ -317,11 +341,22 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { autofillConditionGroup: AutofillConditionGroup }
   ) {
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: true,
+    });
     await context.rootState.clientSideCaptureServiceDispatcher.autofill(
       payload.autofillConditionGroup.inputValueConditions.filter(
         (inputValue) => inputValue.isEnabled
       )
     );
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
+    context.commit("setIsAutoOperation", {
+      isAutoOperation: false,
+    });
   },
 
   /**
@@ -329,7 +364,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.operations Operations.
    */
-  async runOperations(context, payload: { operations: Operation[] }) {
+  async runOperations(
+    context,
+    payload: { operations: OperationForReplay[]; waitTime?: number }
+  ) {
     const isReplayCaptureMode = (context.rootState as any).captureControl
       .replayOption.replayCaptureMode;
     const isReplaying = (context.rootState as any).captureControl.isReplaying;
@@ -343,23 +381,77 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       );
     }
 
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       setTimeout(() => {
         resolve();
       }, 1000);
     });
 
-    const recordedWindowHandles = payload.operations
+    const tempWindowHandles = payload.operations
       .map((operation) => {
         return operation.windowHandle;
       })
-      .filter((windowHandle, index, array) => {
-        return array.indexOf(windowHandle) === index;
+      .filter((windowHandle) => {
+        return windowHandle;
       });
+    const recordedWindowHandles =
+      tempWindowHandles.length > 0
+        ? tempWindowHandles.filter((windowHandle, index, array) => {
+            return array.indexOf(windowHandle) === index;
+          })
+        : [];
 
     const replayWindowHandles: string[] = [];
 
+    const isDateInputOperation = (
+      target: Pick<OperationForReplay, "type" | "elementInfo">,
+      type: "click" | "change"
+    ) => {
+      return (
+        target.type === type &&
+        target.elementInfo?.tagname.toLowerCase() === "input" &&
+        target.elementInfo.attributes.type === "date"
+      );
+    };
+
+    const isNumberInputOperation = (
+      target: Pick<OperationForReplay, "type" | "elementInfo">,
+      type: "click" | "change"
+    ) => {
+      return (
+        target.type === type &&
+        target.elementInfo?.tagname.toLowerCase() === "input" &&
+        target.elementInfo.attributes.type === "number"
+      );
+    };
+
     for (const [index, operation] of payload.operations.entries()) {
+      if (isDateInputOperation(operation, "change")) {
+        const nextOperation: OperationForReplay | undefined =
+          payload.operations[index + 1];
+
+        if (
+          nextOperation &&
+          isDateInputOperation(nextOperation, "change") &&
+          operation.elementInfo?.xpath === nextOperation.elementInfo?.xpath
+        ) {
+          continue;
+        }
+      }
+
+      if (isNumberInputOperation(operation, "click")) {
+        const preOperation: OperationForReplay | undefined =
+          payload.operations[index - 1];
+
+        if (
+          preOperation &&
+          isNumberInputOperation(preOperation, "change") &&
+          operation.elementInfo?.xpath === preOperation.elementInfo?.xpath
+        ) {
+          continue;
+        }
+      }
+
       if (index > 0) {
         if (!isReplayCaptureMode && isReplaying) {
           context.commit(
@@ -374,11 +466,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           payload.operations[index - 1].timestamp
         );
         const current = new TimestampImpl(payload.operations[index].timestamp);
+        const intervalTime = payload.waitTime ?? current.diff(previous);
 
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           setTimeout(() => {
             resolve();
-          }, current.diff(previous));
+          }, intervalTime);
         });
       }
 
@@ -392,33 +485,61 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const replayTargetOperation = (() => {
         if (operation.type !== "switch_window") {
-          return operation;
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
+        }
+
+        if (recordedWindowHandles.length < 1) {
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
         }
 
         const handleKey = recordedWindowHandles.indexOf(operation.input);
 
         if (handleKey === -1) {
-          return operation;
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+          };
         }
 
         const switchHandleId = replayWindowHandles[handleKey];
-        return Operation.createFromOtherOperation({
-          other: operation,
-          overrideParams: { input: switchHandleId },
-        });
+
+        return {
+          input: switchHandleId,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+        };
       })();
 
       if (payload.operations[index + 1]?.type === "screen_transition") {
-        await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
-          replayTargetOperation
-        );
+        const result =
+          await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
+            replayTargetOperation
+          );
+        if (result.error) {
+          return result;
+        }
       } else if (replayTargetOperation.type !== "screen_transition") {
-        await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
-          replayTargetOperation
-        );
+        const result =
+          await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
+            replayTargetOperation
+          );
+
+        if (result.error) {
+          return result;
+        }
       }
     }
-    context.dispatch("endCapture");
+
+    return {};
   },
 
   /**
@@ -434,7 +555,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     payload: {
       url: string;
       config: CaptureConfig;
-      operations?: Operation[];
+      operations?: OperationForReplay[];
       callbacks: {
         onChangeNumberOfWindows: () => void;
       };
@@ -461,7 +582,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
               context.commit("setCapturing", { isCapturing: true });
               context.commit(
-                "operationHistory/clearUnassignedIntentions",
+                "operationHistory/clearUnassignedTestPurposes",
                 null,
                 {
                   root: true,
@@ -486,7 +607,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 );
 
                 await context.dispatch(
-                  "operationHistory/saveIntention",
+                  "operationHistory/addUnassignedTestPurpose",
                   {
                     noteEditInfo: {
                       oldSequence: sequence ?? undefined,
@@ -504,8 +625,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
               if (isReplaying) {
                 const operations = payload.operations;
-                context.dispatch("runOperations", { operations });
+                const result: { error?: ServerError } = await context.dispatch(
+                  "runOperations",
+                  {
+                    operations,
+                  }
+                );
+
+                context.dispatch("endCapture");
+                return result;
               }
+              return {};
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {
               if (capturedOperation.type === "switch_window") {
@@ -554,7 +684,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 { root: true }
               );
             },
-            onChangeBrowserHistory: (browserStatus: {
+            onChangeBrowserHistory: async (browserStatus: {
               canGoBack: boolean;
               canGoForward: boolean;
             }) => {
@@ -566,7 +696,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 canDoBrowserForward: browserStatus.canGoForward,
               });
             },
-            onUpdateAvailableWindows: (updatedWindowsInfo: {
+            onUpdateAvailableWindows: async (updatedWindowsInfo: {
               windowHandles: string[];
               currentWindowHandle: string;
             }) => {
@@ -594,17 +724,16 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 payload.callbacks.onChangeNumberOfWindows();
               }
             },
-            onChangeAlertVisibility: (data: { isVisible: boolean }) => {
+            onChangeAlertVisibility: async (data: { isVisible: boolean }) => {
               context.commit("setAlertVisible", data);
             },
-            onPause: () => {
+            onPause: async () => {
               context.commit("setPaused", { isPaused: true });
             },
-            onResume: () => {
+            onResume: async () => {
               context.commit("setPaused", { isPaused: false });
             },
-          },
-          isReplaying
+          }
         );
 
       if (reply.error) {
@@ -629,6 +758,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       context.dispatch("endCapture");
 
       context.commit("setCapturing", { isCapturing: false });
+      context.commit("setIsAutoOperation", {
+        isAutoOperation: false,
+      });
       context.commit("setPaused", { isPaused: false });
       context.commit("setCurrentWindow", { currentWindow: "" });
       context.commit("setAvailableWindows", { availableWindows: [] });
@@ -684,3 +816,23 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 };
 
 export default actions;
+
+function convertOperationsForReplay(operations: OperationForReplay[]) {
+  const pauseCapturingIndex = operations.findIndex((operation) => {
+    return operation.type === "pause_capturing";
+  });
+
+  const tempOperations =
+    pauseCapturingIndex > 0
+      ? operations.slice(0, pauseCapturingIndex)
+      : operations;
+
+  const a = tempOperations.filter((tempOperation) => {
+    return !(
+      tempOperation.type === "click" &&
+      tempOperation.elementInfo?.attributes.type === "date"
+    );
+  });
+
+  return a;
+}

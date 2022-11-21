@@ -26,7 +26,7 @@ import {
   OperationWithNotes,
   ElementInfo,
   AutofillConditionGroup,
-  AutofillCondition,
+  AutoOperation,
 } from "@/lib/operationHistory/types";
 import SequenceDiagramGraphConverter, {
   SequenceDiagramGraphCallback,
@@ -39,16 +39,15 @@ import ScreenTransitionDiagramGraphConverter, {
 import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/MermaidGraphConverter";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
+import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/RecordTestPurposeAction";
+import { MoveTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/MoveTestPurposeAction";
 import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
-import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
-import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
-import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
-import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
+import { DeleteTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/DeleteTestPurposeAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
@@ -67,6 +66,8 @@ import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoti
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
+import { Operation } from "@/lib/operationHistory/Operation";
+import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -86,6 +87,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     await context.dispatch("writeSettings", {
       config: {
         autofillSetting: config.autofillSetting,
+        autoOperationSetting: config.autoOperationSetting,
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
@@ -109,6 +111,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         autofillSetting:
           payload.config.autofillSetting ??
           context.state.config.autofillSetting,
+        autoOperationSetting:
+          payload.config.autoOperationSetting ??
+          context.state.config.autoOperationSetting,
         screenDefinition:
           payload.config.screenDefinition ??
           context.state.config.screenDefinition,
@@ -166,82 +171,137 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.dispatch("setSettings", { settings: result.data });
   },
 
-  /**
-   * Record a test intention.
-   * @param context Action context.
-   * @param payload.noteEditInfo Test intention information.
-   */
-  async saveIntention(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const recordIntentionAction = new RecordIntentionAction(
-      {
-        getTestStepId: (sequence) => {
-          return context.state.testStepIds[sequence - 1];
-        },
-        setIntention: (intention) => {
-          context.commit("setIntention", { intention });
-          context.commit("setCanUpdateModels", { canUpdateModels: true });
-        },
-      },
-      context.rootState.repositoryContainer
-    );
+  addUnassignedTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const lastItemIndex = context.state.history.length - 1;
+    const sequence =
+      (context.state.history[lastItemIndex]?.operation.sequence ?? 0) + 1;
 
-    const moveIntentionAction = new MoveIntentionAction(
-      {
-        getTestStepId: (sequence) => {
-          return context.state.testStepIds[sequence - 1];
-        },
-        moveIntention: (oldSequence, newIntention) => {
-          context.commit("deleteIntention", { sequence: oldSequence });
-          context.commit("setIntention", { intention: newIntention });
-          context.commit("setCanUpdateModels", { canUpdateModels: true });
-        },
+    context.commit("setUnassignedTestPurpose", {
+      unassignedTestPurpose: {
+        sequence,
+        note: payload.noteEditInfo.note,
+        noteDetails: payload.noteEditInfo.noteDetails,
       },
-      context.rootState.repositoryContainer
-    );
-
-    const result = await new SaveIntentionAction({
-      recordIntention: (note) => {
-        return recordIntentionAction.record(context.state.history, note);
-      },
-      moveIntention: (fromSequence, destSequence) => {
-        return moveIntentionAction.move(
-          context.state.testResultInfo.id,
-          fromSequence,
-          destSequence
-        );
-      },
-      setUnassignedIntention: async (unassignedIntention) => {
-        context.commit("setUnassignedIntention", {
-          unassignedIntention,
-        });
-      },
-    }).save(
-      context.state.testResultInfo.id,
-      payload.noteEditInfo,
-      context.state.history
-    );
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
+    });
   },
 
   /**
-   * Delete a test intention.
+   * Add a test purpose.
    * @param context Action context.
-   * @param payload.sequence Sequence number of the test intention.
+   * @param payload.noteEditInfo Test purpose information.
    */
-  async deleteIntention(context, payload: { sequence: number }) {
+  async addTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const testStepId = payload.noteEditInfo.oldSequence
+      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
+      : "";
+
+    if (!testStepId) {
+      return;
+    }
+
+    // add
+    const recordAction = new RecordTestPurposeAction(
+      context.rootState.repositoryContainer
+    );
+    const result = await recordAction.add(
+      context.state.testResultInfo.id,
+      testStepId,
+      {
+        summary: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails ?? "",
+      }
+    );
+
+    if (result.isFailure()) {
+      const { messageKey, variables } = result.error;
+      throw new Error(context.rootGetters.message(messageKey, variables));
+    }
+
+    // set to store
+    context.commit("setTestPurpose", {
+      intention: Note.createFromOtherNote({
+        other: result.data,
+        overrideParams: { sequence: payload.noteEditInfo.oldSequence },
+      }),
+    });
+    context.commit("setCanUpdateModels", { canUpdateModels: true });
+  },
+
+  /**
+   * Edit a test purpose.
+   * @param context Action context.
+   * @param payload.noteEditInfo Test purpose information.
+   */
+  async editTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const fromTestStepId = payload.noteEditInfo.oldSequence
+      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
+      : "";
+
+    if (!fromTestStepId) {
+      return;
+    }
+
+    const destTestStepId = payload.noteEditInfo.newSequence
+      ? context.state.testStepIds[payload.noteEditInfo.newSequence - 1]
+      : "";
+
+    // edit and move
+    const result = await (async () => {
+      const repositoryContainer = context.rootState.repositoryContainer;
+      const testResultId = context.state.testResultInfo.id;
+
+      const recordAction = new RecordTestPurposeAction(repositoryContainer);
+      const recordActionResult = await recordAction.edit(
+        testResultId,
+        fromTestStepId,
+        {
+          summary: payload.noteEditInfo.note,
+          details: payload.noteEditInfo.noteDetails ?? "",
+        }
+      );
+
+      if (recordActionResult.isFailure() || !destTestStepId) {
+        return recordActionResult;
+      }
+
+      const moveAction = new MoveTestPurposeAction(repositoryContainer);
+      return moveAction.move(testResultId, fromTestStepId, destTestStepId);
+    })();
+
+    if (result.isFailure()) {
+      const { messageKey, variables } = result.error;
+      throw new Error(context.rootGetters.message(messageKey, variables));
+    }
+
+    // set to store
+    if (payload.noteEditInfo.oldSequence !== undefined) {
+      context.commit("deleteTestPurpose", {
+        sequence: payload.noteEditInfo.oldSequence,
+      });
+    }
+    const sequence = !destTestStepId
+      ? payload.noteEditInfo.oldSequence
+      : payload.noteEditInfo.newSequence;
+    context.commit("setTestPurpose", {
+      intention: Note.createFromOtherNote({
+        other: result.data,
+        overrideParams: { sequence },
+      }),
+    });
+    context.commit("setCanUpdateModels", { canUpdateModels: true });
+  },
+
+  /**
+   * Delete a test purpose.
+   * @param context Action context.
+   * @param payload.sequence Sequence number of the test purpose.
+   */
+  async deleteTestPurpose(context, payload: { sequence: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const result = await new DeleteIntentionAction(
+    const result = await new DeleteTestPurposeAction(
       context.rootState.repositoryContainer
-    ).deleteIntention(context.state.testResultInfo.id, testStepId);
+    ).delete(context.state.testResultInfo.id, testStepId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -253,7 +313,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     if (result.data) {
-      context.commit("deleteIntention", { sequence: payload.sequence });
+      context.commit("deleteTestPurpose", { sequence: payload.sequence });
       context.commit("setCanUpdateModels", { canUpdateModels: true });
     }
   },
@@ -769,17 +829,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     }
 
-    context.commit("clearTestStepIds");
+    await context.dispatch("resetHistory");
 
     for (const testStepId of result.data.testStepIds) {
       context.commit("addTestStepId", { testStepId });
     }
-
-    context.commit("clearHistory");
-    context.commit("clearModels");
-    context.commit("clearInputValueTable");
-    context.commit("selectWindow", { windowHandle: "" });
-
     context.commit("resetAllCoverageSources", {
       coverageSources: result.data.coverageSources,
     });
@@ -886,13 +940,35 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
+   * Configuration file output.
+   * @param context Action context.
+   */
+  async exportConfig(context) {
+    const result = await new ExportConfigAction(
+      context.rootState.repositoryContainer
+    ).exportSettings();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
+  },
+
+  /**
    * Empty history in the State.
    * @param context Action context.
    */
   resetHistory(context) {
     context.commit("clearHistory");
+    context.commit("clearCheckedOperations");
     context.commit("captureControl/clearWindowHandles", null, { root: true });
-    context.commit("clearUnassignedIntentions");
+    context.commit("clearUnassignedTestPurposes");
     context.commit("clearAllCoverageSources");
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     context.commit("clearModels");
@@ -906,28 +982,28 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearTestStepIds");
   },
 
-  async saveUnassignedIntention(context, payload: { destSequence: number }) {
-    const unassignedIntentionIndex =
-      context.state.unassignedIntentions.findIndex((item) => {
+  async saveUnassignedTestPurpose(context, payload: { destSequence: number }) {
+    const unassignedTestPurposeIndex =
+      context.state.unassignedTestPurposes.findIndex((item) => {
         return item.sequence === payload.destSequence;
       });
 
-    if (unassignedIntentionIndex !== -1) {
-      const unassignedIntention =
-        context.state.unassignedIntentions[unassignedIntentionIndex];
+    if (unassignedTestPurposeIndex !== -1) {
+      const unassignedTestPurpose =
+        context.state.unassignedTestPurposes[unassignedTestPurposeIndex];
 
-      await context.dispatch("saveIntention", {
+      await context.dispatch("addTestPurpose", {
         noteEditInfo: {
-          note: unassignedIntention.note,
-          noteDetails: unassignedIntention.noteDetails,
+          note: unassignedTestPurpose.note,
+          noteDetails: unassignedTestPurpose.noteDetails,
           shouldTakeScreenshot: false,
-          oldSequence: unassignedIntention.sequence,
+          oldSequence: unassignedTestPurpose.sequence,
           tags: [],
         },
       });
 
-      context.commit("removeUnassignedIntention", {
-        index: unassignedIntentionIndex,
+      context.commit("removeUnassignedTestPurpose", {
+        index: unassignedTestPurposeIndex,
       });
     }
   },
@@ -943,6 +1019,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
       capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
     }
+    capturedOperation.isAutomatic = (
+      context.rootState as any
+    ).captureControl.isAutoOperation;
 
     const result = await new RegisterOperationAction(
       repositoryContainer
@@ -1026,7 +1105,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       entry: { operation, intention: null, bugs: null, notices: null },
     });
 
-    await context.dispatch("saveUnassignedIntention", {
+    await context.dispatch("saveUnassignedTestPurpose", {
       destSequence: operation.sequence,
     });
 
@@ -1240,31 +1319,29 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         });
       };
 
-      const filterOperation = (displayedOperationSequences: number[]) => {
-        context.commit("setDisplayedOperations", {
-          sequences: displayedOperationSequences,
-        });
-
-        if (displayedOperationSequences.length > 0) {
-          context.commit("selectOperation", {
-            sequence:
-              displayedOperationSequences[
-                displayedOperationSequences.length - 1
-              ],
-          });
-        }
-      };
-
       await context.dispatch("buildSequenceDiagramGraph", {
         screenHistory: context.state.screenHistory,
         windowHandles,
         callback: {
+          onClickActivationBox: (history: OperationWithNotes[]) => {
+            const firstItem = history[0] as OperationWithNotes | undefined;
+
+            if (!firstItem) {
+              return;
+            }
+
+            selectOperation(firstItem.operation.sequence);
+          },
           onClickEdge: (edge: Edge) => {
-            filterOperation(
-              edge.operationHistory.map((item) => {
-                return item.operation.sequence;
-              })
-            );
+            const lastItem = edge.operationHistory[
+              edge.operationHistory.length - 1
+            ] as OperationWithNotes | undefined;
+
+            if (!lastItem) {
+              return;
+            }
+
+            selectOperation(lastItem.operation.sequence);
           },
           onClickScreenRect: selectOperation,
           onClickNote: (note: {
@@ -1273,7 +1350,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: string;
           }) => {
             if (!!note && (note.type === "notice" || note.type === "bug")) {
-              filterOperation([note.sequence]);
+              selectOperation(note.sequence);
             }
           },
           onRightClickNote: context.state.openNoteMenu,
@@ -1509,6 +1586,32 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     await context.dispatch("writeSettings", {
       config: {
         autofillSetting,
+      },
+    });
+  },
+
+  async registerAutoOperation(
+    context,
+    payload: {
+      settingName: string;
+      settingDetails?: string;
+      operations: AutoOperation[];
+    }
+  ) {
+    const conditionGroup = {
+      isEnabled: true,
+      settingName: payload.settingName,
+      details: payload.settingDetails,
+      autoOperations: payload.operations,
+    };
+    const autoOperationSetting = {
+      ...context.state.config.autoOperationSetting,
+    };
+    autoOperationSetting.conditionGroups.push(conditionGroup);
+
+    await context.dispatch("writeSettings", {
+      config: {
+        autoOperationSetting,
       },
     });
   },

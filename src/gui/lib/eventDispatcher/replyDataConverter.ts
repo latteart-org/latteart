@@ -37,6 +37,7 @@ export function convertTestStepOperation(
     inputElements: testStepOperation.inputElements,
     keywordSet: new Set(testStepOperation.keywordTexts),
     sequence,
+    isAutomatic: testStepOperation.isAutomatic,
   });
 
   return operation;

@@ -55,10 +55,37 @@
                   {{ $store.getters.message("config-view.setting-screen") }}
                 </template>
                 <screen-definition-setting
+                  :opened="screenDefinitionSettingOpened"
                   :screenDefinition="screenDefinition"
                   @save-config="saveConfig"
                 >
                 </screen-definition-setting>
+              </v-expansion-panel-content>
+
+              <v-expansion-panel-content>
+                <template v-slot:header class="py-0">
+                  {{ $store.getters.message("config-view.setting-autofill") }}
+                </template>
+                <autofill-setting
+                  :opened="autofillSettingOpened"
+                  :autofillSetting="autofillSetting"
+                  @save-config="saveConfig"
+                >
+                </autofill-setting>
+              </v-expansion-panel-content>
+
+              <v-expansion-panel-content>
+                <template v-slot:header class="py-0">
+                  {{
+                    $store.getters.message("config-view.setting-auto-operation")
+                  }}
+                </template>
+                <auto-operation-setting
+                  :opened="autoOperationSettingOpened"
+                  :autoOperationSetting="autoOperationSetting"
+                  @save-config="saveConfig"
+                >
+                </auto-operation-setting>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-flex>
@@ -77,31 +104,40 @@ import Settings, {
   ImageCompression,
   ScreenDefinition,
 } from "@/lib/common/settings/Settings";
-import { AutofillSetting } from "@/lib/operationHistory/types";
+import {
+  AutofillSetting,
+  AutoOperationSetting,
+} from "@/lib/operationHistory/types";
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
+import { default as AutofillSettingComponent } from "./AutofillSetting.vue";
+import { default as AutoOperationSettingComponent } from "./AutoOperationSetting.vue";
 
 @Component({
   components: {
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
+    "autofill-setting": AutofillSettingComponent,
+    "auto-operation-setting": AutoOperationSettingComponent,
   },
 })
 export default class ConfigViewer extends Vue {
   private panel: null | number = null;
-  private settings: Settings | null = null;
 
-  private async created() {
-    this.settings = await this.$store.dispatch("operationHistory/fetchConfig");
+  private get config(): Settings["config"] {
+    return this.$store.state.operationHistory.config;
   }
 
   private get includeTags(): string[] {
-    return this.settings?.config.coverage.include.tags ?? [];
+    return this.config?.coverage.include.tags ?? [];
   }
   private get defaultTagList(): string[] {
     return this.$store.state.operationHistory.defaultTagList;
   }
 
   private get dialog() {
+    if (!this.$store.state.openedConfigViewer) {
+      this.panel = null;
+    }
     return this.$store.state.openedConfigViewer;
   }
 
@@ -113,10 +149,40 @@ export default class ConfigViewer extends Vue {
     return this.panel === 0;
   }
 
+  private get screenDefinitionSettingOpened() {
+    return this.panel === 1;
+  }
+
+  private get autofillSettingOpened() {
+    return this.panel === 2;
+  }
+
+  private get autoOperationSettingOpened() {
+    return this.panel === 3;
+  }
+
   private get screenDefinition(): ScreenDefinition {
     return (
-      this.settings?.config.screenDefinition ?? {
+      this.config.screenDefinition ?? {
         screenDefType: ScreenDefType.Title,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autofillSetting(): AutofillSetting {
+    return (
+      this.config?.autofillSetting ?? {
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      }
+    );
+  }
+
+  private get autoOperationSetting(): AutoOperationSetting {
+    return (
+      this.config?.autoOperationSetting ?? {
         conditionGroups: [],
       }
     );
@@ -132,11 +198,12 @@ export default class ConfigViewer extends Vue {
 
   private async saveConfig(config: {
     autofillSetting?: AutofillSetting;
+    autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinition;
     coverage?: Coverage;
     imageCompression?: ImageCompression;
   }) {
-    await this.$store.dispatch("operationHistory/writeSettings", { config });
+    this.$store.dispatch("operationHistory/writeSettings", { config });
 
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {

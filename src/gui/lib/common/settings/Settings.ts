@@ -18,6 +18,7 @@ import { ScreenDefType, RunningMode, Locale } from "../enum/SettingsEnum";
 import {
   AutofillSetting,
   ScreenDefinitionConditionGroup,
+  AutoOperationSetting,
 } from "@/lib/operationHistory/types";
 
 /**
@@ -65,8 +66,9 @@ export default class Settings {
    * Setting information.
    */
   public config: {
-    screenDefinition: ScreenDefinition;
     autofillSetting: AutofillSetting;
+    autoOperationSetting: AutoOperationSetting;
+    screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
   };
@@ -99,6 +101,9 @@ export default class Settings {
       autofillSetting: {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false,
+        conditionGroups: [],
+      },
+      autoOperationSetting: {
         conditionGroups: [],
       },
       screenDefinition: {
