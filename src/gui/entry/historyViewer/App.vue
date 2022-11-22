@@ -48,6 +48,7 @@ import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
 import { CoverageSource } from "src/common";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { extractWindowHandles } from "@/lib/common/windowHandle";
 
 @Component({
   components: {
@@ -72,6 +73,13 @@ export default class App extends Vue {
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
       });
+      this.$store.commit(
+        "operationHistory/setWindows",
+        {
+          windowHandles: extractWindowHandles(history),
+        },
+        { root: true }
+      );
 
       await this.$store.dispatch("operationHistory/updateScreenHistory");
     })();
