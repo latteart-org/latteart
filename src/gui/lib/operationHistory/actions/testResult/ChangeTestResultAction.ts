@@ -19,7 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 const CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.update_test_result_failed";

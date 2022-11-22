@@ -20,7 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { ManagedSession } from "../TestManagementData";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 const UPDATE_SESSION_FAILED_MESSAGE_KEY =
   "error.test_management.update_session_failed";

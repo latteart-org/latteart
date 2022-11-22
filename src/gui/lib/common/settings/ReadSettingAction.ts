@@ -20,7 +20,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";

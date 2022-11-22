@@ -14,34 +14,28 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+  createRepositoryAccessFailure,
+} from "./result";
+import { StoryForRepository } from "./types";
 
-export class ImportProjectRepository {
+export class StoryRepository {
   constructor(private restClient: RESTClient) {}
 
-  /**
-   * Import project or testresult or all.
-   * @param importFileName  Import file name.
-   * @param selectOption  Select options.
-   */
-  public async postProjects(
-    source: { projectFile: { data: string; name: string } },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<RepositoryAccessResult<{ projectId: string }>> {
+  public async patchStory(
+    id: string,
+    body: {
+      status?: string;
+    }
+  ): Promise<RepositoryAccessResult<StoryForRepository>> {
     try {
-      const response = await this.restClient.httpPost(
-        `api/v1/imports/projects`,
-        {
-          source,
-          includeTestResults: selectOption.includeTestResults,
-          includeProject: selectOption.includeProject,
-        }
+      const response = await this.restClient.httpPatch(
+        `api/v1/stories/${id}`,
+        body
       );
 
       if (response.status !== 200) {
@@ -49,7 +43,7 @@ export class ImportProjectRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as { projectId: string },
+        data: response.data as StoryForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

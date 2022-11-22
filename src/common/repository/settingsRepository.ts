@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createConnectionRefusedFailure,
   createRepositoryAccessFailure,
-} from "../result";
+  createConnectionRefusedFailure,
+} from "./result";
+import { SettingsForRepository } from "./types";
 
-export class TestMatrixRepository {
+export class SettingsRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async getTestMatrix(
-    id: string
-  ): Promise<RepositoryAccessResult<TestMatrix>> {
+  /**
+   * Get setting information.
+   * @returns Setting information.
+   */
+  public async getSettings(): Promise<
+    RepositoryAccessResult<SettingsForRepository>
+  > {
     try {
       const response = await this.restClient.httpGet(
-        `api/v1/test-matrices/${id}`
+        `api/v1/projects/1/configs`
       );
 
       if (response.status !== 200) {
@@ -39,44 +43,34 @@ export class TestMatrixRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestMatrix,
+        data: response.data as SettingsForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async postTestMatrix(body: {
-    projectId: string;
-    name: string;
-  }): Promise<RepositoryAccessResult<TestMatrix>> {
+  /**
+   * Save the setting information.
+   * @param settings  Setting information.
+   * @returns Saved setting information.
+   */
+  public async putSettings(
+    settings: SettingsForRepository
+  ): Promise<RepositoryAccessResult<SettingsForRepository>> {
     try {
-      const response = await this.restClient.httpPost(
-        `api/v1/test-matrices`,
-        body
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return createRepositoryAccessSuccess({
-        data: response.data as TestMatrix,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  public async patchTestMatrix(
-    id: string,
-    name: string
-  ): Promise<RepositoryAccessResult<TestMatrix>> {
-    try {
-      const response = await this.restClient.httpPatch(
-        `api/v1/test-matrices/${id}`,
+      const response = await this.restClient.httpPut(
+        `api/v1/projects/1/configs`,
         {
-          name,
+          ...settings,
+          locale: "ja",
+          mode: "debug",
+          debug: {
+            outputs: { dom: false },
+            saveItems: { keywordSet: true },
+            configureCaptureSettings: true,
+          },
+          captureSettings: { ignoreTags: [] },
         }
       );
 
@@ -85,25 +79,31 @@ export class TestMatrixRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestMatrix,
+        data: response.data as SettingsForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async deleteTestMatrix(
-    id: string
-  ): Promise<RepositoryAccessResult<void>> {
+  /**
+   * Configuration file output.
+   * @returns Config file URL.
+   */
+  public async exportSettings(): Promise<
+    RepositoryAccessResult<{ url: string }>
+  > {
     try {
-      const response = await this.restClient.httpDelete(
-        `api/v1/test-matrices/${id}`
+      const response = await this.restClient.httpPost(
+        `api/v1/projects/1/configs/export`
       );
-      if (response.status !== 204) {
+      if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
-      return createRepositoryAccessSuccess(response.data as { data: void });
+      return createRepositoryAccessSuccess({
+        data: response.data as { url: string },
+      });
     } catch (error) {
       return createConnectionRefusedFailure();
     }

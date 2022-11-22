@@ -14,36 +14,29 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
 
-export class ImportTestResultRepository {
+export class ScreenshotRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Import test result.
-   * @param source.importFileUrl Source import file url.
-   * @param dest.testResultId Destination local test result id.
-   * @param dest.shouldSaveTemporary Whether to save temporary.
+   * Get screenshots of the specified test result.
+   * @param testResultId  Test Result ID.
+   * @returns URL of the screenshots archive.
    */
-  public async postTestResult(
-    source: { testResultFile: { data: string; name: string } },
-    dest?: { testResultId?: string }
-  ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
-    try {
-      const body = {
-        source,
-        dest,
-      };
 
-      const response = await this.restClient.httpPost(
-        `api/v1/imports/test-results`,
-        body
+  public async getScreenshots(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<{ url: string }>> {
+    try {
+      const response = await this.restClient.httpGet(
+        `api/v1/test-results/${testResultId}/screenshots`
       );
 
       if (response.status !== 200) {
@@ -51,7 +44,7 @@ export class ImportTestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as { testResultId: string },
+        data: response.data as { url: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

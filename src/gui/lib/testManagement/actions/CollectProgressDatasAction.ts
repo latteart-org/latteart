@@ -19,9 +19,8 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService, DailyTestProgressForRepository } from "src/common";
 import { Timestamp } from "@/lib/common/Timestamp";
-import { DailyTestProgress } from "src/common/repository/project";
 
 const COLLECT_PROGRESS_DATAS_FAILED_MESSAGE_KEY =
   "error.test_management.collect_progress_datas_failed";
@@ -36,7 +35,7 @@ export class CollectProgressDatasAction {
     filter: {
       period?: { since: Timestamp; until: Timestamp };
     } = {}
-  ): Promise<ActionResult<DailyTestProgress[]>> {
+  ): Promise<ActionResult<DailyTestProgressForRepository[]>> {
     const getTestProgressResult =
       await this.repositoryService.projectRepository.getTestProgress(
         projectId,

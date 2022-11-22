@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 import { TestMatrix } from "@/lib/testManagement/types";
 
 export class UpdateTestMatrixAction {

@@ -15,16 +15,14 @@
  */
 
 import {
+  DailyTestProgressForRepository,
   ProjectRepository,
-  DailyTestProgress,
-} from "../../../common/repository/project";
-import { Project } from "@/lib/testManagement/types";
-import { TimestampImpl } from "@/lib/common/Timestamp";
-import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createConnectionRefusedFailure,
-} from "../../../common/repository/result";
+} from "../../../common";
+import { Project } from "@/lib/testManagement/types";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 export interface ProgressData {
   testMatrixId: string;
@@ -52,7 +50,7 @@ export interface TestTargetProgressData {
 }
 
 export class ProjectFileRepository implements ProjectRepository {
-  constructor(private progressFileData: DailyTestProgress[]) {}
+  constructor(private progressFileData: DailyTestProgressForRepository[]) {}
 
   /**
    * Creates export project or testresult or all.
@@ -103,7 +101,7 @@ export class ProjectFileRepository implements ProjectRepository {
     filter: {
       period?: { since?: number; until?: number };
     } = {}
-  ): Promise<RepositoryAccessResult<DailyTestProgress[]>> {
+  ): Promise<RepositoryAccessResult<DailyTestProgressForRepository[]>> {
     const filteredProgresses = this.progressFileData.filter(({ date }) => {
       if (
         filter.period?.since !== undefined &&

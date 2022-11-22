@@ -46,7 +46,7 @@ import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
-import { CoverageSource } from "src/common/types";
+import { CoverageSource } from "src/common";
 import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({

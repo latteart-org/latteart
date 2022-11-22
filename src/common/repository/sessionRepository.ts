@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { ManagedSession } from "@/lib/testManagement/TestManagementData";
-import { Session } from "@/lib/testManagement/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
+import { SessionForRepository, ManagedSessionForRepository } from "./types";
 
 export class SessionRepository {
   constructor(private restClient: RESTClient) {}
@@ -32,7 +31,7 @@ export class SessionRepository {
     body: {
       storyId: string;
     }
-  ): Promise<RepositoryAccessResult<Session>> {
+  ): Promise<RepositoryAccessResult<SessionForRepository>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/projects/${projectId}/sessions/`,
@@ -44,7 +43,7 @@ export class SessionRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Session,
+        data: response.data as SessionForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -54,8 +53,8 @@ export class SessionRepository {
   public async patchSession(
     projectId: string,
     sessionId: string,
-    body: Partial<ManagedSession>
-  ): Promise<RepositoryAccessResult<ManagedSession>> {
+    body: Partial<ManagedSessionForRepository>
+  ): Promise<RepositoryAccessResult<ManagedSessionForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/projects/${projectId}/sessions/${sessionId}`,
@@ -67,7 +66,7 @@ export class SessionRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as ManagedSession,
+        data: response.data as ManagedSessionForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

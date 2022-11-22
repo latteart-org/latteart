@@ -19,7 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 export class ExportProjectAction {
   constructor(

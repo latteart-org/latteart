@@ -19,10 +19,12 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
-import { TestScriptOption } from "src/common/repository/testScript";
+import {
+  RepositoryService,
+  TestScriptOption,
+  RepositoryAccessResult,
+} from "src/common";
 import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
-import { RepositoryAccessResult } from "src/common/repository/result";
 
 const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
   "error.operation_history.save_test_scripts_failed";

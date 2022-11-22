@@ -1,4 +1,4 @@
-import { SessionRepository } from "src/common/repository/session";
+import { SessionRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 

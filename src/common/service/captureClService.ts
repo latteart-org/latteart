@@ -19,7 +19,7 @@ import {
   ServiceError,
   ServiceFailure,
   ServiceSuccess,
-} from "../../result";
+} from "./result";
 import {
   TestStepNote,
   TestStep,
@@ -29,16 +29,16 @@ import {
   CoverageSource,
   CaptureConfig,
   ElementInfo,
-} from "../../../types";
-import { TestResultAccessor } from "../../repository";
-import { SocketIOClient } from "../../../network/websocket/client";
-import { RESTClientImpl, RESTClient } from "../../../network/http/client";
+} from "./types";
+import { TestResultAccessor } from "./repositoryService";
+import { SocketIOClient } from "../network/websocket/client";
+import { RESTClientImpl, RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../../../repository/result";
+} from "../repository/result";
 
 /**
  * Client Side Capture Service

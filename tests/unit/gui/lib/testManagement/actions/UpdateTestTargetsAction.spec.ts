@@ -1,5 +1,4 @@
-import { TestTargetGroupRepository } from "src/common/repository/testTargetGroup";
-import { TestTargetRepository } from "src/common/repository/testTarget";
+import { TestTargetGroupRepository, TestTargetRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { UpdateTestTargetsAction } from "@/lib/testManagement/actions/UpdateTestTargetsAction";
 

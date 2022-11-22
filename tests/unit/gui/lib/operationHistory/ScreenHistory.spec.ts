@@ -1,7 +1,7 @@
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import { OperationHistory } from "@/lib/operationHistory/types";
-import { CoverageSource, ElementInfo } from "src/common/types";
+import { CoverageSource, ElementInfo } from "src/common";
 
 describe("ScreenHistoryクラスは", () => {
   let testOperation1: OperationForGUI;

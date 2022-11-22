@@ -1,5 +1,5 @@
 import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
-import { TestResultRepository } from "src/common/repository/testResult";
+import { TestResultRepository } from "src/common";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 import { TestResult } from "@/lib/operationHistory/types";
 

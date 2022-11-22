@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+import {
+  CapturedOperationForRepository,
+  ElementInfoForRepository,
+  OperationForRepository,
+  CoverageSourceForRepository,
+  InputElementInfoForRepository,
+  NoteForRepository,
+  TestStepForRepository,
+} from "../repository";
+
 export type CapturedScreenTransition = {
   type: string;
   title: string;
@@ -24,78 +34,24 @@ export type CapturedScreenTransition = {
   pageSource: string;
 };
 
-export type CapturedOperation = {
-  input: string;
-  type: string;
-  elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
-  screenElements: ElementInfo[];
-  pageSource: string;
-  inputElements: ElementInfo[];
-  keywordTexts: string[];
-  isAutomatic?: boolean;
-};
+export type CapturedOperation = CapturedOperationForRepository;
 
-export type ElementInfo = {
-  tagname: string;
-  text?: string;
-  xpath: string;
-  value?: string;
-  checked?: boolean;
-  attributes: { [key: string]: any };
-};
+export type ElementInfo = ElementInfoForRepository;
 
-export type Operation = {
-  input: string;
-  type: string;
-  elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageFileUrl: string;
-  timestamp: string;
-  inputElements: ElementInfo[];
-  windowHandle: string;
-  keywordTexts?: string[];
-  isAutomatic: boolean;
-};
+export type Operation = OperationForRepository;
 
-export type TestStep = {
-  id: string;
-  operation: Operation;
-  intention: string | null;
-  bugs: string[];
-  notices: string[];
-};
+export type TestStep = TestStepForRepository;
 
-export type Note = {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl?: string | undefined;
-  tags?: string[] | undefined;
-};
+export type Note = NoteForRepository;
 
 export type TestStepNote = {
   note: Note;
   testStep: TestStep;
 };
 
-export type CoverageSource = {
-  title: string;
-  url: string;
-  screenElements: ElementInfo[];
-};
+export type CoverageSource = CoverageSourceForRepository;
 
-export type InputElementInfo = {
-  title: string;
-  url: string;
-  inputElements: ElementInfo[];
-};
+export type InputElementInfo = InputElementInfoForRepository;
 
 export type CaptureConfig = {
   platformName: "PC" | "Android" | "iOS";

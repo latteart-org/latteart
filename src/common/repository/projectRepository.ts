@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { Project } from "@/lib/testManagement/types";
-import { TestManagementData } from "@/lib/testManagement/TestManagementData";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
-
-export type DailyTestProgress = {
-  date: string;
-  storyProgresses: {
-    storyId: string;
-    testMatrixId: string;
-    testTargetGroupId: string;
-    testTargetId: string;
-    viewPointId: string;
-    plannedSessionNumber: number;
-    completedSessionNumber: number;
-    incompletedSessionNumber: number;
-  }[];
-};
+} from "./result";
+import {
+  DailyTestProgressForRepository,
+  TestManagementDataForRepository,
+  ProjectForRepository,
+} from "./types";
 
 export interface ProjectRepository {
   /**
@@ -60,7 +49,9 @@ export interface ProjectRepository {
     >
   >;
 
-  getProject(projectId: string): Promise<RepositoryAccessResult<Project>>;
+  getProject(
+    projectId: string
+  ): Promise<RepositoryAccessResult<ProjectForRepository>>;
 
   postProject(): Promise<RepositoryAccessResult<{ id: string; name: string }>>;
 
@@ -72,15 +63,15 @@ export interface ProjectRepository {
    */
   putProject(
     projectId: string,
-    body: TestManagementData
-  ): Promise<RepositoryAccessResult<Project>>;
+    body: TestManagementDataForRepository
+  ): Promise<RepositoryAccessResult<ProjectForRepository>>;
 
   getTestProgress(
     projectId: string,
     filter?: {
       period?: { since?: number; until?: number };
     }
-  ): Promise<RepositoryAccessResult<DailyTestProgress[]>>;
+  ): Promise<RepositoryAccessResult<DailyTestProgressForRepository[]>>;
 }
 
 export class ProjectRESTRepository implements ProjectRepository {
@@ -144,7 +135,7 @@ export class ProjectRESTRepository implements ProjectRepository {
 
   public async getProject(
     projectId: string
-  ): Promise<RepositoryAccessResult<Project>> {
+  ): Promise<RepositoryAccessResult<ProjectForRepository>> {
     try {
       const response = await this.restClient.httpGet(
         `api/v1/projects/${projectId}`
@@ -155,7 +146,7 @@ export class ProjectRESTRepository implements ProjectRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Project,
+        data: response.data as ProjectForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -190,8 +181,8 @@ export class ProjectRESTRepository implements ProjectRepository {
    */
   public async putProject(
     projectId: string,
-    body: TestManagementData
-  ): Promise<RepositoryAccessResult<Project>> {
+    body: TestManagementDataForRepository
+  ): Promise<RepositoryAccessResult<ProjectForRepository>> {
     try {
       const response = await this.restClient.httpPut(
         `api/v1/projects/${projectId}`,
@@ -203,7 +194,7 @@ export class ProjectRESTRepository implements ProjectRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Project,
+        data: response.data as ProjectForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -215,7 +206,7 @@ export class ProjectRESTRepository implements ProjectRepository {
     filter: {
       period?: { since?: number; until?: number };
     } = {}
-  ): Promise<RepositoryAccessResult<DailyTestProgress[]>> {
+  ): Promise<RepositoryAccessResult<DailyTestProgressForRepository[]>> {
     try {
       const query: string[] = [];
       if (filter.period?.since !== undefined) {
@@ -235,7 +226,8 @@ export class ProjectRESTRepository implements ProjectRepository {
         return createRepositoryAccessFailure(response);
       }
 
-      const dailyTestProgresses = response.data as DailyTestProgress[];
+      const dailyTestProgresses =
+        response.data as DailyTestProgressForRepository[];
 
       return createRepositoryAccessSuccess({
         data: dailyTestProgresses,

@@ -24,7 +24,7 @@ import { calculateElapsedEpochMillis } from "../common/util";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
 import { StoryConvertable } from "./actions/WriteDataFileAction";
 import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
-import { RepositoryService } from "../../../common/service/repository";
+import { RepositoryService } from "src/common";
 import {
   convertTestStepOperation,
   convertIntention,

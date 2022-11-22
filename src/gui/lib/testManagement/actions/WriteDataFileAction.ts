@@ -24,7 +24,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 export interface WriteDataFileMutationObserver {
   setManagedData(data: { testMatrices: TestMatrix[] }): void;

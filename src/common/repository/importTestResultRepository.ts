@@ -14,27 +14,35 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { Story } from "@/lib/testManagement/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createConnectionRefusedFailure,
   createRepositoryAccessFailure,
-} from "../result";
+  createConnectionRefusedFailure,
+} from "./result";
 
-export class StoryRepository {
+export class ImportTestResultRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async patchStory(
-    id: string,
-    body: {
-      status?: string;
-    }
-  ): Promise<RepositoryAccessResult<Story>> {
+  /**
+   * Import test result.
+   * @param source.importFileUrl Source import file url.
+   * @param dest.testResultId Destination local test result id.
+   * @param dest.shouldSaveTemporary Whether to save temporary.
+   */
+  public async postTestResult(
+    source: { testResultFile: { data: string; name: string } },
+    dest?: { testResultId?: string }
+  ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
     try {
-      const response = await this.restClient.httpPatch(
-        `api/v1/stories/${id}`,
+      const body = {
+        source,
+        dest,
+      };
+
+      const response = await this.restClient.httpPost(
+        `api/v1/imports/test-results`,
         body
       );
 
@@ -43,7 +51,7 @@ export class StoryRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Story,
+        data: response.data as { testResultId: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

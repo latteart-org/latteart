@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { TestResult, TestResultSummary } from "@/lib/operationHistory/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
+import {
+  TestResultSummaryForRepository,
+  TestResultForRepository,
+} from "./types";
 
 export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
@@ -86,7 +89,7 @@ export class TestResultRepository {
   public async postEmptyTestResult(
     initialUrl?: string,
     name?: string
-  ): Promise<RepositoryAccessResult<TestResultSummary>> {
+  ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
     try {
       const url = `api/v1/test-results`;
       const response = await this.restClient.httpPost(url, {
@@ -99,7 +102,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestResultSummary,
+        data: response.data as TestResultSummaryForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -111,7 +114,7 @@ export class TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<TestResultSummary>>
+    RepositoryAccessResult<Array<TestResultSummaryForRepository>>
   > {
     try {
       const response = await this.restClient.httpGet(`api/v1/test-results`);
@@ -137,7 +140,7 @@ export class TestResultRepository {
    */
   public async getTestResult(
     testResultId: string
-  ): Promise<RepositoryAccessResult<TestResult>> {
+  ): Promise<RepositoryAccessResult<TestResultForRepository>> {
     try {
       const response = await this.restClient.httpGet(
         `api/v1/test-results/${testResultId}`
@@ -148,7 +151,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestResult,
+        data: response.data as TestResultForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -160,7 +163,7 @@ export class TestResultRepository {
     name?: string,
     startTime?: number,
     initialUrl?: string
-  ): Promise<RepositoryAccessResult<TestResult>> {
+  ): Promise<RepositoryAccessResult<TestResultForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/test-results/${testResultId}`,
@@ -172,7 +175,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestResult,
+        data: response.data as TestResultForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

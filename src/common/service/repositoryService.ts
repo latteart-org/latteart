@@ -19,7 +19,7 @@ import {
   ServiceFailure,
   ServiceSuccess,
   ServiceError,
-} from "../result";
+} from "./result";
 import {
   TestStep,
   TestStepNote,
@@ -28,31 +28,30 @@ import {
   Operation,
   CoverageSource,
   InputElementInfo,
-} from "../../types";
+} from "./types";
+import { RESTClient } from "../network/http/client";
 import {
-  TestStepRepository,
   TestStepRepositoryImpl,
-} from "../../repository/testStep";
-import { NoteRepository, NoteRepositoryImpl } from "../../repository/note";
-import { TestResultRepository } from "../../repository/testResult";
-import { TestScriptRepository } from "../../repository/testScript";
-import { SettingsRepository } from "../../repository/settings";
-import { ImportTestResultRepository } from "../../repository/importTestResult";
-import { ImportProjectRepository } from "../../repository/importProject";
-import { CompressedImageRepository } from "../../repository/compressedImage";
-import {
+  NoteRepositoryImpl,
+  TestResultRepository,
+  ImportTestResultRepository,
+  ImportProjectRepository,
+  TestScriptRepository,
+  SettingsRepository,
+  CompressedImageRepository,
   ProjectRESTRepository,
+  SessionRepository,
+  SnapshotRepository,
+  ScreenshotRepository,
+  TestMatrixRepository,
+  TestTargetGroupRepository,
+  TestTargetRepository,
+  ViewPointRepository,
+  StoryRepository,
+  TestStepRepository,
+  NoteRepository,
   ProjectRepository,
-} from "../../repository/project";
-import { SessionRepository } from "../../repository/session";
-import { SnapshotRepository } from "../../repository/snapshot";
-import { RESTClient } from "../../network/http/client";
-import { ScreenshotRepository } from "../../repository/screenshot";
-import { TestMatrixRepository } from "../../repository/testMatrix";
-import { TestTargetGroupRepository } from "../../repository/testTargetGroup";
-import { TestTargetRepository } from "../../repository/testTarget";
-import { ViewPointRepository } from "../../repository/viewPoint";
-import { StoryRepository } from "../../repository/story";
+} from "../repository";
 
 /**
  * Repository Service

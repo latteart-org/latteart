@@ -18,7 +18,7 @@ import { OperationForGUI } from "./OperationForGUI";
 import { OperationWithNotes } from "./types";
 import { normalizeXPath } from "../common/util";
 import { NoteForGUI } from "./NoteForGUI";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 export interface InputValueTableHeaderColumn {
   intention: string;

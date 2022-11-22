@@ -16,7 +16,7 @@
 
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import { TimestampImpl } from "./Timestamp";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 /**
  * Calculate total elapsed time of all tests in a test result.

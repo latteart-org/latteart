@@ -1,6 +1,8 @@
-import { ProjectRESTRepository } from "src/common/repository/project";
-import { TestMatrixRepository } from "src/common/repository/testMatrix";
-import { ViewPointRepository } from "src/common/repository/viewPoint";
+import {
+  ProjectRESTRepository,
+  TestMatrixRepository,
+  ViewPointRepository,
+} from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 

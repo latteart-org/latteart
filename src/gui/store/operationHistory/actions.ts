@@ -45,9 +45,8 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResu
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { convertNote } from "@/lib/common/replyDataConverter";
-import { ServiceSuccess } from "../../../common/service/result";
+import { ServiceSuccess, ElementInfo } from "../../../common";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
-import { ElementInfo } from "src/common/types";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**

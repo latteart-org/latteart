@@ -1,6 +1,6 @@
 import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
-import { ProjectRESTRepository } from "src/common/repository/project";
+import { ProjectRESTRepository } from "src/common";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",

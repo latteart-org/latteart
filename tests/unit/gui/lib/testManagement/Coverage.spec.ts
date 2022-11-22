@@ -4,7 +4,7 @@ import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import * as Coverage from "@/lib/operationHistory/Coverage";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 const localVue = createLocalVue();
 localVue.use(Vuetify);

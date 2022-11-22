@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
 
-export class ScreenshotRepository {
+export class ImportProjectRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Get screenshots of the specified test result.
-   * @param testResultId  Test Result ID.
-   * @returns URL of the screenshots archive.
+   * Import project or testresult or all.
+   * @param importFileName  Import file name.
+   * @param selectOption  Select options.
    */
-
-  public async getScreenshots(
-    testResultId: string
-  ): Promise<RepositoryAccessResult<{ url: string }>> {
+  public async postProjects(
+    source: { projectFile: { data: string; name: string } },
+    selectOption: { includeProject: boolean; includeTestResults: boolean }
+  ): Promise<RepositoryAccessResult<{ projectId: string }>> {
     try {
-      const response = await this.restClient.httpGet(
-        `api/v1/test-results/${testResultId}/screenshots`
+      const response = await this.restClient.httpPost(
+        `api/v1/imports/projects`,
+        {
+          source,
+          includeTestResults: selectOption.includeTestResults,
+          includeProject: selectOption.includeProject,
+        }
       );
 
       if (response.status !== 200) {
@@ -44,7 +49,7 @@ export class ScreenshotRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as { url: string },
+        data: response.data as { projectId: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

@@ -31,12 +31,10 @@ import { ReadLocaleAction } from "@/lib/common/settings/ReadLocaleAction";
 import {
   RepositoryService,
   createRepositoryService,
-} from "../../common/service/repository";
-import { RESTClientImpl } from "../../common/network/http/client";
-import {
   CaptureClService,
   createCaptureClService,
-} from "../../common/service/capture/cl";
+} from "../../common";
+import { RESTClientImpl } from "../../common/network/http/client";
 import { ReadDeviceSettingAction } from "@/lib/common/settings/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/common/settings/SaveDeviceSettingAction";
 import { SaveSettingAction } from "@/lib/common/settings/SaveSettingAction";

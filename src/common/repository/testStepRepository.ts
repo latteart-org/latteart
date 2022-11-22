@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { Operation, CapturedOperation } from "../../types";
-import { CoverageSource, InputElementInfo } from "../../types";
+import { RESTClient } from "../network/http/client";
+import {
+  OperationForRepository,
+  CapturedOperationForRepository,
+  CoverageSourceForRepository,
+  InputElementInfoForRepository,
+  TestStepForRepository,
+} from "./types";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
 
 export interface TestStepRepository {
   getTestSteps(
     testResultId: string,
     testStepId: string
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      operation: Operation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  >;
+  ): Promise<RepositoryAccessResult<TestStepForRepository>>;
 
   patchTestSteps(
     testResultId: string,
@@ -44,25 +41,17 @@ export interface TestStepRepository {
     noteId?: string | null,
     bugs?: string[],
     notices?: string[]
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      operation: Operation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  >;
+  ): Promise<RepositoryAccessResult<TestStepForRepository>>;
 
   postTestSteps(
     testResultId: string,
-    capturedOperation: CapturedOperation
+    capturedOperation: CapturedOperationForRepository
   ): Promise<
     RepositoryAccessResult<{
       id: string;
-      operation: Operation;
-      coverageSource: CoverageSource;
-      inputElementInfo: InputElementInfo;
+      operation: OperationForRepository;
+      coverageSource: CoverageSourceForRepository;
+      inputElementInfo: InputElementInfoForRepository;
     }>
   >;
 }
@@ -73,15 +62,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
   public async getTestSteps(
     testResultId: string,
     testStepId: string
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      operation: Operation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  > {
+  ): Promise<RepositoryAccessResult<TestStepForRepository>> {
     try {
       const response = await this.restClient.httpGet(
         `api/v1/test-results/${testResultId}/test-steps/${testStepId}`
@@ -94,7 +75,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       return createRepositoryAccessSuccess({
         data: response.data as {
           id: string;
-          operation: Operation;
+          operation: OperationForRepository;
           intention: string | null;
           bugs: string[];
           notices: string[];
@@ -111,15 +92,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     noteId?: string | null,
     bugs?: string[],
     notices?: string[]
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      operation: Operation;
-      intention: string | null;
-      bugs: string[];
-      notices: string[];
-    }>
-  > {
+  ): Promise<RepositoryAccessResult<TestStepForRepository>> {
     try {
       const body = notices
         ? { notices }
@@ -138,7 +111,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       return createRepositoryAccessSuccess({
         data: response.data as {
           id: string;
-          operation: Operation;
+          operation: OperationForRepository;
           intention: string | null;
           bugs: string[];
           notices: string[];
@@ -151,13 +124,13 @@ export class TestStepRepositoryImpl implements TestStepRepository {
 
   public async postTestSteps(
     testResultId: string,
-    capturedOperation: CapturedOperation
+    capturedOperation: CapturedOperationForRepository
   ): Promise<
     RepositoryAccessResult<{
       id: string;
-      operation: Operation;
-      coverageSource: CoverageSource;
-      inputElementInfo: InputElementInfo;
+      operation: OperationForRepository;
+      coverageSource: CoverageSourceForRepository;
+      inputElementInfo: InputElementInfoForRepository;
     }>
   > {
     try {
@@ -173,9 +146,9 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       return createRepositoryAccessSuccess({
         data: response.data as {
           id: string;
-          operation: Operation;
-          coverageSource: CoverageSource;
-          inputElementInfo: InputElementInfo;
+          operation: OperationForRepository;
+          coverageSource: CoverageSourceForRepository;
+          inputElementInfo: InputElementInfoForRepository;
         },
       });
     } catch (error) {

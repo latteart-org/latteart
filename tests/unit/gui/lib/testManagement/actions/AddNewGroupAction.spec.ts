@@ -1,4 +1,4 @@
-import { TestTargetGroupRepository } from "src/common/repository/testTargetGroup";
+import { TestTargetGroupRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { AddNewGroupAction } from "@/lib/testManagement/actions/AddNewGroupAction";
 

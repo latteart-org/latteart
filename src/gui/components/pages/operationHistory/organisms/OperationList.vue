@@ -189,7 +189,7 @@ import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import SelectableDataTable from "@/components/molecules/SelectableDataTable.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 @Component({
   components: {

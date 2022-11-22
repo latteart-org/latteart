@@ -15,7 +15,7 @@
  */
 
 import { OperationHistory, OperationWithNotes } from "./types";
-import { CoverageSource, ElementInfo } from "src/common/types";
+import { CoverageSource, ElementInfo } from "src/common";
 
 export interface ScreenHistoryBody {
   url: string;

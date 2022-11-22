@@ -29,15 +29,14 @@ import {
   convertTestStepOperation,
   convertNote,
 } from "@/lib/common/replyDataConverter";
-import { ServiceResult } from "../../../common/service/result";
+import { ServiceResult, CaptureEventListeners } from "src/common";
 import {
   TestStep,
   TestStepNote,
   CoverageSource,
   Operation,
   CaptureConfig,
-} from "../../../common/types";
-import { CaptureEventListeners } from "../../../common/service/capture/cl";
+} from "src/common";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 

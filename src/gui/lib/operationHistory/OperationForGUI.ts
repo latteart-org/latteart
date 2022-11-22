@@ -16,7 +16,7 @@
 
 import { TimestampImpl } from "../common/Timestamp";
 import { convertInputValue } from "../common/util";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 /**
  * Class that handles operation information.

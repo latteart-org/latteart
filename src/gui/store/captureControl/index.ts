@@ -21,8 +21,8 @@ import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
 import Timer from "@/lib/common/Timer";
-import { CaptureSession } from "src/common/service/capture/cl";
-import { ElementInfo } from "src/common/types";
+import { CaptureSession } from "src/common";
+import { ElementInfo } from "src/common";
 
 /**
  * Store for capture control.

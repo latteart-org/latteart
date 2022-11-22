@@ -111,7 +111,7 @@ import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/components/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CoverageSource } from "src/common/types";
+import { CoverageSource } from "src/common";
 import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({

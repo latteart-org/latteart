@@ -19,7 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY =
   "error.test_management.write_snapshot_failed";

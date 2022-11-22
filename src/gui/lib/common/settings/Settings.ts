@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Settings } from "src/common/repository/settings";
+import { SettingsForRepository } from "src/common";
 
-export type ProjectSettings = Settings;
+export type ProjectSettings = SettingsForRepository;
 
 export type ScreenDefinitionSetting =
   ProjectSettings["config"]["screenDefinition"];

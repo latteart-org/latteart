@@ -22,14 +22,13 @@ import {
   OperationWithNotes,
   OperationHistory,
   ScreenTransition,
-  WindowInfo,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { CoverageSource } from "src/common/types";
+import { CoverageSource } from "src/common";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**

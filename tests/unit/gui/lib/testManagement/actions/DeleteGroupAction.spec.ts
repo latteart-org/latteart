@@ -1,5 +1,4 @@
-import { TestMatrixRepository } from "src/common/repository/testMatrix";
-import { TestTargetGroupRepository } from "src/common/repository/testTargetGroup";
+import { TestMatrixRepository, TestTargetGroupRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { DeleteGroupAction } from "@/lib/testManagement/actions/DeleteGroupAction";
 

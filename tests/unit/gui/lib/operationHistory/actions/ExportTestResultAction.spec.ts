@@ -1,6 +1,6 @@
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { RESTClientResponse, RESTClient } from "src/common/network/http/client";
-import { TestResultRepository } from "src/common/repository/testResult";
+import { TestResultRepository } from "src/common";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",

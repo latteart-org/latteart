@@ -2,7 +2,7 @@ import { RESTClientResponse } from "src/common/network/http/client";
 import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "src/common/repository/result";
+} from "src/common";
 
 describe("createRepositoryAccessFailure", () => {
   describe("受け取ったRESTClientResponseを元にRepositoryAccessFailureを生成する", () => {

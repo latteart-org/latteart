@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
-} from "../result";
+} from "./result";
+import { NoteForRepository } from "./types";
 
 export interface NoteRepository {
   getNotes(
     testResultId: string,
     noteId: string | null
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  >;
+  ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
   postNotes(
     testResultId: string,
@@ -46,16 +38,7 @@ export interface NoteRepository {
       imageData?: string;
       tags?: string[];
     }
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  >;
+  ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
   putNotes(
     testResultId: string,
@@ -67,16 +50,7 @@ export interface NoteRepository {
       imageData?: string;
       tags?: string[];
     }
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  >;
+  ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
   deleteNotes(
     testResultId: string,
@@ -90,16 +64,7 @@ export class NoteRepositoryImpl implements NoteRepository {
   public async getNotes(
     testResultId: string,
     noteId: string | null
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  > {
+  ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {
       const response = await this.restClient.httpGet(
         `api/v1/test-results/${testResultId}/notes/${noteId}`
@@ -110,14 +75,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          type: string;
-          value: string;
-          details: string;
-          imageFileUrl?: string;
-          tags?: string[];
-        },
+        data: response.data as NoteForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -133,16 +91,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       imageData?: string;
       tags?: string[];
     }
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  > {
+  ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/test-results/${testResultId}/notes`,
@@ -154,14 +103,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          type: string;
-          value: string;
-          details: string;
-          imageFileUrl?: string;
-          tags?: string[];
-        },
+        data: response.data as NoteForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -177,16 +119,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       details: string;
       tags?: string[];
     }
-  ): Promise<
-    RepositoryAccessResult<{
-      id: string;
-      type: string;
-      value: string;
-      details: string;
-      imageFileUrl?: string;
-      tags?: string[];
-    }>
-  > {
+  ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {
       const response = await this.restClient.httpPut(
         `api/v1/test-results/${testResultId}/notes/${noteId}`,
@@ -198,14 +131,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          type: string;
-          value: string;
-          details: string;
-          imageFileUrl?: string;
-          tags?: string[];
-        },
+        data: response.data as NoteForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

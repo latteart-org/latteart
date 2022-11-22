@@ -3,8 +3,7 @@ import {
   ReadDataFileMutationObserver,
 } from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
-import { TestResultRepository } from "src/common/repository/testResult";
-import { ProjectRESTRepository } from "src/common/repository/project";
+import { TestResultRepository, ProjectRESTRepository } from "src/common";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 
 const baseRestClient: RESTClient = {

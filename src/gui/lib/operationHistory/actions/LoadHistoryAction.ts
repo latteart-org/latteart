@@ -26,9 +26,9 @@ import {
   convertNote,
   convertIntention,
 } from "@/lib/common/replyDataConverter";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 import { GetTestResultAction } from "./testResult/GetTestResultAction";
-import { CoverageSource } from "src/common/types";
+import { CoverageSource } from "src/common";
 
 const LOAD_HISTORY_FAILED_MESSAGE_KEY =
   "error.operation_history.load_history_failed";

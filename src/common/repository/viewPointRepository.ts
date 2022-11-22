@@ -14,72 +14,72 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { TestTarget } from "@/lib/testManagement/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createConnectionRefusedFailure,
   createRepositoryAccessFailure,
-} from "../result";
+} from "./result";
+import { ViewPointForRepository } from "./types";
 
-export class TestTargetRepository {
+export class ViewPointRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async getTestTarget(
+  public async getViewPoint(
     id: string
-  ): Promise<RepositoryAccessResult<TestTarget>> {
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>> {
     try {
       const response = await this.restClient.httpGet(
-        `api/v1/test-targets/${id}`
+        `api/v1/view-points/${id}`
       );
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestTarget,
+        data: response.data as ViewPointForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async postTestTarget(body: {
-    testTargetGroupId: string;
+  public async postViewPoint(body: {
+    testMatrixId: string;
     name: string;
-  }): Promise<RepositoryAccessResult<TestTarget>> {
+    index: number;
+    description: string;
+  }): Promise<RepositoryAccessResult<ViewPointForRepository>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-targets`,
+        `api/v1/view-points`,
         body
       );
+
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestTarget,
+        data: response.data as ViewPointForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async patchTestTarget(
+  public async patchViewPoint(
     id: string,
     body: {
       name?: string;
+      description?: string;
       index?: number;
-      plans?: {
-        viewPointId: string;
-        value: number;
-      }[];
     }
-  ): Promise<RepositoryAccessResult<TestTarget>> {
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
-        `api/v1/test-targets/${id}`,
+        `api/v1/view-points/${id}`,
         body
       );
 
@@ -88,20 +88,21 @@ export class TestTargetRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestTarget,
+        data: response.data as ViewPointForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async deleteTestTarget(
+  public async deleteViewPoint(
     id: string
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpDelete(
-        `api/v1/test-targets/${id}`
+        `api/v1/view-points/${id}`
       );
+
       if (response.status !== 204) {
         return createRepositoryAccessFailure(response);
       }

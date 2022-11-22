@@ -17,7 +17,8 @@
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-} from "../../../../common/repository/result";
+  RepositoryService,
+} from "../../../../common";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import { StoryConvertable } from "./WriteDataFileAction";
@@ -26,7 +27,6 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
 
 export interface ReadDataFileMutationObserver {
   setProjectId(data: { projectId: string }): void;

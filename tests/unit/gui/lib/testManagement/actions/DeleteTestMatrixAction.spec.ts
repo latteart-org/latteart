@@ -1,5 +1,4 @@
-import { ProjectRESTRepository } from "src/common/repository/project";
-import { TestMatrixRepository } from "src/common/repository/testMatrix";
+import { ProjectRESTRepository, TestMatrixRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
 import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";
 

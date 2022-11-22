@@ -20,7 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { TestResult } from "../../types";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 
 const GET_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.get_test_result_failed";

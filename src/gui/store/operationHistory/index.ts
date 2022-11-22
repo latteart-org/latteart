@@ -27,7 +27,7 @@ import actions from "./actions";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { CoverageSource } from "src/common/types";
+import { CoverageSource } from "src/common";
 
 /**
  * State for operation history.

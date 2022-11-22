@@ -40,7 +40,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 @Component({
   components: {

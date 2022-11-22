@@ -1,7 +1,6 @@
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
-import { TestScriptRepository } from "src/common/repository/testScript";
+import { TestScriptRepository, SettingsRepository } from "src/common";
 import { RESTClient } from "src/common/network/http/client";
-import { SettingsRepository } from "src/common/repository/settings";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",

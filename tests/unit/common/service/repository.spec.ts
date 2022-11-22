@@ -1,5 +1,5 @@
 import { RESTClientResponse, RESTClient } from "src/common/network/http/client";
-import { createRepositoryService } from "src/common/service/repository";
+import { createRepositoryService } from "src/common";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",

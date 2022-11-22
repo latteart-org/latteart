@@ -1,7 +1,7 @@
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
-import { ElementInfo } from "src/common/types";
+import { ElementInfo } from "src/common";
 
 function createTestOperation(
   sequence: number,

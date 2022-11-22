@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {} from "../../../common/service/result";
 import { AutoPopupSettings } from "@/lib/operationHistory/types";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-} from "../../../common/repository/result";
+} from "../../../common";
 import { DeviceSettings } from "./settings/Settings";
 
 export class LocalStorageSettingRepository {

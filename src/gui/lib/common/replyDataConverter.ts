@@ -16,7 +16,7 @@
 
 import { OperationForGUI } from "../operationHistory/OperationForGUI";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
-import { Operation } from "src/common/types";
+import { Operation } from "src/common";
 
 export function convertTestStepOperation(
   testStepOperation: Operation,

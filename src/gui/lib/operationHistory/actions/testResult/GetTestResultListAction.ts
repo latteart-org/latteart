@@ -19,7 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common/service/repository";
+import { RepositoryService } from "src/common";
 import { TestResultSummary } from "../../types";
 
 const GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY =

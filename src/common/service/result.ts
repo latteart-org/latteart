@@ -17,11 +17,11 @@
 /**
  * service error
  */
-export interface ServiceError {
+export type ServiceError = {
   errorCode: ServiceErrorCode;
   message: string;
   variables?: { [key: string]: string };
-}
+};
 
 /**
  * service result

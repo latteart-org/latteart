@@ -6,8 +6,7 @@ import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 import { Story, Project } from "@/lib/testManagement/types";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
-import { TestResultRepository } from "src/common/repository/testResult";
-import { ProjectRESTRepository } from "src/common/repository/project";
+import { TestResultRepository, ProjectRESTRepository } from "src/common";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",

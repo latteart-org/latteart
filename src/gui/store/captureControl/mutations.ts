@@ -17,8 +17,8 @@
 import { MutationTree } from "vuex";
 import { CaptureControlState } from ".";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
-import { CaptureSession } from "src/common/service/capture/cl";
-import { ElementInfo } from "src/common/types";
+import { CaptureSession } from "src/common";
+import { ElementInfo } from "src/common";
 
 const mutations: MutationTree<CaptureControlState> = {
   /**

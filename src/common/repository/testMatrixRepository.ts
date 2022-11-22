@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../../network/http/client";
-import { Group } from "@/lib/testManagement/types";
+import { RESTClient } from "../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createConnectionRefusedFailure,
   createRepositoryAccessFailure,
-} from "../result";
+} from "./result";
+import { TestMatrixForRepository } from "./types";
 
-export class TestTargetGroupRepository {
+export class TestMatrixRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async getTestTargetGroup(
+  public async getTestMatrix(
     id: string
-  ): Promise<RepositoryAccessResult<Group>> {
+  ): Promise<RepositoryAccessResult<TestMatrixForRepository>> {
     try {
       const response = await this.restClient.httpGet(
-        `api/v1/test-target-groups/${id}`
+        `api/v1/test-matrices/${id}`
       );
 
       if (response.status !== 200) {
@@ -39,20 +39,20 @@ export class TestTargetGroupRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Group,
+        data: response.data as TestMatrixForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async postTestTargetGroup(body: {
-    testMatrixId: string;
+  public async postTestMatrix(body: {
+    projectId: string;
     name: string;
-  }): Promise<RepositoryAccessResult<Group>> {
+  }): Promise<RepositoryAccessResult<TestMatrixForRepository>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-target-groups`,
+        `api/v1/test-matrices`,
         body
       );
 
@@ -61,20 +61,20 @@ export class TestTargetGroupRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Group,
+        data: response.data as TestMatrixForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async patchTestTargetGroup(
+  public async patchTestMatrix(
     id: string,
     name: string
-  ): Promise<RepositoryAccessResult<Group>> {
+  ): Promise<RepositoryAccessResult<TestMatrixForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
-        `api/v1/test-target-groups/${id}`,
+        `api/v1/test-matrices/${id}`,
         {
           name,
         }
@@ -85,26 +85,25 @@ export class TestTargetGroupRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Group,
+        data: response.data as TestMatrixForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async deleteTestTargetGroup(
+  public async deleteTestMatrix(
     id: string
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpDelete(
-        `api/v1/test-target-groups/${id}`
+        `api/v1/test-matrices/${id}`
       );
-
       if (response.status !== 204) {
         return createRepositoryAccessFailure(response);
       }
 
-      return createRepositoryAccessSuccess({ data: response.data as void });
+      return createRepositoryAccessSuccess(response.data as { data: void });
     } catch (error) {
       return createConnectionRefusedFailure();
     }

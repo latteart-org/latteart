@@ -1,5 +1,5 @@
 import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
-import { ImportProjectRepository } from "src/common/repository/importProject";
+import { ImportProjectRepository } from "src/common";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 
 const baseRestClient: RESTClient = {

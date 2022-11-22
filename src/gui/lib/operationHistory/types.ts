@@ -16,7 +16,7 @@
 
 import { OperationForGUI } from "./OperationForGUI";
 import { NoteForGUI } from "./NoteForGUI";
-import { CoverageSource, Operation, ElementInfo } from "src/common/types";
+import { CoverageSource, Operation, ElementInfo } from "src/common";
 
 /**
  * Operation history and Notes information.
