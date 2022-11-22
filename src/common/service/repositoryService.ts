@@ -363,14 +363,18 @@ class TestResultAccessorImpl implements TestResultAccessor {
       !option.compressScreenshot ||
       !registerOperationResult.data.operation.imageFileUrl
     ) {
+      const imageFileUrl = registerOperationResult.data.operation.imageFileUrl
+        ? new URL(
+            registerOperationResult.data.operation.imageFileUrl,
+            this.serviceUrl
+          ).toString()
+        : "";
+
       return new ServiceSuccess({
         ...registerOperationResult.data,
         operation: {
           ...registerOperationResult.data.operation,
-          imageFileUrl: new URL(
-            registerOperationResult.data.operation.imageFileUrl,
-            this.serviceUrl
-          ).toString(),
+          imageFileUrl,
         },
       });
     }
@@ -390,14 +394,18 @@ class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
+    const imageFileUrl = compressImageResult.data.imageFileUrl
+      ? new URL(
+          compressImageResult.data.imageFileUrl,
+          this.serviceUrl
+        ).toString()
+      : "";
+
     return new ServiceSuccess({
       ...registerOperationResult.data,
       operation: {
         ...registerOperationResult.data.operation,
-        imageFileUrl: new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString(),
+        imageFileUrl,
       },
     });
   }
@@ -497,14 +505,18 @@ class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
+    const imageFileUrl = compressImageResult.data.imageFileUrl
+      ? new URL(
+          compressImageResult.data.imageFileUrl,
+          this.serviceUrl
+        ).toString()
+      : "";
+
     return new ServiceSuccess({
       testStep: savedTestStep,
       note: {
         ...savedNote,
-        imageFileUrl: new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString(),
+        imageFileUrl,
       },
     });
   }

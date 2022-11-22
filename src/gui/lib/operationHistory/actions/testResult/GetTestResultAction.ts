@@ -50,24 +50,32 @@ export class GetTestResultAction {
     return new ActionSuccess({
       ...result.data,
       testSteps: result.data.testSteps.map((testStep) => {
+        const operationImageFileUrl = testStep.operation.imageFileUrl
+          ? new URL(
+              testStep.operation.imageFileUrl,
+              this.repositoryService.serviceUrl
+            ).toString()
+          : "";
+
         const operation = {
           ...testStep.operation,
-          imageFileUrl: new URL(
-            testStep.operation.imageFileUrl,
-            this.repositoryService.serviceUrl
-          ).toString(),
+          imageFileUrl: operationImageFileUrl,
         };
 
         return {
           ...testStep,
           operation,
           notices: [...testStep.bugs, ...testStep.notices].map((note) => {
+            const noteImageFileUrl = note.imageFileUrl
+              ? new URL(
+                  note.imageFileUrl,
+                  this.repositoryService.serviceUrl
+                ).toString()
+              : "";
+
             return {
               ...note,
-              imageFileUrl: new URL(
-                note.imageFileUrl,
-                this.repositoryService.serviceUrl
-              ).toString(),
+              imageFileUrl: noteImageFileUrl,
             };
           }),
           bugs: [],
