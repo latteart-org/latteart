@@ -1,9 +1,9 @@
-import { TestMatrixRepository } from "@/lib/eventDispatcher/repositoryService/TestMatrixRepository";
-import { ViewPointRepository } from "@/lib/eventDispatcher/repositoryService/ViewPointRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { TestMatrixRepository, ViewPointRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { AddNewTestMatrixAction } from "@/lib/testManagement/actions/AddNewTestMatrixAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -61,12 +61,15 @@ describe("AddNewTestMatrixAction", () => {
         throw result.error;
       }
 
-      expect(testMatrixResponse.httpPost).toBeCalledWith("/test-matrices", {
-        projectId: "projectId",
-        name: "testMatrixName",
-      });
+      expect(testMatrixResponse.httpPost).toBeCalledWith(
+        "api/v1/test-matrices",
+        {
+          projectId: "projectId",
+          name: "testMatrixName",
+        }
+      );
 
-      expect(viewPointResponse.httpPost).toBeCalledWith("/view-points", {
+      expect(viewPointResponse.httpPost).toBeCalledWith("api/v1/view-points", {
         testMatrixId: "testMatrixId",
         name: "viewPointName",
         index: 0,

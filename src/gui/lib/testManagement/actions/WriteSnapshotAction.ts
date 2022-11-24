@@ -19,23 +19,21 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY =
   "error.test_management.write_snapshot_failed";
 
 export class WriteSnapshotAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "snapshotRepository">
+    private repositoryService: Pick<RepositoryService, "snapshotRepository">
   ) {}
 
   public async writeSnapshot(
     projectId: string
   ): Promise<ActionResult<{ url: string }>> {
     const postSnapshotsResult =
-      await this.repositoryContainer.snapshotRepository.postSnapshots(
-        projectId
-      );
+      await this.repositoryService.snapshotRepository.postSnapshots(projectId);
 
     if (postSnapshotsResult.isFailure()) {
       return new ActionFailure({

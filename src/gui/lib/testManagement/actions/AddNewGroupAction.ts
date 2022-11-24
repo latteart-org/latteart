@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import { Group } from "../types";
 
 export class AddNewGroupAction {
@@ -28,10 +28,10 @@ export class AddNewGroupAction {
       testMatrixId: string;
       name: string;
     },
-    repositoryContainer: Pick<RepositoryContainer, "testTargetGroupRepository">
+    repositoryService: Pick<RepositoryService, "testTargetGroupRepository">
   ): Promise<ActionResult<Group>> {
     const testTargetGroupResult =
-      await repositoryContainer.testTargetGroupRepository.postTestTargetGroup({
+      await repositoryService.testTargetGroupRepository.postTestTargetGroup({
         testMatrixId: payload.testMatrixId,
         name: payload.name,
       });

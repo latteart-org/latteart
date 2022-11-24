@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import { TestTarget } from "../types";
 
 export class AddNewTestTargetAction {
@@ -29,10 +29,10 @@ export class AddNewTestTargetAction {
       groupId: string;
       testTargetName: string;
     },
-    repositoryContainer: Pick<RepositoryContainer, "testTargetRepository">
+    repositoryService: Pick<RepositoryService, "testTargetRepository">
   ): Promise<ActionResult<TestTarget>> {
     const testTargetResult =
-      await repositoryContainer.testTargetRepository.postTestTarget({
+      await repositoryService.testTargetRepository.postTestTarget({
         testTargetGroupId: payload.groupId,
         name: payload.testTargetName,
       });

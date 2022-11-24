@@ -1,10 +1,13 @@
-import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
-import { TestMatrixRepository } from "@/lib/eventDispatcher/repositoryService/TestMatrixRepository";
-import { ViewPointRepository } from "@/lib/eventDispatcher/repositoryService/ViewPointRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import {
+  ProjectRESTRepository,
+  TestMatrixRepository,
+  ViewPointRepository,
+} from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 
 const beseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -129,19 +132,19 @@ describe("UpdateTestMatrixAction", () => {
       });
 
       expect(testMatrixResponse.httpPatch).toBeCalledWith(
-        "/test-matrices/testMatrixId1",
+        "api/v1/test-matrices/testMatrixId1",
         {
           name: "testMatrixName1",
         }
       );
-      expect(viewPointResponse.httpPost).toBeCalledWith("/view-points", {
+      expect(viewPointResponse.httpPost).toBeCalledWith("api/v1/view-points", {
         name: "viewPointName2",
         description: "viewPointDescription2",
         index: 1,
         testMatrixId: "testMatrixId1",
       });
       expect(viewPointResponse.httpPatch).toBeCalledWith(
-        "/view-points/viewPointId1",
+        "api/v1/view-points/viewPointId1",
         {
           name: "viewPointName1",
           description: "viewPointDescription1",
@@ -149,7 +152,7 @@ describe("UpdateTestMatrixAction", () => {
         }
       );
       expect(viewPointResponse.httpDelete).toBeCalledWith(
-        `/view-points/viewPointId3`
+        `api/v1/view-points/viewPointId3`
       );
 
       if (result.isFailure()) {

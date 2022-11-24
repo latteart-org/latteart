@@ -4,15 +4,12 @@ import {
 } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 import { Story, Project } from "@/lib/testManagement/types";
-import {
-  RESTClient,
-  RESTClientResponse,
-} from "@/lib/eventDispatcher/RESTClient";
+import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { TestResultRepository, ProjectRESTRepository } from "src/common";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -61,7 +58,7 @@ describe("WriteDataActionの", () => {
       const testResultRepository = new TestResultRepository(restClient);
       const projectRepository = new ProjectRESTRepository(restClient);
 
-      const repositoryContainer = {
+      const repositoryService = {
         testResultRepository,
         projectRepository,
       };
@@ -86,11 +83,11 @@ describe("WriteDataActionの", () => {
       const result = await new WriteDataFileAction(
         observer,
         new StoryDataConverter(),
-        repositoryContainer
+        repositoryService
       ).write(projectId, testManagementData, stories);
 
       expect(restClient.httpPut).toBeCalledWith(
-        `/projects/${projectId}`,
+        `api/v1/projects/${projectId}`,
         testManagementData
       );
 

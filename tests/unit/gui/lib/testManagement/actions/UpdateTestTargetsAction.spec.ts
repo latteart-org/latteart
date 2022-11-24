@@ -1,9 +1,9 @@
-import { TestTargetGroupRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetGroupRepository";
-import { TestTargetRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { TestTargetGroupRepository, TestTargetRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { UpdateTestTargetsAction } from "@/lib/testManagement/actions/UpdateTestTargetsAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -74,7 +74,7 @@ describe("UpdateTestTargetsAction", () => {
       }
 
       expect(testTargetResponse.httpPatch).toBeCalledWith(
-        "/test-targets/testTargetId",
+        "api/v1/test-targets/testTargetId",
         {
           name: "testTargetName",
           index: 0,
@@ -83,7 +83,7 @@ describe("UpdateTestTargetsAction", () => {
       );
 
       expect(testTargetGroupResponse.httpGet).toBeCalledWith(
-        "/test-target-groups/groupId"
+        "api/v1/test-target-groups/groupId"
       );
 
       expect(result.data).toEqual({

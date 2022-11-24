@@ -14,36 +14,18 @@
  * limitations under the License.
  */
 
-import { Operation } from "./Operation";
-import { Note } from "./Note";
+import { OperationForGUI } from "./OperationForGUI";
+import { NoteForGUI } from "./NoteForGUI";
+import { CoverageSource, Operation, ElementInfo } from "src/common";
 
 /**
  * Operation history and Notes information.
  */
 export interface OperationWithNotes {
-  operation: Operation;
-  intention: Note | null;
-  bugs: Note[] | null;
-  notices: Note[] | null;
-}
-
-export interface TestStep {
-  operation: Operation | null;
-  intention: Note | null;
-  bugs: Note[] | null;
-  notices: Note[] | null;
-}
-
-/**
- * Tag information.
- */
-export interface ElementInfo {
-  tagname: string;
-  text?: string;
-  xpath: string;
-  value?: string;
-  checked?: boolean;
-  attributes: { [key: string]: any };
+  operation: OperationForGUI;
+  intention: NoteForGUI | null;
+  bugs: NoteForGUI[] | null;
+  notices: NoteForGUI[] | null;
 }
 
 /**
@@ -90,7 +72,7 @@ export interface ScreenDef {
 /**
  * Window handle.
  */
-export interface WindowHandle {
+export interface WindowInfo {
   text: string;
   value: string;
   available: boolean;
@@ -108,24 +90,6 @@ export type MessageProvider = (message: string, args?: any) => string;
 export type ScreenDefinitionType = "url" | "title" | "keyword";
 export type ScreenMatchType = "contains" | "equals" | "regex";
 export type LocatorMatchType = "equals" | "regex";
-
-/**
- * Screen configuration information.
- */
-export interface CoverageSource {
-  title: string;
-  url: string;
-  screenElements: ElementInfo[];
-}
-
-/**
- * Input element infomations.
- */
-export interface InputElementInfo {
-  title: string;
-  url: string;
-  inputElements: ElementInfo[];
-}
 
 export type AutoPopupSettings = Omit<AutofillSetting, "conditionGroups">;
 
@@ -145,7 +109,7 @@ export interface AutofillConditionGroup {
 
 export type AutofillCondition = {
   isEnabled: boolean;
-  locatorType: string;
+  locatorType: "id" | "xpath";
   locator: string;
   locatorMatchType: LocatorMatchType;
   inputValue: string;
@@ -173,20 +137,6 @@ export interface ScreenDefinitionConditionGroup {
   }>;
 }
 
-export interface TestStepOperation {
-  input: string;
-  type: string;
-  elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageFileUrl: string;
-  timestamp: string;
-  inputElements: ElementInfo[];
-  windowHandle: string;
-  keywordTexts?: string[];
-  isAutomatic: boolean;
-}
-
 interface ApiNote {
   id: string;
   type: string;
@@ -204,7 +154,7 @@ export interface TestResult {
   initialUrl: string;
   testSteps: {
     id: string;
-    operation: TestStepOperation;
+    operation: Operation;
     intention: ApiNote | null;
     bugs: ApiNote[];
     notices: ApiNote[];

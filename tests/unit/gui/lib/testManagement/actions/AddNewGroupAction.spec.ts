@@ -1,8 +1,9 @@
-import { TestTargetGroupRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetGroupRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { TestTargetGroupRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { AddNewGroupAction } from "@/lib/testManagement/actions/AddNewGroupAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -42,7 +43,7 @@ describe("AddNewGroupAction", () => {
       }
 
       expect(testTargetGroupResponse.httpPost).toBeCalledWith(
-        "/test-target-groups",
+        "api/v1/test-target-groups",
         {
           testMatrixId: "testMatrixId",
           name: "testTargetGroupName",

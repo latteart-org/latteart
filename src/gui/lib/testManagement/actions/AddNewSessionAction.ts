@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import { Session } from "../types";
 
 export class AddNewSessionAction {
@@ -28,9 +28,9 @@ export class AddNewSessionAction {
       projectId: string;
       storyId: string;
     },
-    repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+    repositoryService: Pick<RepositoryService, "sessionRepository">
   ): Promise<ActionResult<Session>> {
-    const storyResult = await repositoryContainer.sessionRepository.postSession(
+    const storyResult = await repositoryService.sessionRepository.postSession(
       payload.projectId,
       { storyId: payload.storyId }
     );

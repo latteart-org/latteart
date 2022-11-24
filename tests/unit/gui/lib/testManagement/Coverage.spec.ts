@@ -1,9 +1,10 @@
 import { createLocalVue } from "@vue/test-utils";
 import Vuetify from "vuetify";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import * as Coverage from "@/lib/operationHistory/Coverage";
-import { OperationWithNotes, ElementInfo } from "@/lib/operationHistory/types";
+import { OperationWithNotes } from "@/lib/operationHistory/types";
+import { ElementInfo } from "src/common";
 
 const localVue = createLocalVue();
 localVue.use(Vuetify);
@@ -78,11 +79,11 @@ describe("Coverageは", () => {
           xpath: "foo/bar/baz",
           attributes: { type: "type1", id: "id1", name: "name1" },
         };
-        const operation1 = Operation.createFromOtherOperation({
+        const operation1 = OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: { elementInfo: elementInfo1 },
         });
-        const operation2 = Operation.createFromOtherOperation({
+        const operation2 = OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: { elementInfo: elementInfo2 },
         });
@@ -136,11 +137,11 @@ describe("Coverageは", () => {
           xpath: "foo[1]/bar/baz[1]",
           attributes: { type: "type1", id: "id1", name: "name1" },
         };
-        const operation1 = Operation.createFromOtherOperation({
+        const operation1 = OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: { elementInfo: elementInfo1 },
         });
-        const operation2 = Operation.createFromOtherOperation({
+        const operation2 = OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: { elementInfo: elementInfo2 },
         });
@@ -185,7 +186,7 @@ describe("Coverageは", () => {
 });
 
 const createEmptyOperation = () => {
-  return new Operation(1, "", "", null, "", "", "", "", false);
+  return new OperationForGUI(1, "", "", null, "", "", "", "", false);
 };
 
 const screenHistory = new ScreenHistory([
@@ -195,7 +196,7 @@ const screenHistory = new ScreenHistory([
     screenDef: "screenDef1",
     operationHistory: [
       {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: {
             elementInfo: {
@@ -211,7 +212,7 @@ const screenHistory = new ScreenHistory([
         notices: null,
       },
       {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: {
             elementInfo: {
@@ -227,7 +228,7 @@ const screenHistory = new ScreenHistory([
         notices: null,
       },
       {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: {
             elementInfo: {
@@ -244,7 +245,7 @@ const screenHistory = new ScreenHistory([
         notices: null,
       },
       {
-        operation: Operation.createFromOtherOperation({
+        operation: OperationForGUI.createFromOtherOperation({
           other: createEmptyOperation(),
           overrideParams: {
             elementInfo: {

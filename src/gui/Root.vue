@@ -29,9 +29,9 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "./vue/pages/common/ErrorMessageDialog.vue";
-import ProgressDialog from "./vue/pages/common/ProgressDialog.vue";
-import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vue";
+import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
+import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
+import AutofillRegisterDialog from "@/components/pages/common/AutofillRegisterDialog.vue";
 
 @Component({
   components: {
@@ -48,8 +48,9 @@ export default class Root extends Vue {
     (async () => {
       try {
         await this.$store.dispatch("loadLocaleFromSettings");
-        await this.$store.dispatch("operationHistory/readSettings");
-        await this.$store.dispatch("captureControl/readDeviceSettings");
+        await this.$store.dispatch("readSettings");
+        await this.$store.dispatch("readViewSettings");
+        await this.$store.dispatch("readDeviceSettings");
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;

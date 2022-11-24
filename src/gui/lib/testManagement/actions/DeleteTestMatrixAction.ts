@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 export class DeleteTestMatrixAction {
   public async deleteTestMatrix(
@@ -27,17 +27,18 @@ export class DeleteTestMatrixAction {
       projectId: string;
       testMatrixId: string;
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testMatrixRepository" | "projectRepository"
     >
   ): Promise<ActionResult<void>> {
-    await repositoryContainer.testMatrixRepository.deleteTestMatrix(
+    await repositoryService.testMatrixRepository.deleteTestMatrix(
       payload.testMatrixId
     );
 
-    const projectResult =
-      await repositoryContainer.projectRepository.getProject(payload.projectId);
+    const projectResult = await repositoryService.projectRepository.getProject(
+      payload.projectId
+    );
 
     if (projectResult.isFailure()) {
       return new ActionFailure({

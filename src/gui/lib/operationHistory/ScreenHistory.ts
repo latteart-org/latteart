@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  OperationHistory,
-  OperationWithNotes,
-  ElementInfo,
-  CoverageSource,
-} from "./types";
+import { OperationHistory, OperationWithNotes } from "./types";
+import { CoverageSource, ElementInfo } from "src/common";
 
 export interface ScreenHistoryBody {
   url: string;

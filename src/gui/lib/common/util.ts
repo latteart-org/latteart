@@ -14,37 +14,9 @@
  * limitations under the License.
  */
 
-import { OperationWithNotes, ElementInfo } from "@/lib/operationHistory/types";
+import { OperationWithNotes } from "@/lib/operationHistory/types";
 import { TimestampImpl } from "./Timestamp";
-
-/**
- * Determine if type contains value.
- * @param value
- * @param type
- * @returns Returns true if included.
- */
-export function isIncludeEnum(value: any, type: any): boolean {
-  let result = false;
-  Object.entries(type).forEach(([, v]) => {
-    if (value === v) {
-      result = true;
-    }
-  });
-  return result;
-}
-
-/**
- * Returns an array of Enum values.
- * @param type  Enum
- * @returns An array of defined values for an enum.
- */
-export function getEnumValues(type: any): any[] {
-  const result: any[] = [];
-  Object.entries(type).forEach(([, v]) => {
-    result.push(v);
-  });
-  return result;
-}
+import { ElementInfo } from "src/common";
 
 /**
  * Calculate total elapsed time of all tests in a test result.
@@ -224,48 +196,6 @@ export const findValueRecursively = (
  */
 export const normalizeXPath = (before: string): string => {
   return before.replace(/\[1\]/g, "");
-};
-
-/**
- * Collect innerText recursively.
- * @param element  Elements to be collected.
- * @param textSet  Set to store innerText.
- */
-const ignoreTags = ["SCRIPT", "STYLE", "HEAD"];
-
-const extractKeywordsFromInputAndTextareaTag = (
-  element: HTMLElement
-): string[] | null => {
-  const tagName = element.tagName.toUpperCase();
-  if (tagName === "INPUT" || tagName === "TEXTAREA") {
-    const results = [];
-
-    const placeholder = element.getAttribute("placeholder");
-    if (placeholder) {
-      results.push(placeholder);
-    }
-
-    const type = element.getAttribute("type");
-    if (type === "button" || type === "submit") {
-      const value = element.getAttribute("value");
-      if (value) {
-        results.push(value);
-      }
-    }
-    return results;
-  }
-  return null;
-};
-
-const extractKeywordsFromInnerText = (element: HTMLElement): string | null => {
-  const tagName = element.tagName.toUpperCase();
-  if (tagName === "INPUT" || tagName === "TEXTAREA") {
-    return null;
-  }
-  if (element.innerText) {
-    return element.innerText;
-  }
-  return null;
 };
 
 /**
