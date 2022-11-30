@@ -47,6 +47,7 @@ describe("UpdateTestTargetsAction", () => {
       };
 
       const args = {
+        projectId: "projectId",
         testMatrixId: "testMatrixId",
         groupId: "groupId",
         testTargets: [

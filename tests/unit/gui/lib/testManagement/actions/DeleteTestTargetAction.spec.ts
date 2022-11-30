@@ -35,6 +35,7 @@ describe("DeleteTargetAction", () => {
       };
 
       const args = {
+        projectId: "projectId",
         testMatrixId: "testMatrixId",
         groupId: "groupId",
         testTargetId: "testTargetId",

@@ -25,6 +25,7 @@ import { Group } from "../types";
 export class DeleteTestTargetAction {
   public async deleteTestTarget(
     payload: {
+      projectId: string;
       testMatrixId: string;
       groupId: string;
       testTargetId: string;
@@ -35,6 +36,7 @@ export class DeleteTestTargetAction {
     >
   ): Promise<ActionResult<Group>> {
     await repositoryService.testTargetRepository.deleteTestTarget(
+      payload.projectId,
       payload.testTargetId
     );
 
