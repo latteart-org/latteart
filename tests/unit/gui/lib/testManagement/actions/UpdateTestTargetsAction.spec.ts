@@ -75,7 +75,7 @@ describe("UpdateTestTargetsAction", () => {
       }
 
       expect(testTargetResponse.httpPatch).toBeCalledWith(
-        "api/v1/test-targets/testTargetId",
+        "api/v1/projects/projectId/test-targets/testTargetId",
         {
           name: "testTargetName",
           index: 0,

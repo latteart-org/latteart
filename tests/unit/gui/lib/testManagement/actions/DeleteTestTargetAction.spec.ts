@@ -53,7 +53,7 @@ describe("DeleteTargetAction", () => {
       }
 
       expect(testTargetResponse.httpDelete).toBeCalledWith(
-        "api/v1/test-targets/testTargetId"
+        "api/v1/projects/projectId/test-targets/testTargetId"
       );
 
       expect(testTargetGroupResponse.httpGet).toBeCalledWith(
