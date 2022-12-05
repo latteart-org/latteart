@@ -27,11 +27,12 @@ export class TestTargetRepository {
   constructor(private restClient: RESTClient) {}
 
   public async getTestTarget(
-    id: string
+    projectId: string,
+    testTargetId: string
   ): Promise<RepositoryAccessResult<TestTargetForRepository>> {
     try {
       const response = await this.restClient.httpGet(
-        `api/v1/test-targets/${id}`
+        `api/v1/projects/${projectId}/test-targets/${testTargetId}`
       );
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
@@ -45,13 +46,16 @@ export class TestTargetRepository {
     }
   }
 
-  public async postTestTarget(body: {
-    testTargetGroupId: string;
-    name: string;
-  }): Promise<RepositoryAccessResult<TestTargetForRepository>> {
+  public async postTestTarget(
+    projectId: string,
+    body: {
+      testTargetGroupId: string;
+      name: string;
+    }
+  ): Promise<RepositoryAccessResult<TestTargetForRepository>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-targets`,
+        `api/v1/projects/${projectId}/test-targets`,
         body
       );
       if (response.status !== 200) {
@@ -67,7 +71,8 @@ export class TestTargetRepository {
   }
 
   public async patchTestTarget(
-    id: string,
+    projectId: string,
+    testTargetId: string,
     body: {
       name?: string;
       index?: number;
@@ -79,7 +84,7 @@ export class TestTargetRepository {
   ): Promise<RepositoryAccessResult<TestTargetForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
-        `api/v1/test-targets/${id}`,
+        `api/v1/projects/${projectId}/test-targets/${testTargetId}`,
         body
       );
 
@@ -96,11 +101,12 @@ export class TestTargetRepository {
   }
 
   public async deleteTestTarget(
-    id: string
+    projectId: string,
+    testTargetId: string
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpDelete(
-        `api/v1/test-targets/${id}`
+        `api/v1/projects/${projectId}/test-targets/${testTargetId}`
       );
       if (response.status !== 204) {
         return createRepositoryAccessFailure(response);

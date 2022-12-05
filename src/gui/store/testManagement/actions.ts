@@ -391,7 +391,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ): Promise<void> {
     const result = await new AddNewTestTargetAction().addNewTestTarget(
-      payload,
+      { ...payload, projectId: context.state.projectId },
       context.rootState.repositoryService
     );
 
@@ -427,7 +427,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ): Promise<void> {
     const result = await new UpdateTestTargetsAction().updateTestTargets(
-      payload,
+      { ...payload, projectId: context.state.projectId },
       context.rootState.repositoryService
     );
 
@@ -453,7 +453,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     payload: { testMatrixId: string; groupId: string; testTargetId: string }
   ): Promise<void> {
     const result = await new DeleteTestTargetAction().deleteTestTarget(
-      payload,
+      { ...payload, projectId: context.state.projectId },
       context.rootState.repositoryService
     );
 

@@ -25,6 +25,7 @@ import { TestTarget } from "../types";
 export class AddNewTestTargetAction {
   public async addNewTestTarget(
     payload: {
+      projectId: string;
       testMatrixId: string;
       groupId: string;
       testTargetName: string;
@@ -32,10 +33,13 @@ export class AddNewTestTargetAction {
     repositoryService: Pick<RepositoryService, "testTargetRepository">
   ): Promise<ActionResult<TestTarget>> {
     const testTargetResult =
-      await repositoryService.testTargetRepository.postTestTarget({
-        testTargetGroupId: payload.groupId,
-        name: payload.testTargetName,
-      });
+      await repositoryService.testTargetRepository.postTestTarget(
+        payload.projectId,
+        {
+          testTargetGroupId: payload.groupId,
+          name: payload.testTargetName,
+        }
+      );
 
     if (testTargetResult.isFailure()) {
       return new ActionFailure({

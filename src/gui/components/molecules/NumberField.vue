@@ -120,6 +120,9 @@ export default class NumberField extends Vue {
   }
 
   private send(): void {
+    if (this.internalValue === this.value) {
+      return;
+    }
     this.$emit("updateNumberFieldValue", {
       id: this.id,
       value: this.internalValue,

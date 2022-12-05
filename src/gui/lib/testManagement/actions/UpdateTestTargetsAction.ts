@@ -21,6 +21,7 @@ import { Group, Plan } from "../types";
 export class UpdateTestTargetsAction {
   public async updateTestTargets(
     payload: {
+      projectId: string;
       testMatrixId: string;
       groupId: string;
       testTargets: {
@@ -39,6 +40,7 @@ export class UpdateTestTargetsAction {
       payload.testTargets.map(async (testTarget) => {
         const testTargetResult =
           await repositoryService.testTargetRepository.patchTestTarget(
+            payload.projectId,
             testTarget.id,
             {
               name: testTarget.name,
