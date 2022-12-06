@@ -11,8 +11,8 @@
     "build:server": "tsc -b tsconfig.server.json",
     "start:server": "cross-env NODE_ENV=development node ./dist/index.js",
     "package": "yarn package:win & yarn package:mac",
-    "package:win": "nexe dist/index.js -o dist/latteart/latteart/latteart --target windows-x64-14.15.3 && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
-    "package:mac": "nexe dist/index.js -o dist/latteart/latteart/latteart --target macos-x64-14.15.3 && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
+    "package:win": "pkg -t node14-win-x64 .",
+    "package:mac": "pkg -t node14-macos-x64 .",
     "prepackage:win": "yarn build",
     "prepackage:mac": "yarn build",
     "postpackage:win": "yarn package:launch:win && yarn copy:launch:win && yarn package:viewers",
@@ -32,6 +32,9 @@
     "package:viewer": "yarn build:viewer && yarn copy:viewer",
     "package:viewer:history": "yarn build:viewer:history && yarn copy:viewer:history",
     "package:viewers": "yarn package:viewer & yarn package:viewer:history"
+  },
+  "bin": {
+    "latteart": "dist/index.js"
   },
   "dependencies": {
     "@types/chart.js": "^2.7.55",
@@ -88,7 +91,7 @@
     "eslint-plugin-vue": "^7.6.0",
     "lint-staged": "^9.5.0",
     "material-design-icons-iconfont": "^5.0.1",
-    "nexe": "^4.0.0-beta.19",
+    "pkg": "^5.8.0",
     "prettier": "^2.2.1",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
@@ -123,5 +126,15 @@
       "yarn lint",
       "git add"
     ]
+  },
+  "pkg": {
+    "scripts": [
+      "dist/index.js"
+    ],
+    "assets": [
+      "dist/public/**/*"
+    ],
+    "outputPath": "dist/latteart/latteart",
+    "name": "latteart"
   }
 }
