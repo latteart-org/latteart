@@ -20,6 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryService } from "src/common";
+import { SnapshotConfig } from "@/lib/common/settings/Settings";
 
 const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY =
   "error.test_management.write_snapshot_failed";
@@ -31,12 +32,13 @@ export class WriteSnapshotAction {
 
   public async writeSnapshot(
     projectId: string,
-    locale: string
+    snapshotConfig: SnapshotConfig
   ): Promise<ActionResult<{ url: string }>> {
     const postSnapshotsResult =
-      await this.repositoryService.snapshotRepository.postSnapshots(projectId, {
-        locale,
-      });
+      await this.repositoryService.snapshotRepository.postSnapshots(
+        projectId,
+        snapshotConfig
+      );
 
     if (postSnapshotsResult.isFailure()) {
       return new ActionFailure({

@@ -44,3 +44,5 @@ export type ViewSettings = {
     autoPopupSelectionDialog: boolean;
   };
 };
+
+export type SnapshotConfig = { locale: string };
