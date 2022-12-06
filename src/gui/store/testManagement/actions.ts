@@ -78,7 +78,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
   async writeSnapshot(context): Promise<string> {
     const result = await new WriteSnapshotAction(
       context.rootState.repositoryService
-    ).writeSnapshot(context.state.projectId);
+    ).writeSnapshot(context.state.projectId, {
+      locale: context.rootState.i18n?.locale ?? "ja",
+    });
 
     if (result.isFailure()) {
       throw new Error(

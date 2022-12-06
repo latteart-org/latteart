@@ -21,6 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
+import { SnapshotConfig } from "@/lib/common/settings/Settings";
 
 export class SnapshotRepository {
   constructor(private restClient: RESTClient) {}
@@ -31,12 +32,13 @@ export class SnapshotRepository {
    * @returns URL of the snapshot.
    */
   public async postSnapshots(
-    projectId: string
+    projectId: string,
+    snapshotConfig: SnapshotConfig
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/projects/${projectId}/snapshots`,
-        null
+        snapshotConfig
       );
 
       if (response.status !== 200) {
