@@ -30,10 +30,13 @@ export class WriteSnapshotAction {
   ) {}
 
   public async writeSnapshot(
-    projectId: string
+    projectId: string,
+    locale: string
   ): Promise<ActionResult<{ url: string }>> {
     const postSnapshotsResult =
-      await this.repositoryService.snapshotRepository.postSnapshots(projectId);
+      await this.repositoryService.snapshotRepository.postSnapshots(projectId, {
+        locale,
+      });
 
     if (postSnapshotsResult.isFailure()) {
       return new ActionFailure({

@@ -31,12 +31,15 @@ export class SnapshotRepository {
    * @returns URL of the snapshot.
    */
   public async postSnapshots(
-    projectId: string
+    projectId: string,
+    body: {
+      locale: string;
+    }
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/projects/${projectId}/snapshots`,
-        null
+        body
       );
 
       if (response.status !== 200) {
