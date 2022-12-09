@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
+import { CaptureCLServiceErrorCode } from "./captureClService";
+import { RepositoryServiceErrorCode } from "./repositoryService";
+
 /**
  * service error
  */
 export type ServiceError = {
-  errorCode: ServiceErrorCode;
+  errorCode:
+    | RepositoryServiceErrorCode
+    | CaptureCLServiceErrorCode
+    | "unknown_error";
   message: string;
   variables?: { [key: string]: string };
 };
@@ -57,40 +63,3 @@ export class ServiceFailure {
     return true;
   }
 }
-
-type ServiceErrorCode =
-  | RepositoryServiceErrorCode
-  | CaptureCLServiceErrorCode
-  | "unknown_error";
-
-type RepositoryServiceErrorCode =
-  | "create_empty_test_result_failed"
-  | "get_test_result_failed"
-  | "get_test_step_failed"
-  | "add_test_step_failed"
-  | "compress_test_step_screenshot_failed"
-  | "add_note_failed"
-  | "edit_note_failed"
-  | "delete_note_failed"
-  | "link_note_to_test_step_failed"
-  | "unlink_note_from_test_step_failed"
-  | "compress_note_screenshot_failed"
-  | "add_test_purpose_failed"
-  | "edit_test_purpose_failed"
-  | "delete_test_purpose_failed"
-  | "link_test_purpose_to_test_step_failed"
-  | "unlink_test_purpose_from_test_step_failed";
-
-type CaptureCLServiceErrorCode =
-  | "run_operation_failed"
-  | "enter_values_failed"
-  | "detect_devices_failed"
-  | "invalid_url"
-  | "web_driver_version_mismatch"
-  | "web_driver_not_ready"
-  | "appium_not_started"
-  | "device_not_connected"
-  | "invalid_operation"
-  | "element_not_found"
-  | "capture_failed"
-  | "client_side_capture_service_not_found";

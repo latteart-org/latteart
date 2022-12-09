@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../network/http/client";
+import { RESTClient } from "../../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
+import { SnapshotConfig } from "@/lib/common/settings/Settings";
 
-export class ScreenshotRepository {
+export class SnapshotRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Get screenshots of the specified test result.
-   * @param testResultId  Test Result ID.
-   * @returns URL of the screenshots archive.
+   * Create a snapshot of the specified project ID.
+   * @param projectId  Project ID.
+   * @returns URL of the snapshot.
    */
-
-  public async getScreenshots(
-    testResultId: string
+  public async postSnapshots(
+    projectId: string,
+    snapshotConfig: SnapshotConfig
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
-      const response = await this.restClient.httpGet(
-        `api/v1/test-results/${testResultId}/screenshots`
+      const response = await this.restClient.httpPost(
+        `api/v1/projects/${projectId}/snapshots`,
+        snapshotConfig
       );
 
       if (response.status !== 200) {

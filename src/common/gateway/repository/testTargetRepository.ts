@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../network/http/client";
+import { RESTClient } from "../../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
