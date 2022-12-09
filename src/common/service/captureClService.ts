@@ -232,7 +232,7 @@ type CaptureClClient = {
   startCapture(
     url: string,
     option?: { compressScreenshots?: boolean }
-  ): Promise<CaptureSession>;
+  ): Promise<ServiceResult<CaptureSession>>;
 
   /**
    * replay Test Result
@@ -292,7 +292,7 @@ class CaptureClClientImpl implements CaptureClClient {
   ) {
     const compressScreenshots = option?.compressScreenshots ?? false;
 
-    const session = await this.startCaptureSession(
+    return this.startCaptureSession(
       {
         url,
         config: this.config,
@@ -300,8 +300,6 @@ class CaptureClClientImpl implements CaptureClClient {
       },
       this.testResult
     );
-
-    return session;
   }
 
   async replay(
@@ -316,11 +314,17 @@ class CaptureClClientImpl implements CaptureClClient {
       interval?: number;
     } = {}
   ) {
-    const session = await this.startCaptureSession({
+    const startSessionResult = await this.startCaptureSession({
       url,
       config: this.config,
       option: { compressScreenshots: false },
     });
+
+    if (startSessionResult.isFailure()) {
+      return startSessionResult;
+    }
+
+    const session = startSessionResult.data;
 
     const result = await this.doReplay(session, option);
 
@@ -345,10 +349,16 @@ class CaptureClClientImpl implements CaptureClClient {
   ) {
     const compressScreenshots = option?.compressScreenshots ?? false;
 
-    const session = await this.startCaptureSession(
+    const startSessionResult = await this.startCaptureSession(
       { url, config: this.config, option: { compressScreenshots } },
       destTestResultAccessor
     );
+
+    if (startSessionResult.isFailure()) {
+      return startSessionResult;
+    }
+
+    const session = startSessionResult.data;
 
     const result = await this.doReplay(session, option);
 
@@ -371,9 +381,13 @@ class CaptureClClientImpl implements CaptureClClient {
       destTestResultAccessor
     );
 
-    await session.startCapture(payload);
+    const result = await session.startCapture(payload);
 
-    return session;
+    if (result.isFailure()) {
+      return result;
+    }
+
+    return new ServiceSuccess(session);
   }
 
   private async doReplay(
@@ -539,229 +553,251 @@ class CaptureSessionImpl implements CaptureSession {
     config: CaptureConfig;
     option: { compressScreenshots: boolean };
   }) {
-    await this.captureCl.startCapture(payload.url, payload.config, {
-      onGetOperation: async (capturedOperation: CapturedOperation) => {
-        if (!this.testResult) {
-          return;
-        }
+    const captureClErrors: ServiceError[] = [];
 
-        if (capturedOperation.type === "switch_window") {
-          this.browserState.currentWindowHandle = capturedOperation.input;
-        }
+    const convertToServiceError = (serverError: CaptureCLServerError) => {
+      if (serverError.code === "detect_devices_failed") {
+        return {
+          errorCode: serverError.code,
+          message: "Detect devices failed.",
+        };
+      }
+      if (serverError.code === "invalid_url") {
+        return {
+          errorCode: serverError.code,
+          message: "Invalid URL.",
+        };
+      }
+      if (serverError.code === "web_driver_version_mismatch") {
+        return {
+          errorCode: serverError.code,
+          message: "Web Driver version mismatched.",
+        };
+      }
+      if (serverError.code === "web_driver_not_ready") {
+        return {
+          errorCode: serverError.code,
+          message: "Web Driver not ready.",
+        };
+      }
+      if (serverError.code === "appium_not_started") {
+        return {
+          errorCode: serverError.code,
+          message: "Appium not started.",
+        };
+      }
+      if (serverError.code === "device_not_connected") {
+        return {
+          errorCode: serverError.code,
+          message: "Device not connected.",
+        };
+      }
+      if (serverError.code === "invalid_operation") {
+        return {
+          errorCode: serverError.code,
+          message: "Invalid operation.",
+        };
+      }
+      if (serverError.code === "element_not_found") {
+        return {
+          errorCode: serverError.code,
+          message: "Element not found.",
+        };
+      }
+      if (serverError.code === "client_side_capture_service_not_found") {
+        return {
+          errorCode: serverError.code,
+          message: "Client side capture service is not found.",
+        };
+      }
 
-        const result = await this.testResult.addOperation(
-          { ...capturedOperation, isAutomatic: this.isAutomated },
-          {
-            compressScreenshot: payload.option.compressScreenshots,
+      const otherError: ServiceError = {
+        errorCode: "capture_failed",
+        message: "Capture failed.",
+      };
+      return otherError;
+    };
+
+    const result = await this.captureCl.startCapture(
+      payload.url,
+      payload.config,
+      {
+        onGetOperation: async (capturedOperation: CapturedOperation) => {
+          if (!this.testResult) {
+            return;
           }
-        );
 
-        if (result.isFailure()) {
-          this.errors.push(result.error);
-          this.endCapture();
-          return;
-        }
+          if (capturedOperation.type === "switch_window") {
+            this.browserState.currentWindowHandle = capturedOperation.input;
+          }
 
-        this.lastTestStepId = result.data.id;
-
-        if (this.eventListeners.onAddTestStep) {
-          this.eventListeners.onAddTestStep(result.data);
-        }
-
-        const testPurpose = this.pendingTestPurposes.pop();
-
-        if (!testPurpose) {
-          return;
-        }
-
-        const addTestPurposeResult =
-          await this.testResult.addTestPurposeToTestStep(
-            testPurpose,
-            result.data.id
+          const result = await this.testResult.addOperation(
+            { ...capturedOperation, isAutomatic: this.isAutomated },
+            {
+              compressScreenshot: payload.option.compressScreenshots,
+            }
           );
 
-        if (addTestPurposeResult.isFailure()) {
-          this.errors.push(addTestPurposeResult.error);
-          this.endCapture();
-          return;
-        }
+          if (result.isFailure()) {
+            captureClErrors.push(result.error);
+            this.endCapture();
+            return;
+          }
 
-        if (this.eventListeners.onAddTestPurpose) {
-          this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
-        }
-      },
-      onGetScreenTransition: async (
-        capturedScreenTransition: CapturedScreenTransition
-      ) => {
-        if (!this.testResult) {
-          return;
-        }
+          this.lastTestStepId = result.data.id;
 
-        const result = await this.testResult.addOperation(
-          {
-            ...capturedScreenTransition,
-            type: "screen_transition",
-            input: "",
-            elementInfo: null,
-            screenElements: [],
-            inputElements: [],
-            keywordTexts: [],
-            isAutomatic: this.isAutomated,
-          },
-          { compressScreenshot: payload.option.compressScreenshots }
-        );
+          if (this.eventListeners.onAddTestStep) {
+            this.eventListeners.onAddTestStep(result.data);
+          }
 
-        if (result.isFailure()) {
-          this.errors.push(result.error);
-          this.endCapture();
-          return;
-        }
+          const testPurpose = this.pendingTestPurposes.pop();
 
-        this.lastTestStepId = result.data.id;
+          if (!testPurpose) {
+            return;
+          }
 
-        if (this.eventListeners.onAddTestStep) {
-          this.eventListeners.onAddTestStep(result.data);
-        }
+          const addTestPurposeResult =
+            await this.testResult.addTestPurposeToTestStep(
+              testPurpose,
+              result.data.id
+            );
 
-        const testPurpose = this.pendingTestPurposes.pop();
+          if (addTestPurposeResult.isFailure()) {
+            captureClErrors.push(addTestPurposeResult.error);
+            this.endCapture();
+            return;
+          }
 
-        if (!testPurpose) {
-          return;
-        }
+          if (this.eventListeners.onAddTestPurpose) {
+            this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
+          }
+        },
+        onGetScreenTransition: async (
+          capturedScreenTransition: CapturedScreenTransition
+        ) => {
+          if (!this.testResult) {
+            return;
+          }
 
-        const addTestPurposeResult =
-          await this.testResult.addTestPurposeToTestStep(
-            testPurpose,
-            result.data.id
+          const result = await this.testResult.addOperation(
+            {
+              ...capturedScreenTransition,
+              type: "screen_transition",
+              input: "",
+              elementInfo: null,
+              screenElements: [],
+              inputElements: [],
+              keywordTexts: [],
+              isAutomatic: this.isAutomated,
+            },
+            { compressScreenshot: payload.option.compressScreenshots }
           );
 
-        if (addTestPurposeResult.isFailure()) {
-          this.errors.push(addTestPurposeResult.error);
-          this.endCapture();
-          return;
-        }
-
-        if (this.eventListeners.onAddTestPurpose) {
-          this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
-        }
-      },
-      onChangeBrowserHistory: (browserHistoryState: {
-        canGoBack: boolean;
-        canGoForward: boolean;
-      }) => {
-        this.browserState = {
-          ...this.browserState,
-          ...{
-            canNavigateBack: browserHistoryState.canGoBack,
-            canNavigateForward: browserHistoryState.canGoForward,
-          },
-        };
-      },
-      onUpdateAvailableWindows: (updatedWindowsInfo: {
-        windowHandles: string[];
-        currentWindowHandle: string;
-      }) => {
-        const newWindowHandle = updatedWindowsInfo.windowHandles.find(
-          (windowHandle) =>
-            !this.browserState.windowHandles.includes(windowHandle)
-        );
-
-        this.browserState = { ...this.browserState, ...updatedWindowsInfo };
-
-        if (this.eventListeners.onAddWindow && newWindowHandle) {
-          this.eventListeners.onAddWindow(newWindowHandle);
-        }
-      },
-      onChangeAlertVisibility: (data: { isVisible: boolean }) => {
-        this.browserState = {
-          ...this.browserState,
-          ...{ isAlertVisible: data.isVisible },
-        };
-      },
-      onPause: () => {
-        if (this.eventListeners.onPause) {
-          this.eventListeners.onPause();
-        }
-      },
-      onResume: () => {
-        if (this.eventListeners.onResume) {
-          this.eventListeners.onResume();
-        }
-      },
-      onError: (serverError: CaptureCLServerError) => {
-        const error: ServiceError = (() => {
-          if (serverError.code === "detect_devices_failed") {
-            return {
-              errorCode: serverError.code,
-              message: "Detect devices failed.",
-            };
-          }
-          if (serverError.code === "invalid_url") {
-            return {
-              errorCode: serverError.code,
-              message: "Invalid URL.",
-            };
-          }
-          if (serverError.code === "web_driver_version_mismatch") {
-            return {
-              errorCode: serverError.code,
-              message: "Web Driver version mismatched.",
-            };
-          }
-          if (serverError.code === "web_driver_not_ready") {
-            return {
-              errorCode: serverError.code,
-              message: "Web Driver not ready.",
-            };
-          }
-          if (serverError.code === "appium_not_started") {
-            return {
-              errorCode: serverError.code,
-              message: "Appium not started.",
-            };
-          }
-          if (serverError.code === "device_not_connected") {
-            return {
-              errorCode: serverError.code,
-              message: "Device not connected.",
-            };
-          }
-          if (serverError.code === "invalid_operation") {
-            return {
-              errorCode: serverError.code,
-              message: "Invalid operation.",
-            };
-          }
-          if (serverError.code === "element_not_found") {
-            return {
-              errorCode: serverError.code,
-              message: "Element not found.",
-            };
+          if (result.isFailure()) {
+            captureClErrors.push(result.error);
+            this.endCapture();
+            return;
           }
 
-          const otherError: ServiceError = {
-            errorCode: "capture_failed",
-            message: "Capture failed.",
+          this.lastTestStepId = result.data.id;
+
+          if (this.eventListeners.onAddTestStep) {
+            this.eventListeners.onAddTestStep(result.data);
+          }
+
+          const testPurpose = this.pendingTestPurposes.pop();
+
+          if (!testPurpose) {
+            return;
+          }
+
+          const addTestPurposeResult =
+            await this.testResult.addTestPurposeToTestStep(
+              testPurpose,
+              result.data.id
+            );
+
+          if (addTestPurposeResult.isFailure()) {
+            captureClErrors.push(addTestPurposeResult.error);
+            this.endCapture();
+            return;
+          }
+
+          if (this.eventListeners.onAddTestPurpose) {
+            this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
+          }
+        },
+        onChangeBrowserHistory: (browserHistoryState: {
+          canGoBack: boolean;
+          canGoForward: boolean;
+        }) => {
+          this.browserState = {
+            ...this.browserState,
+            ...{
+              canNavigateBack: browserHistoryState.canGoBack,
+              canNavigateForward: browserHistoryState.canGoForward,
+            },
           };
-          return otherError;
-        })();
-
-        this.errors.push(error);
-
-        this.endCapture();
-      },
-      onEnd: async () => {
-        if (this.errors.length > 0) {
-          this.eventListeners.onEnd(
-            new ServiceFailure(this.errors[this.errors.length - 1])
+        },
+        onUpdateAvailableWindows: (updatedWindowsInfo: {
+          windowHandles: string[];
+          currentWindowHandle: string;
+        }) => {
+          const newWindowHandle = updatedWindowsInfo.windowHandles.find(
+            (windowHandle) =>
+              !this.browserState.windowHandles.includes(windowHandle)
           );
 
-          return;
-        }
+          this.browserState = { ...this.browserState, ...updatedWindowsInfo };
 
-        this.eventListeners.onEnd(new ServiceSuccess(undefined));
-      },
-    });
+          if (this.eventListeners.onAddWindow && newWindowHandle) {
+            this.eventListeners.onAddWindow(newWindowHandle);
+          }
+        },
+        onChangeAlertVisibility: (data: { isVisible: boolean }) => {
+          this.browserState = {
+            ...this.browserState,
+            ...{ isAlertVisible: data.isVisible },
+          };
+        },
+        onPause: () => {
+          if (this.eventListeners.onPause) {
+            this.eventListeners.onPause();
+          }
+        },
+        onResume: () => {
+          if (this.eventListeners.onResume) {
+            this.eventListeners.onResume();
+          }
+        },
+        onError: (serverError: CaptureCLServerError) => {
+          const error: ServiceError = convertToServiceError(serverError);
+
+          captureClErrors.push(error);
+
+          this.endCapture();
+        },
+        onEnd: async () => {
+          const allErrors = [...this.errors, ...captureClErrors];
+          if (allErrors.length > 0) {
+            this.eventListeners.onEnd(
+              new ServiceFailure(allErrors[allErrors.length - 1])
+            );
+
+            return;
+          }
+
+          this.eventListeners.onEnd(new ServiceSuccess(undefined));
+        },
+      }
+    );
+
+    if (result.error) {
+      const error = convertToServiceError(result.error);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(undefined);
   }
 
   endCapture() {
@@ -1079,7 +1115,10 @@ class CaptureClAdapter {
       onError: (error: CaptureCLServerError) => void;
       onEnd: () => Promise<void>;
     }
-  ): Promise<void> {
+  ): Promise<{
+    data: unknown;
+    error?: CaptureCLServerError | undefined;
+  }> {
     try {
       const target = {
         platformName: config.platformName,
@@ -1199,15 +1238,18 @@ class CaptureClAdapter {
       );
 
       console.info(`onStart: ${JSON.stringify(result.data)}`);
+
+      return { data: undefined };
     } catch (error) {
       console.error(error);
 
-      eventListeners.onError({
-        code: "client_side_capture_service_not_found",
-        message: "Client side capture service is not found.",
-      });
-
-      eventListeners.onEnd();
+      return {
+        data: undefined,
+        error: {
+          code: "client_side_capture_service_not_found",
+          message: "Client side capture service is not found.",
+        },
+      };
     }
   }
 

@@ -92,4 +92,5 @@ type CaptureCLServiceErrorCode =
   | "device_not_connected"
   | "invalid_operation"
   | "element_not_found"
-  | "capture_failed";
+  | "capture_failed"
+  | "client_side_capture_service_not_found";

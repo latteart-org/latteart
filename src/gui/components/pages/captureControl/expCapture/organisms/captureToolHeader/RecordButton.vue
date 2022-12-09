@@ -157,6 +157,7 @@ export default class RecordButton extends Vue {
           config: this.config,
           callbacks: {
             onEnd: (error?: Error) => {
+              this.preparingForCapture = false;
               if (error) {
                 this.errorMessage = error.message;
                 this.errorMessageDialogOpened = true;
