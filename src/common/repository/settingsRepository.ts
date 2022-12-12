@@ -61,17 +61,7 @@ export class SettingsRepository {
     try {
       const response = await this.restClient.httpPut(
         `api/v1/projects/1/configs`,
-        {
-          ...settings,
-          locale: "ja",
-          mode: "debug",
-          debug: {
-            outputs: { dom: false },
-            saveItems: { keywordSet: true },
-            configureCaptureSettings: true,
-          },
-          captureSettings: { ignoreTags: [] },
-        }
+        settings
       );
 
       if (response.status !== 200) {
