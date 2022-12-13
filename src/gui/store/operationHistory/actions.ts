@@ -47,6 +47,7 @@ import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { convertNote } from "@/lib/common/replyDataConverter";
 import { ServiceSuccess, ElementInfo } from "../../../common";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
+import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -994,6 +995,27 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       },
       { root: true }
     );
+  },
+
+  async getSessionIds(context) {
+    if (!context.state.testResultInfo.id) {
+      return;
+    }
+
+    const result = await new GetSessionIdsAction(
+      context.rootState.repositoryService
+    ).getSessionIds(context.state.testResultInfo.id);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 };
 

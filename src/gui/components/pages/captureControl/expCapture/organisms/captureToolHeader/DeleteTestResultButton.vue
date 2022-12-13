@@ -25,11 +25,7 @@
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="$store.getters.message('history-view.delete-test-result-title')"
-      :message="
-        $store.getters.message('history-view.delete-test-result-message', {
-          value: testResultName,
-        })
-      "
+      :message="confirmMessage"
       :onAccept="deleteTestResult"
       @close="confirmDialogOpened = false"
     />
@@ -69,6 +65,7 @@ export default class DeleteTestResultButton extends Vue {
   private confirmDialogAccept() {
     /* Do nothing */
   }
+  private confirmMessage = "";
 
   private informationMessageDialogOpened = false;
   private informationMessage = "";
@@ -105,7 +102,21 @@ export default class DeleteTestResultButton extends Vue {
     return this.$store.getters["operationHistory/getOperations"]();
   }
 
-  private openConfirmDialog(): void {
+  private async openConfirmDialog() {
+    const sessions: string[] = await this.$store.dispatch(
+      "operationHistory/getSessionIds"
+    );
+
+    this.confirmMessage =
+      sessions.length > 0
+        ? this.$store.getters.message(
+            "history-view.delete-test-result-associated-session-message",
+            { value: this.testResultName }
+          )
+        : this.$store.getters.message(
+            "history-view.delete-test-result-message",
+            { value: this.testResultName }
+          );
     this.confirmDialogOpened = true;
   }
 

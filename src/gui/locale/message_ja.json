@@ -90,6 +90,7 @@
     "export-screenshots": "スクリーンショット出力",
     "delete-test-result": "テスト結果の削除",
     "delete-test-result-title": "テスト結果の削除",
+    "delete-test-result-associated-session-message": "セッションに紐づけられていますが、\nテスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
   },
@@ -543,6 +544,7 @@
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
       "get_test_result_failed": "テスト結果の取得に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
+      "get_session_ids_failed": "セッションIDの取得に失敗しました。",
       "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}"
     },
     "test_management": {
