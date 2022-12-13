@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { RESTClientResponse } from "../network/http/client";
+import { RESTClientResponse } from "../../network/http/client";
 
 export type RepositoryAccessResult<T> =
   | RepositoryAccessSuccess<T>

@@ -540,11 +540,20 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         }),
       });
 
-      const session = await client.startCapture(payload.url, {
+      const result = await client.startCapture(payload.url, {
         compressScreenshots:
           context.rootState.projectSettings.config.imageCompression.isEnabled,
       });
 
+      if (result.isFailure()) {
+        const errorMessage = context.rootGetters.message(
+          `error.capture_control.${result.error.errorCode}`
+        );
+        payload.callbacks.onEnd(new Error(errorMessage));
+        return;
+      }
+
+      const session = result.data;
       const testOption = (context.rootState as any).captureControl.testOption;
 
       if (testOption.firstTestPurpose) {

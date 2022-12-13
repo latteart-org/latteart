@@ -14,45 +14,27 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../network/http/client";
+import { RESTClient } from "../../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createConnectionRefusedFailure,
   createRepositoryAccessFailure,
+  createConnectionRefusedFailure,
 } from "./result";
-import { GroupForRepository } from "./types";
+import { SessionForRepository, ManagedSessionForRepository } from "./types";
 
-export class TestTargetGroupRepository {
+export class SessionRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async getTestTargetGroup(
-    id: string
-  ): Promise<RepositoryAccessResult<GroupForRepository>> {
-    try {
-      const response = await this.restClient.httpGet(
-        `api/v1/test-target-groups/${id}`
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return createRepositoryAccessSuccess({
-        data: response.data as GroupForRepository,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
+  public async postSession(
+    projectId: string,
+    body: {
+      storyId: string;
     }
-  }
-
-  public async postTestTargetGroup(body: {
-    testMatrixId: string;
-    name: string;
-  }): Promise<RepositoryAccessResult<GroupForRepository>> {
+  ): Promise<RepositoryAccessResult<SessionForRepository>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-target-groups`,
+        `api/v1/projects/${projectId}/sessions/`,
         body
       );
 
@@ -61,23 +43,22 @@ export class TestTargetGroupRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as GroupForRepository,
+        data: response.data as SessionForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async patchTestTargetGroup(
-    id: string,
-    name: string
-  ): Promise<RepositoryAccessResult<GroupForRepository>> {
+  public async patchSession(
+    projectId: string,
+    sessionId: string,
+    body: Partial<ManagedSessionForRepository>
+  ): Promise<RepositoryAccessResult<ManagedSessionForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
-        `api/v1/test-target-groups/${id}`,
-        {
-          name,
-        }
+        `api/v1/projects/${projectId}/sessions/${sessionId}`,
+        body
       );
 
       if (response.status !== 200) {
@@ -85,26 +66,29 @@ export class TestTargetGroupRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as GroupForRepository,
+        data: response.data as ManagedSessionForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async deleteTestTargetGroup(
-    id: string
+  public async deleteSession(
+    projectId: string,
+    sessionId: string
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpDelete(
-        `api/v1/test-target-groups/${id}`
+        `api/v1/projects/${projectId}/sessions/${sessionId}`
       );
 
       if (response.status !== 204) {
         return createRepositoryAccessFailure(response);
       }
 
-      return createRepositoryAccessSuccess({ data: response.data as void });
+      return createRepositoryAccessSuccess({
+        data: response.data as void,
+      });
     } catch (error) {
       return createConnectionRefusedFailure();
     }

@@ -15,31 +15,27 @@
  */
 
 import {
-  ServiceResult,
   ServiceFailure,
   ServiceSuccess,
   ServiceError,
-} from "./result";
+  ServiceResult,
+} from "../result";
 import {
-  TestStep,
-  TestStepNote,
-  Note,
   CapturedOperation,
+  TestStep,
   Operation,
   CoverageSource,
   InputElementInfo,
-} from "./types";
-import { RESTClient } from "../network/http/client";
+  TestStepNote,
+  Note,
+} from "../types";
 import {
-  TestStepRepositoryImpl,
-  NoteRepositoryImpl,
   TestResultRepository,
   ImportTestResultRepository,
   ImportProjectRepository,
   TestScriptRepository,
   SettingsRepository,
   CompressedImageRepository,
-  ProjectRESTRepository,
   SessionRepository,
   SnapshotRepository,
   ScreenshotRepository,
@@ -51,213 +47,10 @@ import {
   TestStepRepository,
   NoteRepository,
   ProjectRepository,
-} from "../repository";
+} from "../../gateway/repository";
+import { TestResultAccessor } from "./types";
 
-/**
- * Repository Service
- */
-export type RepositoryService = {
-  /**
-   * service url
-   */
-  readonly serviceUrl: string;
-
-  /**
-   * create an empty Test Result
-   * @param option option
-   */
-  createEmptyTestResult(option?: {
-    initialUrl?: string;
-    name?: string;
-    source?: string;
-  }): Promise<ServiceResult<{ id: string; name: string }>>;
-
-  /**
-   * create an interface to access a Test Result
-   * @param testResultId target Test Result ID
-   */
-  createTestResultAccessor(testResultId: string): TestResultAccessor;
-} & RepositoryContainer;
-
-/**
- * Interface to access a Test Result
- */
-export type TestResultAccessor = {
-  /**
-   * collect Test Steps
-   */
-  collectTestSteps(): Promise<ServiceResult<TestStep[]>>;
-
-  /**
-   * get a Test Step
-   * @param testStepId target Test Step ID
-   */
-  getTestStep(testStepId: string): Promise<ServiceResult<TestStep>>;
-
-  /**
-   * add an Operation
-   * @param operation new Operation context
-   * @param option option
-   */
-  addOperation(
-    operation: CapturedOperation,
-    option: {
-      compressScreenshot: boolean;
-    }
-  ): Promise<
-    ServiceResult<{
-      operation: Operation;
-      id: string;
-      coverageSource: CoverageSource;
-      inputElementInfo: InputElementInfo;
-    }>
-  >;
-
-  /**
-   * add a Note to a Test Step
-   * @param note new Note context
-   * @param testStepId Test Step ID
-   * @param option option
-   */
-  addNoteToTestStep(
-    note: {
-      value: string;
-      details?: string;
-      tags?: string[];
-      imageData?: string;
-    },
-    testStepId: string,
-    option?: {
-      compressScreenshot?: boolean;
-    }
-  ): Promise<ServiceResult<TestStepNote>>;
-
-  /**
-   * edit a Note
-   * @param noteId target Note ID
-   * @param note new Note context
-   */
-  editNote(
-    noteId: string,
-    note: {
-      value: string;
-      details: string;
-      tags: string[];
-    }
-  ): Promise<ServiceResult<Note>>;
-
-  /**
-   * remove a Note from a Test Step
-   * @param noteId target Note ID
-   * @param testStepId Test Step ID
-   */
-  removeNoteFromTestStep(
-    noteId: string,
-    testStepId: string
-  ): Promise<ServiceResult<TestStep>>;
-
-  /**
-   * add a Test Purpose to a Test Step
-   * @param testPurpose new Test Purpose context
-   * @param testStepId Test Step ID
-   */
-  addTestPurposeToTestStep(
-    testPurpose: {
-      value: string;
-      details?: string;
-    },
-    testStepId: string
-  ): Promise<ServiceResult<TestStepNote>>;
-
-  /**
-   * edit a Test Purpose
-   * @param testPurposeId target Test Purpose ID
-   * @param testPurpose new Test Purpose context
-   */
-  editTestPurpose(
-    testPurposeId: string,
-    testPurpose: {
-      value: string;
-      details: string;
-    }
-  ): Promise<ServiceResult<Note>>;
-
-  /**
-   * remove a Test Purpose from a Test Step
-   * @param testPurposeId target Test Purpose ID
-   * @param testStepId Test Step ID
-   */
-  removeTestPurposeFromTestStep(
-    testPurposeId: string,
-    testStepId: string
-  ): Promise<ServiceResult<TestStep>>;
-};
-
-/**
- * create a Repository Service
- * @param serviceUrl service url
- */
-export function createRepositoryService(
-  restClient: RESTClient
-): RepositoryService {
-  const repositories = {
-    testStepRepository: new TestStepRepositoryImpl(restClient),
-    noteRepository: new NoteRepositoryImpl(restClient),
-    testResultRepository: new TestResultRepository(restClient),
-    importTestResultRepository: new ImportTestResultRepository(restClient),
-    importProjectRepository: new ImportProjectRepository(restClient),
-    testScriptRepository: new TestScriptRepository(restClient),
-    settingRepository: new SettingsRepository(restClient),
-    compressedImageRepository: new CompressedImageRepository(restClient),
-    projectRepository: new ProjectRESTRepository(restClient),
-    sessionRepository: new SessionRepository(restClient),
-    snapshotRepository: new SnapshotRepository(restClient),
-    screenshotRepository: new ScreenshotRepository(restClient),
-    testMatrixRepository: new TestMatrixRepository(restClient),
-    testTargetGroupRepository: new TestTargetGroupRepository(restClient),
-    testTargetRepository: new TestTargetRepository(restClient),
-    viewPointRepository: new ViewPointRepository(restClient),
-    storyRepository: new StoryRepository(restClient),
-  };
-
-  return {
-    serviceUrl: restClient.serverUrl,
-    async createEmptyTestResult(
-      option: {
-        initialUrl?: string;
-        name?: string;
-        source?: string;
-      } = {}
-    ): Promise<ServiceResult<{ id: string; name: string }>> {
-      const result =
-        await repositories.testResultRepository.postEmptyTestResult(
-          option.initialUrl,
-          option.name
-        );
-
-      if (result.isFailure()) {
-        const error: ServiceError = {
-          errorCode: "create_empty_test_result_failed",
-          message: "Create empty Test Result failed.",
-        };
-        console.error(error.message);
-        return new ServiceFailure(error);
-      }
-
-      return new ServiceSuccess(result.data);
-    },
-    createTestResultAccessor(testResultId: string) {
-      return new TestResultAccessorImpl(
-        restClient.serverUrl,
-        repositories,
-        testResultId
-      );
-    },
-    ...repositories,
-  };
-}
-
-type RepositoryContainer = {
+export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
   readonly noteRepository: NoteRepository;
   readonly testResultRepository: TestResultRepository;
@@ -277,14 +70,14 @@ type RepositoryContainer = {
   readonly storyRepository: StoryRepository;
 };
 
-class TestResultAccessorImpl implements TestResultAccessor {
+export class TestResultAccessorImpl implements TestResultAccessor {
   constructor(
     private serviceUrl: string,
     private repositories: RepositoryContainer,
     private testResultId: string
   ) {}
 
-  async collectTestSteps() {
+  async collectTestSteps(): Promise<ServiceResult<TestStep[]>> {
     const result = await this.repositories.testResultRepository.getTestResult(
       this.testResultId
     );
@@ -314,7 +107,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess(testSteps);
   }
 
-  async getTestStep(testStepId: string) {
+  async getTestStep(testStepId: string): Promise<ServiceResult<TestStep>> {
     const result = await this.repositories.testStepRepository.getTestSteps(
       this.testResultId,
       testStepId
@@ -338,7 +131,14 @@ class TestResultAccessorImpl implements TestResultAccessor {
     option: {
       compressScreenshot: boolean;
     }
-  ) {
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+      inputElementInfo: InputElementInfo;
+    }>
+  > {
     const capturedOperation = {
       ...operation,
       keywordTexts: operation.pageSource.split("\n"),
@@ -421,7 +221,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
     option: {
       compressScreenshot?: boolean;
     } = {}
-  ) {
+  ): Promise<ServiceResult<TestStepNote>> {
     const postNotesResult = await this.repositories.noteRepository.postNotes(
       this.testResultId,
       {
@@ -528,7 +328,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
       details: string;
       tags: string[];
     }
-  ) {
+  ): Promise<ServiceResult<Note>> {
     const result = await this.repositories.noteRepository.putNotes(
       this.testResultId,
       noteId,
@@ -559,7 +359,10 @@ class TestResultAccessorImpl implements TestResultAccessor {
     });
   }
 
-  async removeNoteFromTestStep(noteId: string, testStepId: string) {
+  async removeNoteFromTestStep(
+    noteId: string,
+    testStepId: string
+  ): Promise<ServiceResult<TestStep>> {
     const deleteNotesResult =
       await this.repositories.noteRepository.deleteNotes(
         this.testResultId,
@@ -615,7 +418,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
       details?: string;
     },
     testStepId: string
-  ) {
+  ): Promise<ServiceResult<TestStepNote>> {
     const postNotesResult = await this.repositories.noteRepository.postNotes(
       this.testResultId,
       {
@@ -664,7 +467,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
       value: string;
       details: string;
     }
-  ) {
+  ): Promise<ServiceResult<Note>> {
     const putNotesResult = await this.repositories.noteRepository.putNotes(
       this.testResultId,
       testPurposeId,
@@ -690,7 +493,7 @@ class TestResultAccessorImpl implements TestResultAccessor {
   async removeTestPurposeFromTestStep(
     testPurposeId: string,
     testStepId: string
-  ) {
+  ): Promise<ServiceResult<TestStep>> {
     const deleteNotesResult =
       await this.repositories.noteRepository.deleteNotes(
         this.testResultId,

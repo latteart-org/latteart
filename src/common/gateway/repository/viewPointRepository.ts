@@ -14,27 +14,46 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "../network/http/client";
+import { RESTClient } from "../../network/http/client";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createRepositoryAccessFailure,
   createConnectionRefusedFailure,
+  createRepositoryAccessFailure,
 } from "./result";
-import { SessionForRepository, ManagedSessionForRepository } from "./types";
+import { ViewPointForRepository } from "./types";
 
-export class SessionRepository {
+export class ViewPointRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async postSession(
-    projectId: string,
-    body: {
-      storyId: string;
+  public async getViewPoint(
+    id: string
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>> {
+    try {
+      const response = await this.restClient.httpGet(
+        `api/v1/view-points/${id}`
+      );
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as ViewPointForRepository,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
     }
-  ): Promise<RepositoryAccessResult<SessionForRepository>> {
+  }
+
+  public async postViewPoint(body: {
+    testMatrixId: string;
+    name: string;
+    index: number;
+    description: string;
+  }): Promise<RepositoryAccessResult<ViewPointForRepository>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/projects/${projectId}/sessions/`,
+        `api/v1/view-points`,
         body
       );
 
@@ -43,21 +62,24 @@ export class SessionRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as SessionForRepository,
+        data: response.data as ViewPointForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async patchSession(
-    projectId: string,
-    sessionId: string,
-    body: Partial<ManagedSessionForRepository>
-  ): Promise<RepositoryAccessResult<ManagedSessionForRepository>> {
+  public async patchViewPoint(
+    id: string,
+    body: {
+      name?: string;
+      description?: string;
+      index?: number;
+    }
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
-        `api/v1/projects/${projectId}/sessions/${sessionId}`,
+        `api/v1/view-points/${id}`,
         body
       );
 
@@ -66,29 +88,26 @@ export class SessionRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as ManagedSessionForRepository,
+        data: response.data as ViewPointForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
   }
 
-  public async deleteSession(
-    projectId: string,
-    sessionId: string
+  public async deleteViewPoint(
+    id: string
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpDelete(
-        `api/v1/projects/${projectId}/sessions/${sessionId}`
+        `api/v1/view-points/${id}`
       );
 
       if (response.status !== 204) {
         return createRepositoryAccessFailure(response);
       }
 
-      return createRepositoryAccessSuccess({
-        data: response.data as void,
-      });
+      return createRepositoryAccessSuccess(response.data as { data: void });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
