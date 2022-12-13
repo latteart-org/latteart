@@ -40,9 +40,11 @@ import { CaptureCLServerError } from "src/common/gateway/captureCl";
 export class CaptureClClientImpl implements CaptureClClient {
   constructor(
     private captureCl: CaptureClServerAdapter,
-    private testResult: TestResultAccessor,
-    private config: CaptureConfig,
-    private eventListeners: CaptureEventListeners
+    private option: {
+      testResult?: TestResultAccessor;
+      config: CaptureConfig;
+      eventListeners: CaptureEventListeners;
+    }
   ) {}
 
   async startCapture(
@@ -54,76 +56,11 @@ export class CaptureClClientImpl implements CaptureClClient {
     return this.startCaptureSession(
       {
         url,
-        config: this.config,
+        config: this.option.config,
         option: { compressScreenshots },
       },
-      this.testResult
+      this.option.testResult
     );
-  }
-
-  async replay(
-    url: string,
-    option: {
-      filterPredicate?: (
-        testStep: TestStep,
-        index: number,
-        array: TestStep[]
-      ) => boolean;
-      preScript?: (testStep: TestStep, index: number) => Promise<void>;
-      interval?: number;
-    } = {}
-  ): Promise<ServiceResult<void>> {
-    const startSessionResult = await this.startCaptureSession({
-      url,
-      config: this.config,
-      option: { compressScreenshots: false },
-    });
-
-    if (startSessionResult.isFailure()) {
-      return startSessionResult;
-    }
-
-    const session = startSessionResult.data;
-
-    const result = await this.doReplay(session, option);
-
-    session.endCapture();
-
-    return result;
-  }
-
-  async replayAndSave(
-    url: string,
-    destTestResultAccessor: TestResultAccessor,
-    option: {
-      filterPredicate?: (
-        testStep: TestStep,
-        index: number,
-        array: TestStep[]
-      ) => boolean;
-      preScript?: (testStep: TestStep, index: number) => Promise<void>;
-      compressScreenshots?: boolean;
-      interval?: number;
-    } = {}
-  ): Promise<ServiceResult<void>> {
-    const compressScreenshots = option?.compressScreenshots ?? false;
-
-    const startSessionResult = await this.startCaptureSession(
-      { url, config: this.config, option: { compressScreenshots } },
-      destTestResultAccessor
-    );
-
-    if (startSessionResult.isFailure()) {
-      return startSessionResult;
-    }
-
-    const session = startSessionResult.data;
-
-    const result = await this.doReplay(session, option);
-
-    session.endCapture();
-
-    return result;
   }
 
   private async startCaptureSession(
@@ -136,7 +73,7 @@ export class CaptureClClientImpl implements CaptureClClient {
   ) {
     const session = new CaptureSessionImpl(
       this.captureCl,
-      this.eventListeners,
+      this.option.eventListeners,
       destTestResultAccessor
     );
 
@@ -147,116 +84,6 @@ export class CaptureClClientImpl implements CaptureClClient {
     }
 
     return new ServiceSuccess(session);
-  }
-
-  private async doReplay(
-    session: CaptureSessionImpl,
-    option: {
-      filterPredicate?: (
-        testStep: TestStep,
-        index: number,
-        array: TestStep[]
-      ) => boolean;
-      preScript?: (testStep: TestStep, index: number) => Promise<void>;
-      interval?: number;
-    }
-  ) {
-    const collectTestStepsResult = await this.testResult.collectTestSteps();
-
-    if (collectTestStepsResult.isFailure()) {
-      return new ServiceFailure({
-        ...collectTestStepsResult.error,
-        errorCode: "get_test_result_failed",
-      });
-    }
-
-    const testSteps = collectTestStepsResult.data.filter(
-      option.filterPredicate ?? (() => true)
-    );
-
-    const recordedWindowHandles = testSteps
-      .map(({ operation }) => {
-        return operation.windowHandle;
-      })
-      .filter((windowHandle, index, array) => {
-        return array.indexOf(windowHandle) === index;
-      });
-    const replayWindowHandles: string[] = [];
-
-    const targetTestSteps = collectRunTargets(...testSteps);
-
-    for (const [index, testStep] of targetTestSteps.entries()) {
-      if (option.preScript) {
-        await option.preScript(testStep, index);
-      }
-
-      if (index === 0) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 1000);
-        });
-      } else {
-        const previous = parseInt(
-          targetTestSteps[index - 1].operation.timestamp,
-          10
-        );
-        const current = parseInt(testStep.operation.timestamp, 10);
-        const intervalTime = option.interval ?? current - previous;
-
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, intervalTime);
-        });
-      }
-
-      const availableWindowHandles = session.windowHandles;
-      for (const availableWindow of availableWindowHandles) {
-        if (!replayWindowHandles.includes(availableWindow)) {
-          replayWindowHandles.push(availableWindow);
-        }
-      }
-
-      const replayTargetOperation = (() => {
-        if (testStep.operation.type !== "switch_window") {
-          return testStep.operation;
-        }
-
-        const handleKey = recordedWindowHandles.indexOf(
-          testStep.operation.input
-        );
-
-        if (handleKey === -1) {
-          return testStep.operation;
-        }
-
-        const switchHandleId = replayWindowHandles[handleKey];
-        return {
-          ...testStep.operation,
-          input: switchHandleId,
-        };
-      })();
-
-      if (replayTargetOperation.type === "screen_transition") {
-        continue;
-      }
-
-      const nextOperation = targetTestSteps[index + 1]?.operation as
-        | Operation
-        | undefined;
-
-      const result =
-        nextOperation?.type === "screen_transition"
-          ? await session.runOperationAndWait(replayTargetOperation)
-          : await session.runOperation(replayTargetOperation);
-
-      if (result.isFailure()) {
-        return result;
-      }
-    }
-
-    return new ServiceSuccess(undefined);
   }
 }
 
@@ -674,7 +501,18 @@ class CaptureSessionImpl implements CaptureSession {
     return new ServiceSuccess(undefined);
   }
 
-  automate(option: { interval?: number } = {}) {
+  automate(
+    option: {
+      preScript?: (
+        operation: Pick<
+          Operation,
+          "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
+        >,
+        index: number
+      ) => Promise<void>;
+      interval?: number;
+    } = {}
+  ) {
     const executeAction = async <T>(
       action: () => Promise<ServiceResult<T>>
     ) => {
@@ -694,25 +532,81 @@ class CaptureSessionImpl implements CaptureSession {
     };
 
     const runOperations = (
-      ...operations: Pick<Operation, "type" | "input" | "elementInfo">[]
+      ...operations: Pick<
+        Operation,
+        "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
+      >[]
     ) => {
       return executeAction(async () => {
-        const defaultInterval = 1000;
-
         const targetTestSteps = collectRunTargets(
           ...operations.map((operation) => {
             return { operation };
           })
         );
 
-        for (const [index, testStep] of targetTestSteps.entries()) {
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              resolve();
-            }, option.interval ?? defaultInterval);
+        const recordedWindowHandles = targetTestSteps
+          .map(({ operation }) => {
+            return operation.windowHandle;
+          })
+          .filter((windowHandle, index, array) => {
+            return array.indexOf(windowHandle) === index;
           });
+        const replayWindowHandles: string[] = [];
 
-          if (testStep.operation.type === "screen_transition") {
+        for (const [index, testStep] of targetTestSteps.entries()) {
+          if (option.preScript) {
+            await option.preScript(testStep.operation, index);
+          }
+
+          if (index === 0) {
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, 1000);
+            });
+          } else {
+            const previous = parseInt(
+              targetTestSteps[index - 1].operation.timestamp,
+              10
+            );
+            const current = parseInt(testStep.operation.timestamp, 10);
+            const intervalTime = option.interval ?? current - previous;
+
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, intervalTime);
+            });
+          }
+
+          const availableWindowHandles = this.windowHandles;
+          for (const availableWindow of availableWindowHandles) {
+            if (!replayWindowHandles.includes(availableWindow)) {
+              replayWindowHandles.push(availableWindow);
+            }
+          }
+
+          const replayTargetOperation = (() => {
+            if (testStep.operation.type !== "switch_window") {
+              return testStep.operation;
+            }
+
+            const handleKey = recordedWindowHandles.indexOf(
+              testStep.operation.input
+            );
+
+            if (handleKey === -1) {
+              return testStep.operation;
+            }
+
+            const switchHandleId = replayWindowHandles[handleKey];
+            return {
+              ...testStep.operation,
+              input: switchHandleId,
+            };
+          })();
+
+          if (replayTargetOperation.type === "screen_transition") {
             continue;
           }
 
@@ -722,8 +616,8 @@ class CaptureSessionImpl implements CaptureSession {
 
           const result =
             nextOperation?.type === "screen_transition"
-              ? await this.runOperationAndWait(testStep.operation)
-              : await this.runOperation(testStep.operation);
+              ? await this.runOperationAndWait(replayTargetOperation)
+              : await this.runOperation(replayTargetOperation);
 
           if (result.isFailure()) {
             return result;

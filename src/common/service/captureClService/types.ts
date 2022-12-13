@@ -38,10 +38,11 @@ export type CaptureClService = {
    * @param testResult Test Result for storing captured data
    * @param option option
    */
-  createCaptureClient(
-    testResult: TestResultAccessor,
-    option: { config: CaptureConfig; eventListeners: CaptureEventListeners }
-  ): CaptureClClient;
+  createCaptureClient(option: {
+    testResult?: TestResultAccessor;
+    config: CaptureConfig;
+    eventListeners: CaptureEventListeners;
+  }): CaptureClClient;
 
   /**
    * collect connected devices of a specific platform
@@ -80,49 +81,6 @@ export type CaptureClClient = {
     url: string,
     option?: { compressScreenshots?: boolean }
   ): Promise<ServiceResult<CaptureSession>>;
-
-  /**
-   * replay Test Result
-   * @param url target page url
-   * @param option.filterPredicate predicate to filter Test Steps
-   * @param option.preScript function called before running each Test Step
-   * @param option.interval interval in milliseconds (default: duration between timestamps)
-   */
-  replay(
-    url: string,
-    option?: {
-      filterPredicate?: (
-        testStep: TestStep,
-        index: number,
-        array: TestStep[]
-      ) => boolean;
-      preScript?: (testStep: TestStep, index: number) => Promise<void>;
-      interval?: number;
-    }
-  ): Promise<ServiceResult<void>>;
-
-  /**
-   * replay Test Result and save to repository
-   * @param url target page url
-   * @param option.filterPredicate predicate to filter Test Steps
-   * @param option.preScript function called before running each Test Step
-   * @param option.compressScreenshots whether to compress screenshots
-   * @param option.interval interval in milliseconds (default: duration between timestamps)
-   */
-  replayAndSave(
-    url: string,
-    destTestResultAccessor: TestResultAccessor,
-    option?: {
-      filterPredicate?: (
-        testStep: TestStep,
-        index: number,
-        array: TestStep[]
-      ) => boolean;
-      preScript?: (testStep: TestStep, index: number) => Promise<void>;
-      compressScreenshots?: boolean;
-      interval?: number;
-    }
-  ): Promise<ServiceResult<void>>;
 };
 
 /**
@@ -162,9 +120,19 @@ export type CaptureSession = {
 
   /**
    * automate
-   * @param option.interval interval in milliseconds (default: 1000)
+   * @param preScript function called before running each Operation
+   * @param option.interval interval in milliseconds (default: duration between timestamps)
    */
-  automate(option?: { interval?: number }): {
+  automate(option?: {
+    preScript?: (
+      operation: Pick<
+        Operation,
+        "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
+      >,
+      index: number
+    ) => Promise<void>;
+    interval?: number;
+  }): {
     /**
      * run Operations
      * @param operations operation contexts

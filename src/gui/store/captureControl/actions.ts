@@ -91,21 +91,79 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const sourceTestResultId = operationHistoryState.testResultInfo.id;
 
+      const operations = await (async () => {
+        const collectTestStepsResult = await context.rootState.repositoryService
+          .createTestResultAccessor(sourceTestResultId)
+          .collectTestSteps();
+
+        if (collectTestStepsResult.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.run_operations_failed`
+          );
+          throw new Error(errorMessage);
+        }
+        return collectTestStepsResult.data
+          .filter(payload.filterPredicate ?? (() => true))
+          .map(({ operation }) => operation);
+      })();
+
       const replayOption = context.state.replayOption;
+      const destTestResult = replayOption.replayCaptureMode
+        ? await (async () => {
+            const createResult =
+              await context.rootState.repositoryService.createEmptyTestResult({
+                initialUrl: payload.initialUrl,
+                name: replayOption.testResultName,
+                source: sourceTestResultId,
+              });
+
+            if (createResult.isFailure()) {
+              const errorMessage = context.rootGetters.message(
+                `error.capture_control.run_operations_failed`
+              );
+              throw new Error(errorMessage);
+            }
+
+            return context.rootState.repositoryService.createTestResultAccessor(
+              createResult.data.id
+            );
+          })()
+        : undefined;
+
+      if (destTestResult) {
+        await context.dispatch("operationHistory/resetHistory", null, {
+          root: true,
+        });
+      }
 
       const captureCl = context.rootState.captureClService;
-      const testResult =
-        context.rootState.repositoryService.createTestResultAccessor(
-          sourceTestResultId
-        );
-      const config: CaptureConfig = context.rootState.deviceSettings;
-      const client = captureCl.createCaptureClient(testResult, {
-        config,
+      const client = captureCl.createCaptureClient({
+        testResult: destTestResult,
+        config: context.rootState.deviceSettings,
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
 
-      const filterPredicate = payload.filterPredicate ?? (() => true);
-      const preScript = async (_: TestStep, index: number) => {
+      const session = await (async () => {
+        const startCaptureResult = await client.startCapture(
+          payload.initialUrl,
+          {
+            compressScreenshots:
+              context.rootState.projectSettings.config.imageCompression
+                .isEnabled,
+          }
+        );
+        if (startCaptureResult.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.run_operations_failed`
+          );
+          throw new Error(errorMessage);
+        }
+        return startCaptureResult.data;
+      })();
+
+      context.commit("setCaptureSession", { session });
+
+      const preScript = async (_: unknown, index: number) => {
         context.commit(
           "operationHistory/selectOperation",
           { sequence: index + 1 },
@@ -113,44 +171,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       };
 
-      if (replayOption.replayCaptureMode) {
-        await context.dispatch("operationHistory/resetHistory", null, {
-          root: true,
-        });
-      }
+      const runOperationsResult = await session
+        .automate({ preScript })
+        .runOperations(...operations);
 
-      const result = await (async () => {
-        if (!replayOption.replayCaptureMode) {
-          return client.replay(payload.initialUrl, {
-            filterPredicate,
-            preScript,
-          });
-        }
-
-        const createResult =
-          await context.rootState.repositoryService.createEmptyTestResult({
-            initialUrl: payload.initialUrl,
-            name: replayOption.testResultName,
-            source: sourceTestResultId,
-          });
-
-        if (createResult.isFailure()) {
-          return createResult;
-        }
-
-        const destTestResult =
-          context.rootState.repositoryService.createTestResultAccessor(
-            createResult.data.id
-          );
-        return client.replayAndSave(payload.initialUrl, destTestResult, {
-          filterPredicate,
-          preScript,
-          compressScreenshots:
-            context.rootState.projectSettings.config.imageCompression.isEnabled,
-        });
-      })();
-
-      if (result.isFailure()) {
+      if (runOperationsResult.isFailure()) {
         const errorMessage = context.rootGetters.message(
           `error.capture_control.run_operations_failed`
         );
@@ -173,7 +198,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     const operations = convertOperationsForReplay(payload.operations);
 
     const result = await context.state.captureSession
-      .automate()
+      .automate({ interval: 1000 })
       .runOperations(...operations);
 
     if (result.isFailure()) {
@@ -190,6 +215,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   async forceQuitReplay(context) {
     context.dispatch("endCapture");
+    context.commit("setIsReplaying", { isReplaying: false });
   },
 
   /**
@@ -533,7 +559,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState.repositoryService.createTestResultAccessor(
           operationHistoryState.testResultInfo.id
         );
-      const client = captureCl.createCaptureClient(testResult, {
+      const client = captureCl.createCaptureClient({
+        testResult,
         config,
         eventListeners: await context.dispatch("createCaptureEventListeners", {
           callbacks: payload.callbacks,
