@@ -30,16 +30,12 @@ export function createCaptureClService(serviceUrl: string): CaptureClService {
 
   return {
     serviceUrl,
-    createCaptureClient(
-      testResult: TestResultAccessor,
-      option: { config: CaptureConfig; eventListeners: CaptureEventListeners }
-    ) {
-      return new CaptureClClientImpl(
-        captureCl,
-        testResult,
-        option.config,
-        option.eventListeners
-      );
+    createCaptureClient(option: {
+      testResult?: TestResultAccessor;
+      config: CaptureConfig;
+      eventListeners: CaptureEventListeners;
+    }) {
+      return new CaptureClClientImpl(captureCl, option);
     },
     async recognizeDevices(platformName: string) {
       const result = await captureCl.recognizeDevices(platformName);
