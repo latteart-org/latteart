@@ -86,7 +86,7 @@
     "export-screenshots": "Screenshots Export",
     "delete-test-result": "Delete Test Result",
     "delete-test-result-title": "Delete Test Result",
-    "delete-test-result-associated-session-message": "Are you sure you want to delete  this Test Result \"{value}\", which is linked to the session?",
+    "delete-test-result-associated-session-message": "This test result is captured in the management tool.\nAre you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-succeeded": "Test Result deletion has finished."
   },

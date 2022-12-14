@@ -90,7 +90,7 @@
     "export-screenshots": "スクリーンショット出力",
     "delete-test-result": "テスト結果の削除",
     "delete-test-result-title": "テスト結果の削除",
-    "delete-test-result-associated-session-message": "セッションに紐づけられていますが、\nテスト結果「{value}」を削除してよろしいですか？",
+    "delete-test-result-associated-session-message": "管理ツールで本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
   },
