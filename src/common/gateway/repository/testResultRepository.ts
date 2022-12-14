@@ -181,4 +181,24 @@ export class TestResultRepository {
       return createConnectionRefusedFailure();
     }
   }
+
+  public async getSessionIds(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<Array<string>>> {
+    try {
+      const response = await this.restClient.httpGet(
+        `api/v1/test-results/${testResultId}/sessions`
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as Array<string>,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
 }
