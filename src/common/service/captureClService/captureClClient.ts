@@ -16,7 +16,6 @@
 
 import {
   Operation,
-  TestStep,
   CaptureConfig,
   CapturedOperation,
   CapturedScreenTransition,

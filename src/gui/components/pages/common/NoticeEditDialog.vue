@@ -189,9 +189,19 @@ export default class NoticeEditDialog extends Vue {
     (async () => {
       try {
         if (this.oldNote === "") {
-          await this.$store.dispatch("operationHistory/addNote", {
-            noteEditInfo: args,
-          });
+          const isCapturing = (
+            this.$store.state.captureControl as CaptureControlState
+          ).isCapturing;
+
+          if (isCapturing) {
+            await this.$store.dispatch("captureControl/takeNote", {
+              noteEditInfo: args,
+            });
+          } else {
+            await this.$store.dispatch("operationHistory/addNote", {
+              noteEditInfo: args,
+            });
+          }
         } else {
           await this.$store.dispatch("operationHistory/editNote", {
             noteEditInfo: args,
