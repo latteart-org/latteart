@@ -53,7 +53,7 @@ export class LoadHistoryAction {
       url: string;
       testResultInfo: { id: string; name: string };
       testStepIds: string[];
-      startTimeStamp: number;
+      testingTime: number;
     }>
   > {
     const result = await new GetTestResultAction(
@@ -97,7 +97,7 @@ export class LoadHistoryAction {
       url: testResult.initialUrl,
       testResultInfo: { id: testResult.id, name: testResult.name },
       testStepIds: testResult.testSteps.map(({ id }) => id),
-      startTimeStamp: testResult.startTimeStamp,
+      testingTime: testResult.testingTime,
     };
   }
 }

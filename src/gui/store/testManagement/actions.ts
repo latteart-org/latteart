@@ -582,14 +582,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
       storyId: payload.storyId,
       session: parsedSession,
     });
-
-    if (updatedSession.testingTime !== parsedSession.testingTime) {
-      await new UpdateSessionAction(
-        context.rootState.repositoryService
-      ).updateSession(context.state.projectId, payload.sessionId, {
-        testingTime: parsedSession.testingTime,
-      });
-    }
   },
 
   async deleteSession(
