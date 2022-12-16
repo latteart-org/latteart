@@ -14,61 +14,7 @@
  * limitations under the License.
  */
 
-import { OperationWithNotes } from "@/lib/operationHistory/types";
-import { TimestampImpl } from "./Timestamp";
 import { ElementInfo } from "src/common";
-
-/**
- * Calculate total elapsed time of all tests in a test result.
- * @param startTimeStamp  Last test start time.
- * @param history  All test operation history.
- * @returns Elapsed time.
- */
-export const calculateElapsedEpochMillis = (
-  startTimeStamp: number,
-  history: OperationWithNotes[]
-): number => {
-  const lastTestStartTime = new TimestampImpl(
-    startTimeStamp
-  ).epochMilliseconds();
-
-  const lastTestingTime = (() => {
-    const lastOperationTimestamp =
-      history
-        .slice()
-        .reverse()
-        .find((historyItem) => {
-          return historyItem.operation.timestamp;
-        })?.operation.timestamp ?? lastTestStartTime;
-
-    return (
-      new TimestampImpl(lastOperationTimestamp).epochMilliseconds() -
-      lastTestStartTime
-    );
-  })();
-
-  const otherTestingTime = (() => {
-    const otherHistory = history.filter((item) => {
-      return (
-        new TimestampImpl(item.operation.timestamp).epochMilliseconds() <
-        lastTestStartTime
-      );
-    });
-    if (otherHistory.length > 0) {
-      const otherStartTime = new TimestampImpl(
-        otherHistory[0].operation.timestamp
-      ).epochMilliseconds();
-      const otherEndTime = new TimestampImpl(
-        otherHistory[otherHistory.length - 1].operation.timestamp
-      ).epochMilliseconds();
-      return otherEndTime - otherStartTime;
-    } else {
-      return 0;
-    }
-  })();
-
-  return lastTestingTime + otherTestingTime;
-};
 
 /**
  * Abbreviates the string to the specified number of characters and returns the ending as "...".

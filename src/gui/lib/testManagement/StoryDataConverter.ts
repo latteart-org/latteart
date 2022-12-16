@@ -20,7 +20,6 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import { OperationWithNotes } from "../operationHistory/types";
-import { calculateElapsedEpochMillis } from "../common/util";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
 import { StoryConvertable } from "./actions/WriteDataFileAction";
 import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
@@ -74,7 +73,7 @@ export default class StoryDataConverter implements StoryConvertable {
       return {};
     }
 
-    const { testSteps: tmpTestSteps, initialUrl, startTimeStamp } = result.data;
+    const { testSteps: tmpTestSteps, initialUrl, testingTime } = result.data;
     const testSteps: OperationWithNotes[] = tmpTestSteps.map((tmpTestStep) => {
       const operation = tmpTestStep.operation
         ? convertTestStepOperation(tmpTestStep.operation)
@@ -93,8 +92,6 @@ export default class StoryDataConverter implements StoryConvertable {
         bugs: [],
       };
     });
-
-    const testingTime = calculateElapsedEpochMillis(startTimeStamp, testSteps);
 
     const issues: Issue[] = testSteps.flatMap((testStep) => {
       const noteWithTypes = [

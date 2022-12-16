@@ -19,8 +19,9 @@ describe("LoadHistoryAction", () => {
         id: "id",
         name: "name",
         startTimeStamp: 0,
-        endTimeStamp: 0,
+        lastUpdateTimeStamp: 0,
         initialUrl: "url",
+        testingTime: 0,
         testSteps: [],
         coverageSources: [],
       };
@@ -30,7 +31,7 @@ describe("LoadHistoryAction", () => {
         url: "url",
         testResultInfo: { id: "id", name: "name" },
         testStepIds: [],
-        startTimeStamp: 0,
+        testingTime: 0,
       };
       const resSuccess: RESTClientResponse = {
         status: 200,

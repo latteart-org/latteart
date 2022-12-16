@@ -43,7 +43,6 @@ import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
-import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { convertNote } from "@/lib/common/replyDataConverter";
 import { ServiceSuccess, ElementInfo } from "../../../common";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
@@ -440,11 +439,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { root: true }
     );
     await context.dispatch("updateScreenHistory");
-    const history = context.getters.getHistory();
-    const testingTime = calculateElapsedEpochMillis(
-      result.data.startTimeStamp,
-      history
-    );
+    const testingTime = result.data.testingTime;
     context.dispatch(
       "captureControl/resetTimer",
       { millis: testingTime },
