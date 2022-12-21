@@ -80,7 +80,6 @@ jobs:
         run: |
           cd latteart-repository
           yarn typescript-json-validator src/lib/settings/Settings.ts
-          yarn typescript-json-validator src/lib/settings/DeviceSettings.ts
           yarn package:${{ matrix.os }}
           cd ..
 
