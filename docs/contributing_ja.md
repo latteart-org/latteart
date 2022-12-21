@@ -20,18 +20,18 @@ GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) �
 
 ## 開発
 
-### プロジェクト構成
+### リポジトリ構成
 
-LatteArt は以下のパッケージから構成され、複数の GitHub プロジェクトで管理されています。
+LatteArt は以下のパッケージから構成され、複数の GitHub リポジトリで管理されています。
 
-| GitHub プロジェクト | パッケージ          | 説明                         |
+| GitHub リポジトリ   | パッケージ          | 説明                         |
 | ------------------- | ------------------- | ---------------------------- |
 | latteart            | launch              | 各サーバ起動用コマンド       |
 |                     | latteart            | GUI サーバ                   |
 | latteart-capture-cl | latteart-capture-cl | ブラウザ操作情報取得用サーバ |
 | latteart-repository | latteart-repository | データ保存用サーバ           |
 
-:warning: Issues は全て`latteart`プロジェクト配下で管理しているため注意してください。
+:warning: Issues は全て`latteart`リポジトリ配下で管理しているため注意してください。
 
 各パッケージは以下のように連携して動作します。
 
@@ -70,7 +70,7 @@ flowchart LR
 - Node.js v14.15.3
 - Yarn
 
-全てのインストールが完了したら、`latteart`、`latteart-capture-cl`、`latteart-repository`のリポジトリを全て clone し、各プロジェクトのルートディレクトリで以下を実行します。
+全てのインストールが完了したら、`latteart`、`latteart-capture-cl`、`latteart-repository`のリポジトリを全て clone し、各ディレクトリで以下を実行します。
 
 ```bash
 $ yarn install
@@ -133,7 +133,7 @@ $ node dist/index.js
 
 #### latteart
 
-`latteart`プロジェクトのルートディレクトリで以下を実行します。
+`latteart`ディレクトリで以下を実行します。
 
 ```bash
 $ yarn package
@@ -157,7 +157,7 @@ dist/latteart/
 
 #### latteart-capture-cl
 
-`latteart-capture-cl`プロジェクトのルートディレクトリで以下を実行します。
+`latteart-capture-cl`ディレクトリで以下を実行します。
 
 ```bash
 $ yarn package
@@ -174,7 +174,7 @@ dist/latteart-capture-cl/
 
 #### latteart-repository
 
-`latteart-repository`プロジェクトのルートディレクトリで以下を実行します。
+`latteart-repository`ディレクトリで以下を実行します。
 
 ```bash
 $ yarn typescript-json-validator src/lib/settings/Settings.ts
@@ -212,11 +212,9 @@ latteart/
     └─ latteart-repository/ # マージ
 ```
 
-統合した`latteart`ディレクトリを`zip`ファイルに圧縮します。
-
 ## プルリクエスト
 
-- コントリビュータは、最初に LatteArt の各プロジェクトのリポジトリを fork してください。
+- コントリビュータは、最初に LatteArt の各リポジトリを fork してください。
 - コントリビュータは、fork したリポジトリ上で topic branch を作成し、latteart-org 配下のリポジトリの develop branch に対して Pull Request を行ってください。
   - topic branch のブランチ名は任意です。
 - コントリビュータは、[DCO](https://developercertificate.org/)に同意する必要があります。
@@ -228,7 +226,7 @@ latteart/
 - Pull Request を発行する際は、対応する Issue に紐づけてください。
   - 対応する Issue がない場合は Pull Request の発行前に作成してください。
 - Pull Request のタイトルには、"fix"に続いて対処した issue 番号および修正の概要を記入してください。
-  - `latteart`プロジェクトでの修正は、`fix #[issue番号] [修正の概要]`
+  - `latteart`リポジトリでの修正は、`fix #[issue番号] [修正の概要]`
   - `latteart-capture-cl`、`latteart-repository`での修正は、`fix latteart-org/latteart#[issue番号] [修正の概要]`
 - Pull Request の本文は、テンプレートを使用してください。
 
