@@ -19,12 +19,12 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 export class ImportProjectAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "importProjectRepository"
     >
   ) {}
@@ -39,7 +39,7 @@ export class ImportProjectAction {
     selectOption: { includeProject: boolean; includeTestResults: boolean }
   ): Promise<ActionResult<{ projectId: string }>> {
     const postProjectsResult =
-      await this.repositoryContainer.importProjectRepository.postProjects(
+      await this.repositoryService.importProjectRepository.postProjects(
         source,
         selectOption
       );

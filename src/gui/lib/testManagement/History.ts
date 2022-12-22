@@ -37,34 +37,6 @@ export function getTargetSession(
 }
 
 /**
- * Get the specified issue from within the session.
- * Get id, sequence, type all match.
- * @param targetSession  Target session.
- * @param note.id  Note id of the issue you want to get.
- * @param note.sequence  The sequence of the issue you want to get.
- * @param note.index  Index of the issue you want to get.
- * @returns Target issue.
- */
-export function getTargetIssue(
-  targetSession: Session,
-  note: { id: string; sequence: number; index: number; type: string }
-): Issue | null {
-  const targetIssue = targetSession.issues.find((issue: Issue) => {
-    if (
-      issue.source.sequence === note.sequence &&
-      issue.source.index === note.index &&
-      issue.source.type === note.type
-    ) {
-      return true;
-    }
-  });
-  if (targetIssue) {
-    return targetIssue;
-  }
-  return null;
-}
-
-/**
  * Change the status of an issue.
  * @param issues  Issues that contain changes
  * @param note.sequence  Sequence of the issue to be changed.

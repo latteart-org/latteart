@@ -14,72 +14,31 @@
  * limitations under the License.
  */
 
-export interface TestManagementData {
-  testMatrices: ManagedTestMatrix[];
-  stories: ManagedStory[];
-}
+import {
+  TestManagementDataForRepository,
+  ManagedTestMatrixForRepository,
+  ManagedViewPointForRepository,
+  ManagedGroupForRepository,
+  ManagedStoryForRepository,
+  ManagedSessionForRepository,
+} from "src/common";
 
-export interface ManagedTestMatrix {
-  id: string;
-  name: string;
-  groups: ManagedGroup[];
-  viewPoints: ManagedViewPoint[];
-}
+export type TestManagementData = TestManagementDataForRepository;
 
-export interface ManagedSequences {
+export type ManagedTestMatrix = ManagedTestMatrixForRepository;
+
+export type ManagedSequences = {
   viewPoint: number;
   testMatrix: number;
   group: number;
   testTarget: number;
   session: { [key: string]: number };
-}
+};
 
-export interface ManagedViewPoint {
-  id: string;
-  name: string;
-}
+export type ManagedViewPoint = ManagedViewPointForRepository;
 
-export interface ManagedGroup {
-  id: string;
-  name: string;
-  testTargets: Array<{
-    id: string;
-    name: string;
-    plans: Array<{ viewPointId: string; value: number }>;
-  }>;
-}
+export type ManagedGroup = ManagedGroupForRepository;
 
-export interface ManagedStory {
-  id: string;
-  index: number;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: Array<ManagedSession>;
-}
+export type ManagedStory = ManagedStoryForRepository;
 
-export interface ManagedSession {
-  name: string | undefined;
-  id: string | undefined;
-  isDone: boolean;
-  doneDate: string;
-  testItem: string;
-  testerName: string;
-  memo: string;
-  attachedFiles?: Array<{
-    name: string;
-    fileUrl?: string;
-    fileData?: string;
-  }>;
-  testResultFiles?: Array<{ name: string; id: string }>;
-  issues: Array<{
-    type: string;
-    value: string;
-    details: string;
-    status: string;
-    ticketId: string;
-    source: { type: string; index: number };
-  }>;
-  testingTime?: number;
-}
+export type ManagedSession = ManagedSessionForRepository;

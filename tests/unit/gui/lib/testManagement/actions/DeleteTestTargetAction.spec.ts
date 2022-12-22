@@ -1,9 +1,9 @@
-import { TestTargetGroupRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetGroupRepository";
-import { TestTargetRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { TestTargetGroupRepository, TestTargetRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { DeleteTestTargetAction } from "@/lib/testManagement/actions/DeleteTestTargetAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -35,6 +35,7 @@ describe("DeleteTargetAction", () => {
       };
 
       const args = {
+        projectId: "projectId",
         testMatrixId: "testMatrixId",
         groupId: "groupId",
         testTargetId: "testTargetId",
@@ -52,11 +53,11 @@ describe("DeleteTargetAction", () => {
       }
 
       expect(testTargetResponse.httpDelete).toBeCalledWith(
-        "/test-targets/testTargetId"
+        "api/v1/projects/projectId/test-targets/testTargetId"
       );
 
       expect(testTargetGroupResponse.httpGet).toBeCalledWith(
-        "/test-target-groups/groupId"
+        "api/v1/test-target-groups/groupId"
       );
 
       expect(result.data).toEqual({

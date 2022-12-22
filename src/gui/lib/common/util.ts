@@ -14,89 +14,7 @@
  * limitations under the License.
  */
 
-import { OperationWithNotes, ElementInfo } from "@/lib/operationHistory/types";
-import { TimestampImpl } from "./Timestamp";
-
-/**
- * Determine if type contains value.
- * @param value
- * @param type
- * @returns Returns true if included.
- */
-export function isIncludeEnum(value: any, type: any): boolean {
-  let result = false;
-  Object.entries(type).forEach(([, v]) => {
-    if (value === v) {
-      result = true;
-    }
-  });
-  return result;
-}
-
-/**
- * Returns an array of Enum values.
- * @param type  Enum
- * @returns An array of defined values for an enum.
- */
-export function getEnumValues(type: any): any[] {
-  const result: any[] = [];
-  Object.entries(type).forEach(([, v]) => {
-    result.push(v);
-  });
-  return result;
-}
-
-/**
- * Calculate total elapsed time of all tests in a test result.
- * @param startTimeStamp  Last test start time.
- * @param history  All test operation history.
- * @returns Elapsed time.
- */
-export const calculateElapsedEpochMillis = (
-  startTimeStamp: number,
-  history: OperationWithNotes[]
-): number => {
-  const lastTestStartTime = new TimestampImpl(
-    startTimeStamp
-  ).epochMilliseconds();
-
-  const lastTestingTime = (() => {
-    const lastOperationTimestamp =
-      history
-        .slice()
-        .reverse()
-        .find((historyItem) => {
-          return historyItem.operation.timestamp;
-        })?.operation.timestamp ?? lastTestStartTime;
-
-    return (
-      new TimestampImpl(lastOperationTimestamp).epochMilliseconds() -
-      lastTestStartTime
-    );
-  })();
-
-  const otherTestingTime = (() => {
-    const otherHistory = history.filter((item) => {
-      return (
-        new TimestampImpl(item.operation.timestamp).epochMilliseconds() <
-        lastTestStartTime
-      );
-    });
-    if (otherHistory.length > 0) {
-      const otherStartTime = new TimestampImpl(
-        otherHistory[0].operation.timestamp
-      ).epochMilliseconds();
-      const otherEndTime = new TimestampImpl(
-        otherHistory[otherHistory.length - 1].operation.timestamp
-      ).epochMilliseconds();
-      return otherEndTime - otherStartTime;
-    } else {
-      return 0;
-    }
-  })();
-
-  return lastTestingTime + otherTestingTime;
-};
+import { ElementInfo } from "src/common";
 
 /**
  * Abbreviates the string to the specified number of characters and returns the ending as "...".
@@ -224,48 +142,6 @@ export const findValueRecursively = (
  */
 export const normalizeXPath = (before: string): string => {
   return before.replace(/\[1\]/g, "");
-};
-
-/**
- * Collect innerText recursively.
- * @param element  Elements to be collected.
- * @param textSet  Set to store innerText.
- */
-const ignoreTags = ["SCRIPT", "STYLE", "HEAD"];
-
-const extractKeywordsFromInputAndTextareaTag = (
-  element: HTMLElement
-): string[] | null => {
-  const tagName = element.tagName.toUpperCase();
-  if (tagName === "INPUT" || tagName === "TEXTAREA") {
-    const results = [];
-
-    const placeholder = element.getAttribute("placeholder");
-    if (placeholder) {
-      results.push(placeholder);
-    }
-
-    const type = element.getAttribute("type");
-    if (type === "button" || type === "submit") {
-      const value = element.getAttribute("value");
-      if (value) {
-        results.push(value);
-      }
-    }
-    return results;
-  }
-  return null;
-};
-
-const extractKeywordsFromInnerText = (element: HTMLElement): string | null => {
-  const tagName = element.tagName.toUpperCase();
-  if (tagName === "INPUT" || tagName === "TEXTAREA") {
-    return null;
-  }
-  if (element.innerText) {
-    return element.innerText;
-  }
-  return null;
 };
 
 /**

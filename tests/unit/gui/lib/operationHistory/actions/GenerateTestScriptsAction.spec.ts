@@ -1,10 +1,9 @@
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
-import { TestScriptRepository } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
-import { SettingRepository } from "@/lib/eventDispatcher/repositoryService/SettingRepository";
-import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
+import { TestScriptRepository, SettingsRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -42,21 +41,9 @@ describe("GenerateTestScriptsAction", () => {
               maxGeneration: 0,
             },
           };
-          const settings = {
-            config: {
-              screenDefinition: {
-                screenDefType: ScreenDefType.Title,
-                conditionGroups: [],
-              },
-            },
-          };
 
           const restClient = {
             ...baseRestClient,
-            httpGet: jest.fn().mockResolvedValue({
-              status: 200,
-              data: settings,
-            }),
             httpPost: jest.fn().mockResolvedValue({
               status: 500,
               data: { code: repositoryErrorCode },
@@ -66,12 +53,15 @@ describe("GenerateTestScriptsAction", () => {
           const action = new GenerateTestScriptsAction(
             {
               testScriptRepository: new TestScriptRepository(restClient),
-              settingRepository: new SettingRepository(restClient),
+              settingRepository: new SettingsRepository(restClient),
             },
             option
           );
 
-          const result = await action.generateFromTestResult("");
+          const result = await action.generateFromTestResult("", {
+            screenDefType: "title",
+            conditionGroups: [],
+          });
 
           if (result.isSuccess()) {
             throw new Error("failed");
@@ -99,21 +89,9 @@ describe("GenerateTestScriptsAction", () => {
               maxGeneration: 0,
             },
           };
-          const settings = {
-            config: {
-              screenDefinition: {
-                screenDefType: ScreenDefType.Title,
-                conditionGroups: [],
-              },
-            },
-          };
 
           const restClient = {
             ...baseRestClient,
-            httpGet: jest.fn().mockResolvedValue({
-              status: 200,
-              data: settings,
-            }),
             httpPost: jest.fn().mockResolvedValue({
               status: 500,
               data: { code: repositoryErrorCode },
@@ -123,12 +101,15 @@ describe("GenerateTestScriptsAction", () => {
           const action = new GenerateTestScriptsAction(
             {
               testScriptRepository: new TestScriptRepository(restClient),
-              settingRepository: new SettingRepository(restClient),
+              settingRepository: new SettingsRepository(restClient),
             },
             option
           );
 
-          const result = await action.generateFromTestResult("");
+          const result = await action.generateFromTestResult("", {
+            screenDefType: "title",
+            conditionGroups: [],
+          });
 
           if (result.isSuccess()) {
             throw new Error("failed");

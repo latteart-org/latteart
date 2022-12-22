@@ -15,8 +15,8 @@
  */
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import { ElementInfo } from "@/lib/operationHistory/types";
 import { normalizeXPath } from "@/lib/common/util";
+import { ElementInfo } from "src/common";
 
 export interface InclusionTableItem {
   text: string;

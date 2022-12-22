@@ -1,8 +1,9 @@
-import { SessionRepository } from "@/lib/eventDispatcher/repositoryService/SessionRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { SessionRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -34,7 +35,7 @@ describe("DeleteSessionAction", () => {
       }
 
       expect(deleteSessionResponse.httpDelete).toBeCalledWith(
-        "/projects/projectId/sessions/sessionId"
+        "api/v1/projects/projectId/sessions/sessionId"
       );
 
       expect(result.data).toEqual(undefined);

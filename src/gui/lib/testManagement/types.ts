@@ -14,165 +14,69 @@
  * limitations under the License.
  */
 
-export interface SessionsData {
-  id: string;
-  plan: number;
-  done: number;
-  status: string;
-}
+import {
+  TestMatrixForRepository,
+  GroupForRepository,
+  ViewPointForRepository,
+  TestTargetForRepository,
+  PlanForRepository,
+  IssueForRepository,
+  StoryForRepository,
+  SessionForRepository,
+  AttachedFileForRepository,
+  TestResultFileForRepository,
+  ProjectForRepository,
+  DailyTestProgressForRepository,
+} from "src/common";
 
-export interface TestMatrix {
+export type TestMatrix = TestMatrixForRepository;
+
+export type Group = GroupForRepository;
+
+export type ViewPoint = ViewPointForRepository;
+
+export type ViewPointsPreset = {
   id: string;
   name: string;
-  index: number;
-  groups: Group[];
   viewPoints: ViewPoint[];
-}
+};
 
-export interface Group {
-  id: string;
-  name: string;
-  index: number;
-  testTargets: TestTarget[];
-}
+export type TestTarget = TestTargetForRepository;
 
-export interface ViewPointsPreset {
-  id: string;
-  name: string;
-  viewPoints: ViewPoint[];
-}
-export interface ViewPoint {
-  id: string;
-  name: string;
-  description: string;
-  index: number;
-}
+export type Plan = PlanForRepository;
 
-export interface TestTarget {
-  id: string;
-  name: string;
-  plans: Plan[];
-  index: number;
-}
+export type Issue = IssueForRepository;
 
-export interface Plan {
-  viewPointId: string;
-  value: number;
-}
+export type Story = StoryForRepository;
 
-export interface Issue {
-  source: {
-    type: string;
-    sequence?: number;
-    index: number;
-  };
-  status: string;
-  ticketId: string;
-  value: string;
-  details: string;
-  imageFilePath?: string;
-}
+export type Session = SessionForRepository;
 
-export interface Story {
-  id: string;
-  index: number;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: Session[];
-}
+export type AttachedFile = AttachedFileForRepository;
 
-export interface Session {
-  name: string | undefined;
-  id: string | undefined;
-  isDone: boolean;
-  doneDate: string;
-  testItem: string;
-  testerName: string;
-  memo: string;
-  attachedFiles: AttachedFile[];
-  testResultFiles?: TestResultFile[];
-  initialUrl: string;
-  issues: Issue[];
-  intentions: {
-    value: string;
-    details: string;
-  }[];
-  testingTime?: number;
-}
+export type TestResultFile = TestResultFileForRepository;
 
-export interface AttachedFile {
-  name: string;
-  fileUrl?: string;
-  fileData?: string;
-}
-
-export interface TestResultFile {
-  name: string;
-  id: string;
-}
-
-export interface DeleteDialogObj {
+export type DeleteDialogObj = {
   title: string;
   text: string;
   callback: () => void;
   closeCallback: () => void;
-}
+};
 
-export interface DetailedExportDialogObj {
+export type DetailedExportDialogObj = {
   groups: Group[];
   callback: (groupId: string, testTargetId: string) => void;
   closeCallback: () => void;
-}
+};
 
-export interface DetailedReportObj {
+export type DetailedReportObj = {
   groupId: string;
   groupName: string;
   testTargetid: string;
   testTargetname: string;
   viewPointId: string;
   viewPointName: string;
-}
+};
 
-export interface Project {
-  id: string;
-  name: string;
-  testMatrices: TestMatrix[];
-  stories: StoryDetails[];
-}
+export type Project = ProjectForRepository;
 
-interface StoryDetails {
-  id: string;
-  index: number;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: {
-    id: string;
-    attachedFiles: {
-      name: string;
-      fileUrl?: string;
-    }[];
-    doneDate: string;
-    isDone: boolean;
-    issues: {
-      details: string;
-      source: {
-        index: number;
-        type: string;
-      };
-      status: string;
-      ticketId: string;
-      type: string;
-      value: string;
-    }[];
-    memo: string;
-    name: string;
-    testItem: string;
-    testResultFiles?: TestResultFile[];
-    testerName: string;
-    testingTime: number;
-  }[];
-}
+export type DailyTestProgress = DailyTestProgressForRepository;

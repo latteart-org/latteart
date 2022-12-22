@@ -19,19 +19,19 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 export class ExportConfigAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "settingRepository" | "projectRepository"
     >
   ) {}
 
   public async exportSettings(): Promise<ActionResult<{ url: string }>> {
     const result =
-      await this.repositoryContainer.settingRepository.exportSettings();
+      await this.repositoryService.settingRepository.exportSettings();
 
     if (result.isFailure()) {
       return new ActionFailure({ messageKey: "" });

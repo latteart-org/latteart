@@ -19,7 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import { TestResultSummary } from "../../types";
 
 const GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY =
@@ -27,17 +27,14 @@ const GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY =
 
 export class GetTestResultListAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "testResultRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
   public async getTestResults(): Promise<
     ActionResult<Array<TestResultSummary>>
   > {
     const getTestResultsResult =
-      await this.repositoryContainer.testResultRepository.getTestResults();
+      await this.repositoryService.testResultRepository.getTestResults();
 
     if (getTestResultsResult.isFailure()) {
       return new ActionFailure({

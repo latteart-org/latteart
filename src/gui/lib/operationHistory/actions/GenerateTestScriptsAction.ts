@@ -19,10 +19,12 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
-import { RepositoryAccessResult } from "@/lib/captureControl/Reply";
-import { TestScriptOption } from "@/lib/eventDispatcher/repositoryService/TestScriptRepository";
-import { ScreenDefinition } from "@/lib/common/settings/Settings";
+import {
+  RepositoryService,
+  TestScriptOption,
+  RepositoryAccessResult,
+} from "src/common";
+import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 
 const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
   "error.operation_history.save_test_scripts_failed";
@@ -33,8 +35,8 @@ const NO_OPERATION_ERROR_MESSAGE_KEY =
 
 export class GenerateTestScriptsAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "testScriptRepository" | "settingRepository"
     >,
     private option: {
@@ -46,27 +48,31 @@ export class GenerateTestScriptsAction {
     }
   ) {}
 
-  public async generateFromTestResult(testResultId: string): Promise<
+  public async generateFromTestResult(
+    testResultId: string,
+    screenDefinitionConfig: {
+      screenDefType: "title" | "url";
+      conditionGroups: {
+        isEnabled: boolean;
+        screenName: string;
+        conditions: {
+          isEnabled: boolean;
+          definitionType: "url" | "title" | "keyword";
+          matchType: "contains" | "equals" | "regex";
+          word: string;
+        }[];
+      }[];
+    }
+  ): Promise<
     ActionResult<{
       outputUrl: string;
       invalidOperationTypeExists: boolean;
     }>
   > {
-    const getSettingsResult =
-      await this.repositoryContainer.settingRepository.getSettings();
-
-    if (getSettingsResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
-      });
-    }
-
-    const testScriptOption = this.buildTestScriptOption(
-      getSettingsResult.data.config.screenDefinition
-    );
+    const testScriptOption = this.buildTestScriptOption(screenDefinitionConfig);
 
     const result =
-      await this.repositoryContainer.testScriptRepository.postTestscriptsWithTestResultId(
+      await this.repositoryService.testScriptRepository.postTestscriptsWithTestResultId(
         testResultId,
         testScriptOption
       );
@@ -74,27 +80,31 @@ export class GenerateTestScriptsAction {
     return this.createActionResult(result);
   }
 
-  public async generateFromProject(projectId: string): Promise<
+  public async generateFromProject(
+    projectId: string,
+    screenDefinitionConfig: {
+      screenDefType: "title" | "url";
+      conditionGroups: {
+        isEnabled: boolean;
+        screenName: string;
+        conditions: {
+          isEnabled: boolean;
+          definitionType: "url" | "title" | "keyword";
+          matchType: "contains" | "equals" | "regex";
+          word: string;
+        }[];
+      }[];
+    }
+  ): Promise<
     ActionResult<{
       outputUrl: string;
       invalidOperationTypeExists: boolean;
     }>
   > {
-    const getSettingsResult =
-      await this.repositoryContainer.settingRepository.getSettings();
-
-    if (getSettingsResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
-      });
-    }
-
-    const testScriptOption = this.buildTestScriptOption(
-      getSettingsResult.data.config.screenDefinition
-    );
+    const testScriptOption = this.buildTestScriptOption(screenDefinitionConfig);
 
     const result =
-      await this.repositoryContainer.testScriptRepository.postTestscriptsWithProjectId(
+      await this.repositoryService.testScriptRepository.postTestscriptsWithProjectId(
         projectId,
         testScriptOption
       );
@@ -135,7 +145,7 @@ export class GenerateTestScriptsAction {
   }
 
   private buildTestScriptOption(
-    screenDefinitionConfig: ScreenDefinition
+    screenDefinitionConfig: ScreenDefinitionSetting
   ): TestScriptOption {
     const viewOption = {
       node: {

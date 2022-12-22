@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { ScreenDefinition } from "@/lib/common/settings/Settings";
+import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 
 /**
  * Class that generates screen definition.
  */
 export default class ScreenDefFactory {
-  private config: ScreenDefinition;
+  private config: ScreenDefinitionSetting;
 
   /**
    * Constructor.
    * @param config  Screen definition settings.
    */
-  constructor(config: ScreenDefinition) {
+  constructor(config: ScreenDefinitionSetting) {
     this.config = config;
   }
 

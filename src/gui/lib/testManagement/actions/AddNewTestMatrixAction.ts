@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import { TestMatrix } from "../types";
 
 export class AddNewTestMatrixAction {
@@ -33,13 +33,13 @@ export class AddNewTestMatrixAction {
         description: string;
       }[];
     },
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testMatrixRepository" | "viewPointRepository"
     >
   ): Promise<ActionResult<TestMatrix>> {
     const testMatrixResult =
-      await repositoryContainer.testMatrixRepository.postTestMatrix({
+      await repositoryService.testMatrixRepository.postTestMatrix({
         projectId: payload.projectId,
         name: payload.testMatrixName,
       });
@@ -54,7 +54,7 @@ export class AddNewTestMatrixAction {
 
     const viewPointReplys = await Promise.all(
       payload.viewPoints.map(async (viewPoint) => {
-        return await repositoryContainer.viewPointRepository.postViewPoint({
+        return await repositoryService.viewPointRepository.postViewPoint({
           testMatrixId: testMatrix.id as string,
           name: viewPoint.name,
           index: viewPoint.index,

@@ -20,16 +20,15 @@ import {
   ManagedSession,
 } from "@/lib/testManagement/TestManagementData";
 import { OperationWithNotes } from "../operationHistory/types";
-import { calculateElapsedEpochMillis } from "../common/util";
-import { Note } from "../operationHistory/Note";
+import { NoteForGUI } from "../operationHistory/NoteForGUI";
 import { StoryConvertable } from "./actions/WriteDataFileAction";
 import { GetTestResultAction } from "../operationHistory/actions/testResult/GetTestResultAction";
-import { RepositoryContainer } from "../eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 import {
   convertTestStepOperation,
   convertIntention,
   convertNote,
-} from "../eventDispatcher/replyDataConverter";
+} from "../common/replyDataConverter";
 
 /**
  * Convert story information.
@@ -38,12 +37,12 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Get the actual test result from the test result ID.
    * @param testResultFiles  test results. Use only the beginning of the array.
-   * @param repositoryContainer  Callback function to get the test result.
+   * @param repositoryService  Callback function to get the test result.
    * @returns Test results testSteps.
    */
   private static async buildHistory(
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     testResultFiles?: {
@@ -51,7 +50,7 @@ export default class StoryDataConverter implements StoryConvertable {
       id: string;
     }[]
   ): Promise<{
-    intentions?: Note[];
+    intentions?: NoteForGUI[];
     initialUrl?: string;
     testingTime?: number;
     issues?: Issue[];
@@ -67,20 +66,17 @@ export default class StoryDataConverter implements StoryConvertable {
     const testResultFile = testResultFiles[0];
 
     const result = await new GetTestResultAction(
-      repositoryContainer
+      repositoryService
     ).getTestResult(testResultFile.id);
 
     if (result.isFailure()) {
       return {};
     }
 
-    const { testSteps: tmpTestSteps, initialUrl, startTimeStamp } = result.data;
+    const { testSteps: tmpTestSteps, initialUrl, testingTime } = result.data;
     const testSteps: OperationWithNotes[] = tmpTestSteps.map((tmpTestStep) => {
       const operation = tmpTestStep.operation
-        ? convertTestStepOperation(
-            tmpTestStep.operation,
-            repositoryContainer.serviceUrl
-          )
+        ? convertTestStepOperation(tmpTestStep.operation)
         : tmpTestStep.operation;
 
       return {
@@ -89,18 +85,13 @@ export default class StoryDataConverter implements StoryConvertable {
         intention: tmpTestStep.intention
           ? convertIntention(tmpTestStep.intention)
           : null,
-        bugs:
-          tmpTestStep.bugs?.map((bug) => {
-            return convertNote(bug, repositoryContainer.serviceUrl);
-          }) ?? null,
         notices:
           tmpTestStep.notices?.map((notice) => {
-            return convertNote(notice, repositoryContainer.serviceUrl);
+            return convertNote(notice);
           }) ?? null,
+        bugs: [],
       };
     });
-
-    const testingTime = calculateElapsedEpochMillis(startTimeStamp, testSteps);
 
     const issues: Issue[] = testSteps.flatMap((testStep) => {
       const noteWithTypes = [
@@ -150,15 +141,15 @@ export default class StoryDataConverter implements StoryConvertable {
 
   public async convertToSession(
     target: Partial<ManagedSession>,
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     oldSession?: Session
   ): Promise<Session> {
     const { intentions, initialUrl, testingTime, issues } =
       await StoryDataConverter.buildHistory(
-        repositoryContainer,
+        repositoryService,
         target.testResultFiles
       );
 
@@ -183,13 +174,13 @@ export default class StoryDataConverter implements StoryConvertable {
   /**
    * Convert story information for storage to story information.
    * @param target  Story information for storage.
-   * @param repositoryContainer  Callback function that associates test results.
+   * @param repositoryService  Callback function that associates test results.
    * @returns Story information after conversion.
    */
   public async convertToStory(
     target: ManagedStory,
-    repositoryContainer: Pick<
-      RepositoryContainer,
+    repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "projectRepository" | "serviceUrl"
     >,
     oldStory?: Story
@@ -222,7 +213,7 @@ export default class StoryDataConverter implements StoryConvertable {
 
           return this.convertToSession(
             newSession,
-            repositoryContainer,
+            repositoryService,
             oldSession
           );
         })
