@@ -20,8 +20,6 @@ GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) �
 
 ## 開発
 
-### リポジトリ構成
-
 LatteArt は以下のパッケージから構成され、複数の GitHub リポジトリで管理されています。
 
 | GitHub リポジトリ   | パッケージ          | 説明                         |
@@ -33,7 +31,7 @@ LatteArt は以下のパッケージから構成され、複数の GitHub リポ
 
 :warning: Issues は全て`latteart`リポジトリ配下で管理しているため注意してください。
 
-各パッケージは以下のように連携して動作します。
+LatteArt の各パッケージは以下のように連携して動作します。
 
 ```mermaid
 flowchart LR
@@ -62,142 +60,18 @@ flowchart LR
   capturecl <--> driver
 ```
 
-### 環境のセットアップ
+### パッケージの開発
 
-開発に必要な以下ソフトウェアを開発環境にインストールします。
+各パッケージの開発環境のセットアップ、開発用コマンド、ビルド方法、API ドキュメント等は以下を参照してください。
 
-- Git
-- Node.js v14.15.3
-- Yarn
+- [launch パッケージの開発](./development/launch_ja.md)
+- [latteart パッケージの開発](./development/latteart_ja.md)
+- [latteart-capture-cl パッケージの開発](https://github.com/latteart-org/latteart-capture-cl/tree/main/src/docs/development_ja.md)
+- [latteart-repository パッケージの開発](https://github.com/latteart-org/latteart-repository/tree/main/src/docs/development_ja.md)
 
-全てのインストールが完了したら、`latteart`、`latteart-capture-cl`、`latteart-repository`のリポジトリを全て clone し、各ディレクトリで以下を実行します。
+### パッケージの統合
 
-```bash
-$ yarn install
-```
-
-### 開発用コマンド
-
-#### latteart
-
-```bash
-# 静的解析
-$ yarn lint
-
-# テストの実行
-$ yarn test:unit
-
-# フロントエンド側ソースコードの変更検知、再ビルド、フロントエンド開発用サーバ起動
-$ yarn serve
-
-# バックエンド側ソースコードの変更検知、再ビルド
-$ yarn watch:server
-
-# ビルド済サーバの起動
-$ yarn start:server
-```
-
-#### latteart-capture-cl
-
-```bash
-# 静的解析、自動修正
-$ yarn fix
-
-# テストの実行
-$ yarn test
-
-# ソースコードの変更検知、再ビルド
-$ yarn watch
-
-# ビルド済サーバの起動
-$ node dist/index.js
-```
-
-#### latteart-repository
-
-```bash
-# 静的解析、自動修正
-$ yarn fix
-
-# テストの実行
-$ yarn test
-
-# ソースコードの変更検知、再ビルド
-$ yarn watch
-
-# ビルド済サーバの起動
-$ node dist/index.js
-```
-
-### パッケージのビルド
-
-#### latteart
-
-`latteart`ディレクトリで以下を実行します。
-
-```bash
-$ yarn package
-```
-
-`dist/latteart`に以下構成のディレクトリが作成されます。
-
-```bash
-dist/latteart/
-    ├─ capture.bat # バッチファイル
-    ├─ manage.bat  # バッチファイル
-    ├─ launch.config.json # バッチ実行設定ファイル
-    ├─ launch.exe # Windows用実行ファイル
-    ├─ latteart/
-    │        ├─ public/ # index.htmlとfavicon
-    │        └─ latteart.exe # Windows用実行ファイル
-    └─ latteart-repository/
-            ├─ history-viewer/ # スナップショットビューア(レビュー画面)
-            └─ snapshot-viewer/ # スナップショットビューア
-```
-
-#### latteart-capture-cl
-
-`latteart-capture-cl`ディレクトリで以下を実行します。
-
-```bash
-$ yarn package
-```
-
-`dist/latteart-capture-cl`に以下構成のディレクトリが作成されます。
-
-```bash
-dist/latteart-capture-cl/
-    ├─ node_modules/ # 外部ライブラリ群
-    ├─ latteart-capture-cl.exe # Windows用実行ファイル
-    └─ latteart-capture-cl # Mac用実行ファイル
-```
-
-#### latteart-repository
-
-`latteart-repository`ディレクトリで以下を実行します。
-
-```bash
-$ yarn typescript-json-validator src/lib/settings/Settings.ts
-$ yarn typescript-json-validator src/lib/settings/DeviceSettings.ts
-$ yarn package
-```
-
-`dist/latteart-repository`に以下構成のディレクトリが作成されます。
-
-```bash
-dist/latteart-repository/
-    ├─ node_modules/ # 外部ライブラリ群
-    ├─ public/ # リソース格納用ディレクトリ
-    ├─ latteart-repository.exe # Windows用実行ファイル
-    ├─ latteart-repository # Mac用実行ファイル
-    ├─ latteart.config.json # 設定ファイル
-    ├─ latteart.device.config.json # デバイス設定ファイル
-    └─ ormconfig.json # DB設定ファイル
-```
-
-### インストール資材の作成
-
-パッケージのビルドで作成された`latteart`、`latteart-capture-cl`、`latteart-repository`ディレクトリを統合します。
+各パッケージのビルドで作成された`latteart`、`latteart-capture-cl`、`latteart-repository`ディレクトリを統合します。
 
 `latteart`ディレクトリ配下に以下の構成で`latteart-capture-cl`、`latteart-repository`を配置します。
 
