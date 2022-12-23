@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.15.3]
+        node-version: [16.13.2]
         os: [win, mac]
 
     steps:
@@ -58,8 +58,6 @@ jobs:
         run: |
           cd latteart
           yarn package:${{ matrix.os }}
-          mkdir -p latteart
-          cp -rp dist/latteart/* latteart
           cd ..
 
       - name: Cache dependencies of 'LatteArt Repository'
@@ -84,8 +82,6 @@ jobs:
           yarn typescript-json-validator src/lib/settings/Settings.ts
           yarn typescript-json-validator src/lib/settings/DeviceSettings.ts
           yarn package:${{ matrix.os }}
-          mkdir -p latteart
-          cp -rp dist/latteart-repository latteart
           cd ..
 
       - name: Cache dependencies of 'LatteArt Capture CL'
@@ -108,16 +104,14 @@ jobs:
         run: |
           cd latteart-capture-cl
           yarn package:${{ matrix.os }}
-          mkdir -p latteart
-          cp -rp dist/latteart-capture-cl latteart
           cd ..
 
       - name: Make Artifact
         run: |
           mkdir artifact
-          cp -r latteart/latteart/* artifact
-          cp -r latteart-capture-cl/latteart/* artifact
-          cp -r latteart-repository/latteart/* artifact
+          cp -r latteart/dist/latteart/* artifact
+          cp -r latteart-capture-cl/dist/latteart/* artifact
+          cp -r latteart-repository/dist/latteart/* artifact
 
       - name: Build Artifact Name
         id: build_artifact_name

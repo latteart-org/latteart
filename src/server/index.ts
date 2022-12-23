@@ -24,7 +24,13 @@ const app = express();
 
 app.use(history());
 
-const currentDirPath = path.relative(process.cwd(), path.dirname(__dirname));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const executablePath = (process as any).pkg?.entrypoint;
+const currentDirPath = path.relative(
+  process.cwd(),
+  path.dirname(executablePath ? process.argv[0] : __dirname)
+);
+
 app.use(express.static(path.join(currentDirPath, "public")));
 
 const v1RootPath = "/api/v1";

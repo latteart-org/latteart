@@ -11,8 +11,8 @@
     "build:server": "tsc -b tsconfig.server.json",
     "start:server": "cross-env NODE_ENV=development node ./dist/index.js",
     "package": "yarn package:win & yarn package:mac",
-    "package:win": "nexe dist/index.js -o dist/latteart/latteart/latteart --target windows-x64-14.15.3 && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
-    "package:mac": "nexe dist/index.js -o dist/latteart/latteart/latteart --target macos-x64-14.15.3 && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
+    "package:win": "pkg -t node16-win-x64 . && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
+    "package:mac": "pkg -t node16-macos-x64 . && cpx \"dist/public/**/*\" dist/latteart/latteart/public",
     "prepackage:win": "yarn build",
     "prepackage:mac": "yarn build",
     "postpackage:win": "yarn package:launch:win && yarn copy:launch:win && yarn package:viewers",
@@ -33,16 +33,10 @@
     "package:viewer:history": "yarn build:viewer:history && yarn copy:viewer:history",
     "package:viewers": "yarn package:viewer & yarn package:viewer:history"
   },
+  "bin": {
+    "latteart": "dist/index.js"
+  },
   "dependencies": {
-    "@types/chart.js": "^2.7.55",
-    "@types/d3": "^5.7.2",
-    "@types/encoding-japanese": "^1.0.15",
-    "@types/express": "4.17.13",
-    "@types/leaflet": "^1.4.4",
-    "@types/mermaid": "8.2.7",
-    "@types/socket.io-client": "^1.4.34",
-    "@types/splitpanes": "^2.2.0",
-    "@types/vuedraggable": "^2.24.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-colorschemes": "^0.4.0",
     "connect-history-api-fallback": "^1.6.0",
@@ -67,8 +61,17 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
+    "@types/chart.js": "^2.7.55",
+    "@types/d3": "^5.7.2",
+    "@types/encoding-japanese": "^1.0.15",
+    "@types/express": "4.17.13",
+    "@types/leaflet": "^1.4.4",
+    "@types/mermaid": "8.2.7",
+    "@types/socket.io-client": "^1.4.34",
+    "@types/splitpanes": "^2.2.0",
+    "@types/vuedraggable": "^2.24.0",
     "@types/jest": "^24.0.19",
-    "@types/node": "14",
+    "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -88,7 +91,7 @@
     "eslint-plugin-vue": "^7.6.0",
     "lint-staged": "^9.5.0",
     "material-design-icons-iconfont": "^5.0.1",
-    "nexe": "^4.0.0-beta.19",
+    "pkg": "^5.8.0",
     "prettier": "^2.2.1",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
@@ -123,5 +126,12 @@
       "yarn lint",
       "git add"
     ]
+  },
+  "pkg": {
+    "scripts": [
+      "dist/index.js"
+    ],
+    "outputPath": "dist/latteart/latteart",
+    "name": "latteart"
   }
 }

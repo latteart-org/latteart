@@ -20,7 +20,12 @@ import { sleep } from "./util";
 import path from "path";
 
 (async () => {
-  const appRootPath = path.relative(process.cwd(), path.dirname(__dirname));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const executablePath = (process as any).pkg?.entrypoint;
+  const appRootPath = path.relative(
+    process.cwd(),
+    path.dirname(executablePath ? process.argv[0] : __dirname)
+  );
 
   const configFilePath = path.join(appRootPath, "launch.config.json");
   const config = await readConfig(configFilePath);
