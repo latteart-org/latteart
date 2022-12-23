@@ -7,8 +7,8 @@
     "build": "webpack",
     "watch": "webpack -w",
     "package": "yarn package:win & yarn package:mac",
-    "package:win": "pkg -t node14-win-x64 --out-path dist/win . && cpx \"*.bat\" dist && cpx launch.config.json dist",
-    "package:mac": "pkg -t node14-macos-x64 --out-path dist/mac . && cpx \"*.sh\" dist && cpx launch.config.json dist",
+    "package:win": "pkg -t node16-win-x64 --out-path dist/win . && cpx \"*.bat\" dist && cpx launch.config.json dist",
+    "package:mac": "pkg -t node16-macos-x64 --out-path dist/mac . && cpx \"*.sh\" dist && cpx launch.config.json dist",
     "prepackage:win": "yarn build",
     "prepackage:mac": "yarn build"
   },
@@ -16,13 +16,13 @@
     "launch": "dist/main.js"
   },
   "dependencies": {
-    "@types/encoding-japanese": "^1.0.18",
-    "@types/fs-extra": "^9.0.13",
     "encoding-japanese": "^1.0.30",
     "fs-extra": "^10.1.0"
   },
   "devDependencies": {
-    "@types/node": "^12.12.70",
+    "@types/encoding-japanese": "^1.0.18",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^16.11.7",
     "cpx": "^1.5.0",
     "pkg": "^5.8.0",
     "ts-loader": "^8.0.4",
