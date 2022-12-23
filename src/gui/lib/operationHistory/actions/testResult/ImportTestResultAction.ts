@@ -19,15 +19,15 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
   "error.operation_history.import_test_result_failed";
 
 export class ImportTestResultAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "importTestResultRepository"
     >
   ) {}
@@ -37,7 +37,7 @@ export class ImportTestResultAction {
     dest?: { testResultId?: string }
   ): Promise<ActionResult<{ testResultId: string }>> {
     const postTestResultResult =
-      await this.repositoryContainer.importTestResultRepository.postTestResult(
+      await this.repositoryService.importTestResultRepository.postTestResult(
         source,
         dest
       );

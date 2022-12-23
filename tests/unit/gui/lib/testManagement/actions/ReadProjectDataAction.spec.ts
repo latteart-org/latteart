@@ -2,15 +2,12 @@ import {
   ReadProjectDataAction,
   ReadDataFileMutationObserver,
 } from "@/lib/testManagement/actions/ReadProjectDataAction";
-import {
-  RESTClient,
-  RESTClientResponse,
-} from "@/lib/eventDispatcher/RESTClient";
-import { TestResultRepository } from "@/lib/eventDispatcher/repositoryService/TestResultRepository";
-import { ProjectRESTRepository } from "@/lib/eventDispatcher/repositoryService/ProjectRepository";
+import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
+import { TestResultRepository, ProjectRESTRepository } from "src/common";
 import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -88,13 +85,15 @@ describe("ReadProjectDataActionの", () => {
 
           const result = await action.read();
 
-          expect(restClient.httpGet).toBeCalledWith(`/projects`);
+          expect(restClient.httpGet).toBeCalledWith(`api/v1/projects`);
           // 既にプロジェクトが1つ以上ある場合は、プロジェクトの新規作成が行われないこと
           expect(restClient.httpPost).not.toBeCalled();
           // 一番最後のプロジェクトが指定されること
           const projectId =
             expectedProjectList[expectedProjectList.length - 1].id;
-          expect(restClient.httpGet).toBeCalledWith(`/projects/${projectId}`);
+          expect(restClient.httpGet).toBeCalledWith(
+            `api/v1/projects/${projectId}`
+          );
           // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
           const { id, testMatrices, stories } = expectedProject;
           expect(observer.setProjectId).toBeCalledWith({ projectId: id });
@@ -146,12 +145,16 @@ describe("ReadProjectDataActionの", () => {
 
           const result = await action.read();
 
-          expect(restClient.httpGet).toBeCalledWith(`/projects`);
+          expect(restClient.httpGet).toBeCalledWith(`api/v1/projects`);
           // プロジェクトの新規作成が行われること
-          expect(restClient.httpPost).toBeCalledWith(`/projects`, { name: "" });
+          expect(restClient.httpPost).toBeCalledWith(`api/v1/projects`, {
+            name: "",
+          });
           // 新規作成されたプロジェクトが指定されること
           const projectId = expectedNewProjectIdentifier.id;
-          expect(restClient.httpGet).toBeCalledWith(`/projects/${projectId}`);
+          expect(restClient.httpGet).toBeCalledWith(
+            `api/v1/projects/${projectId}`
+          );
           // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
           const { id, testMatrices, stories } = expectedProject;
           expect(observer.setProjectId).toBeCalledWith({ projectId: id });
@@ -180,7 +183,7 @@ describe("ReadProjectDataActionの", () => {
 
           const result = await action.read();
 
-          expect(restClient.httpGet).toBeCalledWith(`/projects`);
+          expect(restClient.httpGet).toBeCalledWith(`api/v1/projects`);
           // 途中処理で失敗したため以降のAPIは呼ばれないこと
           expect(restClient.httpPost).not.toBeCalled();
           expect(restClient.httpGet).toBeCalledTimes(1);
@@ -218,8 +221,10 @@ describe("ReadProjectDataActionの", () => {
 
           const result = await action.read();
 
-          expect(restClient.httpGet).toBeCalledWith(`/projects`);
-          expect(restClient.httpPost).toBeCalledWith(`/projects`, { name: "" });
+          expect(restClient.httpGet).toBeCalledWith(`api/v1/projects`);
+          expect(restClient.httpPost).toBeCalledWith(`api/v1/projects`, {
+            name: "",
+          });
           // 途中処理で失敗したため以降のAPIは呼ばれないこと
           expect(restClient.httpGet).toBeCalledTimes(1);
           // observerの各関数が呼ばれないこと
@@ -262,10 +267,12 @@ describe("ReadProjectDataActionの", () => {
 
           const result = await action.read();
 
-          expect(restClient.httpGet).toBeCalledWith(`/projects`);
+          expect(restClient.httpGet).toBeCalledWith(`api/v1/projects`);
           const projectId =
             expectedProjectList[expectedProjectList.length - 1].id;
-          expect(restClient.httpGet).toBeCalledWith(`/projects/${projectId}`);
+          expect(restClient.httpGet).toBeCalledWith(
+            `api/v1/projects/${projectId}`
+          );
           // observerの各関数が呼ばれないこと
           expect(observer.setProjectId).not.toBeCalled();
           expect(observer.setManagedData).not.toBeCalled();

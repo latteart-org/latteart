@@ -1,16 +1,12 @@
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import {
-  OperationHistory,
-  ElementInfo,
-  CoverageSource,
-  InputElementInfo,
-} from "@/lib/operationHistory/types";
+import { OperationHistory } from "@/lib/operationHistory/types";
+import { CoverageSource, ElementInfo } from "src/common";
 
 describe("ScreenHistoryクラスは", () => {
-  let testOperation1: Operation;
-  let testOperation2: Operation;
-  let testOperation3: Operation;
+  let testOperation1: OperationForGUI;
+  let testOperation2: OperationForGUI;
+  let testOperation3: OperationForGUI;
   let testElement1: ElementInfo;
   let testElement2: ElementInfo;
 
@@ -37,7 +33,7 @@ describe("ScreenHistoryクラスは", () => {
         value: "value2",
       },
     };
-    testOperation1 = new Operation(
+    testOperation1 = new OperationForGUI(
       1,
       "input1",
       "type1",
@@ -48,8 +44,8 @@ describe("ScreenHistoryクラスは", () => {
       "",
       false
     );
-
-    testOperation2 = new Operation(
+    OperationForGUI;
+    testOperation2 = new OperationForGUI(
       2,
       "input2",
       "type2",
@@ -60,8 +56,9 @@ describe("ScreenHistoryクラスは", () => {
       "",
       false
     );
+    OperationForGUI;
 
-    testOperation3 = new Operation(
+    testOperation3 = new OperationForGUI(
       3,
       "input3",
       "type3",
@@ -437,13 +434,23 @@ describe("ScreenHistoryクラスは", () => {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(1, "", "", null, "", "", "", "", false),
+          operation: new OperationForGUI(
+            1,
+            "",
+            "",
+            null,
+            "",
+            "",
+            "",
+            "",
+            false
+          ),
         },
         {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(
+          operation: new OperationForGUI(
             2,
             "",
             "",
@@ -459,7 +466,7 @@ describe("ScreenHistoryクラスは", () => {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(
+          operation: new OperationForGUI(
             3,
             "",
             "",

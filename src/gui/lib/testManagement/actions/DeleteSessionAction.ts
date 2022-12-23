@@ -19,7 +19,7 @@ import {
   ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 export class DeleteSessionAction {
   public async deleteSession(
@@ -27,9 +27,9 @@ export class DeleteSessionAction {
       projectId: string;
       sessionId: string;
     },
-    repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+    repositoryService: Pick<RepositoryService, "sessionRepository">
   ): Promise<ActionResult<void>> {
-    const result = await repositoryContainer.sessionRepository.deleteSession(
+    const result = await repositoryService.sessionRepository.deleteSession(
       payload.projectId,
       payload.sessionId
     );

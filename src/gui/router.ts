@@ -16,17 +16,17 @@
 
 import Vue from "vue";
 import Router from "vue-router";
-import ExpCapture from "@/vue/pages/captureControl/expCapture/ExpCapture.vue";
-import ConfigView from "@/vue/pages/captureControl/configView/ConfigView.vue";
-import HistoryView from "@/vue/pages/captureControl/historyView/HistoryView.vue";
-import ExpManager from "@/vue/pages/testManagement/ExpManager.vue";
-import ManageView from "@/vue/pages/testManagement/ManageView.vue";
-import ManageEditView from "@/vue/pages/testManagement/manageEditView/ManageEditView.vue";
-import StoryView from "@/vue/pages/testManagement/storyView/StoryView.vue";
-import ReviewView from "@/vue/pages/testManagement/ReviewView.vue";
-import ManageShowView from "@/vue/pages/testManagement/manageShowView/ManageShowView.vue";
-import ManageProgressView from "@/vue/pages/testManagement/manageProgressView/ManageProgressView.vue";
-import ManageQualityView from "@/vue/pages/testManagement/manageQualityView/ManageQualityView.vue";
+import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
+import ConfigView from "@/components/pages/captureControl/configView/ConfigView.vue";
+import HistoryView from "@/components/pages/captureControl/historyView/HistoryView.vue";
+import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
+import ManageView from "@/components/pages/testManagement/ManageView.vue";
+import ManageEditView from "@/components/pages/testManagement/manageEditView/ManageEditView.vue";
+import StoryView from "@/components/pages/testManagement/storyView/StoryView.vue";
+import ReviewView from "@/components/pages/testManagement/ReviewView.vue";
+import ManageShowView from "@/components/pages/testManagement/manageShowView/ManageShowView.vue";
+import ManageProgressView from "@/components/pages/testManagement/manageProgressView/ManageProgressView.vue";
+import ManageQualityView from "@/components/pages/testManagement/manageQualityView/ManageQualityView.vue";
 import Root from "./Root.vue";
 
 Vue.use(Router);

@@ -17,7 +17,7 @@
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import {
   Edge,
-  WindowHandle,
+  WindowInfo,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
@@ -96,7 +96,7 @@ export default class SequenceDiagramGraphConverter {
   /**
    *
    * @param screenHistory  Screen transition history.
-   * @param windowHandles
+   * @param windows Window informations.
    * @param callback.onClickEdge  Callback function called when you click Edge.
    * @param callback.onClickScreenRect  Callback function called when Rect is clicked.
    * @param callback.onClickNote  Callback function called by clicking Note.
@@ -106,7 +106,7 @@ export default class SequenceDiagramGraphConverter {
    */
   public static async convert(
     screenHistory: ScreenHistory,
-    windowHandles: WindowHandle[],
+    windows: WindowInfo[],
     callback: SequenceDiagramGraphCallback = {
       onClickActivationBox: () => {
         /* Do nothing */
@@ -315,8 +315,8 @@ export default class SequenceDiagramGraphConverter {
               // Continue if the same windowHandle continues.
               if (windowHandle && windowHandle === currentWindowHandle) {
                 const windowHandleName =
-                  SequenceDiagramGraphConverter.getWindowHandleName(
-                    windowHandles,
+                  SequenceDiagramGraphConverter.getWindowName(
+                    windows,
                     currentWindowHandle
                   );
 
@@ -341,8 +341,8 @@ export default class SequenceDiagramGraphConverter {
               }
 
               const windowHandleName =
-                SequenceDiagramGraphConverter.getWindowHandleName(
-                  windowHandles,
+                SequenceDiagramGraphConverter.getWindowName(
+                  windows,
                   currentWindowHandle
                 );
 
@@ -356,8 +356,8 @@ export default class SequenceDiagramGraphConverter {
             if (currentWindowHandle === "" && !!windowHandle) {
               currentWindowHandle = windowHandle;
               const windowHandleName =
-                SequenceDiagramGraphConverter.getWindowHandleName(
-                  windowHandles,
+                SequenceDiagramGraphConverter.getWindowName(
+                  windows,
                   currentWindowHandle
                 );
 
@@ -521,12 +521,9 @@ export default class SequenceDiagramGraphConverter {
    * Get windowHandle name.
    * @returns windowHandle name.
    */
-  private static getWindowHandleName(
-    windowHandles: WindowHandle[],
-    value: string
-  ) {
-    const found = windowHandles.find((windowHandle: WindowHandle) => {
-      return windowHandle.value === value;
+  private static getWindowName(windows: WindowInfo[], windowHandle: string) {
+    const found = windows.find((window: WindowInfo) => {
+      return window.value === windowHandle;
     });
     if (found === undefined) {
       return "";

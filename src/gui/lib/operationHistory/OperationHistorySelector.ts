@@ -15,7 +15,7 @@
  */
 
 import { OperationHistory } from "./types";
-import { Note } from "./Note";
+import { NoteForGUI } from "./NoteForGUI";
 
 /**
  * Performs operation history conversion processing.
@@ -36,7 +36,7 @@ export default class OperationHistorySelector {
    * @returns Grouped operation history
    */
   public groupByIntention(): {
-    intention: Note | null;
+    intention: NoteForGUI | null;
     history: OperationHistory;
   }[] {
     return this.origin.reduce(
@@ -55,7 +55,7 @@ export default class OperationHistorySelector {
         return acc;
       },
       Array<{
-        intention: Note | null;
+        intention: NoteForGUI | null;
         history: OperationHistory;
       }>()
     );

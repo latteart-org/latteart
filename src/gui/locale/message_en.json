@@ -86,6 +86,7 @@
     "export-screenshots": "Screenshots Export",
     "delete-test-result": "Delete Test Result",
     "delete-test-result-title": "Delete Test Result",
+    "delete-test-result-associated-session-message": "This test result is captured in the management tool.\nAre you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-succeeded": "Test Result deletion has finished."
   },
@@ -467,14 +468,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
-    "output": "Output as HTML",
-    "bug-draft": "Check as Reported",
-    "bug-none": "Check as Not Necessary to Report",
-    "bug-draft-withdraw": "Cancel Issue \"{ticketid}\" [Check as Not Necessary to Report]",
-    "bug-draft-edit": "Change the Number of Issue \"{ticketid}\"",
-    "enter-bug-number": "Enter Issue Number",
-    "session-not-found": "Session Not Found",
-    "issue-not-found": "Issue Not Found"
+    "output": "Output as HTML"
   },
   "manage-edit-view": {
     "window-title": "Management Tool [Edit Test Plan]",
@@ -522,11 +516,12 @@
       "create_test_result_directory_failed": "Failed to make test result directory . Please check if a correct path to the directory is set.",
       "test_result_directory_already_exists": "A directory with the same name as the test result directory has already exists. Please specify a different directory.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
-      "run_auto_operations_failed": "An error occurred during automatic operation execution."
+      "run_auto_operations_failed": "An error occurred during automatic operation execution.",
+      "add_test_step_failed": "Failed to register operation.",
+      "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
+      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."
     },
     "operation_history": {
-      "compress_operation_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
-      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
       "load_history_failed": "Failed to load a test result.",
       "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
@@ -545,7 +540,7 @@
       "create_test_result_failed": "Failed to create test result.",
       "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
-      "register_operation_failed": "Failed to register operation.",
+      "get_session_ids_failed": "Failed to get session ids.",
       "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}"
     },
     "test_management": {

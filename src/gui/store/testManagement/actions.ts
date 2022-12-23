@@ -47,11 +47,11 @@ import { AddNewTestTargetAction } from "@/lib/testManagement/actions/AddNewTestT
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { CollectProgressDatasAction } from "@/lib/testManagement/actions/CollectProgressDatasAction";
-import { ProjectFileRepository } from "@/lib/eventDispatcher/repositoryService/ProjectFileRepository";
 import { UpdateStoryAction } from "@/lib/testManagement/actions/UpdateStoryAction";
 import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionAction";
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 import { Timestamp } from "@/lib/common/Timestamp";
+import { ProjectFileRepository } from "../../lib/common/ProjectFileRepository";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -77,8 +77,10 @@ const actions: ActionTree<TestManagementState, RootState> = {
    */
   async writeSnapshot(context): Promise<string> {
     const result = await new WriteSnapshotAction(
-      context.rootState.repositoryContainer
-    ).writeSnapshot(context.state.projectId);
+      context.rootState.repositoryService
+    ).writeSnapshot(context.state.projectId, {
+      locale: context.rootState.i18n?.locale ?? "ja",
+    });
 
     if (result.isFailure()) {
       throw new Error(
@@ -111,7 +113,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    */
   async getTestResults(context): Promise<TestResultSummary[]> {
     const result = await new GetTestResultListAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).getTestResults();
 
     if (result.isFailure()) {
@@ -151,7 +153,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).read();
   },
 
@@ -184,7 +186,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         },
       },
       new StoryDataConverter(),
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).write(context.state.projectId, testManagementData, context.state.stories);
   },
 
@@ -211,7 +213,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         testMatrixName: payload.name,
         viewPoints: payload.viewPoints,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -259,7 +261,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         newViewPoints: payload.viewPoints,
         oldTestMatrix,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -285,7 +287,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         projectId: context.state.projectId,
         testMatrixId: payload.testMatrixId,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
     await context.dispatch("readDataFile");
   },
@@ -306,7 +308,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         testMatrixId: payload.testMatrixId,
         name: context.rootGetters.message("group-edit-list.name"),
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -340,7 +342,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         groupId: payload.groupId,
         name: payload.name,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -365,7 +367,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         testMatrixId: payload.testMatrixId,
         groupId: payload.groupId,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -391,8 +393,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ): Promise<void> {
     const result = await new AddNewTestTargetAction().addNewTestTarget(
-      payload,
-      context.rootState.repositoryContainer
+      { ...payload, projectId: context.state.projectId },
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -427,8 +429,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ): Promise<void> {
     const result = await new UpdateTestTargetsAction().updateTestTargets(
-      payload,
-      context.rootState.repositoryContainer
+      { ...payload, projectId: context.state.projectId },
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -453,8 +455,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
     payload: { testMatrixId: string; groupId: string; testTargetId: string }
   ): Promise<void> {
     const result = await new DeleteTestTargetAction().deleteTestTarget(
-      payload,
-      context.rootState.repositoryContainer
+      { ...payload, projectId: context.state.projectId },
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -494,7 +496,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         projectId: context.state.projectId,
         storyId: payload.storyId,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -544,7 +546,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
 
     const result = await new UpdateSessionAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).updateSession(context.state.projectId, payload.sessionId, payload.params);
 
     if (result.isFailure()) {
@@ -572,7 +574,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         issues: updatedSession.issues,
         testingTime: updatedSession.testingTime,
       },
-      context.rootState.repositoryContainer,
+      context.rootState.repositoryService,
       session
     );
 
@@ -580,14 +582,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
       storyId: payload.storyId,
       session: parsedSession,
     });
-
-    if (updatedSession.testingTime !== parsedSession.testingTime) {
-      await new UpdateSessionAction(
-        context.rootState.repositoryContainer
-      ).updateSession(context.state.projectId, payload.sessionId, {
-        testingTime: parsedSession.testingTime,
-      });
-    }
   },
 
   async deleteSession(
@@ -602,7 +596,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         projectId: context.state.projectId,
         sessionId: payload.sessionId,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -650,7 +644,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
         id: payload.storyId,
         status: payload.params.status,
       },
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     );
 
     if (result.isFailure()) {
@@ -668,16 +662,16 @@ const actions: ActionTree<TestManagementState, RootState> = {
       period?: { since: Timestamp; until: Timestamp };
     } = {}
   ) {
-    const repositoryContainer = Vue.prototype.$dailyTestProgresses
+    const repositoryService = Vue.prototype.$dailyTestProgresses
       ? {
           projectRepository: new ProjectFileRepository(
             Vue.prototype.$dailyTestProgresses
           ),
         }
-      : context.rootState.repositoryContainer;
+      : context.rootState.repositoryService;
 
     const result = await new CollectProgressDatasAction(
-      repositoryContainer
+      repositoryService
     ).collect(context.state.projectId, payload);
 
     if (result.isFailure()) {
@@ -739,9 +733,12 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
   ) {
     const result = await new GenerateTestScriptsAction(
-      context.rootState.repositoryContainer,
+      context.rootState.repositoryService,
       payload.option
-    ).generateFromProject(context.state.projectId);
+    ).generateFromProject(
+      context.state.projectId,
+      context.rootState.projectSettings.config.screenDefinition
+    );
 
     if (result.isFailure()) {
       throw new Error(
@@ -778,7 +775,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     };
 
     const result = await new ImportProjectAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).import(payload.source, selectOption);
 
     if (result.isFailure()) {
@@ -815,7 +812,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     };
 
     const result = await new ExportProjectAction(
-      context.rootState.repositoryContainer
+      context.rootState.repositoryService
     ).export(exportProjectId, selectOption);
 
     if (result.isFailure()) {

@@ -1,9 +1,9 @@
-import { TestMatrixRepository } from "@/lib/eventDispatcher/repositoryService/TestMatrixRepository";
-import { TestTargetGroupRepository } from "@/lib/eventDispatcher/repositoryService/TestTargetGroupRepository";
-import { RESTClient } from "@/lib/eventDispatcher/RESTClient";
+import { TestMatrixRepository, TestTargetGroupRepository } from "src/common";
+import { RESTClient } from "src/common/network/http/client";
 import { UpdateGroupAction } from "@/lib/testManagement/actions/UpdateGroupAction";
 
 const baseRestClient: RESTClient = {
+  serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
@@ -65,12 +65,12 @@ describe("DeleteGroupAction", () => {
       }
 
       expect(testTargetGroupResponse.httpPatch).toBeCalledWith(
-        "/test-target-groups/groupId",
+        "api/v1/test-target-groups/groupId",
         { name: "groupName" }
       );
 
       expect(testMatrixResponse.httpGet).toBeCalledWith(
-        "/test-matrices/testMatrixId"
+        "api/v1/test-matrices/testMatrixId"
       );
 
       expect(result.data).toEqual({

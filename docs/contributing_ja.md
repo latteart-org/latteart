@@ -16,8 +16,8 @@ GitHub の [Issues](https://github.com/latteart-org/latteart/issues) を使用�
 GitHubの [Discussions](https://github.com/latteart-org/latteart/discussions) 機能をご利用ください。
 
 ## プルリクエスト
-- コントリビュータは、feature branch から develop branch に対してマージを行う Pull Request を行ってください。
-    - ブランチ名は原則 `feature/#[issue番号]_[修正の概要]` とします。
+- コントリビュータは、fork したリポジトリ上で topic branch を作成し、latteart-org 配下のリポジトリの develop branch に対して Pull Request を行ってください。
+    - topic branch のブランチ名は任意とします。
 - コントリビュータは、[DCO](https://developercertificate.org/)に同意する必要があります。
     - DCOに同意していることを示すため、全てのコミットに対して、コミットメッセージに以下を記入してください。
         - `Signed-off-by: Random J Developer <random@developer.example.org>`
@@ -27,7 +27,8 @@ GitHubの [Discussions](https://github.com/latteart-org/latteart/discussions) �
 - Pull Request を発行する際は、対応する Issue に紐づけてください。
     - 対応する Issue がない場合は Pull Request の発行前に作成してください。
 - Pull Request のタイトルには、"fix"に続いて対処したissue番号および修正の概要を記入してください。
-    - `fix #[issue番号] [修正の概要]`
+    - latteart リポジトリ上での修正は、`fix #[issue番号] [修正の概要]`
+    - latteart-capture-cl、latteart-repository での修正は、`fix latteart-org/latteart#[issue番号] [修正の概要]`
 - Pull Request の本文は、テンプレートを使用してください。
 
 ## コーディングスタイル

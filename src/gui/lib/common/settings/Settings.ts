@@ -14,130 +14,35 @@
  * limitations under the License.
  */
 
-import { ScreenDefType, RunningMode, Locale } from "../enum/SettingsEnum";
-import {
-  AutofillSetting,
-  ScreenDefinitionConditionGroup,
-  AutoOperationSetting,
-} from "@/lib/operationHistory/types";
+import { SettingsForRepository } from "src/common";
 
-/**
- * Class that holds the setting information of the tool.
- */
-export default class Settings {
-  /**
-   * Locale.
-   */
-  public locale: Locale;
+export type ProjectSettings = SettingsForRepository;
 
-  /**
-   * Boot mode.
-   */
-  public mode: RunningMode;
+export type ScreenDefinitionSetting =
+  ProjectSettings["config"]["screenDefinition"];
 
-  /**
-   * Advanced debug mode settings.
-   */
-  public debug: {
-    outputs: {
-      dom: boolean;
-    };
-    saveItems: {
-      keywordSet: boolean;
-    };
-    configureCaptureSettings: boolean;
+export type CoverageSetting = ProjectSettings["config"]["coverage"];
+
+export type ImageCompressionSetting =
+  ProjectSettings["config"]["imageCompression"];
+
+export type DeviceSettings = {
+  platformName: "PC" | "Android" | "iOS";
+  browser: "Chrome" | "Edge" | "Safari";
+  device?: {
+    deviceName: string;
+    modelNumber: string;
+    osVersion: string;
   };
+  platformVersion?: string;
+  waitTimeForStartupReload: number;
+};
 
-  /**
-   * ViewPoint presets.
-   */
-  public viewPointsPreset: Array<{
-    id: string;
-    name: string;
-    viewPoints: Array<{ name: string; description: string }>;
-  }>;
-
-  /**
-   * HTML tag list.
-   */
-  public defaultTagList: string[];
-
-  /**
-   * Setting information.
-   */
-  public config: {
-    autofillSetting: AutofillSetting;
-    autoOperationSetting: AutoOperationSetting;
-    screenDefinition: ScreenDefinition;
-    coverage: Coverage;
-    imageCompression: ImageCompression;
+export type ViewSettings = {
+  autofill: {
+    autoPopupRegistrationDialog: boolean;
+    autoPopupSelectionDialog: boolean;
   };
+};
 
-  /**
-   * Exclusion tag setting.
-   */
-  public captureSettings: {
-    ignoreTags: string[];
-  };
-
-  /**
-   * Constructor.
-   */
-  constructor() {
-    this.locale = Locale.Ja;
-    this.mode = RunningMode.Debug;
-    this.debug = {
-      outputs: {
-        dom: false,
-      },
-      saveItems: {
-        keywordSet: true,
-      },
-      configureCaptureSettings: true,
-    };
-    this.viewPointsPreset = [];
-    this.defaultTagList = [];
-    this.config = {
-      autofillSetting: {
-        autoPopupRegistrationDialog: false,
-        autoPopupSelectionDialog: false,
-        conditionGroups: [],
-      },
-      autoOperationSetting: {
-        conditionGroups: [],
-      },
-      screenDefinition: {
-        screenDefType: ScreenDefType.Title,
-        conditionGroups: [],
-      },
-      coverage: {
-        include: {
-          tags: [],
-        },
-      },
-      imageCompression: {
-        isEnabled: true,
-        isDeleteSrcImage: true,
-      },
-    };
-    this.captureSettings = {
-      ignoreTags: [],
-    };
-  }
-}
-
-export interface ScreenDefinition {
-  screenDefType: ScreenDefType;
-  conditionGroups: ScreenDefinitionConditionGroup[];
-}
-
-export interface Coverage {
-  include: {
-    tags: string[];
-  };
-}
-
-export interface ImageCompression {
-  isEnabled: boolean;
-  isDeleteSrcImage: boolean;
-}
+export type SnapshotConfig = { locale: string };

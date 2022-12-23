@@ -2,7 +2,7 @@
 
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ScreenTransitionDiagramGraphConverter from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
-import { Operation } from "@/lib/operationHistory/Operation";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 describe("ScreenTransitionDiagramGraphConverterは", () => {
   describe("convertが呼ばれた場合、screenHistoryをMermaidのフローチャート形式の文字列に変換して返す", () => {
@@ -17,7 +17,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "type1",
                   elementInfo: { text: "elementValue1" } as any,
                   windowHandle: "window1",
@@ -55,7 +55,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-1",
                   elementInfo: { text: "elementValueA-1" } as any,
                   windowHandle: "window1",
@@ -66,7 +66,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-2",
                   elementInfo: { text: "elementValueA-2" } as any,
                   windowHandle: "window1",
@@ -86,7 +86,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defB",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-1",
                   elementInfo: { text: "elementValueB-1" } as any,
                   windowHandle: "window1",
@@ -97,7 +97,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-2",
                   elementInfo: { text: "elementValueB-2" } as any,
                   windowHandle: "window1",
@@ -117,7 +117,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defC",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeC-1",
                   elementInfo: { text: "elementValueC-1" } as any,
                   windowHandle: "window1",
@@ -128,7 +128,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeC-2",
                   elementInfo: { text: "elementValueC-2" } as any,
                   windowHandle: "window1",
@@ -174,7 +174,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-1",
                   elementInfo: { text: "elementValueA-1" } as any,
                   windowHandle: "window1",
@@ -185,7 +185,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-2",
                   elementInfo: { text: "elementValueA-2" } as any,
                   windowHandle: "window1",
@@ -205,7 +205,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defB",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-1",
                   elementInfo: { text: "elementValueB-1" } as any,
                   windowHandle: "window1",
@@ -216,7 +216,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-2",
                   elementInfo: { text: "elementValueB-2" } as any,
                   windowHandle: "window1",
@@ -236,7 +236,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-1",
                   elementInfo: { text: "elementValueA-1" } as any,
                   windowHandle: "window1",
@@ -247,7 +247,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-2",
                   elementInfo: { text: "elementValueA-2" } as any,
                   windowHandle: "window1",
@@ -292,7 +292,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-1",
                   elementInfo: { text: "elementValueA-1" } as any,
                   windowHandle: "window1",
@@ -303,7 +303,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-2",
                   elementInfo: { text: "elementValueA-2" } as any,
                   windowHandle: "window1",
@@ -323,7 +323,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-3",
                   elementInfo: { text: "elementValueA-3" } as any,
                   windowHandle: "window1",
@@ -334,7 +334,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-4",
                   elementInfo: { text: "elementValueA-4" } as any,
                   windowHandle: "window1",
@@ -377,7 +377,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defA",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeA-1",
                   elementInfo: { text: "elementValueA-1" } as any,
                   windowHandle: "window1",
@@ -388,7 +388,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "screen_transition",
                   elementInfo: null,
                   windowHandle: "window1",
@@ -408,7 +408,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
             screenDef: "defB",
             operationHistory: [
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-1",
                   elementInfo: { text: "elementValueB-1" } as any,
                   windowHandle: "window1",
@@ -419,7 +419,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
                 notices: null,
               },
               {
-                operation: Operation.createOperation({
+                operation: OperationForGUI.createOperation({
                   type: "typeB-2",
                   elementInfo: { text: "elementValueB-2" } as any,
                   windowHandle: "window1",
@@ -466,7 +466,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "defA",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "typeA-1",
                 elementInfo: { text: "elementValueA-1" } as any,
                 windowHandle: "window1",
@@ -486,7 +486,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "defB",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 type: "typeB-1",
                 elementInfo: { text: "elementValueB-1" } as any,
                 windowHandle: "window1",
@@ -573,7 +573,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: {
                   attributes: { type: "type1" },
                   text: "elementValue1",
@@ -595,7 +595,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: {
                   attributes: { type: "type2" },
                   text: "elementValue2",
@@ -617,7 +617,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: {
                   attributes: { type: "type3" },
                   text: "elementValue3",
@@ -639,7 +639,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef3",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: {
                   attributes: { type: "type4" },
                   text: "elementValue4",
@@ -693,7 +693,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef1",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue1" } as any,
                 type: "type1",
                 windowHandle: "window1",
@@ -713,7 +713,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef2",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue2" } as any,
                 type: "type2",
                 windowHandle: "window1",
@@ -733,7 +733,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef3",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue3" } as any,
                 type: "type3",
                 windowHandle: "window2",
@@ -753,7 +753,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef4",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue4" } as any,
                 type: "type4",
                 windowHandle: "window2",
@@ -773,7 +773,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef5",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue5" } as any,
                 type: "type5",
                 windowHandle: "window1",
@@ -793,7 +793,7 @@ describe("ScreenTransitionDiagramGraphConverterは", () => {
           screenDef: "screenDef5",
           operationHistory: [
             {
-              operation: Operation.createOperation({
+              operation: OperationForGUI.createOperation({
                 elementInfo: { text: "elementValue6" } as any,
                 type: "type6",
                 windowHandle: "window1",

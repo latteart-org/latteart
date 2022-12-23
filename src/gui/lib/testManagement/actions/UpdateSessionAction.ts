@@ -20,14 +20,14 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { ManagedSession } from "../TestManagementData";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { RepositoryService } from "src/common";
 
 const UPDATE_SESSION_FAILED_MESSAGE_KEY =
   "error.test_management.update_session_failed";
 
 export class UpdateSessionAction {
   constructor(
-    private repositoryContainer: Pick<RepositoryContainer, "sessionRepository">
+    private repositoryService: Pick<RepositoryService, "sessionRepository">
   ) {}
 
   public async updateSession(
@@ -36,7 +36,7 @@ export class UpdateSessionAction {
     body: Partial<ManagedSession>
   ): Promise<ActionResult<ManagedSession>> {
     const patchSessionResult =
-      await this.repositoryContainer.sessionRepository.patchSession(
+      await this.repositoryService.sessionRepository.patchSession(
         projectId,
         sessionId,
         body

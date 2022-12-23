@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { Operation } from "@/lib/operationHistory/Operation";
-import { Note } from "@/lib/operationHistory/Note";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 
 /**
  * Operation history and Notes information.
  */
 export interface OperationHistoryItem {
-  operation: Operation | null;
-  intention: Note | null;
-  bugs: Note[] | null;
-  notices: Note[] | null;
+  operation: OperationForGUI | null;
+  intention: NoteForGUI | null;
+  bugs: NoteForGUI[] | null;
+  notices: NoteForGUI[] | null;
 }

@@ -15,7 +15,7 @@
  */
 
 import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
-import { CoverageSource, TestResult } from "../types";
+import { TestResult } from "../types";
 import {
   ActionResult,
   ActionFailure,
@@ -25,17 +25,18 @@ import {
   convertTestStepOperation,
   convertNote,
   convertIntention,
-} from "@/lib/eventDispatcher/replyDataConverter";
-import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+} from "@/lib/common/replyDataConverter";
+import { RepositoryService } from "src/common";
 import { GetTestResultAction } from "./testResult/GetTestResultAction";
+import { CoverageSource } from "src/common";
 
 const LOAD_HISTORY_FAILED_MESSAGE_KEY =
   "error.operation_history.load_history_failed";
 
 export class LoadHistoryAction {
   constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
+    private repositoryService: Pick<
+      RepositoryService,
       "testResultRepository" | "serviceUrl"
     >
   ) {}
@@ -52,28 +53,26 @@ export class LoadHistoryAction {
       url: string;
       testResultInfo: { id: string; name: string };
       testStepIds: string[];
-      startTimeStamp: number;
+      testingTime: number;
     }>
   > {
     const result = await new GetTestResultAction(
-      this.repositoryContainer
+      this.repositoryService
     ).getTestResult(testResultId);
 
     if (result.isFailure()) {
       return new ActionFailure({ messageKey: LOAD_HISTORY_FAILED_MESSAGE_KEY });
     }
 
-    const serviceUrl = this.repositoryContainer.serviceUrl;
-
-    return new ActionSuccess(this.convertData(result.data, serviceUrl));
+    return new ActionSuccess(this.convertData(result.data));
   }
 
-  private convertData(testResult: TestResult, serviceUrl: string) {
+  private convertData(testResult: TestResult) {
     const operationHistoryItems = testResult.testSteps.map(
       (testStep, index) => {
         const sequence = index + 1;
         const operation = testStep.operation
-          ? convertTestStepOperation(testStep.operation, serviceUrl, sequence)
+          ? convertTestStepOperation(testStep.operation, sequence)
           : testStep.operation;
 
         const intention = testStep.intention
@@ -81,11 +80,11 @@ export class LoadHistoryAction {
           : null;
         const bugs =
           testStep.bugs?.map((bug) => {
-            return convertNote(bug, serviceUrl, sequence);
+            return convertNote(bug, sequence);
           }) ?? null;
         const notices =
           testStep.notices?.map((notice) => {
-            return convertNote(notice, serviceUrl, sequence);
+            return convertNote(notice, sequence);
           }) ?? null;
 
         return { operation, intention, bugs, notices };
@@ -98,7 +97,7 @@ export class LoadHistoryAction {
       url: testResult.initialUrl,
       testResultInfo: { id: testResult.id, name: testResult.name },
       testStepIds: testResult.testSteps.map(({ id }) => id),
-      startTimeStamp: testResult.startTimeStamp,
+      testingTime: testResult.testingTime,
     };
   }
 }

@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import ErrorHandler from "@/ErrorHandler.vue";
-import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -35,20 +34,13 @@ import { Component, Vue } from "vue-property-decorator";
 export default class App extends Vue {
   private created() {
     if (this.$route.query.capture) {
-      this.$store.commit("setClientSideCaptureServiceDispatcherConfig", {
+      this.$store.commit("setCaptureClServiceDispatcherConfig", {
         serviceUrl: this.$route.query.capture,
       });
     }
 
     if (this.$route.query.repository) {
-      const repositoryContainer = new RepositoryContainerImpl({
-        url: this.$route.query.repository as string,
-        isRemote: false,
-      });
-      this.$store.commit("setRepositoryContainer", {
-        repositoryContainer,
-      });
-      this.$store.commit("setlocalRepositoryServiceUrl", {
+      this.$store.commit("setRepositoryServiceUrl", {
         url: this.$route.query.repository,
       });
     }
