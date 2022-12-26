@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
+  <scrollable-dialog :opened="opened" :maxWidth="maxWidth">
     <template v-slot:title>{{ title }}</template>
     <template v-slot:content>
       <slot />
@@ -52,6 +52,7 @@ export default class ExecuteDialog extends Vue {
   public readonly acceptButtonDisabled!: boolean;
   @Prop({ type: Boolean, default: false })
   public readonly strong!: boolean;
+  @Prop({ type: Number, default: 500 }) public readonly maxWidth!: number;
 
   private isExecuted = false;
 

@@ -297,16 +297,7 @@
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
-          <v-img
-            :src="issueDetailsDialogImagePath"
-            @click="openIssueImageFile"
-            style="cursor: pointer"
-          />
-          <v-dialog v-model="issueImageFileOpened">
-            <v-card>
-              <v-img :src="issueDetailsDialogImagePath" />
-            </v-card>
-          </v-dialog>
+          <image-file-field :imageFilePath="issueDetailsDialogImagePath" />
         </v-list>
       </template>
 
@@ -381,12 +372,14 @@ import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
+import ImageFileField from "@/components/molecules/ImageFileField.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
+    "image-file-field": ImageFileField,
   },
 })
 export default class SessionInfo extends Vue {
@@ -417,7 +410,6 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
-  private issueImageFileOpened = false;
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -511,10 +503,6 @@ export default class SessionInfo extends Vue {
     a.rel = "noopener noreferrer";
     a.click();
     return false;
-  }
-
-  private openIssueImageFile(): void {
-    this.issueImageFileOpened = true;
   }
 
   private addAttachedFile(event: any): void {

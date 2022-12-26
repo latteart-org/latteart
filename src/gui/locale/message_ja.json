@@ -61,7 +61,7 @@
     "add-bug": "バグの追加",
     "edit-bug": "バグ「{value}」の編集",
     "add-notice": "気づきの追加",
-    "edit-notice": "気づき「{value}」の編集",
+    "edit-notice": "気づき「{value}」の参照・編集",
     "delete-notice": "気づき「{value}」の削除",
     "delete-notice-title": "気づきの削除",
     "delete-notice-message": "気づき「{value}」を削除してもよろしいですか？",
