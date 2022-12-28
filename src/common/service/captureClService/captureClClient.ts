@@ -374,6 +374,9 @@ class CaptureSessionImpl implements CaptureSession {
 
           this.eventListeners.onEnd(new ServiceSuccess(undefined));
         },
+        openInfoDialog: (message: string) => {
+          this.eventListeners.openInfoDialog(message);
+        },
       }
     );
 

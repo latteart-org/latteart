@@ -48,6 +48,13 @@
       @ok="startCapture"
     />
 
+    <information-message-dialog
+      :opened="infoMessageDialogOpened"
+      :title="infoTitle"
+      :message="infoMessage"
+      @close="infoMessageDialogOpened = false"
+    />
+
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -59,6 +66,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import InformationMessageDialog from "@/components/pages/common/InformationMessageDialog.vue";
 import TestOptionDialog from "../../../testOptionDialog/TestOptionDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
@@ -67,6 +75,7 @@ import { DeviceSettings } from "@/lib/common/settings/Settings";
   components: {
     "test-option-dialog": TestOptionDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "information-message-dialog": InformationMessageDialog,
   },
 })
 export default class RecordButton extends Vue {
@@ -74,6 +83,9 @@ export default class RecordButton extends Vue {
   private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
+
+  private infoMessageDialogOpened = false;
+  private infoMessage = "";
 
   private get testResultName(): string {
     return this.$store.state.operationHistory.testResultInfo.name;
@@ -118,6 +130,10 @@ export default class RecordButton extends Vue {
     return this.$store.getters["captureControl/urlIsValid"]();
   }
 
+  private get infoTitle(): string {
+    return this.$store.getters.message("app.reconnected");
+  }
+
   private startCapture(): void {
     this.preparingForCapture = true;
     this.goToHistoryView();
@@ -156,6 +172,13 @@ export default class RecordButton extends Vue {
           url: this.url,
           config: this.config,
           callbacks: {
+            openInfoDialog: (message: string) => {
+              this.preparingForCapture = false;
+              this.infoMessage = `${this.$store.getters.message(
+                "app.reason"
+              )}:${message}`;
+              this.infoMessageDialogOpened = true;
+            },
             onEnd: (error?: Error) => {
               this.preparingForCapture = false;
               if (error) {

@@ -373,6 +373,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: {
       callbacks?: {
+        openInfoDialog?: (message: string) => void;
         onEnd?: (error?: Error) => void;
       };
     } = {}
@@ -422,6 +423,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     const callbacks = {
       onEnd: () => undefined,
+      openInfoDialog: () => undefined,
       ...payload.callbacks,
     };
 
@@ -522,6 +524,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
         callbacks.onEnd();
       },
+      openInfoDialog: (message: string) => {
+        callbacks.openInfoDialog(message);
+      },
     };
 
     return captureEventListeners;
@@ -540,6 +545,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       url: string;
       config: DeviceSettings;
       callbacks: {
+        openInfoDialog: (message: string) => void;
         onEnd: (error?: Error) => void;
       };
     }

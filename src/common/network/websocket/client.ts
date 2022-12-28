@@ -25,6 +25,7 @@ interface SocketIOEventListener {
  * Client for Socket.IO communication.
  */
 export class SocketIOClient {
+  public existsConnecting = false;
   private socket?: SocketIOClient.Socket;
 
   /**
@@ -44,21 +45,31 @@ export class SocketIOClient {
    */
   public connect(
     onDisconnect: (error?: Error) => void,
+    openInfoDialog: (message: string) => void,
     ...eventListeners: SocketIOEventListener[]
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.socket = io(this.serverUrl, {
         transports: ["websocket"],
-        reconnectionAttempts: 1,
+        reconnectionAttempts: 5,
       });
 
-      this.socket.on("reconnect_failed", () => {
-        reject(new Error("Reconnect failed."));
-      });
+      // this.socket.on("reconnect_failed", () => {
+      //   reject(new Error("Reconnect failed."));
+      // });
 
-      this.socket.once("connect", () => {
+      this.socket.on("connect", () => {
+        if (this.existsConnecting) {
+          console.log(`reconnect: ${this.existsConnecting}`);
+          return;
+        }
+
+        this.existsConnecting = true;
+        console.log("===> connect");
         for (const eventListener of eventListeners) {
           this.socket?.on(eventListener.eventName, async (data?: string) => {
+            console.log("eventName", eventListener.eventName);
+            console.log(data);
             try {
               await eventListener.eventHandler(data ? JSON.parse(data) : data);
             } catch (error) {
@@ -67,19 +78,44 @@ export class SocketIOClient {
           });
         }
 
-        this.socket?.once("disconnect", (reason: string) => {
-          const message = `disconnected: ${reason}`;
+        let disconnectReason = "";
+        this.socket?.on("connect_error", (reason: string) => {
+          console.error(`==> connect_error: ${reason}`);
+        });
+        this.socket?.on("reconnection_attempt", (reason: string) => {
+          console.log(`==> reconnection_attempt: ${reason}`);
+        });
+        this.socket?.on("reconnect", (reason: string) => {
+          console.log(`==> reconnect: ${reason}`);
+          openInfoDialog(disconnectReason);
 
+          // onErrorDialog(`reconnect: ${reason}`);
+        });
+        this.socket?.on("reconnect_error", (reason: string) => {
+          console.error(`==> reconnect_error: ${reason}`);
+        });
+
+        this.socket?.on("disconnect", (reason: string) => {
+          disconnectReason = reason;
+          console.info(`==> disconnected: ${reason}`);
+          if (reason === "io server disconnect") {
+            onDisconnect();
+          }
+        });
+
+        this.socket?.on("reconnect_failed", (reason: string) => {
+          console.error(`==> reconnect_failed: ${reason}`);
+          this.existsConnecting = false;
           if (
             ["ping timeout", "transport close", "transport error"].includes(
               reason
             )
           ) {
-            console.error(message);
+            console.error(disconnectReason);
             this.disconnect();
-            onDisconnect(new Error("disconnected"));
+            onDisconnect(new Error("disconnect"));
           } else {
-            console.info(message);
+            console.info(disconnectReason);
             onDisconnect();
           }
         });
@@ -95,6 +131,7 @@ export class SocketIOClient {
    * Disconnect from the server.
    */
   public disconnect(): void {
+    this.existsConnecting = false;
     if (!this.socket) {
       throw new Error("Not connected.");
     }

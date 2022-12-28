@@ -36,7 +36,9 @@
     "register-operation": "Operation Registration",
     "select-operation": "Operation Selection",
     "auto-operation": "Auto Operation",
-    "autofill": "Autofill"
+    "autofill": "Autofill",
+    "reconnected": "reconnected",
+    "reason": "Reason for disconnection"
   },
   "replay": {
     "done-title": "Replay is done",

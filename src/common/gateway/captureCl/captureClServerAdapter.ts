@@ -103,11 +103,13 @@ export class CaptureClServerAdapter {
       onResume: () => void;
       onError: (error: CaptureCLServerError) => void;
       onEnd: () => Promise<void>;
+      openInfoDialog: (message: string) => void;
     }
   ): Promise<{
     data: unknown;
     error?: CaptureCLServerError | undefined;
   }> {
+    this.socketIOClient.existsConnecting = false;
     try {
       const target = {
         platformName: config.platformName,
@@ -193,8 +195,13 @@ export class CaptureClServerAdapter {
         eventListeners.onEnd();
       };
 
+      const openInfoDialog = (message: string) => {
+        eventListeners.openInfoDialog(message);
+      };
+
       await this.socketIOClient.connect(
         onDisconnect,
+        openInfoDialog,
         ...[
           { eventName: "operation_captured", eventHandler: onGetOperation },
           {
@@ -243,6 +250,7 @@ export class CaptureClServerAdapter {
   }
 
   public endCapture(): void {
+    this.socketIOClient.existsConnecting = false;
     try {
       this.socketIOClient.emit("stop_capture");
     } catch (error) {

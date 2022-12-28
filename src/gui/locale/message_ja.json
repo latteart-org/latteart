@@ -40,7 +40,9 @@
     "register-operation": "操作の登録",
     "select-operation": "操作の選択",
     "auto-operation": "自動操作",
-    "autofill": "自動入力"
+    "autofill": "自動入力",
+    "reconnected": "再接続しました",
+    "reason": "切断の理由"
   },
   "replay": {
     "done-title": "テスト結果のリプレイ終了",

@@ -59,6 +59,7 @@ export type CaptureClService = {
 
 export type CaptureEventListeners = {
   onEnd: (result: ServiceResult<void>) => Promise<void>;
+  openInfoDialog: (message: string) => void;
   onAddTestStep?: (testStep: {
     id: string;
     operation: Operation;
