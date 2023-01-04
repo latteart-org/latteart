@@ -16,14 +16,10 @@
 
 <template>
   <div>
-    <v-img
-      :src="imageFilePath"
-      @click="openImageFile"
-      style="cursor: pointer"
-    />
+    <v-img :src="imageFileUrl" @click="openImageFile" style="cursor: pointer" />
     <v-dialog v-model="imageFileOpened">
       <v-card>
-        <v-img :src="imageFilePath" />
+        <v-img :src="imageFileUrl" />
       </v-card>
     </v-dialog>
   </div>
@@ -33,8 +29,8 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
-export default class ImageFileField extends Vue {
-  @Prop({ type: String, default: "" }) public readonly imageFilePath!: string;
+export default class PopupImage extends Vue {
+  @Prop({ type: String, default: "" }) public readonly imageFileUrl!: string;
 
   private imageFileOpened = false;
 

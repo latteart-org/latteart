@@ -297,7 +297,7 @@
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
             </v-list-tile-content>
           </v-list-tile>
-          <image-file-field :imageFilePath="issueDetailsDialogImagePath" />
+          <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
         </v-list>
       </template>
 
@@ -372,14 +372,14 @@ import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
-import ImageFileField from "@/components/molecules/ImageFileField.vue";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
-    "image-file-field": ImageFileField,
+    "popup-image": PopupImage,
   },
 })
 export default class SessionInfo extends Vue {

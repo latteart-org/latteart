@@ -86,7 +86,7 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
-            <image-file-field :imageFilePath="screenshot" />
+            <popup-image :imageFileUrl="screenshot" />
           </v-card-text>
         </v-card>
 
@@ -130,14 +130,14 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import ImageFileField from "@/components/molecules/ImageFileField.vue";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "image-file-field": ImageFileField,
+    "popup-image": PopupImage,
   },
 })
 export default class NoteEditDialog extends Vue {
