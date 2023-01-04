@@ -19,7 +19,7 @@ import {
   TestManagementData,
   ManagedStory,
 } from "@/lib/testManagement/TestManagementData";
-import StoryDataConverter from "./StoryDataConverter";
+import { convertManagedStory } from "../common/replyDataConverter";
 
 /**
  * Class to convert data to storage format.
@@ -56,8 +56,6 @@ export default class TestManagementBuilder {
   }
 
   private buildManagedStoriesAndSequences() {
-    const converter = new StoryDataConverter();
-
     return this._stories.reduce(
       (
         acc: {
@@ -65,7 +63,7 @@ export default class TestManagementBuilder {
         },
         current
       ) => {
-        const { storyData } = converter.convertToDataFormat(current);
+        const { storyData } = convertManagedStory(current);
 
         acc.managedStories.push(storyData);
 

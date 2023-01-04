@@ -123,7 +123,7 @@ export default class ManageEditView extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readProject");
 
     this.$store.dispatch("changeWindowTitle", {
       title: this.$store.getters.message("manage-edit-view.window-title"),

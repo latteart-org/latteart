@@ -227,7 +227,9 @@ export default class StoryView extends Vue {
   private sessionPanelExpantionStates: boolean[] = [];
 
   async created(): Promise<void> {
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readStory", {
+      storyId: this.$route.params.id,
+    });
 
     this.$store.dispatch("changeWindowTitle", {
       title: this.$store.getters.message("story-view.window-title"),

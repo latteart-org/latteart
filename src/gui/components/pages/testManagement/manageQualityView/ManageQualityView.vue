@@ -320,7 +320,7 @@ export default class ManageQualityView extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readProjectWithTestResult");
 
     this.updateWindowTitle();
 

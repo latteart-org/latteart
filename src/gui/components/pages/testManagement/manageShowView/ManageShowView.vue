@@ -94,7 +94,7 @@ export default class ManageShow extends Vue {
 
   private async created() {
     if (!this.$store.state.progressDialog.opened) {
-      await this.$store.dispatch("testManagement/readDataFile");
+      await this.$store.dispatch("testManagement/readProject");
     }
     this.updateWindowTitle();
 

@@ -413,3 +413,5 @@ type StoryDetailsForRepository = {
     testingTime: number;
   }[];
 };
+
+export type SnapshotConfigForRepository = { locale: string };
