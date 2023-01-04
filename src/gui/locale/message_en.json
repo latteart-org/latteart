@@ -57,7 +57,7 @@
     "add-bug": "Add Bug",
     "edit-bug": "Edit Bug \"{value}\"",
     "add-notice": "Add Finding",
-    "edit-notice": "Edit Finding \"{value}\"",
+    "edit-notice": "View/Edit Finding \"{value}\"",
     "delete-notice": "Delete Finding \"{value}\"",
     "delete-notice-title": "Delete Finding",
     "delete-notice-message": "Are you sure you want to delete this Finding \"{value}\"?",

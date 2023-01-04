@@ -28,6 +28,7 @@
         close();
       "
       :acceptButtonDisabled="!canSave"
+      :maxWidth="800"
     >
       <template>
         <h3 class="title mb-0">
@@ -85,6 +86,7 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
+            <popup-image :imageFileUrl="screenshot" />
           </v-card-text>
         </v-card>
 
@@ -128,12 +130,14 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "popup-image": PopupImage,
   },
 })
 export default class NoteEditDialog extends Vue {
@@ -150,6 +154,7 @@ export default class NoteEditDialog extends Vue {
   private newTestPurpose = "";
   private newTestPurposeDetails = "";
   private shouldContinueSameTestPurpose = false;
+  private screenshot = "";
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -177,6 +182,10 @@ export default class NoteEditDialog extends Vue {
     this.newTestPurpose = "";
     this.newTestPurposeDetails = "";
     this.shouldContinueSameTestPurpose = false;
+    this.screenshot =
+      this.$store.state.operationHistory.history.slice(
+        -1
+      )[0].operation.imageFilePath;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },

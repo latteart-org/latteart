@@ -28,6 +28,7 @@
         close();
       "
       :acceptButtonDisabled="!canSave"
+      :maxWidth="800"
     >
       <template>
         <number-field
@@ -76,6 +77,7 @@
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
+        <popup-image :imageFileUrl="screenshot" />
       </template>
     </execute-dialog>
     <error-message-dialog
@@ -95,12 +97,14 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "popup-image": PopupImage,
   },
 })
 export default class NoticeEditDialog extends Vue {
@@ -113,6 +117,7 @@ export default class NoticeEditDialog extends Vue {
   private newNote = "";
   private newNoteDetails = "";
   private newTags: string[] = [];
+  private screenshot = "";
 
   private oldSequence: number | null = null;
   private newTargetSequence: number | null = null;
@@ -150,12 +155,20 @@ export default class NoticeEditDialog extends Vue {
       this.oldNoteDetails = "";
       this.oldIndex = null;
       this.oldTags = [];
+      this.screenshot = historyItem
+        ? historyItem.operation.imageFilePath
+        : this.$store.state.operationHistory.history.slice(-1)[0].operation
+            .imageFilePath;
     } else {
       // update note
       this.oldNote = historyItem.notices![index].value;
       this.oldNoteDetails = historyItem.notices![index].details;
       this.oldIndex = index;
       this.oldTags = historyItem.notices![index].tags;
+      this.screenshot =
+        historyItem.notices![index].imageFilePath !== ""
+          ? historyItem.notices[index].imageFilePath
+          : historyItem.operation.imageFilePath;
     }
     this.newNote = this.oldNote;
     this.newNoteDetails = this.oldNoteDetails;
