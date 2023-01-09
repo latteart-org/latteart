@@ -40,6 +40,16 @@
         >
         </v-checkbox>
       </v-flex>
+      <v-flex xs12>
+        <v-checkbox
+          v-model="tempConfig.isCropImage"
+          :label="
+            $store.getters.message('Crop-Image')
+          "
+          @change="cropImage"
+        >
+        </v-checkbox>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -58,6 +68,15 @@ export default class ImageCompressionConfig extends Vue {
   private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
     ...this.imageCompression,
   };
+  
+  private cropImage() {
+    if (this.opened) {
+      {
+      
+      this.$refs.cropper.open(this.config);
+    };
+    }
+  }
 
   @Watch("imageCompression")
   private updateTempConfig() {
