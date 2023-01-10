@@ -24,6 +24,8 @@ import {
 import {
   TestResultSummaryForRepository,
   TestResultForRepository,
+  TestResultViewOptionForRepository,
+  SequenceViewForRepository,
 } from "./types";
 
 export class TestResultRepository {
@@ -196,6 +198,26 @@ export class TestResultRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as Array<string>,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async getSequenceView(
+    testResultId: string,
+    option: TestResultViewOptionForRepository
+  ): Promise<RepositoryAccessResult<SequenceViewForRepository>> {
+    try {
+      const url = `api/v1/test-results/${testResultId}/sequence-views`;
+      const response = await this.restClient.httpPost(url, option);
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as SequenceViewForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

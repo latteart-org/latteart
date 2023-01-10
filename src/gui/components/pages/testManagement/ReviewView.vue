@@ -99,11 +99,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import {
-  MessageProvider,
-  OperationWithNotes,
-  OperationHistory,
-} from "@/lib/operationHistory/types";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import { Story } from "@/lib/testManagement/types";
 import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
 import ErrorMessageDialog from "../common/ErrorMessageDialog.vue";
@@ -140,12 +136,6 @@ export default class ReviewView extends Vue {
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
-
-  private get history(): OperationHistory {
-    return this.$store.getters[
-      "operationHistory/getHistory"
-    ]() as OperationWithNotes[];
-  }
 
   private generateTestScript(option: {
     testScript: {
@@ -229,8 +219,9 @@ export default class ReviewView extends Vue {
   }
 
   private get testResult() {
-    const history: OperationWithNotes[] =
-      this.$store.getters["operationHistory/getHistory"]();
+    const history = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).history;
     const coverageSources: CoverageSource[] =
       this.$store.state.operationHistory.coverageSources;
 

@@ -21,25 +21,12 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
-
-type TestResultViewOption = {
-  node: {
-    unit: "title" | "url";
-    definitions: {
-      name: string;
-      conditions: {
-        target: "title" | "url" | "keyword";
-        method: "contains" | "equals" | "regex";
-        value: string;
-      }[];
-    }[];
-  };
-};
+import { TestResultViewOptionForRepository } from "./types";
 
 export type TestScriptOption = {
   optimized: boolean;
   testData: { useDataDriven: boolean; maxGeneration: number };
-  view: TestResultViewOption;
+  view: TestResultViewOptionForRepository;
 };
 
 export class TestScriptRepository {

@@ -64,6 +64,7 @@ import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -187,7 +188,9 @@ export default class TestPurposeEditDialog extends Vue {
 
   private get collectTestPurposeSequences(): number[] {
     const seqs = [];
-    const history = this.$store.getters["operationHistory/getHistory"]();
+    const history = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).history;
 
     for (const operationWithNotes of history) {
       if (!operationWithNotes.intention) {
