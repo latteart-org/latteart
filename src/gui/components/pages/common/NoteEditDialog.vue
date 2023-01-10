@@ -183,9 +183,8 @@ export default class NoteEditDialog extends Vue {
     this.newTestPurposeDetails = "";
     this.shouldContinueSameTestPurpose = false;
     this.screenshot =
-      this.$store.state.operationHistory.history.slice(
-        -1
-      )[0].operation.imageFilePath;
+      this.$store.state.operationHistory.history[sequence - 1].operation
+        .imageFilePath ?? "";
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },

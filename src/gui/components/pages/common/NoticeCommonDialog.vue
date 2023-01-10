@@ -32,7 +32,6 @@
     >
       <template>
         <number-field
-          v-if="oldSequence !== null"
           :label="$store.getters.message('note-edit.target-sequence')"
           :value="newTargetSequence"
           :minValue="1"
@@ -91,13 +90,13 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
-import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import PopupImage from "@/components/molecules/PopupImage.vue";
+import { NoteDialogInfo } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -107,8 +106,10 @@ import PopupImage from "@/components/molecules/PopupImage.vue";
     "popup-image": PopupImage,
   },
 })
-export default class NoticeEditDialog extends Vue {
+export default class NoticeCommonDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Object, default: undefined })
+  public readonly noteInfo!: NoteDialogInfo;
 
   private search = "";
   private oldNote = "";
@@ -144,38 +145,17 @@ export default class NoticeEditDialog extends Vue {
       (this.$store.state.captureControl as CaptureControlState).captureSession
         ?.isAlertVisible ?? false;
 
-    const { sequence, index } =
-      this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes =
-      this.$store.getters["operationHistory/findHistoryItem"](sequence);
-
-    if (!historyItem || !historyItem.notices || !historyItem.notices[index]) {
-      // new note
-      this.oldNote = "";
-      this.oldNoteDetails = "";
-      this.oldIndex = null;
-      this.oldTags = [];
-      this.screenshot = historyItem
-        ? historyItem.operation.imageFilePath
-        : this.$store.state.operationHistory.history.slice(-1)[0].operation
-            .imageFilePath;
-    } else {
-      // update note
-      this.oldNote = historyItem.notices![index].value;
-      this.oldNoteDetails = historyItem.notices![index].details;
-      this.oldIndex = index;
-      this.oldTags = historyItem.notices![index].tags;
-      this.screenshot =
-        historyItem.notices![index].imageFilePath !== ""
-          ? historyItem.notices[index].imageFilePath
-          : historyItem.operation.imageFilePath;
-    }
+    this.oldNote = this.noteInfo.value;
+    this.oldNoteDetails = this.noteInfo.details;
+    this.oldIndex = this.noteInfo.index;
+    this.oldTags = this.noteInfo.tags;
+    this.screenshot = this.noteInfo.imageFilePath;
     this.newNote = this.oldNote;
     this.newNoteDetails = this.oldNoteDetails;
     this.newTags = [...this.oldTags];
-    this.oldSequence = sequence;
+    this.oldSequence = this.noteInfo.sequence;
     this.newTargetSequence = this.oldSequence;
-    this.maxSequence = this.$store.state.operationHistory.history.length;
+    this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {

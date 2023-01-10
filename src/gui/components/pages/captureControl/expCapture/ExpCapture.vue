@@ -39,9 +39,15 @@
       :opened="testPurposeEditDialogOpened"
       @close="testPurposeEditDialogOpened = false"
     />
-    <notice-edit-dialog
-      :opened="noticeEditDialogOpened"
-      @close="noticeEditDialogOpened = false"
+
+    <notice-register-dialog
+      :opened="noticeRegisterDialogOpened"
+      @close="noticeRegisterDialogOpened = false"
+    />
+
+    <notice-update-dialog
+      :opened="noticeUpdateDialogOpened"
+      @close="noticeUpdateDialogOpened = false"
     />
 
     <autofill-select-dialog />
@@ -74,29 +80,32 @@
 import { Component, Vue } from "vue-property-decorator";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import TestPurposeEditDialog from "@/components/pages/common/TestPurposeEditDialog.vue";
-import NoticeEditDialog from "@/components/pages/common/NoticeEditDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import CaptureToolHeader from "./organisms/captureToolHeader/CaptureToolHeader.vue";
 import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
+import NoticeRegisterDialog from "../../common/NoticeRegisterDialog.vue";
+import NoticeUpdateDialog from "../../common/NoticeUpdateDialog.vue";
 
 @Component({
   components: {
     "capture-tool-header": CaptureToolHeader,
     "capture-tool-footer": CaptureToolFooter,
     "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "notice-edit-dialog": NoticeEditDialog,
     "context-menu": ContextMenu,
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-select-dialog": AutofillSelectDialog,
+    "notice-register-dialog": NoticeRegisterDialog,
+    "notice-update-dialog": NoticeUpdateDialog,
   },
 })
 export default class ExpCapture extends Vue {
   private testPurposeEditDialogOpened = false;
-  private noticeEditDialogOpened = false;
+  private noticeUpdateDialogOpened = false;
+  private noticeRegisterDialogOpened = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -247,7 +256,13 @@ export default class ExpCapture extends Vue {
             index: index ?? null,
           },
         });
-        this.noticeEditDialogOpened = true;
+
+        if (index !== undefined) {
+          this.noticeUpdateDialogOpened = true;
+        } else {
+          this.noticeRegisterDialogOpened = true;
+        }
+
         return;
       default:
         return;

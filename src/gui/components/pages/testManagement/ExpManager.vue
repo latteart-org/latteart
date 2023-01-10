@@ -29,9 +29,14 @@
       :opened="testPurposeEditDialogOpened"
       @close="testPurposeEditDialogOpened = false"
     />
-    <notice-edit-dialog
-      :opened="noticeEditDialogOpened"
-      @close="noticeEditDialogOpened = false"
+    <notice-register-dialog
+      :opened="noticeRegisterDialogOpened"
+      @close="noticeRegisterDialogOpened = false"
+    />
+
+    <notice-update-dialog
+      :opened="noticeUpdateDialogOpened"
+      @close="noticeUpdateDialogOpened = false"
     />
 
     <context-menu
@@ -58,9 +63,10 @@ import AlertDialog from "@/components/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import TestPurposeEditDialog from "../common/TestPurposeEditDialog.vue";
-import NoticeEditDialog from "../common/NoticeEditDialog.vue";
 import ConfirmDialog from "../common/ConfirmDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
+import NoticeRegisterDialog from "../common/NoticeRegisterDialog.vue";
+import NoticeUpdateDialog from "../common/NoticeUpdateDialog.vue";
 
 @Component({
   components: {
@@ -68,9 +74,10 @@ import ContextMenu from "@/components/molecules/ContextMenu.vue";
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
     "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "notice-edit-dialog": NoticeEditDialog,
     "confirm-dialog": ConfirmDialog,
     "context-menu": ContextMenu,
+    "notice-register-dialog": NoticeRegisterDialog,
+    "notice-update-dialog": NoticeUpdateDialog,
   },
 })
 export default class Manager extends Vue {
@@ -79,7 +86,8 @@ export default class Manager extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private testPurposeEditDialogOpened = false;
-  private noticeEditDialogOpened = false;
+  private noticeUpdateDialogOpened = false;
+  private noticeRegisterDialogOpened = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -220,7 +228,13 @@ export default class Manager extends Vue {
             index: index ?? null,
           },
         });
-        this.noticeEditDialogOpened = true;
+
+        if (index !== undefined) {
+          this.noticeUpdateDialogOpened = true;
+        } else {
+          this.noticeRegisterDialogOpened = true;
+        }
+
         return;
       default:
         return;

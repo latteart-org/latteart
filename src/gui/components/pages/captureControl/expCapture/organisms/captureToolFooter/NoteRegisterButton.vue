@@ -32,7 +32,7 @@
       :opened="noteEditDialogOpened"
       @close="noteEditDialogOpened = false"
     />
-    <notice-edit-dialog
+    <notice-register-dialog
       :opened="noticeEditDialogOpened"
       @close="noticeEditDialogOpened = false"
     />
@@ -42,12 +42,12 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import NoteEditDialog from "@/components/pages/common/NoteEditDialog.vue";
-import NoticeEditDialog from "@/components/pages/common/NoticeEditDialog.vue";
+import NoticeRegisterDialog from "@/components/pages/common/NoticeRegisterDialog.vue";
 
 @Component({
   components: {
     "note-edit-dialog": NoteEditDialog,
-    "notice-edit-dialog": NoticeEditDialog,
+    "notice-register-dialog": NoticeRegisterDialog,
   },
 })
 export default class NoteRegisterButton extends Vue {
@@ -59,6 +59,11 @@ export default class NoteRegisterButton extends Vue {
   }
 
   private open() {
+    const sequence = this.$store.state.operationHistory.history.length;
+    this.$store.commit("operationHistory/selectOperation", { sequence });
+    this.$store.commit("operationHistory/selectOperationNote", {
+      selectedOperationNote: { sequence, index: null },
+    });
     if (this.$store.state.captureControl.testOption.shouldRecordTestPurpose) {
       this.noteEditDialogOpened = true;
     } else {
