@@ -29,9 +29,14 @@
       :opened="testPurposeEditDialogOpened"
       @close="testPurposeEditDialogOpened = false"
     />
-    <notice-edit-dialog
-      :opened="noticeEditDialogOpened"
-      @close="noticeEditDialogOpened = false"
+    <note-register-dialog
+      :opened="noteRegisterDialogOpened"
+      @close="noteRegisterDialogOpened = false"
+    />
+
+    <note-update-dialog
+      :opened="noteUpdateDialogOpened"
+      @close="noteUpdateDialogOpened = false"
     />
 
     <context-menu
@@ -58,9 +63,10 @@ import AlertDialog from "@/components/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import TestPurposeEditDialog from "../common/TestPurposeEditDialog.vue";
-import NoticeEditDialog from "../common/NoticeEditDialog.vue";
 import ConfirmDialog from "../common/ConfirmDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
+import NoteRegisterDialog from "../common/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "../common/NoteUpdateDialog.vue";
 
 @Component({
   components: {
@@ -68,9 +74,10 @@ import ContextMenu from "@/components/molecules/ContextMenu.vue";
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
     "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "notice-edit-dialog": NoticeEditDialog,
     "confirm-dialog": ConfirmDialog,
     "context-menu": ContextMenu,
+    "note-register-dialog": NoteRegisterDialog,
+    "note-update-dialog": NoteUpdateDialog,
   },
 })
 export default class Manager extends Vue {
@@ -79,7 +86,8 @@ export default class Manager extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private testPurposeEditDialogOpened = false;
-  private noticeEditDialogOpened = false;
+  private noteUpdateDialogOpened = false;
+  private noteRegisterDialogOpened = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -220,7 +228,13 @@ export default class Manager extends Vue {
             index: index ?? null,
           },
         });
-        this.noticeEditDialogOpened = true;
+
+        if (index !== undefined) {
+          this.noteUpdateDialogOpened = true;
+        } else {
+          this.noteRegisterDialogOpened = true;
+        }
+
         return;
       default:
         return;

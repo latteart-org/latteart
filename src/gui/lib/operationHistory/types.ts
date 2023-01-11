@@ -178,3 +178,13 @@ export type OperationForReplay = AutoOperation & {
   timestamp?: string;
   windowHandle?: string;
 };
+
+export interface NoteDialogInfo {
+  value: string;
+  details: string;
+  index: number | null;
+  tags: string[];
+  imageFilePath: string;
+  sequence: number;
+  maxSequence: number;
+}
