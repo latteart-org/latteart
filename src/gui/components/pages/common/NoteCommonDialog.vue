@@ -19,10 +19,7 @@
     <execute-dialog
       :opened="opened"
       :title="$store.getters.message('app.record-notice')"
-      @accept="
-        saveNotice();
-        close();
-      "
+      @accept="execute"
       @cancel="
         cancel();
         close();
@@ -79,11 +76,6 @@
         <popup-image :imageFileUrl="screenshot" />
       </template>
     </execute-dialog>
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
   </div>
 </template>
 
@@ -91,7 +83,6 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
-import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
@@ -102,11 +93,10 @@ import { NoteDialogInfo } from "@/lib/operationHistory/types";
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "error-message-dialog": ErrorMessageDialog,
     "popup-image": PopupImage,
   },
 })
-export default class NoticeCommonDialog extends Vue {
+export default class NoteCommonDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
   @Prop({ type: Object, default: undefined })
   public readonly noteInfo!: NoteDialogInfo;
@@ -125,9 +115,6 @@ export default class NoticeCommonDialog extends Vue {
   private maxSequence: number | null = null;
   private oldIndex: number | null = null;
   private shouldTakeScreenshot = false;
-
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
 
   private alertIsVisible = false;
 
@@ -169,8 +156,8 @@ export default class NoticeCommonDialog extends Vue {
       : "";
   }
 
-  private saveNotice() {
-    const args = {
+  private execute(): void {
+    const noteEditInfo = {
       oldSequence: this.oldSequence,
       oldIndex: this.oldIndex,
       newSequence: this.newTargetSequence,
@@ -179,36 +166,7 @@ export default class NoticeCommonDialog extends Vue {
       shouldTakeScreenshot: this.shouldTakeScreenshot,
       tags: this.newTags,
     } as NoteEditInfo;
-    (async () => {
-      try {
-        if (this.oldNote === "") {
-          const isCapturing = (
-            this.$store.state.captureControl as CaptureControlState
-          ).isCapturing;
-
-          if (isCapturing) {
-            await this.$store.dispatch("captureControl/takeNote", {
-              noteEditInfo: args,
-            });
-          } else {
-            await this.$store.dispatch("operationHistory/addNote", {
-              noteEditInfo: args,
-            });
-          }
-        } else {
-          await this.$store.dispatch("operationHistory/editNote", {
-            noteEditInfo: args,
-          });
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      }
-    })();
+    this.$emit("execute", noteEditInfo);
   }
 
   private cancel(): void {

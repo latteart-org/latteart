@@ -40,14 +40,14 @@
       @close="testPurposeEditDialogOpened = false"
     />
 
-    <notice-register-dialog
-      :opened="noticeRegisterDialogOpened"
-      @close="noticeRegisterDialogOpened = false"
+    <note-register-dialog
+      :opened="noteRegisterDialogOpened"
+      @close="noteRegisterDialogOpened = false"
     />
 
-    <notice-update-dialog
-      :opened="noticeUpdateDialogOpened"
-      @close="noticeUpdateDialogOpened = false"
+    <note-update-dialog
+      :opened="noteUpdateDialogOpened"
+      @close="noteUpdateDialogOpened = false"
     />
 
     <autofill-select-dialog />
@@ -86,8 +86,8 @@ import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.v
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
-import NoticeRegisterDialog from "../../common/NoticeRegisterDialog.vue";
-import NoticeUpdateDialog from "../../common/NoticeUpdateDialog.vue";
+import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
 
 @Component({
   components: {
@@ -98,14 +98,14 @@ import NoticeUpdateDialog from "../../common/NoticeUpdateDialog.vue";
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-select-dialog": AutofillSelectDialog,
-    "notice-register-dialog": NoticeRegisterDialog,
-    "notice-update-dialog": NoticeUpdateDialog,
+    "note-register-dialog": NoteRegisterDialog,
+    "note-update-dialog": NoteUpdateDialog,
   },
 })
 export default class ExpCapture extends Vue {
   private testPurposeEditDialogOpened = false;
-  private noticeUpdateDialogOpened = false;
-  private noticeRegisterDialogOpened = false;
+  private noteUpdateDialogOpened = false;
+  private noteRegisterDialogOpened = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -258,9 +258,9 @@ export default class ExpCapture extends Vue {
         });
 
         if (index !== undefined) {
-          this.noticeUpdateDialogOpened = true;
+          this.noteUpdateDialogOpened = true;
         } else {
-          this.noticeRegisterDialogOpened = true;
+          this.noteRegisterDialogOpened = true;
         }
 
         return;

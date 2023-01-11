@@ -28,31 +28,31 @@
       <v-icon>add_comment</v-icon>
     </v-btn>
 
-    <note-edit-dialog
-      :opened="noteEditDialogOpened"
-      @close="noteEditDialogOpened = false"
+    <take-not-with-purpose-dialog
+      :opened="takeNoteWithPurposeDialogOpened"
+      @close="takeNoteWithPurposeDialogOpened = false"
     />
-    <notice-register-dialog
-      :opened="noticeEditDialogOpened"
-      @close="noticeEditDialogOpened = false"
+    <take-note-dialog
+      :opened="takeNoteDialogOpened"
+      @close="takeNoteDialogOpened = false"
     />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import NoteEditDialog from "@/components/pages/common/NoteEditDialog.vue";
-import NoticeRegisterDialog from "@/components/pages/common/NoticeRegisterDialog.vue";
+import TakeNoteWithPurposeDialog from "@/components/pages/common/TakeNoteWithPurposeDialog.vue";
+import TakeNoteDialog from "@/components/pages/common/TakeNoteDialog.vue";
 
 @Component({
   components: {
-    "note-edit-dialog": NoteEditDialog,
-    "notice-register-dialog": NoticeRegisterDialog,
+    "take-not-with-purpose-dialog": TakeNoteWithPurposeDialog,
+    "take-note-dialog": TakeNoteDialog,
   },
 })
 export default class NoteRegisterButton extends Vue {
-  private noteEditDialogOpened = false;
-  private noticeEditDialogOpened = false;
+  private takeNoteWithPurposeDialogOpened = false;
+  private takeNoteDialogOpened = false;
 
   private get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
@@ -65,9 +65,9 @@ export default class NoteRegisterButton extends Vue {
       selectedOperationNote: { sequence, index: null },
     });
     if (this.$store.state.captureControl.testOption.shouldRecordTestPurpose) {
-      this.noteEditDialogOpened = true;
+      this.takeNoteWithPurposeDialogOpened = true;
     } else {
-      this.noticeEditDialogOpened = true;
+      this.takeNoteDialogOpened = true;
     }
   }
 }

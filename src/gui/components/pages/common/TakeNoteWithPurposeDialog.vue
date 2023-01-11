@@ -140,7 +140,7 @@ import PopupImage from "@/components/molecules/PopupImage.vue";
     "popup-image": PopupImage,
   },
 })
-export default class NoteEditDialog extends Vue {
+export default class TakeNoteWithPurposeDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private search = "";

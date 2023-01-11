@@ -16,26 +16,38 @@
 
 <template>
   <div>
-    <notice-common-dialog
+    <note-common-dialog
       :opened="opened"
       :noteInfo="noteInfo"
+      @execute="addNote"
       @close="close()"
+    />
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
     />
   </div>
 </template>
 
 <script lang="ts">
+import { NoteEditInfo } from "@/lib/captureControl/types";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import NoticeCommonDialog from "./NoticeCommonDialog.vue";
+import ErrorMessageDialog from "./ErrorMessageDialog.vue";
+import NoteCommonDialog from "./NoteCommonDialog.vue";
 
 @Component({
   components: {
-    "notice-common-dialog": NoticeCommonDialog,
+    "note-common-dialog": NoteCommonDialog,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class NoticeRegisterDialog extends Vue {
+export default class NoteRegisterDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
 
   private noteInfo: NoteDialogInfo = {
     value: "",
@@ -66,6 +78,24 @@ export default class NoticeRegisterDialog extends Vue {
       sequence: sequence,
       maxSequence: this.$store.state.operationHistory.history.length,
     };
+  }
+
+  private addNote(noteEditInfo: NoteEditInfo) {
+    (async () => {
+      this.close();
+      try {
+        await this.$store.dispatch("operationHistory/addNote", {
+          noteEditInfo,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
+      }
+    })();
   }
 
   private close(): void {
