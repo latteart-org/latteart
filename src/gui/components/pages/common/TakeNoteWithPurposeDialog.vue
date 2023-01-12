@@ -86,7 +86,10 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
-            <popup-image :imageFileUrl="screenshot" />
+            <thumbnail-image
+              v-if="isThumbnailVisible"
+              :imageFileUrl="screenshot"
+            />
           </v-card-text>
         </v-card>
 
@@ -130,14 +133,14 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import PopupImage from "@/components/molecules/PopupImage.vue";
+import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "popup-image": PopupImage,
+    "thumbnail-image": ThumbnailImage,
   },
 })
 export default class TakeNoteWithPurposeDialog extends Vue {
@@ -158,6 +161,8 @@ export default class TakeNoteWithPurposeDialog extends Vue {
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
+
+  private isThumbnailVisible = false;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -185,6 +190,11 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.screenshot =
       this.$store.state.operationHistory.history[sequence - 1].operation
         .imageFilePath ?? "";
+
+    this.isThumbnailVisible = false;
+    this.$nextTick(() => {
+      this.isThumbnailVisible = true;
+    });
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
