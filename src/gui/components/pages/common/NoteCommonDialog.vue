@@ -74,9 +74,9 @@
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
         <v-img
-          v-if="isImageDefault"
+          v-if="isSmallImage"
           :src="screenshot"
-          @click="isImageDefault = false"
+          @click="isSmallImage = false"
           class="default-Image"
         />
         <popup-image v-else :imageFileUrl="screenshot" />
@@ -124,7 +124,7 @@ export default class NoteCommonDialog extends Vue {
 
   private alertIsVisible = false;
 
-  private isImageDefault = true;
+  private isSmallImage = true;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -152,7 +152,7 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
-    this.isImageDefault = true;
+    this.isSmallImage = true;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },

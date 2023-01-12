@@ -86,7 +86,13 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
-            <popup-image :imageFileUrl="screenshot" />
+            <v-img
+              v-if="isSmallImage"
+              :src="screenshot"
+              @click="isSmallImage = false"
+              class="default-Image"
+            />
+            <popup-image v-else :imageFileUrl="screenshot" />
           </v-card-text>
         </v-card>
 
@@ -159,6 +165,8 @@ export default class TakeNoteWithPurposeDialog extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private isSmallImage = true;
+
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
   });
@@ -185,6 +193,7 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.screenshot =
       this.$store.state.operationHistory.history[sequence - 1].operation
         .imageFilePath ?? "";
+    this.isSmallImage = true;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -283,3 +292,10 @@ export default class TakeNoteWithPurposeDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.default-Image
+  height: 140px
+  width: 140px
+  cursor: pointer
+</style>
