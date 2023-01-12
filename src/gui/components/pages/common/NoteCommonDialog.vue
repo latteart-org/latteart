@@ -73,7 +73,13 @@
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <popup-image :imageFileUrl="screenshot" />
+        <v-img
+          v-if="isImageDefault"
+          :src="screenshot"
+          @click="isImageDefault = false"
+          class="default-Image"
+        />
+        <popup-image v-else :imageFileUrl="screenshot" />
       </template>
     </execute-dialog>
   </div>
@@ -118,6 +124,8 @@ export default class NoteCommonDialog extends Vue {
 
   private alertIsVisible = false;
 
+  private isImageDefault = true;
+
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
   });
@@ -144,6 +152,7 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
+    this.isImageDefault = true;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -214,3 +223,10 @@ export default class NoteCommonDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.default-Image
+  height: 140px
+  width: 140px
+  cursor: pointer
+</style>
