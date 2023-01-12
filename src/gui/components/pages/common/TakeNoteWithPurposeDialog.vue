@@ -86,13 +86,7 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
-            <v-img
-              v-if="isSmallImage"
-              :src="screenshot"
-              @click="isSmallImage = false"
-              class="default-Image"
-            />
-            <popup-image v-else :imageFileUrl="screenshot" />
+            <thumbnail-image :imageFileUrl="screenshot" :opened="opened" />
           </v-card-text>
         </v-card>
 
@@ -136,14 +130,14 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import PopupImage from "@/components/molecules/PopupImage.vue";
+import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "popup-image": PopupImage,
+    "thumbnail-image": ThumbnailImage,
   },
 })
 export default class TakeNoteWithPurposeDialog extends Vue {
@@ -164,8 +158,6 @@ export default class TakeNoteWithPurposeDialog extends Vue {
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-
-  private isSmallImage = true;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -193,7 +185,6 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.screenshot =
       this.$store.state.operationHistory.history[sequence - 1].operation
         .imageFilePath ?? "";
-    this.isSmallImage = true;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -292,10 +283,3 @@ export default class TakeNoteWithPurposeDialog extends Vue {
   }
 }
 </script>
-
-<style lang="sass" scoped>
-.default-Image
-  height: 140px
-  width: 140px
-  cursor: pointer
-</style>

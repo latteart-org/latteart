@@ -73,13 +73,7 @@
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <v-img
-          v-if="isSmallImage"
-          :src="screenshot"
-          @click="isSmallImage = false"
-          class="default-Image"
-        />
-        <popup-image v-else :imageFileUrl="screenshot" />
+        <thumbnail-image :imageFileUrl="screenshot" :opened="opened" />
       </template>
     </execute-dialog>
   </div>
@@ -92,14 +86,14 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
-import PopupImage from "@/components/molecules/PopupImage.vue";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
+import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "popup-image": PopupImage,
+    "thumbnail-image": ThumbnailImage,
   },
 })
 export default class NoteCommonDialog extends Vue {
@@ -123,8 +117,6 @@ export default class NoteCommonDialog extends Vue {
   private shouldTakeScreenshot = false;
 
   private alertIsVisible = false;
-
-  private isSmallImage = true;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -152,7 +144,6 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
-    this.isSmallImage = true;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -223,10 +214,3 @@ export default class NoteCommonDialog extends Vue {
   }
 }
 </script>
-
-<style lang="sass" scoped>
-.default-Image
-  height: 140px
-  width: 140px
-  cursor: pointer
-</style>
