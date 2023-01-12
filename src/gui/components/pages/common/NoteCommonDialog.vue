@@ -69,11 +69,11 @@
         <v-checkbox
           v-if="oldSequence === null && oldIndex === null"
           v-model="shouldTakeScreenshot"
-          :disabled="alertIsVisible"
+          :disabled="isAlertVisible"
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <thumbnail-image :imageFileUrl="screenshot" :opened="opened" />
+        <thumbnail-image v-if="isThumbnailVisible" :imageFileUrl="screenshot" />
       </template>
     </execute-dialog>
   </div>
@@ -116,7 +116,9 @@ export default class NoteCommonDialog extends Vue {
   private oldIndex: number | null = null;
   private shouldTakeScreenshot = false;
 
-  private alertIsVisible = false;
+  private isAlertVisible = false;
+
+  private isThumbnailVisible = false;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -128,7 +130,7 @@ export default class NoteCommonDialog extends Vue {
       return;
     }
 
-    this.alertIsVisible =
+    this.isAlertVisible =
       (this.$store.state.captureControl as CaptureControlState).captureSession
         ?.isAlertVisible ?? false;
 
@@ -144,6 +146,10 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
+    this.isThumbnailVisible = false;
+    this.$nextTick(() => {
+      this.isThumbnailVisible = true;
+    });
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -151,7 +157,7 @@ export default class NoteCommonDialog extends Vue {
   }
 
   private get takeScreenshotErrorMessage(): string {
-    return this.alertIsVisible
+    return this.isAlertVisible
       ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
       : "";
   }

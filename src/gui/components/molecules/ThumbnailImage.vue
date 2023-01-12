@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import PopupImage from "./PopupImage.vue";
 
 @Component({
@@ -37,17 +37,8 @@ import PopupImage from "./PopupImage.vue";
 })
 export default class ThumbnailImage extends Vue {
   @Prop({ type: String, default: "" }) public readonly imageFileUrl!: string;
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private isSmallImage = true;
-
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-    this.isSmallImage = true;
-  }
 
   private changeImageSize() {
     this.isSmallImage = false;

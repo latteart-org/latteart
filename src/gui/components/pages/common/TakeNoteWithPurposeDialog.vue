@@ -86,7 +86,10 @@
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
-            <thumbnail-image :imageFileUrl="screenshot" :opened="opened" />
+            <thumbnail-image
+              v-if="isThumbnailVisible"
+              :imageFileUrl="screenshot"
+            />
           </v-card-text>
         </v-card>
 
@@ -159,6 +162,8 @@ export default class TakeNoteWithPurposeDialog extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private isThumbnailVisible = false;
+
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
   });
@@ -185,6 +190,11 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.screenshot =
       this.$store.state.operationHistory.history[sequence - 1].operation
         .imageFilePath ?? "";
+
+    this.isThumbnailVisible = false;
+    this.$nextTick(() => {
+      this.isThumbnailVisible = true;
+    });
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
