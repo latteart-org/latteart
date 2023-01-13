@@ -204,9 +204,9 @@ export class TestResultRepository {
     }
   }
 
-  public async getSequenceView(
+  public async generateSequenceView(
     testResultId: string,
-    option: TestResultViewOptionForRepository
+    option?: TestResultViewOptionForRepository
   ): Promise<RepositoryAccessResult<SequenceViewForRepository>> {
     try {
       const url = `api/v1/test-results/${testResultId}/sequence-views`;

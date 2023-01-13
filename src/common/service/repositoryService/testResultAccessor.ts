@@ -530,18 +530,19 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess(result.data);
   }
 
-  async getSequenceView(
-    option: TestResultViewOption
+  async generateSequenceView(
+    option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>> {
-    const result = await this.repositories.testResultRepository.getSequenceView(
-      this.testResultId,
-      option
-    );
+    const result =
+      await this.repositories.testResultRepository.generateSequenceView(
+        this.testResultId,
+        option
+      );
 
     if (result.isFailure()) {
       const error: ServiceError = {
-        errorCode: "get_sequence_view_failed",
-        message: "Get Sequence View failed.",
+        errorCode: "generate_sequence_view_failed",
+        message: "Generate Sequence View failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

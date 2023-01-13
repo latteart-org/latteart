@@ -558,7 +558,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.repositoryService.createTestResultAccessor(
         context.state.testResultInfo.id
       );
-    const result = await testResult.getSequenceView(payload.viewOption);
+    const result = await testResult.generateSequenceView(payload.viewOption);
 
     if (result.isFailure()) {
       return;

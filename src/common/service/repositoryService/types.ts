@@ -171,11 +171,11 @@ export type TestResultAccessor = {
   ): Promise<ServiceResult<TestStep>>;
 
   /**
-   * get Sequence View of Test Result
+   * generate Sequence View of Test Result
    * @param option option
    */
-  getSequenceView(
-    option: TestResultViewOption
+  generateSequenceView(
+    option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>>;
 };
 
@@ -200,4 +200,4 @@ export type RepositoryServiceErrorCode =
   | "delete_test_purpose_failed"
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
-  | "get_sequence_view_failed";
+  | "generate_sequence_view_failed";
