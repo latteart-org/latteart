@@ -39,6 +39,7 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -82,11 +83,11 @@ export default class TestResultFileExportButton extends Vue {
   }
 
   private get sequence() {
-    const history = this.$store.getters["operationHistory/getHistory"]();
-    if (history.length === 0) {
-      return 0;
-    }
-    return history[history.length - 1].operation.sequence;
+    const history = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).history;
+
+    return history.at(-1)?.operation.sequence ?? 0;
   }
 
   private exportData() {

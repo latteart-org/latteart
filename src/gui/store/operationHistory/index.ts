@@ -24,7 +24,6 @@ import { RootState } from "..";
 import getters from "./getters";
 import mutations from "./mutations";
 import actions from "./actions";
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { CoverageSource } from "src/common";
@@ -67,11 +66,6 @@ export interface OperationHistoryState {
    * Window informations.
    */
   windows: WindowInfo[];
-
-  /**
-   * Screen history.
-   */
-  screenHistory: ScreenHistory;
 
   /**
    * Element informations for calculating screen element coverage.
@@ -181,11 +175,6 @@ export interface OperationHistoryState {
   selectedScreenDef: string;
 
   /**
-   * Selected screen transition.
-   */
-  selectedScreenTransition: ScreenTransition | null;
-
-  /**
    * Displayed operations.
    */
   displayedOperations: number[];
@@ -251,7 +240,6 @@ const state: OperationHistoryState = {
   testStepIds: [],
   history: [],
   windows: [],
-  screenHistory: new ScreenHistory(),
   coverageSources: [],
   sequenceDiagramGraph: null,
   windowHandleToScreenTransitionDiagramGraph: {},
@@ -263,7 +251,6 @@ const state: OperationHistoryState = {
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
   selectedScreenDef: "",
-  selectedScreenTransition: null,
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
   checkedOperations: [],

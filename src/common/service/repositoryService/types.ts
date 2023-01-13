@@ -23,8 +23,13 @@ import {
   InputElementInfo,
   TestStepNote,
   Note,
+  TestResultViewOption,
 } from "../types";
 import { RepositoryContainer } from "./testResultAccessor";
+import {
+  SequenceViewForRepository,
+  SequenceViewNodeForRepository,
+} from "src/common/gateway/repository";
 
 /**
  * Repository Service
@@ -164,7 +169,19 @@ export type TestResultAccessor = {
     testPurposeId: string,
     testStepId: string
   ): Promise<ServiceResult<TestStep>>;
+
+  /**
+   * generate Sequence View of Test Result
+   * @param option option
+   */
+  generateSequenceView(
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<SequenceView>>;
 };
+
+export type SequenceView = SequenceViewForRepository;
+
+export type SequenceViewNode = SequenceViewNodeForRepository;
 
 export type RepositoryServiceErrorCode =
   | "create_empty_test_result_failed"
@@ -182,4 +199,5 @@ export type RepositoryServiceErrorCode =
   | "edit_test_purpose_failed"
   | "delete_test_purpose_failed"
   | "link_test_purpose_to_test_step_failed"
-  | "unlink_test_purpose_from_test_step_failed";
+  | "unlink_test_purpose_from_test_step_failed"
+  | "generate_sequence_view_failed";

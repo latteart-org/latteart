@@ -19,15 +19,15 @@ import { OperationHistoryState } from ".";
 import { RootState } from "..";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import {
-  WindowInfo,
   Edge,
   ScreenTransition,
   OperationWithNotes,
   AutofillConditionGroup,
   AutoOperation,
 } from "@/lib/operationHistory/types";
-import SequenceDiagramGraphConverter, {
+import {
   SequenceDiagramGraphCallback,
+  convertToSequenceDiagramGraph,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import * as Coverage from "@/lib/operationHistory/Coverage";
@@ -44,9 +44,16 @@ import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { convertNote } from "@/lib/common/replyDataConverter";
-import { ServiceSuccess, ElementInfo } from "../../../common";
+import {
+  ServiceSuccess,
+  TestResultViewOption,
+  CoverageSource,
+} from "../../../common";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
+import OperationHistorySelector from "@/lib/operationHistory/OperationHistorySelector";
+import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
+import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -537,21 +544,29 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Build a sequence diagram from passed informations.
    * @param context Action context.
-   * @param payload.screenHistory Screen history.
-   * @param payload.windowHandles Window handles.
+   * @param payload.view Sequence View model.
    * @param payload.callback The callback when the sequence diagram has operated.
    */
   async buildSequenceDiagramGraph(
     context,
     payload: {
-      screenHistory: ScreenHistory;
-      windows: WindowInfo[];
+      viewOption: TestResultViewOption;
       callback: SequenceDiagramGraphCallback;
     }
   ) {
-    const graph = await SequenceDiagramGraphConverter.convert(
-      payload.screenHistory,
-      payload.windows,
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        context.state.testResultInfo.id
+      );
+    const result = await testResult.generateSequenceView(payload.viewOption);
+
+    if (result.isFailure()) {
+      return;
+    }
+
+    const sequenceView = result.data;
+    const graph = await convertToSequenceDiagramGraph(
+      sequenceView,
       payload.callback
     );
 
@@ -578,16 +593,38 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async buildScreenTransitionDiagramGraph(
     context,
     payload: {
-      screenHistory: ScreenHistory;
-      windowHandles: string[];
+      viewOption: TestResultViewOption;
       callback: FlowChartGraphCallback;
     }
   ) {
+    const config = context.rootState.projectSettings.config.screenDefinition;
+    const screenDefFactory = new ScreenDefFactory(config);
+    const history = context.state.history.map((item) => {
+      const screenDef = screenDefFactory.createFrom(
+        item.operation.title,
+        item.operation.url,
+        item.operation.keywordSet
+      );
+      const operation = OperationForGUI.createFromOtherOperation({
+        other: item.operation,
+        overrideParams: { screenDef },
+      });
+
+      return { ...item, operation };
+    });
+
+    const screenHistory = ScreenHistory.createFromOperationHistory(
+      history,
+      context.state.coverageSources
+    );
+
+    const windowHandles = context.state.windows.map(({ value }) => value);
+
     const graphAndWindowHandles = await Promise.all(
-      payload.windowHandles.map(async (windowHandle) => {
+      windowHandles.map(async (windowHandle) => {
         return {
           graph: await ScreenTransitionDiagramGraphConverter.convert(
-            payload.screenHistory,
+            screenHistory,
             windowHandle,
             payload.callback
           ),
@@ -622,15 +659,32 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async buildElementCoverages(
     context,
-    payload: {
-      screenHistory: ScreenHistory;
-      inclusionTags: string[];
-    }
+    payload: { viewOption: TestResultViewOption }
   ) {
-    const coverages = await Coverage.getCoverages(
-      payload.screenHistory,
-      payload.inclusionTags
+    const config = context.rootState.projectSettings.config.screenDefinition;
+    const screenDefFactory = new ScreenDefFactory(config);
+    const history = context.state.history.map((item) => {
+      const screenDef = screenDefFactory.createFrom(
+        item.operation.title,
+        item.operation.url,
+        item.operation.keywordSet
+      );
+      const operation = OperationForGUI.createFromOtherOperation({
+        other: item.operation,
+        overrideParams: { screenDef },
+      });
+
+      return { ...item, operation };
+    });
+
+    const screenHistory = ScreenHistory.createFromOperationHistory(
+      history,
+      context.state.coverageSources
     );
+    const inclusionTags =
+      context.rootState.projectSettings.config.coverage?.include?.tags ?? [];
+
+    const coverages = await Coverage.getCoverages(screenHistory, inclusionTags);
 
     context.commit("setElementCoverages", { coverages });
   },
@@ -645,42 +699,30 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenHistoryIsUpdating: true,
       });
 
-      const screenHistory = ScreenHistory.createFromOperationHistory(
-        context.getters.getHistory(),
-        context.state.coverageSources
-      );
-
-      context.commit("setScreenHistory", { screenHistory });
-
       context.commit("clearModels");
 
-      const selectScreenTransition = (
-        screenTransition: ScreenTransition | null
-      ) => {
-        context.commit("selectScreenTransition", { screenTransition });
-
-        const inputValueTable = new InputValueTable();
-        const selectedScreenTransitions: Array<{
-          intention: string;
-          transitions: Array<{
-            sourceScreenDef: string;
-            targetScreenDef: string;
-            history: OperationWithNotes[];
-            screenElements: ElementInfo[];
-            inputElements: ElementInfo[];
-          }>;
-        }> = context.getters.getSelectedScreenTransitions();
-
-        for (const { intention, transitions } of selectedScreenTransitions) {
-          inputValueTable.registerScreenTransitionToIntentions(
-            intention,
-            ...transitions
-          );
-        }
-
-        context.commit("setInputValueTable", {
-          inputValueTable,
-        });
+      const screenDefinitionConfig =
+        context.rootState.projectSettings.config.screenDefinition;
+      const viewOption = {
+        node: {
+          unit: screenDefinitionConfig.screenDefType,
+          definitions: screenDefinitionConfig.conditionGroups
+            .filter(({ isEnabled }) => isEnabled)
+            .map((group) => {
+              return {
+                name: group.screenName,
+                conditions: group.conditions
+                  .filter(({ isEnabled }) => isEnabled)
+                  .map((condition) => {
+                    return {
+                      target: condition.definitionType,
+                      method: condition.matchType,
+                      value: condition.word,
+                    };
+                  }),
+              };
+            }),
+        },
       };
 
       const selectOperation = (sequence: number) => {
@@ -698,28 +740,25 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       await context.dispatch("buildSequenceDiagramGraph", {
-        screenHistory: context.state.screenHistory,
-        windows: context.state.windows,
+        viewOption,
         callback: {
-          onClickActivationBox: (history: OperationWithNotes[]) => {
-            const firstItem = history[0] as OperationWithNotes | undefined;
+          onClickActivationBox: (sequences: number[]) => {
+            const firstSequence = sequences.at(0);
 
-            if (!firstItem) {
+            if (!firstSequence) {
               return;
             }
 
-            selectOperation(firstItem.operation.sequence);
+            selectOperation(firstSequence);
           },
-          onClickEdge: (edge: Edge) => {
-            const lastItem = edge.operationHistory[
-              edge.operationHistory.length - 1
-            ] as OperationWithNotes | undefined;
+          onClickEdge: (sequences: number[]) => {
+            const lastSequence = sequences.at(-1);
 
-            if (!lastItem) {
+            if (lastSequence === undefined) {
               return;
             }
 
-            selectOperation(lastItem.operation.sequence);
+            selectOperation(lastSequence);
           },
           onClickScreenRect: selectOperation,
           onClickNote: (note: {
@@ -736,43 +775,135 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       });
 
+      const buildInputValueTable = (params: {
+        selectedScreenTransition: ScreenTransition | null;
+        screenDefinitionConfig: {
+          screenDefType: "title" | "url";
+          conditionGroups: {
+            isEnabled: boolean;
+            screenName: string;
+            conditions: {
+              isEnabled: boolean;
+              definitionType: "title" | "url" | "keyword";
+              matchType: "contains" | "equals" | "regex";
+              word: string;
+            }[];
+          }[];
+        };
+        coverageSources: CoverageSource[];
+        history: OperationWithNotes[];
+        selectedScreenDef: string;
+        selectedWindowHandle: string;
+      }) => {
+        const config = params.screenDefinitionConfig;
+        const screenDefFactory = new ScreenDefFactory(config);
+        const history = params.history.map((item) => {
+          const screenDef = screenDefFactory.createFrom(
+            item.operation.title,
+            item.operation.url,
+            item.operation.keywordSet
+          );
+          const operation = OperationForGUI.createFromOtherOperation({
+            other: item.operation,
+            overrideParams: { screenDef },
+          });
+
+          return { ...item, operation };
+        });
+
+        const scenarios = new OperationHistorySelector(
+          history
+        ).groupByIntention();
+
+        const selectedScreenTransitions = scenarios.map((scenario) => {
+          const screenHistory = ScreenHistory.createFromOperationHistory(
+            scenario.history,
+            params.coverageSources
+          );
+
+          const transitions = screenHistory
+            .collectScreenTransitions(params.selectedScreenDef)
+            .map((transition) => {
+              return {
+                sourceScreenDef: transition.source.screenDef,
+                targetScreenDef: transition.target.screenDef,
+                history: transition.history.filter(({ operation }) => {
+                  return operation.windowHandle === params.selectedWindowHandle;
+                }),
+                screenElements: transition.screenElements,
+                inputElements: transition.inputElements,
+              };
+            })
+            .filter((transition) => {
+              if (transition.history.length === 0) {
+                return false;
+              }
+
+              const selectedTransition = params.selectedScreenTransition;
+
+              if (!selectedTransition) {
+                return true;
+              }
+
+              return (
+                transition.sourceScreenDef ===
+                  selectedTransition.source.screenDef &&
+                transition.targetScreenDef ===
+                  selectedTransition.target.screenDef
+              );
+            });
+
+          return {
+            intention: scenario.intention?.value ?? "",
+            transitions,
+          };
+        });
+
+        return selectedScreenTransitions.reduce(
+          (acc, { intention, transitions }) => {
+            acc.registerScreenTransitionToIntentions(intention, ...transitions);
+            return acc;
+          },
+          new InputValueTable()
+        );
+      };
+
+      const selectScreenTransition = (
+        screenTransition: ScreenTransition | null
+      ) => {
+        const inputValueTable = buildInputValueTable({
+          selectedScreenTransition: screenTransition,
+          screenDefinitionConfig:
+            context.rootState.projectSettings.config.screenDefinition,
+          coverageSources: context.state.coverageSources,
+          history: context.state.history,
+          selectedScreenDef: context.state.selectedScreenDef,
+          selectedWindowHandle: context.state.selectedWindowHandle,
+        });
+
+        context.commit("setInputValueTable", { inputValueTable });
+      };
+
       await context.dispatch("buildScreenTransitionDiagramGraph", {
-        screenHistory: context.state.screenHistory,
-        windowHandles: context.state.windows.map(({ value }) => value),
+        viewOption,
         callback: {
-          onClickEdge: (edge: Edge) => {
-            if (!edge.operationHistory[0]) {
+          onClickEdge: ({ source, target, operationHistory }: Edge) => {
+            if (!operationHistory[0]) {
               return;
             }
 
-            selectOperation(edge.operationHistory[0].operation.sequence);
-
-            selectScreenTransition({
-              source: {
-                title: edge.source.title,
-                url: edge.source.url,
-                screenDef: edge.source.screenDef,
-              },
-              target: {
-                title: edge.target.title,
-                url: edge.target.url,
-                screenDef: edge.target.screenDef,
-              },
-            });
+            selectOperation(operationHistory[0].operation.sequence);
+            selectScreenTransition({ source, target });
           },
           onClickScreenRect: (sequence: number) => {
             selectOperation(sequence);
-
             selectScreenTransition(null);
           },
         },
       });
 
       await context.dispatch("buildElementCoverages", {
-        screenHistory: context.state.screenHistory,
-        inclusionTags:
-          context.rootState.projectSettings.config.coverage?.include?.tags ??
-          [],
+        viewOption,
       });
     } finally {
       context.commit("setScreenHistoryIsUpdating", {

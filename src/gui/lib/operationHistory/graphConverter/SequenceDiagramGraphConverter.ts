@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import {
-  Edge,
-  WindowInfo,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
 import SequenceDiagramGraphExtender from "../mermaidGraph/extender/SequenceDiagramGraphExtender";
 import TextUtil from "./TextUtil";
+import { SequenceView, SequenceViewNode } from "src/common";
 
 interface NoteInfo {
-  id: number;
   sequence: number;
   index?: number;
   type: string;
@@ -33,9 +27,9 @@ interface NoteInfo {
 }
 
 export interface SequenceDiagramGraphCallback {
-  onClickActivationBox: (history: OperationWithNotes[]) => void;
-  onClickEdge: (edge: Edge) => void;
-  onClickScreenRect: (screenRectIndex: number) => void;
+  onClickActivationBox: (sequences: number[]) => void;
+  onClickEdge: (sequences: number[]) => void;
+  onClickScreenRect: (sequence: number) => void;
   onClickNote: (note: NoteInfo) => void;
   onRightClickNote: (
     note: NoteInfo,
@@ -47,513 +41,351 @@ export interface SequenceDiagramGraphCallback {
   ) => void;
 }
 
-function buildParticipantText(screenIndex: number, screenDef: string) {
-  return `participant s${screenIndex} as ${screenDef}`;
-}
-
-function buildDummyNoteText(
-  position: "left of" | "right of",
-  screenIndex: number
-) {
-  return `Note ${position} s${screenIndex}: DUMMY_COMMENT`;
-}
-
-function buildNoteText(
-  position: "left of" | "right of",
-  screenIndex: number,
-  value: string
-) {
-  return `Note ${position} s${screenIndex}: ${value}`;
-}
-
-function buildScreenTransitionText(
-  sourceScreenIndex: number,
-  destScreenIndex: number,
-  description: string
-) {
-  return `s${sourceScreenIndex} ->> s${destScreenIndex}: ${description}`;
-}
-
-function buildNoScreenTransitionText(
-  sourceScreenIndex: number,
-  destScreenIndex: number
-) {
-  return `s${sourceScreenIndex} --x s${destScreenIndex}: `;
-}
-
-function buildActivateText(screenIndex: number) {
-  return `activate s${screenIndex}`;
-}
-
-function buildDeactivateText(screenIndex: number) {
-  return `deactivate s${screenIndex}`;
-}
-
 /**
- * A class that performs conversions related to Mermaid's sequence diagram display.
+ * Convert Sequence View model to Diagram Graph.
+ * @param screenHistory  Screen transition history.
+ * @param windows Window informations.
+ * @param callback.onClickEdge  Callback function called when you click Edge.
+ * @param callback.onClickScreenRect  Callback function called when Rect is clicked.
+ * @param callback.onClickNote  Callback function called by clicking Note.
+ * @param callback.onRightClickNote  Callback function called by right-clicking on Note.
+ * @param callback.onRightClickLoopArea  Callback function called by right-clicking on LoopArea.
+ * @returns Graph text and graph extension information.
  */
-export default class SequenceDiagramGraphConverter {
-  /**
-   *
-   * @param screenHistory  Screen transition history.
-   * @param windows Window informations.
-   * @param callback.onClickEdge  Callback function called when you click Edge.
-   * @param callback.onClickScreenRect  Callback function called when Rect is clicked.
-   * @param callback.onClickNote  Callback function called by clicking Note.
-   * @param callback.onRightClickNote  Callback function called by right-clicking on Note.
-   * @param callback.onRightClickLoopArea  Callback function called by right-clicking on LoopArea.
-   * @returns Graph text and graph extension information.
-   */
-  public static async convert(
-    screenHistory: ScreenHistory,
-    windows: WindowInfo[],
-    callback: SequenceDiagramGraphCallback = {
-      onClickActivationBox: () => {
-        /* Do nothing */
-      },
-      onClickEdge: () => {
-        /* Do nothing */
-      },
-      onClickScreenRect: () => {
-        /* Do nothing */
-      },
-      onClickNote: () => {
-        /* Do nothing */
-      },
-      onRightClickNote: () => {
-        /* Do nothing */
-      },
-      onRightClickLoopArea: () => {
-        /* Do nothing */
-      },
-    }
-  ): Promise<MermaidGraph> {
-    const edges: Edge[] = [];
-    let nameMap = new Map<number, string>();
-    const newNameMap = new Map<number, string>();
+export async function convertToSequenceDiagramGraph(
+  view: SequenceView,
+  callback: SequenceDiagramGraphCallback = {
+    onClickActivationBox: () => {
+      /* Do nothing */
+    },
+    onClickEdge: () => {
+      /* Do nothing */
+    },
+    onClickScreenRect: () => {
+      /* Do nothing */
+    },
+    onClickNote: () => {
+      /* Do nothing */
+    },
+    onRightClickNote: () => {
+      /* Do nothing */
+    },
+    onRightClickLoopArea: () => {
+      /* Do nothing */
+    },
+  }
+): Promise<MermaidGraph> {
+  const source = extractGraphSource(view);
 
-    const appearedScreens = screenHistory.appearedScreens;
+  const graphText = buildGraphText(source);
 
-    // Text of the screen definition part in the mermaid graph.
-    const screenDefinitionTexts = appearedScreens.map(
-      (currentScreen, currentIndex) => {
-        const screenDef = SequenceDiagramGraphConverter.displayScreenDefOptimal(
-          currentIndex,
-          newNameMap,
-          currentScreen.screenDef,
-          15
-        );
-        return `${buildParticipantText(currentIndex, screenDef)}`;
+  const notes = view.scenarios
+    .flatMap(({ nodes }) => nodes)
+    .flatMap(({ testSteps }) => testSteps)
+    .flatMap((testStep) => {
+      if (!testStep.notes) {
+        return [];
       }
-    );
 
-    // Build mermaid graph text.
-    const notes: NoteInfo[] = [];
-    const intentions: NoteInfo[] = [];
+      return testStep.notes.map((note, index) => {
+        return {
+          sequence: source.testStepIdToSequence.get(testStep.id) ?? 0,
+          index,
+          type: note.tags.includes("bug") ? "bug" : "notice",
+          details: note.details ?? "",
+        };
+      });
+    });
 
-    let currentIntention = "";
-    let currentWindowHandle = "";
-    let hasBugOrNoticeInScopeOfWindowHandle = false;
-    let startWindowHandleScope = true;
+  const testPurposes = view.scenarios.flatMap(({ testPurpose, nodes }) => {
+    if (!testPurpose) {
+      return [];
+    }
 
-    const graphTextSource = screenHistory.body.map((currentScreen) => {
+    const firstTestStepId = nodes.at(0)?.testSteps.at(0)?.id ?? "";
+    const firstSequence = source.testStepIdToSequence.get(firstTestStepId) ?? 0;
+
+    return [
+      {
+        sequence: firstSequence,
+        type: "intention",
+        details: testPurpose.details ?? "",
+      },
+    ];
+  });
+
+  const edges = view.scenarios
+    .flatMap(({ nodes }) => nodes)
+    .map((node, index, nodes) => {
+      const nextNode = nodes.at(index + 1);
+
       return {
-        operationHistory: currentScreen.operationHistory,
-        screenDef: currentScreen.screenDef,
-        title: currentScreen.title,
-        url: currentScreen.url,
+        source: { title: "", url: "", screenDef: node.screenId },
+        target: {
+          title: "",
+          url: "",
+          screenDef: (nextNode ?? node).screenId,
+        },
+        sequences: node.testSteps.flatMap((testStep) => {
+          const sequence = source.testStepIdToSequence.get(testStep.id);
+
+          if (sequence === undefined) {
+            return [];
+          }
+
+          return [sequence];
+        }),
       };
     });
 
-    const graphTextSteps: string[] = [];
+  const graphExtender = new SequenceDiagramGraphExtender({
+    callback: {
+      onClickActivationBox: (index: number) =>
+        callback.onClickActivationBox(edges[index].sequences),
+      onClickEdge: (index: number) =>
+        callback.onClickEdge(edges[index].sequences),
+      onClickScreenRect: (index: number) =>
+        callback.onClickScreenRect(
+          source.testStepIdToSequence.get(
+            view.scenarios
+              .flatMap(({ nodes }) => nodes)
+              .find(({ screenId }) => screenId === view.screens[index].id)
+              ?.testSteps.at(0)?.id ?? ""
+          ) ?? 0
+        ),
+      onClickNote: (index: number) => callback.onClickNote(notes[index]),
+      onRightClickNote: (
+        index: number,
+        eventInfo: { clientX: number; clientY: number }
+      ) => {
+        callback.onRightClickNote(notes[index], eventInfo);
+      },
+      onRightClickLoopArea: (
+        index: number,
+        eventInfo: { clientX: number; clientY: number }
+      ) => {
+        callback.onRightClickLoopArea(testPurposes[index], eventInfo);
+      },
+    },
+    tooltipTextsOfNote: notes.map((noteInfo) => noteInfo.details),
+    tooltipTextsOfLoopArea: testPurposes.map(
+      (intentionInfo) => intentionInfo.details
+    ),
+    nameMap: new Map(view.screens.map(({ name }, index) => [index, name])),
+  });
 
-    const addDummyComment = (preScreenId: number, currentScreenId: number) => {
-      const dummyCommentPosition =
-        currentScreenId > preScreenId ? "left of" : "right of";
+  console.log(graphText);
 
-      graphTextSteps.push(
-        buildDummyNoteText(dummyCommentPosition, currentScreenId)
-      );
-    };
+  return {
+    graphText,
+    graphExtender,
+  };
+}
 
-    for (const [currentIndex, currentScreen] of graphTextSource.entries()) {
-      const currentScreenId = appearedScreens.findIndex((screen) => {
-        return screen.screenDef === currentScreen.screenDef;
-      });
+function extractGraphSource(view: SequenceView) {
+  const windowIdToName = new Map(
+    view.windows.map(({ id, name }) => [id, name])
+  );
 
-      const preScreen = graphTextSource[currentIndex - 1];
-      const preScreenId = preScreen
-        ? appearedScreens.findIndex((screen) => {
-            return screen.screenDef === preScreen.screenDef;
-          })
-        : 0;
+  const testStepIdToSequence = new Map(
+    view.scenarios
+      .flatMap(({ nodes }) =>
+        nodes.flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
+      )
+      .map((id, index) => [id, index + 1])
+  );
 
-      // Screen transition.
-      if (currentIndex > 0) {
-        const lastOperation =
-          preScreen.operationHistory[preScreen.operationHistory.length - 1]
-            .operation;
-        const lastOperationElementValue =
-          lastOperation.elementInfo === null
-            ? ""
-            : TextUtil.ellipsis(
-                TextUtil.toSingleLine(lastOperation.textValue),
-                20
-              );
-        const transitionText = `(${lastOperation.sequence})${
-          lastOperation.type
-        }: ${TextUtil.escapeSpecialCharacters(lastOperationElementValue)}`;
+  const nodes = view.scenarios.flatMap((scenario) => {
+    const testPurposeSequence = testStepIdToSequence.get(
+      scenario.nodes.at(0)?.testSteps.at(0)?.id ?? ""
+    );
+    if (testPurposeSequence === undefined) {
+      return [];
+    }
 
-        if (
-          lastOperation.windowHandle ===
-          currentScreen.operationHistory[0]?.operation.windowHandle
-        ) {
-          graphTextSteps.push(
-            buildScreenTransitionText(
-              preScreenId,
-              currentScreenId,
-              transitionText
-            )
-          );
+    return scenario.nodes
+      .reduce(
+        (acc, node, index, nodes) => {
+          const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
 
-          graphTextSteps.push(buildDeactivateText(preScreenId));
-          graphTextSteps.push(buildActivateText(currentScreenId));
-        } else {
-          graphTextSteps.push(
-            buildNoScreenTransitionText(preScreenId, preScreenId)
-          );
+          if (beforeNode?.windowId !== node.windowId) {
+            const windowName = windowIdToName.get(node.windowId);
+            const sequence = testStepIdToSequence.get(
+              node.testSteps.at(0)?.id ?? ""
+            );
 
-          graphTextSteps.push(buildDeactivateText(preScreenId));
-        }
-
-        edges.push({
-          source: {
-            title: preScreen.title,
-            url: preScreen.url,
-            screenDef: preScreen.screenDef,
-          },
-          target: {
-            title: currentScreen.title,
-            url: currentScreen.url,
-            screenDef: currentScreen.screenDef,
-          },
-          operationHistory: preScreen.operationHistory,
-        });
-      }
-
-      const summarizedOperations = currentScreen.operationHistory
-        .filter((item, index) => {
-          return (
-            item.intention ||
-            item.bugs ||
-            item.notices ||
-            index === currentScreen.operationHistory.length - 1
-          );
-        })
-        .map((item) => {
-          return {
-            windowHandle: item.operation.windowHandle,
-            sequence: item.operation.sequence,
-            intention: item.intention
-              ? {
-                  value: item.intention.value,
-                  details: item.intention.details,
-                }
-              : null,
-            bugs:
-              item.bugs?.map(({ value, details, tags }) => {
-                return { value, details, tags };
-              }) ?? [],
-            notices:
-              item.notices?.map(({ value, details, tags }) => {
-                return { value, details, tags };
-              }) ?? [],
-          };
-        });
-
-      for (const [
-        index,
-        { windowHandle, sequence, intention, bugs, notices },
-      ] of summarizedOperations.entries()) {
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
-            // Start of intention.
-            if (intention !== null) {
-              if (
-                graphTextSteps.findIndex((stepText) =>
-                  stepText.startsWith("opt")
-                ) !== -1
-              ) {
-                if (!hasBugOrNoticeInScopeOfWindowHandle) {
-                  addDummyComment(preScreenId, currentScreenId);
-                }
-
-                graphTextSteps.push("end");
-                startWindowHandleScope = false;
-              }
-
-              if (
-                graphTextSteps.findIndex((stepText) =>
-                  stepText.startsWith("alt")
-                ) !== -1
-              ) {
-                graphTextSteps.push("end");
-              }
-              const intentionPrefix = `(${sequence})`;
-              currentIntention = `alt ${intentionPrefix}${TextUtil.escapeSpecialCharacters(
-                intention.value
-              )}`;
-              graphTextSteps.push(currentIntention);
-
-              intentions.push({
-                id: currentScreenId,
-                sequence: sequence,
-                type: "intention",
-                details: intention.details,
-              });
-
-              // Continue if the same windowHandle continues.
-              if (windowHandle && windowHandle === currentWindowHandle) {
-                const windowHandleName =
-                  SequenceDiagramGraphConverter.getWindowName(
-                    windows,
-                    currentWindowHandle
-                  );
-
-                graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
-                startWindowHandleScope = true;
-                hasBugOrNoticeInScopeOfWindowHandle = false;
-              }
-            }
-
-            // When switching windowHandle.
-            if (
-              currentWindowHandle !== "" &&
-              !!windowHandle &&
-              currentWindowHandle !== windowHandle &&
-              currentScreen.operationHistory.length > 0
-            ) {
-              currentWindowHandle = windowHandle;
-
-              if (startWindowHandleScope) {
-                graphTextSteps.push("end");
-                startWindowHandleScope = false;
-              }
-
-              const windowHandleName =
-                SequenceDiagramGraphConverter.getWindowName(
-                  windows,
-                  currentWindowHandle
-                );
-
-              graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
-              graphTextSteps.push(buildActivateText(currentScreenId));
-              startWindowHandleScope = true;
-              hasBugOrNoticeInScopeOfWindowHandle = false;
-            }
-
-            // At the start of windowHandle.
-            if (currentWindowHandle === "" && !!windowHandle) {
-              currentWindowHandle = windowHandle;
-              const windowHandleName =
-                SequenceDiagramGraphConverter.getWindowName(
-                  windows,
-                  currentWindowHandle
-                );
-
-              graphTextSteps.push(`opt (${sequence})${windowHandleName}`);
-
-              const preWindowHandle =
-                summarizedOperations[index - 1]?.windowHandle;
-              if (currentWindowHandle !== preWindowHandle) {
-                graphTextSteps.push(buildActivateText(currentScreenId));
-              }
-
-              hasBugOrNoticeInScopeOfWindowHandle = false;
-            }
-
-            const addNoteGraphText = (
-              id: string,
-              value: string,
-              tags: string[]
-            ) => {
-              const tagsText = tags.map((tag) => `[${tag}]`).join("");
-              const noteValue = `${TextUtil.lineBreak(
-                `(${id})${tagsText}`,
-                16
-              )}<br/>${"-".repeat(1)}<br/>${TextUtil.escapeSpecialCharacters(
-                TextUtil.lineBreak(value, 16)
-              )}`;
-
-              graphTextSteps.push(
-                buildNoteText("right of", currentScreenId, noteValue)
-              );
-            };
-
-            // Bug balloon.
-            if (bugs !== null && Array.isArray(bugs)) {
-              bugs.forEach((bug, index) => {
-                const id = `${sequence}${bugs.length > 0 ? "-" + index : ""}`;
-
-                addNoteGraphText(id, bug.value, ["bug"]);
-
-                notes.push({
-                  id: currentScreenId,
-                  sequence,
-                  index,
-                  type: "bug",
-                  details: bug.details,
-                });
-                hasBugOrNoticeInScopeOfWindowHandle = true;
+            if (windowName !== undefined && sequence !== undefined) {
+              acc.push({
+                window: { sequence, text: windowName },
+                nodes: [],
               });
             }
-
-            // Notice balloon.
-            if (notices !== null && Array.isArray(notices)) {
-              notices.forEach((notice, index) => {
-                const id = `${sequence}${
-                  notices.length > 0 ? "-" + index : ""
-                }`;
-
-                addNoteGraphText(id, notice.value, notice.tags);
-
-                notes.push({
-                  id: currentScreenId,
-                  sequence,
-                  index,
-                  type: "notice",
-                  details: notice.details,
-                });
-                hasBugOrNoticeInScopeOfWindowHandle = true;
-              });
-            }
-
-            resolve();
-          }, 1);
-        });
-      }
-
-      if (currentIndex === graphTextSource.length - 1) {
-        // If windowHandle is started, put the end process at the end.
-        if (
-          graphTextSteps.findIndex((stepText) => stepText.startsWith("opt")) !==
-          -1
-        ) {
-          if (!hasBugOrNoticeInScopeOfWindowHandle) {
-            addDummyComment(preScreenId, currentScreenId);
           }
 
-          graphTextSteps.push(buildDeactivateText(currentScreenId));
+          acc.at(-1)?.nodes.push(node);
 
-          graphTextSteps.push("end");
-        }
+          return acc;
+        },
+        new Array<{
+          window: { sequence: number; text: string };
+          nodes: Omit<SequenceViewNode, "windowId">[];
+        }>()
+      )
+      .flatMap(({ window, nodes }) =>
+        nodes.map(({ screenId, testSteps }) => {
+          return {
+            scenario: {
+              sequence: testPurposeSequence,
+              text: scenario.testPurpose?.value ?? "",
+            },
+            window,
+            screenId,
+            testSteps,
+          };
+        })
+      );
+  });
 
-        // If intention is started, put end processing at the end.
+  return { screens: view.screens, nodes, testStepIdToSequence };
+}
+
+function buildGraphText(source: {
+  screens: { id: string; name: string }[];
+  nodes: {
+    scenario: { sequence: number; text: string };
+    window: { sequence: number; text: string };
+    screenId: string;
+    testSteps: SequenceViewNode["testSteps"];
+  }[];
+  testStepIdToSequence: Map<string, number>;
+}) {
+  const scenarios = source.nodes.reduce((acc, node, index, array) => {
+    const beforeItem = index > 0 ? array.at(index - 1) : undefined;
+    const nextItem = array.at(index + 1);
+
+    const lastTestStep = node.testSteps.at(-1);
+    const screenTransitionTrigger = `(${source.testStepIdToSequence.get(
+      lastTestStep?.id ?? ""
+    )})${lastTestStep?.type}: ${TextUtil.escapeSpecialCharacters(
+      TextUtil.ellipsis(
+        TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""),
+        20
+      )
+    )}`;
+    const screenTransitionTexts = nextItem
+      ? nextItem.scenario.text !== node.scenario.text ||
+        nextItem.window.text !== node.window.text
+        ? [`${node.screenId} --x ${node.screenId}: ;`]
+        : [
+            `${node.screenId} ->> ${nextItem.screenId}: ${screenTransitionTrigger};`,
+          ]
+      : [];
+
+    const screenIndex = source.screens.findIndex(
+      ({ id }) => id === node.screenId
+    );
+    const beforeScreenIndex = source.screens.findIndex(
+      ({ id }) => id === beforeItem?.screenId
+    );
+
+    const contextTexts = (() => {
+      const lines = [
+        ...buildCommentTexts(node, source.testStepIdToSequence, "right"),
+        ...screenTransitionTexts,
+      ];
+
+      return lines.length === 0
+        ? [
+            `Note ${
+              screenIndex >= 1 && screenIndex > beforeScreenIndex
+                ? "left"
+                : "right"
+            } of ${node.screenId}: DUMMY_COMMENT;`,
+          ]
+        : lines;
+    })();
+
+    const nodeTexts = [
+      `activate ${node.screenId};`,
+      ...contextTexts,
+      `deactivate ${node.screenId};`,
+    ];
+
+    const scenarioItemTexts = [
+      ...(() => {
         if (
-          graphTextSteps.findIndex((stepText) => stepText.startsWith("alt")) !==
-          -1
+          node.scenario.text &&
+          beforeItem?.scenario.text !== node.scenario.text
         ) {
-          graphTextSteps.push("end");
+          return [
+            `alt (${node.scenario.sequence})${TextUtil.escapeSpecialCharacters(
+              node.scenario.text
+            )};`,
+            `opt (${node.window.sequence})${node.window.text};`,
+          ];
         }
 
-        edges.push({
-          source: {
-            title: currentScreen.title,
-            url: currentScreen.url,
-            screenDef: currentScreen.screenDef,
-          },
-          target: {
-            title: currentScreen.title,
-            url: currentScreen.url,
-            screenDef: currentScreen.screenDef,
-          },
-          operationHistory: currentScreen.operationHistory,
-        });
-      }
-      nameMap = newNameMap;
-    }
+        if (node.window.text && beforeItem?.window.text !== node.window.text) {
+          return [`opt (${node.window.sequence})${node.window.text};`];
+        }
 
-    const graphText = `${[
-      "sequenceDiagram",
-      ...screenDefinitionTexts,
-      ...graphTextSteps,
-    ].join(";\n")};\n`;
+        return [];
+      })(),
+      ...nodeTexts,
+      ...(() => {
+        if (
+          node.scenario.text &&
+          nextItem?.scenario.text !== node.scenario.text
+        ) {
+          return ["end;", "end;"];
+        }
 
-    const graphExtender = new SequenceDiagramGraphExtender({
-      callback: {
-        onClickActivationBox: (index: number) =>
-          callback.onClickActivationBox(edges[index].operationHistory),
-        onClickEdge: (index: number) => callback.onClickEdge(edges[index]),
-        onClickScreenRect: (index: number) =>
-          callback.onClickScreenRect(
-            appearedScreens[index].operationHistory[0].operation.sequence
-          ),
-        onClickNote: (index: number) => callback.onClickNote(notes[index]),
-        onRightClickNote: (
-          index: number,
-          eventInfo: { clientX: number; clientY: number }
-        ) => {
-          callback.onRightClickNote(notes[index], eventInfo);
-        },
-        onRightClickLoopArea: (
-          index: number,
-          eventInfo: { clientX: number; clientY: number }
-        ) => {
-          callback.onRightClickLoopArea(intentions[index], eventInfo);
-        },
-      },
-      tooltipTextsOfNote: notes.map((noteInfo) => noteInfo.details),
-      tooltipTextsOfLoopArea: intentions.map(
-        (intentionInfo) => intentionInfo.details
-      ),
-      nameMap,
-    });
+        if (node.window.text && nextItem?.window.text !== node.window.text) {
+          return ["end;"];
+        }
 
-    console.log(graphText);
+        return [];
+      })(),
+    ];
 
-    return {
-      graphText,
-      graphExtender,
-    };
-  }
+    return [...acc, ...scenarioItemTexts];
+  }, new Array<string>());
 
-  /**
-   * Get windowHandle name.
-   * @returns windowHandle name.
-   */
-  private static getWindowName(windows: WindowInfo[], windowHandle: string) {
-    const found = windows.find((window: WindowInfo) => {
-      return window.value === windowHandle;
-    });
-    if (found === undefined) {
-      return "";
-    }
+  const screenTexts = source.screens.map(({ id, name }) => {
+    const lineLength = 15;
+    return `participant ${id} as ${TextUtil.escapeSpecialCharacters(
+      TextUtil.lineBreak(
+        TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength * 3),
+        lineLength
+      )
+    )};`;
+  });
 
-    return found.text;
-  }
+  return ["sequenceDiagram;", ...screenTexts, ...scenarios, ""].join("\n");
+}
 
-  /**
-   * Convert screen name for sequence diagram display and return.
-   * @param index
-   * @param map
-   * @param screenDef
-   * @param lineLength
-   */
-  private static displayScreenDefOptimal(
-    index: number,
-    map: Map<number, string>,
-    screenDef: string,
-    lineLength: number
-  ): string {
-    map.set(index, screenDef);
-    const name = screenDef;
-    const ellipsis = TextUtil.ellipsis(
-      TextUtil.toSingleLine(name),
-      lineLength * 3
+function buildCommentTexts(
+  node: Pick<SequenceViewNode, "testSteps" | "screenId">,
+  testStepIdToSequence: Map<string, number>,
+  position: "left" | "right"
+) {
+  return node.testSteps.flatMap((testStep) => {
+    const sequence = testStepIdToSequence.get(testStep.id);
+
+    return (
+      testStep.notes?.map((note, index) => {
+        const tags = TextUtil.lineBreak(
+          `(${sequence}-${index})${note.tags
+            .map((tag) => `[${tag}]`)
+            .join("")}`,
+          16
+        );
+        const value = TextUtil.escapeSpecialCharacters(
+          TextUtil.lineBreak(note.value, 16)
+        );
+
+        return `Note ${position} of ${node.screenId}: ${tags}<br/>-<br/>${value};`;
+      }) ?? []
     );
-
-    return TextUtil.escapeSpecialCharacters(
-      TextUtil.lineBreak(ellipsis, lineLength)
-    );
-  }
+  });
 }

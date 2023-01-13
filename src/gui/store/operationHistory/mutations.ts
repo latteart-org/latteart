@@ -24,8 +24,6 @@ import {
   ScreenTransition,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
-
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { CoverageSource } from "src/common";
@@ -308,15 +306,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set screen history to the State.
-   * @param state State.
-   * @param payload.screenHistory Screen history.
-   */
-  setScreenHistory(state, payload: { screenHistory: ScreenHistory }) {
-    Vue.set(state, "screenHistory", payload.screenHistory);
-  },
-
-  /**
    * Select a window.
    * @param state State.
    * @param payload.windowHandle Window handle.
@@ -358,18 +347,6 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   selectScreen(state, payload: { screenDef: string }) {
     state.selectedScreenDef = payload.screenDef;
-  },
-
-  /**
-   * Select a screen transition.
-   * @param state State.
-   * @param payload.screenTransition Screen transition.
-   */
-  selectScreenTransition(
-    state,
-    payload: { screenTransition: ScreenTransition }
-  ) {
-    state.selectedScreenTransition = payload.screenTransition;
   },
 
   /**

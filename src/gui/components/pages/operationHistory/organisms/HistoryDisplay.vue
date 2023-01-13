@@ -69,7 +69,6 @@
             <history-summary-diagram
               v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
               :diagramType="diagramType"
-              :screenHistory="screenHistory"
               :windows="windows"
               :message="message"
             ></history-summary-diagram>
@@ -127,7 +126,6 @@ import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 import {
-  ScreenTransition,
   OperationHistory,
   WindowInfo,
   ScreenDef,
@@ -136,7 +134,6 @@ import {
 import HistorySummaryDiagram from "@/components/pages/operationHistory/organisms/HistorySummaryDiagram.vue";
 import OperationList from "@/components/pages/operationHistory/organisms/OperationList.vue";
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
 
@@ -152,31 +149,6 @@ import DecisionTable from "./DecisionTable.vue";
   },
 })
 export default class HistoryDisplay extends Vue {
-  private get dispCoverage() {
-    return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
-  }
-
-  private get history(): OperationHistory {
-    return this.rawHistory;
-  }
-
-  private get screenHistory(): ScreenHistory {
-    return this.$store.state.operationHistory.screenHistory;
-  }
-
-  private get imageInfo(): { decode: string } {
-    const history = this.history.find((val) => {
-      return val.operation.sequence === Number(this.selectedOperationSequence);
-    });
-    if (history) {
-      this.callSetRecentImageInfo(history.operation.sequence);
-      return {
-        decode: this.recentImageInfo,
-      };
-    }
-    return { decode: "" };
-  }
-
   @Prop({ type: Boolean, default: false })
   public readonly scriptGenerationEnabled!: boolean;
   @Prop({ type: String, default: "ja" }) public readonly locale!: string;
@@ -217,25 +189,34 @@ export default class HistoryDisplay extends Vue {
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
-  private get selectedOperationSequence(): number {
-    return this.$store.state.operationHistory.selectedOperationSequence;
+  private get dispCoverage() {
+    return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
   }
 
-  private get selectedScreenTransition(): ScreenTransition {
-    return (
-      this.$store.state.operationHistory.selectedScreenTransition ?? {
-        source: { title: "", url: "", screenDef: "" },
-        target: { title: "", url: "", screenDef: "" },
-      }
-    );
+  private get history(): OperationHistory {
+    return this.rawHistory;
+  }
+
+  private get imageInfo(): { decode: string } {
+    const history = this.history.find((val) => {
+      return val.operation.sequence === Number(this.selectedOperationSequence);
+    });
+    if (history) {
+      this.callSetRecentImageInfo(history.operation.sequence);
+      return {
+        decode: this.recentImageInfo,
+      };
+    }
+    return { decode: "" };
+  }
+
+  private get selectedOperationSequence(): number {
+    return this.$store.state.operationHistory.selectedOperationSequence;
   }
 
   private get displayedOperations(): number[] {
     return this.$store.state.operationHistory.displayedOperations;
   }
-
-  private inputValueSetDialogIsOpened = false;
-  private screenshotDialogIsOpened = false;
 
   private recentImageInfo = "";
 

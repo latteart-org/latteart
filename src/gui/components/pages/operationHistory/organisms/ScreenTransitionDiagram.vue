@@ -39,14 +39,13 @@
 
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import {
-  OperationWithNotes,
   Edge,
   WindowInfo,
   MessageProvider,
 } from "@/lib/operationHistory/types";
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -54,8 +53,6 @@ import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
   },
 })
 export default class ScreenTransitionDiagram extends Vue {
-  @Prop({ type: Object, default: {} })
-  public readonly screenHistory!: ScreenHistory;
   @Prop({ type: Array, default: [] })
   public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
@@ -98,26 +95,11 @@ export default class ScreenTransitionDiagram extends Vue {
   }
 
   private get usedWindowHandles(): WindowInfo[] {
-    return this.windows.filter((windowInfo: WindowInfo) => {
-      const existsHistory = this.screenHistory.body.find(
-        (value: {
-          url: string;
-          title: string;
-          screenDef: string;
-          operationHistory: OperationWithNotes[];
-        }) => {
-          const existsHandle = value.operationHistory.find(
-            (operationWithNotes: OperationWithNotes) => {
-              return (
-                operationWithNotes.operation.windowHandle === windowInfo.value
-              );
-            }
-          );
-          return !!existsHandle;
-        }
-      );
-      return !!existsHistory;
-    });
+    const state = this.$store.state.operationHistory as OperationHistoryState;
+
+    return this.windows.filter(({ value }) =>
+      state.history.some(({ operation }) => operation.windowHandle === value)
+    );
   }
 }
 </script>

@@ -14,6 +14,41 @@
  * limitations under the License.
  */
 
+export type TestResultViewOptionForRepository = {
+  node: {
+    unit: "title" | "url";
+    definitions: {
+      name: string;
+      conditions: {
+        target: "title" | "url" | "keyword";
+        method: "contains" | "equals" | "regex";
+        value: string;
+      }[];
+    }[];
+  };
+};
+
+export type SequenceViewForRepository = {
+  windows: { id: string; name: string }[];
+  screens: { id: string; name: string }[];
+  scenarios: {
+    testPurpose?: { id: string; value: string; details?: string };
+    nodes: SequenceViewNodeForRepository[];
+  }[];
+};
+
+export type SequenceViewNodeForRepository = {
+  windowId: string;
+  screenId: string;
+  testSteps: {
+    id: string;
+    type: string;
+    input?: string;
+    element?: { xpath: string; tagname: string; text: string };
+    notes?: { id: string; value: string; details?: string; tags: string[] }[];
+  }[];
+};
+
 export type NoteForRepository = {
   id: string;
   type: string;

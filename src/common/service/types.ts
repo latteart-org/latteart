@@ -22,7 +22,10 @@ import {
   InputElementInfoForRepository,
   NoteForRepository,
   TestStepForRepository,
+  TestResultViewOptionForRepository,
 } from "../gateway/repository";
+
+export type TestResultViewOption = TestResultViewOptionForRepository;
 
 export type CapturedScreenTransition = {
   type: string;

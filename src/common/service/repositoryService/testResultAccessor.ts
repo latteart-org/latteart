@@ -28,6 +28,7 @@ import {
   InputElementInfo,
   TestStepNote,
   Note,
+  TestResultViewOption,
 } from "../types";
 import {
   TestResultRepository,
@@ -48,7 +49,7 @@ import {
   NoteRepository,
   ProjectRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor } from "./types";
+import { TestResultAccessor, SequenceView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -521,6 +522,27 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       const error: ServiceError = {
         errorCode: "unlink_test_purpose_from_test_step_failed",
         message: "Unlink Test Purpose from Test Step failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async generateSequenceView(
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<SequenceView>> {
+    const result =
+      await this.repositories.testResultRepository.generateSequenceView(
+        this.testResultId,
+        option
+      );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_sequence_view_failed",
+        message: "Generate Sequence View failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

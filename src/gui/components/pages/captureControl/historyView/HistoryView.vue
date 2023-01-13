@@ -33,7 +33,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import {
   OperationHistory,
-  OperationWithNotes,
   MessageProvider,
 } from "@/lib/operationHistory/types";
 import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
@@ -53,20 +52,14 @@ export default class HistoryView extends Vue {
     return this.$store.getters.message;
   }
 
-  private get screenDefList() {
-    return this.$store.state.projectSettings.config.screenDefinition
-      .screenDefList;
-  }
-
   private get windows() {
     return (this.$store.state.operationHistory as OperationHistoryState)
       .windows;
   }
 
   private get history(): OperationHistory {
-    return this.$store.getters[
-      "operationHistory/getHistory"
-    ]() as OperationWithNotes[];
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .history;
   }
 
   private changeWindowTitle(windowTitle: string) {
