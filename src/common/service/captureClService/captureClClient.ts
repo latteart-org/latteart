@@ -638,7 +638,7 @@ class CaptureSessionImpl implements CaptureSession {
       }[]
     ) => {
       return executeAction(async () => {
-        const result = await this.captureCl.inputValue(...targetAndValues);
+        const result = await this.captureCl.enterValues(...targetAndValues);
 
         if (result.error) {
           const error: ServiceError = {

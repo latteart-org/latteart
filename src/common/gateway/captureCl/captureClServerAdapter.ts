@@ -295,7 +295,7 @@ export class CaptureClServerAdapter {
 
   public protectWindows(): void {
     try {
-      this.socketIOClient.emit("select_capturing_window");
+      this.socketIOClient.emit("protect_windows");
     } catch (error) {
       console.error(error);
     }
@@ -303,7 +303,7 @@ export class CaptureClServerAdapter {
 
   public unprotectWindows(): void {
     try {
-      this.socketIOClient.emit("switch_cancel");
+      this.socketIOClient.emit("unprotect_windows");
     } catch (error) {
       console.error(error);
     }
@@ -397,7 +397,7 @@ export class CaptureClServerAdapter {
     }
   }
 
-  public async inputValue(
+  public async enterValues(
     ...targetAndValues: {
       target: {
         locatorType: "id" | "xpath";
@@ -412,8 +412,8 @@ export class CaptureClServerAdapter {
   }> {
     try {
       const result = await this.socketIOClient.invoke(
-        "autofill",
-        "autofill_completed",
+        "enter_values",
+        "enter_values_completed",
         targetAndValues.map(({ target, value }) => {
           return { ...target, inputValue: value };
         })
