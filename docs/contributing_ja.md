@@ -60,14 +60,24 @@ flowchart LR
   capturecl <--> driver
 ```
 
+### Web API
+
+`latteart-capture-cl`、`latteart-repository`との通信で使用する Web API は以下を参照してください。
+
+- latteart-capture-cl
+  - [REST API リファレンス](https://latteart-org.github.io/latteart-capture-cl/)
+  - [WebSocket API リファレンス](https://github.com/latteart-org/latteart-capture-cl/blob/main/docs/socketIOEvents.md)
+- latteart-repository
+  - [REST API リファレンス](https://latteart-org.github.io/latteart-repository/)
+
 ### パッケージの開発
 
-各パッケージの開発環境のセットアップ、開発用コマンド、ビルド方法、API ドキュメント等は以下を参照してください。
+各パッケージの開発環境のセットアップ、開発用コマンド、ビルド方法等は以下を参照してください。
 
 - [launch パッケージの開発](./development/launch_ja.md)
 - [latteart パッケージの開発](./development/latteart_ja.md)
-- [latteart-capture-cl パッケージの開発](https://github.com/latteart-org/latteart-capture-cl/tree/main/src/docs/development_ja.md)
-- [latteart-repository パッケージの開発](https://github.com/latteart-org/latteart-repository/tree/main/src/docs/development_ja.md)
+- [latteart-capture-cl パッケージの開発](https://github.com/latteart-org/latteart-capture-cl/blob/main/docs/development_ja.md)
+- [latteart-repository パッケージの開発](https://github.com/latteart-org/latteart-repository/blob/main/docs/development_ja.md)
 
 ### パッケージの統合
 
