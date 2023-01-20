@@ -16,8 +16,10 @@
 
 import fs from "fs-extra";
 
+export type BrowserType = "chrome" | "msedge";
+
 export type Config = {
-  browser?: string | null;
+  browser?: BrowserType | null;
   servers: {
     name: string;
     binaryFilePath: string;
