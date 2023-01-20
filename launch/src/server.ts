@@ -18,6 +18,7 @@ import { exec, ExecOptions } from "child_process";
 import http from "http";
 import { bufferToString } from "./util";
 import open from "open";
+import { BrowserType } from "./setting";
 
 export function launchServer(
   serverBinaryFilePath: string,
@@ -69,6 +70,11 @@ export async function serverIsReady(
   });
 }
 
-export function openPage(pageUrl: string): void {
-  open(pageUrl);
+export function openPage(pageUrl: string, browser?: BrowserType | null): void {
+  console.debug({ pageUrl }, { browser });
+  if (browser) {
+    open(pageUrl, { app: browser });
+  } else {
+    open(pageUrl);
+  }
 }
