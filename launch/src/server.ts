@@ -71,7 +71,7 @@ export async function serverIsReady(
 }
 
 export function openPage(pageUrl: string, browser?: BrowserType | null): void {
-  console.log({ pageUrl }, { browser });
+  console.debug({ pageUrl }, { browser });
   if (browser) {
     open(pageUrl, { app: browser });
   } else {
