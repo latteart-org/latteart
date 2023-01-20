@@ -69,6 +69,14 @@ export async function serverIsReady(
   });
 }
 
-export function openPage(pageUrl: string): void {
-  open(pageUrl);
+export function openPage(
+  pageUrl: string,
+  browser: string | null | undefined
+): void {
+  console.log({ pageUrl }, { browser });
+  if (browser) {
+    open(pageUrl, { app: browser });
+  } else {
+    open(pageUrl);
+  }
 }

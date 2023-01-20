@@ -91,8 +91,8 @@ manage: ${manageUrl}
 `);
 
   if (process.env.LATTEART_BOOT_MODE === "manage") {
-    openPage(manageUrl);
+    openPage(manageUrl, config.browser);
   } else {
-    openPage(captureUrl);
+    openPage(captureUrl, config.browser);
   }
 })();

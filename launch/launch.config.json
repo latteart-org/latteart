@@ -1,4 +1,5 @@
 {
+  "browser": null,
   "servers": [
     {
       "name": "latteart-repository",

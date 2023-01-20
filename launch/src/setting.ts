@@ -17,6 +17,7 @@
 import fs from "fs-extra";
 
 export type Config = {
+  browser?: string | null;
   servers: {
     name: string;
     binaryFilePath: string;
