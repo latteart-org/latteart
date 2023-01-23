@@ -108,8 +108,16 @@ export default class SequenceDiagramGraphExtender
    * Bind a callback function to an element, change the color of the element, etc.
    * @param element  Svg element to draw the graph.
    */
-  public extendGraph(element: Element): void {
+  public extendGraph(
+    element: Element,
+    disabledList?: { index: number; disabled: boolean }[]
+  ): void {
     const svg = d3.select(element as d3.BaseType);
+    const disabledAcrivationBox = disabledList
+      ? disabledList.map((item) => {
+          return item.index;
+        })
+      : [];
 
     // Omitted if the actor display name is long.
     svg.selectAll("g>rect.actor").each((_, i, nodes) => {
@@ -137,6 +145,12 @@ export default class SequenceDiagramGraphExtender
       activationBoxArea.on("click", () => {
         this.callback.onClickActivationBox(i);
       });
+      if (disabledAcrivationBox.includes(i)) {
+        activationBoxArea
+          .select("rect")
+          .style("fill", "#cbcaca")
+          .style("stroke", "#959494");
+      }
     });
 
     // When pressing the alt string.

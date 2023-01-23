@@ -232,7 +232,7 @@ function extractGraphSource(view: SequenceView) {
         }>()
       )
       .flatMap(({ window, nodes }) =>
-        nodes.map(({ screenId, testSteps }) => {
+        nodes.map(({ screenId, testSteps, disabled }) => {
           return {
             scenario: {
               sequence: testPurposeSequence,
@@ -241,6 +241,7 @@ function extractGraphSource(view: SequenceView) {
             window,
             screenId,
             testSteps,
+            disabled,
           };
         })
       );
@@ -256,6 +257,7 @@ function buildGraphText(source: {
     window: { sequence: number; text: string };
     screenId: string;
     testSteps: SequenceViewNode["testSteps"];
+    disabled: boolean;
   }[];
   testStepIdToSequence: Map<string, number>;
 }) {
@@ -272,9 +274,12 @@ function buildGraphText(source: {
         20
       )
     )}`;
+
     const screenTransitionTexts = nextItem
-      ? nextItem.scenario.text !== node.scenario.text ||
-        nextItem.window.text !== node.window.text
+      ? nextItem.testSteps.at(0)?.type === "resume_capturing"
+        ? []
+        : nextItem.scenario.text !== node.scenario.text ||
+          nextItem.window.text !== node.window.text
         ? [`${node.screenId} --x ${node.screenId}: ;`]
         : [
             `${node.screenId} ->> ${nextItem.screenId}: ${screenTransitionTrigger};`,

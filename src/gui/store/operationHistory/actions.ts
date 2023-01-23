@@ -578,7 +578,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
       return element.firstElementChild!;
     })();
-    graph.graphExtender.extendGraph(svgElement);
+
+    const disabledList = sequenceView.scenarios
+      .flatMap(({ nodes }) => nodes)
+      .map((node, index) => {
+        return {
+          index,
+          disabled: node.disabled,
+        };
+      })
+      .filter((item) => item.disabled);
+
+    graph.graphExtender.extendGraph(svgElement, disabledList);
 
     context.commit("setSequenceDiagramGraph", { graph: svgElement });
   },
