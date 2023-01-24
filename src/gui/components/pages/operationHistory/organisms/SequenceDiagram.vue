@@ -56,17 +56,28 @@ export default class SequenceDiagram extends Vue {
 #sequence-diagram-container ::v-deep
   .messageText
     stroke: none !important
-    &:hover
-      fill: red !important
-      font-weight: bold !important
+    &.disabled
+      fill: #959494 !important
+      font-style: oblique
+    &:not(.disabled)
+      &:hover
+        fill: red !important
+        font-weight: bold !important
+  .messageLine0
+    &.disabled
+      stroke: #959494 !important
   .messageLine1
-    display: none !important
+    visibility: hidden !important
   .activation0
     width: 14px !important
     transform: translateX(-2px) !important
-    &:hover
-      stroke: red !important
-      fill: #FDF !important
+    &.disabled
+      stroke: #959494 !important
+      fill: #cbcaca !important
+    &:not(.disabled)
+      &:hover
+        stroke: red !important
+        fill: #FDF !important
   rect.actor
     &:hover
       stroke: red !important

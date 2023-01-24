@@ -584,7 +584,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       .map((node, index) => {
         return {
           index,
-          disabled: node.disabled,
+          disabled: node.disabled ?? false,
         };
       })
       .filter((item) => item.disabled);

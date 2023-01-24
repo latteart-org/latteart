@@ -2,7 +2,91 @@
 
 import { convertToSequenceDiagramGraph } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 
-describe("SequenceDiagramGraphConverterは", () => {
+describe("SequenceDiagramGraphConverter", () => {
+  describe("無効なノードが存在する場合", () => {
+    it("無効なノードへの行き来を示すエッジを表示する", async () => {
+      const view = {
+        windows: [{ id: "w0", name: "window1-text" }],
+        screens: [{ id: "s0", name: "screenDef1" }],
+        scenarios: [
+          {
+            nodes: [
+              {
+                windowId: "w0",
+                screenId: "s0",
+                testSteps: [{ id: "ts0", type: "type1", notes: [] }],
+              },
+              { windowId: "w0", screenId: "s0", testSteps: [], disabled: true },
+              { windowId: "w0", screenId: "s0", testSteps: [] },
+            ],
+          },
+        ],
+      };
+
+      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        `sequenceDiagram;
+participant s0 as screenDef1;
+opt (1)window1-text;
+activate s0;
+s0 --x s0: ;
+deactivate s0;
+activate s0;
+s0 --x s0: ;
+deactivate s0;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
+end;
+`
+      );
+    });
+
+    it("無効なノードから別画面の無効なノードに遷移する場合は不明な画面遷移を示すエッジを表示する", async () => {
+      const view = {
+        windows: [{ id: "w0", name: "window1-text" }],
+        screens: [
+          { id: "s0", name: "screenDef1" },
+          { id: "s1", name: "screenDef2" },
+        ],
+        scenarios: [
+          {
+            nodes: [
+              {
+                windowId: "w0",
+                screenId: "s0",
+                testSteps: [{ id: "ts0", type: "type1", notes: [] }],
+              },
+              { windowId: "w0", screenId: "s0", testSteps: [], disabled: true },
+              { windowId: "w0", screenId: "s1", testSteps: [], disabled: true },
+              { windowId: "w0", screenId: "s1", testSteps: [] },
+            ],
+          },
+        ],
+      };
+
+      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        `sequenceDiagram;
+participant s0 as screenDef1;
+participant s1 as screenDef2;
+opt (1)window1-text;
+activate s0;
+s0 --x s0: ;
+deactivate s0;
+activate s0;
+s0 ->> s1: screen transition;
+deactivate s0;
+activate s1;
+s1 --x s1: ;
+deactivate s1;
+activate s1;
+Note left of s1: DUMMY_COMMENT;
+deactivate s1;
+end;
+`
+      );
+    });
+  });
+
   it("同一シナリオ内でウィンドウが切り替わった場合", async () => {
     const view = {
       windows: [

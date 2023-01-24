@@ -47,7 +47,7 @@ export type SequenceViewNodeForRepository = {
     element?: { xpath: string; tagname: string; text: string };
     notes?: { id: string; value: string; details?: string; tags: string[] }[];
   }[];
-  disabled: boolean;
+  disabled?: boolean;
 };
 
 export type NoteForRepository = {

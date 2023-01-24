@@ -19,14 +19,14 @@ import SequenceDiagramGraphExtender from "../mermaidGraph/extender/SequenceDiagr
 import TextUtil from "./TextUtil";
 import { SequenceView, SequenceViewNode } from "src/common";
 
-interface NoteInfo {
+type NoteInfo = {
   sequence: number;
   index?: number;
   type: string;
   details: string;
-}
+};
 
-export interface SequenceDiagramGraphCallback {
+export type SequenceDiagramGraphCallback = {
   onClickActivationBox: (sequences: number[]) => void;
   onClickEdge: (sequences: number[]) => void;
   onClickScreenRect: (sequence: number) => void;
@@ -39,7 +39,15 @@ export interface SequenceDiagramGraphCallback {
     note: NoteInfo,
     eventInfo: { clientX: number; clientY: number }
   ) => void;
-}
+};
+
+type SourceNode = {
+  scenario: { sequence: number; text: string };
+  window: { sequence: number; text: string };
+  screenId: string;
+  testSteps: SequenceViewNode["testSteps"];
+  disabled?: boolean;
+};
 
 /**
  * Convert Sequence View model to Diagram Graph.
@@ -174,7 +182,7 @@ export async function convertToSequenceDiagramGraph(
     nameMap: new Map(view.screens.map(({ name }, index) => [index, name])),
   });
 
-  console.log(graphText);
+  console.debug(graphText);
 
   return {
     graphText,
@@ -252,45 +260,24 @@ function extractGraphSource(view: SequenceView) {
 
 function buildGraphText(source: {
   screens: { id: string; name: string }[];
-  nodes: {
-    scenario: { sequence: number; text: string };
-    window: { sequence: number; text: string };
-    screenId: string;
-    testSteps: SequenceViewNode["testSteps"];
-    disabled: boolean;
-  }[];
+  nodes: SourceNode[];
   testStepIdToSequence: Map<string, number>;
 }) {
-  const scenarios = source.nodes.reduce((acc, node, index, array) => {
-    const beforeItem = index > 0 ? array.at(index - 1) : undefined;
-    const nextItem = array.at(index + 1);
+  const scenarios = source.nodes.reduce((acc, node, index, nodes) => {
+    const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
+    const nextNode = nodes.at(index + 1);
 
-    const lastTestStep = node.testSteps.at(-1);
-    const screenTransitionTrigger = `(${source.testStepIdToSequence.get(
-      lastTestStep?.id ?? ""
-    )})${lastTestStep?.type}: ${TextUtil.escapeSpecialCharacters(
-      TextUtil.ellipsis(
-        TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""),
-        20
-      )
-    )}`;
-
-    const screenTransitionTexts = nextItem
-      ? nextItem.testSteps.at(0)?.type === "resume_capturing"
-        ? []
-        : nextItem.scenario.text !== node.scenario.text ||
-          nextItem.window.text !== node.window.text
-        ? [`${node.screenId} --x ${node.screenId}: ;`]
-        : [
-            `${node.screenId} ->> ${nextItem.screenId}: ${screenTransitionTrigger};`,
-          ]
-      : [];
+    const screenTransitionTexts = buildScreenTransitionTexts(
+      source.testStepIdToSequence,
+      node,
+      nextNode
+    );
 
     const screenIndex = source.screens.findIndex(
       ({ id }) => id === node.screenId
     );
     const beforeScreenIndex = source.screens.findIndex(
-      ({ id }) => id === beforeItem?.screenId
+      ({ id }) => id === beforeNode?.screenId
     );
 
     const contextTexts = (() => {
@@ -302,7 +289,7 @@ function buildGraphText(source: {
       return lines.length === 0
         ? [
             `Note ${
-              screenIndex >= 1 && screenIndex > beforeScreenIndex
+              screenIndex >= 1 && screenIndex >= beforeScreenIndex
                 ? "left"
                 : "right"
             } of ${node.screenId}: DUMMY_COMMENT;`,
@@ -320,7 +307,7 @@ function buildGraphText(source: {
       ...(() => {
         if (
           node.scenario.text &&
-          beforeItem?.scenario.text !== node.scenario.text
+          beforeNode?.scenario.text !== node.scenario.text
         ) {
           return [
             `alt (${node.scenario.sequence})${TextUtil.escapeSpecialCharacters(
@@ -330,7 +317,7 @@ function buildGraphText(source: {
           ];
         }
 
-        if (node.window.text && beforeItem?.window.text !== node.window.text) {
+        if (node.window.text && beforeNode?.window.text !== node.window.text) {
           return [`opt (${node.window.sequence})${node.window.text};`];
         }
 
@@ -340,12 +327,12 @@ function buildGraphText(source: {
       ...(() => {
         if (
           node.scenario.text &&
-          nextItem?.scenario.text !== node.scenario.text
+          nextNode?.scenario.text !== node.scenario.text
         ) {
           return ["end;", "end;"];
         }
 
-        if (node.window.text && nextItem?.window.text !== node.window.text) {
+        if (node.window.text && nextNode?.window.text !== node.window.text) {
           return ["end;"];
         }
 
@@ -393,4 +380,40 @@ function buildCommentTexts(
       }) ?? []
     );
   });
+}
+
+function buildScreenTransitionTexts(
+  testStepIdToSequence: Map<string, number>,
+  node: SourceNode,
+  nextNode?: SourceNode
+) {
+  if (!nextNode) {
+    return [];
+  }
+
+  const isScenarioChanged = nextNode.scenario.text !== node.scenario.text;
+  const isWindowChanged = nextNode.window.text !== node.window.text;
+  const isDisabledChanged = node.disabled !== nextNode.disabled;
+
+  if (isScenarioChanged || isWindowChanged || isDisabledChanged) {
+    return [`${node.screenId} --x ${node.screenId}: ;`];
+  }
+
+  const lastTestStep = node.testSteps.at(-1);
+
+  const sequence = testStepIdToSequence.get(lastTestStep?.id ?? "");
+  const operationType = lastTestStep?.type;
+  const targetElement = TextUtil.escapeSpecialCharacters(
+    TextUtil.ellipsis(
+      TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""),
+      20
+    )
+  );
+  const screenTransitionTrigger = node.disabled
+    ? "screen transition"
+    : `(${sequence})${operationType}: ${targetElement}`;
+
+  return [
+    `${node.screenId} ->> ${nextNode.screenId}: ${screenTransitionTrigger};`,
+  ];
 }
