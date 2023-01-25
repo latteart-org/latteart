@@ -78,6 +78,30 @@ manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&reposito
 
 LatteArt を用いたテストの考え方、および実践については 「[LatteArt チュートリアル （テスト実践編）](/docs/tutorial/management/tutorial-management.md)」をご参照ください。
 
+## 起動ツールの設定でできること
+
+- Latteart を起動するブラウザを変更する
+  `launch.config.json` の `brower` 変更してください。`chrome`、`msedge`を使用できます。`null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
+  <br />
+
+  ```
+  browser: "chrome" // or msedge
+  ```
+
+- サーバのポートを変更する
+  `launch.config.json` の `servers` 配下の `env.port` と `http.url` を変更してください。
+  <br />
+
+  ```
+  "env": { "port": "3009" },
+  "http": {
+    "url": "http://localhost:3009",
+    "connectionCheck": true
+  }
+  ```
+
+  :warning: `env.port` と `http.url` のポート部分は同じ値をいれてください。
+
 # ツール終了
 
 起動時に立ち上がったコマンドプロンプトのウィンドウを閉じて終了します。
