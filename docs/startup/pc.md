@@ -81,34 +81,37 @@ LatteArt を用いたテストの考え方、および実践については 「[
 ## 起動スクリプトの設定
 
 - LatteArt(記録ツール、管理ツール)を表示するブラウザの変更
+
   `launch.config.json` の `browser` 変更してください。`chrome`、`msedge`を使用できます。`null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
   <br />
 
   ```
   {
-  browser: "chrome",
-  // ...
+    browser: "chrome",
+    // ...
   }
   ```
 
 - 起動スクリプトが起動する各サーバのポート変更
+
   `servers` 配下の変更したいサーバの`env.port` と `http.url` を変更してください。
+  <br />
 
   ```
   {
-  // ...
-  "servers": [
-    {
-      "name": "latteart-repository",
-      // ...
-      "env": { "port": "13002" },
-      "http": {
-        "url": "http://localhost:13002",
-        // ...
-      }
-    },
     // ...
-  ]
+    "servers": [
+      {
+         "name": "latteart-repository",
+         // ...
+         "env": { "port": "13002" },
+         "http": {
+         "url": "http://localhost:13002",
+         // ...
+         }
+      },
+      // ...
+    ]
   }
   ```
 
