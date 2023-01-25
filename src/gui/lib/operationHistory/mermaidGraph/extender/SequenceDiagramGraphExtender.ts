@@ -108,8 +108,16 @@ export default class SequenceDiagramGraphExtender
    * Bind a callback function to an element, change the color of the element, etc.
    * @param element  Svg element to draw the graph.
    */
-  public extendGraph(element: Element): void {
+  public extendGraph(
+    element: Element,
+    disabledList?: { index: number; disabled: boolean }[]
+  ): void {
     const svg = d3.select(element as d3.BaseType);
+    const disabledIndexes = disabledList
+      ? disabledList.map((item) => {
+          return item.index;
+        })
+      : [];
 
     // Omitted if the actor display name is long.
     svg.selectAll("g>rect.actor").each((_, i, nodes) => {
@@ -124,9 +132,21 @@ export default class SequenceDiagramGraphExtender
     svg.selectAll("text.messageText").each((_, i, nodes) => {
       const messageText = d3.select(nodes[i] as Node as d3.BaseType);
 
-      messageText.on("click", () => {
-        this.callback.onClickEdge(i);
-      });
+      if (disabledIndexes.includes(i)) {
+        messageText.classed("disabled", true);
+      } else {
+        messageText.on("click", () => {
+          this.callback.onClickEdge(i);
+        });
+      }
+    });
+
+    svg.selectAll(".messageLine0,.messageLine1").each((_, i, nodes) => {
+      const messageLine = d3.select(nodes[i] as Node as d3.BaseType);
+
+      if (disabledIndexes.slice(0, -1).includes(i)) {
+        messageLine.classed("disabled", true);
+      }
     });
 
     // When pressing activation box.
@@ -134,9 +154,14 @@ export default class SequenceDiagramGraphExtender
       const activationBoxArea = d3.select(
         (nodes[i] as Node).parentNode as d3.BaseType
       );
-      activationBoxArea.on("click", () => {
-        this.callback.onClickActivationBox(i);
-      });
+
+      if (disabledIndexes.includes(i)) {
+        activationBoxArea.select("rect").classed("disabled", true);
+      } else {
+        activationBoxArea.on("click", () => {
+          this.callback.onClickActivationBox(i);
+        });
+      }
     });
 
     // When pressing the alt string.
