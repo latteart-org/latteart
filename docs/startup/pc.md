@@ -85,9 +85,9 @@ LatteArt を用いたテストの考え方、および実践については 「[
   `launch.config.json` の `browser` 変更してください。`chrome`、`msedge`を使用できます。`null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
   <br />
 
-  ```
+  ```jsonc
   {
-    browser: "chrome",
+    "browser": "chrome"
     // ...
   }
   ```
@@ -97,19 +97,19 @@ LatteArt を用いたテストの考え方、および実践については 「[
   `servers` 配下の変更したいサーバの`env.port` と `http.url` を変更してください。
   <br />
 
-  ```
+  ```jsonc
   {
     // ...
     "servers": [
       {
-         "name": "latteart-repository",
-         // ...
-         "env": { "port": "13002" },
-         "http": {
-         "url": "http://localhost:13002",
-         // ...
-         }
-      },
+        "name": "latteart-repository",
+        // ...
+        "env": { "port": "13002" },
+        "http": {
+          "url": "http://localhost:13002"
+          // ...
+        }
+      }
       // ...
     ]
   }
