@@ -18,6 +18,7 @@
   <div>
     <note-common-dialog
       :opened="opened"
+      :isCapturing="true"
       :noteInfo="noteInfo"
       @execute="takeNote"
       @close="close()"
