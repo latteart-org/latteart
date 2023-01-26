@@ -67,7 +67,7 @@
         </v-combobox>
 
         <v-checkbox
-          v-if="oldSequence === null && oldIndex === null"
+          v-if="isCapturing && oldIndex === null"
           v-model="shouldTakeScreenshot"
           :disabled="isAlertVisible"
           :label="$store.getters.message('note-edit.take-screenshot')"
@@ -98,6 +98,8 @@ import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
 })
 export default class NoteCommonDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  @Prop({ type: Boolean, default: false })
+  public readonly isCapturing!: boolean;
   @Prop({ type: Object, default: undefined })
   public readonly noteInfo!: NoteDialogInfo;
 
