@@ -78,6 +78,45 @@ manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&reposito
 
 LatteArt を用いたテストの考え方、および実践については 「[LatteArt チュートリアル （テスト実践編）](/docs/tutorial/management/tutorial-management.md)」をご参照ください。
 
+## 起動スクリプトの設定
+
+- LatteArt(記録ツール、管理ツール)を表示するブラウザの変更
+
+  `launch.config.json` の `browser` 変更してください。`chrome`、`msedge`を使用できます。`null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
+  <br />
+
+  ```jsonc
+  {
+    "browser": "chrome"
+    // ...
+  }
+  ```
+
+- 起動スクリプトが起動する各サーバのポート変更
+
+  `servers` 配下の変更したいサーバの`env.port` と `http.url` を変更してください。
+  <br />
+
+  ```jsonc
+  {
+    // ...
+    "servers": [
+      {
+        "name": "latteart-repository",
+        // ...
+        "env": { "port": "13002" },
+        "http": {
+          "url": "http://localhost:13002"
+          // ...
+        }
+      }
+      // ...
+    ]
+  }
+  ```
+
+  :warning: `env.port` と `http.url` のポート部分は同じ値をいれてください。
+
 # ツール終了
 
 起動時に立ち上がったコマンドプロンプトのウィンドウを閉じて終了します。
