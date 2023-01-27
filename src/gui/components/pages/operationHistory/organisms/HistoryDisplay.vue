@@ -194,7 +194,7 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get history(): OperationHistory {
-    return this.rawHistory;
+    return [...this.rawHistory];
   }
 
   private get imageInfo(): { decode: string } {
