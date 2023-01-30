@@ -82,8 +82,16 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
 - LatteArt(記録ツール、管理ツール)を表示するブラウザの変更
 
-  `launch.config.json` の `browser` 変更してください。`chrome`、`msedge`を使用できます。`null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
-  <br />
+  `launch.config.json` の `browser` を変更してください。
+  `null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
+
+  指定可能なブラウザは以下です。
+
+  | OS      | ブラウザ       | 設定値          |
+  | ------- | -------------- | --------------- |
+  | Windows | Google Chrome  | `chrome`        |
+  |         | Microsoft Edge | `msedge`        |
+  | Mac     | Google Chrome  | `google chrome` |
 
   ```jsonc
   {
@@ -94,8 +102,9 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
 - 起動スクリプトが起動する各サーバのポート変更
 
-  `servers` 配下の変更したいサーバの`env.port` と `http.url` を変更してください。
-  <br />
+  `servers` 配下の変更したいサーバの `env.port` と `http.url` を変更してください。
+
+  :warning: `env.port` と `http.url` のポート部分は同じ値をいれてください。
 
   ```jsonc
   {
@@ -114,8 +123,6 @@ LatteArt を用いたテストの考え方、および実践については 「[
     ]
   }
   ```
-
-  :warning: `env.port` と `http.url` のポート部分は同じ値をいれてください。
 
 # ツール終了
 
