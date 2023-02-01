@@ -28,7 +28,6 @@ import {
 export type TestResultViewOption = TestResultViewOptionForRepository;
 
 export type CapturedScreenTransition = {
-  type: string;
   title: string;
   url: string;
   imageData: string;
