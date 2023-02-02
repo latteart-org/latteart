@@ -18,6 +18,7 @@ import { AutoPopupSettings } from "@/lib/operationHistory/types";
 import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
+  TestScriptOption,
 } from "../../../common";
 import { DeviceSettings } from "./settings/Settings";
 
@@ -148,6 +149,45 @@ export class LocalStorageSettingRepository {
 
     return createRepositoryAccessSuccess({
       data: autoPopupSettings as AutoPopupSettings,
+    });
+  }
+
+  /**
+   * Get test script option.
+   * @returns Test script option.
+   */
+  public async getTestScriptOption(): Promise<
+    RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>
+  > {
+    const optionJson = localStorage.getItem(
+      "latteart-config-scriptGenerationOption"
+    );
+    const option: Pick<TestScriptOption, "buttonDefinitions"> = optionJson
+      ? JSON.parse(optionJson)
+      : {};
+
+    return createRepositoryAccessSuccess({
+      data: option,
+    });
+  }
+
+  /**
+   * Save test script option.
+   * @param option  Test script option.
+   * @returns Saved test script option.
+   */
+  public async putTestScriptOption(
+    option: Pick<TestScriptOption, "buttonDefinitions">
+  ): Promise<
+    RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>
+  > {
+    localStorage.setItem(
+      "latteart-config-scriptGenerationOption",
+      JSON.stringify(option)
+    );
+
+    return createRepositoryAccessSuccess({
+      data: option,
     });
   }
 }

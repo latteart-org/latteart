@@ -40,6 +40,7 @@ describe("GenerateTestScriptsAction", () => {
               useDataDriven: false,
               maxGeneration: 0,
             },
+            buttonDefinitions: [],
           };
 
           const restClient = {
@@ -88,6 +89,7 @@ describe("GenerateTestScriptsAction", () => {
               useDataDriven: false,
               maxGeneration: 0,
             },
+            buttonDefinitions: [],
           };
 
           const restClient = {

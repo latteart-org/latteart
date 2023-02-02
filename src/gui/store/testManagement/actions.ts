@@ -848,6 +848,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       option: {
         testScript: { isSimple: boolean };
         testData: { useDataDriven: boolean; maxGeneration: number };
+        buttonDefinitions: { tagname: string; elementType?: string }[];
       };
     }
   ) {

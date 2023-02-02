@@ -33,6 +33,7 @@ import {
   createRepositoryService,
   CaptureClService,
   createCaptureClService,
+  TestScriptOption,
 } from "../../common";
 import { RESTClientImpl } from "../../common/network/http/client";
 import { ReadDeviceSettingAction } from "@/lib/common/settings/ReadDeviceSettingAction";
@@ -443,6 +444,41 @@ const actions: ActionTree<RootState, RootState> = {
       { settings: result.data },
       { root: true }
     );
+  },
+
+  async readTestScriptOption(context) {
+    const result = await new ReadSettingAction(
+      context.rootState.repositoryService
+    ).readTestScriptOption();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
+  },
+
+  async writeTestScriptOption(
+    context,
+    payload: { option: Pick<TestScriptOption, "buttonDefinitions"> }
+  ) {
+    const result = await new SaveSettingAction(
+      context.rootState.repositoryService
+    ).saveTestScriptOption(payload.option);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
   },
 
   /**

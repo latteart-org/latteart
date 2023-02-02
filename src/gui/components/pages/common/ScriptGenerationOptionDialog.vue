@@ -24,29 +24,95 @@
     @cancel="close()"
   >
     <template>
-      {{ $store.getters.message("history-view.generate-testscript-option") }}
+      <v-checkbox
+        :label="
+          $store.getters.message('history-view.generate-simple-testscript')
+        "
+        v-model="testGenerationOption.testScript.isSimple"
+      >
+      </v-checkbox>
+
       <v-container fluid pa-1 fill-height id="simple-test-script-generation">
         <v-layout row wrap>
           <v-flex xs12 pb-2>
-            {{ $store.getters.message("history-view.testscript") }}
+            <p
+              :class="{
+                'mb-0': true,
+                'text--disabled': testGenerationOption.testScript.isSimple,
+              }"
+            >
+              {{
+                $store.getters.message("history-view.custom-button-definition")
+              }}
+            </p>
           </v-flex>
           <v-flex xs12 pl-2>
-            <v-checkbox
-              :label="
-                $store.getters.message(
-                  'history-view.generate-simple-testscript'
-                )
-              "
-              v-model="testGenerationOption.testScript.isSimple"
+            <span
+              :class="{
+                caption: true,
+                'theme--light': true,
+                'v-label': true,
+                'text--disabled': testGenerationOption.testScript.isSimple,
+              }"
             >
-            </v-checkbox>
+              {{ $store.getters.message("history-view.custom-button-tags") }}
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-icon
+                    size="15"
+                    v-on="on"
+                    class="icon-info"
+                    :disabled="testGenerationOption.testScript.isSimple"
+                    >info</v-icon
+                  >
+                </template>
+                <span>{{
+                  $store.getters.message("history-view.default-button-tags", {
+                    value: standardButtontags.join(", "),
+                  })
+                }}</span>
+              </v-tooltip>
+            </span>
+
+            <v-combobox
+              :items="customButtonCandidateTags"
+              :search-input.sync="search"
+              v-model="testGenerationOption.customButtonTags"
+              :class="{ 'pt-0': true, 'mt-0': true }"
+              multiple
+              small-chips
+              hide-selected
+              deletable-chips
+              append-outer-icon="refresh"
+              @click:append-outer="resetCustomButtonTags"
+              @change="clearSearchText"
+              :disabled="testGenerationOption.testScript.isSimple"
+            >
+              <template v-slot:no-data>
+                <v-list-tile v-if="search">
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      No results matching "<strong>{{ search }}</strong
+                      >". Press <kbd>enter</kbd> to create a new one
+                    </v-list-tile-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </template>
+            </v-combobox>
           </v-flex>
         </v-layout>
       </v-container>
       <v-container fluid pa-1 fill-height id="max-test-data-generation">
         <v-layout row wrap>
           <v-flex xs12 pb-2>
-            {{ $store.getters.message("history-view.testdata") }}
+            <p
+              :class="{
+                'mb-0': true,
+                'text--disabled': testGenerationOption.testScript.isSimple,
+              }"
+            >
+              {{ $store.getters.message("history-view.testdata") }}
+            </p>
           </v-flex>
           <v-flex xs12 pl-2>
             <v-checkbox
@@ -70,9 +136,16 @@
             </number-field>
           </v-flex>
           <v-flex xs12 pl-3>
-            <span>{{
-              $store.getters.message("history-view.generate-only-template")
-            }}</span>
+            <span
+              :class="{
+                'text--disabled':
+                  !testGenerationOption.testData.useDataDriven ||
+                  testGenerationOption.testScript.isSimple,
+              }"
+              >{{
+                $store.getters.message("history-view.generate-only-template")
+              }}</span
+            >
           </v-flex>
         </v-layout>
       </v-container>
@@ -81,9 +154,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { RootState } from "@/store";
+import { TestScriptOption } from "src/common";
 
 @Component({
   components: {
@@ -94,23 +169,113 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 export default class ScriptGenerationOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
 
-  private testGenerationOption = {
-    testScript: {
-      isSimple: false,
-    },
-    testData: {
-      useDataDriven: false,
-      maxGeneration: 0,
-    },
-  };
+  private typeSeparator = ":type=";
+  private search = "";
+  private testGenerationOption = this.createNewOption();
+  private get customButtonCandidateTags() {
+    const tags = [
+      ...(this.$store.state as RootState).projectSettings.defaultTagList,
+      "INPUT:type=submit",
+      "INPUT:type=button",
+      "INPUT:type=text",
+      "INPUT:type=search",
+      "INPUT:type=tel",
+      "INPUT:type=url",
+      "INPUT:type=email",
+      "INPUT:type=password",
+      "INPUT:type=datetime",
+      "INPUT:type=date",
+      "INPUT:type=month",
+      "INPUT:type=week",
+      "INPUT:type=time",
+      "INPUT:type=datetime-local",
+      "INPUT:type=number",
+      "INPUT:type=range",
+      "INPUT:type=color",
+      "INPUT:type=checkbox",
+      "INPUT:type=radio",
+      "INPUT:type=file",
+      "INPUT:type=image",
+      "INPUT:type=reset",
+    ];
+
+    return tags.sort();
+  }
+  private get defaultCustomButtonTags() {
+    return ["SPAN", "IMG"];
+  }
+  private get standardButtontags() {
+    return ["INPUT:type=submit", "INPUT:type=button", "BUTTON", "A"];
+  }
+
+  @Watch("opened")
+  private initialize() {
+    if (this.opened) {
+      this.testGenerationOption = this.createNewOption();
+
+      (async () => {
+        const option: Pick<TestScriptOption, "buttonDefinitions"> =
+          await this.$store.dispatch("readTestScriptOption");
+
+        if (option.buttonDefinitions) {
+          this.testGenerationOption.customButtonTags =
+            option.buttonDefinitions.map(({ tagname, elementType }) => {
+              const elementTypeText = elementType
+                ? `${this.typeSeparator}${elementType}`
+                : "";
+              return `${tagname}${elementTypeText}`;
+            });
+        }
+      })();
+    }
+  }
+
+  private createNewOption() {
+    return {
+      testScript: {
+        isSimple: false,
+      },
+      testData: {
+        useDataDriven: false,
+        maxGeneration: 0,
+      },
+      customButtonTags: this.defaultCustomButtonTags,
+    };
+  }
+
+  private clearSearchText() {
+    this.search = "";
+  }
+
+  private resetCustomButtonTags() {
+    this.testGenerationOption.customButtonTags = this.defaultCustomButtonTags;
+  }
 
   private updateMaxGeneration(data: { value: number }) {
     this.testGenerationOption.testData.maxGeneration = data.value;
   }
 
   private execute(): void {
-    this.$emit("execute", this.testGenerationOption);
-    this.close();
+    const option = {
+      testScript: this.testGenerationOption.testScript,
+      testData: this.testGenerationOption.testData,
+      buttonDefinitions: this.testGenerationOption.customButtonTags.map(
+        (tag) => {
+          const items = tag.split(":type=");
+          return { tagname: items.at(0) ?? "", elementType: items.at(1) };
+        }
+      ),
+    };
+
+    this.$emit("execute", option);
+
+    (async () => {
+      await this.$store.dispatch("writeTestScriptOption", {
+        option: { buttonDefinitions: option.buttonDefinitions },
+      });
+
+      this.close();
+    })();
   }
 
   private close(): void {

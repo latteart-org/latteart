@@ -20,7 +20,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common";
+import { RepositoryService, TestScriptOption } from "src/common";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
@@ -79,5 +79,18 @@ export class SaveSettingAction {
     return new ActionSuccess({
       autofill: putAutoPopupSettingsResult.data,
     });
+  }
+
+  public async saveTestScriptOption(
+    option: Pick<TestScriptOption, "buttonDefinitions">
+  ): Promise<ActionResult<Pick<TestScriptOption, "buttonDefinitions">>> {
+    const putTestScriptOptionResult =
+      await new LocalStorageSettingRepository().putTestScriptOption(option);
+
+    if (putTestScriptOptionResult.isFailure()) {
+      return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
+    }
+
+    return new ActionSuccess(putTestScriptOptionResult.data);
   }
 }

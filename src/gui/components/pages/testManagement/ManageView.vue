@@ -351,6 +351,7 @@ export default class ManageView extends Vue {
       useDataDriven: boolean;
       maxGeneration: number;
     };
+    buttonDefinitions: { tagname: string; elementType?: string }[];
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;
