@@ -18,46 +18,35 @@ import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   RepositoryService,
+  TestMatrixForRepository,
+  ManagedStoryForRepository,
 } from "../../../../common";
 import { ManagedStory } from "@/lib/testManagement/TestManagementData";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
-import { StoryConvertable } from "./WriteDataFileAction";
+import { TestMatrix } from "@/lib/testManagement/types";
 import {
   ActionResult,
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 
-export interface ReadDataFileMutationObserver {
-  setProjectId(data: { projectId: string }): void;
-  setManagedData(data: { testMatrices: TestMatrix[] }): void;
-  setStoriesData(data: { stories: Story[] }): void;
-}
-
-export interface ProjectStoryConvertable {
-  convertToStory(
-    target: ManagedStory,
-    repositoryService: Pick<
-      RepositoryService,
-      "projectRepository" | "testResultRepository"
-    >
-  ): Promise<Story>;
-}
-
 const READ_PROJECT_DATA_FAILED_MESSAGE_KEY =
   "error.test_management.read_project_data_failed";
 
-export class ReadProjectDataAction {
+export class ReadProjectAction {
   constructor(
-    private observer: ReadDataFileMutationObserver,
-    private storyDataConverter: StoryConvertable,
     private repositoryService: Pick<
       RepositoryService,
-      "projectRepository" | "testResultRepository"
+      "projectRepository" | "testResultRepository" | "serviceUrl"
     >
   ) {}
 
-  public async read(): Promise<ActionResult<void>> {
+  public async read(): Promise<
+    ActionResult<{
+      projectId: string;
+      testMatrices: TestMatrixForRepository[];
+      stories: ManagedStoryForRepository[];
+    }>
+  > {
     const readProjectResult = await this.readProject();
 
     if (readProjectResult.isFailure()) {
@@ -66,27 +55,7 @@ export class ReadProjectDataAction {
       });
     }
 
-    const { projectId, testMatrices, stories } = readProjectResult.data;
-
-    this.observer.setProjectId({ projectId });
-
-    this.observer.setManagedData({ testMatrices });
-
-    this.observer.setStoriesData({
-      stories: await Promise.all(
-        stories.map((story) =>
-          this.storyDataConverter.convertToStory(
-            story,
-            this.repositoryService as unknown as Pick<
-              RepositoryService,
-              "testResultRepository" | "projectRepository"
-            >
-          )
-        )
-      ),
-    });
-
-    return new ActionSuccess(undefined);
+    return new ActionSuccess(readProjectResult.data);
   }
 
   /**

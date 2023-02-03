@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SettingsForRepository } from "src/common";
+import { SettingsForRepository, SnapshotConfigForRepository } from "src/common";
 
 export type ProjectSettings = SettingsForRepository;
 
@@ -45,4 +45,4 @@ export type ViewSettings = {
   };
 };
 
-export type SnapshotConfig = { locale: string };
+export type SnapshotConfig = SnapshotConfigForRepository;

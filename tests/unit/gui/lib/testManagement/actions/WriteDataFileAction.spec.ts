@@ -5,7 +5,6 @@ import {
 import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 import { Story, Project } from "@/lib/testManagement/types";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
-import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 import { TestResultRepository, ProjectRESTRepository } from "src/common";
 
 const baseRestClient: RESTClient = {
@@ -82,7 +81,6 @@ describe("WriteDataActionの", () => {
 
       const result = await new WriteDataFileAction(
         observer,
-        new StoryDataConverter(),
         repositoryService
       ).write(projectId, testManagementData, stories);
 

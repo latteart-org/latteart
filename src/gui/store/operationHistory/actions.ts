@@ -446,10 +446,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { root: true }
     );
     await context.dispatch("updateScreenHistory");
-    const testingTime = result.data.testingTime;
+
     context.dispatch(
       "captureControl/resetTimer",
-      { millis: testingTime },
+      { millis: result.data.testingTime },
       { root: true }
     );
 

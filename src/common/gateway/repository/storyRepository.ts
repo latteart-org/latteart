@@ -49,4 +49,22 @@ export class StoryRepository {
       return createConnectionRefusedFailure();
     }
   }
+
+  public async getStory(
+    id: string
+  ): Promise<RepositoryAccessResult<StoryForRepository>> {
+    try {
+      const response = await this.restClient.httpGet(`api/v1/stories/${id}`);
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as StoryForRepository,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
 }

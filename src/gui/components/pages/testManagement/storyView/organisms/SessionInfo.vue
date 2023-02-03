@@ -534,7 +534,9 @@ export default class SessionInfo extends Vue {
   }
 
   private async reload() {
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readStory", {
+      storyId: this.storyId,
+    });
   }
 
   private async addTestResultToSession(

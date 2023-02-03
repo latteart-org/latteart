@@ -108,7 +108,7 @@ export default class RemoteAccessField extends Vue {
     await this.$store.dispatch("readViewSettings");
     await this.$store.dispatch("operationHistory/resetHistory");
     await this.$store.dispatch("captureControl/resetTimer");
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readProject");
   }
 
   private startRemoteConnection(targetUrl: string) {

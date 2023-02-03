@@ -419,7 +419,7 @@ export default class ManageView extends Vue {
         );
 
         if (projectId) {
-          await this.$store.dispatch("testManagement/readDataFile");
+          await this.$store.dispatch("testManagement/readProject");
         }
 
         this.informationMessageDialogOpened = true;

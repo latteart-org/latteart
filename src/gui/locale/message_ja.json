@@ -551,6 +551,7 @@
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
       "illegal_test_management_data": "テスト管理データのフォーマットが不正です。",
       "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
+      "read_story_data_failed": "ストーリー情報の読み込みに失敗しました。",
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",

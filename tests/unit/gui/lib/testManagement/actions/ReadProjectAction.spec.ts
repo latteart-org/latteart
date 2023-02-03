@@ -1,10 +1,6 @@
-import {
-  ReadProjectDataAction,
-  ReadDataFileMutationObserver,
-} from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { RESTClient, RESTClientResponse } from "src/common/network/http/client";
 import { TestResultRepository, ProjectRESTRepository } from "src/common";
-import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
+import { ReadProjectAction } from "@/lib/testManagement/actions/ReadProjectAction";
 
 const baseRestClient: RESTClient = {
   serverUrl: "",
@@ -15,7 +11,7 @@ const baseRestClient: RESTClient = {
   httpDelete: jest.fn(),
 };
 
-describe("ReadProjectDataActionの", () => {
+describe("ReadProjectActionの", () => {
   describe("#read", () => {
     describe("プロジェクト情報をリポジトリから読み込む", () => {
       const resFailure: RESTClientResponse = {
@@ -23,17 +19,7 @@ describe("ReadProjectDataActionの", () => {
         data: { code: "errorcode", message: "errormessage" },
       };
 
-      let observer: ReadDataFileMutationObserver;
-
-      beforeEach(() => {
-        observer = {
-          setProjectId: jest.fn(),
-          setManagedData: jest.fn(),
-          setStoriesData: jest.fn(),
-        };
-      });
-
-      describe("読み込みに成功した場合は、observerの関数に読み込んだプロジェクト情報を渡す", () => {
+      describe("読み込みに成功した場合は、プロジェクト情報を返す", () => {
         const baseProjectExpectedData = {
           id: "",
           name: "",
@@ -74,14 +60,11 @@ describe("ReadProjectDataActionの", () => {
               .mockResolvedValueOnce(getProjectListResSuccess)
               .mockResolvedValue(getProjectResSuccess),
           };
-          const action = new ReadProjectDataAction(
-            observer,
-            new StoryDataConverter(),
-            {
-              testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRESTRepository(restClient),
-            }
-          );
+          const action = new ReadProjectAction({
+            testResultRepository: new TestResultRepository(restClient),
+            projectRepository: new ProjectRESTRepository(restClient),
+            serviceUrl: "serviceUrl",
+          });
 
           const result = await action.read();
 
@@ -94,11 +77,7 @@ describe("ReadProjectDataActionの", () => {
           expect(restClient.httpGet).toBeCalledWith(
             `api/v1/projects/${projectId}`
           );
-          // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
-          const { id, testMatrices, stories } = expectedProject;
-          expect(observer.setProjectId).toBeCalledWith({ projectId: id });
-          expect(observer.setManagedData).toBeCalledWith({ testMatrices });
-          expect(observer.setStoriesData).toBeCalledWith({ stories });
+
           if (result.isFailure()) {
             throw new Error("failed");
           }
@@ -134,14 +113,11 @@ describe("ReadProjectDataActionの", () => {
               .mockResolvedValue(getProjectResSuccess),
             httpPost: jest.fn().mockResolvedValue(postProjectResSuccess),
           };
-          const action = new ReadProjectDataAction(
-            observer,
-            new StoryDataConverter(),
-            {
-              testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRESTRepository(restClient),
-            }
-          );
+          const action = new ReadProjectAction({
+            testResultRepository: new TestResultRepository(restClient),
+            projectRepository: new ProjectRESTRepository(restClient),
+            serviceUrl: "serviceUrl",
+          });
 
           const result = await action.read();
 
@@ -155,11 +131,7 @@ describe("ReadProjectDataActionの", () => {
           expect(restClient.httpGet).toBeCalledWith(
             `api/v1/projects/${projectId}`
           );
-          // 読み込んだプロジェクトの各情報がobserverの関数に渡されること
-          const { id, testMatrices, stories } = expectedProject;
-          expect(observer.setProjectId).toBeCalledWith({ projectId: id });
-          expect(observer.setManagedData).toBeCalledWith({ testMatrices });
-          expect(observer.setStoriesData).toBeCalledWith({ stories });
+
           if (result.isFailure()) {
             throw new Error("failed");
           }
@@ -172,14 +144,11 @@ describe("ReadProjectDataActionの", () => {
             ...baseRestClient,
             httpGet: jest.fn().mockResolvedValue(resFailure),
           };
-          const action = new ReadProjectDataAction(
-            observer,
-            new StoryDataConverter(),
-            {
-              testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRESTRepository(restClient),
-            }
-          );
+          const action = new ReadProjectAction({
+            testResultRepository: new TestResultRepository(restClient),
+            projectRepository: new ProjectRESTRepository(restClient),
+            serviceUrl: "serviceUrl",
+          });
 
           const result = await action.read();
 
@@ -187,10 +156,7 @@ describe("ReadProjectDataActionの", () => {
           // 途中処理で失敗したため以降のAPIは呼ばれないこと
           expect(restClient.httpPost).not.toBeCalled();
           expect(restClient.httpGet).toBeCalledTimes(1);
-          // observerの各関数が呼ばれないこと
-          expect(observer.setProjectId).not.toBeCalled();
-          expect(observer.setManagedData).not.toBeCalled();
-          expect(observer.setStoriesData).not.toBeCalled();
+
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {
@@ -210,14 +176,11 @@ describe("ReadProjectDataActionの", () => {
             httpGet: jest.fn().mockResolvedValue(getProjectListResSuccess),
             httpPost: jest.fn().mockResolvedValue(resFailure),
           };
-          const action = new ReadProjectDataAction(
-            observer,
-            new StoryDataConverter(),
-            {
-              testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRESTRepository(restClient),
-            }
-          );
+          const action = new ReadProjectAction({
+            testResultRepository: new TestResultRepository(restClient),
+            projectRepository: new ProjectRESTRepository(restClient),
+            serviceUrl: "serviceUrl",
+          });
 
           const result = await action.read();
 
@@ -227,10 +190,7 @@ describe("ReadProjectDataActionの", () => {
           });
           // 途中処理で失敗したため以降のAPIは呼ばれないこと
           expect(restClient.httpGet).toBeCalledTimes(1);
-          // observerの各関数が呼ばれないこと
-          expect(observer.setProjectId).not.toBeCalled();
-          expect(observer.setManagedData).not.toBeCalled();
-          expect(observer.setStoriesData).not.toBeCalled();
+
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {
@@ -256,14 +216,11 @@ describe("ReadProjectDataActionの", () => {
               .mockResolvedValueOnce(getProjectListResSuccess)
               .mockResolvedValue(resFailure),
           };
-          const action = new ReadProjectDataAction(
-            observer,
-            new StoryDataConverter(),
-            {
-              testResultRepository: new TestResultRepository(restClient),
-              projectRepository: new ProjectRESTRepository(restClient),
-            }
-          );
+          const action = new ReadProjectAction({
+            testResultRepository: new TestResultRepository(restClient),
+            projectRepository: new ProjectRESTRepository(restClient),
+            serviceUrl: "serviceUrl",
+          });
 
           const result = await action.read();
 
@@ -273,10 +230,7 @@ describe("ReadProjectDataActionの", () => {
           expect(restClient.httpGet).toBeCalledWith(
             `api/v1/projects/${projectId}`
           );
-          // observerの各関数が呼ばれないこと
-          expect(observer.setProjectId).not.toBeCalled();
-          expect(observer.setManagedData).not.toBeCalled();
-          expect(observer.setStoriesData).not.toBeCalled();
+
           if (result.isSuccess()) {
             throw new Error("failed");
           } else {

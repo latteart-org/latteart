@@ -308,7 +308,7 @@ export default class ManageProgress extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readDataFile");
+    await this.$store.dispatch("testManagement/readProject");
 
     this.updateWindowTitle();
 

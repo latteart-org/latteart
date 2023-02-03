@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  ManagedStory,
-  TestManagementData,
-} from "@/lib/testManagement/TestManagementData";
+import { TestManagementData } from "@/lib/testManagement/TestManagementData";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import {
   ActionResult,
@@ -25,21 +22,11 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryService } from "src/common";
+import SessionDataConverter from "../SessionDataConverter";
 
 export interface WriteDataFileMutationObserver {
   setManagedData(data: { testMatrices: TestMatrix[] }): void;
   setStoriesData(data: { stories: Story[] }): void;
-}
-
-export interface StoryConvertable {
-  convertToStory(
-    target: ManagedStory,
-    repositoryService: Pick<
-      RepositoryService,
-      "testResultRepository" | "projectRepository"
-    >,
-    oldStory?: Story
-  ): Promise<Story>;
 }
 
 const WRITE_DATA_FILE_FAILED_MESSAGE_KEY =
@@ -48,7 +35,6 @@ const WRITE_DATA_FILE_FAILED_MESSAGE_KEY =
 export class WriteDataFileAction {
   constructor(
     private observer: WriteDataFileMutationObserver,
-    private storyDataConverter: StoryConvertable,
     private repositoryService: Pick<
       RepositoryService,
       "testResultRepository" | "projectRepository"
@@ -77,19 +63,32 @@ export class WriteDataFileAction {
       testMatrices: data.testMatrices,
     });
 
+    const converter = new SessionDataConverter();
+
     const parsedStories: Story[] = await Promise.all(
-      data.stories.map((story) => {
+      data.stories.map(async (story) => {
         const oldStory = stories.find((s) => {
           return s.id === story.id;
         });
-
-        return this.storyDataConverter.convertToStory(
-          story as ManagedStory,
-          this.repositoryService,
-          oldStory
+        const sessions = await Promise.all(
+          story.sessions.map((session) => {
+            const { oldSession, newSession } = converter.getOldAndNewSession(
+              {
+                session,
+              },
+              oldStory?.sessions
+            );
+            return converter.convertToSession(newSession, oldSession);
+          })
         );
+
+        return {
+          ...story,
+          sessions,
+        };
       })
     );
+
     this.observer.setStoriesData({ stories: parsedStories });
 
     return new ActionSuccess(undefined);

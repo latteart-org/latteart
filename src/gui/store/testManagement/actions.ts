@@ -25,12 +25,10 @@ import {
   TestResultFile,
   Plan,
 } from "@/lib/testManagement/types";
-import StoryDataConverter from "@/lib/testManagement/StoryDataConverter";
 import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
-import { ReadProjectDataAction } from "@/lib/testManagement/actions/ReadProjectDataAction";
 import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
 import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
@@ -52,6 +50,11 @@ import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionA
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 import { Timestamp } from "@/lib/common/Timestamp";
 import { ProjectFileRepository } from "../../lib/common/ProjectFileRepository";
+import SessionDataConverter from "@/lib/testManagement/SessionDataConverter";
+import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
+import { ReadStoryDataAction } from "@/lib/testManagement/actions/ReadStoryDataAction";
+import { ReadProjectAction } from "@/lib/testManagement/actions/ReadProjectAction";
+import { ManagedSessionForRepository } from "src/common";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -67,7 +70,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       return;
     }
 
-    await context.dispatch("readDataFile");
+    await context.dispatch("readProject");
   },
 
   /**
@@ -129,32 +132,111 @@ const actions: ActionTree<TestManagementState, RootState> = {
   },
 
   /**
-   * Load test management data and update the State.
+   * Load project with all test results and update the State.
    * @param context Action context.
    */
-  async readDataFile(context) {
+  async readProjectWithTestResult(context) {
     if (Vue.prototype.$snapshot) {
       return;
     }
-    await new ReadProjectDataAction(
-      {
-        setProjectId: (data: { projectId: string }): void => {
-          context.commit("setProjectId", {
-            projectId: data.projectId,
-          });
-        },
-        setManagedData: (data: { testMatrices: TestMatrix[] }): void => {
-          context.commit("setManagedData", {
-            testMatrices: data.testMatrices,
-          });
-        },
-        setStoriesData: (data: { stories: Story[] }): void => {
-          context.commit("setStoriesData", { stories: data.stories });
-        },
-      },
-      new StoryDataConverter(),
-      context.rootState.repositoryService
-    ).read();
+    const repository = context.rootState.repositoryService;
+
+    const result = await new ReadProjectAction(repository).read();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    context.commit("setProjectId", { projectId: result.data.projectId });
+    context.commit("setManagedData", {
+      testMatrices: result.data.testMatrices,
+    });
+    const testResultReader = async (
+      managedSession: ManagedSessionForRepository
+    ) => {
+      const testResultId =
+        managedSession.testResultFiles &&
+        managedSession.testResultFiles.length > 0
+          ? managedSession.testResultFiles[0].id
+          : undefined;
+
+      const getTestResult = async (testResultId: string) => {
+        const getTestResultResult = await new GetTestResultAction(
+          repository
+        ).getTestResult(testResultId);
+
+        if (getTestResultResult.isFailure()) {
+          return undefined;
+        } else {
+          return getTestResultResult.data;
+        }
+      };
+      return testResultId ? await getTestResult(testResultId) : undefined;
+    };
+    const readStoryResult = await new ReadStoryDataAction(
+      repository
+    ).createStoryWithTestResult(result.data.stories, testResultReader);
+
+    if (readStoryResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          readStoryResult.error.messageKey,
+          readStoryResult.error.variables
+        )
+      );
+    }
+
+    context.commit("setStoriesData", { stories: readStoryResult.data });
+  },
+
+  /**
+   * Load project and update the State.
+   * @param context Action context.
+   */
+  async readProject(context) {
+    if (Vue.prototype.$snapshot) {
+      return;
+    }
+    const repository = context.rootState.repositoryService;
+
+    const result = await new ReadProjectAction(repository).read();
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    context.commit("setProjectId", { projectId: result.data.projectId });
+    context.commit("setManagedData", {
+      testMatrices: result.data.testMatrices,
+    });
+
+    const testResultReader = async (_: ManagedSessionForRepository) => {
+      return undefined;
+    };
+    const readStoryResult = await new ReadStoryDataAction(
+      repository
+    ).createStoryWithTestResult(result.data.stories, testResultReader);
+
+    if (readStoryResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          readStoryResult.error.messageKey,
+          readStoryResult.error.variables
+        )
+      );
+    }
+
+    context.commit("setStoriesData", { stories: readStoryResult.data });
   },
 
   /**
@@ -185,7 +267,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
           context.commit("setStoriesData", { stories: data.stories });
         },
       },
-      new StoryDataConverter(),
       context.rootState.repositoryService
     ).write(context.state.projectId, testManagementData, context.state.stories);
   },
@@ -289,7 +370,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       },
       context.rootState.repositoryService
     );
-    await context.dispatch("readDataFile");
+    await context.dispatch("readProject");
   },
 
   /**
@@ -560,7 +641,24 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     const updatedSession = result.data;
 
-    const parsedSession = await new StoryDataConverter().convertToSession(
+    const getTestResultResult =
+      updatedSession.testResultFiles &&
+      updatedSession.testResultFiles.length > 0
+        ? await new GetTestResultAction(
+            context.rootState.repositoryService
+          ).getTestResult(updatedSession.testResultFiles[0].id)
+        : undefined;
+
+    if (getTestResultResult && getTestResultResult.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          getTestResultResult.error.messageKey,
+          getTestResultResult.error.variables
+        )
+      );
+    }
+
+    const parsedSession = await new SessionDataConverter().convertToSession(
       {
         name: updatedSession.name,
         id: updatedSession.id,
@@ -573,8 +671,8 @@ const actions: ActionTree<TestManagementState, RootState> = {
         testResultFiles: updatedSession.testResultFiles ?? undefined,
         issues: updatedSession.issues,
         testingTime: updatedSession.testingTime,
+        testResult: getTestResultResult ? getTestResultResult.data : undefined,
       },
-      context.rootState.repositoryService,
       session
     );
 
@@ -646,6 +744,27 @@ const actions: ActionTree<TestManagementState, RootState> = {
       },
       context.rootState.repositoryService
     );
+
+    if (result.isFailure()) {
+      throw result.error;
+    }
+
+    context.commit("setStory", {
+      data: result.data,
+    });
+  },
+
+  async readStory(
+    context,
+    payload: {
+      storyId: string;
+    }
+  ): Promise<void> {
+    const result = await new ReadStoryDataAction(
+      context.rootState.repositoryService
+    ).readStory({
+      id: payload.storyId,
+    });
 
     if (result.isFailure()) {
       throw result.error;

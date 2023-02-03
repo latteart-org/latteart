@@ -300,7 +300,7 @@ export default class ConfigView extends Vue {
             targetUrl: this.$route.query.repository,
           });
 
-          await this.$store.dispatch("testManagement/readDataFile");
+          await this.$store.dispatch("testManagement/readProject");
         }
 
         await this.$store.dispatch("operationHistory/loadHistory", {
