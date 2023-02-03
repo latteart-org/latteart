@@ -281,6 +281,15 @@ export default class ScriptGenerationOptionDialog extends Vue {
   private close(): void {
     this.$emit("close");
   }
+
+  private errorCaptured(error: Error) {
+    if (
+      error.message === "Cannot read properties of undefined (reading 'click')"
+    ) {
+      console.warn(error);
+      return false;
+    }
+  }
 }
 </script>
 
