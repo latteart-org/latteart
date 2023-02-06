@@ -47,10 +47,6 @@
 </template>
 
 <script lang="ts">
-import {
-  OperationHistory,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/components/pages/common/ScriptGenerationOptionDialog.vue";
@@ -119,6 +115,10 @@ export default class GenerateTestScriptButton extends Vue {
       useDataDriven: boolean;
       maxGeneration: number;
     };
+    buttonDefinitions: {
+      tagname: string;
+      attribute?: { name: string; value: string };
+    }[];
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;

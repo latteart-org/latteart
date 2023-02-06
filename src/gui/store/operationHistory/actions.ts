@@ -938,6 +938,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       option: {
         testScript: { isSimple: boolean };
         testData: { useDataDriven: boolean; maxGeneration: number };
+        buttonDefinitions: {
+          tagname: string;
+          attribute?: { name: string; value: string };
+        }[];
       };
     }
   ) {

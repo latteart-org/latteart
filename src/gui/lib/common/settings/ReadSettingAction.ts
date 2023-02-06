@@ -20,7 +20,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { RepositoryService } from "src/common";
+import { RepositoryService, TestScriptOption } from "src/common";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
@@ -52,5 +52,18 @@ export class ReadSettingAction {
     return new ActionSuccess({
       autofill: getAutoPopupSettingsResult.data,
     });
+  }
+
+  public async readTestScriptOption(): Promise<
+    ActionResult<Pick<TestScriptOption, "buttonDefinitions">>
+  > {
+    const getTestScriptOptionResult =
+      await new LocalStorageSettingRepository().getTestScriptOption();
+
+    if (getTestScriptOptionResult.isFailure()) {
+      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
+    }
+
+    return new ActionSuccess(getTestScriptOptionResult.data);
   }
 }

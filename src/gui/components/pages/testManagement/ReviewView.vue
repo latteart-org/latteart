@@ -145,6 +145,10 @@ export default class ReviewView extends Vue {
       useDataDriven: boolean;
       maxGeneration: number;
     };
+    buttonDefinitions: {
+      tagname: string;
+      attribute?: { name: string; value: string };
+    }[];
   }) {
     (async () => {
       this.isGeneratingTestScripts = true;

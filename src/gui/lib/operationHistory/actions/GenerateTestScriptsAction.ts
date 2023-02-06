@@ -45,6 +45,10 @@ export class GenerateTestScriptsAction {
         useDataDriven: boolean;
         maxGeneration: number;
       };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
     }
   ) {}
 
@@ -175,6 +179,7 @@ export class GenerateTestScriptsAction {
       optimized: !this.option.testScript.isSimple,
       testData: this.option.testData,
       view: viewOption,
+      buttonDefinitions: this.option.buttonDefinitions,
     };
 
     return testScriptOption;
