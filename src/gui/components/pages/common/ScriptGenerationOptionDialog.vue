@@ -169,7 +169,6 @@ import { TestScriptOption } from "src/common";
 export default class ScriptGenerationOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
 
-  private typeSeparator = ":type=";
   private search = "";
   private testGenerationOption = this.createNewOption();
   private get customButtonCandidateTags() {
@@ -219,12 +218,7 @@ export default class ScriptGenerationOptionDialog extends Vue {
 
         if (option.buttonDefinitions) {
           this.testGenerationOption.customButtonTags =
-            option.buttonDefinitions.map(({ tagname, elementType }) => {
-              const elementTypeText = elementType
-                ? `${this.typeSeparator}${elementType}`
-                : "";
-              return `${tagname}${elementTypeText}`;
-            });
+            option.buttonDefinitions.map(this.convertButtonDefinitionToTag);
         }
       })();
     }
@@ -260,10 +254,7 @@ export default class ScriptGenerationOptionDialog extends Vue {
       testScript: this.testGenerationOption.testScript,
       testData: this.testGenerationOption.testData,
       buttonDefinitions: this.testGenerationOption.customButtonTags.map(
-        (tag) => {
-          const items = tag.split(":type=");
-          return { tagname: items.at(0) ?? "", elementType: items.at(1) };
-        }
+        this.convertTagToButtonDefinition
       ),
     };
 
@@ -280,6 +271,39 @@ export default class ScriptGenerationOptionDialog extends Vue {
 
   private close(): void {
     this.$emit("close");
+  }
+
+  private convertButtonDefinitionToTag(buttonDefinition: {
+    tagname: string;
+    attribute?: {
+      name: string;
+      value: string;
+    };
+  }): string {
+    const attributeText = buttonDefinition.attribute
+      ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
+      : "";
+
+    if (!attributeText) {
+      return buttonDefinition.tagname;
+    }
+
+    return [buttonDefinition.tagname, attributeText].join(":");
+  }
+
+  private convertTagToButtonDefinition(tag: string) {
+    const items = tag.split(":");
+
+    const tagname = items.at(0) ?? "";
+    const attributeText = items.at(1);
+
+    if (!attributeText) {
+      return { tagname };
+    }
+
+    const [name, value] = attributeText?.split("=");
+
+    return { tagname, attribute: { name, value } };
   }
 
   private errorCaptured(error: Error) {
