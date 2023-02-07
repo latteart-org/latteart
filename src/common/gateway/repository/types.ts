@@ -295,6 +295,7 @@ export type IssueForRepository = {
   value: string;
   details: string;
   imageFilePath?: string;
+  tags?: string[];
 };
 
 export type StoryForRepository = {

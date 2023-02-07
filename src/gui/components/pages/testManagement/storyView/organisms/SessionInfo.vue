@@ -239,7 +239,8 @@
                             props.item.ticketId,
                             props.item.value,
                             props.item.details,
-                            props.item.imageFilePath
+                            props.item.imageFilePath,
+                            props.item.tags
                           )
                         "
                         >{{
@@ -295,6 +296,15 @@
                 $store.getters.message("session-info.details")
               }}</v-list-tile-title>
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
+            </v-list-tile-content>
+          </v-list-tile>
+
+          <v-list-tile v-if="issueDetailsDialogTags.length > 0" class="mb-2">
+            <v-list-tile-content>
+              <v-list-tile-title>{{
+                $store.getters.message("session-info.tags")
+              }}</v-list-tile-title>
+              <note-tags-chips :tags="issueDetailsDialogTags"></note-tags-chips>
             </v-list-tile-content>
           </v-list-tile>
           <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
@@ -373,6 +383,7 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
+import NoteTagsChips from "@/components/molecules/NoteTagsChips.vue";
 
 @Component({
   components: {
@@ -380,6 +391,7 @@ import PopupImage from "@/components/molecules/PopupImage.vue";
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "popup-image": PopupImage,
+    "note-tags-chips": NoteTagsChips,
   },
 })
 export default class SessionInfo extends Vue {
@@ -410,6 +422,7 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
+  private issueDetailsDialogTags: string[] = [];
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -671,7 +684,8 @@ export default class SessionInfo extends Vue {
     ticketId: string,
     summary: string,
     text: string,
-    imageFilePath: string
+    imageFilePath: string,
+    tags?: string[]
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -685,6 +699,7 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogImagePath = imageFilePath;
+    this.issueDetailsDialogTags = tags ? tags : [];
     this.issueDetailsDialogOpened = true;
   }
 
