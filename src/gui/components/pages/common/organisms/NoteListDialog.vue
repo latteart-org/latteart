@@ -68,7 +68,7 @@ import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import NoteTagChipGroup from "../pages/common/organisms/NoteTagChipGroup.vue";
+import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 
 @Component({
   components: {

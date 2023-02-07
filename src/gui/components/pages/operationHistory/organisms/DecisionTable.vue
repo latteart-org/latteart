@@ -168,7 +168,7 @@ import {
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import NoteListDialog from "@/components/molecules/NoteListDialog.vue";
+import NoteListDialog from "../../common/organisms/NoteListDialog.vue";
 
 type InputValue = {
   [key: string]:
