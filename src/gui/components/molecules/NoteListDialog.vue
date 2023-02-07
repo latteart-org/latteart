@@ -37,7 +37,7 @@
           </div>
         </v-card-title>
         <v-card-text>
-          <note-tags-chips :tags="note.tags"></note-tags-chips>
+          <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
           <v-textarea
             solo
             auto-grow
@@ -68,12 +68,12 @@ import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import NoteTagsChips from "./NoteTagsChips.vue";
+import NoteTagChipGroup from "../pages/common/organisms/NoteTagChipGroup.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
-    "note-tags-chips": NoteTagsChips,
+    "note-tag-chip-group": NoteTagChipGroup,
   },
 })
 export default class NoteListDialog extends Vue {

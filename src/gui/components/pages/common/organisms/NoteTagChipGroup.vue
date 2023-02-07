@@ -31,7 +31,7 @@ import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
-export default class NoteTagsChips extends Vue {
+export default class NoteTagChipGroup extends Vue {
   @Prop({ type: Array, default: [] }) public readonly tags!: [];
 
   private bugColor = "";

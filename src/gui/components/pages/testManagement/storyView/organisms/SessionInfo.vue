@@ -304,7 +304,9 @@
               <v-list-tile-title>{{
                 $store.getters.message("session-info.tags")
               }}</v-list-tile-title>
-              <note-tags-chips :tags="issueDetailsDialogTags"></note-tags-chips>
+              <note-tag-chip-group
+                :tags="issueDetailsDialogTags"
+              ></note-tag-chip-group>
             </v-list-tile-content>
           </v-list-tile>
           <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
@@ -383,7 +385,7 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
-import NoteTagsChips from "@/components/molecules/NoteTagsChips.vue";
+import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
 
 @Component({
   components: {
@@ -391,7 +393,7 @@ import NoteTagsChips from "@/components/molecules/NoteTagsChips.vue";
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "popup-image": PopupImage,
-    "note-tags-chips": NoteTagsChips,
+    "note-tag-chip-group": NoteTagChipGroup,
   },
 })
 export default class SessionInfo extends Vue {
