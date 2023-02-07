@@ -144,6 +144,7 @@ export default class SessionDataConverter {
           value: note.value,
           details: note.details,
           imageFilePath: note.imageFilePath || testStep.operation.imageFilePath,
+          tags: note.tags,
         };
       });
     });

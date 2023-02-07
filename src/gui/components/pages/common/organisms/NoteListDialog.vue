@@ -37,12 +37,7 @@
           </div>
         </v-card-title>
         <v-card-text>
-          <v-chip
-            v-for="(tag, index) in note.tags"
-            :key="index"
-            :color="getTagsColor(tag)"
-            >{{ tag }}</v-chip
-          >
+          <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
           <v-textarea
             solo
             auto-grow
@@ -73,30 +68,18 @@ import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
+    "note-tag-chip-group": NoteTagChipGroup,
   },
 })
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
   @Prop({ type: Array, default: [] }) testSteps?: OperationWithNotes[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
-
-  private bugColor = "";
-  private reportedColor = "";
-  private invalidColor = "";
-  private tagsColor = noteTagPreset.items.map((item) => {
-    if (item.name === "bug") {
-      this.bugColor = item.color;
-    } else if (item.name === "reported") {
-      this.reportedColor = item.color;
-    } else if (item.name === "invalid") {
-      this.invalidColor = item.color;
-    }
-  });
 
   private close() {
     this.$emit("close");
@@ -121,16 +104,6 @@ export default class NoteListDialog extends Vue {
         );
       }) ?? []
     );
-  }
-
-  private getTagsColor(tag: string) {
-    return tag === "bug"
-      ? this.bugColor
-      : tag === "reported"
-      ? this.reportedColor
-      : tag === "invalid"
-      ? this.invalidColor
-      : "";
   }
 }
 </script>

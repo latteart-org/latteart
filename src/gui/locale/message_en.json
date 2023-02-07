@@ -417,6 +417,7 @@
     "content": "Content",
     "summary": "Summary",
     "details": "Details",
+    "tags": "Tags",
     "none": "None",
     "delete-test-result-confirm": "Are you sure you want to delete the test result?",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",

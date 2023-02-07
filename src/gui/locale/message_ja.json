@@ -421,6 +421,7 @@
     "content": "内容",
     "summary": "概要",
     "details": "詳細",
+    "tags": "タグ",
     "none": "なし",
     "delete-test-result-confirm": "テスト結果を削除してもよろしいですか？",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
