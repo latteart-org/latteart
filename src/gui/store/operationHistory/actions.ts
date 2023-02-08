@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import Vue from "vue";
 import { ActionTree } from "vuex";
 import { OperationHistoryState } from ".";
 import { RootState } from "..";
@@ -48,6 +49,7 @@ import {
   ServiceSuccess,
   TestResultViewOption,
   CoverageSource,
+  SequenceViewForRepository,
 } from "../../../common";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
@@ -554,17 +556,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       callback: SequenceDiagramGraphCallback;
     }
   ) {
-    const testResult =
-      context.rootState.repositoryService.createTestResultAccessor(
-        context.state.testResultInfo.id
-      );
-    const result = await testResult.generateSequenceView(payload.viewOption);
+    let sequenceView: SequenceViewForRepository;
+    if (Vue.prototype.$sequenceView) {
+      sequenceView = Vue.prototype.$sequenceView;
+    } else {
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
+        );
+      const result = await testResult.generateSequenceView(payload.viewOption);
 
-    if (result.isFailure()) {
-      return;
+      if (result.isFailure()) {
+        return;
+      }
+      sequenceView = result.data;
     }
 
-    const sequenceView = result.data;
     const graph = await convertToSequenceDiagramGraph(
       sequenceView,
       payload.callback

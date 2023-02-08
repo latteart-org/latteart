@@ -23,9 +23,11 @@ import router from "../../viewerRouter";
 import store from "@/store";
 
 declare const historyLog: any;
+declare const sequenceView: any;
 declare const settings: any;
 
 Vue.prototype.$historyLog = historyLog;
+Vue.prototype.$sequenceView = sequenceView;
 Vue.prototype.$settings = settings;
 Vue.prototype.$isViewerMode = true;
 
