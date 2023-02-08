@@ -253,9 +253,10 @@ export default class ScriptGenerationOptionDialog extends Vue {
     const option = {
       testScript: this.testGenerationOption.testScript,
       testData: this.testGenerationOption.testData,
-      buttonDefinitions: this.testGenerationOption.customButtonTags.map(
-        this.convertTagToButtonDefinition
-      ),
+      buttonDefinitions: [
+        ...this.testGenerationOption.customButtonTags,
+        ...this.standardButtontags,
+      ].map(this.convertTagToButtonDefinition),
     };
 
     this.$emit("execute", option);
