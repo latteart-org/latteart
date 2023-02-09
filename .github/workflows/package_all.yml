@@ -147,12 +147,12 @@ jobs:
       - name: Package
         run: |
           npm run build -w latteart-client
-          npm run package:${{ matrix.os }} -w latteart-gui
+          npm run package -w latteart-gui
 
       - name: Make Artifact
         run: |
           mkdir artifact
-          cp -r packages/latteart-gui/dist/package/${{ matrix.os }}/latteart/* artifact
+          cp -r packages/latteart-gui/dist/package/latteart/* artifact
 
       - name: Build Artifact Name
         id: build_artifact_name
