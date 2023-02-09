@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: latteart-capture-cl
+  version: 2.7.1
+servers:
+  - url: "http://localhost:3001/api/v1"
+paths:
+  /devices:
+    get:
+      operationId: GetDevices
+      description: Get connected device informations.
+      tags:
+        - devices
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceInfo"
+        "500":
+          description: Detect devices failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerError_detect_devices_failed"
+  /server-name:
+    get:
+      operationId: GetServerName
+      description: "Get server name."
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    ServerError_detect_devices_failed:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - detect_devices_failed
+          nullable: false
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              target:
+                type: string
+      description: "Server error."
+    DeviceInfo:
+      type: object
+      properties:
+        platform:
+          type: string
+          enum:
+            - Android
+            - iOS
+        id:
+          type: string
+        name:
+          type: string
+        osVersion:
+          type: string
+      description: "Device information."
+tags:
+  - name: devices

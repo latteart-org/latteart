@@ -1,0 +1,25 @@
+{
+  "name": "latteart-client",
+  "version": "2.7.1",
+  "private": true,
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "run-s build:cjs build:esm",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "watch": "tsc -w",
+    "lint": "eslint src tests",
+    "fix": "run-s fix:lint fix:format",
+    "fix:lint": "eslint --fix src tests",
+    "fix:format": "prettier --write src tests"
+  },
+  "dependencies": {
+    "socket.io-client": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/socket.io-client": "^1.4.34"
+  }
+}

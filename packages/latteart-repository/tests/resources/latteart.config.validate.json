@@ -1,0 +1,51 @@
+{
+  "locale": "ja",
+  "mode": "debug",
+  "debug": {
+    "outputs": {
+      "dom": false
+    },
+    "configureCaptureSettings": true
+  },
+  "defaultTagList": [],
+  "viewPointsPreset": [
+    {
+      "name": "default",
+      "viewPoints": [
+        {
+          "name": "基本フロー"
+        },
+        {
+          "name": "代替フロー"
+        },
+        {
+          "name": "例外フロー"
+        },
+        {
+          "name": "中断・再開・繰り返し"
+        },
+        {
+          "name": "データライフサイクル"
+        },
+        {
+          "name": "共有・排他・ロールセキュリティ"
+        },
+        {
+          "name": "入出力"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "coverage": {
+      "include": {
+        "tags": []
+      }
+    },
+    "screenDefinition": {
+      "isRegex": false,
+      "screenDefList": [],
+      "screenDefType": "size"
+    }
+  }
+}

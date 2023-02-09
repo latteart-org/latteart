@@ -1,0 +1,42 @@
+{
+  "entryFile": "src/index.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/**/*Controller.ts"],
+  "spec": {
+    "outputDirectory": "./docs/api",
+    "specVersion": 3,
+    "basePath": "/api/v1",
+    "host": "localhost:3002",
+    "schemes": ["http"],
+    "specFileBaseName": "api",
+    "yaml": true,
+    "tags": [
+      {
+        "name": "test-results"
+      },
+      {
+        "name": "projects"
+      },
+      {
+        "name": "test-matrices"
+      },
+      {
+        "name": "test-target-groups"
+      },
+      {
+        "name": "view-points"
+      },
+      {
+        "name": "stories"
+      },
+      {
+        "name": "imports"
+      }
+    ]
+  },
+  "routes": {
+    "routesDir": "src/routes",
+    "basePath": "/api/v1"
+  },
+  "ignore": ["**/node_modules/**"]
+}
