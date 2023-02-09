@@ -4,6 +4,6 @@
     "latteart-repository": "dist/index.js"
   },
   "pkg": {
-    "assets": ["../../node_modules/sqlite3/lib/binding/**/*"]
+    "assets": ["../../node_modules/sqlite3/lib/binding/**/*", "../../node_modules/jsdoc/**/*", "../../node_modules/jsdoc-mermaid/**/*"]
   }
 }
