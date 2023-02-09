@@ -1,0 +1,9 @@
+{
+  "name": "latteart-repository",
+  "bin": {
+    "latteart-repository": "dist/index.js"
+  },
+  "pkg": {
+    "assets": ["../../node_modules/sqlite3/lib/binding/**/*"]
+  }
+}

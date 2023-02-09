@@ -20,43 +20,47 @@ GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) �
 
 ## 開発
 
-LatteArt は以下のパッケージから構成され、複数の GitHub リポジトリで管理されています。
+LatteArt は以下のパッケージから構成されています。
 
-| GitHub リポジトリ   | パッケージ          | 説明                         |
-| ------------------- | ------------------- | ---------------------------- |
-| latteart            | launch              | 各サーバ起動用コマンド       |
-|                     | latteart            | GUI サーバ                   |
-| latteart-capture-cl | latteart-capture-cl | ブラウザ操作情報取得用サーバ |
-| latteart-repository | latteart-repository | データ保存用サーバ           |
-
-:warning: Issues は全て`latteart`リポジトリ配下で管理しているため注意してください。
+| パッケージ          | 説明                         |
+| ------------------- | ---------------------------- |
+| latteart-launch     | 起動用コマンド               |
+| latteart-cli        | GUI 提供用 Web サーバ        |
+| latteart-gui        | GUI (Web アプリケーション)   |
+| latteart-client     | フロントエンド共通モジュール |
+| latteart-capture-cl | ブラウザ操作情報取得用サーバ |
+| latteart-repository | データ保存用サーバ           |
 
 LatteArt の各パッケージは以下のように連携して動作します。
 
 ```mermaid
 flowchart LR
   subgraph LatteArt
-    direction LR
-    launch(launch)
-    latteart(latteart)
+    launch(latteart-launch)
+    subgraph latteart
+      cli(latteart-cli)
+      gui(latteart-gui)
+      client(latteart-client)
+
+      cli -- serve --> gui
+      gui -- use --> client
+    end
     capturecl(latteart-capture-cl)
     repository(latteart-repository)
 
-    latteart -- HTTP --> capturecl
-    latteart <-- WebSocket --> capturecl
-    latteart -- HTTP --> repository
+    client -- HTTP --> capturecl
+    client <-- WebSocket --> capturecl
+    client -- HTTP --> repository
 
     launch -- exec process --> capturecl
-    launch -- exec process --> latteart
+    launch -- exec process --> cli
     launch -- exec process --> repository
   end
 
   driver(<b>Browser driver</b><br><i>eg. ChromeDriver</i>)
-  browser(<b>Test target browser</b><br><i>eg. Chrome</i>)
   classDef externals fill:#fbb,stroke:#f33
   class driver,browser externals
 
-  driver <--> browser
   capturecl <--> driver
 ```
 
@@ -66,39 +70,102 @@ flowchart LR
 
 - latteart-capture-cl
   - [REST API リファレンス](https://latteart-org.github.io/latteart-capture-cl/)
-  - [WebSocket API リファレンス](https://github.com/latteart-org/latteart-capture-cl/blob/main/docs/socketIOEvents.md)
+  - [WebSocket API リファレンス](../packages/latteart-capture-cl/docs/api/websocket.md)
 - latteart-repository
   - [REST API リファレンス](https://latteart-org.github.io/latteart-repository/)
 
-### パッケージの開発
+### 開発環境のセットアップ
 
-各パッケージの開発環境のセットアップ、開発用コマンド、ビルド方法等は以下を参照してください。
+開発に必要な以下ソフトウェアを開発環境にインストールします。
 
-- [launch パッケージの開発](./development/launch_ja.md)
-- [latteart パッケージの開発](./development/latteart_ja.md)
-- [latteart-capture-cl パッケージの開発](https://github.com/latteart-org/latteart-capture-cl/blob/main/docs/development_ja.md)
-- [latteart-repository パッケージの開発](https://github.com/latteart-org/latteart-repository/blob/main/docs/development_ja.md)
+- Git
+- Node.js v16.13.2
 
-### パッケージの統合
-
-各パッケージのビルドで作成された`latteart`、`latteart-capture-cl`、`latteart-repository`ディレクトリを統合します。
-
-`latteart`ディレクトリ配下に以下の構成で`latteart-capture-cl`、`latteart-repository`を配置します。
+全てのインストールが完了したら、`latteart`リポジトリを clone し、以下を実行します。
 
 ```bash
-latteart/
-    ├─ capture.bat
-    ├─ manage.bat
-    ├─ launch.config.json
-    ├─ launch.exe
-    ├─ latteart/
-    ├─ latteart-capture-cl/ # 追加
-    └─ latteart-repository/ # マージ
+$ cd latteart
+$ npm install
+```
+
+### エディタのセットアップ(VSCode)
+
+Visual Studio Code を開発環境にインストールします。
+
+インストールが完了したら、`latteart.code-workspace`をダブルクリックし、ワークスペースを開きます。
+
+:bulb: 推奨拡張機能のポップアップが表示された場合は、適宜インストールしてください。
+
+### 開発用コマンド
+
+各パッケージの開発用コマンドは以下の README を参照してください。
+
+- [latteart-launch](../packages/latteart-launch/README_ja.md)
+- [latteart-cli](../packages/latteart-cli/README_ja.md)
+- [latteart-gui](../packages/latteart-gui/README_ja.md)
+- [latteart-client](../packages/latteart-client/README_ja.md)
+- [latteart-capture-cl](../packages/latteart-capture-cl/README_ja.md)
+- [latteart-repository](../packages/latteart-repository/README_ja.md)
+
+### インストール資材のビルド
+
+以下コマンドを実行すると、全てのパッケージのビルドを実行し、インストール資材を作成します。
+
+```bash
+# Windows版LatteArt
+$ npm package:win
+
+# Mac版LatteArt
+$ npm package:mac
+```
+
+`dist`ディレクトリ配下に以下構成のディレクトリが作成されます。
+
+```bash
+# Windows版LatteArt
+dist/
+  └─ package/
+      └─ win/
+          └─ latteart/
+              ├─ capture.bat
+              ├─ manage.bat
+              ├─ launch.config.json
+              ├─ launch.exe
+              ├─ latteart/
+              │   ├─ public/
+              │   └─ latteart.exe
+              ├─ latteart-capture-cl/
+              │   └─ latteart-capture-cl.exe
+              └─ latteart-repository/
+                  ├─ history-viewer/
+                  ├─ snapshot-viewer/
+                  ├─ latteart-repository.exe
+                  └─ latteart.config.json
+
+# Mac版LatteArt
+dist/
+  └─ package/
+      └─ mac/
+          └─ latteart/
+              ├─ capture.command
+              ├─ manage.command
+              ├─ launch.config.json
+              ├─ launch
+              ├─ latteart/
+              │   ├─ public/
+              │   └─ latteart
+              ├─ latteart-capture-cl/
+              │   └─ latteart-capture-cl
+              └─ latteart-repository/
+                  ├─ history-viewer/
+                  ├─ snapshot-viewer/
+                  ├─ latteart-repository
+                  └─ latteart.config.json
 ```
 
 ## プルリクエスト
 
-- コントリビュータは、最初に LatteArt の各リポジトリを fork してください。
+- コントリビュータは、最初に LatteArt のリポジトリを fork してください。
 - コントリビュータは、fork したリポジトリ上で topic branch を作成し、latteart-org 配下のリポジトリの develop branch に対して Pull Request を行ってください。
   - topic branch のブランチ名は任意です。
 - コントリビュータは、[DCO](https://developercertificate.org/)に同意する必要があります。
@@ -110,8 +177,7 @@ latteart/
 - Pull Request を発行する際は、対応する Issue に紐づけてください。
   - 対応する Issue がない場合は Pull Request の発行前に作成してください。
 - Pull Request のタイトルには、"fix"に続いて対処した issue 番号および修正の概要を記入してください。
-  - `latteart`リポジトリでの修正は、`fix #[issue番号] [修正の概要]`
-  - `latteart-capture-cl`、`latteart-repository`での修正は、`fix latteart-org/latteart#[issue番号] [修正の概要]`
+  - `fix #[issue番号] [修正の概要]`
 - Pull Request の本文は、テンプレートを使用してください。
 
 ## コーディングスタイル

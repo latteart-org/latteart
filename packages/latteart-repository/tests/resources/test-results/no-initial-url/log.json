@@ -1,0 +1,84 @@
+{
+  "id": "no-initial-url",
+  "name": "name1",
+  "sessionId": "sessionId1",
+  "sequence": 1,
+  "startTimeStamp": 1592284175,
+  "endTimeStamp": -1,
+  "history": {
+    "1": {
+      "testStep": {
+        "sequence": 1,
+        "timestamp": "timestamp1",
+        "imageFileUrl": "imageFilePath1.png",
+        "windowInfo": {
+          "windowHandle": "window-handle"
+        },
+        "pageInfo": {
+          "title": "title1",
+          "url": "url1",
+          "screenDef": "screenDef1"
+        },
+        "operation": {
+          "input": "input1",
+          "type": "type1",
+          "elementInfo": {
+            "attributes": {
+              "id": "id1",
+              "name": "name1",
+              "type": "type1",
+              "value": "value1"
+            },
+            "checked": false,
+            "tagname": "tagname1",
+            "text": "text1",
+            "xpath": "xpath1"
+          }
+        }
+      },
+      "intention": null,
+      "bugs": null,
+      "notices": null
+    }
+  },
+  "coverageSources": [
+    {
+      "title": "title1",
+      "url": "url1",
+      "screenElements": [
+        {
+          "attributes": {
+            "id": "id1",
+            "name": "name1",
+            "type": "type1",
+            "value": "value1"
+          },
+          "checked": false,
+          "tagname": "tagname1",
+          "text": "text1",
+          "xpath": "xpath1"
+        }
+      ]
+    }
+  ],
+  "inputElementInfos": [
+    {
+      "title": "title1",
+      "url": "url1",
+      "inputElements": [
+        {
+          "attributes": {
+            "id": "id1",
+            "name": "name1",
+            "type": "type1",
+            "value": "value1"
+          },
+          "checked": false,
+          "tagname": "tagname1",
+          "text": "text1",
+          "xpath": "xpath1"
+        }
+      ]
+    }
+  ]
+}

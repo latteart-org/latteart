@@ -1,0 +1,331 @@
+name: Package all
+
+on:
+  push:
+    branches:
+      - "release/**"
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  package_launch:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package:${{ matrix.os }} -w latteart-launch
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r packages/latteart-launch/dist/package/${{ matrix.os }}/latteart/* artifact
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+  package_cli:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package:${{ matrix.os }} -w latteart-cli
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r packages/latteart-cli/dist/package/${{ matrix.os }}/latteart/* artifact
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+  package_gui:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run build -w latteart-client
+          npm run package:${{ matrix.os }} -w latteart-gui
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r packages/latteart-gui/dist/package/${{ matrix.os }}/latteart/* artifact
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+  package_repository:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package:${{ matrix.os }} -w latteart-repository
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r packages/latteart-repository/dist/package/${{ matrix.os }}/latteart/* artifact
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+  package_capture_cl:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package:${{ matrix.os }} -w latteart-capture-cl
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          cp -r packages/latteart-capture-cl/dist/package/${{ matrix.os }}/latteart/* artifact
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+  collect-packages:
+    runs-on: ubuntu-latest
+
+    needs:
+      [
+        package_launch,
+        package_cli,
+        package_gui,
+        package_repository,
+        package_capture_cl,
+      ]
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+        os: [win, mac]
+
+    steps:
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Download latteart-launch Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+      - name: Download latteart-cli Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+      - name: Download latteart-gui Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+      - name: Download latteart-repository Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+      - name: Download latteart-capture-cl Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
+          path: artifact

@@ -1,0 +1,103 @@
+{
+  "id": "test-result2",
+  "name": "name1",
+  "sessionId": "sessionId1",
+  "sequence": 1,
+  "startTimeStamp": 1592284175,
+  "endTimeStamp": -1,
+  "initialUrl": "hogehoge",
+  "history": {
+    "1": {
+      "testStep": {
+        "sequence": 1,
+        "timestamp": "timestamp1",
+        "imageFileUrl": "imageFilePath1.png",
+        "windowInfo": {
+          "windowHandle": "window-handle"
+        },
+        "pageInfo": {
+          "title": "title1",
+          "url": "url1",
+          "screenDef": "screenDef1"
+        },
+        "operation": {
+          "input": "input1",
+          "type": "type1",
+          "elementInfo": {
+            "attributes": {
+              "id": "id1",
+              "name": "name1",
+              "type": "type1",
+              "value": "value1"
+            },
+            "checked": false,
+            "tagname": "tagname1",
+            "text": "text1",
+            "xpath": "xpath1"
+          }
+        }
+      },
+      "intention": "note1",
+      "bugs": ["note2"],
+      "notices": []
+    }
+  },
+  "notes": [
+    {
+      "id": "note1",
+      "type": "intention",
+      "value": "ses2-int1",
+      "details": "ses2-int1-details",
+      "imageFileUrl": "",
+      "timestamp": "1606294792"
+    },
+    {
+      "id": "note2",
+      "type": "bug",
+      "value": "ses2-bug1",
+      "details": "ses2-bug1-details",
+      "imageFileUrl": "",
+      "timestamp": "1606294792"
+    }
+  ],
+  "coverageSources": [
+    {
+      "title": "title1",
+      "url": "url1",
+      "screenElements": [
+        {
+          "attributes": {
+            "id": "id1",
+            "name": "name1",
+            "type": "type1",
+            "value": "value1"
+          },
+          "checked": false,
+          "tagname": "tagname1",
+          "text": "text1",
+          "xpath": "xpath1"
+        }
+      ]
+    }
+  ],
+  "inputElementInfos": [
+    {
+      "title": "title1",
+      "url": "url1",
+      "inputElements": [
+        {
+          "attributes": {
+            "id": "id1",
+            "name": "name1",
+            "type": "type1",
+            "value": "value1"
+          },
+          "checked": false,
+          "tagname": "tagname1",
+          "text": "text1",
+          "xpath": "xpath1"
+        }
+      ]
+    }
+  ]
+}

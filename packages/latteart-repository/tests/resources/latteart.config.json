@@ -1,0 +1,163 @@
+{
+  "locale": "ja",
+  "mode": "debug",
+  "debug": {
+    "outputs": {
+      "dom": false
+    },
+    "configureCaptureSettings": true
+  },
+  "captureSettings": {
+    "ignoreTags": [
+      "HTML",
+      "HEAD",
+      "TITLE",
+      "LINK",
+      "META",
+      "STYLE",
+      "BASE",
+      "SCRIPT",
+      "NOSCRIPT",
+      "BR",
+      "WBR",
+      "PARAM",
+      "SOURCE",
+      "TRACK",
+      "COLGROUP",
+      "COL"
+    ]
+  },
+  "defaultTagList": [
+    "H1",
+    "H2",
+    "P",
+    "HR",
+    "BLOCKQUOTE",
+    "OL",
+    "UL",
+    "LI",
+    "DL",
+    "DT",
+    "DD",
+    "DIV",
+    "STRONG",
+    "SPAN",
+    "IMG",
+    "TABLE",
+    "TR",
+    "TD",
+    "TH",
+    "FORM",
+    "LABEL",
+    "SECTION",
+    "NAV",
+    "ARTICLE",
+    "ASIDE",
+    "H3",
+    "H4",
+    "HGROUP",
+    "HEADER",
+    "FOOTER",
+    "ADDRESS",
+    "PRE",
+    "FIGURE",
+    "FIGCAPTION",
+    "EM",
+    "SMALL",
+    "CITE",
+    "Q",
+    "ABBR",
+    "TIME",
+    "CODE",
+    "INS",
+    "DEL",
+    "IFRAME",
+    "EMBED",
+    "OBJECT",
+    "VIDEO",
+    "AUDIO",
+    "CANVAS",
+    "CAPTION",
+    "TBODY",
+    "THEAD",
+    "TFOOT",
+    "FIELDSET",
+    "LEGEND",
+    "H5",
+    "H6",
+    "S",
+    "DFN",
+    "VAR",
+    "SAMP",
+    "KBD",
+    "SUB",
+    "SUP",
+    "I",
+    "B",
+    "U",
+    "MARK",
+    "RUBY",
+    "RT",
+    "BDI",
+    "BDO",
+    "MAP",
+    "AREA",
+    "OPTGROUP",
+    "PROGRESS",
+    "METER",
+    "DETAILS",
+    "SUMMARY",
+    "MENU",
+    "A",
+    "INPUT",
+    "SELECT",
+    "OPTION",
+    "TEXTAREA",
+    "BUTTON",
+    "DATALIST",
+    "OUTPUT",
+    "RP",
+    "BODY"
+  ],
+  "viewPointsPreset": [
+    {
+      "name": "default",
+      "viewPoints": [
+        { "name": "基本フロー" },
+        { "name": "代替フロー" },
+        { "name": "例外フロー" },
+        { "name": "中断・再開・繰り返し" },
+        { "name": "データライフサイクル" },
+        { "name": "共有・排他・ロールセキュリティ" },
+        { "name": "入出力" }
+      ]
+    },
+    {
+      "name": "preset1",
+      "viewPoints": [{ "name": "プリセット１" }]
+    }
+  ],
+  "config": {
+    "autofillSetting": {
+      "conditionGroups": []
+    },
+    "autoOperationSetting": {
+      "conditionGroups": []
+    },
+    "screenDefinition": {
+      "isRegex": false,
+      "screenDefList": [],
+      "screenDefType": "title"
+    },
+    "coverage": {
+      "include": {
+        "tags": []
+      }
+    },
+    "imageCompression": {
+      "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+      "isDeleteSrcImage": true,
+      "isEnabled": true
+    }
+  }
+}
