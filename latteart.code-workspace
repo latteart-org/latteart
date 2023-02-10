@@ -24,7 +24,10 @@
       "args": ["--coverage=false"]
     },
     "jestrunner.jestPath": "../../node_modules/jest/bin/jest.js",
-    "jestrunner.runOptions": ["--coverage=false"]
+    "jestrunner.runOptions": [
+      "--coverage=false"
+    ],
+    "npm.packageManager": "npm"
   },
   "extensions": {
     "recommendations": [
