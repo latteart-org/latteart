@@ -4,7 +4,6 @@
     "latteart-capture-cl": "dist/index.js"
   },
   "pkg": {
-    "scripts": ["../../node_modules/selenium-webdriver/**/*.js"],
-    "assets": ["dist/index.js"]
+    "assets": ["dist/index.js", "../../node_modules/selenium-webdriver/**/*.js"]
   }
 }
