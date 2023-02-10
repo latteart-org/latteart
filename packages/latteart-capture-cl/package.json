@@ -7,6 +7,7 @@
     "test": "jest tests/unit",
     "build": "webpack --config webpack.prod.js",
     "watch": "webpack -w --config webpack.dev.js",
+    "run": "node dist/index.js",
     "package": "run-p package:win package:mac",
     "package:win": "pkg -t node16-win-x64 --out-path dist/package/win/latteart/latteart-capture-cl pkg.config.json",
     "package:mac": "pkg -t node16-macos-x64 --out-path dist/package/mac/latteart/latteart-capture-cl pkg.config.json",
