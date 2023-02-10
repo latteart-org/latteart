@@ -31,7 +31,13 @@ import { TimestampImpl } from "./Timestamp";
 import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
 
-const appRootPath = path.relative(process.cwd(), path.dirname(__dirname));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const executablePath = (process as any).pkg?.entrypoint;
+
+export const appRootPath = path.relative(
+  process.cwd(),
+  path.dirname(executablePath ? process.argv[0] : __dirname)
+);
 
 const app = express();
 app.use(function (req, res, next) {
