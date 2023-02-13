@@ -25,7 +25,11 @@ export default class MermaidGraphConverter {
    * @param theme
    */
   constructor(theme: "default" | "forest" | "dark" | "neutral" = "default") {
-    Mermaid.mermaidAPI.initialize({ startOnLoad: true, theme });
+    Mermaid.mermaidAPI.initialize({
+      startOnLoad: true,
+      theme,
+      fontSize: undefined,
+    });
   }
 
   /**
