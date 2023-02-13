@@ -69,10 +69,10 @@ flowchart LR
 `latteart-capture-cl`、`latteart-repository`との通信で使用する Web API は以下を参照してください。
 
 - latteart-capture-cl
-  - [REST API リファレンス](https://latteart-org.github.io/latteart-capture-cl/)
+  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/)
   - [WebSocket API リファレンス](../packages/latteart-capture-cl/docs/api/websocket.md)
 - latteart-repository
-  - [REST API リファレンス](https://latteart-org.github.io/latteart-repository/)
+  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)
 
 ### 開発環境のセットアップ
 
@@ -113,10 +113,10 @@ Visual Studio Code を開発環境にインストールします。
 
 ```bash
 # Windows版LatteArt
-$ npm package:win
+$ npm run package:win
 
 # Mac版LatteArt
-$ npm package:mac
+$ npm run package:mac
 ```
 
 `dist`ディレクトリ配下に以下構成のディレクトリが作成されます。
