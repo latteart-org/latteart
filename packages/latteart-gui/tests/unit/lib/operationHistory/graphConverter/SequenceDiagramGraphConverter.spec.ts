@@ -3,6 +3,64 @@
 import { convertToSequenceDiagramGraph } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 
 describe("SequenceDiagramGraphConverter", () => {
+  it("先頭のシナリオに目的がなく、2つ目以降のシナリオに目的がある場合", async () => {
+    const view = {
+      windows: [{ id: "w0", name: "window1-text" }],
+      screens: [{ id: "s0", name: "screenDef1" }],
+      scenarios: [
+        {
+          nodes: [
+            {
+              windowId: "w0",
+              screenId: "s0",
+              testSteps: [
+                {
+                  id: "ts0",
+                  type: "type1",
+                  notes: [],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          testPurpose: { id: "p0", value: "intention1" },
+          nodes: [
+            {
+              windowId: "w0",
+              screenId: "s0",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  notes: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      `sequenceDiagram;
+participant s0 as screenDef1;
+opt (1)window1-text;
+activate s0;
+s0 --x s0: ;
+deactivate s0;
+end;
+alt (2)intention1;
+opt (2)window1-text;
+activate s0;
+Note right of s0: DUMMY_COMMENT;
+deactivate s0;
+end;
+end;
+`
+    );
+  });
+
   describe("無効なノードが存在する場合", () => {
     it("無効なノードへの行き来を示すエッジを表示する", async () => {
       const view = {

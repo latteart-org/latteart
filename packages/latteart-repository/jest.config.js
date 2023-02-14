@@ -4,6 +4,11 @@ module.exports = {
   collectCoverageFrom: ["./src/**/*.{js,ts}"],
   coverageProvider: "v8",
   coverageReporters: ["text-summary", "text"],
+  coveragePathIgnorePatterns: [
+    "<rootDir>/src/migrations",
+    "<rootDir>/src/routes",
+    "<rootDir>/src/interfaces",
+  ],
   testEnvironment: "node",
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",

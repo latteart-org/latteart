@@ -305,35 +305,38 @@ function buildGraphText(source: {
 
     const scenarioItemTexts = [
       ...(() => {
+        const startScenarioText = `alt (${
+          node.scenario.sequence
+        })${TextUtil.escapeSpecialCharacters(node.scenario.text)};`;
+        const startWindowText = `opt (${node.window.sequence})${node.window.text};`;
+
         if (
           node.scenario.text &&
           beforeNode?.scenario.text !== node.scenario.text
         ) {
-          return [
-            `alt (${node.scenario.sequence})${TextUtil.escapeSpecialCharacters(
-              node.scenario.text
-            )};`,
-            `opt (${node.window.sequence})${node.window.text};`,
-          ];
+          return [startScenarioText, startWindowText];
         }
 
         if (node.window.text && beforeNode?.window.text !== node.window.text) {
-          return [`opt (${node.window.sequence})${node.window.text};`];
+          return [startWindowText];
         }
 
         return [];
       })(),
       ...nodeTexts,
       ...(() => {
-        if (
-          node.scenario.text &&
-          nextNode?.scenario.text !== node.scenario.text
-        ) {
-          return ["end;", "end;"];
+        const endScenarioText = "end;";
+        const endWindowText = "end;";
+
+        if (nextNode?.scenario.text !== node.scenario.text) {
+          if (node.scenario.text) {
+            return [endWindowText, endScenarioText];
+          }
+          return [endWindowText];
         }
 
         if (node.window.text && nextNode?.window.text !== node.window.text) {
-          return ["end;"];
+          return [endWindowText];
         }
 
         return [];

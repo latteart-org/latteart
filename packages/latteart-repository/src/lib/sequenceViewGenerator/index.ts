@@ -44,8 +44,24 @@ export type SequenceViewNode = {
   disabled?: boolean;
 };
 
+export type TestStepForSequenceView = Pick<TestStep, "id"> & {
+  screenDef: string;
+  operation: Pick<TestStep["operation"], "input" | "type" | "windowHandle"> & {
+    elementInfo: Pick<
+      NonNullable<TestStep["operation"]["elementInfo"]>,
+      "xpath" | "tagname" | "text" | "attributes"
+    > | null;
+  };
+  intention: Pick<
+    NonNullable<TestStep["intention"]>,
+    "id" | "value" | "details"
+  > | null;
+  bugs: Pick<TestStep["bugs"][0], "id" | "value" | "details" | "tags">[];
+  notices: Pick<TestStep["notices"][0], "id" | "value" | "details" | "tags">[];
+};
+
 export function generateSequenceView(
-  testSteps: (TestStep & { screenDef: string })[]
+  testSteps: TestStepForSequenceView[]
 ): SequenceView {
   const screenDefToScreenId = new Map(
     testSteps
@@ -78,7 +94,7 @@ export function generateSequenceView(
 }
 
 function createScenarios(
-  testSteps: (TestStep & { screenDef: string })[],
+  testSteps: TestStepForSequenceView[],
   screenDefToScreenId: Map<
     string,
     {
