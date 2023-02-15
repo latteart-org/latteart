@@ -301,7 +301,7 @@ const actions: ActionTree<RootState, RootState> = {
       );
     }
 
-    context.commit("setRepositoryServerUrl", { url: serverUrl });
+    context.commit("setRepositoryServiceUrl", { url: serverUrl });
 
     context.commit("registerRepositoryServiceUrl", {
       url: serverUrl,
