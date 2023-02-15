@@ -40,7 +40,6 @@
           <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
           <v-textarea
             solo
-            auto-grow
             v-if="note.details"
             :value="note.details"
             :label="message('note-list-dialog.details')"
