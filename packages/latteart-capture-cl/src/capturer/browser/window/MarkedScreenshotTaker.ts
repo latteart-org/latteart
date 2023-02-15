@@ -14,32 +14,8 @@
  * limitations under the License.
  */
 
+import { BoundingRect, captureScript } from "@/capturer/captureScript";
 import WebDriverClient from "@/webdriver/WebDriverClient";
-
-/**
- * Bounding Rect.
- */
-export interface BoundingRect {
-  /**
-   * Top.
-   */
-  top: number;
-
-  /**
-   * Left.
-   */
-  left: number;
-
-  /**
-   * Width.
-   */
-  width: number;
-
-  /**
-   * Height.
-   */
-  height: number;
-}
 
 /**
  * The class for taking screenshots with mark.
@@ -85,67 +61,24 @@ export default class MarkedScreenShotTaker {
   }
 
   private async unmarkElements(rects: BoundingRect[]): Promise<void> {
-    await this.client.execute(
-      ({ rects, prefix }) => {
-        rects.forEach((_, index) => {
-          const element = document.getElementById(`${prefix}_${index}`);
-          if (element && element.parentNode) {
-            element.parentNode.removeChild(element);
-          }
-        });
-      },
-      { rects, prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX }
-    );
+    await this.client.execute(captureScript.unmarkElements, {
+      rects,
+      prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
+    });
   }
 
   private async markRect(rect: BoundingRect, index: number): Promise<void> {
-    await this.client.execute(
-      ({ rect, index, prefix }) => {
-        const div = document.createElement("div");
-
-        div.id = `${prefix}_${index}`;
-        div.style.position = "absolute";
-        (div.style.top = rect.top + window.pageYOffset + "px"),
-          // div.style.top = rect.top - ${this.getTopElementMarginTopFunc}() + window.pageYOffset + 'px',
-          (div.style.left = rect.left + window.pageXOffset + "px"),
-          (div.style.height = rect.height + "px");
-        div.style.width = rect.width + "px";
-        div.style.border = "2px solid #F00";
-        div.style.display = "block";
-        div.style.zIndex = "2147483647";
-        div.style.pointerEvents = "none";
-
-        const body = document.getElementsByTagName("body")[0];
-        body.insertAdjacentElement("beforeend", div);
-      },
-      { rect, index, prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX }
-    );
+    await this.client.execute(captureScript.markRect, {
+      rect,
+      index,
+      prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
+    });
   }
 
   private async putNumberToRect(index: number): Promise<void> {
-    await this.client.execute(
-      ({ index, prefix }) => {
-        const div = document.getElementById(`${prefix}_${index}`);
-
-        if (div === null) {
-          return;
-        }
-
-        const p = document.createElement("p");
-        p.style.position = "relative";
-        p.style.top = "0px";
-        p.style.left = "0px";
-        p.style.color = "red";
-        const vhShadow =
-          "0px 1px 0px white, 0px -1px 0px white, -1px 0px 0px white, 1px 0px 0px white";
-        const diagonalShadow =
-          "1px 1px 0px white, -1px -1px 0px white, -1px 1px 0px white, 1px -1px 0px white";
-        p.style.textShadow = vhShadow + ", " + diagonalShadow;
-        p.innerText = String.fromCharCode(9312 + index);
-
-        div.insertAdjacentElement("beforeend", p);
-      },
-      { index, prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX }
-    );
+    await this.client.execute(captureScript.putNumberToRect, {
+      index,
+      prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
+    });
   }
 }
