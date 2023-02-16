@@ -1,115 +1,115 @@
 ![logo](/docs/logo.png)
 
-# LatteArt
-
 [日本語版 Readme はこちら](/README_ja.md)を参照して下さい。
 
-## Project Setup
+# LatteArt
 
-1. Install `node.js v14.15.3`.
-1. Install `yarn` corresponding to the version of node.js.
-1. Go to the root directory of the project.
-1. Execute the following command.
-   ```bash
-   yarn install
-   ```
+LatteArt is a tool aimed at facilitating agile and efficient testing by enabling the recording, visualization, and analysis of manual End-to-End tests.
 
-## Build
+The following use cases are available:
 
-### Build LatteArt
+- Visualization and analysis of exploratory tests to obtain feedback
+- Tracking of performed tests
+- Sharing procedures for reproducing bugs
+- Automatic generation of highly maintainable E2E test scripts
 
-1. Go to the root directory of the project.
-1. Execute the following command.
-   ```bash
-   yarn package
-   ```
-1. The following directory is created in `dist/latteart`.
-   ```bash
-   dist/latteart/
-       ├─ capture.bat # batch file
-       ├─ manage.bat  # batch file
-       ├─ launch.config.json # batch execution configuration file
-       ├─ launch.exe # executable file for Windows
-       ├─ latteart/
-       │        ├─ public/ # contains index.html and favicon
-       │        └─ latteart.exe # executable file for Windows
-       └─ latteart-repository/
-                ├─ history-viewer/ # snapshot viewer (review view)
-                └─ snapshot-viewer/ # snapshot viewer
-   ```
+LatteArt consists of the following two features:
 
-## Watch (for developer)
+- **Recording feature**: Recording operations/findings during testing
+- **Management feature**: Planning exploratory tests, managing and visualizing test results
 
-Detect source code changes and rebuild LatteArt.
+# Demo (Core Features)
 
-### GUI
+[Video (YouTube)](https://www.youtube.com/watch?v=_lfaRN8ipA4)
 
-1. Go to the root directory of the project.
-1. Execute the following command to start development server.
-   (If you update a source code, that is rebuilt automatically.)
-   ```bash
-   yarn serve
-   ```
+# Prerequisites
 
-### Server
+1. Download the `ChromeDriver` that corresponds to the version of your Google Chrome and add it to the PATH.
+   - Download site (https://chromedriver.chromium.org/downloads)
+1. Install `cwebp` and add it to the PATH.
+   - Download site (https://developers.google.com/speed/webp/docs/precompiled)
+1. Ensure that the Web application to be tested can be accessed from Google Chrome.
 
-1. Go to the root directory of the project.
-1. Execute the following command.
-   ```bash
-   yarn watch:server
-   ```
-1. The directory `dist` is created in the current directory, and `dist` contains built `index.js`.
-   (If you update a source code, it is rebuilt automatically.)
-1. Execute the following command.
-   ```bash
-   yarn start:server
-   ```
+:bulb: If using Edge, download the `edgedriver` that corresponds to the version of Edge instead of Chrome in Step 1 and add it to the PATH.
 
-## Install
+- Download site (https://developer.microsoft.com/ja-jp/microsoft-edge/tools/webdriver/)
 
-1. Put generated `latteart` directory into any directory.
-1. Put `latteart-capture-cl` and `latteart-repository` directories into `latteart` directory.
-   ```bash
-   latteart/
-       ├─ capture.bat
-       ├─ manage.bat
-       ├─ launch.config.json
-       ├─ launch.exe
-       ├─ latteart/
-       ├─ latteart-capture-cl/ # put
-       └─ latteart-repository/ # merge
-   ```
+# Installation
 
-## Run
+Download the latest version from [Releases](https://github.com/latteart-org/latteart/releases) on GitHub.
 
-1. Execute the following script.
-   - Capture tool
-     - capture.bat
-   - Test management tool
-     - manage.bat
-1. The tools are executed on a new tab in a web browser. (You can also execute the tools by opening the following URLs.)
-   - Capture tool
-     - http://127.0.0.1:3000
-   - Test management tool
-     - http://127.0.0.1:3000?mode=manage
+After extracting the downloaded ZIP file, the following directory structure will be created.
 
-## Close
+```bash
+latteart
+      ├─ capture.bat
+      ├─ manage.bat
+      ├─ launch.config.json
+      ├─ launch.exe
+      ├─ latteart
+      ├─ latteart-capture-cl
+      └─ latteart-repository
+```
 
-1. Close the window with the following message displayed.
-   ```bash
-   capture: http://127.0.0.1:3000
-   manage: http://127.0.0.1:3000?mode=manage
-   ```
-1. The other windows are automatically closed.
+# Launch LatteArt
 
-## How to Use the Capture Tool
+Execute the startup script in the extracted directory.
 
-### on Windows or Mac
+- Recording tool: `capture.bat`
+- Management tool: `manage.bat`
+
+Then, a web server for running LatteArt will be started with the displayed command prompt, and the tool screen will be displayed on the browser.
+
+```
+capture: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
+manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
+```
+
+:bulb: If the server is running, you can also use the following URLs to access the tools directly from your browser.
+
+- Recording tool: http://127.0.0.1:3000
+- Management tool: http://127.0.0.1:3000?mode=manage
+
+## Launch Script Setting
+
+You can change the port of each server that the startup script starts
+
+Please modify `env.port` and `http.url` of the server you want to change under `servers`.
+
+:warning: The port part of `env.port` and `http.url` should have the same value.
+
+```jsonc
+{
+  // ...
+  "servers": [
+    {
+      "name": "latteart-repository",
+      // ...
+      "env": { "port": "13002" },
+      "http": {
+        "url": "http://localhost:13002"
+        // ...
+      }
+    }
+    // ...
+  ]
+}
+```
+
+# Close LatteArt
+
+Close the command prompt window that was launched when starting to end the tool.
+
+:warning: Simply closing the LatteArt tab on your browser will not shut down the server.
+
+# How to Use the Recording Tool
+
+## on Windows or Mac
 
 1. Select "Windows" from the "platform" list on the config page.
 1. Enter the URL of an application that you want to test and press the "Start" button.
 
-### on Android
+## on Android
 
 1. Select "Android" from the "platform" list on the config page.
 1. Select the connected device name in the "Device advanced settings" on the config page.
@@ -124,7 +124,7 @@ Please read [this document](./docs/contributing.md) to contribute to LatteArt.
 
 If you have any questions about LatteArt, please post them to [Discussions](https://github.com/latteart-org/latteart/discussions) on GitHub.
 
-For other inquiries, please contact NTT Software Innovation Center (`iso-tool-support-p-ml [at] hco.ntt.co.jp`).
+For other inquiries, please contact NTT Software Innovation Center (`latteart-p-ml [at] hco.ntt.co.jp`).
 
 # License
 
