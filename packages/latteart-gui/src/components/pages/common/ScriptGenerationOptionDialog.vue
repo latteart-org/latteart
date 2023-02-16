@@ -160,6 +160,14 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { RootState } from "@/store";
 import { TestScriptOption } from "latteart-client";
 
+type ButtonDefinition = {
+  tagname: string;
+  attribute?: {
+    name: string;
+    value: string;
+  };
+};
+
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
@@ -215,7 +223,6 @@ export default class ScriptGenerationOptionDialog extends Vue {
       (async () => {
         const option: Pick<TestScriptOption, "buttonDefinitions"> =
           await this.$store.dispatch("readTestScriptOption");
-
         if (option.buttonDefinitions) {
           this.testGenerationOption.customButtonTags =
             option.buttonDefinitions.map(this.convertButtonDefinitionToTag);
@@ -250,20 +257,27 @@ export default class ScriptGenerationOptionDialog extends Vue {
   }
 
   private execute(): void {
+    const customButtonTagsDefinition =
+      this.testGenerationOption.customButtonTags.map(
+        this.convertTagToButtonDefinition
+      );
+    const standardButtongTagsDefinition = this.standardButtontags.map(
+      this.convertTagToButtonDefinition
+    );
     const option = {
       testScript: this.testGenerationOption.testScript,
       testData: this.testGenerationOption.testData,
       buttonDefinitions: [
-        ...this.testGenerationOption.customButtonTags,
-        ...this.standardButtontags,
-      ].map(this.convertTagToButtonDefinition),
+        ...customButtonTagsDefinition,
+        ...standardButtongTagsDefinition,
+      ],
     };
 
     this.$emit("execute", option);
 
     (async () => {
       await this.$store.dispatch("writeTestScriptOption", {
-        option: { buttonDefinitions: option.buttonDefinitions },
+        option: { buttonDefinitions: customButtonTagsDefinition },
       });
 
       this.close();
@@ -274,13 +288,9 @@ export default class ScriptGenerationOptionDialog extends Vue {
     this.$emit("close");
   }
 
-  private convertButtonDefinitionToTag(buttonDefinition: {
-    tagname: string;
-    attribute?: {
-      name: string;
-      value: string;
-    };
-  }): string {
+  private convertButtonDefinitionToTag(
+    buttonDefinition: ButtonDefinition
+  ): string {
     const attributeText = buttonDefinition.attribute
       ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
       : "";
