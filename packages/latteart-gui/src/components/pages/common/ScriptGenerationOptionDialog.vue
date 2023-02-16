@@ -217,8 +217,27 @@ export default class ScriptGenerationOptionDialog extends Vue {
           await this.$store.dispatch("readTestScriptOption");
 
         if (option.buttonDefinitions) {
-          this.testGenerationOption.customButtonTags =
-            option.buttonDefinitions.map(this.convertButtonDefinitionToTag);
+          this.testGenerationOption.customButtonTags = option.buttonDefinitions
+            .filter((definition) => {
+              if (definition.tagname === "INPUT") {
+                return !this.standardButtontags.some((button) => {
+                  try {
+                    const tagWithAttributes = button.split(":");
+                    const keyValue = tagWithAttributes[1].split("=");
+                    return (
+                      definition.attribute?.name === keyValue[0] &&
+                      definition.attribute.value === keyValue[1]
+                    );
+                  } catch (error) {
+                    return false;
+                  }
+                });
+              } else if (this.standardButtontags.includes(definition.tagname)) {
+                return false;
+              }
+              return true;
+            })
+            .map(this.convertButtonDefinitionToTag);
         }
       })();
     }
