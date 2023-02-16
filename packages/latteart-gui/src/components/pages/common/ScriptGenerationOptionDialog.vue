@@ -160,7 +160,7 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { RootState } from "@/store";
 import { TestScriptOption } from "latteart-client";
 
-type Tag = {
+type ButtonDefinition = {
   tagname: any;
   attribute?: {
     name: any;
@@ -272,7 +272,7 @@ export default class ScriptGenerationOptionDialog extends Vue {
     (async () => {
       await this.$store.dispatch("writeTestScriptOption", {
         option: {
-          buttonDefinitions: this.exclusionDefaultTagDefinition(
+          buttonDefinitions: this.excludeStandardButtonTags(
             option.buttonDefinitions
           ),
         },
@@ -282,16 +282,10 @@ export default class ScriptGenerationOptionDialog extends Vue {
     })();
   }
 
-  private exclusionDefaultTagDefinition(
-    tags: {
-      tagname: any;
-      attribute?: {
-        name: any;
-        value: any;
-      };
-    }[]
-  ): Tag[] {
-    return tags.filter((definition) => {
+  private excludeStandardButtonTags(
+    buttonDefinitions: ButtonDefinition[]
+  ): ButtonDefinition[] {
+    return buttonDefinitions.filter((definition) => {
       if (definition.tagname === "INPUT") {
         return !this.standardButtontags.some((button) => {
           try {
@@ -316,13 +310,9 @@ export default class ScriptGenerationOptionDialog extends Vue {
     this.$emit("close");
   }
 
-  private convertButtonDefinitionToTag(buttonDefinition: {
-    tagname: string;
-    attribute?: {
-      name: string;
-      value: string;
-    };
-  }): string {
+  private convertButtonDefinitionToTag(
+    buttonDefinition: ButtonDefinition
+  ): string {
     const attributeText = buttonDefinition.attribute
       ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
       : "";
