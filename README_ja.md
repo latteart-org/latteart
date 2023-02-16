@@ -45,7 +45,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 
 LatteArt に関する質問等は GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) へお願いします。
 
-その他のお問い合わせは、NTT ソフトウェアイノベ－ションセンタ（`iso-tool-support-p-ml [at] hco.ntt.co.jp`）までお願いします。
+その他のお問い合わせは、NTT ソフトウェアイノベ－ションセンタ（`latteart-p-ml [at] hco.ntt.co.jp`）までお願いします。
 
 # License
 
