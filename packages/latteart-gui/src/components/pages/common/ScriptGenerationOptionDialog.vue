@@ -161,10 +161,10 @@ import { RootState } from "@/store";
 import { TestScriptOption } from "latteart-client";
 
 type ButtonDefinition = {
-  tagname: any;
+  tagname: string;
   attribute?: {
-    name: any;
-    value: any;
+    name: string;
+    value: string;
   };
 };
 
