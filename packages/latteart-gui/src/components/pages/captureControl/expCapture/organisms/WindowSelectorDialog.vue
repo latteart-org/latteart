@@ -61,6 +61,12 @@ export default class WindowSelectorDialog extends Vue {
     const operationHistoryState = this.$store.state
       .operationHistory as OperationHistoryState;
 
+    const availableWindows = operationHistoryState.windows.filter((window) => {
+      return captureControlState.captureSession?.windowHandles.includes(
+        window.value
+      );
+    });
+
     if (this.opened && captureControlState.captureSession) {
       this.$store.dispatch("captureControl/selectCapturingWindow");
       this.capturingWindowInfo.currentWindowHandle =
@@ -68,7 +74,7 @@ export default class WindowSelectorDialog extends Vue {
       this.capturingWindowInfo.availableWindows.splice(
         0,
         this.capturingWindowInfo.availableWindows.length,
-        ...operationHistoryState.windows.filter(({ available }) => available)
+        ...availableWindows
       );
     }
   }
