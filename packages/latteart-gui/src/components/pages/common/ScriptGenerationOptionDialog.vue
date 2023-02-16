@@ -160,6 +160,14 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { RootState } from "@/store";
 import { TestScriptOption } from "latteart-client";
 
+type Tag = {
+  tagname: any;
+  attribute?: {
+    name: any;
+    value: any;
+  };
+};
+
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
@@ -217,27 +225,8 @@ export default class ScriptGenerationOptionDialog extends Vue {
           await this.$store.dispatch("readTestScriptOption");
 
         if (option.buttonDefinitions) {
-          this.testGenerationOption.customButtonTags = option.buttonDefinitions
-            .filter((definition) => {
-              if (definition.tagname === "INPUT") {
-                return !this.standardButtontags.some((button) => {
-                  try {
-                    const tagWithAttributes = button.split(":");
-                    const keyValue = tagWithAttributes[1].split("=");
-                    return (
-                      definition.attribute?.name === keyValue[0] &&
-                      definition.attribute.value === keyValue[1]
-                    );
-                  } catch (error) {
-                    return false;
-                  }
-                });
-              } else if (this.standardButtontags.includes(definition.tagname)) {
-                return false;
-              }
-              return true;
-            })
-            .map(this.convertButtonDefinitionToTag);
+          this.testGenerationOption.customButtonTags =
+            option.buttonDefinitions.map(this.convertButtonDefinitionToTag);
         }
       })();
     }
@@ -282,11 +271,45 @@ export default class ScriptGenerationOptionDialog extends Vue {
 
     (async () => {
       await this.$store.dispatch("writeTestScriptOption", {
-        option: { buttonDefinitions: option.buttonDefinitions },
+        option: {
+          buttonDefinitions: this.exclusionDefaultTagDefinition(
+            option.buttonDefinitions
+          ),
+        },
       });
 
       this.close();
     })();
+  }
+
+  private exclusionDefaultTagDefinition(
+    tags: {
+      tagname: any;
+      attribute?: {
+        name: any;
+        value: any;
+      };
+    }[]
+  ): Tag[] {
+    return tags.filter((definition) => {
+      if (definition.tagname === "INPUT") {
+        return !this.standardButtontags.some((button) => {
+          try {
+            const tagWithAttributes = button.split(":");
+            const keyValue = tagWithAttributes[1].split("=");
+            return (
+              definition.attribute?.name === keyValue[0] &&
+              definition.attribute.value === keyValue[1]
+            );
+          } catch (error) {
+            return false;
+          }
+        });
+      } else if (this.standardButtontags.includes(definition.tagname)) {
+        return false;
+      }
+      return true;
+    });
   }
 
   private close(): void {
