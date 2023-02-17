@@ -24,7 +24,6 @@ import {
 } from "./sequencePath/SequencePathBuilder";
 import { Sequence } from "./sequencePath/Sequence";
 import { TestScriptSourceOperation } from "../TestScriptSourceOperation";
-import { IdentifierGenerator } from "../IdentifierGenerator";
 
 export interface TestScriptModel {
   pageObjects: PageObject[];
@@ -43,8 +42,6 @@ export class TestScriptModelGeneratorImpl implements TestScriptModelGenerator {
     private pageObjectFactory: PageObjectFactory,
     private testSuiteFactory: TestSuiteFactory
   ) {}
-
-  private identifierGenerator = new IdentifierGenerator();
 
   public generate(
     sources: { initialUrl: string; history: TestScriptSourceOperation[] }[]
@@ -102,8 +99,7 @@ export class TestScriptModelGeneratorImpl implements TestScriptModelGenerator {
           pageName,
           sequences[0].url,
           sequences[0].imageUrl,
-          sequences,
-          this.identifierGenerator
+          sequences
         );
       }
     );

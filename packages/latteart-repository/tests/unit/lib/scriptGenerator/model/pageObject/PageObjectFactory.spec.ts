@@ -53,8 +53,7 @@ describe("PageObjectFactory", () => {
         sequence1.className,
         sequence1.url,
         sequence1.imageUrl,
-        [sequence1],
-        generator
+        [sequence1]
       );
 
       const expectedPageObject = new PageObjectImpl(
