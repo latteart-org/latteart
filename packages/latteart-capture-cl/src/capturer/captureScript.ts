@@ -301,7 +301,11 @@ function resumeCapturing() {
 function capturingIsPaused() {
   const extendedDocument: ExtendedDocument = document;
 
-  return extendedDocument?.__capturingIsPaused ?? false;
+  if (extendedDocument && extendedDocument.__capturingIsPaused !== undefined) {
+    return extendedDocument.__capturingIsPaused;
+  }
+
+  return false;
 }
 
 function attachShield({ shieldId }: { shieldId: string }) {
@@ -418,8 +422,8 @@ function initGuard({
     extendedDocument.body.insertAdjacentElement("afterbegin", shield);
   }
 
-  if (document.readyState === "complete" && initGuard) {
-    initGuard.parentNode?.removeChild(initGuard);
+  if (document.readyState === "complete" && initGuard && initGuard.parentNode) {
+    initGuard.parentNode.removeChild(initGuard);
   }
   return true;
 }
@@ -492,7 +496,9 @@ function setFunctionToExtractElements() {
     }
 
     const children = [...parent.children];
-    const shadowChildren = [...(parent.shadowRoot?.children ?? [])];
+    const shadowChildren = [
+      ...(parent.shadowRoot ? parent.shadowRoot.children : []),
+    ];
 
     const allElements = children.length > 0 ? children : shadowChildren;
 
@@ -747,8 +753,12 @@ function setFunctionToDetectWindowSwitch({
     extendedDocument.body.insertAdjacentElement("afterbegin", shield);
   }
 
-  if (extendedDocument.readyState === "complete" && initGuard) {
-    initGuard.parentNode?.removeChild(initGuard);
+  if (
+    extendedDocument.readyState === "complete" &&
+    initGuard &&
+    initGuard.parentNode
+  ) {
+    initGuard.parentNode.removeChild(initGuard);
   }
 
   if (!extendedWindow.setWindowHandleToLocalStorage) {
@@ -878,9 +888,10 @@ function refireEvent(eventInfo: EventInfo) {
               return false;
             }
 
+            const childType = child.getAttribute("type");
             const childIsCheckboxOrRadio =
               child.tagName.toUpperCase() === "INPUT" &&
-              ["checkbox", "radio"].includes(child.getAttribute("type") ?? "");
+              ["checkbox", "radio"].includes(childType ? childType : "");
 
             const childStyle = window.getComputedStyle(child, "");
 
@@ -907,7 +918,9 @@ function refireEvent(eventInfo: EventInfo) {
           return null;
         })(targetElement as HTMLElement);
 
-        originalDesignElement?.click();
+        if (originalDesignElement) {
+          originalDesignElement.click();
+        }
       } catch (error) {
         console.error(error);
       }
@@ -1016,7 +1029,9 @@ function putNumberToRect({ index, prefix }: { index: number; prefix: string }) {
 
 function isCurrentScreenObserved() {
   const extendedDocument: ExtendedDocumentForScreenTransition = document;
-  return extendedDocument.__hasBeenObserved ?? false;
+  return extendedDocument.__hasBeenObserved !== undefined
+    ? extendedDocument.__hasBeenObserved
+    : false;
 }
 
 function observeCurrentScreen() {
