@@ -46,11 +46,10 @@ export class PageObjectFactory {
     id: string,
     url: string,
     imageUrl: string,
-    sequences: Sequence[],
-    identifierGenerator: IdentifierGenerator
+    sequences: Sequence[]
   ): PageObject {
     const methods = sequences.map((sequence) =>
-      this.methodFactory.create(sequence, identifierGenerator)
+      this.methodFactory.create(sequence, new IdentifierGenerator())
     );
 
     return new PageObjectImpl(

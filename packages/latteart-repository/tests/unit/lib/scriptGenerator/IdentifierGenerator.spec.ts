@@ -147,7 +147,7 @@ describe("IdentifierUtilクラスの", () => {
       expect(identifier).toBe("_01");
     });
 
-    it("identifierが重複する場合、identifierの後にhashが付く", () => {
+    it("identifierが重複する且つxpathが同一の場合、identifierの後にhashが付かない", () => {
       const element: TestScriptSourceElement = {
         tagname: "input",
         text: "text1",
@@ -160,8 +160,31 @@ describe("IdentifierUtilクラスの", () => {
 
       generator.generateIdentifierFromElement(element);
       const identifier = generator.generateIdentifierFromElement(element);
+      expect(identifier).toBe("id");
+    });
+
+    it("identifierが重複する且つxpathが異なる場合、identifierの後にhashが付く", () => {
+      const element1: TestScriptSourceElement = {
+        tagname: "input",
+        text: "text1",
+        xpath: "xpath1",
+        attributes: { name: "name1", id: "id", value: "value1" },
+        locator: "locator",
+      };
+      const element2: TestScriptSourceElement = {
+        tagname: "input",
+        text: "text1",
+        xpath: "xpath2",
+        attributes: { name: "name1", id: "id", value: "value1" },
+        locator: "locator",
+      };
+
+      const generator = new IdentifierGenerator();
+
+      generator.generateIdentifierFromElement(element1);
+      const identifier = generator.generateIdentifierFromElement(element2);
       expect(identifier).toBe(
-        `id${createHash("md5").update(element.xpath).digest("hex")}`
+        `id${createHash("md5").update(element2.xpath).digest("hex")}`
       );
     });
   });
