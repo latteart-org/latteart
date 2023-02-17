@@ -19,7 +19,7 @@ import { TestScriptSourceElement } from "./TestScriptSourceOperation";
 
 export class IdentifierGenerator {
   public maxIdentifierLength = 100;
-  public identifierMap = new Map<string, string>();
+  public identifierToXPath = new Map<string, string>();
 
   /**
    * Generate identifier string from element information.
@@ -63,13 +63,13 @@ export class IdentifierGenerator {
     }
 
     let identifier = "";
-    const xpath = this.identifierMap.get(tempIdentifier);
+    const xpath = this.identifierToXPath.get(tempIdentifier);
     if (xpath && xpath !== elem.xpath) {
       identifier = `${tempIdentifier}${createHash("md5")
         .update(elem.xpath)
         .digest("hex")}`;
     } else {
-      this.identifierMap.set(tempIdentifier, elem.xpath);
+      this.identifierToXPath.set(tempIdentifier, elem.xpath);
       identifier = tempIdentifier;
     }
 
