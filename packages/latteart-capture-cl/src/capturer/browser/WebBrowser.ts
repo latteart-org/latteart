@@ -21,12 +21,7 @@ import WebDriverClient from "@/webdriver/WebDriverClient";
 import WindowContainer from "./WindowContainer";
 import ScreenTransition from "../../ScreenTransition";
 import { SpecialOperationType } from "../../SpecialOperationType";
-import CaptureScript, { ExtendedDocument } from "./window/CaptureScript";
-
-interface ExtendedWindowForWindowSwitch extends Window {
-  setWindowHandleToLocalStorage?: () => void;
-  removeWindowHandleToLocalStorage?: () => void;
-}
+import { captureScript } from "../captureScript";
 
 /**
  * Class for operating browser.
@@ -193,23 +188,10 @@ export default class WebBrowser {
 
     // Unblock user operations.
     if (!this.isWindowSelecting) {
-      await this.client.execute(
-        ({ windowHandle, shieldId }) => {
-          const extendedDocument: ExtendedDocument = document;
-          const target = extendedDocument.getElementById(shieldId);
-          if (!target || !target.parentNode) {
-            return;
-          }
-
-          if (localStorage.currentWindowHandle === windowHandle) {
-            target.parentNode.removeChild(target);
-          }
-        },
-        {
-          windowHandle: this.currentWindow?.windowHandle,
-          shieldId: WebBrowser.SHIELD_ID,
-        }
-      );
+      await this.client.execute(captureScript.unblockUserOperations, {
+        windowHandle: this.currentWindow?.windowHandle,
+        shieldId: WebBrowser.SHIELD_ID,
+      });
     }
 
     if (this.currentWindow?.windowHandle) {
@@ -241,7 +223,9 @@ export default class WebBrowser {
       return;
     }
     await this.client.switchWindowTo(this.currentWindow.windowHandle);
-    await new CaptureScript(this.client).attachShield();
+    await this.client.execute(captureScript.attachShield, {
+      shieldId: WebBrowser.SHIELD_ID,
+    });
   }
 
   public async unprotectAllWindow(): Promise<void> {
@@ -263,7 +247,9 @@ export default class WebBrowser {
         console.log(`-> createWindow: ${windowHandle}`);
         // Switch the current window to a new one temporarily to add callback to the new one.
         await this.client.switchWindowTo(windowHandle);
-        await new CaptureScript(this.client).initGuard();
+        await this.client.execute(captureScript.initGuard, {
+          shieldStyle: this.createShieldStyle(),
+        });
 
         const window = await (async () => {
           await this.injectFunctionToDetectWindowSwitch(windowHandle);
@@ -316,144 +302,35 @@ export default class WebBrowser {
 
   private async getBrowsingWindowHandle(): Promise<string> {
     return (
-      (await this.client.execute(() => {
-        const localStorageIsEnabled = (() => {
-          try {
-            return localStorage !== undefined && localStorage !== null;
-          } catch (e) {
-            return false;
-          }
-        })();
-
-        if (!localStorageIsEnabled) {
-          return "";
-        }
-
-        return (localStorage.currentWindowHandle as string) || "";
-      })) ?? ""
+      (await this.client.execute(captureScript.getBrowsingWindowHandle)) ?? ""
     );
   }
 
   private async injectFunctionToDetectWindowSwitch(
     windowHandle: string
   ): Promise<void> {
-    await this.client.execute(
-      ({ windowHandle, shieldId, shieldStyle }) => {
-        console.log(
-          `injectFunctionToDetectWindowSwitch - START: ${windowHandle}`
-        );
+    await this.client.execute(captureScript.setFunctionToDetectWindowSwitch, {
+      windowHandle,
+      shieldId: WebBrowser.SHIELD_ID,
+      shieldStyle: this.createShieldStyle(),
+    });
+  }
 
-        const extendedWindow: ExtendedWindowForWindowSwitch = window;
-
-        const extendedDocument: ExtendedDocument = document;
-        const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
-        const initGuard = extendedDocument.getElementById(
-          __LATTEART_INIT_GUARD__
-        );
-        if (extendedDocument.readyState !== "complete" && !initGuard) {
-          const shield = extendedDocument.createElement("div");
-          shield.id = __LATTEART_INIT_GUARD__;
-          shield.style.position = shieldStyle.position;
-          shield.style.zIndex = shieldStyle.zIndex;
-          shield.style.width = shieldStyle.width;
-          shield.style.height = shieldStyle.height;
-          shield.style.opacity = shieldStyle.opacity;
-          shield.style.backgroundColor = shieldStyle.backgroundColor;
-          extendedDocument.body.insertAdjacentElement("afterbegin", shield);
-        }
-
-        if (extendedDocument.readyState === "complete" && initGuard) {
-          initGuard.parentNode?.removeChild(initGuard);
-        }
-
-        if (!extendedWindow.setWindowHandleToLocalStorage) {
-          extendedWindow.setWindowHandleToLocalStorage = () => {
-            const localStorageIsEnabled = (() => {
-              try {
-                return localStorage !== undefined && localStorage !== null;
-              } catch (e) {
-                return false;
-              }
-            })();
-
-            if (!localStorageIsEnabled) {
-              return;
-            }
-
-            // Set focused window handle.
-            const oldHandle = localStorage.currentWindowHandle;
-            localStorage.currentWindowHandle = windowHandle;
-            console.log(
-              `focus: ${oldHandle} -> ${localStorage.currentWindowHandle}`
-            );
-          };
-        }
-        extendedWindow.removeEventListener(
-          "focus",
-          extendedWindow.setWindowHandleToLocalStorage
-        );
-        extendedWindow.addEventListener(
-          "focus",
-          extendedWindow.setWindowHandleToLocalStorage
-        );
-
-        if (!extendedWindow.removeWindowHandleToLocalStorage) {
-          extendedWindow.removeWindowHandleToLocalStorage = () => {
-            // Block user operations.
-            (() => {
-              const target = document.getElementById(shieldId);
-
-              if (target) {
-                return;
-              }
-
-              const shield = document.createElement("div");
-              shield.id = shieldId;
-              shield.style.position = "absolute";
-              shield.style.zIndex = "2147483647";
-              shield.style.width = "100%";
-              shield.style.height = `${document.body.clientHeight}px`;
-              shield.style.opacity = "0.6";
-              shield.style.backgroundColor = "#333";
-
-              document.body.insertAdjacentElement("afterbegin", shield);
-            })();
-
-            const localStorageIsEnabled = (() => {
-              try {
-                return localStorage !== undefined && localStorage !== null;
-              } catch (e) {
-                return false;
-              }
-            })();
-
-            if (!localStorageIsEnabled) {
-              return;
-            }
-
-            // Unset window handle.
-            const oldHandle = localStorage.currentWindowHandle;
-            localStorage.currentWindowHandle = "";
-            console.log(
-              `blur: ${oldHandle} -> ${localStorage.currentWindowHandle}`
-            );
-          };
-        }
-        extendedWindow.removeEventListener(
-          "blur",
-          extendedWindow.removeWindowHandleToLocalStorage
-        );
-        extendedWindow.addEventListener(
-          "blur",
-          extendedWindow.removeWindowHandleToLocalStorage
-        );
-        console.log(`injectFunctionToDetectWindowSwitch - END`);
-      },
-      {
-        windowHandle,
-        shieldId: WebBrowser.SHIELD_ID,
-        shieldStyle: CaptureScript.createShieldStyle(),
-      }
-    );
+  private createShieldStyle(): {
+    position: string;
+    zIndex: string;
+    width: string;
+    height: string;
+    opacity: string;
+    backgroundColor: string;
+  } {
+    return {
+      position: "absolute",
+      zIndex: "2147483647",
+      width: "100%",
+      height: "100%",
+      opacity: "0.6",
+      backgroundColor: "#333",
+    };
   }
 }

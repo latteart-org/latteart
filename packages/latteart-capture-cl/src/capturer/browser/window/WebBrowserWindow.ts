@@ -21,16 +21,28 @@ import WebDriverClient from "@/webdriver/WebDriverClient";
 import ScreenSummary from "./ScreenSummary";
 import OperationSummary from "./OperationSummary";
 import MarkedScreenShotTaker from "./MarkedScreenshotTaker";
-import CaptureScript from "./CaptureScript";
-import { CapturedData } from "./CapturedData";
 import ScreenTransition from "../../../ScreenTransition";
 import WebBrowser from "../WebBrowser";
 import { SpecialOperationType } from "../../../SpecialOperationType";
 import { Key } from "selenium-webdriver";
+import {
+  CapturedData,
+  captureScript,
+  EventInfo,
+} from "@/capturer/captureScript";
 
-interface ExtendedDocumentForScreenTransition extends Document {
-  __hasBeenObserved?: boolean;
-}
+/**
+ * Suspended Captured data.
+ */
+type SuspendedCapturedData = Omit<CapturedData, "eventInfo"> & {
+  /**
+   * The event that is suspended.
+   */
+  suspendedEvent: {
+    refire(): Promise<void>;
+    refireType: string;
+  };
+};
 
 /**
  * The class for operating for window.
@@ -51,7 +63,6 @@ export default class WebBrowserWindow {
   private screenTransitionHistory: ScreenTransitionHistory =
     new ScreenTransitionHistory();
   private firstUrl: string;
-  private isFirstOperation: boolean;
 
   /**
    * Constructor.
@@ -93,7 +104,6 @@ export default class WebBrowserWindow {
         /* Do nothing. */
       });
     this._windowHandle = windowHandle;
-    this.isFirstOperation = false;
   }
 
   /**
@@ -139,15 +149,10 @@ export default class WebBrowserWindow {
       return;
     }
     const currentScreenHasBeenObserved =
-      (await this.client.execute(() => {
-        const extendedDocument: ExtendedDocumentForScreenTransition = document;
-        return extendedDocument.__hasBeenObserved ?? false;
-      })) ?? false;
+      (await this.client.execute(captureScript.isCurrentScreenObserved)) ??
+      false;
 
-    await this.client.execute(() => {
-      const extendedDocument: ExtendedDocumentForScreenTransition = document;
-      extendedDocument.__hasBeenObserved = true;
-    });
+    await this.client.execute(captureScript.observeCurrentScreen);
 
     const currentUrl = await this.client.getCurrentUrl();
     if (currentUrl === "") {
@@ -179,26 +184,28 @@ export default class WebBrowserWindow {
       canGoBack: this.canDoBrowserBack(),
       canGoForward: this.canDoBrowserForward(),
     });
-
-    this.isFirstOperation = true;
   }
 
   /**
    * Check if operations are captured and if so, call the callback function.
    */
   public async captureOperations(): Promise<void> {
-    const captureScript = new CaptureScript(this.client);
-
-    if (!(await captureScript.isReadyToCapture())) {
-      await captureScript.getReadyToCapture([WebBrowser.SHIELD_ID]);
+    if (
+      !((await this.client.execute(captureScript.isReadyToCapture)) ?? false)
+    ) {
+      await this.getReadyToCapture([WebBrowser.SHIELD_ID]);
     }
 
     // Get and notice operations.
-    const capturedDatas = await captureScript.pullCapturedDatas();
+    const capturedDatas = await this.pullCapturedDatas();
     if (capturedDatas.length === 0) {
       return;
     }
     for (const capturedData of capturedDatas) {
+      if (await this.client.alertIsVisible()) {
+        break;
+      }
+
       const capturedOperations = await this.convertToCapturedOperations([
         capturedData,
       ]);
@@ -214,24 +221,19 @@ export default class WebBrowserWindow {
       }
       this.beforeOperation = capturedOperations[0] ?? null;
 
-      if (capturedData.suspendedEvent.reFireFromWebdriverType === "inputDate") {
+      if (capturedData.suspendedEvent.refireType === "inputDate") {
         await this.client.sendKeys(
           capturedData.operation.elementInfo.xpath,
           Key.SPACE
         );
       } else {
-        await capturedData.suspendedEvent.reFire();
-      }
-
-      if (await this.client.alertIsVisible()) {
-        break;
+        await capturedData.suspendedEvent.refire();
       }
     }
   }
 
   public async deleteCapturedDatas(): Promise<void> {
-    const captureScript = new CaptureScript(this.client);
-    await captureScript.deleteCapturedDatas();
+    await this.client.execute(captureScript.deleteCapturedDatas);
   }
 
   /**
@@ -333,21 +335,7 @@ export default class WebBrowserWindow {
    * Focus the window.
    */
   public async focus(): Promise<void> {
-    await this.client.execute((windowHandle) => {
-      const localStorageIsEnabled = (() => {
-        try {
-          return localStorage !== undefined && localStorage !== null;
-        } catch (e) {
-          return false;
-        }
-      })();
-
-      if (!localStorageIsEnabled) {
-        return;
-      }
-
-      localStorage.currentWindowHandle = windowHandle;
-    }, this._windowHandle);
+    await this.client.execute(captureScript.focusWindow, this._windowHandle);
 
     LoggingService.debug(`focusWindow: ${this._windowHandle}`);
   }
@@ -368,14 +356,14 @@ export default class WebBrowserWindow {
    * Pause capturing.
    */
   public async pauseCapturing(): Promise<void> {
-    await new CaptureScript(this.client).pauseCapturing();
+    await this.client.execute(captureScript.pauseCapturing);
   }
 
   /**
    * Resume capturing.
    */
   public async resumeCapturing(): Promise<void> {
-    await new CaptureScript(this.client).resumeCapturing();
+    await this.client.execute(captureScript.resumeCapturing);
   }
 
   /**
@@ -383,7 +371,9 @@ export default class WebBrowserWindow {
    * @returns 'true': Capturing is paused, 'false': Capturing is not paused.
    */
   public async capturingIsPaused(): Promise<boolean> {
-    return await new CaptureScript(this.client).capturingIsPaused();
+    return (
+      (await this.client.execute(captureScript.capturingIsPaused)) ?? false
+    );
   }
 
   private noticeCapturedOperations(...operations: Operation[]) {
@@ -430,7 +420,9 @@ export default class WebBrowserWindow {
     });
   }
 
-  private capturedDataHasChangeEventFiredByMouseClick(data: CapturedData) {
+  private capturedDataHasChangeEventFiredByMouseClick(
+    data: SuspendedCapturedData
+  ) {
     if (data.operation.type !== "change") {
       return false;
     }
@@ -469,7 +461,9 @@ export default class WebBrowserWindow {
     return before.replace(/\[1\]/g, "");
   }
 
-  private async convertToCapturedOperations(capturedDatas: CapturedData[]) {
+  private async convertToCapturedOperations(
+    capturedDatas: SuspendedCapturedData[]
+  ) {
     const filteredDatas = capturedDatas.filter((data) => {
       // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
       if (
@@ -548,7 +542,6 @@ export default class WebBrowserWindow {
           }
           return expected;
         });
-        this.isFirstOperation = false;
 
         return this.createCapturedOperation({
           input: data.operation.input,
@@ -602,5 +595,101 @@ export default class WebBrowserWindow {
       return true;
     }
     return false;
+  }
+
+  private async getReadyToCapture(ignoreElementIds: string[]): Promise<void> {
+    (await this.injectFunctionToGetAttributesFromElement()) &&
+      (await this.injectFunctionToCollectVisibleElements()) &&
+      (await this.injectFunctionToExtractElements()) &&
+      (await this.injectFunctionToEnqueueEventForReFire()) &&
+      (await this.injectFunctionToBuildOperationInfo()) &&
+      (await this.injectFunctionToHandleCapturedEvent(ignoreElementIds)) &&
+      (await this.resetEventListeners());
+  }
+
+  private async injectFunctionToGetAttributesFromElement(): Promise<
+    boolean | null
+  > {
+    return await this.client.execute(
+      captureScript.setFunctionToGetAttributesFromElement
+    );
+  }
+
+  private async injectFunctionToCollectVisibleElements(): Promise<
+    boolean | null
+  > {
+    return await this.client.execute(
+      captureScript.setFunctionToCollectVisibleElements
+    );
+  }
+
+  private async injectFunctionToExtractElements(): Promise<boolean | null> {
+    return await this.client.execute(
+      captureScript.setFunctionToExtractElements
+    );
+  }
+
+  private async injectFunctionToEnqueueEventForReFire(): Promise<
+    boolean | null
+  > {
+    return await this.client.execute(
+      captureScript.setFunctionToEnqueueEventForReFire
+    );
+  }
+
+  private async injectFunctionToBuildOperationInfo(): Promise<boolean | null> {
+    return await this.client.execute(
+      captureScript.setFunctionToBuildOperationInfo
+    );
+  }
+
+  private async injectFunctionToHandleCapturedEvent(
+    ignoreElementIds: string[]
+  ): Promise<boolean | null> {
+    return await this.client.execute(
+      captureScript.setFunctionToHandleCapturedEvent,
+      ignoreElementIds
+    );
+  }
+
+  private async resetEventListeners(): Promise<boolean | null> {
+    return await this.client.execute(captureScript.resetEventListeners);
+  }
+
+  private async pullCapturedDatas(): Promise<SuspendedCapturedData[]> {
+    const capturedDatas =
+      (await this.client.execute(captureScript.pullCapturedDatas)) ?? [];
+
+    const getRefireType = (data: CapturedData) => {
+      if (
+        data.operation.elementInfo.tagname === "INPUT" &&
+        data.operation.type === "click" &&
+        data.operation.elementInfo.attributes["type"] &&
+        data.operation.elementInfo.attributes["type"] === "date"
+      ) {
+        return "inputDate";
+      }
+      return "";
+    };
+
+    const refire = async (eventInfo: EventInfo) => {
+      LoggingService.debug(`Refire event.`);
+      LoggingService.debug(`eventInfo = ${JSON.stringify(eventInfo)}`);
+
+      await this.client.execute(captureScript.refireEvent, eventInfo);
+    };
+
+    return capturedDatas
+      .filter((data) => data.eventInfo.targetXPath !== "")
+      .map((data) => {
+        return {
+          operation: data.operation,
+          elements: data.elements,
+          suspendedEvent: {
+            refireType: getRefireType(data),
+            refire: () => refire(data.eventInfo),
+          },
+        };
+      });
   }
 }
