@@ -2,6 +2,10 @@ name: UT latteart-repository
 
 on:
   push:
+    branches-ignore:
+      - "release/**"
+    tags-ignore:
+      - "v*"
     paths:
       - packages/latteart-repository/**
       - .github/workflows/ut_repository.yml

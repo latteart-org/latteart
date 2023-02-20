@@ -7,6 +7,8 @@ import {
   ScreenDefType,
 } from "@/lib/settings/SettingsEnum";
 
+const packageRootDirPath = path.join(__dirname, "..", "..");
+
 describe("SettingsProvider", () => {
   let settingsProvider: SettingsProvider;
 
@@ -56,7 +58,7 @@ describe("SettingsProvider", () => {
   });
 
   describe("When the loadFile method is called, it reads the specified configuration file and assigns its contents to the settings field.", () => {
-    const resourceDirPath = path.join("tests", "resources");
+    const resourceDirPath = path.join(packageRootDirPath, "resources");
 
     it("normal", () => {
       const filePath = path.resolve(resourceDirPath, "latteart.config.json");

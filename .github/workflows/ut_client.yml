@@ -2,6 +2,10 @@ name: UT latteart-client
 
 on:
   push:
+    branches-ignore:
+      - "release/**"
+    tags-ignore:
+      - "v*"
     paths:
       - packages/latteart-client/**
       - .github/workflows/ut_client.yml

@@ -15,12 +15,15 @@
  */
 
 import { createConnection, getConnection } from "typeorm";
+import path from "path";
 
 export interface TestConnectionHelper {
   createTestConnection(option: { logging: boolean }): Promise<void>;
 
   closeTestConnection(): Promise<void>;
 }
+
+const packageRootDirPath = path.join(__dirname, "..", "..");
 
 export class SqliteTestConnectionHelper implements TestConnectionHelper {
   constructor(private databaseName: string = "test.sqlite") {}
@@ -30,10 +33,10 @@ export class SqliteTestConnectionHelper implements TestConnectionHelper {
   }): Promise<void> {
     await createConnection({
       type: "sqlite",
-      database: this.databaseName,
+      database: path.join(packageRootDirPath, this.databaseName),
       logging: option.logging,
-      entities: ["src/entities/**/*.ts"],
-      migrations: ["src/migrations/**/*.ts"],
+      entities: [path.join(packageRootDirPath, "src/entities/**/*.ts")],
+      migrations: [path.join(packageRootDirPath, "src/migrations/**/*.ts")],
       synchronize: true,
       dropSchema: true,
     });

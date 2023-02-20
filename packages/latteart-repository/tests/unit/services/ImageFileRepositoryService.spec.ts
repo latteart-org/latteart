@@ -6,6 +6,8 @@ import path from "path";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
+const packageRootDirPath = path.join(__dirname, "..", "..");
+
 beforeEach(async () => {
   await testConnectionHelper.createTestConnection({ logging: false });
 });
@@ -36,7 +38,7 @@ describe("ImageFileRepositoryService", () => {
       });
 
       const testImage = await fs.promises.readFile(
-        path.join("tests", "resources", "test.png")
+        path.join(packageRootDirPath, "resources", "test.png")
       );
       const base64TestImage = testImage.toString("base64");
       const fileName = "fileName";
