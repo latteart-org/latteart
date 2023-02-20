@@ -897,61 +897,46 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           return { ...item, operation };
         });
 
-        const scenarios = new OperationHistorySelector(
-          history
-        ).groupByIntention();
-
-        const selectedScreenTransitions = scenarios.map((scenario) => {
-          const screenHistory = ScreenHistory.createFromOperationHistory(
-            scenario.history,
-            params.coverageSources
-          );
-
-          const transitions = screenHistory
-            .collectScreenTransitions(params.selectedScreenDef)
-            .map((transition) => {
-              return {
-                sourceScreenDef: transition.source.screenDef,
-                targetScreenDef: transition.target.screenDef,
-                history: transition.history.filter(({ operation }) => {
-                  return operation.windowHandle === params.selectedWindowHandle;
-                }),
-                screenElements: transition.screenElements,
-                inputElements: transition.inputElements,
-              };
-            })
-            .filter((transition) => {
-              if (transition.history.length === 0) {
-                return false;
-              }
-
-              const selectedTransition = params.selectedScreenTransition;
-
-              if (!selectedTransition) {
-                return true;
-              }
-
-              return (
-                transition.sourceScreenDef ===
-                  selectedTransition.source.screenDef &&
-                transition.targetScreenDef ===
-                  selectedTransition.target.screenDef
-              );
-            });
-
-          return {
-            intention: scenario.intention?.value ?? "",
-            transitions,
-          };
-        });
-
-        return selectedScreenTransitions.reduce(
-          (acc, { intention, transitions }) => {
-            acc.registerScreenTransitionToIntentions(intention, ...transitions);
-            return acc;
-          },
-          new InputValueTable()
+        const screenHistory = ScreenHistory.createFromOperationHistory(
+          history,
+          params.coverageSources
         );
+
+        const transitions = screenHistory
+          .collectScreenTransitions(params.selectedScreenDef)
+          .map((transition) => {
+            return {
+              sourceScreenDef: transition.source.screenDef,
+              targetScreenDef: transition.target.screenDef,
+              history: transition.history.filter(({ operation }) => {
+                return operation.windowHandle === params.selectedWindowHandle;
+              }),
+              screenElements: transition.screenElements,
+              inputElements: transition.inputElements,
+            };
+          })
+          .filter((transition) => {
+            if (transition.history.length === 0) {
+              return false;
+            }
+
+            const selectedTransition = params.selectedScreenTransition;
+
+            if (!selectedTransition) {
+              return true;
+            }
+
+            return (
+              transition.sourceScreenDef ===
+                selectedTransition.source.screenDef &&
+              transition.targetScreenDef === selectedTransition.target.screenDef
+            );
+          });
+
+        const selectedScreenTransitions = transitions;
+        const inputValueTable = new InputValueTable(selectedScreenTransitions);
+
+        return inputValueTable;
       };
 
       const selectScreenTransition = (
