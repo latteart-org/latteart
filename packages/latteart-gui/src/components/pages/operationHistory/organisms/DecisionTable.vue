@@ -52,10 +52,12 @@
         :pagination.sync="pagination"
       >
         <template slot="headers" slot-scope="props">
-          <tr>
+          <tr class="tr-times">
             <th
               :style="
-                index <= 2 ? { borderBottom: '1px solid rgba(0,0,0,0.12)' } : {}
+                index <= 2
+                  ? { borderBottom: '1px solid rgba(0,0,0,0.12)' }
+                  : { borderBottom: '0px' }
               "
               :class="{ 'column-width': index <= 2 }"
               :rowspan="index <= 2 ? 2 : 1"
@@ -385,6 +387,10 @@ td
 
 .column-width
   width: 200px
+  border-top: 0px
+
+.tr-times
+  border-bottom: 0px !important
 </style>
 
 <style lang="sass">
