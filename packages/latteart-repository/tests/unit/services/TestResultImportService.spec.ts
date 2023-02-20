@@ -20,6 +20,7 @@ import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 
+const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
@@ -68,7 +69,9 @@ describe("TestResultImportService", () => {
       });
 
       const base64TestImage = (
-        await fs.promises.readFile(path.join("tests", "resources", "test.png"))
+        await fs.promises.readFile(
+          path.join(packageRootDirPath, "resources", "test.png")
+        )
       ).toString("base64");
 
       const screenshots = [
@@ -301,7 +304,9 @@ describe("TestResultImportService", () => {
       });
 
       const base64TestImage = (
-        await fs.promises.readFile(path.join("tests", "resources", "test.png"))
+        await fs.promises.readFile(
+          path.join(packageRootDirPath, "resources", "test.png")
+        )
       ).toString("base64");
 
       const screenshots = [

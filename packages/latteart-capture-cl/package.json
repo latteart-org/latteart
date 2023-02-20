@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest tests/unit",
+    "test": "jest",
     "build": "webpack --config webpack.prod.js",
     "watch": "webpack -w --config webpack.dev.js",
     "run": "node dist/index.js",

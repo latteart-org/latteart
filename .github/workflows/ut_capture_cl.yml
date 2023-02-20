@@ -2,6 +2,10 @@ name: UT latteart-capture-cl
 
 on:
   push:
+    branches-ignore:
+      - "release/**"
+    tags-ignore:
+      - "v*"
     paths:
       - packages/latteart-capture-cl/**
       - .github/workflows/ut_capture_cl.yml

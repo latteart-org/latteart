@@ -11,6 +11,7 @@ module.exports = {
   },
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/src/**/*.{js,ts}"],
+  coverageProvider: "v8",
   coverageReporters: ["text-summary", "text"],
   modulePaths: ["<rootDir>"],
 };

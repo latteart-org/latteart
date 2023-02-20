@@ -1,14 +1,12 @@
-name: UT latteart-gui
+name: UT all
 
 on:
   push:
-    branches-ignore:
+    branches:
       - "release/**"
-    tags-ignore:
+    tags:
       - "v*"
-    paths:
-      - packages/latteart-gui/**
-      - .github/workflows/ut_gui.yml
+  workflow_dispatch:
 
 jobs:
   ut:
@@ -44,4 +42,4 @@ jobs:
       - name: Run Tests
         run: |
           npm run build -w latteart-client
-          npm run test -w latteart-gui
+          npm run test

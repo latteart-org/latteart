@@ -1,7 +1,7 @@
 module.exports = {
   clearMocks: true,
   collectCoverage: true,
-  collectCoverageFrom: ["./src/**/*.{js,ts}"],
+  collectCoverageFrom: ["<rootDir>/src/**/*.{js,ts}"],
   coverageProvider: "v8",
   coverageReporters: ["text-summary", "text"],
   testEnvironment: "node",
@@ -11,4 +11,5 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+  testMatch: ["<rootDir>/tests/unit/**/*.spec.ts"],
 };
