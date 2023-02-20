@@ -532,7 +532,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       return {
         text,
         value: windowHandle,
-        available: false,
       };
     });
   },
@@ -542,13 +541,12 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param state State.
    * @param payload.windowHandles Window handles.
    */
-  addAvailableWindow(state, payload: { windowHandle: string }) {
+  addWindow(state, payload: { windowHandle: string }) {
     const text = `window${state.windows.length + 1}`;
 
     state.windows.push({
       text,
       value: payload.windowHandle,
-      available: true,
     });
   },
 

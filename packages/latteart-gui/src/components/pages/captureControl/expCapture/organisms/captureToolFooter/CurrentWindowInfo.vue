@@ -35,11 +35,9 @@ export default class CurrentWindowInfo extends Vue {
 
     const session = captureControlState.captureSession;
 
-    const currentWindow = operationHistoryState?.windows
-      .filter(({ available }) => available)
-      .find((window) => {
-        return session && window.value === session.currentWindowHandle;
-      });
+    const currentWindow = operationHistoryState?.windows.find((window) => {
+      return session && window.value === session.currentWindowHandle;
+    });
 
     if (currentWindow === undefined) {
       return "No Window";
