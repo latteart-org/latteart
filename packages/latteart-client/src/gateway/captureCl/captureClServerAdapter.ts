@@ -94,7 +94,7 @@ export class CaptureClServerAdapter {
         canGoBack: boolean;
         canGoForward: boolean;
       }) => void;
-      onUpdateAvailableWindows: (updatedWindowsInfo: {
+      onUpdateWindows: (updatedWindowsInfo: {
         windowHandles: string[];
         currentWindowHandle: string;
       }) => void;
@@ -150,8 +150,8 @@ export class CaptureClServerAdapter {
         eventListeners.onChangeBrowserHistory(browserStatus);
       };
 
-      const onUpdateAvailableWindows = async (data?: unknown) => {
-        console.info(`onUpdateAvailableWindows: ${JSON.stringify(data)}`);
+      const onUpdateWindows = async (data?: unknown) => {
+        console.info(`onUpdateWindows: ${JSON.stringify(data)}`);
 
         // TODO: Type check
         const updateWindowsInfo = data as {
@@ -159,7 +159,7 @@ export class CaptureClServerAdapter {
           currentWindowHandle: string;
         };
 
-        eventListeners.onUpdateAvailableWindows(updateWindowsInfo);
+        eventListeners.onUpdateWindows(updateWindowsInfo);
       };
 
       const onChangeAlertVisibility = async (data?: unknown) => {
@@ -207,7 +207,7 @@ export class CaptureClServerAdapter {
           },
           {
             eventName: "browser_windows_changed",
-            eventHandler: onUpdateAvailableWindows,
+            eventHandler: onUpdateWindows,
           },
           {
             eventName: "alert_visibility_changed",

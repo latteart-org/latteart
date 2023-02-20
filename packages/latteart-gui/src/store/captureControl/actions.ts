@@ -498,7 +498,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       },
       onAddWindow: async (windowHandle: string) => {
         context.commit(
-          "operationHistory/addAvailableWindow",
+          "operationHistory/addWindow",
           { windowHandle },
           { root: true }
         );

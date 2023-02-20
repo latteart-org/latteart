@@ -23,7 +23,7 @@
   >
     <template>
       <v-select
-        :items="capturingWindowInfo.availableWindows"
+        :items="capturingWindowInfo.windows"
         v-model="capturingWindowInfo.currentWindowHandle"
       >
       </v-select>
@@ -48,10 +48,10 @@ export default class WindowSelectorDialog extends Vue {
 
   private capturingWindowInfo: {
     currentWindowHandle: string;
-    availableWindows: WindowInfo[];
+    windows: WindowInfo[];
   } = {
     currentWindowHandle: "",
-    availableWindows: [],
+    windows: [],
   };
 
   @Watch("opened")
@@ -61,14 +61,20 @@ export default class WindowSelectorDialog extends Vue {
     const operationHistoryState = this.$store.state
       .operationHistory as OperationHistoryState;
 
+    const windows = operationHistoryState.windows.filter((window) => {
+      return captureControlState.captureSession?.windowHandles.includes(
+        window.value
+      );
+    });
+
     if (this.opened && captureControlState.captureSession) {
       this.$store.dispatch("captureControl/selectCapturingWindow");
       this.capturingWindowInfo.currentWindowHandle =
         captureControlState.captureSession.currentWindowHandle;
-      this.capturingWindowInfo.availableWindows.splice(
+      this.capturingWindowInfo.windows.splice(
         0,
-        this.capturingWindowInfo.availableWindows.length,
-        ...operationHistoryState.windows.filter(({ available }) => available)
+        this.capturingWindowInfo.windows.length,
+        ...windows
       );
     }
   }

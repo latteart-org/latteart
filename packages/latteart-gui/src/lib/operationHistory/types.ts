@@ -75,7 +75,6 @@ export interface ScreenDef {
 export interface WindowInfo {
   text: string;
   value: string;
-  available: boolean;
 }
 
 export interface RouterPushValueByName {

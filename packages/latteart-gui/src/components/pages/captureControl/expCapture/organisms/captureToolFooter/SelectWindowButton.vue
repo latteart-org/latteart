@@ -57,6 +57,10 @@ export default class SelectWindowButton extends Vue {
     return this.$store.state.captureControl.isCapturing;
   }
 
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
+  }
+
   private get windowSelectorIsEnabled() {
     if (!this.isCapturing) {
       return false;
@@ -76,7 +80,7 @@ export default class SelectWindowButton extends Vue {
 
   @Watch("currentSessionWindowHandlesLength")
   private openWindowSelectorDialog() {
-    if (this.currentSessionWindowHandlesLength > 1) {
+    if (this.currentSessionWindowHandlesLength > 1 && !this.isReplaying) {
       this.windowSelectorOpened = true;
     }
   }

@@ -324,7 +324,7 @@ class CaptureSessionImpl implements CaptureSession {
             },
           };
         },
-        onUpdateAvailableWindows: (updatedWindowsInfo: {
+        onUpdateWindows: (updatedWindowsInfo: {
           windowHandles: string[];
           currentWindowHandle: string;
         }) => {
@@ -578,10 +578,10 @@ class CaptureSessionImpl implements CaptureSession {
             });
           }
 
-          const availableWindowHandles = this.windowHandles;
-          for (const availableWindow of availableWindowHandles) {
-            if (!replayWindowHandles.includes(availableWindow)) {
-              replayWindowHandles.push(availableWindow);
+          const windowHandles = this.windowHandles;
+          for (const windowHandle of windowHandles) {
+            if (!replayWindowHandles.includes(windowHandle)) {
+              replayWindowHandles.push(windowHandle);
             }
           }
 
