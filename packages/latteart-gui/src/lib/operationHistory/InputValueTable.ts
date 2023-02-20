@@ -21,18 +21,15 @@ import { NoteForGUI } from "./NoteForGUI";
 import { ElementInfo } from "latteart-client";
 
 export interface InputValueTableHeaderColumn {
-  intention: string;
-  screenTransitions: Array<{
-    index: number;
-    sourceScreenDef: string;
-    targetScreenDef: string;
-    trigger: {
-      elementText: string;
-      eventType: string;
-    };
-    notes: NoteForGUI[];
-    operationHistory: OperationWithNotes[];
-  }>;
+  index: number;
+  sourceScreenDef: string;
+  targetScreenDef: string;
+  trigger: {
+    elementText: string;
+    eventType: string;
+  };
+  notes: NoteForGUI[];
+  operationHistory: OperationWithNotes[];
 }
 
 export interface InputValueTableRow {
@@ -50,68 +47,79 @@ export interface InputValueTableRow {
  * Class that handles input value table.
  */
 export default class InputValueTable {
+  private screenTransition: Array<{
+    sourceScreenDef: string;
+    targetScreenDef: string;
+    history: OperationWithNotes[];
+    screenElements: ElementInfo[];
+    inputElements: ElementInfo[];
+  }> = [];
+
+  constructor(
+    screenTransition?: Array<{
+      sourceScreenDef: string;
+      targetScreenDef: string;
+      history: OperationWithNotes[];
+      screenElements: ElementInfo[];
+      inputElements: ElementInfo[];
+    }>
+  ) {
+    if (screenTransition) {
+      this.screenTransition = screenTransition;
+    }
+  }
+
   /**
    * Get column size.
    */
   public get columnSize(): number {
-    return Array.from(this.intentionToScreenTransitions.values()).flat().length;
+    return this.screenTransition.length;
   }
 
   /**
    * Get column header.
    */
   public get headerColumns(): InputValueTableHeaderColumn[] {
-    return Array.from(this.intentionToScreenTransitions.entries())
-      .map(([intention, transitions]) => {
-        return {
-          intention,
-          screenTransitions: transitions.map((transition, index) => {
-            const triggerOperation: OperationForGUI | undefined =
-              transition.history[transition.history.length - 1]?.operation;
-            const transitionNotes: NoteForGUI[] = transition.history.flatMap(
-              (item) => {
-                return [...(item.notices ?? []), ...(item.bugs ?? [])];
-              }
-            );
-            const transitionHistory: OperationWithNotes[] =
-              transition.history.filter((history) => {
-                return !!history.notices && history.notices.length > 0;
-              });
+    return this.screenTransition.map((transition, index) => {
+      const triggerOperation: OperationForGUI | undefined =
+        transition.history[transition.history.length - 1]?.operation;
+      const transitionNotes: NoteForGUI[] = transition.history.flatMap(
+        (item) => {
+          return [...(item.notices ?? []), ...(item.bugs ?? [])];
+        }
+      );
+      const transitionHistory: OperationWithNotes[] = transition.history.filter(
+        (history) => {
+          return !!history.notices && history.notices.length > 0;
+        }
+      );
 
-            return {
-              index,
-              sourceScreenDef: transition.sourceScreenDef,
-              targetScreenDef: transition.targetScreenDef,
-              trigger: {
-                elementText: triggerOperation?.elementInfo?.text ?? "",
-                eventType: triggerOperation?.type ?? "",
-              },
-              notes: transitionNotes,
-              operationHistory: transitionHistory,
-            };
-          }),
-        };
-      })
-      .filter(({ screenTransitions }) => {
-        return screenTransitions.length > 0;
-      });
+      return {
+        index,
+        sourceScreenDef: transition.sourceScreenDef,
+        targetScreenDef: transition.targetScreenDef,
+        trigger: {
+          elementText: triggerOperation?.elementInfo?.text ?? "",
+          eventType: triggerOperation?.type ?? "",
+        },
+        notes: transitionNotes,
+        operationHistory: transitionHistory,
+      };
+    });
   }
 
   /**
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const transitions = Array.from(
-      this.intentionToScreenTransitions.values()
-    ).flat();
-
-    const inputElementsWithSequence =
-      this.createInputElementsWithSequence(transitions);
+    const inputElementsWithSequence = this.createInputElementsWithSequence(
+      this.screenTransition
+    );
 
     return inputElementsWithSequence
       .map(({ name, elementInfo, sequence }) => {
         const inputs = [];
-        for (const { history, inputElements } of transitions) {
+        for (const { history, inputElements } of this.screenTransition) {
           const operationsOfTargetElement = history.filter(({ operation }) => {
             if (operation.elementInfo === null) {
               return false;
@@ -163,11 +171,10 @@ export default class InputValueTable {
   }
 
   /**
-   * Get screen transition with intention.
-   * @param key Intention.
-   * @returns Screen transition.
+   * Get screen transition.
+   * @returns Screen transitions.
    */
-  public getScreenTransitionWithIntention(key: string):
+  public getScreenTransition():
     | {
         sourceScreenDef: string;
         targetScreenDef: string;
@@ -176,7 +183,7 @@ export default class InputValueTable {
         inputElements: ElementInfo[];
       }[]
     | undefined {
-    return this.intentionToScreenTransitions.get(key);
+    return this.screenTransition;
   }
 
   private static getDefaultValueOfElement(targetElement: ElementInfo) {
@@ -197,41 +204,6 @@ export default class InputValueTable {
     }
 
     return targetElement.value ?? "";
-  }
-
-  private intentionToScreenTransitions: Map<
-    string,
-    Array<{
-      sourceScreenDef: string;
-      targetScreenDef: string;
-      history: OperationWithNotes[];
-      screenElements: ElementInfo[];
-      inputElements: ElementInfo[];
-    }>
-  > = new Map();
-
-  /**
-   * Screen transition information is added to the grouped intentions.
-   * @param destIntention
-   * @param screenTransition
-   */
-  public registerScreenTransitionToIntentions(
-    destIntention: string,
-    ...screenTransition: Array<{
-      sourceScreenDef: string;
-      targetScreenDef: string;
-      history: OperationWithNotes[];
-      screenElements: ElementInfo[];
-      inputElements: ElementInfo[];
-    }>
-  ): void {
-    if (!this.intentionToScreenTransitions.has(destIntention)) {
-      this.intentionToScreenTransitions.set(destIntention, []);
-    }
-
-    this.intentionToScreenTransitions
-      .get(destIntention)
-      ?.push(...screenTransition);
   }
 
   private collectInputOperations(operationHistory: OperationWithNotes[]) {

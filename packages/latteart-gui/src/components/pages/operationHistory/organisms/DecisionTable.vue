@@ -52,20 +52,12 @@
         :pagination.sync="pagination"
       >
         <template slot="headers" slot-scope="props">
-          <tr>
-            <th
-              :colspan="header.values.length"
-              class="column-width"
-              v-for="(header, index) in props.headers"
-              :key="index"
-            >
-              {{ header.intention }}
-            </th>
-          </tr>
-          <tr>
+          <tr class="tr-times">
             <th
               :style="
-                index <= 2 ? { borderBottom: '1px solid rgba(0,0,0,0.12)' } : {}
+                index <= 2
+                  ? { borderBottom: '1px solid rgba(0,0,0,0.12)' }
+                  : { borderBottom: '0px' }
               "
               :class="{ 'column-width': index <= 2 }"
               :rowspan="index <= 2 ? 2 : 1"
@@ -76,10 +68,12 @@
             >
               {{ header.text }}
               <v-icon
-                v-if="index > 2 && !isViewerMode && hasInputElements(header)"
+                v-if="
+                  index > 2 && !isViewerMode && hasInputElements(header.index)
+                "
                 class="mx-1"
                 color="blue lighten-3"
-                @click="registerAutofillSetting(header)"
+                @click="registerAutofillSetting(header.index)"
                 >control_point</v-icon
               >
               <v-icon
@@ -216,7 +210,6 @@ export default class DecisionTable extends Vue {
   private get headers() {
     return [
       {
-        intention: "",
         values: [
           {
             text: this.message("input-value.element-id"),
@@ -233,7 +226,6 @@ export default class DecisionTable extends Vue {
         ],
       },
       {
-        intention: "",
         values: [
           {
             text: this.message("input-value.element-name"),
@@ -250,7 +242,6 @@ export default class DecisionTable extends Vue {
         ],
       },
       {
-        intention: "",
         values: [
           {
             text: "type",
@@ -266,10 +257,9 @@ export default class DecisionTable extends Vue {
           },
         ],
       },
-      ...this.inputValueTable.headerColumns.map((item, intentionIndex) => {
-        return {
-          intention: item.intention,
-          values: item.screenTransitions.map((screenTransition, index) => {
+      {
+        values: this.inputValueTable.headerColumns.map(
+          (screenTransition, index) => {
             return {
               text: `${screenTransition.index + 1}${this.message(
                 "input-value.times"
@@ -281,11 +271,10 @@ export default class DecisionTable extends Vue {
               notes: screenTransition.notes,
               operationHistory: screenTransition.operationHistory,
               index,
-              intentionIndex,
             };
-          }),
-        };
-      }),
+          }
+        ),
+      },
     ];
   }
 
@@ -332,35 +321,26 @@ export default class DecisionTable extends Vue {
     return elementType === "hidden";
   }
 
-  private hasInputElements(header: {
-    intentionIndex: number;
-    index: number;
-  }): boolean {
+  private hasInputElements(index: number): boolean {
     return (
-      (this.getOperationWithNotesAtScreenTransitionFromHeader(header)?.operation
+      (this.getOperationWithNotesAtScreenTransitionFromHeader(index)?.operation
         .inputElements?.length ?? 0) > 0
     );
   }
 
-  private getOperationWithNotesAtScreenTransitionFromHeader(header: {
-    intentionIndex: number;
-    index: number;
-  }): OperationWithNotes | null {
-    const key =
-      this.inputValueTable.headerColumns[header.intentionIndex].intention;
-    const data = this.inputValueTable.getScreenTransitionWithIntention(key);
+  private getOperationWithNotesAtScreenTransitionFromHeader(
+    index: number
+  ): OperationWithNotes | null {
+    const data = this.inputValueTable.getScreenTransition();
     if (!data) {
       return null;
     }
-    return data[header.index].history[data[header.index].history.length - 1];
+    return data[index].history[data[index].history.length - 1];
   }
 
-  private registerAutofillSetting(header: {
-    intentionIndex: number;
-    index: number;
-  }): void {
+  private registerAutofillSetting(index: number): void {
     const operationWithNotes =
-      this.getOperationWithNotesAtScreenTransitionFromHeader(header);
+      this.getOperationWithNotesAtScreenTransitionFromHeader(index);
     if (operationWithNotes === null) {
       return;
     }
@@ -407,6 +387,10 @@ td
 
 .column-width
   width: 200px
+  border-top: 0px
+
+.tr-times
+  border-bottom: 0px !important
 </style>
 
 <style lang="sass">

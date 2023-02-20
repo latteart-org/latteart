@@ -49,10 +49,8 @@ describe("InputValueTableは", () => {
     expect(table.rows).toStrictEqual([]);
   });
 
-  describe("registerScreenTransitionToIntentionsで登録された情報を元にテーブルを構築する", () => {
-    it("intentionが1つ", () => {
-      const table = new InputValueTable();
-
+  describe("コンストラクタで登録された情報を元にテーブルを構築する", () => {
+    it("画面遷移が１つ", () => {
       const element1 = createElement(1);
       const element2 = createElement(2);
 
@@ -70,7 +68,7 @@ describe("InputValueTableは", () => {
         notices: [],
       };
 
-      table.registerScreenTransitionToIntentions("intention1", {
+      const screenTransition = {
         sourceScreenDef: "screen1",
         targetScreenDef: "screen2",
         history: [
@@ -80,25 +78,22 @@ describe("InputValueTableは", () => {
         ],
         screenElements: [],
         inputElements: [],
-      });
+      };
+
+      const table = new InputValueTable([screenTransition]);
 
       expect(table.columnSize).toStrictEqual(1);
       expect(table.headerColumns).toStrictEqual([
         {
-          intention: "intention1",
-          screenTransitions: [
-            {
-              index: 0,
-              notes: [],
-              operationHistory: [],
-              sourceScreenDef: "screen1",
-              targetScreenDef: "screen2",
-              trigger: {
-                elementText: "elementText2",
-                eventType: "eventType3",
-              },
-            },
-          ],
+          index: 0,
+          notes: [],
+          operationHistory: [],
+          sourceScreenDef: "screen1",
+          targetScreenDef: "screen2",
+          trigger: {
+            elementText: "elementText2",
+            eventType: "eventType3",
+          },
         },
       ]);
       expect(table.rows).toStrictEqual([
@@ -119,9 +114,7 @@ describe("InputValueTableは", () => {
       ]);
     });
 
-    it("同一intention内に画面遷移が2つ", () => {
-      const table = new InputValueTable();
-
+    it("画面遷移が2つ", () => {
       const element1 = createElement(1);
       const element2 = createElement(2);
 
@@ -139,14 +132,14 @@ describe("InputValueTableは", () => {
         notices: [],
       };
 
-      table.registerScreenTransitionToIntentions("intention1", {
+      const screenTransition1 = {
         sourceScreenDef: "screen1",
         targetScreenDef: "screen2",
         history: [],
         screenElements: [element1, element2],
         inputElements: [],
-      });
-      table.registerScreenTransitionToIntentions("intention1", {
+      };
+      const screenTransition2 = {
         sourceScreenDef: "screen2",
         targetScreenDef: "screen3",
         history: [
@@ -156,37 +149,34 @@ describe("InputValueTableは", () => {
         ],
         screenElements: [element1, element2],
         inputElements: [],
-      });
+      };
+
+      const table = new InputValueTable([screenTransition1, screenTransition2]);
 
       expect(table.columnSize).toStrictEqual(2);
 
       expect(table.headerColumns).toStrictEqual([
         {
-          intention: "intention1",
-          screenTransitions: [
-            {
-              index: 0,
-              notes: [],
-              operationHistory: [],
-              sourceScreenDef: "screen1",
-              targetScreenDef: "screen2",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-            },
-            {
-              index: 1,
-              notes: [],
-              operationHistory: [],
-              sourceScreenDef: "screen2",
-              targetScreenDef: "screen3",
-              trigger: {
-                elementText: "elementText2",
-                eventType: "eventType3",
-              },
-            },
-          ],
+          index: 0,
+          notes: [],
+          operationHistory: [],
+          sourceScreenDef: "screen1",
+          targetScreenDef: "screen2",
+          trigger: {
+            elementText: "",
+            eventType: "",
+          },
+        },
+        {
+          index: 1,
+          notes: [],
+          operationHistory: [],
+          sourceScreenDef: "screen2",
+          targetScreenDef: "screen3",
+          trigger: {
+            elementText: "elementText2",
+            eventType: "eventType3",
+          },
         },
       ]);
 
@@ -214,71 +204,10 @@ describe("InputValueTableは", () => {
       ]);
     });
 
-    it("intentionが2つ", () => {
-      const table = new InputValueTable();
-
-      table.registerScreenTransitionToIntentions("intention1", {
-        sourceScreenDef: "screen1",
-        targetScreenDef: "screen2",
-        history: [],
-        screenElements: [],
-        inputElements: [],
-      });
-      table.registerScreenTransitionToIntentions("intention2", {
-        sourceScreenDef: "screen2",
-        targetScreenDef: "screen3",
-        history: [],
-        screenElements: [],
-        inputElements: [],
-      });
-
-      expect(table.columnSize).toStrictEqual(2);
-
-      expect(table.headerColumns).toStrictEqual([
-        {
-          intention: "intention1",
-          screenTransitions: [
-            {
-              index: 0,
-              notes: [],
-              operationHistory: [],
-              sourceScreenDef: "screen1",
-              targetScreenDef: "screen2",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-            },
-          ],
-        },
-        {
-          intention: "intention2",
-          screenTransitions: [
-            {
-              index: 0,
-              notes: [],
-              operationHistory: [],
-              sourceScreenDef: "screen2",
-              targetScreenDef: "screen3",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-            },
-          ],
-        },
-      ]);
-
-      expect(table.rows).toStrictEqual([]);
-    });
-
     describe("同一要素に対する操作が複数ある場合は、最後の操作を採用する", () => {
       it("xpathが同じものは同一要素とみなす", () => {
-        const table = new InputValueTable();
-
         const element1 = createElement(1);
-
-        table.registerScreenTransitionToIntentions("intention1", {
+        const transition = {
           sourceScreenDef: "screen1",
           targetScreenDef: "screen2",
           history: [
@@ -287,7 +216,9 @@ describe("InputValueTableは", () => {
           ],
           screenElements: [],
           inputElements: [],
-        });
+        };
+
+        const table = new InputValueTable([transition]);
 
         expect(table.rows).toStrictEqual([
           {
@@ -301,8 +232,6 @@ describe("InputValueTableは", () => {
       });
 
       it("xpathの要素に[1]がついている場合、ついていない要素と同一とみなす", () => {
-        const table = new InputValueTable();
-
         const element1 = createElement(1);
         const element1_2 = {
           tagname: element1.tagname,
@@ -313,7 +242,7 @@ describe("InputValueTableは", () => {
           attributes: element1.attributes,
         };
 
-        table.registerScreenTransitionToIntentions("intention1", {
+        const screenTransition = {
           sourceScreenDef: "screen1",
           targetScreenDef: "screen2",
           history: [
@@ -322,7 +251,9 @@ describe("InputValueTableは", () => {
           ],
           screenElements: [],
           inputElements: [],
-        });
+        };
+
+        const table = new InputValueTable([screenTransition]);
 
         expect(table.rows).toStrictEqual([
           {
