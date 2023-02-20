@@ -579,9 +579,9 @@ class CaptureSessionImpl implements CaptureSession {
           }
 
           const windowHandles = this.windowHandles;
-          for (const window of windowHandles) {
-            if (!replayWindowHandles.includes(window)) {
-              replayWindowHandles.push(window);
+          for (const windowHandle of windowHandles) {
+            if (!replayWindowHandles.includes(windowHandle)) {
+              replayWindowHandles.push(windowHandle);
             }
           }
 
