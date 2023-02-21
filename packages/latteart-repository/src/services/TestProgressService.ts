@@ -29,7 +29,6 @@ import {
 } from "@/lib/timeUtil";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectsServiceImpl } from "./ProjectsService";
-import { TimestampServiceImpl } from "./TimestampService";
 import { TransactionRunner } from "@/TransactionRunner";
 
 /**
@@ -113,13 +112,7 @@ export class TestProgressServiceImpl implements TestProgressService {
   }
 
   public async registerProjectTestProgresses(projectId: string): Promise<void> {
-    const project = await new ProjectsServiceImpl(
-      {
-        timestamp: new TimestampServiceImpl(),
-        testProgress: this,
-      },
-      this.transactionRunner
-    ).getProject(projectId);
+    const project = await new ProjectsServiceImpl().getProject(projectId);
 
     const storyIds = project.stories.map((story) => story.id);
 
@@ -211,13 +204,7 @@ export class TestProgressServiceImpl implements TestProgressService {
     projectId: string,
     filter: { since?: number; until?: number } = {}
   ): Promise<DailyTestProgress[]> {
-    const project = await new ProjectsServiceImpl(
-      {
-        timestamp: new TimestampServiceImpl(),
-        testProgress: this,
-      },
-      this.transactionRunner
-    ).getProject(projectId);
+    const project = await new ProjectsServiceImpl().getProject(projectId);
 
     const storyIds = project.stories.map((story) => story.id);
 

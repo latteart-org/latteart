@@ -140,13 +140,7 @@ export class SnapshotsController extends Controller {
 
     return new SnapshotsService({
       snapshotFileRepository: snapshotFileRepositoryService,
-      project: new ProjectsServiceImpl(
-        {
-          timestamp: new TimestampServiceImpl(),
-          testProgress: new TestProgressServiceImpl(transactionRunner),
-        },
-        transactionRunner
-      ),
+      project: new ProjectsServiceImpl(),
     });
   }
 }
