@@ -91,13 +91,7 @@ export class ProjectExportController extends Controller {
         transactionRunner
       );
 
-      const projectService = new ProjectsServiceImpl(
-        {
-          timestamp: timestampService,
-          testProgress: testProgressService,
-        },
-        transactionRunner
-      );
+      const projectService = new ProjectsServiceImpl();
 
       const url = await new ProjectExportService().export(
         projectId,

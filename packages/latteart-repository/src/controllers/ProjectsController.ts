@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
-import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
   Get,
@@ -47,13 +46,7 @@ export class ProjectsController extends Controller {
   @SuccessResponse(200, "Success")
   @Get()
   public async getProjectIdentifiers(): Promise<ProjectListResponse[]> {
-    return new ProjectsServiceImpl(
-      {
-        timestamp: new TimestampServiceImpl(),
-        testProgress: new TestProgressServiceImpl(transactionRunner),
-      },
-      transactionRunner
-    ).getProjectIdentifiers();
+    return new ProjectsServiceImpl().getProjectIdentifiers();
   }
 
   /**
@@ -65,13 +58,7 @@ export class ProjectsController extends Controller {
   @Post()
   public async createProject(): Promise<{ id: string; name: string }> {
     try {
-      return await new ProjectsServiceImpl(
-        {
-          timestamp: new TimestampServiceImpl(),
-          testProgress: new TestProgressServiceImpl(transactionRunner),
-        },
-        transactionRunner
-      ).createProject();
+      return await new ProjectsServiceImpl().createProject();
     } catch (error) {
       if (error instanceof Error) {
         LoggingService.error("Save project failed.", error);
@@ -96,13 +83,7 @@ export class ProjectsController extends Controller {
     @Path() projectId: string
   ): Promise<GetProjectResponse> {
     try {
-      return await new ProjectsServiceImpl(
-        {
-          timestamp: new TimestampServiceImpl(),
-          testProgress: new TestProgressServiceImpl(transactionRunner),
-        },
-        transactionRunner
-      ).getProject(projectId);
+      return await new ProjectsServiceImpl().getProject(projectId);
     } catch (error: any) {
       if (error instanceof Error) {
         LoggingService.error("Get project failed.", error);
