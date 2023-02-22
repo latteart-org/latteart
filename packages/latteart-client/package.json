@@ -14,7 +14,9 @@
     "lint": "eslint src tests",
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix src tests",
-    "fix:format": "prettier --write src tests"
+    "fix:format": "prettier --write src tests",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version"
   },
   "dependencies": {
     "socket.io-client": "^2.3.1"

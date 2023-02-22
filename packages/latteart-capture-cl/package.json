@@ -16,7 +16,12 @@
     "lint": "eslint src tests",
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix src tests",
-    "fix:format": "prettier --write src tests"
+    "fix:format": "prettier --write src tests",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "postversion:patch": "npm run version:apidoc",
+    "postversion:minor": "npm run version:apidoc",
+    "version:apidoc": "node -e \"const fs = require('fs-extra'); const p = 'docs/api/api.yaml'; const s = fs.readFileSync(p, 'utf8'); fs.writeFileSync(p, s.replace(/version: [0-9]\\.[0-9]\\.[0-9]/, `version: ${process.env.npm_package_version}`), 'utf-8');\""
   },
   "dependencies": {
     "encoding-japanese": "^1.0.30",

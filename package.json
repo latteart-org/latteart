@@ -34,7 +34,15 @@
     "postpackage:win:capturecl": "node -e \"require('fs-extra').copySync(`packages/latteart-capture-cl/dist/package/win/latteart`, 'dist/package/win');\"",
     "postpackage:mac:capturecl": "node -e \"require('fs-extra').copySync(`packages/latteart-capture-cl/dist/package/mac/latteart`, 'dist/package/mac');\"",
     "lint": "npm run lint -ws --if-present",
-    "fix": "npm run fix -ws --if-present"
+    "fix": "npm run fix -ws --if-present",
+    "version:patch": "run-s version:patch:workspaces version:patch:self",
+    "version:minor": "run-s version:minor:workspaces version:minor:self",
+    "version:patch:self": "npm version patch --no-git-tag-version",
+    "version:minor:self": "npm version minor --no-git-tag-version",
+    "version:patch:workspaces": "npm run version:patch -ws",
+    "version:minor:workspaces": "npm run version:minor -ws",
+    "postversion:patch": "npm install",
+    "postversion:minor": "npm install"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",

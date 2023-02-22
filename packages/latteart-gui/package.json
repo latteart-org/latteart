@@ -9,7 +9,9 @@
     "build:viewer:history": "cross-env VUE_CLI_SERVICE_CONFIG_PATH=vue.config.viewer.history.js vue-cli-service build",
     "serve": "vue-cli-service serve --port 3000",
     "package": "run-p build build:viewer build:viewer:history",
-    "lint": "vue-cli-service lint src/**/*.ts src/**/*.vue"
+    "lint": "vue-cli-service lint src/**/*.ts src/**/*.vue",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version"
   },
   "dependencies": {
     "chart.js": "^2.8.0",

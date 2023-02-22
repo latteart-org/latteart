@@ -15,7 +15,9 @@
     "lint": "eslint src",
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix src",
-    "fix:format": "prettier --write src"
+    "fix:format": "prettier --write src",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version"
   },
   "dependencies": {
     "connect-history-api-fallback": "^1.6.0",
