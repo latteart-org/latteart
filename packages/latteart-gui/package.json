@@ -1,6 +1,6 @@
 {
   "name": "latteart-gui",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "private": true,
   "scripts": {
     "test": "vue-cli-service test:unit",
