@@ -1,0 +1,39 @@
+{
+  "name": "latteart-capture-cl",
+  "version": "2.8.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack -w --config webpack.dev.js",
+    "run": "node dist/index.js",
+    "package": "run-p package:win package:mac",
+    "package:win": "pkg -t node16-win-x64 --out-path dist/package/win/latteart/latteart-capture-cl pkg.config.json",
+    "package:mac": "pkg -t node16-macos-x64 --out-path dist/package/mac/latteart/latteart-capture-cl pkg.config.json",
+    "prepackage:win": "npm run build",
+    "prepackage:mac": "npm run build",
+    "lint": "eslint src tests",
+    "fix": "run-s fix:lint fix:format",
+    "fix:lint": "eslint --fix src tests",
+    "fix:format": "prettier --write src tests",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "postversion:patch": "npm run version:apidoc",
+    "postversion:minor": "npm run version:apidoc",
+    "version:apidoc": "node -e \"const fs = require('fs-extra'); const p = 'docs/api/api.yaml'; const s = fs.readFileSync(p, 'utf8'); fs.writeFileSync(p, s.replace(/version: [0-9]\\.[0-9]\\.[0-9]/, `version: ${process.env.npm_package_version}`), 'utf-8');\""
+  },
+  "dependencies": {
+    "encoding-japanese": "^1.0.30",
+    "express": "^4.17.1",
+    "log4js": "^6.3.0",
+    "moment": "^2.29.0",
+    "selenium-webdriver": "4.4.0",
+    "socket.io": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/encoding-japanese": "^1.0.16",
+    "@types/express": "4.17.13",
+    "@types/selenium-webdriver": "^4.0.15"
+  }
+}

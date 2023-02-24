@@ -1,0 +1,164 @@
+{
+  "locale": "ja",
+  "mode": "debug",
+  "debug": {
+    "outputs": {
+      "dom": false
+    },
+    "configureCaptureSettings": true
+  },
+  "defaultTagList": [
+    "A",
+    "INPUT",
+    "SELECT",
+    "OPTION",
+    "TEXTAREA",
+    "BUTTON",
+    "DATALIST"
+  ],
+  "viewPointsPreset": [
+    {
+      "name": "default",
+      "viewPoints": [
+        {
+          "name": "基本フロー"
+        },
+        {
+          "name": "代替フロー"
+        },
+        {
+          "name": "例外フロー"
+        },
+        {
+          "name": "中断・再開・繰り返し"
+        },
+        {
+          "name": "データライフサイクル"
+        },
+        {
+          "name": "共有・排他・ロールセキュリティ"
+        },
+        {
+          "name": "入出力"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "coverage": {
+      "include": {
+        "tags": []
+      }
+    },
+    "screenDefinition": {
+      "isRegex": false,
+      "screenDefList": [],
+      "screenDefType": "title"
+    }
+  },
+  "captureSettings": {
+    "ignoreTags": [
+      "HTML",
+      "HEAD",
+      "TITLE",
+      "LINK",
+      "META",
+      "STYLE",
+      "SCRIPT",
+      "NOSCRIPT",
+      "BODY",
+      "H1",
+      "H2",
+      "P",
+      "HR",
+      "BLOCKQUOTE",
+      "OL",
+      "UL",
+      "LI",
+      "DL",
+      "DT",
+      "DD",
+      "DIV",
+      "STRONG",
+      "SPAN",
+      "BR",
+      "IMG",
+      "TABLE",
+      "TR",
+      "TD",
+      "TH",
+      "FORM",
+      "LABEL",
+      "BASE",
+      "SECTION",
+      "NAV",
+      "ARTICLE",
+      "ASIDE",
+      "H3",
+      "H4",
+      "HGROUP",
+      "HEADER",
+      "FOOTER",
+      "ADDRESS",
+      "PRE",
+      "FIGURE",
+      "FIGCAPTION",
+      "EM",
+      "SMALL",
+      "CITE",
+      "Q",
+      "ABBR",
+      "TIME",
+      "CODE",
+      "INS",
+      "DEL",
+      "IFRAME",
+      "EMBED",
+      "OBJECT",
+      "PARAM",
+      "VIDEO",
+      "AUDIO",
+      "CANVAS",
+      "CAPTION",
+      "TBODY",
+      "THEAD",
+      "TFOOT",
+      "FIELDSET",
+      "LEGEND",
+      "H5",
+      "H6",
+      "S",
+      "DFN",
+      "VAR",
+      "SAMP",
+      "KBD",
+      "SUB",
+      "SUP",
+      "I",
+      "B",
+      "U",
+      "MARK",
+      "RUBY",
+      "RT",
+      "RP",
+      "BDI",
+      "BDO",
+      "WBR",
+      "SOURCE",
+      "TRACK",
+      "MAP",
+      "AREA",
+      "COLGROUP",
+      "COL",
+      "OPTGROUP",
+      "KEYGEN",
+      "OUTPUT",
+      "PROGRESS",
+      "METER",
+      "DETAIL",
+      "SUMMARY",
+      "COMMAND",
+      "MENU"
+    ]
+  }
+}

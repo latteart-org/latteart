@@ -1,0 +1,9 @@
+{
+  "name": "latteart-capture-cl",
+  "bin": {
+    "latteart-capture-cl": "dist/index.js"
+  },
+  "pkg": {
+    "assets": ["dist/index.js", "../../node_modules/selenium-webdriver/**/*.js"]
+  }
+}

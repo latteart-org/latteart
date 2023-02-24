@@ -1,0 +1,37 @@
+{
+  "name": "latteart-launch",
+  "version": "2.8.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "run": "node dist/index.js",
+    "package": "run-p package:win package:mac",
+    "package:win": "pkg -t node16-win-x64 --out-path dist/package/win/latteart pkg.config.json",
+    "package:mac": "pkg -t node16-macos-x64 --out-path dist/package/mac/latteart pkg.config.json",
+    "prepackage:win": "npm run build",
+    "prepackage:mac": "npm run build",
+    "postpackage:win": "run-p copy:script:win copy:config:win",
+    "postpackage:mac": "run-p copy:script:mac copy:config:mac",
+    "copy:script:win": "cpx \"*.bat\" dist/package/win/latteart",
+    "copy:script:mac": "cpx \"*.command\" dist/package/mac/latteart",
+    "copy:config:win": "cpx launch.config.json dist/package/win/latteart",
+    "copy:config:mac": "cpx launch.config.json dist/package/mac/latteart",
+    "lint": "eslint src",
+    "fix": "run-s fix:lint fix:format",
+    "fix:lint": "eslint --fix src",
+    "fix:format": "prettier --write src",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version"
+  },
+  "dependencies": {
+    "encoding-japanese": "^1.0.30",
+    "fs-extra": "^11.1.0",
+    "open": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/encoding-japanese": "^1.0.18",
+    "@types/fs-extra": "^9.0.13"
+  }
+}

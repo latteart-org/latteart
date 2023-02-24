@@ -1,0 +1,6 @@
+{
+  "name": "launch",
+  "bin": {
+    "launch": "dist/index.js"
+  }
+}

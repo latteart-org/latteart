@@ -1,0 +1,5 @@
+/public
+/history-viewer
+/snapshot-viewer
+*.sqlite
+*.sqlite.bak

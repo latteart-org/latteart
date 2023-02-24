@@ -1,0 +1,32 @@
+{
+  "browser": null,
+  "servers": [
+    {
+      "name": "latteart-repository",
+      "binaryFilePath": "latteart-repository/latteart-repository",
+      "env": { "port": "3002" },
+      "http": {
+        "url": "http://localhost:3002",
+        "connectionCheck": true
+      }
+    },
+    {
+      "name": "latteart-capture-cl",
+      "binaryFilePath": "latteart-capture-cl/latteart-capture-cl",
+      "env": { "port": "3001" },
+      "http": {
+        "url": "http://localhost:3001",
+        "connectionCheck": true
+      }
+    },
+    {
+      "name": "latteart",
+      "binaryFilePath": "latteart/latteart",
+      "env": { "port": "3000" },
+      "http": {
+        "url": "http://localhost:3000",
+        "connectionCheck": true
+      }
+    }
+  ]
+}
