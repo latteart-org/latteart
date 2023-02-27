@@ -21,21 +21,6 @@ afterEach(async () => {
 });
 
 describe("SessionService", () => {
-  const emptySessionParams: Session = {
-    isDone: false,
-    memo: "",
-    name: "",
-    testerName: "",
-    testingTime: 0,
-    doneDate: "",
-    attachedFiles: [],
-    issues: [],
-    testItem: "",
-    testResultFiles: [],
-    index: 0,
-    id: "",
-  };
-
   describe("#postSession", () => {
     describe("空のセッションを新規作成する", () => {
       it("指定のIDのストーリーに空のセッションを追加する", async () => {
@@ -49,8 +34,20 @@ describe("SessionService", () => {
         );
 
         expect(result).toEqual({
-          ...emptySessionParams,
+          index: 0,
+          name: "",
           id: expect.any(String),
+          isDone: false,
+          doneDate: "",
+          testItem: "",
+          testerName: "",
+          memo: "",
+          attachedFiles: [],
+          testResultFiles: [],
+          initialUrl: "",
+          testPurposes: [],
+          notes: [],
+          testingTime: 0,
         });
       });
 
@@ -102,10 +99,17 @@ describe("SessionService", () => {
           );
 
           expect(result).toEqual({
-            ...emptySessionParams,
             ...params,
-            doneDate,
+            index: 0,
+            name: "",
             id: expect.any(String),
+            doneDate,
+            testItem: "",
+            attachedFiles: [],
+            testResultFiles: [],
+            initialUrl: "",
+            testPurposes: [],
+            notes: [],
           });
         }
       );

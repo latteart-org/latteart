@@ -100,18 +100,11 @@ export class SessionsService {
     if (requestBody.memo !== undefined) {
       updateTargetSession.memo = requestBody.memo;
     }
-    if (requestBody.name !== undefined) {
-      updateTargetSession.name = requestBody.name;
-    }
     if (requestBody.testItem !== undefined) {
       updateTargetSession.testItem = requestBody.testItem;
     }
     if (requestBody.testerName !== undefined) {
       updateTargetSession.testUser = requestBody.testerName;
-    }
-
-    if (requestBody.testingTime !== undefined) {
-      updateTargetSession.testingTime = requestBody.testingTime;
     }
 
     if (requestBody.testResultFiles) {
@@ -217,6 +210,7 @@ export class SessionsService {
       relations: [
         "attachedFiles",
         "testResult",
+        "testResult.testPurposes",
         "testResult.notes",
         "testResult.notes.testSteps",
         "testResult.notes.testSteps.screenshot",

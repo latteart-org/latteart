@@ -17,22 +17,10 @@
 import { NoteEntity } from "@/entities/NoteEntity";
 import { SessionEntity } from "@/entities/SessionEntity";
 import { StoryEntity } from "@/entities/StoryEntity";
+import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
+import { Note } from "@/interfaces/Notes";
 import { Session } from "@/interfaces/Sessions";
 import { Story } from "@/interfaces/Stories";
-
-type issue = {
-  details: string;
-  source: {
-    index: number;
-    type: string;
-  };
-  status: string;
-  ticketId: string;
-  type: string;
-  value: string;
-  imageFilePath?: string;
-  tags?: string[];
-};
 
 export const storyEntityToResponse = (story: StoryEntity): Story => {
   return {
@@ -50,33 +38,28 @@ export const storyEntityToResponse = (story: StoryEntity): Story => {
   };
 };
 
-const noteEntityToResponse = (note: NoteEntity): issue => {
+const noteEntityToResponse = (note: NoteEntity): Note => {
   const testStep = note.testSteps ? note.testSteps[0] : undefined;
+  const tags = note.tags?.map((tag) => tag.name) ?? [];
   return {
-    details: note.details,
-    source: {
-      index: 0,
-      type: "notice",
-    },
-    status: note.tags?.find((tag) => {
-      return tag.name === "reported";
-    })
-      ? "reported"
-      : note.tags?.find((tag) => {
-          return tag.name === "invalid";
-        })
-      ? "invalid"
-      : "",
-    ticketId: "",
+    id: note.id,
     type: "notice",
     value: note.value,
-    imageFilePath:
+    details: note.details,
+    imageFileUrl:
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
-    tags: note.tags
-      ? note.tags.map((tag) => {
-          return tag.name;
-        })
-      : [],
+    tags,
+  };
+};
+
+const testPurposeEntityToResponse = (testPurpose: TestPurposeEntity): Note => {
+  return {
+    id: testPurpose.id,
+    type: "intention",
+    value: testPurpose.title,
+    details: testPurpose.details,
+    imageFileUrl: "",
+    tags: [],
   };
 };
 
@@ -97,7 +80,13 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
 
   return {
     index: session.index,
+    name: session.name,
     id: session.id,
+    isDone: !!session.doneDate,
+    doneDate: session.doneDate,
+    testItem: session.testItem,
+    testerName: session.testUser,
+    memo: session.memo,
     attachedFiles:
       session.attachedFiles
         ?.sort((a, b) => {
@@ -112,14 +101,6 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
             fileUrl: attachedFile.fileUrl,
           };
         }) ?? [],
-    doneDate: session.doneDate,
-    isDone: !!session.doneDate,
-    issues: sortedNotes.map((note) => {
-      return noteEntityToResponse(note);
-    }),
-    memo: session.memo,
-    name: session.name,
-    testItem: session.testItem,
     testResultFiles: session.testResult
       ? [
           {
@@ -128,7 +109,14 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
           },
         ]
       : [],
-    testerName: session.testUser,
+    initialUrl: session.testResult?.initialUrl ?? "",
+    testPurposes:
+      session.testResult?.testPurposes?.map((testPurpose) => {
+        return testPurposeEntityToResponse(testPurpose);
+      }) ?? [],
+    notes: sortedNotes.map((note) => {
+      return noteEntityToResponse(note);
+    }),
     testingTime: session.testResult?.testingTime ?? 0,
   };
 };

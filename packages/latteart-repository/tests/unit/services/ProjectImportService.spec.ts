@@ -317,6 +317,7 @@ describe("ProjectImportService", () => {
             testTargetId: "testTargetId",
             viewPointId: "viewPointId",
             status: "ok",
+            index: 0,
             sessions: [],
           },
         ],

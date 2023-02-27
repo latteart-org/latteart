@@ -31,6 +31,8 @@ import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
 import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { Session } from "@/interfaces/Sessions";
+import { Story } from "@/interfaces/Stories";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -190,41 +192,12 @@ export class SnapshotFileRepositoryServiceImpl
 
   private async copyTestResult(
     storyId: string,
-    session: {
-      id: string;
-      attachedFiles: {
-        name: string;
-        fileUrl: string;
-      }[];
-      doneDate: string;
-      isDone: boolean;
-      issues: {
-        details: string;
-        source: {
-          index: number;
-          type: string;
-        };
-        status: string;
-        ticketId: string;
-        type: string;
-        value: string;
-      }[];
-      memo: string;
-      name: string;
-      testItem: string;
-      testResultFiles?: {
-        name: string;
-        path: string;
-      }[];
-      testerName: string;
-      testingTime: number;
-    },
+    session: Session,
     outputDirPath: string
   ) {
     const destSessionPath = path.join(outputDirPath, storyId, session.id);
 
-    const testResultIds =
-      session.testResultFiles?.map(({ path: id }) => id) ?? [];
+    const testResultIds = session.testResultFiles.map(({ id }) => id) ?? [];
     if (testResultIds.length === 0) {
       return;
     }
@@ -410,64 +383,51 @@ export class SnapshotFileRepositoryServiceImpl
                 };
               }) ?? [];
 
-            const testResultFiles:
-              | {
-                  name: string;
-                  path: string;
-                }[]
-              | undefined =
-              session.testResultFiles === undefined
-                ? undefined
-                : session.testResultFiles.map((testResultFile) => {
-                    return {
-                      name: testResultFile.name,
-                      path: testResultFile.id,
-                    };
-                  });
+            const testResultFiles: { name: string; id: string }[] =
+              session.testResultFiles.map((testResultFile) => {
+                return {
+                  name: testResultFile.name,
+                  id: testResultFile.id,
+                };
+              });
 
-            const issues: {
+            const notes: {
+              id: string;
               type: string;
               value: string;
               details: string;
-              status: string;
-              ticketId: string;
-              source: {
-                type: string;
-                index: number;
-              };
-              imageFilePath?: string;
-              tags?: string[];
-            }[] = session.issues.map((issue) => {
+              imageFileUrl: string;
+              tags: string[];
+            }[] = session.notes.map((note) => {
               return {
-                type: issue.source.type,
-                value: issue.value,
-                details: issue.details,
-                status: issue.status,
-                ticketId: issue.ticketId,
-                source: {
-                  type: issue.source.type,
-                  index: issue.source.index,
-                },
-                imageFilePath: `data/${
+                id: note.id,
+                type: note.type,
+                value: note.value,
+                details: note.details,
+                imageFileUrl: `data/${
                   story.id
                 }/${sessionIdAlias}/testResult/${path.basename(
-                  issue.imageFilePath ?? ""
+                  note.imageFileUrl ?? ""
                 )}`,
-                tags: issue.tags ?? [],
+                tags: note.tags,
               };
             });
 
-            const testResultFile = testResultFiles?.at(0);
+            const testResultFile = testResultFiles.at(0);
 
-            const testResultId = testResultFile ? testResultFile.path : "";
+            const testResultId = testResultFile ? testResultFile.id : "";
 
             const testResult = await this.service.testResult.getTestResult(
               testResultId
             );
 
-            const intentions: {
+            const testPurposes: {
+              id: string;
+              type: string;
               value: string;
               details: string;
+              imageFileUrl: string;
+              tags: string[];
             }[] = (
               await Promise.all(
                 testResult
@@ -477,8 +437,12 @@ export class SnapshotFileRepositoryServiceImpl
                       }
 
                       return {
+                        id: intention.id,
+                        type: intention.type,
                         value: intention.value,
                         details: intention.details,
+                        imageFileUrl: "",
+                        tags: [],
                       };
                     })
                   : []
@@ -486,6 +450,7 @@ export class SnapshotFileRepositoryServiceImpl
             ).flat();
 
             return {
+              index: session.index,
               name: session.name,
               id: sessionIdAlias,
               isDone: session.isDone,
@@ -495,8 +460,9 @@ export class SnapshotFileRepositoryServiceImpl
               memo: session.memo,
               attachedFiles,
               testResultFiles,
-              issues,
-              intentions,
+              initialUrl: session.initialUrl,
+              testPurposes,
+              notes,
               testingTime: session.testingTime,
             };
           })
@@ -595,39 +561,7 @@ export class SnapshotFileRepositoryServiceImpl
         }[];
         viewPoints: { id: string; name: string }[];
       }[];
-      stories: {
-        id: string;
-        testMatrixId: string;
-        testTargetId: string;
-        viewPointId: string;
-        status: string;
-        sessions: {
-          name: string;
-          id: string;
-          isDone: boolean;
-          doneDate: string;
-          testItem: string;
-          testerName: string;
-          memo: string;
-          attachedFiles: { name: string; fileUrl: string }[];
-          testResultFiles: { name: string; path: string }[] | undefined;
-          issues: {
-            type: string;
-            value: string;
-            details: string;
-            status: string;
-            ticketId: string;
-            source: { type: string; index: number };
-            imageFilePath?: string;
-            tags?: string[];
-          }[];
-          intentions: {
-            value: string;
-            details: string;
-          }[];
-          testingTime: number;
-        }[];
-      }[];
+      stories: Story[];
     }
   ) {
     await fs.outputFile(

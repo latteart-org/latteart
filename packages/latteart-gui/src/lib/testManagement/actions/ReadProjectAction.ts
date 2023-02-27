@@ -18,16 +18,14 @@ import {
   RepositoryAccessResult,
   createRepositoryAccessSuccess,
   RepositoryService,
-  TestMatrixForRepository,
-  ManagedStoryForRepository,
 } from "latteart-client";
-import { ManagedStory } from "@/lib/testManagement/TestManagementData";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { Story, TestMatrix } from "@/lib/testManagement/types";
 import {
   ActionResult,
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
+import SessionDataConverter from "../SessionDataConverter";
 
 const READ_PROJECT_DATA_FAILED_MESSAGE_KEY =
   "error.test_management.read_project_data_failed";
@@ -43,8 +41,8 @@ export class ReadProjectAction {
   public async read(): Promise<
     ActionResult<{
       projectId: string;
-      testMatrices: TestMatrixForRepository[];
-      stories: ManagedStoryForRepository[];
+      testMatrices: TestMatrix[];
+      stories: Story[];
     }>
   > {
     const readProjectResult = await this.readProject();
@@ -66,7 +64,7 @@ export class ReadProjectAction {
     RepositoryAccessResult<{
       projectId: string;
       testMatrices: TestMatrix[];
-      stories: ManagedStory[];
+      stories: Story[];
     }>
   > {
     const getProjectsResult =
@@ -100,13 +98,26 @@ export class ReadProjectAction {
       return getProjectResult;
     }
 
+    const convertedStories = getProjectResult.data.stories.map((story) => {
+      return {
+        ...story,
+        sessions: story.sessions.map((session) => {
+          return new SessionDataConverter().convertToSession(
+            session,
+            this.repositoryService.serviceUrl
+          );
+        }),
+      };
+    });
+
     const data = {
-      ...getProjectResult.data,
       projectId: targetProjectId,
+      testMatrices: getProjectResult.data.testMatrices,
+      stories: convertedStories,
     };
 
     return createRepositoryAccessSuccess({
-      data: data,
+      data,
     });
   }
 }

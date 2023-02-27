@@ -14,149 +14,38 @@
  * limitations under the License.
  */
 
-import { Session, Issue } from "./types";
-import { ManagedSession } from "@/lib/testManagement/TestManagementData";
-import { OperationWithNotes, TestResult } from "../operationHistory/types";
-import { NoteForGUI } from "../operationHistory/NoteForGUI";
-import {
-  convertTestStepOperation,
-  convertIntention,
-  convertNote,
-} from "../common/replyDataConverter";
+import { Session } from "./types";
 
 export default class SessionDataConverter {
-  public async convertToSession(
-    target: Partial<ManagedSession & { testResult: TestResult }>,
-    oldSession?: Session
-  ): Promise<Session> {
-    const { intentions, issues } = target.testResult
-      ? await this.convertToSessionWithTestResult(target.testResult)
-      : { intentions: [], issues: [] };
-
+  public convertToSession(
+    target: Partial<Session>,
+    serviceUrl: string
+  ): Session {
     return {
-      name: target.id ?? oldSession?.id ?? "",
-      id: target.id ?? oldSession?.id ?? "",
-      isDone: target.isDone ?? oldSession?.isDone ?? false,
-      doneDate: target.doneDate ?? oldSession?.doneDate ?? "",
-      testItem: target.testItem ?? oldSession?.testItem ?? "",
-      testerName: target.testerName ?? oldSession?.testerName ?? "",
-      memo: target.memo ?? oldSession?.memo ?? "",
-      attachedFiles: target.attachedFiles ?? oldSession?.attachedFiles ?? [],
-      testResultFiles:
-        target.testResultFiles ?? oldSession?.testResultFiles ?? [],
-      initialUrl: target.testResult?.initialUrl ?? oldSession?.initialUrl ?? "",
-      intentions: intentions ?? oldSession?.intentions ?? [],
-      issues: issues ?? target.issues ?? [],
+      index: target.index ?? 0,
+      name: target.id ?? "",
+      id: target.id ?? "",
+      isDone: target.isDone ?? false,
+      doneDate: target.doneDate ?? "",
+      testItem: target.testItem ?? "",
+      testerName: target.testerName ?? "",
+      memo: target.memo ?? "",
+      attachedFiles: target.attachedFiles ?? [],
+      testResultFiles: target.testResultFiles ?? [],
+      initialUrl: target.initialUrl ?? "",
+      testPurposes: target.testPurposes ?? [],
+      notes: target.notes
+        ? target.notes.map((note) => {
+            const noteImageFileUrl = note.imageFileUrl
+              ? new URL(note.imageFileUrl, serviceUrl).toString()
+              : "";
+            return {
+              ...note,
+              imageFileUrl: noteImageFileUrl,
+            };
+          })
+        : [],
       testingTime: target.testingTime ?? 0,
     };
-  }
-
-  public getOldAndNewSession(
-    target: {
-      session: ManagedSession;
-      testResult?: TestResult;
-    },
-    oldSessions?: Session[]
-  ): {
-    oldSession: Session | undefined;
-    newSession: ManagedSession & { testResult?: TestResult };
-  } {
-    const oldSession = oldSessions?.find((s) => {
-      return s.id === target.session.id;
-    });
-
-    const newSession = {
-      name: target.session.name,
-      id: target.session.id,
-      isDone: target.session.isDone,
-      doneDate: target.session.doneDate,
-      testItem: target.session.testItem,
-      testerName: target.session.testerName,
-      memo: target.session.memo,
-      attachedFiles: target.session.attachedFiles,
-      testResultFiles:
-        JSON.stringify(target.session.testResultFiles ?? "") !==
-        JSON.stringify(oldSession?.testResultFiles ?? "")
-          ? target.session.testResultFiles
-          : undefined,
-      issues: target.session.issues,
-      testingTime: target.session.testingTime,
-      testResult: target.testResult ?? undefined,
-    };
-    return { oldSession, newSession };
-  }
-
-  private async convertToSessionWithTestResult(
-    testResult: TestResult
-  ): Promise<{
-    intentions?: NoteForGUI[];
-    issues?: Issue[];
-  }> {
-    const testSteps: OperationWithNotes[] = testResult.testSteps.map(
-      (testStep) => {
-        const operation = testStep.operation
-          ? convertTestStepOperation(testStep.operation)
-          : testStep.operation;
-
-        return {
-          testStepId: testStep.id,
-          operation,
-          intention: testStep.intention
-            ? convertIntention(testStep.intention)
-            : null,
-          notices:
-            testStep.notices?.map((notice) => {
-              return convertNote(notice);
-            }) ?? null,
-          bugs: [],
-        };
-      }
-    );
-
-    const issues: Issue[] = testSteps.flatMap((testStep) => {
-      const noteWithTypes = [
-        ...(testStep.bugs?.map((bug) => {
-          return { type: "bug", note: bug };
-        }) ?? []),
-        ...(testStep.notices?.map((notice) => {
-          return { type: "notice", note: notice };
-        }) ?? []),
-      ];
-
-      return noteWithTypes.map(({ type, note }, index) => {
-        const { status, ticketId } = {
-          status: note.tags.includes("reported")
-            ? "reported"
-            : note.tags.includes("invalid")
-            ? "invalid"
-            : "",
-          ticketId: "",
-        };
-
-        return {
-          status,
-          ticketId,
-          source: {
-            type,
-            sequence: note.sequence,
-            index,
-          },
-          value: note.value,
-          details: note.details,
-          imageFilePath: note.imageFilePath || testStep.operation.imageFilePath,
-          tags: note.tags,
-        };
-      });
-    });
-
-    const intentions = testSteps.flatMap(({ intention }) => {
-      if (!intention) {
-        return [];
-      }
-
-      return [intention];
-    });
-
-    return { intentions, issues };
   }
 }

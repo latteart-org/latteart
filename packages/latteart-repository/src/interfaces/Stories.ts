@@ -36,7 +36,7 @@ export interface PatchStoryDto {
 /**
  * Story.
  */
-export interface Story {
+export type Story = {
   id: string;
   testMatrixId: string;
   testTargetId: string;
@@ -44,4 +44,4 @@ export interface Story {
   status: string;
   index: number;
   sessions: Session[];
-}
+};

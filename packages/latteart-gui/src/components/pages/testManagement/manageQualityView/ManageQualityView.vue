@@ -118,7 +118,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import QualityChart from "./organisms/QualityChart.vue";
-import { TestMatrix, Story, Issue } from "@/lib/testManagement/types";
+import { TestMatrix, Story } from "@/lib/testManagement/types";
 
 @Component({
   components: {
@@ -263,8 +263,8 @@ export default class ManageQualityView extends Vue {
             }
             sessionNum++;
             rowTotalSessionNum++;
-            bugNum += session.issues.filter(
-              (issue: Issue) => issue.status === "reported"
+            bugNum += session.notes.filter((note) =>
+              (note.tags ?? []).includes("reported")
             ).length;
           }
 
@@ -320,7 +320,7 @@ export default class ManageQualityView extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readProjectWithTestResult");
+    await this.$store.dispatch("testManagement/readProject");
 
     this.updateWindowTitle();
 
@@ -379,8 +379,8 @@ export default class ManageQualityView extends Vue {
             if (!session.isDone) {
               continue;
             }
-            const reportedBugCount = session.issues.filter(
-              (issue: Issue) => issue.status === "reported"
+            const reportedBugCount = session.notes.filter((note) =>
+              (note.tags ?? []).includes("reported")
             ).length;
             sessionsData.push({
               groupName: group.name,

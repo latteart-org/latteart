@@ -53,11 +53,11 @@ export type UpdateNoteResponse = Note;
 /**
  * Note date.
  */
-interface Note {
+export type Note = {
   id: string;
   type: string;
   value: string;
   details: string;
   imageFileUrl: string;
   tags: string[];
-}
+};

@@ -20,6 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryService } from "latteart-client";
+import SessionDataConverter from "../SessionDataConverter";
 import { Story } from "../types";
 
 export class UpdateStoryAction {
@@ -28,21 +29,30 @@ export class UpdateStoryAction {
       id: string;
       status?: string;
     },
-    repositoryService: Pick<RepositoryService, "storyRepository">
+    repositoryService: Pick<RepositoryService, "storyRepository" | "serviceUrl">
   ): Promise<ActionResult<Story>> {
-    const storyResult = await repositoryService.storyRepository.patchStory(
+    const result = await repositoryService.storyRepository.patchStory(
       payload.id,
       {
         status: payload.status,
       }
     );
 
-    if (storyResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: storyResult.error.message ?? "",
+        messageKey: result.error.message ?? "",
       });
     }
 
-    return new ActionSuccess(storyResult.data);
+    const sessions = result.data.sessions.map((session) => {
+      return new SessionDataConverter().convertToSession(
+        {
+          ...session,
+        },
+        repositoryService.serviceUrl
+      );
+    });
+
+    return new ActionSuccess({ ...result.data, sessions });
   }
 }
