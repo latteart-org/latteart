@@ -49,6 +49,21 @@ export interface ElementInfo {
    * The attributes of the element.
    */
   attributes: { [key: string]: string };
+
+  /**
+   * Bounding rectangle.
+   */
+  boundingRect: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+
+  /**
+   * The text of the element without children.
+   */
+  textWithoutChildren?: string;
 }
 
 /**
@@ -64,6 +79,16 @@ export class Operation {
    * Operation type.
    */
   public type = "";
+
+  /**
+   * Scroll position.
+   */
+  public scrollPosition = { x: 0, y: 0 };
+
+  /**
+   * Client size.
+   */
+  public clientSize = { width: 0, height: 0 };
 
   /**
    * The screen element that has been operated.

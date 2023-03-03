@@ -16,9 +16,8 @@
 
 import {
   SerializeElementInfo,
-  HistoryItemExportDataV1,
-  TestResultExportDataV0,
   TestResultExportDataV2,
+  HistoryItemExportDataV2,
 } from "@/interfaces/exportData";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
@@ -26,7 +25,7 @@ import path from "path";
 export function serializeTestResult(testResult: GetTestResultResponse): string {
   const { historyEntries, notes } = testResult.testSteps.reduce(
     (acc, testStep, index) => {
-      const testStepEntry: [number, HistoryItemExportDataV1] = [
+      const testStepEntry: [number, HistoryItemExportDataV2] = [
         index + 1,
         {
           testStep: {
@@ -47,6 +46,8 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
                 ? convertToExportableElement(testStep.operation.elementInfo)
                 : null,
               isAutomatic: testStep.operation.isAutomatic,
+              scrollPosition: testStep.operation.scrollPosition,
+              clientSize: testStep.operation.clientSize,
             },
             inputElements: testStep.operation.inputElements.map((element) =>
               convertToExportableElement(element)
@@ -78,8 +79,8 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
       return acc;
     },
     {
-      historyEntries: Array<[number, HistoryItemExportDataV1]>(),
-      notes: [] as TestResultExportDataV0["notes"],
+      historyEntries: Array<[number, HistoryItemExportDataV2]>(),
+      notes: [] as TestResultExportDataV2["notes"],
     }
   );
 
@@ -121,5 +122,7 @@ function convertToExportableElement(element: SerializeElementInfo) {
     value: element.value ?? "",
     checked: element.checked ?? false,
     attributes: element.attributes,
+    boundingRect: element.boundingRect,
+    textWithoutChildren: element.textWithoutChildren ?? "",
   };
 }

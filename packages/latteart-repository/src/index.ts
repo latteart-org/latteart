@@ -60,6 +60,7 @@ import { DeleteDefaultInputElementEntity1661223982605 } from "./migrations/16612
 import { UpdateTestStepEntity1666848612089 } from "./migrations/1666848612089-UpdateTestStepEntity";
 import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-UpdateTestResultEntity";
 import { createLogger } from "./logger/logger";
+import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -120,6 +121,7 @@ async function initializeOrmConnection() {
       DeleteDefaultInputElementEntity1661223982605,
       UpdateTestStepEntity1666848612089,
       UpdateTestResultEntity1671087205573,
+      UpdateTestStepEntity1677835465468,
     ],
   };
 

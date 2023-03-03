@@ -1433,6 +1433,16 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        textWithoutChildren: { dataType: "string" },
+        boundingRect: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+            left: { dataType: "double", required: true },
+            top: { dataType: "double", required: true },
+          },
+        },
         attributes: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {},
@@ -1973,6 +1983,20 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        clientSize: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+        },
+        scrollPosition: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            y: { dataType: "double", required: true },
+            x: { dataType: "double", required: true },
+          },
+        },
         isAutomatic: { dataType: "boolean" },
         pageSource: { dataType: "string", required: true },
         timestamp: { dataType: "double", required: true },

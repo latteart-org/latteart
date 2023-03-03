@@ -92,6 +92,13 @@ export type ElementInfo = {
   value?: string;
   checked?: boolean;
   attributes: { [key: string]: string };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  textWithoutChildren?: string;
 };
 
 /**

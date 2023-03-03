@@ -64,7 +64,7 @@ describe("TestStepService", () => {
       const operationData = {
         input: testStepEntity.operationInput,
         type: testStepEntity.operationType,
-        elementInfo: JSON.parse(testStepEntity.operationElement),
+        elementInfo: null,
         title: testStepEntity.pageTitle,
         url: testStepEntity.pageUrl,
         imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
@@ -225,7 +225,7 @@ describe("TestStepService", () => {
       expect(result).toEqual({
         id: testStepEntity.id,
         operation: {
-          elementInfo: {},
+          elementInfo: null,
           imageFileUrl: "",
           input: "",
           inputElements: [],

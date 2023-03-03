@@ -35,6 +35,8 @@ export type CapturedScreenTransition = {
   windowHandle: string;
   timestamp: string;
   pageSource: string;
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
 };
 
 export type CapturedOperation = {
@@ -50,18 +52,25 @@ export type CapturedOperation = {
   pageSource: string;
   inputElements: ElementInfo[];
   keywordTexts: string[];
-  isAutomatic?: boolean | undefined;
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
+  isAutomatic?: boolean;
 };
 
 export type ElementInfo = {
   tagname: string;
-  text?: string | undefined;
+  text?: string;
   xpath: string;
-  value?: string | undefined;
-  checked?: boolean | undefined;
-  attributes: {
-    [key: string]: any;
+  value?: string;
+  checked?: boolean;
+  attributes: { [key: string]: string };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
   };
+  textWithoutChildren?: string;
 };
 
 export type Operation = {
@@ -74,7 +83,9 @@ export type Operation = {
   timestamp: string;
   inputElements: ElementInfo[];
   windowHandle: string;
-  keywordTexts?: string[] | undefined;
+  keywordTexts?: string[];
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
   isAutomatic: boolean;
 };
 
@@ -91,8 +102,8 @@ export type Note = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string | undefined;
-  tags?: string[] | undefined;
+  imageFileUrl?: string;
+  tags?: string[];
 };
 
 export type TestStepNote = {

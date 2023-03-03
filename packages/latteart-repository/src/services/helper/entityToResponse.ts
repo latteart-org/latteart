@@ -32,6 +32,7 @@ import {
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { GetNoteResponse } from "@/interfaces/Notes";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
+import { ElementInfo } from "@/domain/types";
 
 export const storyEntityToResponse = (story: StoryEntity): Story => {
   return {
@@ -257,18 +258,43 @@ export const testStepEntityToResponse = (
 export const convertToTestStepOperation = (
   testStepEntity: TestStepEntity
 ): TestStepOperation => {
+  const elementInfo: Partial<ElementInfo> = JSON.parse(
+    testStepEntity.operationElement === "null"
+      ? "{}"
+      : testStepEntity.operationElement
+  );
+  const inputElements: ElementInfo[] = JSON.parse(testStepEntity.inputElements);
+  const keywordTexts: string[] = JSON.parse(testStepEntity.keywordTexts);
+
   return {
     input: testStepEntity.operationInput,
     type: testStepEntity.operationType,
-    elementInfo: JSON.parse(testStepEntity.operationElement),
+    elementInfo:
+      Object.keys(elementInfo).length > 0 ? (elementInfo as ElementInfo) : null,
     title: testStepEntity.pageTitle,
     url: testStepEntity.pageUrl,
     imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
     timestamp: testStepEntity.timestamp.toString(),
-    inputElements: JSON.parse(testStepEntity.inputElements),
+    inputElements,
     windowHandle: testStepEntity.windowHandle,
-    keywordTexts: JSON.parse(testStepEntity.keywordTexts),
+    keywordTexts,
     isAutomatic: !!testStepEntity.isAutomatic,
+    scrollPosition:
+      testStepEntity.scrollPositionX != null &&
+      testStepEntity.scrollPositionY != null
+        ? {
+            x: testStepEntity.scrollPositionX,
+            y: testStepEntity.scrollPositionY,
+          }
+        : undefined,
+    clientSize:
+      testStepEntity.clientSizeWidth != null &&
+      testStepEntity.clientSizeHeight != null
+        ? {
+            width: testStepEntity.clientSizeWidth,
+            height: testStepEntity.clientSizeHeight,
+          }
+        : undefined,
   };
 };
 

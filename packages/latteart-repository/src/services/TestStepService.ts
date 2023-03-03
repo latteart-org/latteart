@@ -141,6 +141,10 @@ export class TestStepServiceImpl implements TestStepService {
       timestamp: requestBody.timestamp,
       testResult: savedTestResultEntity,
       isAutomatic: !!requestBody.isAutomatic,
+      scrollPositionX: requestBody.scrollPosition?.x,
+      scrollPositionY: requestBody.scrollPosition?.y,
+      clientSizeWidth: requestBody.clientSize?.width,
+      clientSizeHeight: requestBody.clientSize?.height,
     });
     const fileName = `${newTestStepEntity.id}.png`;
     await this.service.screenshotFileRepository.outputFile(

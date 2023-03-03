@@ -33,6 +33,8 @@ export type CreateTestStepDto = {
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
 };
 
 /**

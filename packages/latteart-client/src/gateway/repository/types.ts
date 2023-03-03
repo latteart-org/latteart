@@ -55,8 +55,8 @@ export type NoteForRepository = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string | undefined;
-  tags?: string[] | undefined;
+  imageFileUrl?: string;
+  tags?: string[];
 };
 
 export type CapturedOperationForRepository = {
@@ -72,6 +72,8 @@ export type CapturedOperationForRepository = {
   pageSource: string;
   inputElements: ElementInfoForRepository[];
   keywordTexts: string[];
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
   isAutomatic?: boolean;
 };
 
@@ -94,6 +96,8 @@ export type OperationForRepository = {
   inputElements: ElementInfoForRepository[];
   windowHandle: string;
   keywordTexts?: string[];
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
   isAutomatic: boolean;
 };
 
@@ -104,6 +108,13 @@ export type ElementInfoForRepository = {
   value?: string;
   checked?: boolean;
   attributes: { [key: string]: string };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  textWithoutChildren?: string;
 };
 
 export type CoverageSourceForRepository = {

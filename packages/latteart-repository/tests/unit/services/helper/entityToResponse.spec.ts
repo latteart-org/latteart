@@ -9,12 +9,13 @@ describe("entityToResponse", () => {
       note.id = "note1";
       const testStepEntity = new TestStepEntity({
         notes: [note],
+        operationElement: "{}",
       });
 
       const resultOperation = {
         input: testStepEntity.operationInput,
         type: testStepEntity.operationType,
-        elementInfo: JSON.parse(testStepEntity.operationElement),
+        elementInfo: null,
         title: testStepEntity.pageTitle,
         url: testStepEntity.pageUrl,
         imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",

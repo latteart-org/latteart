@@ -230,6 +230,8 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
         inputElements: item.testStep.inputElements,
         keywordTexts: item.testStep.pageInfo.keywordTexts,
         isAutomatic: item.testStep.operation.isAutomatic ?? false,
+        scrollPosition: item.testStep.operation.scrollPosition,
+        clientSize: item.testStep.operation.clientSize,
       },
       testPurpose,
       notes,
