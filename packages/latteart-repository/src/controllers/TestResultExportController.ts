@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportServiceImpl } from "@/services/ExportService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -28,17 +26,12 @@ import {
   Post,
   Route,
   Path,
-  Body,
   Tags,
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  exportDirectoryService,
-  screenshotDirectoryService,
-  tempDirectoryService,
-} from "..";
-import { CreateTestResultExportDto } from "../interfaces/TestResultExport";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -46,7 +39,6 @@ export class TestResultExportController extends Controller {
   /**
    * Export test result.
    * @param testResultId Target test result id.
-   * @param requestBody Export settings.
    * @returns Download url for exported test result.
    */
   @Response<ServerErrorData<"export_test_result_failed">>(
@@ -56,29 +48,27 @@ export class TestResultExportController extends Controller {
   @SuccessResponse(200, "Success")
   @Post()
   public async exportTestResult(
-    @Path() testResultId: string,
-    @Body() requestBody?: CreateTestResultExportDto
+    @Path() testResultId: string
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
-
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+    const exportFileRepository = fileRepositoryManager.getRepository("export");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
     });
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-      staticDirectory: requestBody?.temp
-        ? tempDirectoryService
-        : exportDirectoryService,
-      imageFileRepository: imageFileRepositoryService,
+      exportFileRepository,
+      workingFileRepository,
       timestamp: timestampService,
     });
 
@@ -89,7 +79,7 @@ export class TestResultExportController extends Controller {
       }).exportTestResult(testResultId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Export test result failed.", error);
+        createLogger().error("Export test result failed.", error);
         throw new ServerError(500, {
           code: "export_test_result_failed",
         });

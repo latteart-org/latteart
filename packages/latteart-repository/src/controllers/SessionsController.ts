@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -30,7 +28,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { attachedFileDirectoryService, transactionRunner } from "..";
+import { transactionRunner } from "..";
 
 import {
   PatchSessionDto,
@@ -38,6 +36,8 @@ import {
   PostSessionResponse,
 } from "../interfaces/Sessions";
 import { SessionsService } from "../services/SessionsService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -63,7 +63,7 @@ export class SessionsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Post session failed.", error);
+        createLogger().error("Post session failed.", error);
 
         throw new ServerError(500, {
           code: "post_session_failed",
@@ -91,10 +91,9 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: attachedFileDirectoryService,
-    });
-
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const attachedFileRepository =
+      fileRepositoryManager.getRepository("attachedFile");
     try {
       return await new SessionsService().patchSession(
         projectId,
@@ -102,13 +101,13 @@ export class SessionsController extends Controller {
         requestBody,
         {
           timestampService: new TimestampServiceImpl(),
-          imageFileRepositoryService: imageFileRepositoryService,
+          attachedFileRepository,
         },
         transactionRunner
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch session failed.", error);
+        createLogger().error("Patch session failed.", error);
 
         throw new ServerError(500, {
           code: "patch_session_failed",
@@ -142,7 +141,7 @@ export class SessionsController extends Controller {
       return;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete session failed.", error);
+        createLogger().error("Delete session failed.", error);
 
         throw new ServerError(500, {
           code: "delete_session_failed",

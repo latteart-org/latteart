@@ -4,11 +4,11 @@ import { SessionEntity } from "@/entities/SessionEntity";
 import { SessionsService } from "@/services/SessionsService";
 import { StoryEntity } from "@/entities/StoryEntity";
 import { TimestampService } from "@/services/TimestampService";
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { Session } from "@/interfaces/Sessions";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TransactionRunner } from "@/TransactionRunner";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -21,21 +21,6 @@ afterEach(async () => {
 });
 
 describe("SessionService", () => {
-  const emptySessionParams: Session = {
-    isDone: false,
-    memo: "",
-    name: "",
-    testerName: "",
-    testingTime: 0,
-    doneDate: "",
-    attachedFiles: [],
-    issues: [],
-    testItem: "",
-    testResultFiles: [],
-    index: 0,
-    id: "",
-  };
-
   describe("#postSession", () => {
     describe("空のセッションを新規作成する", () => {
       it("指定のIDのストーリーに空のセッションを追加する", async () => {
@@ -49,8 +34,20 @@ describe("SessionService", () => {
         );
 
         expect(result).toEqual({
-          ...emptySessionParams,
+          index: 0,
+          name: "",
           id: expect.any(String),
+          isDone: false,
+          doneDate: "",
+          testItem: "",
+          testerName: "",
+          memo: "",
+          attachedFiles: [],
+          testResultFiles: [],
+          initialUrl: "",
+          testPurposes: [],
+          notes: [],
+          testingTime: 0,
         });
       });
 
@@ -102,10 +99,17 @@ describe("SessionService", () => {
           );
 
           expect(result).toEqual({
-            ...emptySessionParams,
             ...params,
-            doneDate,
+            index: 0,
+            name: "",
             id: expect.any(String),
+            doneDate,
+            testItem: "",
+            attachedFiles: [],
+            testResultFiles: [],
+            initialUrl: "",
+            testPurposes: [],
+            notes: [],
           });
         }
       );
@@ -195,16 +199,20 @@ function createServiceMock(params: { doneDate: string }) {
     format: jest.fn().mockReturnValue(params.doneDate),
     epochMilliseconds: jest.fn(),
   };
-  const imageFileRepositoryService: ImageFileRepositoryService = {
-    writeBufferToFile: jest.fn(),
-    writeBase64ToFile: jest.fn().mockResolvedValue("testStep.png"),
+  const attachedFileRepository: FileRepository = {
+    readFile: jest.fn(),
+    outputFile: jest.fn(),
+    outputJSON: jest.fn(),
+    outputZip: jest.fn(),
     removeFile: jest.fn(),
+    getFileUrl: jest.fn().mockReturnValue("testStep.png"),
     getFilePath: jest.fn(),
-    getFileUrl: jest.fn(),
+    moveFile: jest.fn(),
+    copyFile: jest.fn(),
   };
 
   return {
     timestampService,
-    imageFileRepositoryService,
+    attachedFileRepository,
   };
 }

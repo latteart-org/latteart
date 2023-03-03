@@ -2,13 +2,20 @@ import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotsService } from "@/services/ScreenshotsService";
-import { StaticDirectoryServiceImpl } from "@/services/StaticDirectoryService";
+import {
+  FileRepositoryManager,
+  StaticDirectory,
+} from "@/gateways/fileRepository";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { getRepository } from "typeorm";
 import path from "path";
 import fs from "fs-extra";
-import { getCurrentUnixtime, unixtimeToFormattedString } from "@/lib/timeUtil";
+import os from "os";
+import {
+  getCurrentUnixtime,
+  unixtimeToFormattedString,
+} from "@/domain/timeUtil";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -17,15 +24,7 @@ const resourcesDirPath = path.join(
   "../",
   "resources"
 );
-const tempDirectoryService = new StaticDirectoryServiceImpl(
-  resourcesDirPath,
-  "temp"
-);
 const tempDirPath = path.join(resourcesDirPath, "temp");
-const screenshotDirectoryService = new StaticDirectoryServiceImpl(
-  resourcesDirPath,
-  "screenshots"
-);
 
 beforeEach(async () => {
   await fs.mkdir(tempDirPath).catch((e) => {
@@ -44,6 +43,26 @@ afterEach(async () => {
 describe("ScreenshotsService", () => {
   describe("#getScreenshots", () => {
     it("スクリーンショット出力", async () => {
+      const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
+
+      const fileRepositories = new Map([
+        [
+          "screenshot",
+          new StaticDirectory(path.join(resourcesDirPath, "screenshots")),
+        ],
+        ["temp", new StaticDirectory(path.join(resourcesDirPath, "temp"))],
+        ["work", new StaticDirectory(path.join(tmpDirPath, "work"))],
+      ]);
+      const workingFileRepository = new FileRepositoryManager(
+        fileRepositories,
+        resourcesDirPath
+      ).getRepository("work");
+
+      const tempFileRepository = new FileRepositoryManager(
+        fileRepositories,
+        resourcesDirPath
+      ).getRepository("temp");
+
       const testResultEntity = await getRepository(TestResultEntity).save(
         new TestResultEntity({ name: "test" })
       );
@@ -74,12 +93,12 @@ describe("ScreenshotsService", () => {
 
       await new ScreenshotsService().getScreenshots(
         testResultEntity.id,
-        tempDirectoryService,
-        screenshotDirectoryService,
+        tempFileRepository,
+        workingFileRepository,
         timeStampService
       );
 
-      const zipPath = tempDirectoryService.getJoinedPath(
+      const zipPath = tempFileRepository.getFilePath(
         `screenshots_${testResultEntity.name}_${datetime}.zip`
       );
       await fs.stat(zipPath);

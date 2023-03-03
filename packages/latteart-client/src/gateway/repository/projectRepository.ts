@@ -21,11 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
-import {
-  DailyTestProgressForRepository,
-  TestManagementDataForRepository,
-  ProjectForRepository,
-} from "./types";
+import { DailyTestProgressForRepository, ProjectForRepository } from "./types";
 
 export interface ProjectRepository {
   /**
@@ -54,17 +50,6 @@ export interface ProjectRepository {
   ): Promise<RepositoryAccessResult<ProjectForRepository>>;
 
   postProject(): Promise<RepositoryAccessResult<{ id: string; name: string }>>;
-
-  /**
-   * Update the project with the specified project ID.
-   * @param projectId  Project ID.
-   * @param body  Project information to update.
-   * @returns Updated project information.
-   */
-  putProject(
-    projectId: string,
-    body: TestManagementDataForRepository
-  ): Promise<RepositoryAccessResult<ProjectForRepository>>;
 
   getTestProgress(
     projectId: string,
@@ -167,34 +152,6 @@ export class ProjectRESTRepository implements ProjectRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as { id: string; name: string },
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  /**
-   * Update the project with the specified project ID.
-   * @param projectId  Project ID.
-   * @param body  Project information to update.
-   * @returns Updated project information.
-   */
-  public async putProject(
-    projectId: string,
-    body: TestManagementDataForRepository
-  ): Promise<RepositoryAccessResult<ProjectForRepository>> {
-    try {
-      const response = await this.restClient.httpPut(
-        `api/v1/projects/${projectId}`,
-        body
-      );
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return createRepositoryAccessSuccess({
-        data: response.data as ProjectForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

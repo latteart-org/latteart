@@ -20,13 +20,13 @@ import {
   ViewPointForRepository,
   TestTargetForRepository,
   PlanForRepository,
-  IssueForRepository,
   StoryForRepository,
   SessionForRepository,
   AttachedFileForRepository,
   TestResultFileForRepository,
   ProjectForRepository,
   DailyTestProgressForRepository,
+  PatchSessionDto,
 } from "latteart-client";
 
 export type TestMatrix = TestMatrixForRepository;
@@ -44,8 +44,6 @@ export type ViewPointsPreset = {
 export type TestTarget = TestTargetForRepository;
 
 export type Plan = PlanForRepository;
-
-export type Issue = IssueForRepository;
 
 export type Story = StoryForRepository;
 
@@ -80,3 +78,5 @@ export type DetailedReportObj = {
 export type Project = ProjectForRepository;
 
 export type DailyTestProgress = DailyTestProgressForRepository;
+
+export type PatchSession = PatchSessionDto;

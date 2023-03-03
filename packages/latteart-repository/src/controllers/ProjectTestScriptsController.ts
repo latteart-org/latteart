@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestScriptJSDocRenderingService } from "@/services/testScriptDocRendering/TestScriptJSDocRenderingService";
 import { TestScriptFileRepositoryServiceImpl } from "@/services/TestScriptFileRepositoryService";
@@ -33,9 +31,10 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, testScriptDirectoryService } from "..";
 import { CreateTestScriptDto } from "../interfaces/TestScripts";
 import { TestScriptsService } from "../services/TestScriptsService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/test-scripts")
 @Tags("projects")
@@ -57,14 +56,17 @@ export class ProjectTestScriptsController extends Controller {
     @Body() requestBody: CreateTestScriptDto
   ): Promise<{ url: string; invalidOperationTypeExists: boolean }> {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+    const testScriptRepository =
+      fileRepositoryManager.getRepository("testScript");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -72,9 +74,10 @@ export class ProjectTestScriptsController extends Controller {
 
     const testScriptFileRepositoryService =
       new TestScriptFileRepositoryServiceImpl({
-        staticDirectory: testScriptDirectoryService,
+        testScriptRepository,
         testScriptDocRendering: new TestScriptJSDocRenderingService(),
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
+        workingFileRepository,
         timestamp: timestampService,
       });
 
@@ -89,7 +92,7 @@ export class ProjectTestScriptsController extends Controller {
       }
 
       if (error instanceof Error) {
-        LoggingService.error("Save test script failed.", error);
+        createLogger().error("Save test script failed.", error);
 
         throw new ServerError(500, {
           code: "save_test_script_failed",

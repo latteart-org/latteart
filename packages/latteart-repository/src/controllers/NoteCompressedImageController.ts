@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import { SettingsUtility } from "@/lib/settings/SettingsUtility";
-import LoggingService from "@/logger/LoggingService";
+import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { CommandExecutionServiceImpl } from "@/services/CommandExecutionService";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
@@ -32,9 +30,10 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService } from "..";
 import { CreateResponseDto } from "../interfaces/NoteCompressedImage";
 import { CompressedImageService } from "../services/CompressedImageService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/notes/{noteId}/compressed-image")
 @Tags("test-results")
@@ -58,23 +57,23 @@ export class NoteCompressedImageController extends Controller {
     console.log("NoteCompressedImageController - compressNoteScreenshot");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
       config: new ConfigsService(),
     });
     const noteService = new NotesServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 
     try {
       return new CompressedImageService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         testStep: testStepService,
         note: noteService,
         commandExecution: new CommandExecutionServiceImpl(),
@@ -85,7 +84,7 @@ export class NoteCompressedImageController extends Controller {
       });
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Compress note image failed.", error);
+        createLogger().error("Compress note image failed.", error);
 
         throw new ServerError(500, {
           code: "compress_note_image_failed",

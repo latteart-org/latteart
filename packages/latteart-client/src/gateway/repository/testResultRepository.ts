@@ -62,13 +62,11 @@ export class TestResultRepository {
    * @returns Test script URL.
    */
   public async postTestResultForExport(
-    testResultId: string,
-    shouldSaveTemporary: boolean
+    testResultId: string
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-results/${testResultId}/export`,
-        { temp: shouldSaveTemporary }
+        `api/v1/test-results/${testResultId}/export`
       );
 
       if (response.status !== 200) {

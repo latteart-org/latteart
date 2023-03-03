@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { SequenceView } from "../lib/sequenceViewGenerator";
+import { SequenceView, TestResult, TestResultViewOption } from "@/domain/types";
+import { GetNoteResponse } from "./Notes";
+import { GetTestStepResponse } from "./TestSteps";
 
 /**
  * Test result data for new registration.
@@ -44,118 +46,19 @@ export interface CreateTestResultResponse {
 /**
  * Test result data for the specified ID.
  */
-export type GetTestResultResponse = TestResult;
+export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
+  testSteps: (Pick<TestResult["testSteps"][0], "id"> & {
+    operation: GetTestStepResponse["operation"];
+    intention: GetNoteResponse | null;
+    bugs: GetNoteResponse[];
+    notices: GetNoteResponse[];
+  })[];
+};
 
 /**
  * Updated test result data.
  */
-export type PatchTestResultResponse = TestResult;
-
-/**
- * Test result.
- */
-export type TestResult = {
-  id: string;
-  name: string;
-  startTimeStamp: number;
-  lastUpdateTimeStamp: number;
-  initialUrl: string;
-  testingTime: number;
-  testSteps: TestStep[];
-  coverageSources: {
-    title: string;
-    url: string;
-    screenElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-  }[];
-};
-
-/**
- * Test step.
- */
-export type TestStep = {
-  id: string;
-  operation: {
-    input: string;
-    type: string;
-    elementInfo: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    } | null;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    windowHandle: string;
-    inputElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-    keywordTexts?: string[];
-    isAutomatic: boolean;
-  };
-  intention: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  } | null;
-  bugs: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  }[];
-  notices: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  }[];
-};
-
-/**
- * Test result view option.
- */
-export type TestResultViewOption = {
-  node: {
-    unit: "title" | "url";
-    definitions: {
-      name: string;
-      conditions: {
-        target: "title" | "url" | "keyword";
-        method: "contains" | "equals" | "regex";
-        value: string;
-      }[];
-    }[];
-  };
-};
+export type PatchTestResultResponse = GetTestResultResponse;
 
 /**
  * Sequence view generation option.

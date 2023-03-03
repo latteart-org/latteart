@@ -15,10 +15,8 @@
  */
 
 import { ListSessionResponse } from "../interfaces/Sessions";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { SessionsService } from "@/services/SessionsService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
@@ -35,7 +33,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, transactionRunner } from "..";
+import { transactionRunner } from "..";
 import {
   ListTestResultResponse,
   CreateTestResultResponse,
@@ -46,6 +44,8 @@ import {
   GetSequenceViewResponse,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results")
 @Tags("test-results")
@@ -60,14 +60,14 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResultIdentifiers");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     return new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -95,15 +95,15 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     try {
       const testResult = await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -114,7 +114,7 @@ export class TestResultsController extends Controller {
       }
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get test result failed.", error);
+        createLogger().error("Get test result failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_result_failed",
@@ -123,7 +123,7 @@ export class TestResultsController extends Controller {
       throw error;
     }
 
-    LoggingService.error(
+    createLogger().error(
       `Test result not found. testResultId: ${testResultId}`
     );
 
@@ -149,15 +149,15 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - createTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     try {
       const result = await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -166,7 +166,7 @@ export class TestResultsController extends Controller {
       return result;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Create test result failed.", error);
+        createLogger().error("Create test result failed.", error);
 
         throw new ServerError(500, {
           code: "save_test_result_failed",
@@ -196,15 +196,15 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - updateTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     try {
       return await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -214,7 +214,7 @@ export class TestResultsController extends Controller {
       });
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Update test result failed.", error);
+        createLogger().error("Update test result failed.", error);
 
         throw new ServerError(500, {
           code: "update_test_result_failed",
@@ -236,13 +236,14 @@ export class TestResultsController extends Controller {
   @Delete("{testResultId}")
   public async deleteTestResult(@Path() testResultId: string): Promise<void> {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -252,11 +253,11 @@ export class TestResultsController extends Controller {
       return await service.deleteTestResult(
         testResultId,
         transactionRunner,
-        screenshotDirectoryService
+        screenshotFileRepository
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete test result failed.", error);
+        createLogger().error("Delete test result failed.", error);
         throw new ServerError(500, {
           code: "delete_test_result_failed",
         });
@@ -299,13 +300,14 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getSequenceView");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -315,7 +317,7 @@ export class TestResultsController extends Controller {
       return await service.generateSequenceView(testResultId, requestBody);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Generate sequence view failed.", error);
+        createLogger().error("Generate sequence view failed.", error);
         throw new ServerError(500, {
           code: "generate_sequence_view_failed",
         });

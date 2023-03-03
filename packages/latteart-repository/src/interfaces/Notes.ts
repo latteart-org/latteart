@@ -14,50 +14,35 @@
  * limitations under the License.
  */
 
+import { Note } from "@/domain/types";
+
 /**
  * Note data for new registration.
  */
-export interface CreateNoteDto {
-  type: string;
-  value: string;
-  details: string;
+export type CreateNoteDto = UpdateNoteDto & {
   imageData?: string;
-  tags?: string[];
-}
+};
 
 /**
  * Note data for update.
  */
-export interface UpdateNoteDto {
-  type: string;
-  value: string;
-  details: string;
+export type UpdateNoteDto = Pick<Note, "type" | "value" | "details"> & {
   tags?: string[];
-}
+};
 
 /**
  * Registered note data.
  */
-export type CreateNoteResponse = Note;
+export type CreateNoteResponse = Omit<Note, "screenshot"> & {
+  imageFileUrl: string;
+};
 
 /**
  * Note data for the specified ID.
  */
-export type GetNoteResponse = Note;
+export type GetNoteResponse = CreateNoteResponse;
 
 /**
  * Updated note data.
  */
-export type UpdateNoteResponse = Note;
-
-/**
- * Note date.
- */
-interface Note {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
-}
+export type UpdateNoteResponse = CreateNoteResponse;

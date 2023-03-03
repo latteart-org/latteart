@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-import { TestResultViewOption } from "./TestResults";
-
-/**
- * Settings for test scripts.
- */
-export type TestScriptOption = {
-  optimized: boolean;
-  testData: { useDataDriven: boolean; maxGeneration: number };
-  view: TestResultViewOption;
-  buttonDefinitions: {
-    tagname: string;
-    attribute?: { name: string; value: string };
-  }[];
-};
+import { TestScriptOption } from "@/domain/types";
 
 /**
  * Settings for creating test scripts.

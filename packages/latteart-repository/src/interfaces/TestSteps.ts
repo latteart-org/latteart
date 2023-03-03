@@ -14,55 +14,12 @@
  * limitations under the License.
  */
 
+import { CoverageSource, ElementInfo, Operation } from "@/domain/types";
+
 /**
  * Test step data for new registration.
  */
-export type CreateTestStepDto = CapturedOperation;
-
-/**
- * Test step data for the specified ID.
- */
-export type GetTestStepResponse = TestStep;
-
-/**
- * Registered test step and coverage data.
- */
-export type CreateTestStepResponse = {
-  id: string;
-  operation: Operation;
-  coverageSource: CoverageSource;
-};
-
-/**
- * Updated test step data.
- */
-export type PatchTestStepResponse = TestStep;
-
-/**
- * Coverage source.
- */
-export interface CoverageSource {
-  title: string;
-  url: string;
-  screenElements: ElementInfo[];
-}
-
-/**
- * Element information.
- */
-export interface ElementInfo {
-  tagname: string;
-  text?: string | null;
-  xpath: string;
-  value?: any;
-  checked?: boolean;
-  attributes: { [key: string]: any };
-}
-
-/**
- * Captured operation.
- */
-interface CapturedOperation {
+export type CreateTestStepDto = {
   input: string;
   type: string;
   elementInfo: ElementInfo | null;
@@ -76,35 +33,31 @@ interface CapturedOperation {
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;
-}
+};
 
 /**
- * Operation.
+ * Test step data for the specified ID.
  */
-interface Operation {
-  input: string;
-  type: string;
-  elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
+export type GetTestStepResponse = TestStep;
+
+/**
+ * Test step operation.
+ */
+export type TestStepOperation = Omit<Operation, "screenshot"> & {
   imageFileUrl: string;
-  timestamp: string;
-  inputElements: ElementInfo[];
-  windowHandle: string;
-  keywordTexts?: string[];
-  isAutomatic: boolean;
-}
+};
 
 /**
- * Test step.
+ * Registered test step and coverage data.
  */
-interface TestStep {
-  id: string;
-  operation: Operation;
-  intention: string | null;
-  bugs: string[];
-  notices: string[];
-}
+export type CreateTestStepResponse = Pick<TestStep, "id" | "operation"> & {
+  coverageSource: CoverageSource;
+};
+
+/**
+ * Updated test step data.
+ */
+export type PatchTestStepResponse = TestStep;
 
 /**
  * Test step data for update.
@@ -114,3 +67,14 @@ export interface PatchTestStepDto {
   bugs?: string[];
   notices?: string[];
 }
+
+/**
+ * Test step.
+ */
+export type TestStep = {
+  id: string;
+  operation: TestStepOperation;
+  intention: string | null;
+  bugs: string[];
+  notices: string[];
+};

@@ -52,6 +52,44 @@ describe("WebBrowserWindow", () => {
     });
   });
 
+  describe("#getReadyToCapture", () => {
+    it("記録対象画面に操作記録用のコードが埋め込まれていない場合は埋め込む", async () => {
+      (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(false);
+      (
+        captureScript.setFunctionToGetAttributesFromElement as jest.Mock
+      ).mockReturnValue(true);
+      (
+        captureScript.setFunctionToCollectVisibleElements as jest.Mock
+      ).mockReturnValue(true);
+      (captureScript.setFunctionToExtractElements as jest.Mock).mockReturnValue(
+        true
+      );
+      (
+        captureScript.setFunctionToEnqueueEventForReFire as jest.Mock
+      ).mockReturnValue(true);
+      (
+        captureScript.setFunctionToBuildOperationInfo as jest.Mock
+      ).mockReturnValue(true);
+      (
+        captureScript.setFunctionToHandleCapturedEvent as jest.Mock
+      ).mockReturnValue(true);
+      (captureScript.resetEventListeners as jest.Mock).mockReturnValue(true);
+      (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([]);
+
+      const window = new WebBrowserWindow("", clientMock, "");
+
+      await window.getReadyToCapture();
+
+      expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
+      expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
+      expect(captureScript.setFunctionToExtractElements).toBeCalled();
+      expect(captureScript.setFunctionToEnqueueEventForReFire).toBeCalled();
+      expect(captureScript.setFunctionToBuildOperationInfo).toBeCalled();
+      expect(captureScript.setFunctionToHandleCapturedEvent).toBeCalled();
+      expect(captureScript.resetEventListeners).toBeCalled();
+    });
+  });
+
   describe("#captureOperations", () => {
     const op = {
       input: "input",
@@ -64,44 +102,6 @@ describe("WebBrowserWindow", () => {
     } as const;
 
     describe("記録対象画面上で発火したイベントを取得し、操作情報として記録する", () => {
-      it("記録対象画面に操作記録用のコードが埋め込まれていない場合は埋め込む", async () => {
-        (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(false);
-        (
-          captureScript.setFunctionToGetAttributesFromElement as jest.Mock
-        ).mockReturnValue(true);
-        (
-          captureScript.setFunctionToCollectVisibleElements as jest.Mock
-        ).mockReturnValue(true);
-        (
-          captureScript.setFunctionToExtractElements as jest.Mock
-        ).mockReturnValue(true);
-        (
-          captureScript.setFunctionToEnqueueEventForReFire as jest.Mock
-        ).mockReturnValue(true);
-        (
-          captureScript.setFunctionToBuildOperationInfo as jest.Mock
-        ).mockReturnValue(true);
-        (
-          captureScript.setFunctionToHandleCapturedEvent as jest.Mock
-        ).mockReturnValue(true);
-        (captureScript.resetEventListeners as jest.Mock).mockReturnValue(true);
-        (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([]);
-
-        const window = new WebBrowserWindow("", clientMock, "");
-
-        await window.captureOperations();
-
-        expect(
-          captureScript.setFunctionToGetAttributesFromElement
-        ).toBeCalled();
-        expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
-        expect(captureScript.setFunctionToExtractElements).toBeCalled();
-        expect(captureScript.setFunctionToEnqueueEventForReFire).toBeCalled();
-        expect(captureScript.setFunctionToBuildOperationInfo).toBeCalled();
-        expect(captureScript.setFunctionToHandleCapturedEvent).toBeCalled();
-        expect(captureScript.resetEventListeners).toBeCalled();
-      });
-
       describe("記録対象のイベントは操作として記録する", () => {
         describe("単独で発火したイベント", () => {
           it.each`

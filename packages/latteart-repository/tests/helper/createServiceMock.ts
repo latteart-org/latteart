@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
+import { FileRepository } from "@/interfaces/fileRepository";
 import { NotesService } from "@/services/NotesService";
-import { StaticDirectoryService } from "@/services/StaticDirectoryService";
 import { TestPurposeService } from "@/services/TestPurposeService";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
@@ -54,28 +53,17 @@ export const createTestStepServiceMock = (): TestStepService => {
   };
 };
 
-export const createImageFileRepositoryServiceMock =
-  (): ImageFileRepositoryService => {
-    return {
-      writeBufferToFile: jest.fn(),
-      writeBase64ToFile: jest.fn(),
-      removeFile: jest.fn(),
-      getFilePath: jest.fn(),
-      getFileUrl: jest.fn(),
-    };
-  };
-
-export const createStaticDirectoryServiceMock = (): StaticDirectoryService => {
+export const createStaticDirectoryServiceMock = (): FileRepository => {
   return {
-    mkdir: jest.fn(),
+    readFile: jest.fn(),
     outputFile: jest.fn(),
+    outputJSON: jest.fn(),
+    outputZip: jest.fn(),
     removeFile: jest.fn(),
     getFileUrl: jest.fn(),
-    getJoinedPath: jest.fn(),
+    getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
-    collectFileNames: jest.fn(),
-    collectFilePaths: jest.fn(),
   };
 };
 

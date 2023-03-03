@@ -26,7 +26,7 @@ import { StoryEntity } from "@/entities/StoryEntity";
 import {
   dateToFormattedString,
   unixtimeToFormattedString,
-} from "@/lib/timeUtil";
+} from "@/domain/timeUtil";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectsServiceImpl } from "./ProjectsService";
 import { TransactionRunner } from "@/TransactionRunner";

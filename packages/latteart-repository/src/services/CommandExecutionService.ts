@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
+import { createLogger } from "@/logger/logger";
 import { exec } from "child_process";
 import encoding from "encoding-japanese";
 
@@ -30,7 +30,7 @@ export class CommandExecutionServiceImpl {
   public execute(command: string): Promise<{ stdout: string; stderr: string }> {
     return new Promise<{ stdout: string; stderr: string }>(
       (resolve, reject) => {
-        LoggingService.info(command);
+        createLogger().info(command);
 
         exec(command, { encoding: "buffer" }, (error, stdout, stderr) => {
           if (error !== null) {

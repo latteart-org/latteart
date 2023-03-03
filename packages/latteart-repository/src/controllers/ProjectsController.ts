@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import {
@@ -35,6 +34,7 @@ import {
   GetTestProgressResponse,
 } from "../interfaces/Projects";
 import { ProjectsServiceImpl } from "../services/ProjectsService";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects")
 @Tags("projects")
@@ -61,7 +61,7 @@ export class ProjectsController extends Controller {
       return await new ProjectsServiceImpl().createProject();
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Save project failed.", error);
+        createLogger().error("Save project failed.", error);
         throw new ServerError(500, {
           code: "save_project_failed",
         });
@@ -86,7 +86,7 @@ export class ProjectsController extends Controller {
       return await new ProjectsServiceImpl().getProject(projectId);
     } catch (error: any) {
       if (error instanceof Error) {
-        LoggingService.error("Get project failed.", error);
+        createLogger().error("Get project failed.", error);
 
         throw new ServerError(404, {
           code: "get_project_failed",
@@ -122,7 +122,7 @@ export class ProjectsController extends Controller {
       ).collectProjectDailyTestProgresses(projectId, filter);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get test progress failed.", error);
+        createLogger().error("Get test progress failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_progress_failed",

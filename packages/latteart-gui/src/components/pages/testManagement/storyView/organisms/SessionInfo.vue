@@ -169,7 +169,7 @@
               <v-card-text class="py-0">
                 <v-list>
                   <v-list-group
-                    v-for="(item, index) in session.intentions"
+                    v-for="(item, index) in session.testPurposes"
                     v-model="item.active"
                     :key="item.title"
                     value="true"
@@ -236,7 +236,6 @@
                         @click="
                           openIssueDetailsDialog(
                             props.item.status,
-                            props.item.ticketId,
                             props.item.value,
                             props.item.details,
                             props.item.imageFilePath,
@@ -377,7 +376,6 @@ import {
   Session,
   AttachedFile,
   TestResultFile,
-  Issue,
 } from "@/lib/testManagement/types";
 import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
@@ -420,7 +418,6 @@ export default class SessionInfo extends Vue {
 
   private issueDetailsDialogOpened = false;
   private issueDetailsDialogStatus = "";
-  private issueDetailsDialogTicketId = "";
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
@@ -634,8 +631,6 @@ export default class SessionInfo extends Vue {
     memo?: string;
     attachedFiles?: AttachedFile[];
     testResultFiles?: TestResultFile[];
-    issues?: Issue[];
-    testingTime?: number;
   }) {
     await this.$store.dispatch("testManagement/updateSession", {
       storyId: this.storyId,
@@ -644,50 +639,45 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private get testResultNotices(): Issue[] {
+  private get testResultNotices() {
     if (!this.session) {
       return [];
     }
-    return this.session.issues;
-  }
+    const notices = this.session.notes.map((note) => {
+      const status = (() => {
+        if (!note.tags) {
+          return "";
+        }
 
-  private updateIssue(
-    source: { type: string; sequence: number; index: number },
-    params: {
-      status?: string;
-      ticketId?: string;
-    }
-  ) {
-    const newIssues = this.session?.issues.map((issue) => {
-      const key1 = `${issue.source.type}_${issue.source.sequence}_${issue.source.index}`;
-      const key2 = `${source.type}_${source.sequence}_${source.index}`;
+        if (note.tags.includes("reported")) {
+          return "reported";
+        }
 
-      if (key1 !== key2) {
-        return issue;
-      }
+        if (note.tags.includes("invalid")) {
+          return "invalid";
+        }
+
+        return "";
+      })();
 
       return {
-        source,
-        status: params.status ?? issue.status,
-        ticketId: params.ticketId ?? issue.ticketId,
-        value: issue.value,
-        details: issue.details,
-        imageFilePath: issue.imageFilePath,
+        status,
+        value: note.value,
+        details: note.details,
+        tags: note.tags ?? [],
+        imageFilePath: note.imageFileUrl ?? "",
       };
     });
 
-    this.updateSession({
-      issues: newIssues,
-    });
+    return notices;
   }
 
   private openIssueDetailsDialog(
     status: string,
-    ticketId: string,
     summary: string,
     text: string,
     imageFilePath: string,
-    tags?: string[]
+    tags: string[]
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -697,11 +687,10 @@ export default class SessionInfo extends Vue {
         : status === "invalid"
         ? this.$store.getters.message("session-info.bug-unreported")
         : none;
-    this.issueDetailsDialogTicketId = ticketId !== "" ? ticketId : none;
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogImagePath = imageFilePath;
-    this.issueDetailsDialogTags = tags ? tags : [];
+    this.issueDetailsDialogTags = tags ?? [];
     this.issueDetailsDialogOpened = true;
   }
 

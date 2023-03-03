@@ -221,7 +221,7 @@ type CapturedElementInfo = {
   value?: string;
   xpath: string;
   checked?: boolean;
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
 };
 
 type ElementInfoWithBoundingRect = CapturedElementInfo & {
@@ -542,11 +542,12 @@ function setFunctionToExtractElements() {
       const newElement: CapturedElementInfo = {
         tagname: element.tagName,
         text: element.innerText,
-        value: element.value,
         xpath: currentXPath,
         attributes: extendedDocument.getAttributesFromElement(element),
       };
-
+      if (element.value != null) {
+        newElement.value = `${element.value}`;
+      }
       if (element.checked !== undefined) {
         newElement.checked = element.checked;
       }
@@ -625,11 +626,13 @@ function setFunctionToBuildOperationInfo() {
     const elementInfo: ElementInfoWithBoundingRect = {
       tagname: element.tagName,
       text: element.innerText,
-      value: element.value,
       xpath,
       attributes: extendedDocument.getAttributesFromElement(element),
       boundingRect: element.getBoundingClientRect(),
     };
+    if (element.value != null) {
+      elementInfo.value = `${element.value}`;
+    }
     if (element.checked !== undefined) {
       elementInfo.checked = element.checked;
     }

@@ -103,7 +103,7 @@ export type ElementInfoForRepository = {
   xpath: string;
   value?: string;
   checked?: boolean;
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
 };
 
 export type CoverageSourceForRepository = {
@@ -192,85 +192,30 @@ export type DailyTestProgressForRepository = {
   }[];
 };
 
-export type TestManagementDataForRepository = {
-  testMatrices: ManagedTestMatrixForRepository[];
-  stories: ManagedStoryForRepository[];
-};
-
-export type ManagedTestMatrixForRepository = {
-  id: string;
-  name: string;
-  groups: ManagedGroupForRepository[];
-  viewPoints: ManagedViewPointForRepository[];
-};
-
-export type ManagedStoryForRepository = {
-  id: string;
-  index: number;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: Array<ManagedSessionForRepository>;
-};
-
-export type ManagedGroupForRepository = {
-  id: string;
-  name: string;
-  testTargets: Array<{
-    id: string;
-    name: string;
-    plans: Array<{ viewPointId: string; value: number }>;
-  }>;
-};
-
-export type ManagedViewPointForRepository = {
-  id: string;
-  name: string;
-};
-
-export type ManagedSessionForRepository = {
-  name: string | undefined;
-  id: string | undefined;
+export type PatchSessionDto = {
   isDone: boolean;
-  doneDate: string;
-  testItem: string;
-  testerName: string;
-  memo: string;
-  attachedFiles?: Array<{
-    name: string;
-    fileUrl?: string;
-    fileData?: string;
-  }>;
-  testResultFiles?: Array<{ name: string; id: string }>;
-  issues: Array<{
-    type: string;
-    value: string;
-    details: string;
-    status: string;
-    ticketId: string;
-    source: { type: string; index: number };
-  }>;
-  testingTime?: number;
-};
-
-export type SessionForRepository = {
-  name: string | undefined;
-  id: string | undefined;
-  isDone: boolean;
-  doneDate: string;
   testItem: string;
   testerName: string;
   memo: string;
   attachedFiles: AttachedFileForRepository[];
-  testResultFiles?: TestResultFileForRepository[];
+  testResultFiles: TestResultFileForRepository[];
+};
+
+export type SessionForRepository = {
+  index: number;
+  name: string;
+  id: string;
+  isDone: boolean;
+  doneDate: string;
+  testItem: string;
+  testerName: string;
+  memo: string;
+  attachedFiles: { name: string; fileUrl: string }[];
+  testResultFiles: TestResultFileForRepository[];
   initialUrl: string;
-  issues: IssueForRepository[];
-  intentions: {
-    value: string;
-    details: string;
-  }[];
-  testingTime?: number;
+  testPurposes: ApiNoteForRepository[];
+  notes: ApiNoteForRepository[];
+  testingTime: number;
 };
 
 export type AttachedFileForRepository = {
@@ -282,20 +227,6 @@ export type AttachedFileForRepository = {
 export type TestResultFileForRepository = {
   name: string;
   id: string;
-};
-
-export type IssueForRepository = {
-  source: {
-    type: string;
-    sequence?: number;
-    index: number;
-  };
-  status: string;
-  ticketId: string;
-  value: string;
-  details: string;
-  imageFilePath?: string;
-  tags?: string[];
 };
 
 export type StoryForRepository = {
@@ -368,7 +299,7 @@ export type ProjectForRepository = {
   id: string;
   name: string;
   testMatrices: TestMatrixForRepository[];
-  stories: StoryDetailsForRepository[];
+  stories: StoryForRepository[];
 };
 
 type ApiNoteForRepository = {
@@ -378,41 +309,6 @@ type ApiNoteForRepository = {
   details: string;
   imageFileUrl: string;
   tags: string[];
-};
-
-type StoryDetailsForRepository = {
-  id: string;
-  index: number;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: {
-    id: string;
-    attachedFiles: {
-      name: string;
-      fileUrl?: string;
-    }[];
-    doneDate: string;
-    isDone: boolean;
-    issues: {
-      details: string;
-      source: {
-        index: number;
-        type: string;
-      };
-      status: string;
-      ticketId: string;
-      type: string;
-      value: string;
-    }[];
-    memo: string;
-    name: string;
-    testItem: string;
-    testResultFiles?: TestResultFileForRepository[];
-    testerName: string;
-    testingTime: number;
-  }[];
 };
 
 export type SnapshotConfigForRepository = { locale: string };

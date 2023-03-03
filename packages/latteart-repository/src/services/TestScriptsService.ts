@@ -15,19 +15,19 @@
  */
 
 import { ProjectEntity } from "@/entities/ProjectEntity";
-import { TestResult } from "@/interfaces/TestResults";
-import { TestScriptOption } from "@/interfaces/TestScripts";
+import { TestResultEntity } from "@/entities/TestResultEntity";
 import {
   createWDIOLocatorFormatter,
   ScreenElementLocatorGenerator,
-} from "@/lib/elementLocator";
+} from "@/domain/elementLocator";
 import ScreenDefFactory, {
   ScreenDefinitionConfig,
-} from "@/lib/ScreenDefFactory";
-import { invalidOperationTypeExists } from "@/lib/scriptGenerator/model/pageObject/method/operation/PageObjectOperation";
-import { TestScript } from "@/lib/scriptGenerator/TestScript";
-import { TestScriptGeneratorImpl } from "@/lib/scriptGenerator/TestScriptGenerator";
-import { TestScriptSourceOperation } from "@/lib/scriptGenerator/TestScriptSourceOperation";
+} from "@/domain/ScreenDefFactory";
+import { invalidOperationTypeExists } from "@/domain/testScriptGeneration/model";
+import { TestScript } from "@/domain/testScriptGeneration";
+import { TestScriptGenerator } from "@/domain/testScriptGeneration";
+import { TestScriptSourceOperation } from "@/domain/testScriptGeneration";
+import { ElementInfo, TestScriptOption } from "@/domain/types";
 import { ServerError } from "@/ServerError";
 import { getRepository } from "typeorm";
 import { TestResultService } from "./TestResultService";
@@ -129,10 +129,66 @@ export class TestScriptsService {
     const testResults = (
       await Promise.all(
         params.testResultIds.map(async (testResultId) => {
-          const testResult = await this.service.testResult.getTestResult(
-            testResultId
-          );
-          return testResult ? [testResult] : [];
+          const testResultEntity = await getRepository(
+            TestResultEntity
+          ).findOne(testResultId, {
+            relations: ["testSteps", "testSteps.screenshot", "coverageSources"],
+          });
+
+          if (!testResultEntity) {
+            return [];
+          }
+
+          return [
+            {
+              initialUrl: testResultEntity.initialUrl,
+              testSteps: await Promise.all(
+                testResultEntity.testSteps
+                  ?.sort(function (first, second) {
+                    return first.timestamp - second.timestamp;
+                  })
+                  .map(async (testStep) => {
+                    const elementInfo = JSON.parse(
+                      testStep.operationElement
+                    ) as Partial<ElementInfo>;
+                    const inputElements = JSON.parse(
+                      testStep.inputElements
+                    ) as Partial<ElementInfo>[];
+
+                    return {
+                      id: testStep.id,
+                      operation: {
+                        input: testStep.operationInput,
+                        type: testStep.operationType,
+                        elementInfo:
+                          Object.keys(elementInfo).length > 0
+                            ? (elementInfo as ElementInfo)
+                            : null,
+                        title: testStep.pageTitle,
+                        url: testStep.pageUrl,
+                        imageFileUrl: testStep.screenshot?.fileUrl ?? "",
+                        inputElements: inputElements.filter(
+                          (element) => Object.keys(element).length > 0
+                        ) as ElementInfo[],
+                        keywordTexts: JSON.parse(
+                          testStep.keywordTexts
+                        ) as string[],
+                      },
+                    };
+                  }) ?? []
+              ),
+              coverageSources:
+                testResultEntity.coverageSources?.map((coverageSource) => {
+                  return {
+                    title: coverageSource.title,
+                    url: coverageSource.url,
+                    screenElements: JSON.parse(
+                      coverageSource.screenElements
+                    ) as ElementInfo[],
+                  };
+                }) ?? [],
+            },
+          ];
         })
       )
     ).flat();
@@ -187,16 +243,20 @@ export class TestScriptsService {
                 locatorGeneratorMap.get(screenDef) ??
                 new ScreenElementLocatorGenerator(
                   createWDIOLocatorFormatter(),
-                  elementInfoListMapByScreenDef.get(screenDef) ?? ([] as any)
+                  elementInfoListMapByScreenDef.get(screenDef) ?? []
                 );
 
               const elementInfo = operation.elementInfo
-                ? {
-                    ...operation.elementInfo,
-                    locator: locatorGenerator.generateFrom(
-                      operation.elementInfo
-                    ),
-                  }
+                ? (() => {
+                    const element = {
+                      ...operation.elementInfo,
+                      text: operation.elementInfo.text ?? "",
+                    };
+                    return {
+                      ...element,
+                      locator: locatorGenerator.generateFrom(element),
+                    };
+                  })()
                 : null;
 
               locatorGeneratorMap.set(screenDef, locatorGenerator);
@@ -271,7 +331,7 @@ export class TestScriptsService {
       },
       buttonDefinitions: params.option.buttonDefinitions,
     };
-    const testScriptGenerator = new TestScriptGeneratorImpl(
+    const testScriptGenerator = new TestScriptGenerator(
       testScriptGenerationOption
     );
 
@@ -289,70 +349,42 @@ export class TestScriptsService {
     };
   }
 
-  private convElementInfoListByScreenDef(
-    coverageSources: TestResult["coverageSources"],
+  private convElementInfoListByScreenDef<
+    T extends Pick<ElementInfo, "text" | "xpath">
+  >(
+    coverageSources: { title: string; url: string; screenElements: T[] }[],
     screenDefinitionConfig: ScreenDefinitionConfig
-  ): Map<
-    string,
-    {
-      tagname: string;
-      text?: string;
-      xpath: string;
-      value?: string;
-      checked?: boolean;
-      attributes?: {
-        [key: string]: string;
-      };
-    }[]
-  > {
+  ): Map<string, T[]> {
     {
       const duplicateCheckMap = new Map<string, Set<string>>();
 
-      return (coverageSources ?? []).reduce(
-        (map, source) => {
-          const keywordSet = source.screenElements.reduce((set, element) => {
-            set.add(element.text);
-            return set;
-          }, new Set<string>());
-          const url = source.url;
-          const title = source.title;
-          const keywordTexts: string[] = Array.from(keywordSet);
-          const screenDef = new ScreenDefFactory(screenDefinitionConfig).create(
-            {
-              url,
-              title,
-              keywordSet: new Set(keywordTexts),
-            }
-          );
+      return (coverageSources ?? []).reduce((map, source) => {
+        const keywordSet = source.screenElements.reduce((set, element) => {
+          set.add(element.text ?? "");
+          return set;
+        }, new Set<string>());
+        const url = source.url;
+        const title = source.title;
+        const keywordTexts: string[] = Array.from(keywordSet);
+        const screenDef = new ScreenDefFactory(screenDefinitionConfig).create({
+          url,
+          title,
+          keywordSet: new Set(keywordTexts),
+        });
 
-          const xpathList = map.get(screenDef) ?? [];
+        const xpathList = map.get(screenDef) ?? [];
 
-          const xpathSet =
-            duplicateCheckMap.get(screenDef) ?? new Set<string>();
-          source.screenElements.forEach((element) => {
-            if (!xpathSet?.has(element.xpath)) {
-              xpathList.push(element);
-              xpathSet?.add(element.xpath);
-            }
-          });
+        const xpathSet = duplicateCheckMap.get(screenDef) ?? new Set<string>();
+        source.screenElements.forEach((element) => {
+          if (!xpathSet?.has(element.xpath)) {
+            xpathList.push(element);
+            xpathSet?.add(element.xpath);
+          }
+        });
 
-          map.set(screenDef, xpathList);
-          return map;
-        },
-        new Map<
-          string,
-          {
-            tagname: string;
-            text?: string;
-            xpath: string;
-            value?: string;
-            checked?: boolean;
-            attributes?: {
-              [key: string]: string;
-            };
-          }[]
-        >()
-      );
+        map.set(screenDef, xpathList);
+        return map;
+      }, new Map<string, T[]>());
     }
   }
 }

@@ -16,10 +16,9 @@
 
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { ProgressData, Project } from "@/interfaces/Projects";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { TestResultService } from "./TestResultService";
 import path from "path";
-import { readZip } from "@/lib/zipReader";
+import { readZip } from "@/gateways/zipReader";
 import { TestPurposeService } from "./TestPurposeService";
 import { NotesService } from "./NotesService";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
@@ -32,18 +31,18 @@ import { AttachedFileEntity } from "@/entities/AttachedFilesEntity";
 import { TimestampService } from "./TimestampService";
 import { TestStepService } from "./TestStepService";
 import { TestResultEntity } from "@/entities/TestResultEntity";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TransactionRunner } from "@/TransactionRunner";
 import { TestProgressEntity } from "@/entities/TestProgressEntity";
-import { unixtimeToDate } from "@/lib/timeUtil";
+import { unixtimeToDate } from "@/domain/timeUtil";
 import { DailyTestProgress } from "./TestProgressService";
 import { TestResultImportService } from "./TestResultImportService";
 import { ImportFileRepositoryServiceImpl } from "./ImportFileRepositoryService";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 interface TestResultData {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
-  screenshots: { filePath: string; data: string }[];
+  screenshots: { filePath: string; data: Buffer }[];
 }
 
 interface ProjectData {
@@ -71,22 +70,16 @@ export class ProjectImportService {
       timestampService: TimestampService;
       testResultService: TestResultService;
       testStepService: TestStepService;
-      screenshotRepositoryService: ImageFileRepositoryService;
-      attachedFileRepositoryService: ImageFileRepositoryService;
-      importDirectoryRepositoryService: ImageFileRepositoryService;
-      importDirectoryService: StaticDirectoryService;
+      screenshotFileRepository: FileRepository;
+      attachedFileRepository: FileRepository;
       notesService: NotesService;
       testPurposeService: TestPurposeService;
       transactionRunner: TransactionRunner;
     }
   ): Promise<{ projectId: string }> {
     const testResultImportService = new TestResultImportService({
-      importFileRepository: new ImportFileRepositoryServiceImpl({
-        staticDirectory: service.importDirectoryService,
-        imageFileRepository: service.screenshotRepositoryService,
-        timestamp: service.timestampService,
-      }),
-      imageFileRepository: service.screenshotRepositoryService,
+      importFileRepository: new ImportFileRepositoryServiceImpl(),
+      screenshotFileRepository: service.screenshotFileRepository,
       timestamp: service.timestampService,
     });
     const { testResultFiles, projectFiles } = await this.readImportFile(
@@ -110,7 +103,7 @@ export class ProjectImportService {
       const projectData = this.extractProjectData(projectFiles);
       projectId = await this.importProject(projectData, testResultIdMap, {
         timestampService: service.timestampService,
-        attachedFileRepositoryService: service.attachedFileRepositoryService,
+        attachedFileRepository: service.attachedFileRepository,
         transactionRunner: service.transactionRunner,
       });
     }
@@ -209,14 +202,12 @@ export class ProjectImportService {
           data: testResultFile.data as string,
         };
       } else if (
-        [".png", ".webp"].includes(path.extname(testResultFile.filePath))
+        [".png", ".webp"].includes(path.extname(testResultFile.filePath)) &&
+        typeof testResultFile.data !== "string"
       ) {
         testResultObj.screenshots.push({
           filePath: path.basename(testResultFile.filePath),
-          data:
-            typeof testResultFile.data !== "string"
-              ? testResultFile.data.toString("base64")
-              : "",
+          data: testResultFile.data,
         });
       }
       testResultMap.set(testResultId, testResultObj);
@@ -235,7 +226,7 @@ export class ProjectImportService {
     service: {
       timestampService: TimestampService;
       transactionRunner: TransactionRunner;
-      attachedFileRepositoryService: ImageFileRepositoryService;
+      attachedFileRepository: FileRepository;
     }
   ): Promise<string> {
     const projectJson = JSON.parse(projectData.projectFile.data) as Project & {
@@ -439,13 +430,16 @@ export class ProjectImportService {
                     }
                     const attachedFileData =
                       sessionData.attachedFiles[attachedFileIndex];
+                    const fileName = `${service.timestampService
+                      .unix()
+                      .toString()}_${attachedFileBeforeSaving.name}`;
+                    await service.attachedFileRepository.outputFile(
+                      fileName,
+                      attachedFileData.data,
+                      "base64"
+                    );
                     const attachedFileImageUrl =
-                      await service.attachedFileRepositoryService.writeBase64ToFile(
-                        `${service.timestampService.unix().toString()}_${
-                          attachedFileBeforeSaving.name
-                        }`,
-                        attachedFileData.data
-                      );
+                      service.attachedFileRepository.getFileUrl(fileName);
                     attachedFileEntities.push(
                       new AttachedFileEntity({
                         session: newSessionEntity,

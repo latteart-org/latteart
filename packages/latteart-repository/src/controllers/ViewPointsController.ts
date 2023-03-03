@@ -19,7 +19,6 @@ import {
   PatchViewPointResponse,
   PostViewPointResponse,
 } from "../interfaces/ViewPoints";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ViewPointsService } from "@/services/ViewPointsService";
 import {
@@ -36,6 +35,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { transactionRunner } from "..";
+import { createLogger } from "@/logger/logger";
 
 @Route("/view-points/")
 @Tags("view-points")
@@ -58,7 +58,7 @@ export class ViewPointsController extends Controller {
       return await new ViewPointsService().get(viewPointId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get viewPoint failed.", error);
+        createLogger().error("Get viewPoint failed.", error);
 
         throw new ServerError(500, {
           code: "get_view_point_failed",
@@ -92,7 +92,7 @@ export class ViewPointsController extends Controller {
       return await new ViewPointsService().post(body, transactionRunner);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Post viewPoint failed.", error);
+        createLogger().error("Post viewPoint failed.", error);
 
         throw new ServerError(500, {
           code: "post_view_point_failed",
@@ -123,7 +123,7 @@ export class ViewPointsController extends Controller {
       return await new ViewPointsService().patch(viewPointId, body);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch viewPoint failed.", error);
+        createLogger().error("Patch viewPoint failed.", error);
 
         throw new ServerError(500, {
           code: "patch_view_point_failed",
@@ -148,7 +148,7 @@ export class ViewPointsController extends Controller {
       return await new ViewPointsService().delete(viewPointId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete viewPoint failed.", error);
+        createLogger().error("Delete viewPoint failed.", error);
 
         throw new ServerError(500, {
           code: "delete_view_point_failed",

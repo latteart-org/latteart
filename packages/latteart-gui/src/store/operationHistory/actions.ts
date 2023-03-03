@@ -508,12 +508,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: {
       testResultId: string;
-      shouldSaveTemporary?: boolean;
     }
   ) {
     const result = await new ExportTestResultAction(
       context.rootState.repositoryService
-    ).exportWithTestResult(payload.testResultId, payload.shouldSaveTemporary);
+    ).exportWithTestResult(payload.testResultId);
 
     if (result.isFailure()) {
       throw new Error(

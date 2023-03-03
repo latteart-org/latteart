@@ -23,23 +23,18 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import {
-  attachedFileDirectoryService,
-  screenshotDirectoryService,
-  tempDirectoryService,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { ProjectImportService } from "@/services/ProjectImportService";
 import { CreateProjectImportDto } from "../interfaces/ProjectImport";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -68,20 +63,15 @@ export class ProjectImportController extends Controller {
   ): Promise<{ projectId: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
+      const fileRepositoryManager = await createFileRepositoryManager();
+      const screenshotFileRepository =
+        fileRepositoryManager.getRepository("screenshot");
+      const attachedFileRepository =
+        fileRepositoryManager.getRepository("attachedFile");
 
-      const screenshotRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: screenshotDirectoryService,
-      });
-      const attachedFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: attachedFileDirectoryService,
-      });
-      const importDirectoryRepositoryService =
-        new ImageFileRepositoryServiceImpl({
-          staticDirectory: tempDirectoryService,
-        });
       const configService = new ConfigsService();
       const testStepService = new TestStepServiceImpl({
-        imageFileRepository: screenshotRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: configService,
       });
@@ -91,7 +81,7 @@ export class ProjectImportController extends Controller {
         testStep: testStepService,
       });
       const notesService = new NotesServiceImpl({
-        imageFileRepository: screenshotRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
 
@@ -105,10 +95,8 @@ export class ProjectImportController extends Controller {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService: tempDirectoryService,
+          screenshotFileRepository,
+          attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner,
@@ -118,7 +106,7 @@ export class ProjectImportController extends Controller {
       return response;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Import project failed.", error);
+        createLogger().error("Import project failed.", error);
         if (error.message === "Test result information does not exist.") {
           throw new ServerError(500, {
             code: "import_test_result_not_exist",

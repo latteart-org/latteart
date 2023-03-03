@@ -1,10 +1,10 @@
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { CreateNoteDto } from "@/interfaces/Notes";
 import { NotesServiceImpl } from "@/services/NotesService";
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { TimestampService } from "@/services/TimestampService";
 import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -19,12 +19,16 @@ afterEach(async () => {
 describe("NotesService", () => {
   describe("#createNote", () => {
     it("メモを1件新規追加する", async () => {
-      const imageFileRepositoryService: ImageFileRepositoryService = {
-        writeBufferToFile: jest.fn(),
-        writeBase64ToFile: jest.fn(),
+      const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
+        outputFile: jest.fn(),
+        outputJSON: jest.fn(),
+        outputZip: jest.fn(),
         removeFile: jest.fn(),
-        getFilePath: jest.fn(),
         getFileUrl: jest.fn(),
+        getFilePath: jest.fn(),
+        moveFile: jest.fn(),
+        copyFile: jest.fn(),
       };
       const timestampService: TimestampService = {
         unix: jest.fn().mockReturnValue(0),
@@ -32,7 +36,7 @@ describe("NotesService", () => {
         epochMilliseconds: jest.fn(),
       };
       const service = new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
 

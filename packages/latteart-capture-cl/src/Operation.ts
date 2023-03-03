@@ -48,7 +48,7 @@ export interface ElementInfo {
   /**
    * The attributes of the element.
    */
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
 }
 
 /**

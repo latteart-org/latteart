@@ -1,50 +1,16 @@
-import { GetTestResultResponse } from "@/interfaces/TestResults";
-import { CreateTestScriptDto } from "@/interfaces/TestScripts";
-import { TestScript } from "@/lib/scriptGenerator/TestScript";
+import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
+import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
+import { TestResultEntity } from "@/entities/TestResultEntity";
+import { TestStepEntity } from "@/entities/TestStepEntity";
+import { TestScript } from "@/domain/testScriptGeneration";
 import { ServerError } from "@/ServerError";
 import { TestResultService } from "@/services/TestResultService";
 import { TestScriptFileRepositoryService } from "@/services/TestScriptFileRepositoryService";
 import { TestScriptsService } from "@/services/TestScriptsService";
+import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
-
-const emptyElementInfo = {
-  tagname: "",
-  text: "",
-  xpath: "",
-  value: "",
-  checked: false,
-  attributes: {},
-};
-const emptyOperation = {
-  input: "",
-  type: "",
-  elementInfo: null,
-  title: "",
-  url: "",
-  imageFileUrl: "",
-  timestamp: "",
-  windowHandle: "",
-  inputElements: [],
-};
-const emptyTestStep = {
-  id: "",
-  operation: { ...emptyOperation },
-  intention: null,
-  bugs: [],
-  notices: [],
-};
-const emptyTestResult: GetTestResultResponse = {
-  id: "",
-  name: "",
-  startTimeStamp: 0,
-  lastUpdateTimeStamp: 0,
-  initialUrl: "",
-  testingTime: 0,
-  testSteps: [],
-  coverageSources: [],
-};
 
 beforeEach(async () => {
   await testConnectionHelper.createTestConnection({ logging: false });
@@ -78,64 +44,64 @@ describe("TestScriptsService", () => {
     describe("テスト結果内の操作群からテストスクリプトを生成する", () => {
       describe("テストケースを1つ以上生成できた場合は、ダウンロード用URLと生成したスクリプト内に無効な操作があるか否かを返す", () => {
         it("無効な操作が無い場合", async () => {
-          const url = "testScriptArchiveUrl";
-          const testResult = {
-            ...emptyTestResult,
-            initialUrl: "",
-            testSteps: [
-              {
-                ...emptyTestStep,
-                operation: {
-                  ...emptyOperation,
-                  input: "hoge",
-                  type: "change",
-                  elementInfo: {
-                    ...emptyElementInfo,
+          const { id: testResultId } = await getRepository(
+            TestResultEntity
+          ).save(
+            new TestResultEntity({
+              testSteps: [
+                new TestStepEntity({
+                  operationInput: "hoge",
+                  operationType: "change",
+                  operationElement: JSON.stringify({
                     tagname: "input",
+                    text: "",
+                    xpath: "",
+                    value: "",
+                    checked: false,
                     attributes: { id: "textField1" },
-                  },
-                  title: "Page1",
-                  url: "url1",
-                  imageFileUrl: "imageFileUrl1",
+                  }),
+                  pageTitle: "Page1",
+                  pageUrl: "url1",
+                  screenshot: new ScreenshotEntity({
+                    fileUrl: "imageFileUrl1",
+                  }),
+                }),
+              ],
+              coverageSources: [new CoverageSourceEntity()],
+            })
+          );
+
+          const testResultServiceMock = {
+            ...emptyTestResultService,
+            collectAllTestStepScreenshots: jest
+              .fn()
+              .mockResolvedValue([{ id: "id1", fileUrl: "fileUrl1" }]),
+          };
+          const testScriptFileRepositoryServiceMock = {
+            ...emptyTestScriptFileRepositoryService,
+            write: jest.fn().mockResolvedValue("testScriptArchiveUrl"),
+          };
+          const service = new TestScriptsService({
+            testResult: testResultServiceMock,
+            testScriptFileRepository: testScriptFileRepositoryServiceMock,
+          });
+
+          const result = await service.createTestScriptByTestResult(
+            testResultId,
+            {
+              optimized: false,
+              testData: { useDataDriven: false, maxGeneration: 0 },
+              view: {
+                node: {
+                  unit: "title",
+                  definitions: [],
                 },
               },
-            ],
-          };
-          const screenshots: { id: string; fileUrl: string }[] = [
-            { id: "id1", fileUrl: "fileUrl1" },
-          ];
+              buttonDefinitions: [],
+            }
+          );
 
-          const services = {
-            testResult: {
-              ...emptyTestResultService,
-              getTestResult: jest.fn().mockResolvedValue(testResult),
-              collectAllTestStepScreenshots: jest
-                .fn()
-                .mockResolvedValue(screenshots),
-            },
-            testScriptFileRepository: {
-              ...emptyTestScriptFileRepositoryService,
-              write: jest.fn().mockResolvedValue(url),
-            },
-          };
-
-          const testResultId = "testResultId";
-          const requestBody: CreateTestScriptDto = {
-            optimized: false,
-            testData: { useDataDriven: false, maxGeneration: 0 },
-            view: {
-              node: {
-                unit: "title",
-                definitions: [],
-              },
-            },
-            buttonDefinitions: [],
-          };
-          const result = await new TestScriptsService(
-            services
-          ).createTestScriptByTestResult(testResultId, requestBody);
-
-          expect(result.url).toEqual(url);
+          expect(result.url).toEqual("testScriptArchiveUrl");
           expect(result.invalidOperationTypeExists).toEqual(false);
           const expectedTestScripts: TestScript = {
             pageObjects: [
@@ -217,65 +183,62 @@ describe('TestSuite1', () => {
               },
             ],
           };
-          expect(services.testScriptFileRepository.write).toBeCalledWith(
+          expect(testScriptFileRepositoryServiceMock.write).toBeCalledWith(
             expectedTestScripts,
-            screenshots
+            [{ id: "id1", fileUrl: "fileUrl1" }]
           );
         });
 
         it("無効な操作がある場合", async () => {
-          const url = "testScriptArchiveUrl";
-          const testResult = {
-            ...emptyTestResult,
-            initialUrl: "",
-            testSteps: [
-              {
-                ...emptyTestStep,
-                operation: {
-                  ...emptyOperation,
-                  type: "accept_alert",
-                  title: "Page1",
-                  url: "url1",
-                  imageFileUrl: "imageFileUrl1",
+          const { id: testResultId } = await getRepository(
+            TestResultEntity
+          ).save(
+            new TestResultEntity({
+              testSteps: [
+                new TestStepEntity({
+                  operationType: "accept_alert",
+                  pageTitle: "Page1",
+                  pageUrl: "url1",
+                  screenshot: new ScreenshotEntity({
+                    fileUrl: "imageFileUrl1",
+                  }),
+                }),
+              ],
+              coverageSources: [new CoverageSourceEntity()],
+            })
+          );
+
+          const testResultServiceMock = {
+            ...emptyTestResultService,
+            collectAllTestStepScreenshots: jest
+              .fn()
+              .mockResolvedValue([{ id: "id1", fileUrl: "fileUrl1" }]),
+          };
+          const testScriptFileRepositoryServiceMock = {
+            ...emptyTestScriptFileRepositoryService,
+            write: jest.fn().mockResolvedValue("testScriptArchiveUrl"),
+          };
+          const service = new TestScriptsService({
+            testResult: testResultServiceMock,
+            testScriptFileRepository: testScriptFileRepositoryServiceMock,
+          });
+
+          const result = await service.createTestScriptByTestResult(
+            testResultId,
+            {
+              optimized: false,
+              testData: { useDataDriven: false, maxGeneration: 0 },
+              view: {
+                node: {
+                  unit: "title",
+                  definitions: [],
                 },
               },
-            ],
-          };
-          const screenshots: { id: string; fileUrl: string }[] = [
-            { id: "id1", fileUrl: "fileUrl1" },
-          ];
+              buttonDefinitions: [],
+            }
+          );
 
-          const services = {
-            testResult: {
-              ...emptyTestResultService,
-              getTestResult: jest.fn().mockResolvedValue(testResult),
-              collectAllTestStepScreenshots: jest
-                .fn()
-                .mockResolvedValue(screenshots),
-            },
-            testScriptFileRepository: {
-              ...emptyTestScriptFileRepositoryService,
-              write: jest.fn().mockResolvedValue(url),
-            },
-          };
-
-          const testResultId = "testResultId";
-          const requestBody: CreateTestScriptDto = {
-            optimized: false,
-            testData: { useDataDriven: false, maxGeneration: 0 },
-            view: {
-              node: {
-                unit: "title",
-                definitions: [],
-              },
-            },
-            buttonDefinitions: [],
-          };
-          const result = await new TestScriptsService(
-            services
-          ).createTestScriptByTestResult(testResultId, requestBody);
-
-          expect(result.url).toEqual(url);
+          expect(result.url).toEqual("testScriptArchiveUrl");
           expect(result.invalidOperationTypeExists).toEqual(true);
           const expectedTestScripts: TestScript = {
             pageObjects: [
@@ -355,32 +318,25 @@ describe('TestSuite1', () => {
               },
             ],
           };
-          expect(services.testScriptFileRepository.write).toBeCalledWith(
+          expect(testScriptFileRepositoryServiceMock.write).toBeCalledWith(
             expectedTestScripts,
-            screenshots
+            [{ id: "id1", fileUrl: "fileUrl1" }]
           );
         });
       });
 
       it("テストケースを1つも生成できなかった場合は、エラーをthrowする", async () => {
-        const testResult = {
-          ...emptyTestResult,
-          initialUrl: "",
-          testSteps: [],
+        const testScriptFileRepositoryServiceMock = {
+          ...emptyTestScriptFileRepositoryService,
         };
-
-        const services = {
+        const service = new TestScriptsService({
           testResult: {
             ...emptyTestResultService,
-            getTestResult: jest.fn().mockResolvedValue(testResult),
           },
-          testScriptFileRepository: {
-            ...emptyTestScriptFileRepositoryService,
-          },
-        };
+          testScriptFileRepository: testScriptFileRepositoryServiceMock,
+        });
 
-        const testResultId = "testResultId";
-        const requestBody: CreateTestScriptDto = {
+        const result = service.createTestScriptByTestResult("testResultId", {
           optimized: false,
           testData: { useDataDriven: false, maxGeneration: 0 },
           view: {
@@ -390,19 +346,15 @@ describe('TestSuite1', () => {
             },
           },
           buttonDefinitions: [],
-        };
-        await expect(
-          new TestScriptsService(services).createTestScriptByTestResult(
-            testResultId,
-            requestBody
-          )
-        ).rejects.toThrow(
+        });
+
+        await expect(result).rejects.toThrow(
           new ServerError(500, {
             code: "no_test_cases_generated",
           })
         );
 
-        expect(services.testScriptFileRepository.write).not.toBeCalled();
+        expect(testScriptFileRepositoryServiceMock.write).not.toBeCalled();
       });
     });
   });

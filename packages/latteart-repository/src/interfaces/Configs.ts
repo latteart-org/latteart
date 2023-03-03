@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { ScreenDefinitionConfig } from "../lib/ScreenDefFactory";
+import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
   AutofillSetting,
   AutoOperationSetting,
   Coverage,
-} from "../lib/settings/Settings";
+} from "../gateways/settings/Settings";
 
 /**
  * Data for setting update.
@@ -68,7 +68,7 @@ type ServerConfig = {
 /**
  * Project settings.
  */
-export interface ProjectConfig {
+export type ProjectConfig = {
   viewPointsPreset: Array<{
     id: string;
     name: string;
@@ -85,4 +85,4 @@ export interface ProjectConfig {
       isDeleteSrcImage: boolean;
     };
   };
-}
+};

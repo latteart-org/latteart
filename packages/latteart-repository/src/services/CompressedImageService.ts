@@ -17,17 +17,17 @@
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CreateCompressedImageResponse } from "@/interfaces/CompressedImage";
 import { getRepository } from "typeorm";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import path from "path";
-import LoggingService from "@/logger/LoggingService";
 import { CommandExecutionService } from "./CommandExecutionService";
 import { TestStepService } from "./TestStepService";
 import { NotesServiceImpl } from "./NotesService";
+import { FileRepository } from "@/interfaces/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 export class CompressedImageService {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       testStep: TestStepService;
       note: NotesServiceImpl;
       commandExecution: CommandExecutionService;
@@ -96,7 +96,7 @@ export class CompressedImageService {
     const originalFileName =
       originalImageFileUrl?.split("/").slice(-1)[0] ?? "";
     const originalFilePath =
-      this.service.imageFileRepository.getFilePath(originalFileName);
+      this.service.screenshotFileRepository.getFilePath(originalFileName);
 
     const compressedImageFileName = `${path.basename(
       originalFileName,
@@ -107,16 +107,15 @@ export class CompressedImageService {
       originalFilePath
     )}/${compressedImageFileName}`;
 
-    LoggingService.debug(`command: ${command}`);
+    createLogger().debug(`command: ${command}`);
 
     await this.service.commandExecution.execute(command);
 
-    const compressedImageFileUrl = this.service.imageFileRepository.getFileUrl(
-      compressedImageFileName
-    );
+    const compressedImageFileUrl =
+      this.service.screenshotFileRepository.getFileUrl(compressedImageFileName);
 
     if (shouldDeleteOriginalFile) {
-      this.service.imageFileRepository.removeFile(originalFileName);
+      this.service.screenshotFileRepository.removeFile(originalFileName);
     }
 
     return compressedImageFileUrl;

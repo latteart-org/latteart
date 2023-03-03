@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -27,10 +25,11 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, tempDirectoryService } from "..";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import { CreateTestResultImportDto } from "../interfaces/TesResultImport";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -50,21 +49,15 @@ export class TestResultImportController extends Controller {
     @Body() requestBody: CreateTestResultImportDto
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
-
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
-
-    const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-      staticDirectory: tempDirectoryService,
-      imageFileRepository: imageFileRepositoryService,
-      timestamp: timestampService,
-    });
+    const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     try {
       const result = await new TestResultImportService({
         importFileRepository: importFileRepositoryService,
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).importTestResult(
         requestBody.source.testResultFile,
@@ -74,7 +67,7 @@ export class TestResultImportController extends Controller {
       return result;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Import test result failed.", error);
+        createLogger().error("Import test result failed.", error);
 
         throw new ServerError(500, {
           code: "import_test_result_failed",

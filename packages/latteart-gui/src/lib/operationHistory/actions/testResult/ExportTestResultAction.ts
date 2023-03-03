@@ -30,13 +30,11 @@ export class ExportTestResultAction {
   ) {}
 
   public async exportWithTestResult(
-    testResultId: string,
-    shouldSaveTemporary = false
+    testResultId: string
   ): Promise<ActionResult<string>> {
     const postTestResultForExportResult =
       await this.repositoryService.testResultRepository.postTestResultForExport(
-        testResultId,
-        shouldSaveTemporary
+        testResultId
       );
 
     if (postTestResultForExportResult.isFailure()) {

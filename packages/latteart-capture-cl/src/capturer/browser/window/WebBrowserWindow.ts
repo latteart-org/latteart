@@ -139,6 +139,25 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
+  public async getReadyToCapture(): Promise<void> {
+    const isReadyToCapture =
+      (await this.client.execute(captureScript.isReadyToCapture)) ?? false;
+
+    if (isReadyToCapture) {
+      return;
+    }
+
+    (await this.injectFunctionToGetAttributesFromElement()) &&
+      (await this.injectFunctionToCollectVisibleElements()) &&
+      (await this.injectFunctionToExtractElements()) &&
+      (await this.injectFunctionToEnqueueEventForReFire()) &&
+      (await this.injectFunctionToBuildOperationInfo()) &&
+      (await this.injectFunctionToHandleCapturedEvent([
+        WebBrowser.SHIELD_ID,
+      ])) &&
+      (await this.resetEventListeners());
+  }
+
   /**
    * Check if a screen transition is captured and if so, call the callback function.
    */
@@ -190,12 +209,6 @@ export default class WebBrowserWindow {
    * Check if operations are captured and if so, call the callback function.
    */
   public async captureOperations(): Promise<void> {
-    if (
-      !((await this.client.execute(captureScript.isReadyToCapture)) ?? false)
-    ) {
-      await this.getReadyToCapture([WebBrowser.SHIELD_ID]);
-    }
-
     // Get and notice operations.
     const capturedDatas = await this.pullCapturedDatas();
     if (capturedDatas.length === 0) {
@@ -595,16 +608,6 @@ export default class WebBrowserWindow {
       return true;
     }
     return false;
-  }
-
-  private async getReadyToCapture(ignoreElementIds: string[]): Promise<void> {
-    (await this.injectFunctionToGetAttributesFromElement()) &&
-      (await this.injectFunctionToCollectVisibleElements()) &&
-      (await this.injectFunctionToExtractElements()) &&
-      (await this.injectFunctionToEnqueueEventForReFire()) &&
-      (await this.injectFunctionToBuildOperationInfo()) &&
-      (await this.injectFunctionToHandleCapturedEvent(ignoreElementIds)) &&
-      (await this.resetEventListeners());
   }
 
   private async injectFunctionToGetAttributesFromElement(): Promise<

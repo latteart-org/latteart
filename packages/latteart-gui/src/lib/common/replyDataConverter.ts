@@ -17,8 +17,6 @@
 import { OperationForGUI } from "../operationHistory/OperationForGUI";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
 import { Operation } from "latteart-client";
-import { Story } from "../testManagement/types";
-import { ManagedStory } from "../testManagement/TestManagementData";
 
 export function convertTestStepOperation(
   testStepOperation: Operation,
@@ -85,41 +83,4 @@ export function convertNote(
   });
 
   return data;
-}
-
-export function convertManagedStory(story: Story): {
-  storyData: ManagedStory;
-} {
-  return {
-    storyData: {
-      ...story,
-      sessions: story.sessions.map((session) => {
-        return {
-          name: session.name,
-          id: session.id,
-          isDone: session.isDone,
-          doneDate: session.doneDate,
-          testItem: session.testItem,
-          testerName: session.testerName,
-          memo: session.memo,
-          attachedFiles: session.attachedFiles,
-          testResultFiles: session.testResultFiles,
-          issues: session.issues.map((issue) => {
-            return {
-              type: issue.source.type,
-              value: issue.value,
-              details: issue.details,
-              status: issue.status,
-              ticketId: issue.ticketId,
-              source: {
-                type: issue.source.type,
-                index: issue.source.index,
-              },
-            };
-          }),
-          testingTime: session.testingTime,
-        };
-      }),
-    },
-  };
 }

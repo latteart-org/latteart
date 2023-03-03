@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import fs from "fs-extra";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TimestampService } from "./TimestampService";
 import { ConfigsService } from "./ConfigsService";
-import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/settingsConverter";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ConfigExportService {
   public async export(
@@ -26,7 +25,7 @@ export class ConfigExportService {
     service: {
       configService: ConfigsService;
       timestampService: TimestampService;
-      tempDirectoryService: StaticDirectoryService;
+      exportFileRepository: FileRepository;
     }
   ): Promise<string> {
     const tempConfig = await service.configService.getConfig(projectId);
@@ -36,9 +35,12 @@ export class ConfigExportService {
     const fileName = `config_${service.timestampService.format(
       "YYYYMMDD_HHmmss"
     )}.json`;
-    const filePath = service.tempDirectoryService.getJoinedPath(fileName);
-    await fs.outputFile(filePath, JSON.stringify(config, null, 2), "utf-8");
 
-    return service.tempDirectoryService.getFileUrl(fileName);
+    await service.exportFileRepository.outputFile(
+      fileName,
+      JSON.stringify(config, null, 2)
+    );
+
+    return service.exportFileRepository.getFileUrl(fileName);
   }
 }

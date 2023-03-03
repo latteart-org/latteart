@@ -16,31 +16,29 @@
 
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TimestampService } from "./TimestampService";
-
 import path from "path";
-import FileArchiver from "@/lib/FileArchiver";
-import fs from "fs-extra";
-import os from "os";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ScreenshotsService {
   public async getScreenshots(
     testResultId: string,
-    tempDirectoryService: StaticDirectoryService,
-    screenshotDirectoryService: StaticDirectoryService,
+    fileRepository: FileRepository,
+    workingFileRepository: FileRepository,
     timestampService: TimestampService
   ): Promise<string> {
     const testResult = await getRepository(TestResultEntity).findOne(
       testResultId,
       { relations: ["testSteps", "testSteps.screenshot"] }
     );
+
     if (!testResult) {
       throw new Error(`TestResult not found.${testResultId}`);
     }
     if (!testResult.testSteps) {
       throw new Error(`TestSteps not found.${testResultId}`);
     }
+
     const screenshotFileNames = testResult.testSteps
       .sort((testStep1, testStep2) => {
         return testStep1.timestamp - testStep2.timestamp;
@@ -48,31 +46,25 @@ export class ScreenshotsService {
       .map((testStep) => {
         return testStep.screenshot?.fileUrl.split("/")[1] ?? "";
       });
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
     const dirName = `screenshots_${timestampService.format("YYYYMMDD_HHmmss")}`;
-
-    const dirPath = path.join(tmpDirPath, dirName);
-    await fs.mkdir(dirPath);
 
     await Promise.all(
       screenshotFileNames.map(async (fileName, index) => {
-        const filePath = screenshotDirectoryService.getJoinedPath(fileName);
-        return await fs.copyFile(
-          filePath,
-          path.join(dirPath, `${index + 1}${path.extname(fileName)}`)
+        return await workingFileRepository.copyFile(
+          fileName,
+          path.join(dirName, `${index + 1}${path.extname(fileName)}`),
+          "screenshot"
         );
       })
     );
 
-    const tmpZipFilePath = await new FileArchiver(dirPath, {
-      deleteSource: true,
-    }).zip();
+    const tmpZipFilePath = await workingFileRepository.outputZip(dirName, true);
 
     const zipFileName = `screenshots_${
       testResult.name
     }_${timestampService.format("YYYYMMDD_HHmmss")}.zip`;
-    await tempDirectoryService.moveFile(tmpZipFilePath, zipFileName);
+    await fileRepository.moveFile(tmpZipFilePath, zipFileName);
 
-    return tempDirectoryService.getFileUrl(zipFileName);
+    return fileRepository.getFileUrl(zipFileName);
   }
 }

@@ -26,7 +26,6 @@ describe("ExportTestResultAction", () => {
       };
 
       const testResultId = "testResultId";
-      const shouldSaveTemporary = false;
 
       it("エクスポートに成功した場合は、エクスポートされたファイルのダウンロードURLを返す", async () => {
         const restClient = {
@@ -37,14 +36,10 @@ describe("ExportTestResultAction", () => {
           testResultRepository: new TestResultRepository(restClient),
         });
 
-        const result = await action.exportWithTestResult(
-          testResultId,
-          shouldSaveTemporary
-        );
+        const result = await action.exportWithTestResult(testResultId);
 
         expect(restClient.httpPost).toBeCalledWith(
-          `api/v1/test-results/${testResultId}/export`,
-          { temp: shouldSaveTemporary }
+          `api/v1/test-results/${testResultId}/export`
         );
         if (result.isSuccess()) {
           expect(result.data).toEqual(expectedData.url);
@@ -62,14 +57,10 @@ describe("ExportTestResultAction", () => {
           testResultRepository: new TestResultRepository(restClient),
         });
 
-        const result = await action.exportWithTestResult(
-          testResultId,
-          shouldSaveTemporary
-        );
+        const result = await action.exportWithTestResult(testResultId);
 
         expect(restClient.httpPost).toBeCalledWith(
-          `api/v1/test-results/${testResultId}/export`,
-          { temp: shouldSaveTemporary }
+          `api/v1/test-results/${testResultId}/export`
         );
         if (result.isSuccess()) {
           throw new Error("failed");

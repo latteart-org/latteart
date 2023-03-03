@@ -24,13 +24,17 @@ import {
   CreateTestStepDto,
   CreateTestStepResponse,
   PatchTestStepResponse,
-  ElementInfo,
 } from "@/interfaces/TestSteps";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
+import { ElementInfo } from "@/domain/types";
+import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  convertTestStepEntityToResponse,
+  convertToTestStepOperation,
+} from "./helper/entityToResponse";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -50,19 +54,9 @@ export interface TestStepService {
     testPurposeId: string | null
   ): Promise<PatchTestStepResponse>;
 
-  getTestStepOperation(testStepId: string): Promise<{
-    input: string;
-    type: string;
-    elementInfo: any;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    inputElements: any;
-    windowHandle: string;
-    keywordTexts: any;
-    isAutomatic: boolean;
-  }>;
+  getTestStepOperation(
+    testStepId: string
+  ): Promise<GetTestStepResponse["operation"]>;
 
   getTestStepScreenshot(
     testStepId: string
@@ -72,7 +66,7 @@ export interface TestStepService {
 export class TestStepServiceImpl implements TestStepService {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
       config: ConfigsService;
     }
@@ -81,7 +75,7 @@ export class TestStepServiceImpl implements TestStepService {
   public async getTestStep(testStepId: string): Promise<GetTestStepResponse> {
     const testStepEntity = await this.getTestStepEntity(testStepId);
 
-    return this.convertTestStepEntityToTestStep(testStepEntity);
+    return convertTestStepEntityToResponse(testStepEntity);
   }
 
   public async createTestStep(
@@ -156,11 +150,14 @@ export class TestStepServiceImpl implements TestStepService {
       testResult: savedTestResultEntity,
       isAutomatic: !!requestBody.isAutomatic,
     });
+    const fileName = `${newTestStepEntity.id}.png`;
+    await this.service.screenshotFileRepository.outputFile(
+      fileName,
+      requestBody.imageData,
+      "base64"
+    );
     const screenshot = new ScreenshotEntity({
-      fileUrl: await this.service.imageFileRepository.writeBase64ToFile(
-        `${newTestStepEntity.id}.png`,
-        requestBody.imageData
-      ),
+      fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
       testResult: savedTestResultEntity,
     });
     newTestStepEntity.screenshot = screenshot;
@@ -169,9 +166,7 @@ export class TestStepServiceImpl implements TestStepService {
     );
 
     // result operation.
-    const operation = await this.getOperationFromTestStepEntity(
-      savedTestStepEntity
-    );
+    const operation = convertToTestStepOperation(savedTestStepEntity);
 
     // result coverage source.
     const savedCoverageSourceEntity =
@@ -216,7 +211,7 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
+    return convertTestStepEntityToResponse(updatedTestStepEntity);
   }
 
   public async attachTestPurposeToTestStep(
@@ -235,22 +230,12 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
+    return convertTestStepEntityToResponse(updatedTestStepEntity);
   }
 
-  public async getTestStepOperation(testStepId: string): Promise<{
-    input: string;
-    type: string;
-    elementInfo: any;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    inputElements: any;
-    windowHandle: string;
-    keywordTexts: any;
-    isAutomatic: boolean;
-  }> {
+  public async getTestStepOperation(
+    testStepId: string
+  ): Promise<GetTestStepResponse["operation"]> {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {
@@ -258,7 +243,7 @@ export class TestStepServiceImpl implements TestStepService {
       }
     );
 
-    return this.getOperationFromTestStepEntity(testStepEntity);
+    return convertToTestStepOperation(testStepEntity);
   }
 
   public async getTestStepScreenshot(
@@ -274,32 +259,6 @@ export class TestStepServiceImpl implements TestStepService {
     return {
       id: testStepEntity?.screenshot?.id ?? "",
       fileUrl: testStepEntity?.screenshot?.fileUrl ?? "",
-    };
-  }
-
-  private async getOperationFromTestStepEntity(testStepEntity: TestStepEntity) {
-    return {
-      input: testStepEntity.operationInput,
-      type: testStepEntity.operationType,
-      elementInfo: JSON.parse(testStepEntity.operationElement),
-      title: testStepEntity.pageTitle,
-      url: testStepEntity.pageUrl,
-      imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
-      timestamp: testStepEntity.timestamp.toString(),
-      inputElements: JSON.parse(testStepEntity.inputElements),
-      windowHandle: testStepEntity.windowHandle,
-      keywordTexts: JSON.parse(testStepEntity.keywordTexts),
-      isAutomatic: !!testStepEntity.isAutomatic,
-    };
-  }
-
-  private async convertTestStepEntityToTestStep(entity: TestStepEntity) {
-    return {
-      id: entity.id,
-      operation: await this.getOperationFromTestStepEntity(entity),
-      intention: entity.testPurpose ? entity.testPurpose.id : null,
-      bugs: [],
-      notices: entity.notes?.map((note) => note.id) ?? [],
     };
   }
 

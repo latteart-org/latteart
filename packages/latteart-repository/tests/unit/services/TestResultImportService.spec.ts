@@ -1,15 +1,13 @@
-import { StaticDirectoryServiceImpl } from "@/services/StaticDirectoryService";
+import {
+  FileRepositoryManager,
+  StaticDirectory,
+} from "@/gateways/fileRepository";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TimestampService } from "@/services/TimestampService";
-import {
-  TestResultExportDataV1,
-  TestResultExportDataV2,
-} from "@/services/ExportService";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -19,6 +17,10 @@ import { TagEntity } from "@/entities/TagEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
+import {
+  TestResultExportDataV1,
+  TestResultExportDataV2,
+} from "@/interfaces/exportData";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
@@ -50,33 +52,32 @@ describe("TestResultImportService", () => {
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
 
-      const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(
-          tmpDirPath,
-          "screenshots"
-        ),
-      });
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(tmpDirPath, "temp"),
-        imageFileRepository: imageFileRepositoryService,
-        timestamp: timestampService,
-      });
+      const fileRepositories = new Map([
+        [
+          "screenshot",
+          new StaticDirectory(path.join(tmpDirPath, "screenshots")),
+        ],
+      ]);
+      const screenshotFileRepository = new FileRepositoryManager(
+        fileRepositories,
+        tmpDirPath
+      ).getRepository("screenshot");
+
+      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
       const service = new TestResultImportService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         importFileRepository: importFileRepositoryService,
         timestamp: timestampService,
       });
 
-      const base64TestImage = (
-        await fs.promises.readFile(
-          path.join(packageRootDirPath, "resources", "test.png")
-        )
-      ).toString("base64");
+      const testImage = await fs.promises.readFile(
+        path.join(packageRootDirPath, "resources", "test.png")
+      );
 
       const screenshots = [
-        { filePath: "noteScreenshot.png", data: base64TestImage },
-        { filePath: "testStepScreenshot.webp", data: base64TestImage },
+        { filePath: "noteScreenshot.png", data: testImage },
+        { filePath: "testStepScreenshot.webp", data: testImage },
       ];
       const element1 = {
         tagname: "tagname",
@@ -188,16 +189,16 @@ describe("TestResultImportService", () => {
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
-      const testStepImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const testStepImageFileUrl = screenshotFileRepository.getFileUrl(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(testStepScreenshotEntity?.fileUrl).toEqual(testStepImageFileUrl);
-      const testStepImageFilePath = imageFileRepositoryService.getFilePath(
+      const testStepImageFilePath = screenshotFileRepository.getFilePath(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(
         (await fs.promises.readFile(testStepImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // Noteの確認
       const noteEntities = testStepEntity.notes ?? [];
@@ -209,16 +210,16 @@ describe("TestResultImportService", () => {
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
-      const noteImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const noteImageFileUrl = screenshotFileRepository.getFileUrl(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(noteScreenshotEntity?.fileUrl).toEqual(noteImageFileUrl);
-      const noteImageFilePath = imageFileRepositoryService.getFilePath(
+      const noteImageFilePath = screenshotFileRepository.getFilePath(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(
         (await fs.promises.readFile(noteImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // TestPurposeの確認
       const testPurposeEntity = testStepEntity.testPurpose;
@@ -285,33 +286,31 @@ describe("TestResultImportService", () => {
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
 
-      const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(
-          tmpDirPath,
-          "screenshots"
-        ),
-      });
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(tmpDirPath, "temp"),
-        imageFileRepository: imageFileRepositoryService,
-        timestamp: timestampService,
-      });
+      const screenshotFileRepository = new FileRepositoryManager(
+        new Map([
+          [
+            "screenshot",
+            new StaticDirectory(path.join(tmpDirPath, "screenshots")),
+          ],
+        ]),
+        tmpDirPath
+      ).getRepository("screenshot");
+
+      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
       const service = new TestResultImportService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         importFileRepository: importFileRepositoryService,
         timestamp: timestampService,
       });
 
-      const base64TestImage = (
-        await fs.promises.readFile(
-          path.join(packageRootDirPath, "resources", "test.png")
-        )
-      ).toString("base64");
+      const testImage = await fs.promises.readFile(
+        path.join(packageRootDirPath, "resources", "test.png")
+      );
 
       const screenshots = [
-        { filePath: "noteScreenshot.png", data: base64TestImage },
-        { filePath: "testStepScreenshot.webp", data: base64TestImage },
+        { filePath: "noteScreenshot.png", data: testImage },
+        { filePath: "testStepScreenshot.webp", data: testImage },
       ];
       const element1 = {
         tagname: "tagname",
@@ -424,16 +423,16 @@ describe("TestResultImportService", () => {
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
-      const testStepImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const testStepImageFileUrl = screenshotFileRepository.getFileUrl(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(testStepScreenshotEntity?.fileUrl).toEqual(testStepImageFileUrl);
-      const testStepImageFilePath = imageFileRepositoryService.getFilePath(
+      const testStepImageFilePath = screenshotFileRepository.getFilePath(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(
         (await fs.promises.readFile(testStepImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // Noteの確認
       const noteEntities = testStepEntity.notes ?? [];
@@ -445,16 +444,16 @@ describe("TestResultImportService", () => {
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
-      const noteImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const noteImageFileUrl = screenshotFileRepository.getFileUrl(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(noteScreenshotEntity?.fileUrl).toEqual(noteImageFileUrl);
-      const noteImageFilePath = imageFileRepositoryService.getFilePath(
+      const noteImageFilePath = screenshotFileRepository.getFilePath(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(
         (await fs.promises.readFile(noteImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // TestPurposeの確認
       const testPurposeEntity = testStepEntity.testPurpose;

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { Get, Response, Route, SuccessResponse } from "tsoa";
 import { ServerNameService } from "../services/ServerNameService";
+import { createLogger } from "@/logger/logger";
 
 @Route("server-name")
 export class ServerNameController {
@@ -36,7 +36,7 @@ export class ServerNameController {
       return new ServerNameService().getServerName();
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get server name failed.", error);
+        createLogger().error("Get server name failed.", error);
 
         throw new ServerError(404, {
           code: "get_servername_failed",

@@ -1,7 +1,5 @@
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { NotesService } from "@/services/NotesService";
 import { ProjectImportService } from "@/services/ProjectImportService";
-import { StaticDirectoryService } from "@/services/StaticDirectoryService";
 import { TestPurposeService } from "@/services/TestPurposeService";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
@@ -13,14 +11,14 @@ import {
   createTimestampServiceMock,
   createTestResultServiceMock,
   createTestStepServiceMock,
-  createImageFileRepositoryServiceMock,
-  createStaticDirectoryServiceMock,
   createNotesServiceMock,
   createTestPurposeServiceMock,
+  createStaticDirectoryServiceMock,
 } from "../../helper/createServiceMock";
 import { ProgressData, Project } from "@/interfaces/Projects";
 import { getRepository } from "typeorm";
 import { ProjectEntity } from "@/entities/ProjectEntity";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -37,10 +35,8 @@ describe("ProjectImportService", () => {
     let timestampService: TimestampService;
     let testResultService: TestResultService;
     let testStepService: TestStepService;
-    let screenshotRepositoryService: ImageFileRepositoryService;
-    let attachedFileRepositoryService: ImageFileRepositoryService;
-    let importDirectoryRepositoryService: ImageFileRepositoryService;
-    let importDirectoryService: StaticDirectoryService;
+    let screenshotRepositoryService: FileRepository;
+    let attachedFileRepositoryService: FileRepository;
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
 
@@ -48,10 +44,8 @@ describe("ProjectImportService", () => {
       timestampService = createTimestampServiceMock();
       testResultService = createTestResultServiceMock();
       testStepService = createTestStepServiceMock();
-      screenshotRepositoryService = createImageFileRepositoryServiceMock();
-      attachedFileRepositoryService = createImageFileRepositoryServiceMock();
-      importDirectoryRepositoryService = createImageFileRepositoryServiceMock();
-      importDirectoryService = createStaticDirectoryServiceMock();
+      screenshotRepositoryService = createStaticDirectoryServiceMock();
+      attachedFileRepositoryService = createStaticDirectoryServiceMock();
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
     });
@@ -81,10 +75,8 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService,
+          screenshotFileRepository: screenshotRepositoryService,
+          attachedFileRepository: attachedFileRepositoryService,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
@@ -123,10 +115,8 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService,
+          screenshotFileRepository: screenshotRepositoryService,
+          attachedFileRepository: attachedFileRepositoryService,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
@@ -150,7 +140,7 @@ describe("ProjectImportService", () => {
         },
         {
           filePath: "test-results/testResultId1/aaaa.webp",
-          data: "aaa",
+          data: Buffer.from(""),
         },
         {
           filePath: "test-results/testResultId2/log.json",
@@ -158,7 +148,7 @@ describe("ProjectImportService", () => {
         },
         {
           filePath: "test-results/testResultId2/bbbb.webp",
-          data: "bbb",
+          data: Buffer.from(""),
         },
       ];
       const result = new ProjectImportService()["extractTestResultsData"](
@@ -166,7 +156,7 @@ describe("ProjectImportService", () => {
       );
       expect(result).toEqual([
         {
-          screenshots: [{ data: "", filePath: "aaaa.webp" }],
+          screenshots: [{ data: Buffer.from(""), filePath: "aaaa.webp" }],
           testResultFile: {
             data: "{1}",
             fileName: "test-results/testResultId1/log.json",
@@ -174,7 +164,7 @@ describe("ProjectImportService", () => {
           testResultId: "testResultId1",
         },
         {
-          screenshots: [{ data: "", filePath: "bbbb.webp" }],
+          screenshots: [{ data: Buffer.from(""), filePath: "bbbb.webp" }],
           testResultFile: {
             data: "{2}",
             fileName: "test-results/testResultId2/log.json",
@@ -266,8 +256,7 @@ describe("ProjectImportService", () => {
   describe("#importProject", () => {
     it("プロジェクトの登録", async () => {
       const timestampService = createTimestampServiceMock();
-      const attachedFileRepositoryService =
-        createImageFileRepositoryServiceMock();
+      const attachedFileRepositoryService = createStaticDirectoryServiceMock();
       const progressJson = {};
 
       const projectJson: Project & {
@@ -317,6 +306,7 @@ describe("ProjectImportService", () => {
             testTargetId: "testTargetId",
             viewPointId: "viewPointId",
             status: "ok",
+            index: 0,
             sessions: [],
           },
         ],
@@ -364,7 +354,7 @@ describe("ProjectImportService", () => {
       const service = new ProjectImportService();
       const projectId = await service["importProject"](projectData, new Map(), {
         timestampService,
-        attachedFileRepositoryService,
+        attachedFileRepository: attachedFileRepositoryService,
         transactionRunner: new TransactionRunner(),
       });
 

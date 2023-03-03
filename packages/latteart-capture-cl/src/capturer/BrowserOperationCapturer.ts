@@ -215,6 +215,7 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
+          await currentWindow.getReadyToCapture();
           await currentWindow.captureScreenTransition();
           await currentWindow.captureOperations();
         }

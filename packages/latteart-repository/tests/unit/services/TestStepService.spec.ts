@@ -1,13 +1,13 @@
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { TestStepServiceImpl } from "@/services/TestStepService";
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { TimestampService } from "@/services/TimestampService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { CreateTestStepDto } from "@/interfaces/TestSteps";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -22,12 +22,16 @@ afterEach(async () => {
 describe("TestStepService", () => {
   describe("#createTestStep", () => {
     it("テストステップを1件新規追加する", async () => {
-      const imageFileRepositoryService: ImageFileRepositoryService = {
-        writeBufferToFile: jest.fn(),
-        writeBase64ToFile: jest.fn().mockResolvedValue("testStep.png"),
+      const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
+        outputFile: jest.fn(),
+        outputJSON: jest.fn(),
+        outputZip: jest.fn(),
         removeFile: jest.fn(),
+        getFileUrl: jest.fn().mockReturnValue("testStep.png"),
         getFilePath: jest.fn(),
-        getFileUrl: jest.fn(),
+        moveFile: jest.fn(),
+        copyFile: jest.fn(),
       };
 
       const timestampService: TimestampService = {
@@ -36,7 +40,7 @@ describe("TestStepService", () => {
         epochMilliseconds: jest.fn(),
       };
       const service = new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       });
@@ -114,21 +118,26 @@ describe("TestStepService", () => {
         },
       });
 
-      expect(imageFileRepositoryService.writeBase64ToFile).toBeCalledWith(
+      expect(screenshotFileRepository.outputFile).toBeCalledWith(
         expect.any(String),
-        requestBody.imageData
+        requestBody.imageData,
+        "base64"
       );
     });
   });
 
   describe("#getTestStep", () => {
     it("テストステップを1件取得する", async () => {
-      const imageFileRepositoryService: ImageFileRepositoryService = {
-        writeBufferToFile: jest.fn(),
-        writeBase64ToFile: jest.fn(),
+      const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
+        outputFile: jest.fn(),
+        outputJSON: jest.fn(),
+        outputZip: jest.fn(),
         removeFile: jest.fn(),
-        getFilePath: jest.fn(),
         getFileUrl: jest.fn(),
+        getFilePath: jest.fn(),
+        moveFile: jest.fn(),
+        copyFile: jest.fn(),
       };
 
       const timestampService: TimestampService = {
@@ -137,7 +146,7 @@ describe("TestStepService", () => {
         epochMilliseconds: jest.fn(),
       };
       const service = new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       });

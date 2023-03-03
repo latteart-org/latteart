@@ -364,8 +364,8 @@ export default class StoryView extends Vue {
           return bugNum;
         }
 
-        bugNum += currentSession.issues.filter((issue) => {
-          return issue.status === "reported";
+        bugNum += currentSession.notes.filter((note) => {
+          (note.tags ?? []).includes("reported");
         }).length;
 
         return bugNum;

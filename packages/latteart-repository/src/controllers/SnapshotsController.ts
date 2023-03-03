@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { IssueReportOutputServiceImpl } from "@/services/IssueReportOutputService";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
 import { NotesServiceImpl } from "@/services/NotesService";
@@ -37,18 +35,17 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  attachedFileDirectoryService,
-  screenshotDirectoryService,
-  snapshotDirectoryService,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
-import path from "path";
-import { appRootPath } from "@/common";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { SnapshotConfig } from "../interfaces/Configs";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import {
+  createHistoryViewerTemplate,
+  createSnapshotViewerTemplate,
+} from "@/gateways/viewerTemplate";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -70,13 +67,14 @@ export class SnapshotsController extends Controller {
     @Body() snapshotConfig: SnapshotConfig
   ): Promise<CreateResponse> {
     try {
-      return await this.createSnapshotsService().createSnapshot(
+      const createSnapshotsService = await this.createSnapshotsService();
+      return await createSnapshotsService.createSnapshot(
         projectId,
         snapshotConfig
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Save snapshot failed.", error);
+        createLogger().error("Save snapshot failed.", error);
 
         throw new ServerError(500, {
           code: "save_snapshot_failed",
@@ -86,14 +84,22 @@ export class SnapshotsController extends Controller {
     }
   }
 
-  private createSnapshotsService() {
+  private async createSnapshotsService() {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+    const snapshotRepository = fileRepositoryManager.getRepository("snapshot");
+    const attachedFileRepository =
+      fileRepositoryManager.getRepository("attachedFile");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const viewerTemplate = {
+      snapshot: createSnapshotViewerTemplate(),
+      history: createHistoryViewerTemplate(),
+    };
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
       config: new ConfigsService(),
     });
@@ -104,7 +110,7 @@ export class SnapshotsController extends Controller {
     });
 
     const noteService = new NotesServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 
@@ -120,8 +126,7 @@ export class SnapshotsController extends Controller {
 
     const snapshotFileRepositoryService = new SnapshotFileRepositoryServiceImpl(
       {
-        staticDirectory: snapshotDirectoryService,
-        imageFileRepository: imageFileRepositoryService,
+        snapshotRepository,
         timestamp: timestampService,
         testResult: testResultService,
         testStep: testStepService,
@@ -129,12 +134,10 @@ export class SnapshotsController extends Controller {
         testPurpose: testPurposeService,
         config: new ConfigsService(),
         issueReport: issueReportService,
-        attachedFileRepository: attachedFileDirectoryService,
+        attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
-      },
-      {
-        snapshotViewer: { path: path.join(appRootPath, "snapshot-viewer") },
-        historyViewer: { path: path.join(appRootPath, "history-viewer") },
+        workingFileRepository,
+        viewerTemplate,
       }
     );
 

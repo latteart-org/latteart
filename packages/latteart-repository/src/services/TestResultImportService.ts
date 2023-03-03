@@ -16,27 +16,27 @@
 
 import path from "path";
 import { ImportFileRepositoryService } from "./ImportFileRepositoryService";
-import {
-  deserializeTestResult,
-  DeserializedTestResult,
-  DeserializedTestStep,
-} from "@/lib/deserializeTestResult";
+import { deserializeTestResult } from "@/services/helper/deserializeTestResult";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { NoteEntity } from "@/entities/NoteEntity";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TagEntity } from "@/entities/TagEntity";
 import { TimestampService } from "./TimestampService";
+import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  DeserializedTestResult,
+  DeserializedTestStep,
+} from "@/interfaces/exportData";
 
 export class TestResultImportService {
   constructor(
     private service: {
       importFileRepository: ImportFileRepositoryService;
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -69,7 +69,7 @@ export class TestResultImportService {
         };
         screenshots: {
           filePath: string;
-          data: string;
+          data: Buffer;
         }[];
       };
       testResultId: string | null;
@@ -90,7 +90,7 @@ export class TestResultImportService {
       };
       screenshots: {
         filePath: string;
-        data: string;
+        data: Buffer;
       }[];
     },
     testResultId: string | null
@@ -109,11 +109,13 @@ export class TestResultImportService {
             const substrings = screenshot.filePath.split(".");
             const fileExt =
               substrings.length >= 2 ? `.${substrings.pop()}` : "";
+            const fileName = `${screenshotEntity.id}${fileExt}`;
+            await this.service.screenshotFileRepository.outputFile(
+              fileName,
+              screenshot.data
+            );
             const imageFileUrl =
-              await this.service.imageFileRepository.writeBase64ToFile(
-                `${screenshotEntity.id}${fileExt}`,
-                screenshot.data
-              );
+              this.service.screenshotFileRepository.getFileUrl(fileName);
             screenshotEntity.fileUrl = imageFileUrl;
 
             return [screenshot.filePath, screenshotEntity];

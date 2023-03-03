@@ -15,33 +15,36 @@
  */
 
 import path from "path";
-import fs from "fs-extra";
 import { TestScriptDocRenderingService } from "./TestScriptDocRenderingService";
+import { FileRepository } from "@/interfaces/fileRepository";
 const jsdoc = require("jsdoc-api"); // eslint-disable-line
 
 export class TestScriptJSDocRenderingService
   implements TestScriptDocRenderingService
 {
   public async render(
-    testScriptDirectoryPath: string,
-    screenshotFilePaths: string[]
+    workingFileRepository: FileRepository,
+    testScriptDirName: string,
+    screenshotFileNames: string[]
   ): Promise<void> {
-    const confFilePath = path.join(testScriptDirectoryPath, "conf.json");
-    const assetsDirPath = path.join(testScriptDirectoryPath, "assets");
-    const screenshotDirectoryPath = path.join(assetsDirPath, "screenshots");
+    const confFilePath = path.join(testScriptDirName, "conf.json");
+    const assetsDir = path.join(testScriptDirName, "assets");
 
-    await fs.mkdirp(screenshotDirectoryPath);
+    const screenshotDirPath = path.join(assetsDir, "screenshots");
+
     await Promise.all(
-      screenshotFilePaths.map((filePath) => {
-        const destFilePath = path.join(
-          screenshotDirectoryPath,
-          path.basename(filePath)
+      screenshotFileNames.map((fileName) => {
+        return workingFileRepository.copyFile(
+          fileName,
+          path.join(screenshotDirPath, fileName),
+          "screenshot"
         );
-        return fs.copyFile(filePath, destFilePath);
       })
     );
 
-    await fs.outputJSON(confFilePath, {
+    const assetsDirPath = workingFileRepository.getFilePath(assetsDir);
+
+    await workingFileRepository.outputJSON(confFilePath, {
       plugins: ["jsdoc-mermaid"],
       templates: {
         default: {
@@ -52,14 +55,20 @@ export class TestScriptJSDocRenderingService
       },
     });
 
-    const readmeFilePath = path.join(testScriptDirectoryPath, "readme.md");
-    const outputDirPath = path.join(testScriptDirectoryPath, "doc");
-
+    const testScriptDirPath =
+      workingFileRepository.getFilePath(testScriptDirName);
+    const confDirPath = workingFileRepository.getFilePath(confFilePath);
+    const outputDirPath = workingFileRepository.getFilePath(
+      path.join(testScriptDirName, "doc")
+    );
+    const readmeFilePath = workingFileRepository.getFilePath(
+      path.join(testScriptDirName, "readme.md")
+    );
     await new Promise<void>((resolve) => {
       jsdoc.renderSync({
-        files: [testScriptDirectoryPath],
+        files: [testScriptDirPath],
         recurse: true,
-        configure: confFilePath,
+        configure: confDirPath,
         destination: outputDirPath,
         readme: readmeFilePath,
       });
@@ -67,8 +76,10 @@ export class TestScriptJSDocRenderingService
       resolve();
     });
 
-    await fs.remove(assetsDirPath);
-    await fs.remove(confFilePath);
-    await fs.remove(readmeFilePath);
+    await workingFileRepository.removeFile(assetsDir);
+    await workingFileRepository.removeFile(confFilePath);
+    await workingFileRepository.removeFile(
+      path.join(testScriptDirName, "readme.md")
+    );
   }
 }

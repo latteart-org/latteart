@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
@@ -32,7 +30,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService } from "..";
 import {
   PatchTestStepDto,
   CreateTestStepDto,
@@ -40,6 +37,8 @@ import {
   CreateTestStepResponse,
   PatchTestStepResponse,
 } from "../interfaces/TestSteps";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/test-steps")
 @Tags("test-results")
@@ -62,19 +61,19 @@ export class TestStepsController extends Controller {
   ): Promise<CreateTestStepResponse> {
     console.log("TestStepsController - addTestStep");
 
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     try {
       return await new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: new TimestampServiceImpl(),
         config: new ConfigsService(),
       }).createTestStep(testResultId, requestBody);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Add test step failed.", error);
+        createLogger().error("Add test step failed.", error);
 
         throw new ServerError(500, {
           code: "add_test_step_failed",
@@ -101,13 +100,12 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string
   ): Promise<GetTestStepResponse> {
     console.log("TestStepsController - getTestStep");
-
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
       config: new ConfigsService(),
     });
@@ -118,7 +116,7 @@ export class TestStepsController extends Controller {
       return testStep;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get test step failed.", error);
+        createLogger().error("Get test step failed.", error);
 
         throw new ServerError(404, {
           code: "get_test_step_failed",
@@ -146,12 +144,12 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string,
     @Body() requestBody: PatchTestStepDto
   ): Promise<PatchTestStepResponse> {
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
       config: new ConfigsService(),
     });
@@ -180,7 +178,7 @@ export class TestStepsController extends Controller {
       return testStep;
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Edit test step failed.", error);
+        createLogger().error("Edit test step failed.", error);
 
         throw new ServerError(500, {
           code: "edit_test_step_failed",

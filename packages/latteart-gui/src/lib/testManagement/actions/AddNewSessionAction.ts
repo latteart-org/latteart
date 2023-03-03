@@ -20,6 +20,7 @@ import {
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryService } from "latteart-client";
+import SessionDataConverter from "../SessionDataConverter";
 import { Session } from "../types";
 
 export class AddNewSessionAction {
@@ -28,19 +29,27 @@ export class AddNewSessionAction {
       projectId: string;
       storyId: string;
     },
-    repositoryService: Pick<RepositoryService, "sessionRepository">
+    repositoryService: Pick<
+      RepositoryService,
+      "sessionRepository" | "serviceUrl"
+    >
   ): Promise<ActionResult<Session>> {
-    const storyResult = await repositoryService.sessionRepository.postSession(
+    const result = await repositoryService.sessionRepository.postSession(
       payload.projectId,
       { storyId: payload.storyId }
     );
 
-    if (storyResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: storyResult.error.message ?? "",
+        messageKey: result.error.message ?? "",
       });
     }
 
-    return new ActionSuccess(storyResult.data);
+    const convertedSession = new SessionDataConverter().convertToSession(
+      result.data,
+      repositoryService.serviceUrl
+    );
+
+    return new ActionSuccess(convertedSession);
   }
 }

@@ -18,87 +18,12 @@ import { TestResultService } from "./TestResultService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
 import path from "path";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
-
-export type HistoryItemExportDataV1 = {
-  testStep: {
-    timestamp: string;
-    imageFileUrl: string;
-    windowInfo: {
-      windowHandle: string;
-    };
-    pageInfo: {
-      title: string;
-      url: string;
-      keywordTexts: string[];
-    };
-    operation: {
-      input: string;
-      type: string;
-      elementInfo: {
-        tagname: string;
-        text: string;
-        xpath: string;
-        value: string;
-        checked: boolean;
-        attributes: {
-          [key: string]: string;
-        };
-      } | null;
-      isAutomatic?: boolean;
-    };
-    inputElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-  };
-  testPurpose: string | null;
-  notes: string[];
-};
-
-export type TestResultExportDataV2 = Omit<
-  TestResultExportDataV1,
-  "endTimeStamp"
-> & { lastUpdateTimeStamp: number; testingTime: number };
-
-export type TestResultExportDataV1 = {
-  version: number;
-  name: string;
-  sessionId: string;
-  startTimeStamp: number;
-  endTimeStamp: number;
-  initialUrl: string;
-  history: {
-    [k: string]: HistoryItemExportDataV1;
-  };
-  notes: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  }[];
-  coverageSources: {
-    title: string;
-    url: string;
-    screenElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-  }[];
-};
+import { ElementInfo } from "@/domain/types";
+import {
+  HistoryItemExportDataV1,
+  TestResultExportDataV0,
+  TestResultExportDataV2,
+} from "@/interfaces/exportData";
 
 export interface ExportService {
   exportTestResult(testResultId: string): Promise<{ url: string }>;
@@ -166,10 +91,16 @@ export class ExportServiceImpl implements ExportService {
               operation: {
                 input: testStep.operation.input,
                 type: testStep.operation.type,
-                elementInfo: testStep.operation.elementInfo,
+                elementInfo: testStep.operation.elementInfo
+                  ? this.convertToExportableElement(
+                      testStep.operation.elementInfo
+                    )
+                  : null,
                 isAutomatic: testStep.operation.isAutomatic,
               },
-              inputElements: testStep.operation.inputElements,
+              inputElements: testStep.operation.inputElements.map((element) =>
+                this.convertToExportableElement(element)
+              ),
             },
             testPurpose: testStep.intention?.id ?? null,
             notes: [
@@ -198,14 +129,7 @@ export class ExportServiceImpl implements ExportService {
       },
       {
         historyEntries: Array<[number, HistoryItemExportDataV1]>(),
-        notes: Array<{
-          id: string;
-          type: string;
-          value: string;
-          details: string;
-          imageFileUrl: string;
-          tags: string[];
-        }>(),
+        notes: [] as TestResultExportDataV0["notes"],
       }
     );
 
@@ -221,9 +145,28 @@ export class ExportServiceImpl implements ExportService {
       testingTime: testResult.testingTime,
       history,
       notes,
-      coverageSources: testResult.coverageSources,
+      coverageSources: testResult.coverageSources.map((coverageSource) => {
+        return {
+          title: coverageSource.title,
+          url: coverageSource.url,
+          screenElements: coverageSource.screenElements.map((element) =>
+            this.convertToExportableElement(element)
+          ),
+        };
+      }),
     };
 
     return JSON.stringify(data);
+  }
+
+  private convertToExportableElement(element: ElementInfo) {
+    return {
+      tagname: element.tagname,
+      text: element.text ?? "",
+      xpath: element.xpath,
+      value: element.value ?? "",
+      checked: element.checked ?? false,
+      attributes: element.attributes,
+    };
   }
 }

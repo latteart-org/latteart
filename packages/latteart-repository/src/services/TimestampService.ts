@@ -18,7 +18,7 @@ import {
   getCurrentEpochMillis,
   getCurrentUnixtime,
   unixtimeToFormattedString,
-} from "@/lib/timeUtil";
+} from "@/domain/timeUtil";
 
 export interface TimestampService {
   unix(): number;

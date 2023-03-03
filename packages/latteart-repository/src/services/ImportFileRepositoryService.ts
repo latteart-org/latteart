@@ -15,32 +15,21 @@
  */
 
 import path from "path";
-import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import { StaticDirectoryService } from "./StaticDirectoryService";
-import { readZip } from "@/lib/zipReader";
+import { readZip } from "@/gateways/zipReader";
 
 export interface ImportFileRepositoryService {
   readImportFile(base64FileData: string): Promise<{
     testResultFile: { fileName: string; data: string };
-    screenshots: { filePath: string; data: string }[];
+    screenshots: { filePath: string; data: Buffer }[];
   }>;
 }
 
 export class ImportFileRepositoryServiceImpl
   implements ImportFileRepositoryService
 {
-  constructor(
-    private service: {
-      staticDirectory: StaticDirectoryService;
-      imageFileRepository: ImageFileRepositoryService;
-      timestamp: TimestampService;
-    }
-  ) {}
-
   public async readImportFile(base64FileData: string): Promise<{
     testResultFile: { fileName: string; data: string };
-    screenshots: { filePath: string; data: string }[];
+    screenshots: { filePath: string; data: Buffer }[];
   }> {
     const decoded = Buffer.from(base64FileData, "base64");
     const files = await readZip(decoded);
@@ -51,15 +40,14 @@ export class ImportFileRepositoryServiceImpl
       throw Error("Invalid test result file.");
     }
 
-    const screenshots = files
-      .filter((file) => [".png", ".webp"].includes(path.extname(file.filePath)))
-      .map((file) => {
-        return {
-          filePath: file.filePath,
-          data:
-            typeof file.data !== "string" ? file.data.toString("base64") : "",
-        };
-      });
+    const screenshots = files.filter(
+      (file): file is { filePath: string; data: Buffer } => {
+        return (
+          [".png", ".webp"].includes(path.extname(file.filePath)) &&
+          typeof file.data !== "string"
+        );
+      }
+    );
 
     return {
       testResultFile: {

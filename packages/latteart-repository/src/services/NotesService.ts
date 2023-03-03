@@ -27,7 +27,7 @@ import {
 } from "@/interfaces/Notes";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 export interface NotesService {
   createNote(
@@ -46,7 +46,7 @@ export interface NotesService {
 export class NotesServiceImpl {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -76,11 +76,14 @@ export class NotesServiceImpl {
     });
 
     if (requestBody.imageData) {
+      const fileName = `${registeredNoteEntity.id}.png`;
+      await this.service.screenshotFileRepository.outputFile(
+        fileName,
+        requestBody.imageData,
+        "base64"
+      );
       const fileUrl = requestBody.imageData
-        ? await this.service.imageFileRepository.writeBase64ToFile(
-            `${registeredNoteEntity.id}.png`,
-            requestBody.imageData
-          )
+        ? this.service.screenshotFileRepository.getFileUrl(fileName)
         : "";
 
       const screenshotEntity = new ScreenshotEntity({
