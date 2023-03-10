@@ -84,5 +84,15 @@ export type ProjectConfig = {
       isEnabled: boolean;
       isDeleteSrcImage: boolean;
     };
+    testResultComparison: {
+      excludeItems: {
+        isEnabled: boolean;
+        values: ("title" | "url" | "elementTexts" | "screenshot")[];
+      };
+      excludeElements: {
+        isEnabled: boolean;
+        values: { tagname: string }[];
+      };
+    };
   };
 };

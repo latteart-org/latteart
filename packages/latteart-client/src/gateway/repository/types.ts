@@ -185,6 +185,16 @@ export type SettingsForRepository = {
     };
     coverage: { include: { tags: string[] } };
     imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    testResultComparison: {
+      excludeItems: {
+        isEnabled: boolean;
+        values: ("title" | "url" | "elementTexts" | "screenshot")[];
+      };
+      excludeElements: {
+        isEnabled: boolean;
+        values: { tagname: string }[];
+      };
+    };
   };
 };
 
@@ -298,12 +308,33 @@ export type TestResultForRepository = {
     notices: ApiNoteForRepository[];
   }[];
   coverageSources: CoverageSourceForRepository[];
+  parentTestResultId?: string;
 };
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name"
+  "id" | "name" | "parentTestResultId"
 >;
+
+export type TestResultComparisonResultForRepository = {
+  url: string;
+  targetNames: { actual: string; expected: string };
+  summary: {
+    isOk: boolean;
+    steps: {
+      isOk: boolean;
+      items: {
+        title?: { isOk: boolean };
+        url?: { isOk: boolean };
+        elementTexts?: { isOk: boolean };
+        screenshot?: { isOk: boolean };
+      };
+      errors?: PageAssertionErrorForRepository[];
+    }[];
+  };
+};
+
+export type PageAssertionErrorForRepository = "invalid_screenshot";
 
 export type ProjectForRepository = {
   id: string;

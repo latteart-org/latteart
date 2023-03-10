@@ -48,6 +48,7 @@ import {
   TestStepRepository,
   NoteRepository,
   ProjectRepository,
+  TestResultComparisonRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView } from "./types";
 
@@ -69,6 +70,7 @@ export type RepositoryContainer = {
   readonly testTargetRepository: TestTargetRepository;
   readonly viewPointRepository: ViewPointRepository;
   readonly storyRepository: StoryRepository;
+  readonly testResultComparisonRepository: TestResultComparisonRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {

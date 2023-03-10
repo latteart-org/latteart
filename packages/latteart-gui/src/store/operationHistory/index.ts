@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  OperationWithNotes,
-  ScreenTransition,
-  WindowInfo,
-} from "@/lib/operationHistory/types";
+import { OperationWithNotes, WindowInfo } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
@@ -50,6 +46,11 @@ export interface OperationHistoryState {
      * Test result name.
      */
     name: string;
+
+    /**
+     * Parent test result ID.
+     */
+    parentTestResultId: string;
   };
 
   /**
@@ -236,6 +237,7 @@ const state: OperationHistoryState = {
     repositoryUrl: "",
     id: "",
     name: "",
+    parentTestResultId: "",
   },
   testStepIds: [],
   history: [],

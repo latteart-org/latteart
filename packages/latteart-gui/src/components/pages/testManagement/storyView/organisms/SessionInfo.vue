@@ -384,6 +384,7 @@ import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
+import { TestResultSummary } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -474,9 +475,12 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      this.testResults = await this.$store.dispatch(
-        "testManagement/getTestResults"
-      );
+      const testResultSummaries: TestResultSummary[] =
+        await this.$store.dispatch("testManagement/getTestResults");
+
+      this.testResults = testResultSummaries.map(({ id, name }) => {
+        return { id, name };
+      });
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }

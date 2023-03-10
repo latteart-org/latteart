@@ -56,6 +56,7 @@ export class TestResultExportController extends Controller {
       fileRepositoryManager.getRepository("screenshot");
     const exportFileRepository = fileRepositoryManager.getRepository("export");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -64,6 +65,9 @@ export class TestResultExportController extends Controller {
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     });
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({

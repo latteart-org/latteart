@@ -56,6 +56,8 @@ import { ViewPointsController } from "./../controllers/ViewPointsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { StoriesController } from "./../controllers/StoriesController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { TestResultComparisonController } from "./../controllers/TestResultComparisonController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectImportController } from "./../controllers/ProjectImportController";
 import type { RequestHandler, Router } from "express";
 
@@ -282,6 +284,49 @@ const models: TsoaRoute.Models = {
         config: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            testResultComparison: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                excludeElements: {
+                  dataType: "nestedObjectLiteral",
+                  nestedProperties: {
+                    values: {
+                      dataType: "array",
+                      array: {
+                        dataType: "nestedObjectLiteral",
+                        nestedProperties: {
+                          tagname: { dataType: "string", required: true },
+                        },
+                      },
+                      required: true,
+                    },
+                    isEnabled: { dataType: "boolean", required: true },
+                  },
+                  required: true,
+                },
+                excludeItems: {
+                  dataType: "nestedObjectLiteral",
+                  nestedProperties: {
+                    values: {
+                      dataType: "array",
+                      array: {
+                        dataType: "union",
+                        subSchemas: [
+                          { dataType: "enum", enums: ["title"] },
+                          { dataType: "enum", enums: ["url"] },
+                          { dataType: "enum", enums: ["elementTexts"] },
+                          { dataType: "enum", enums: ["screenshot"] },
+                        ],
+                      },
+                      required: true,
+                    },
+                    isEnabled: { dataType: "boolean", required: true },
+                  },
+                  required: true,
+                },
+              },
+              required: true,
+            },
             imageCompression: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {
@@ -1419,13 +1464,31 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ListTestResultResponse: {
-    dataType: "refObject",
-    properties: {
-      id: { dataType: "string", required: true },
-      name: { dataType: "string", required: true },
+  "Pick_TestResult.id-or-name_": {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        id: { dataType: "string", required: true },
+        name: { dataType: "string", required: true },
+      },
+      validators: {},
     },
-    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ListTestResultResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Pick_TestResult.id-or-name_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { parentTestResultId: { dataType: "string" } },
+        },
+      ],
+      validators: {},
+    },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ElementInfo: {
@@ -1602,6 +1665,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            parentTestResultId: { dataType: "string" },
             testSteps: {
               dataType: "array",
               array: {
@@ -1712,6 +1776,7 @@ const models: TsoaRoute.Models = {
       initialUrl: { dataType: "string" },
       name: { dataType: "string" },
       startTimeStamp: { dataType: "double" },
+      parentTestResultId: { dataType: "string" },
     },
     additionalProperties: false,
   },
@@ -2713,6 +2778,141 @@ const models: TsoaRoute.Models = {
         },
         message: { dataType: "string" },
         code: { dataType: "enum", enums: ["get_story_failed"], required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PageAssertionError: {
+    dataType: "refAlias",
+    type: { dataType: "enum", enums: ["invalid_screenshot"], validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CompareTestResultsResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        summary: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            steps: {
+              dataType: "array",
+              array: {
+                dataType: "nestedObjectLiteral",
+                nestedProperties: {
+                  errors: {
+                    dataType: "array",
+                    array: { dataType: "refAlias", ref: "PageAssertionError" },
+                  },
+                  items: {
+                    dataType: "nestedObjectLiteral",
+                    nestedProperties: {
+                      screenshot: {
+                        dataType: "nestedObjectLiteral",
+                        nestedProperties: {
+                          isOk: { dataType: "boolean", required: true },
+                        },
+                      },
+                      elementTexts: {
+                        dataType: "nestedObjectLiteral",
+                        nestedProperties: {
+                          isOk: { dataType: "boolean", required: true },
+                        },
+                      },
+                      url: {
+                        dataType: "nestedObjectLiteral",
+                        nestedProperties: {
+                          isOk: { dataType: "boolean", required: true },
+                        },
+                      },
+                      title: {
+                        dataType: "nestedObjectLiteral",
+                        nestedProperties: {
+                          isOk: { dataType: "boolean", required: true },
+                        },
+                      },
+                    },
+                    required: true,
+                  },
+                  isOk: { dataType: "boolean", required: true },
+                },
+              },
+              required: true,
+            },
+            isOk: { dataType: "boolean", required: true },
+          },
+          required: true,
+        },
+        targetNames: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            expected: { dataType: "string", required: true },
+            actual: { dataType: "string", required: true },
+          },
+          required: true,
+        },
+        url: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_compare_test_results_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["compare_test_results_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CompareTestResultsDto: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        option: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            excludeElements: {
+              dataType: "array",
+              array: {
+                dataType: "nestedObjectLiteral",
+                nestedProperties: {
+                  tagname: { dataType: "string", required: true },
+                },
+              },
+            },
+            excludeItems: {
+              dataType: "array",
+              array: {
+                dataType: "enum",
+                enums: ["screenshot", "title", "url", "elementTexts"],
+              },
+            },
+          },
+        },
+        expectedTestResultId: { dataType: "string", required: true },
+        actualTestResultId: { dataType: "string", required: true },
       },
       validators: {},
     },
@@ -5091,6 +5291,46 @@ export function RegisterRoutes(app: Router) {
         const controller = new StoriesController();
 
         const promise = controller.getStory.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-result-comparisons",
+    ...fetchMiddlewares<RequestHandler>(TestResultComparisonController),
+    ...fetchMiddlewares<RequestHandler>(
+      TestResultComparisonController.prototype.compareTestResults
+    ),
+
+    function TestResultComparisonController_compareTestResults(
+      request: any,
+      response: any,
+      next: any
+    ) {
+      const args = {
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          ref: "CompareTestResultsDto",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TestResultComparisonController();
+
+        const promise = controller.compareTestResults.apply(
           controller,
           validatedArgs as any
         );

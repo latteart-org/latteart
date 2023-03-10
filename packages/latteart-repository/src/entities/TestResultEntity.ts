@@ -50,6 +50,10 @@ export class TestResultEntity {
   initialUrl: string = "";
 
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "parent_test_result_id", nullable: true })
+  parentTestResultId?: string;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "testing_time" })
   testingTime: number = 0;
 

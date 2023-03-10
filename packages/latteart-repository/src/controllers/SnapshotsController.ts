@@ -92,6 +92,7 @@ export class SnapshotsController extends Controller {
     const attachedFileRepository =
       fileRepositoryManager.getRepository("attachedFile");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
     const viewerTemplate = {
       snapshot: createSnapshotViewerTemplate(),
       history: createHistoryViewerTemplate(),
@@ -106,6 +107,9 @@ export class SnapshotsController extends Controller {
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: testStepService,
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     });
 
     const noteService = new NotesServiceImpl({

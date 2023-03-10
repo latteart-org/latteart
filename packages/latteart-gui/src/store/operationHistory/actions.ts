@@ -25,6 +25,7 @@ import {
   OperationWithNotes,
   AutofillConditionGroup,
   AutoOperation,
+  TestResultComparisonResult,
 } from "@/lib/operationHistory/types";
 import {
   SequenceDiagramGraphCallback,
@@ -442,7 +443,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     );
     context.commit("setTestResultInfo", {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
-      ...result.data.testResultInfo,
+      id: result.data.testResultInfo.id,
+      name: result.data.testResultInfo.name,
+      parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
     });
     context.commit(
       "operationHistory/setWindows",
@@ -542,6 +545,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: "",
       id: "",
       name: "",
+      parentTestResultId: "",
     });
     context.commit("clearTestStepIds");
   },
@@ -1032,14 +1036,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async createTestResult(
     context,
-    payload: { initialUrl: string; name: string }
+    payload: { initialUrl: string; name: string; parentTestResultId?: string }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
+    const parentTestResultId = payload.parentTestResultId
+      ? payload.parentTestResultId
+      : undefined;
     const result =
       await context.rootState.repositoryService.createEmptyTestResult({
         initialUrl,
         name,
+        parentTestResultId,
       });
 
     if (result.isFailure()) {
@@ -1056,6 +1064,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
+      parentTestResultId: payload.parentTestResultId ?? "",
     });
   },
 
@@ -1211,6 +1220,42 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.rootGetters.message(
           result.error.messageKey,
           result.error.variables
+        )
+      );
+    }
+
+    return result.data;
+  },
+
+  async compareTestResults(
+    context,
+    payload: {
+      actualTestResultId: string;
+      expectedTestResultId: string;
+    }
+  ): Promise<TestResultComparisonResult> {
+    const config =
+      context.rootState.projectSettings.config.testResultComparison;
+    const repository =
+      context.rootState.repositoryService.testResultComparisonRepository;
+
+    const result = await repository.compareTestResults(
+      payload.actualTestResultId,
+      payload.expectedTestResultId,
+      {
+        excludeItems: config.excludeItems.isEnabled
+          ? config.excludeItems.values
+          : undefined,
+        excludeElements: config.excludeElements.isEnabled
+          ? config.excludeElements.values
+          : undefined,
+      }
+    );
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          `error.operation_history.${result.error.code}`
         )
       );
     }

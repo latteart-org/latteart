@@ -63,6 +63,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     return new TestResultServiceImpl({
       timestamp: timestampService,
@@ -71,6 +73,9 @@ export class TestResultsController extends Controller {
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     }).getTestResultIdentifiers();
   }
 
@@ -98,6 +103,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
       const testResult = await new TestResultServiceImpl({
@@ -107,6 +114,9 @@ export class TestResultsController extends Controller {
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       }).getTestResult(testResultId);
 
       if (testResult) {
@@ -152,6 +162,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
       const result = await new TestResultServiceImpl({
@@ -161,6 +173,9 @@ export class TestResultsController extends Controller {
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       }).createTestResult(requestBody, null);
 
       return result;
@@ -199,6 +214,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
       return await new TestResultServiceImpl({
@@ -208,6 +225,9 @@ export class TestResultsController extends Controller {
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       }).patchTestResult({
         id: testResultId,
         ...requestBody,
@@ -239,6 +259,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -247,6 +269,9 @@ export class TestResultsController extends Controller {
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     });
 
     try {
@@ -303,6 +328,8 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -311,6 +338,9 @@ export class TestResultsController extends Controller {
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     });
 
     try {

@@ -43,7 +43,7 @@ export type RepositoryService = {
   createEmptyTestResult(option?: {
     initialUrl?: string;
     name?: string;
-    source?: string;
+    parentTestResultId?: string;
   }): Promise<ServiceResult<{ id: string; name: string }>>;
 
   /**

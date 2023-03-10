@@ -225,6 +225,8 @@ type RepositoryServerErrorCode =
   | "no_test_cases_generated"
   | "compare_test_result_failed"
   | "get_test_progress_failed"
-  | "patch_story_failed";
+  | "patch_story_failed"
+  | "compare_test_results_failed"
+  | "comparison_targets_not_same_procedures";
 
 type RepositoryConnectionErrorCode = "connection_refused";

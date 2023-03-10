@@ -89,7 +89,20 @@
     "delete-test-result-title": "Delete Test Result",
     "delete-test-result-associated-session-message": "This test result is captured in the management tool.\nAre you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
-    "delete-test-result-succeeded": "Test Result deletion has finished."
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "compare-test-result": "Compare Test Result",
+    "compare-test-result-title": "Compare Test Result",
+    "compare-test-result-message": "Are you sure you want to compare the test results?",
+    "comparing-test-result": "Comparing test results",
+    "compare-test-result-completed": "The comparison of test results '{actual}' and '{expected}' is completed.",
+    "compare-test-result-is-same": " There is no difference in the test results.",
+    "compare-test-result-is-different": " There are {diffCount} differences in the test results.\n",
+    "compare-test-result-download": "Please check the download file for details.",
+    "compare-test-result-not-exist": "There are no test results to compare.",
+    "compare-diffs-sequence": "Operation number",
+    "compare-diffs-items": "Operation information",
+    "compare-diffs-remarks": "Remarks",
+    "compare-remarks-invalid-screenshot": "Invalid format screenshot."
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
@@ -138,6 +151,11 @@
     "image-compression-enabled": "Compress Screenshots",
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",
+    "setting-test-result-comparison": "Compare Test Results Settings",
+    "comparison-exclude-items-enabled": "Do not detect differences in specified operation information",
+    "comparison-exclude-items-value": "Operation information to exclude",
+    "comparison-exclude-elements-enabled": "Do not detect differences for specified screen elements",
+    "comparison-exclude-elements-tagname": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
@@ -228,6 +246,8 @@
   },
   "replay-option": {
     "start-replay": "Replay",
+    "replay-capture": "Save replay result",
+    "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
     "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
   },
@@ -265,6 +285,12 @@
     "input": "Input Value",
     "timestamp": "Timestamp",
     "url": "Url"
+  },
+  "test-result-comparison-items": {
+    "title": "Page Title",
+    "url": "Page URL",
+    "elementTexts": "Element Texts",
+    "screenshot": "Screenshot"
   },
   "sequence": {
     "window-title": "Sequence Diagram"
@@ -543,7 +569,9 @@
       "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
-      "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}"
+      "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}",
+      "compare_test_results_failed": "Failed to compare test results.",
+      "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

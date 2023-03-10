@@ -25,15 +25,15 @@ export interface CreateTestResultDto {
   initialUrl?: string;
   name?: string;
   startTimeStamp?: number;
+  parentTestResultId?: string;
 }
 
 /**
  * Test result list record.
  */
-export interface ListTestResultResponse {
-  id: string;
-  name: string;
-}
+export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
+  parentTestResultId?: string;
+};
 
 /**
  * Registered test result data.
@@ -53,6 +53,7 @@ export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
     bugs: GetNoteResponse[];
     notices: GetNoteResponse[];
   })[];
+  parentTestResultId?: string;
 };
 
 /**

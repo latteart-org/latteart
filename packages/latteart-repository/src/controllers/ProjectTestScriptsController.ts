@@ -62,6 +62,7 @@ export class ProjectTestScriptsController extends Controller {
     const testScriptRepository =
       fileRepositoryManager.getRepository("testScript");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -70,6 +71,9 @@ export class ProjectTestScriptsController extends Controller {
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
     });
 
     const testScriptFileRepositoryService =

@@ -44,6 +44,7 @@ describe("IssueReportService", () => {
         collectAllTestPurposeIds: jest.fn(),
         collectAllTestStepScreenshots: jest.fn(),
         generateSequenceView: jest.fn(),
+        compareTestResults: jest.fn(),
       };
 
       const testStepService: TestStepService = {

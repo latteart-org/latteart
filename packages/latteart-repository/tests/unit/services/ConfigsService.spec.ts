@@ -63,6 +63,16 @@ describe("ConfigsService", () => {
             isEnabled: false,
             isDeleteSrcImage: false,
           },
+          testResultComparison: {
+            excludeItems: {
+              isEnabled: false,
+              values: [],
+            },
+            excludeElements: {
+              isEnabled: false,
+              values: [],
+            },
+          },
         },
       };
 
