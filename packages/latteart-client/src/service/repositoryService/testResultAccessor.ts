@@ -140,15 +140,10 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const capturedOperation = {
-      ...operation,
-      keywordTexts: operation.pageSource.split("\n"),
-    };
-
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
-        capturedOperation
+        operation
       );
 
     if (registerOperationResult.isFailure()) {

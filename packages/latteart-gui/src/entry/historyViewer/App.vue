@@ -108,7 +108,18 @@ export default class App extends Vue {
             overrideParams: {
               screenDef: screenDefFactory.createFrom(title, url, keywordSet),
               imageFilePath: item.operation.imageFileUrl,
-              keywordSet: new Set(item.operation.keywordTexts),
+              keywordSet: new Set(
+                (
+                  item.operation.keywordTexts as (
+                    | string
+                    | { tagname: string; value: string }
+                  )[]
+                )?.map((keywordText) => {
+                  return typeof keywordText === "string"
+                    ? keywordText
+                    : keywordText.value;
+                }) ?? []
+              ),
             },
           }),
           bugs:

@@ -170,9 +170,10 @@ export class TestScriptsService {
                         inputElements: inputElements.filter(
                           (element) => Object.keys(element).length > 0
                         ) as ElementInfo[],
-                        keywordTexts: JSON.parse(
-                          testStep.keywordTexts
-                        ) as string[],
+                        keywordTexts: JSON.parse(testStep.keywordTexts) as (
+                          | string
+                          | { tagname: string; value: string }
+                        )[],
                       },
                     };
                   }) ?? []
@@ -230,7 +231,12 @@ export class TestScriptsService {
             (acc: TestScriptSourceOperation[], { operation }, index) => {
               const url = operation.url;
               const title = operation.title;
-              const keywordTexts: string[] = operation.keywordTexts ?? [];
+              const keywordTexts: string[] =
+                operation.keywordTexts?.map((keywordText) => {
+                  return typeof keywordText === "string"
+                    ? keywordText
+                    : keywordText.value;
+                }) ?? [];
               const screenDef = new ScreenDefFactory(
                 screenDefinitionConfig
               ).create({

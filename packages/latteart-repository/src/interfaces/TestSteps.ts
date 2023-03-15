@@ -29,7 +29,6 @@ export type CreateTestStepDto = {
   windowHandle: string;
   screenElements: ElementInfo[];
   inputElements: ElementInfo[];
-  keywordTexts?: string[];
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;

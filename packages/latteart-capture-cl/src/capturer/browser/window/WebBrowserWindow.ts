@@ -292,6 +292,8 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_BACK,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
+      screenElements:
+        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
     });
     await this.client.browserBack();
 
@@ -310,6 +312,8 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_FORWARD,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
+      screenElements:
+        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
     });
     await this.client.browserForward();
 

@@ -32,7 +32,13 @@ export function convertTestStepOperation(
     windowHandle: testStepOperation.windowHandle,
     timestamp: testStepOperation.timestamp,
     inputElements: testStepOperation.inputElements,
-    keywordSet: new Set(testStepOperation.keywordTexts),
+    keywordSet: new Set(
+      testStepOperation.keywordTexts?.map((keywordText) => {
+        return typeof keywordText === "string"
+          ? keywordText
+          : keywordText.value;
+      }) ?? []
+    ),
     sequence,
     isAutomatic: testStepOperation.isAutomatic,
   });

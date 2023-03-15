@@ -71,7 +71,6 @@ export type CapturedOperationForRepository = {
   screenElements: ElementInfoForRepository[];
   pageSource: string;
   inputElements: ElementInfoForRepository[];
-  keywordTexts: string[];
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
@@ -95,7 +94,7 @@ export type OperationForRepository = {
   timestamp: string;
   inputElements: ElementInfoForRepository[];
   windowHandle: string;
-  keywordTexts?: string[];
+  keywordTexts?: (string | { tagname: string; value: string })[];
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;

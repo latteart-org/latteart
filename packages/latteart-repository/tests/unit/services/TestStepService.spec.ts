@@ -109,6 +109,7 @@ describe("TestStepService", () => {
         tagname: "tagname2",
         xpath: "xpath2",
         attributes: {},
+        textWithoutChildren: "textWithoutChildren",
       };
 
       const defaultScreenElements = [element1];
@@ -137,7 +138,6 @@ describe("TestStepService", () => {
         windowHandle: "windowHandle",
         screenElements: [element2],
         inputElements: [element2],
-        keywordTexts: ["keywordTexts"],
         timestamp: 100,
         pageSource: "pageSource",
         isAutomatic: false,
@@ -153,7 +153,12 @@ describe("TestStepService", () => {
         timestamp: `${requestBody.timestamp}`,
         inputElements: requestBody.inputElements,
         windowHandle: requestBody.windowHandle,
-        keywordTexts: requestBody.keywordTexts,
+        keywordTexts: [
+          {
+            tagname: "tagname2",
+            value: "textWithoutChildren",
+          },
+        ],
         isAutomatic: requestBody.isAutomatic,
       };
 

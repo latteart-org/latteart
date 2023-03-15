@@ -340,7 +340,13 @@ export class TestResultServiceImpl implements TestResultService {
         screenDef: screenDefFactory.create({
           url: testStep.operation.url,
           title: testStep.operation.title,
-          keywordSet: new Set(testStep.operation.keywordTexts),
+          keywordSet: new Set(
+            testStep.operation.keywordTexts?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
         }),
       };
     });

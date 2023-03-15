@@ -34,6 +34,7 @@ export type CapturedScreenTransition = {
   imageData: string;
   windowHandle: string;
   timestamp: string;
+  screenElements: ElementInfo[];
   pageSource: string;
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
@@ -51,7 +52,6 @@ export type CapturedOperation = {
   screenElements: ElementInfo[];
   pageSource: string;
   inputElements: ElementInfo[];
-  keywordTexts: string[];
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
@@ -83,7 +83,7 @@ export type Operation = {
   timestamp: string;
   inputElements: ElementInfo[];
   windowHandle: string;
-  keywordTexts?: string[];
+  keywordTexts?: (string | { tagname: string; value: string })[];
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;

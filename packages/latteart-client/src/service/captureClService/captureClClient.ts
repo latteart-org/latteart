@@ -270,9 +270,7 @@ class CaptureSessionImpl implements CaptureSession {
               type: "screen_transition",
               input: "",
               elementInfo: null,
-              screenElements: [],
               inputElements: [],
-              keywordTexts: [],
               isAutomatic: this.isAutomated,
             },
             { compressScreenshot: payload.option.compressScreenshots }

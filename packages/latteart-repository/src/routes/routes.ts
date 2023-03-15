@@ -1532,7 +1532,22 @@ const models: TsoaRoute.Models = {
           array: { dataType: "refAlias", ref: "ElementInfo" },
           required: true,
         },
-        keywordTexts: { dataType: "array", array: { dataType: "string" } },
+        keywordTexts: {
+          dataType: "array",
+          array: {
+            dataType: "union",
+            subSchemas: [
+              { dataType: "string" },
+              {
+                dataType: "nestedObjectLiteral",
+                nestedProperties: {
+                  value: { dataType: "string", required: true },
+                  tagname: { dataType: "string", required: true },
+                },
+              },
+            ],
+          },
+        },
         isAutomatic: { dataType: "boolean", required: true },
         scrollPosition: {
           dataType: "nestedObjectLiteral",
@@ -2000,7 +2015,6 @@ const models: TsoaRoute.Models = {
         isAutomatic: { dataType: "boolean" },
         pageSource: { dataType: "string", required: true },
         timestamp: { dataType: "double", required: true },
-        keywordTexts: { dataType: "array", array: { dataType: "string" } },
         inputElements: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "ElementInfo" },

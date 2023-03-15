@@ -264,7 +264,8 @@ export const convertToTestStepOperation = (
       : testStepEntity.operationElement
   );
   const inputElements: ElementInfo[] = JSON.parse(testStepEntity.inputElements);
-  const keywordTexts: string[] = JSON.parse(testStepEntity.keywordTexts);
+  const keywordTexts: (string | { tagname: string; value: string })[] =
+    JSON.parse(testStepEntity.keywordTexts);
 
   return {
     input: testStepEntity.operationInput,
