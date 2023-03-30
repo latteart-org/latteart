@@ -3,7 +3,7 @@ import path from "path";
 import os from "os";
 import * as XLSX from "xlsx";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
-import { IssueReportOutputServiceImpl } from "@/services/IssueReportOutputService";
+import { IssueReportCreatorImpl } from "@/gateways/issueReportCreator";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -15,7 +15,7 @@ afterEach(async () => {
   await testConnectionHelper.closeTestConnection();
 });
 
-describe("IssueReportOutputService", () => {
+describe("IssueReportCreator", () => {
   describe("#output", () => {
     let tmpDirPath: string;
 
@@ -37,7 +37,7 @@ describe("IssueReportOutputService", () => {
     };
 
     it("渡したデータが目的ありだった場合Findings、TestPurposesのシートに分けてExcelが出力される", async () => {
-      const service = new IssueReportOutputServiceImpl();
+      const service = new IssueReportCreatorImpl();
 
       const row1 = {
         ...commonRow,
@@ -132,7 +132,7 @@ describe("IssueReportOutputService", () => {
     });
 
     it("渡したデータが目的なしだった場合、Findings、TestPurposesのシートに分けてExcelが出力される", async () => {
-      const service = new IssueReportOutputServiceImpl();
+      const service = new IssueReportCreatorImpl();
 
       const row1 = {
         ...commonRow,
@@ -219,7 +219,7 @@ describe("IssueReportOutputService", () => {
     });
 
     it("渡したデータのセッション内に目的が重複するデータがある場合はTestPurposesのシート内で重複削除された結果が出力される", async () => {
-      const service = new IssueReportOutputServiceImpl();
+      const service = new IssueReportCreatorImpl();
 
       const row1 = {
         ...commonRow,
@@ -306,7 +306,7 @@ describe("IssueReportOutputService", () => {
     });
 
     it("渡したデータが複数セッションだった場合、Findings、TestPurposesのシートに分けてExcelが出力される", async () => {
-      const service = new IssueReportOutputServiceImpl();
+      const service = new IssueReportCreatorImpl();
 
       const row1 = {
         ...commonRow,

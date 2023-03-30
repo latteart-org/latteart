@@ -1,6 +1,6 @@
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
-import { IssueReportOutputService } from "@/services/IssueReportOutputService";
+import { IssueReportCreator } from "@/interfaces/issueReportCreator";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
 import { Project } from "@/interfaces/Projects";
@@ -18,7 +18,7 @@ afterEach(async () => {
 describe("IssueReportService", () => {
   describe("#writeReport", () => {
     it("プロジェクト情報を元に指定の出力先にIssueのレポートを出力する", async () => {
-      const issueReportOutputService: IssueReportOutputService = {
+      const issueReportCreator: IssueReportCreator = {
         output: jest.fn(),
       };
 
@@ -74,7 +74,7 @@ describe("IssueReportService", () => {
       };
 
       const service = new IssueReportServiceImpl({
-        issueReportOutput: issueReportOutputService,
+        issueReportCreator,
         testResult: testResultService,
         testStep: testStepService,
         testPurpose: testPurposeService,
@@ -177,7 +177,7 @@ describe("IssueReportService", () => {
         },
       ];
 
-      expect(issueReportOutputService.output).toBeCalledWith(
+      expect(issueReportCreator.output).toBeCalledWith(
         outputDirectoryPath,
         expectedReport[0]
       );

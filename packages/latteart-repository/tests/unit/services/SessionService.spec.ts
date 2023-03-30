@@ -5,7 +5,6 @@ import { SessionsService } from "@/services/SessionsService";
 import { StoryEntity } from "@/entities/StoryEntity";
 import { TimestampService } from "@/services/TimestampService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
-import { Session } from "@/interfaces/Sessions";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TransactionRunner } from "@/TransactionRunner";
 import { FileRepository } from "@/interfaces/fileRepository";

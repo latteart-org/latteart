@@ -25,10 +25,10 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
-import { TestResultImportService } from "@/services/TestResultImportService";
-import { CreateTestResultImportDto } from "../interfaces/TesResultImport";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
+import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
+import { CreateTestResultImportDto } from "../interfaces/importFileRepository";
 import { createLogger } from "@/logger/logger";
 
 @Route("imports/test-results")
@@ -49,14 +49,14 @@ export class TestResultImportController extends Controller {
     @Body() requestBody: CreateTestResultImportDto
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
-    const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const importFileRepository = new ImportFileRepositoryImpl();
 
     try {
-      const result = await new TestResultImportService({
-        importFileRepository: importFileRepositoryService,
+      const result = await new TestResultImportServiceImpl({
+        importFileRepository,
         screenshotFileRepository,
         timestamp: timestampService,
       }).importTestResult(

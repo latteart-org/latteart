@@ -16,7 +16,7 @@
 
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { CommandExecutionServiceImpl } from "@/services/CommandExecutionService";
+import { CommandExecutorImpl } from "@/gateways/commandExecutor";
 import { ConfigsService } from "@/services/ConfigsService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -70,13 +70,15 @@ export class NoteCompressedImageController extends Controller {
       screenshotFileRepository,
       timestamp: timestampService,
     });
+    const logger = createLogger();
 
     try {
       return new CompressedImageService({
         screenshotFileRepository,
         testStep: testStepService,
         note: noteService,
-        commandExecution: new CommandExecutionServiceImpl(),
+        commandExecutor: new CommandExecutorImpl(),
+        logger,
       }).compressImageForNote(noteId, {
         shouldDeleteOriginalFile: SettingsUtility.getSetting(
           "config.imageCompression.isDeleteSrcImage"
@@ -84,7 +86,7 @@ export class NoteCompressedImageController extends Controller {
       });
     } catch (error) {
       if (error instanceof Error) {
-        createLogger().error("Compress note image failed.", error);
+        logger.error("Compress note image failed.", error);
 
         throw new ServerError(500, {
           code: "compress_note_image_failed",

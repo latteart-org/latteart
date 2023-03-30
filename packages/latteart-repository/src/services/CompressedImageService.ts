@@ -18,11 +18,11 @@ import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CreateCompressedImageResponse } from "@/interfaces/CompressedImage";
 import { getRepository } from "typeorm";
 import path from "path";
-import { CommandExecutionService } from "./CommandExecutionService";
 import { TestStepService } from "./TestStepService";
 import { NotesServiceImpl } from "./NotesService";
 import { FileRepository } from "@/interfaces/fileRepository";
-import { createLogger } from "@/logger/logger";
+import { CommandExecutor } from "@/interfaces/commandExecutor";
+import { Logger } from "@/interfaces/logger";
 
 export class CompressedImageService {
   constructor(
@@ -30,7 +30,8 @@ export class CompressedImageService {
       screenshotFileRepository: FileRepository;
       testStep: TestStepService;
       note: NotesServiceImpl;
-      commandExecution: CommandExecutionService;
+      commandExecutor: CommandExecutor;
+      logger: Logger;
     }
   ) {}
 
@@ -107,9 +108,9 @@ export class CompressedImageService {
       originalFilePath
     )}/${compressedImageFileName}`;
 
-    createLogger().debug(`command: ${command}`);
+    this.service.logger.debug(`command: ${command}`);
 
-    await this.service.commandExecution.execute(command);
+    await this.service.commandExecutor.execute(command);
 
     const compressedImageFileUrl =
       this.service.screenshotFileRepository.getFileUrl(compressedImageFileName);

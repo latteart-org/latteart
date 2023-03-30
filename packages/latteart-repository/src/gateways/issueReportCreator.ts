@@ -16,18 +16,14 @@
 
 import * as XLSX from "xlsx";
 import path from "path";
+import {
+  IssueReportCreator,
+  IssueReportRow,
+  SheetName,
+  TestPurposeSheetRow,
+} from "@/interfaces/issueReportCreator";
 
-export interface IssueReportOutputService {
-  output(
-    outputDirectoryPath: string,
-    reportSource: {
-      testMatrixName: string;
-      rows: IssueReportRow[];
-    }
-  ): void;
-}
-
-export class IssueReportOutputServiceImpl implements IssueReportOutputService {
+export class IssueReportCreatorImpl implements IssueReportCreator {
   public output(
     outputDirectoryPath: string,
     reportSource: {
@@ -133,32 +129,6 @@ export class IssueReportOutputServiceImpl implements IssueReportOutputService {
     }, []);
   }
 }
-
-type IssueReportRow = {
-  groupName: string;
-  testTargetName: string;
-  viewPointName: string;
-  sessionName: string;
-  tester: string;
-  memo: string;
-  testPurposeValue: string;
-  testPurposeDetails: string;
-  noteValue: string;
-  noteDetails: string;
-  tags: string;
-};
-
-type TestPurposeSheetRow = Pick<
-  IssueReportRow,
-  | "groupName"
-  | "testTargetName"
-  | "viewPointName"
-  | "sessionName"
-  | "testPurposeValue"
-  | "testPurposeDetails"
->;
-
-type SheetName = "Findings" | "TestPurposes";
 
 class IssueReport {
   private _name: string;

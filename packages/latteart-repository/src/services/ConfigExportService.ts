@@ -16,7 +16,7 @@
 
 import { TimestampService } from "./TimestampService";
 import { ConfigsService } from "./ConfigsService";
-import { convertToExportableConfig } from "@/services/helper/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ConfigExportService {

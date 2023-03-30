@@ -16,7 +16,7 @@
 
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ExportServiceImpl } from "@/services/ExportService";
+import { TestResultExportServiceImpl } from "@/services/TestResultExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -73,10 +73,10 @@ export class TestResultExportController extends Controller {
     });
 
     try {
-      return await new ExportServiceImpl({
+      return await new TestResultExportServiceImpl({
         testResult: testResultService,
         exportFileRepository: exportFileRepositoryService,
-      }).exportTestResult(testResultId);
+      }).export(testResultId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Export test result failed.", error);

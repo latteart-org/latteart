@@ -16,6 +16,9 @@
 
 import { FileRepository } from "./fileRepository";
 
+/**
+ * Viewer template.
+ */
 export type ViewerTemplate = {
   copyDir(fileRepository: FileRepository, relativePath: string): Promise<void>;
 

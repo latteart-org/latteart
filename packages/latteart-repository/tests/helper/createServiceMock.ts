@@ -15,6 +15,7 @@
  */
 
 import { FileRepository } from "@/interfaces/fileRepository";
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import { NotesService } from "@/services/NotesService";
 import { TestPurposeService } from "@/services/TestPurposeService";
 import { TestResultService } from "@/services/TestResultService";
@@ -83,5 +84,11 @@ export const createTestPurposeServiceMock = (): TestPurposeService => {
     getTestPurpose: jest.fn(),
     updateTestPurpose: jest.fn(),
     deleteTestPurpose: jest.fn(),
+  };
+};
+
+export const createImportFileRepositoryMock = (): ImportFileRepository => {
+  return {
+    read: jest.fn(),
   };
 };

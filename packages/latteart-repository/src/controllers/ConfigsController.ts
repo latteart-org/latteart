@@ -31,7 +31,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { ConfigsService } from "../services/ConfigsService";
-import { convertToExportableConfig } from "@/services/helper/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/configs")

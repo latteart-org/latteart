@@ -25,7 +25,6 @@ import {
 } from "tsoa";
 import { transactionRunner } from "..";
 import { ProjectImportService } from "@/services/ProjectImportService";
-import { CreateProjectImportDto } from "../interfaces/ProjectImport";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
@@ -35,6 +34,9 @@ import { NotesServiceImpl } from "@/services/NotesService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
+import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
+import { CreateProjectImportDto } from "@/interfaces/importFileRepository";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -87,6 +89,14 @@ export class ProjectImportController extends Controller {
 
       const testPurposeService = new TestPurposeServiceImpl();
 
+      const importFileRepository = new ImportFileRepositoryImpl();
+
+      const testResultImportService = new TestResultImportServiceImpl({
+        importFileRepository,
+        screenshotFileRepository: screenshotFileRepository,
+        timestamp: timestampService,
+      });
+
       const response = await new ProjectImportService().import(
         requestBody.source.projectFile,
         requestBody.includeProject,
@@ -100,6 +110,8 @@ export class ProjectImportController extends Controller {
           notesService,
           testPurposeService,
           transactionRunner,
+          testResultImportService,
+          importFileRepository,
         }
       );
 

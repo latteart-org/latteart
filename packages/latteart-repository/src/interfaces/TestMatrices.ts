@@ -15,7 +15,7 @@
  */
 
 import { TestTargetGroup } from "./TestTargetGroups";
-import { ViewPoint } from "./ViewPoints";
+import { ProjectViewPoint, ViewPoint } from "./ViewPoints";
 
 /**
  * Test matrix.
@@ -42,3 +42,10 @@ export type PostTestMatrixResponse = TestMatrix;
  * Updated test matrix data.
  */
 export type PatchTestMatrixResponse = TestMatrix;
+
+/**
+ * Test matrix for project.
+ */
+export type ProjectTestMatrix = Omit<TestMatrix, "viewPoints"> & {
+  viewPoints: ProjectViewPoint[];
+};

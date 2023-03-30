@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-/**
- * Test result data to import.
- */
-export interface CreateTestResultImportDto {
-  source: {
-    testResultFile: { data: string; name: string };
-  };
-  dest?: {
-    testResultId?: string;
-  };
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
+import { readZip } from "./zipReader";
+
+export class ImportFileRepositoryImpl implements ImportFileRepository {
+  public async read(
+    base64FileData: string
+  ): Promise<{ filePath: string; data: string | Buffer }[]> {
+    const decoded = Buffer.from(base64FileData, "base64");
+    return await readZip(decoded);
+  }
 }

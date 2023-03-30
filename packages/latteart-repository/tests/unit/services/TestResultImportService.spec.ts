@@ -2,11 +2,11 @@ import {
   FileRepositoryManager,
   StaticDirectory,
 } from "@/gateways/fileRepository";
-import { TestResultImportService } from "@/services/TestResultImportService";
+import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
+import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { TimestampService } from "@/services/TimestampService";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
@@ -63,11 +63,11 @@ describe("TestResultImportService", () => {
         tmpDirPath
       ).getRepository("screenshot");
 
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
+      const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportService({
+      const service = new TestResultImportServiceImpl({
         screenshotFileRepository,
-        importFileRepository: importFileRepositoryService,
+        importFileRepository,
         timestamp: timestampService,
       });
 
@@ -296,11 +296,11 @@ describe("TestResultImportService", () => {
         tmpDirPath
       ).getRepository("screenshot");
 
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
+      const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportService({
+      const service = new TestResultImportServiceImpl({
         screenshotFileRepository,
-        importFileRepository: importFileRepositoryService,
+        importFileRepository,
         timestamp: timestampService,
       });
 

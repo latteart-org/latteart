@@ -43,7 +43,7 @@ export interface NotesService {
   getNoteScreenshot(noteId: string): Promise<{ id: string; fileUrl: string }>;
 }
 
-export class NotesServiceImpl {
+export class NotesServiceImpl implements NotesService {
   constructor(
     private service: {
       screenshotFileRepository: FileRepository;

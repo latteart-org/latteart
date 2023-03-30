@@ -17,9 +17,13 @@
 import { Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";
 import { TestStepService } from "./TestStepService";
-import { TestPurposeServiceImpl } from "./TestPurposeService";
-import { NotesServiceImpl } from "./NotesService";
-import { IssueReportOutputService } from "./IssueReportOutputService";
+import { TestPurposeService } from "./TestPurposeService";
+import { NotesService } from "./NotesService";
+import { IssueReportCreator } from "@/interfaces/issueReportCreator";
+import {
+  createRowSources,
+  extractRowsFromRowSource,
+} from "./helper/issueReportHelper";
 
 export interface IssueReportService {
   writeReport(project: Project, outputDirectoryPath: string): Promise<void>;
@@ -28,11 +32,11 @@ export interface IssueReportService {
 export class IssueReportServiceImpl implements IssueReportService {
   constructor(
     private service: {
-      issueReportOutput: IssueReportOutputService;
+      issueReportCreator: IssueReportCreator;
       testResult: TestResultService;
       testStep: TestStepService;
-      testPurpose: TestPurposeServiceImpl;
-      note: NotesServiceImpl;
+      testPurpose: TestPurposeService;
+      note: NotesService;
     }
   ) {}
 
@@ -43,7 +47,7 @@ export class IssueReportServiceImpl implements IssueReportService {
     const reportSources = await this.buildReportSources(project);
 
     for (const report of reportSources) {
-      this.service.issueReportOutput.output(outputDirectoryPath, report);
+      this.service.issueReportCreator.output(outputDirectoryPath, report);
     }
   }
 
@@ -55,46 +59,13 @@ export class IssueReportServiceImpl implements IssueReportService {
         const rowSources = groups.flatMap((group) => {
           return group.testTargets.flatMap((testTarget) => {
             return testTarget.plans.flatMap((plan) => {
-              const targetViewPoint = testMatrix.viewPoints.find(
-                (viewPoint) => {
-                  return viewPoint.id === plan.viewPointId;
-                }
-              );
-
-              const sessions =
+              return createRowSources(
+                group,
+                testTarget,
+                plan,
+                testMatrix,
                 project.stories
-                  .find((story) => {
-                    return (
-                      story.testMatrixId === testMatrix.id &&
-                      story.viewPointId === plan.viewPointId &&
-                      story.testTargetId === testTarget.id
-                    );
-                  })
-                  ?.sessions.flatMap((session, index) => {
-                    const testResultFiles = session.testResultFiles ?? [];
-
-                    if (testResultFiles.length === 0) {
-                      return [];
-                    }
-
-                    return [
-                      {
-                        sessionName: (index + 1).toString(),
-                        tester: session.testerName,
-                        memo: session.memo,
-                        testResultId: testResultFiles[0].id,
-                        groupName: group.name,
-                        testTargetName: testTarget.name,
-                        viewPointName: targetViewPoint?.name ?? "",
-                      },
-                    ];
-                  }) ?? [];
-
-              if (!targetViewPoint) {
-                return [];
-              }
-
-              return sessions;
+              );
             });
           });
         });
@@ -102,7 +73,7 @@ export class IssueReportServiceImpl implements IssueReportService {
         const rows = (
           await Promise.all(
             rowSources.map(async (rowSource) =>
-              this.extractRowsFromRowSource(rowSource)
+              extractRowsFromRowSource(rowSource, { ...this.service })
             )
           )
         ).flat();
@@ -113,94 +84,5 @@ export class IssueReportServiceImpl implements IssueReportService {
         };
       })
     );
-  }
-
-  private async extractRowsFromRowSource(rowSource: {
-    sessionName: string;
-    tester: string;
-    memo: string;
-    testResultId: string;
-    groupName: string;
-    testTargetName: string;
-    viewPointName: string;
-  }) {
-    const testStepIds = await this.service.testResult.collectAllTestStepIds(
-      rowSource.testResultId
-    );
-    const testSteps: {
-      intention: string | null;
-      notices: string[];
-    }[] = await Promise.all(
-      testStepIds.map((testStepId) =>
-        this.service.testStep.getTestStep(testStepId)
-      )
-    );
-
-    const mergedTestSteps = testSteps.reduce(
-      (acc, testStep, index) => {
-        if (index > 0 && !testStep.intention) {
-          acc[acc.length - 1].notices.push(...testStep.notices);
-        } else {
-          acc.push(testStep);
-        }
-
-        return acc;
-      },
-      new Array<{
-        intention: string | null;
-        notices: string[];
-      }>()
-    );
-
-    return (
-      await Promise.all(
-        mergedTestSteps.map(async (testStep) => {
-          const identifier = {
-            groupName: rowSource.groupName,
-            testTargetName: rowSource.testTargetName,
-            viewPointName: rowSource.viewPointName,
-            sessionName: rowSource.sessionName,
-            tester: rowSource.tester,
-            memo: rowSource.memo,
-          };
-
-          const testPurposeId = testStep.intention ?? "";
-          const testPurpose = await this.service.testPurpose.getTestPurpose(
-            testPurposeId
-          );
-          const identifierAndTestPurpose = {
-            ...identifier,
-            testPurposeValue: testPurpose?.value ?? "",
-            testPurposeDetails: testPurpose?.details ?? "",
-          };
-
-          const noteIds = testStep.notices ?? [];
-          const noteRows =
-            noteIds.length > 0
-              ? await Promise.all(
-                  noteIds.map(async (noteId) => {
-                    const note = await this.service.note.getNote(noteId);
-
-                    return {
-                      ...identifierAndTestPurpose,
-                      noteValue: note?.value ?? "",
-                      noteDetails: note?.details ?? "",
-                      tags: note?.tags ? note.tags.join(",") : "",
-                    };
-                  })
-                )
-              : [
-                  {
-                    ...identifierAndTestPurpose,
-                    noteValue: "",
-                    noteDetails: "",
-                    tags: "",
-                  },
-                ];
-
-          return noteRows;
-        })
-      )
-    ).flat();
   }
 }

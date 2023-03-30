@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
+import { CommandExecutor } from "@/interfaces/commandExecutor";
 import { createLogger } from "@/logger/logger";
 import { exec } from "child_process";
 import encoding from "encoding-japanese";
 
-export interface CommandExecutionService {
-  /**
-   * Execute an external command.
-   * @param command
-   */
-  execute(command: string): Promise<{ stdout: string; stderr: string }>;
-}
-
-export class CommandExecutionServiceImpl {
+export class CommandExecutorImpl implements CommandExecutor {
   public execute(command: string): Promise<{ stdout: string; stderr: string }> {
     return new Promise<{ stdout: string; stderr: string }>(
       (resolve, reject) => {

@@ -16,6 +16,7 @@
 
 import { DailyTestProgress } from "../services/TestProgressService";
 import { Story } from "./Stories";
+import { ProjectTestMatrix } from "./TestMatrices";
 
 /**
  * Project list record.
@@ -42,31 +43,7 @@ export type GetTestProgressResponse = DailyTestProgress;
 export type Project = {
   id: string;
   name: string;
-  testMatrices: {
-    id: string;
-    name: string;
-    index: number;
-    groups: {
-      id: string;
-      name: string;
-      index: number;
-      testTargets: {
-        id: string;
-        name: string;
-        index: number;
-        plans: {
-          viewPointId: string;
-          value: number;
-        }[];
-      }[];
-    }[];
-    viewPoints: {
-      id: string;
-      name: string;
-      index: number;
-      description: string;
-    }[];
-  }[];
+  testMatrices: ProjectTestMatrix[];
   stories: Story[];
 };
 

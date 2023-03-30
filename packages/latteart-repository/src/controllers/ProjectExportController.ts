@@ -29,7 +29,6 @@ import {
   Tags,
 } from "tsoa";
 import { transactionRunner } from "..";
-import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -80,10 +79,6 @@ export class ProjectExportController extends Controller {
           config: new ConfigsService(),
         }),
       });
-      const exportService = new ExportServiceImpl({
-        testResult: testResultService,
-        exportFileRepository: exportFileRepositoryService,
-      });
 
       const testProgressService = new TestProgressServiceImpl(
         transactionRunner
@@ -98,7 +93,6 @@ export class ProjectExportController extends Controller {
         {
           projectService,
           testResultService,
-          exportService,
           exportFileRepositoryService,
           testProgressService,
         }

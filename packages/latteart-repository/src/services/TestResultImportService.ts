@@ -15,8 +15,7 @@
  */
 
 import path from "path";
-import { ImportFileRepositoryService } from "./ImportFileRepositoryService";
-import { deserializeTestResult } from "@/services/helper/deserializeTestResult";
+import { deserializeTestResult } from "@/services/helper/testResultImportHelper";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -27,15 +26,51 @@ import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TagEntity } from "@/entities/TagEntity";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import {
   DeserializedTestResult,
   DeserializedTestStep,
 } from "@/interfaces/exportData";
 
-export class TestResultImportService {
+export interface TestResultImportService {
+  importTestResult(
+    importFile: { data: string; name: string },
+    testResultId: string | null
+  ): Promise<{ testResultId: string }>;
+  saveImportFileDatas(
+    ...args: {
+      importFileData: {
+        testResultFile: {
+          fileName: string;
+          data: string;
+        };
+        screenshots: {
+          filePath: string;
+          data: Buffer;
+        }[];
+      };
+      testResultId: string | null;
+    }[]
+  ): Promise<{ newTestResultId: string; oldTestResultId?: string }[]>;
+  saveImportFileData(
+    importFileData: {
+      testResultFile: {
+        fileName: string;
+        data: string;
+      };
+      screenshots: {
+        filePath: string;
+        data: Buffer;
+      }[];
+    },
+    testResultId: string | null
+  ): Promise<{ newTestResultId: string; oldTestResultId?: string }>;
+}
+
+export class TestResultImportServiceImpl implements TestResultImportService {
   constructor(
     private service: {
-      importFileRepository: ImportFileRepositoryService;
+      importFileRepository: ImportFileRepository;
       screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
@@ -47,8 +82,7 @@ export class TestResultImportService {
   ): Promise<{ testResultId: string }> {
     console.log(importFile.name);
 
-    const importFileData =
-      await this.service.importFileRepository.readImportFile(importFile.data);
+    const importFileData = await this.readImportFile(importFile.data);
 
     const { newTestResultId } = await this.saveImportFileData(
       importFileData,
@@ -57,6 +91,32 @@ export class TestResultImportService {
 
     return {
       testResultId: newTestResultId,
+    };
+  }
+
+  private async readImportFile(base64FileData: string) {
+    const files = await this.service.importFileRepository.read(base64FileData);
+    const testResultFile = files.find((file) => file.filePath === "log.json");
+
+    if (!testResultFile || typeof testResultFile.data !== "string") {
+      throw Error("Invalid test result file.");
+    }
+
+    const screenshots = files.filter(
+      (file): file is { filePath: string; data: Buffer } => {
+        return (
+          [".png", ".webp"].includes(path.extname(file.filePath)) &&
+          typeof file.data !== "string"
+        );
+      }
+    );
+
+    return {
+      testResultFile: {
+        fileName: testResultFile.filePath,
+        data: testResultFile.data,
+      },
+      screenshots,
     };
   }
 

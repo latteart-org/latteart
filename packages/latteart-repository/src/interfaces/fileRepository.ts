@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * File repository.
+ */
 export type FileRepository = {
   readFile(
     relativePath: string,
@@ -45,6 +48,9 @@ export type FileRepository = {
   ): Promise<void>;
 };
 
+/**
+ * Repository name.
+ */
 export type RepositoryName =
   | "screenshot"
   | "attachedFile"

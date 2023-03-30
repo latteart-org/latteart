@@ -16,7 +16,7 @@
 
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { IssueReportOutputServiceImpl } from "@/services/IssueReportOutputService";
+import { IssueReportCreatorImpl } from "@/gateways/issueReportCreator";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
@@ -117,7 +117,7 @@ export class SnapshotsController extends Controller {
     const testPurposeService = new TestPurposeServiceImpl();
 
     const issueReportService = new IssueReportServiceImpl({
-      issueReportOutput: new IssueReportOutputServiceImpl(),
+      issueReportCreator: new IssueReportCreatorImpl(),
       testResult: testResultService,
       testStep: testStepService,
       testPurpose: testPurposeService,

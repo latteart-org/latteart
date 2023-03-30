@@ -25,7 +25,7 @@ import {
   Tags,
 } from "tsoa";
 import { CompressedImageService } from "../services/CompressedImageService";
-import { CommandExecutionServiceImpl } from "@/services/CommandExecutionService";
+import { CommandExecutorImpl } from "@/gateways/commandExecutor";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { ConfigsService } from "@/services/ConfigsService";
@@ -69,20 +69,22 @@ export class CompressedImageController extends Controller {
       screenshotFileRepository,
       timestamp: timestampService,
     });
+    const logger = createLogger();
 
     try {
       return new CompressedImageService({
         screenshotFileRepository,
         testStep: testStepService,
         note: noteService,
-        commandExecution: new CommandExecutionServiceImpl(),
+        commandExecutor: new CommandExecutorImpl(),
+        logger,
       }).compressImage(testStepId, {
         shouldDeleteOriginalFile: (await new ConfigsService().getConfig(""))
           .config.imageCompression.isDeleteSrcImage,
       });
     } catch (error) {
       if (error instanceof Error) {
-        createLogger().error("Compress test step image failed.", error);
+        logger.error("Compress test step image failed.", error);
 
         throw new ServerError(500, {
           code: "compress_test_step_image_failed",

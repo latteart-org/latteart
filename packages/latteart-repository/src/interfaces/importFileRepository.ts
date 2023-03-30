@@ -15,10 +15,31 @@
  */
 
 /**
+ * Test result data to import.
+ */
+export type CreateTestResultImportDto = {
+  source: {
+    testResultFile: { data: string; name: string };
+  };
+  dest?: {
+    testResultId?: string;
+  };
+};
+
+/**
  * Project data to import.
  */
-export interface CreateProjectImportDto {
+export type CreateProjectImportDto = {
   source: { projectFile: { data: string; name: string } };
   includeTestResults: boolean;
   includeProject: boolean;
-}
+};
+
+/**
+ * Import fileR rpository.
+ */
+export type ImportFileRepository = {
+  read(
+    base64FileData: string
+  ): Promise<{ filePath: string; data: string | Buffer }[]>;
+};

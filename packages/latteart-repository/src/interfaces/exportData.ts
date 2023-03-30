@@ -55,6 +55,9 @@ type DeserializedElementInfo = Pick<ElementInfo, "tagname" | "xpath"> & {
   };
 };
 
+// SerializeElementInfo Format
+export type SerializeElementInfo = ElementInfo;
+
 // V0 Format
 export type TestResultExportDataV0 = {
   name: string;

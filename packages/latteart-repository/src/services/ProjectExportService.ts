@@ -17,8 +17,7 @@
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
-import { ExportService } from "./ExportService";
-
+import { serializeTestResult } from "./helper/testResultExportHelper";
 import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
 import { TestResultService } from "./TestResultService";
@@ -31,7 +30,6 @@ export class ProjectExportService {
     service: {
       projectService: ProjectsService;
       testResultService: TestResultService;
-      exportService: ExportService;
       exportFileRepositoryService: ExportFileRepositoryService;
       testProgressService: TestProgressService;
     }
@@ -46,7 +44,6 @@ export class ProjectExportService {
     const testResultsExportData = includeTestResults
       ? await this.extractTestResultsExportData({
           testResultService: service.testResultService,
-          exportService: service.exportService,
         })
       : [];
     return await service.exportFileRepositoryService.exportProject(
@@ -57,7 +54,6 @@ export class ProjectExportService {
 
   private async extractTestResultsExportData(service: {
     testResultService: TestResultService;
-    exportService: ExportService;
   }) {
     const testResultEntities = await getRepository(TestResultEntity).find();
     return await Promise.all(
@@ -72,8 +68,7 @@ export class ProjectExportService {
         if (!testResult) {
           throw new Error();
         }
-        const serializedTestResult =
-          service.exportService.serializeTestResult(testResult);
+        const serializedTestResult = serializeTestResult(testResult);
         return {
           testResultId: testResult.id,
           testResultFile: { fileName: "log.json", data: serializedTestResult },

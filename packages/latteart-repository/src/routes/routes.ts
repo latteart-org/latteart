@@ -715,26 +715,29 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateProjectImportDto: {
-    dataType: "refObject",
-    properties: {
-      source: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: {
-          projectFile: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              name: { dataType: "string", required: true },
-              data: { dataType: "string", required: true },
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        includeProject: { dataType: "boolean", required: true },
+        includeTestResults: { dataType: "boolean", required: true },
+        source: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            projectFile: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                name: { dataType: "string", required: true },
+                data: { dataType: "string", required: true },
+              },
+              required: true,
             },
-            required: true,
           },
+          required: true,
         },
-        required: true,
       },
-      includeTestResults: { dataType: "boolean", required: true },
-      includeProject: { dataType: "boolean", required: true },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectListResponse: {
@@ -770,6 +773,125 @@ const models: TsoaRoute.Models = {
           required: true,
         },
       },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestTarget: {
+    dataType: "refObject",
+    properties: {
+      id: { dataType: "string", required: true },
+      name: { dataType: "string", required: true },
+      index: { dataType: "double", required: true },
+      plans: {
+        dataType: "array",
+        array: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            value: { dataType: "double", required: true },
+            viewPointId: { dataType: "string", required: true },
+          },
+        },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestTargetGroup: {
+    dataType: "refObject",
+    properties: {
+      id: { dataType: "string", required: true },
+      name: { dataType: "string", required: true },
+      index: { dataType: "double", required: true },
+      testTargets: {
+        dataType: "array",
+        array: { dataType: "refObject", ref: "TestTarget" },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Pick_TestMatrix.Exclude_keyofTestMatrix.viewPoints__": {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        id: { dataType: "string", required: true },
+        name: { dataType: "string", required: true },
+        index: { dataType: "double", required: true },
+        groups: {
+          dataType: "array",
+          array: { dataType: "refObject", ref: "TestTargetGroup" },
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Omit_TestMatrix.viewPoints_": {
+    dataType: "refAlias",
+    type: {
+      ref: "Pick_TestMatrix.Exclude_keyofTestMatrix.viewPoints__",
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Pick_ViewPoint.Exclude_keyofViewPoint.index__": {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        id: { dataType: "string", required: true },
+        name: { dataType: "string", required: true },
+        description: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Omit_ViewPoint.index_": {
+    dataType: "refAlias",
+    type: {
+      ref: "Pick_ViewPoint.Exclude_keyofViewPoint.index__",
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ProjectViewPoint: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Omit_ViewPoint.index_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { index: { dataType: "double", required: true } },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ProjectTestMatrix: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Omit_TestMatrix.viewPoints_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            viewPoints: {
+              dataType: "array",
+              array: { dataType: "refAlias", ref: "ProjectViewPoint" },
+              required: true,
+            },
+          },
+        },
+      ],
       validators: {},
     },
   },
@@ -859,65 +981,7 @@ const models: TsoaRoute.Models = {
         },
         testMatrices: {
           dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              viewPoints: {
-                dataType: "array",
-                array: {
-                  dataType: "nestedObjectLiteral",
-                  nestedProperties: {
-                    description: { dataType: "string", required: true },
-                    index: { dataType: "double", required: true },
-                    name: { dataType: "string", required: true },
-                    id: { dataType: "string", required: true },
-                  },
-                },
-                required: true,
-              },
-              groups: {
-                dataType: "array",
-                array: {
-                  dataType: "nestedObjectLiteral",
-                  nestedProperties: {
-                    testTargets: {
-                      dataType: "array",
-                      array: {
-                        dataType: "nestedObjectLiteral",
-                        nestedProperties: {
-                          plans: {
-                            dataType: "array",
-                            array: {
-                              dataType: "nestedObjectLiteral",
-                              nestedProperties: {
-                                value: { dataType: "double", required: true },
-                                viewPointId: {
-                                  dataType: "string",
-                                  required: true,
-                                },
-                              },
-                            },
-                            required: true,
-                          },
-                          index: { dataType: "double", required: true },
-                          name: { dataType: "string", required: true },
-                          id: { dataType: "string", required: true },
-                        },
-                      },
-                      required: true,
-                    },
-                    index: { dataType: "double", required: true },
-                    name: { dataType: "string", required: true },
-                    id: { dataType: "string", required: true },
-                  },
-                },
-                required: true,
-              },
-              index: { dataType: "double", required: true },
-              name: { dataType: "string", required: true },
-              id: { dataType: "string", required: true },
-            },
-          },
+          array: { dataType: "refAlias", ref: "ProjectTestMatrix" },
           required: true,
         },
         name: { dataType: "string", required: true },
@@ -1399,28 +1463,31 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTestResultImportDto: {
-    dataType: "refObject",
-    properties: {
-      source: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: {
-          testResultFile: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              name: { dataType: "string", required: true },
-              data: { dataType: "string", required: true },
-            },
-            required: true,
-          },
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        dest: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { testResultId: { dataType: "string" } },
         },
-        required: true,
+        source: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            testResultFile: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                name: { dataType: "string", required: true },
+                data: { dataType: "string", required: true },
+              },
+              required: true,
+            },
+          },
+          required: true,
+        },
       },
-      dest: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: { testResultId: { dataType: "string" } },
-      },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ListTestResultResponse: {
@@ -2145,42 +2212,6 @@ const models: TsoaRoute.Models = {
       },
       validators: {},
     },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TestTarget: {
-    dataType: "refObject",
-    properties: {
-      id: { dataType: "string", required: true },
-      name: { dataType: "string", required: true },
-      index: { dataType: "double", required: true },
-      plans: {
-        dataType: "array",
-        array: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            value: { dataType: "double", required: true },
-            viewPointId: { dataType: "string", required: true },
-          },
-        },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  TestTargetGroup: {
-    dataType: "refObject",
-    properties: {
-      id: { dataType: "string", required: true },
-      name: { dataType: "string", required: true },
-      index: { dataType: "double", required: true },
-      testTargets: {
-        dataType: "array",
-        array: { dataType: "refObject", ref: "TestTarget" },
-        required: true,
-      },
-    },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ViewPoint: {

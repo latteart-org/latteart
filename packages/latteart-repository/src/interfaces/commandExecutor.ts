@@ -15,31 +15,12 @@
  */
 
 /**
- * View point.
+ * Command executor.
  */
-export interface ViewPoint {
-  id: string;
-  name: string;
-  index?: number;
-  description: string;
-}
-
-/**
- * View point data for the specified ID.
- */
-export type GetViewPointResponse = ViewPoint;
-
-/**
- * Registered view point data.
- */
-export type PostViewPointResponse = ViewPoint;
-
-/**
- * Updated view point data.
- */
-export type PatchViewPointResponse = ViewPoint;
-
-/**
- * View point for project.
- */
-export type ProjectViewPoint = Omit<ViewPoint, "index"> & { index: number };
+export type CommandExecutor = {
+  /**
+   * Execute an external command.
+   * @param command
+   */
+  execute(command: string): Promise<{ stdout: string; stderr: string }>;
+};

@@ -25,11 +25,17 @@ import { TestPurposeServiceImpl } from "./TestPurposeService";
 import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
-import { convertToExportableConfig } from "@/services/helper/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 import { Session } from "@/interfaces/Sessions";
 import { Story } from "@/interfaces/Stories";
+import {
+  createAttachedFiles,
+  createNotes,
+  createTestPurposes,
+  createTestResultFiles,
+} from "./helper/snapshotHelper";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -325,7 +331,7 @@ export class SnapshotFileRepositoryServiceImpl
     await this.service.viewerTemplate.history.copyFile(
       this.service.workingFileRepository,
       "index.html",
-      path.join(destSessionPath, "index.html")
+      destSessionPath
     );
   }
 
@@ -353,50 +359,17 @@ export class SnapshotFileRepositoryServiceImpl
           story.sessions.map(async (session, sessionIndex) => {
             const sessionIdAlias = `${sessionIndex + 1}`;
 
-            const attachedFiles: {
-              name: string;
-              fileUrl: string;
-            }[] =
-              session.attachedFiles?.map((attachedFile) => {
-                return {
-                  name: attachedFile.name,
-                  fileUrl: `data/${
-                    story.id
-                  }/${sessionIdAlias}/attached/${path.basename(
-                    attachedFile?.fileUrl ?? ""
-                  )}`,
-                };
-              }) ?? [];
+            const attachedFiles = createAttachedFiles(
+              story.id,
+              sessionIdAlias,
+              session.attachedFiles
+            );
 
-            const testResultFiles: { name: string; id: string }[] =
-              session.testResultFiles.map((testResultFile) => {
-                return {
-                  name: testResultFile.name,
-                  id: testResultFile.id,
-                };
-              });
+            const testResultFiles = createTestResultFiles(
+              session.testResultFiles
+            );
 
-            const notes: {
-              id: string;
-              type: string;
-              value: string;
-              details: string;
-              imageFileUrl: string;
-              tags: string[];
-            }[] = session.notes.map((note) => {
-              return {
-                id: note.id,
-                type: note.type,
-                value: note.value,
-                details: note.details,
-                imageFileUrl: `data/${
-                  story.id
-                }/${sessionIdAlias}/testResult/${path.basename(
-                  note.imageFileUrl ?? ""
-                )}`,
-                tags: note.tags,
-              };
-            });
+            const notes = createNotes(story.id, sessionIdAlias, session.notes);
 
             const testResultFile = testResultFiles.at(0);
 
@@ -406,33 +379,7 @@ export class SnapshotFileRepositoryServiceImpl
               testResultId
             );
 
-            const testPurposes: {
-              id: string;
-              type: string;
-              value: string;
-              details: string;
-              imageFileUrl: string;
-              tags: string[];
-            }[] = (
-              await Promise.all(
-                testResult
-                  ? testResult.testSteps.map(async ({ intention }) => {
-                      if (!intention) {
-                        return [];
-                      }
-
-                      return {
-                        id: intention.id,
-                        type: intention.type,
-                        value: intention.value,
-                        details: intention.details,
-                        imageFileUrl: "",
-                        tags: [],
-                      };
-                    })
-                  : []
-              )
-            ).flat();
+            const testPurposes = await createTestPurposes(testResult);
 
             return {
               index: session.index,

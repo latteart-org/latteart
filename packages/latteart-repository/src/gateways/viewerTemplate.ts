@@ -69,10 +69,10 @@ export class ViewerTemplateImpl implements ViewerTemplate {
       fileName
     );
 
-    const destFilePath = fileRepository.getFilePath(destRelativePath);
+    const destDirPath = fileRepository.getFilePath(destRelativePath);
 
-    await fs.mkdirp(destFilePath);
-    await fs.copyFile(viewerTemplatePath, destFilePath);
+    await fs.mkdirp(destDirPath);
+    await fs.copyFile(viewerTemplatePath, path.join(destDirPath, fileName));
   }
 }
 
