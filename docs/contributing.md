@@ -81,7 +81,7 @@ Please refer to the following Web API when communicating with `latteart-capture-
 Install the following software needed for development in your development environment:
 
 - Git
-- Node.js v16.13.2
+- Node.js v18.15.0
 
 Once you have installed everything, clone the `latteart` repository and run the following command:
 
