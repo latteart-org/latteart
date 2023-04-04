@@ -28,7 +28,6 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import { transactionRunner } from "..";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -80,9 +79,7 @@ export class ProjectExportController extends Controller {
         }),
       });
 
-      const testProgressService = new TestProgressServiceImpl(
-        transactionRunner
-      );
+      const testProgressService = new TestProgressServiceImpl();
 
       const projectService = new ProjectsServiceImpl();
 

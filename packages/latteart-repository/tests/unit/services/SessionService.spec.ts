@@ -6,7 +6,6 @@ import { StoryEntity } from "@/entities/StoryEntity";
 import { TimestampService } from "@/services/TimestampService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectEntity } from "@/entities/ProjectEntity";
-import { TransactionRunner } from "@/TransactionRunner";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
@@ -28,8 +27,7 @@ describe("SessionService", () => {
 
         const result = await new SessionsService().postSession(
           projectId,
-          storyId,
-          new TransactionRunner()
+          storyId
         );
 
         expect(result).toEqual({
@@ -53,11 +51,7 @@ describe("SessionService", () => {
       it("指定のIDのストーリーが見つからない場合はエラーをスローする", async () => {
         try {
           const projectId = (await saveTestProject()).projectId;
-          await new SessionsService().postSession(
-            projectId,
-            "AAA",
-            new TransactionRunner()
-          );
+          await new SessionsService().postSession(projectId, "AAA");
         } catch (error) {
           expect((error as Error).message).toEqual(`Story not found. AAA`);
         }
@@ -84,8 +78,7 @@ describe("SessionService", () => {
           const storyId = (await saveTestStory()).storyId;
           const savedSession = await new SessionsService().postSession(
             projectId,
-            storyId,
-            new TransactionRunner()
+            storyId
           );
           const sessionId = savedSession.id;
 
@@ -93,8 +86,7 @@ describe("SessionService", () => {
             projectId,
             sessionId,
             params,
-            createServiceMock({ doneDate }),
-            new TransactionRunner()
+            createServiceMock({ doneDate })
           );
 
           expect(result).toEqual({
@@ -122,8 +114,7 @@ describe("SessionService", () => {
             projectId,
             sessionId,
             {},
-            createServiceMock({ doneDate }),
-            new TransactionRunner()
+            createServiceMock({ doneDate })
           );
         } catch (error) {
           expect((error as Error).message).toEqual(`Session not found: AAA`);
@@ -138,29 +129,23 @@ describe("SessionService", () => {
         const projectId = (await saveTestProject()).projectId;
         const storyId = (await saveTestStory()).storyId;
 
-        const savedSession = await new SessionsService().postSession(
+        const session1 = await new SessionsService().postSession(
           projectId,
-          storyId,
-          new TransactionRunner()
+          storyId
         );
 
-        const sessionRepository = getRepository(SessionEntity);
-        const session1 = await sessionRepository.findOne(savedSession.id);
-        if (!session1) {
-          throw new Error("no session");
-        }
-
-        await new SessionsService().deleteSession(
+        const session2 = await new SessionsService().postSession(
           projectId,
-          session1.id,
-          new TransactionRunner()
+          storyId
         );
 
-        const session2 = await sessionRepository.findOne(savedSession.id);
+        await new SessionsService().deleteSession(projectId, session1.id);
 
-        if (session2) {
-          throw new Error("delete failed");
-        }
+        const result = await getRepository(SessionEntity).find();
+
+        expect((result ?? []).length).toEqual(1);
+
+        expect((result ?? [])[0].id).toEqual(session2.id);
       });
     });
   });

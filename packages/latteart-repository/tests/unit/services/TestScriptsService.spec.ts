@@ -9,6 +9,7 @@ import { TestScriptFileRepositoryService } from "@/services/TestScriptFileReposi
 import { TestScriptsService } from "@/services/TestScriptsService";
 import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import { TestScriptOption } from "@/domain/types";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -86,20 +87,27 @@ describe("TestScriptsService", () => {
             testScriptFileRepository: testScriptFileRepositoryServiceMock,
           });
 
+          const option: TestScriptOption = {
+            optimized: false,
+            testData: { useDataDriven: false, maxGeneration: 0 },
+            view: {
+              node: {
+                unit: "title",
+                definitions: [],
+              },
+            },
+            buttonDefinitions: [],
+          };
+
           const result = await service.createTestScriptByTestResult(
             testResultId,
-            {
-              optimized: false,
-              testData: { useDataDriven: false, maxGeneration: 0 },
-              view: {
-                node: {
-                  unit: "title",
-                  definitions: [],
-                },
-              },
-              buttonDefinitions: [],
-            }
+            option
           );
+
+          const { testScript } = await service["generateTestScript"]({
+            testResultIds: [testResultId],
+            option,
+          });
 
           expect(result.url).toEqual("testScriptArchiveUrl");
           expect(result.invalidOperationTypeExists).toEqual(false);
@@ -183,6 +191,7 @@ describe('TestSuite1', () => {
               },
             ],
           };
+          expect(testScript).toEqual(expectedTestScripts);
           expect(testScriptFileRepositoryServiceMock.write).toBeCalledWith(
             expectedTestScripts,
             [{ id: "id1", fileUrl: "fileUrl1" }]
@@ -223,20 +232,27 @@ describe('TestSuite1', () => {
             testScriptFileRepository: testScriptFileRepositoryServiceMock,
           });
 
+          const option: TestScriptOption = {
+            optimized: false,
+            testData: { useDataDriven: false, maxGeneration: 0 },
+            view: {
+              node: {
+                unit: "title",
+                definitions: [],
+              },
+            },
+            buttonDefinitions: [],
+          };
+
           const result = await service.createTestScriptByTestResult(
             testResultId,
-            {
-              optimized: false,
-              testData: { useDataDriven: false, maxGeneration: 0 },
-              view: {
-                node: {
-                  unit: "title",
-                  definitions: [],
-                },
-              },
-              buttonDefinitions: [],
-            }
+            option
           );
+
+          const { testScript } = await service["generateTestScript"]({
+            testResultIds: [testResultId],
+            option,
+          });
 
           expect(result.url).toEqual("testScriptArchiveUrl");
           expect(result.invalidOperationTypeExists).toEqual(true);
@@ -318,6 +334,7 @@ describe('TestSuite1', () => {
               },
             ],
           };
+          expect(testScript).toEqual(expectedTestScripts);
           expect(testScriptFileRepositoryServiceMock.write).toBeCalledWith(
             expectedTestScripts,
             [{ id: "id1", fileUrl: "fileUrl1" }]

@@ -22,7 +22,7 @@ import { NoteCompressedImageController } from "./../controllers/NoteCompressedIm
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NotesController } from "./../controllers/NotesController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { ProjectImportController } from "./../controllers/ProjectImportController";
+import { ProjectExportController } from "./../controllers/ProjectExportController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectsController } from "./../controllers/ProjectsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -56,7 +56,7 @@ import { ViewPointsController } from "./../controllers/ViewPointsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { StoriesController } from "./../controllers/StoriesController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { ProjectExportController } from "./../controllers/ProjectExportController";
+import { ProjectImportController } from "./../controllers/ProjectImportController";
 import type { RequestHandler, Router } from "express";
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -633,7 +633,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_import_test_result_not_exist_: {
+  ServerErrorData_export_project_failed_: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -652,7 +652,7 @@ const models: TsoaRoute.Models = {
         message: { dataType: "string" },
         code: {
           dataType: "enum",
-          enums: ["import_test_result_not_exist"],
+          enums: ["export_project_failed"],
           required: true,
         },
       },
@@ -660,84 +660,13 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_import_project_not_exist_: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        details: {
-          dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              target: { dataType: "string", required: true },
-              message: { dataType: "string", required: true },
-              code: { dataType: "string", required: true },
-            },
-          },
-        },
-        message: { dataType: "string" },
-        code: {
-          dataType: "enum",
-          enums: ["import_project_not_exist"],
-          required: true,
-        },
-      },
-      validators: {},
+  CreateProjectExportDto: {
+    dataType: "refObject",
+    properties: {
+      includeTestResults: { dataType: "boolean", required: true },
+      includeProject: { dataType: "boolean", required: true },
     },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_import_project_failed_: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        details: {
-          dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              target: { dataType: "string", required: true },
-              message: { dataType: "string", required: true },
-              code: { dataType: "string", required: true },
-            },
-          },
-        },
-        message: { dataType: "string" },
-        code: {
-          dataType: "enum",
-          enums: ["import_project_failed"],
-          required: true,
-        },
-      },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateProjectImportDto: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        includeProject: { dataType: "boolean", required: true },
-        includeTestResults: { dataType: "boolean", required: true },
-        source: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            projectFile: {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                name: { dataType: "string", required: true },
-                data: { dataType: "string", required: true },
-              },
-              required: true,
-            },
-          },
-          required: true,
-        },
-      },
-      validators: {},
-    },
+    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectListResponse: {
@@ -2751,7 +2680,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_export_project_failed_: {
+  ServerErrorData_import_test_result_not_exist_: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -2770,7 +2699,7 @@ const models: TsoaRoute.Models = {
         message: { dataType: "string" },
         code: {
           dataType: "enum",
-          enums: ["export_project_failed"],
+          enums: ["import_test_result_not_exist"],
           required: true,
         },
       },
@@ -2778,13 +2707,84 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateProjectExportDto: {
-    dataType: "refObject",
-    properties: {
-      includeTestResults: { dataType: "boolean", required: true },
-      includeProject: { dataType: "boolean", required: true },
+  ServerErrorData_import_project_not_exist_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["import_project_not_exist"],
+          required: true,
+        },
+      },
+      validators: {},
     },
-    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_import_project_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["import_project_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateProjectImportDto: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        includeProject: { dataType: "boolean", required: true },
+        includeTestResults: { dataType: "boolean", required: true },
+        source: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            projectFile: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                name: { dataType: "string", required: true },
+                data: { dataType: "string", required: true },
+              },
+              required: true,
+            },
+          },
+          required: true,
+        },
+      },
+      validators: {},
+    },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -3190,23 +3190,29 @@ export function RegisterRoutes(app: Router) {
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
-    "/api/v1/imports/projects",
-    ...fetchMiddlewares<RequestHandler>(ProjectImportController),
+    "/api/v1/projects/:projectId/export",
+    ...fetchMiddlewares<RequestHandler>(ProjectExportController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectImportController.prototype.importProject
+      ProjectExportController.prototype.exportProject
     ),
 
-    function ProjectImportController_importProject(
+    function ProjectExportController_exportProject(
       request: any,
       response: any,
       next: any
     ) {
       const args = {
+        projectId: {
+          in: "path",
+          name: "projectId",
+          required: true,
+          dataType: "string",
+        },
         requestBody: {
           in: "body",
           name: "requestBody",
           required: true,
-          ref: "CreateProjectImportDto",
+          ref: "CreateProjectExportDto",
         },
       };
 
@@ -3216,9 +3222,9 @@ export function RegisterRoutes(app: Router) {
       try {
         validatedArgs = getValidatedArgs(args, request, response);
 
-        const controller = new ProjectImportController();
+        const controller = new ProjectExportController();
 
-        const promise = controller.importProject.apply(
+        const promise = controller.exportProject.apply(
           controller,
           validatedArgs as any
         );
@@ -5058,29 +5064,23 @@ export function RegisterRoutes(app: Router) {
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
-    "/api/v1/projects/:projectId/export",
-    ...fetchMiddlewares<RequestHandler>(ProjectExportController),
+    "/api/v1/imports/projects",
+    ...fetchMiddlewares<RequestHandler>(ProjectImportController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectExportController.prototype.exportProject
+      ProjectImportController.prototype.importProject
     ),
 
-    function ProjectExportController_exportProject(
+    function ProjectImportController_importProject(
       request: any,
       response: any,
       next: any
     ) {
       const args = {
-        projectId: {
-          in: "path",
-          name: "projectId",
-          required: true,
-          dataType: "string",
-        },
         requestBody: {
           in: "body",
           name: "requestBody",
           required: true,
-          ref: "CreateProjectExportDto",
+          ref: "CreateProjectImportDto",
         },
       };
 
@@ -5090,9 +5090,9 @@ export function RegisterRoutes(app: Router) {
       try {
         validatedArgs = getValidatedArgs(args, request, response);
 
-        const controller = new ProjectExportController();
+        const controller = new ProjectImportController();
 
-        const promise = controller.exportProject.apply(
+        const promise = controller.importProject.apply(
           controller,
           validatedArgs as any
         );

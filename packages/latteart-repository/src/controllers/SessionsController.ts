@@ -28,8 +28,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { transactionRunner } from "..";
-
 import {
   PatchSessionDto,
   PatchSessionResponse,
@@ -58,8 +56,7 @@ export class SessionsController extends Controller {
     try {
       return await new SessionsService().postSession(
         projectId,
-        requestBody.storyId,
-        transactionRunner
+        requestBody.storyId
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -102,8 +99,7 @@ export class SessionsController extends Controller {
         {
           timestampService: new TimestampServiceImpl(),
           attachedFileRepository,
-        },
-        transactionRunner
+        }
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -133,11 +129,7 @@ export class SessionsController extends Controller {
     @Path() sessionId: string
   ): Promise<void> {
     try {
-      await new SessionsService().deleteSession(
-        projectId,
-        sessionId,
-        transactionRunner
-      );
+      await new SessionsService().deleteSession(projectId, sessionId);
       return;
     } catch (error) {
       if (error instanceof Error) {

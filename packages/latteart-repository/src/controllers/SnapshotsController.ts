@@ -35,7 +35,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { transactionRunner } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
@@ -135,7 +134,7 @@ export class SnapshotsController extends Controller {
         config: new ConfigsService(),
         issueReport: issueReportService,
         attachedFileRepository,
-        testProgress: new TestProgressServiceImpl(transactionRunner),
+        testProgress: new TestProgressServiceImpl(),
         workingFileRepository,
         viewerTemplate,
       }

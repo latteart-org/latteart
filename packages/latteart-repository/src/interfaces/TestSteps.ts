@@ -48,6 +48,11 @@ export type TestStepOperation = Omit<Operation, "screenshot"> & {
 };
 
 /**
+ * Test step coverage source.
+ */
+export type TestStepCoverageSource = CoverageSource;
+
+/**
  * Registered test step and coverage data.
  */
 export type CreateTestStepResponse = Pick<TestStep, "id" | "operation"> & {

@@ -32,7 +32,8 @@ import { ConfigsService } from "./ConfigsService";
 import { ElementInfo } from "@/domain/types";
 import { FileRepository } from "@/interfaces/fileRepository";
 import {
-  convertTestStepEntityToResponse,
+  coverageSourceEntityToResponse,
+  testStepEntityToResponse,
   convertToTestStepOperation,
 } from "./helper/entityToResponse";
 
@@ -75,7 +76,7 @@ export class TestStepServiceImpl implements TestStepService {
   public async getTestStep(testStepId: string): Promise<GetTestStepResponse> {
     const testStepEntity = await this.getTestStepEntity(testStepId);
 
-    return convertTestStepEntityToResponse(testStepEntity);
+    return testStepEntityToResponse(testStepEntity);
   }
 
   public async createTestStep(
@@ -122,19 +123,10 @@ export class TestStepServiceImpl implements TestStepService {
     }
 
     // update testingTime and lastUpdateTimestamp
-    const startTimeStamp = testResultEntity.startTimestamp;
-    const lastUpdateTimeStamp = testResultEntity.lastUpdateTimestamp;
-    const testStepTimeStamp = requestBody.timestamp;
-
-    if (lastUpdateTimeStamp > startTimeStamp) {
-      const testingTime = testStepTimeStamp - lastUpdateTimeStamp;
-      testResultEntity.testingTime = testResultEntity.testingTime + testingTime;
-    }
-    testResultEntity.lastUpdateTimestamp = testStepTimeStamp;
-
-    const savedTestResultEntity = await getRepository(TestResultEntity).save({
-      ...testResultEntity,
-    });
+    const savedTestResultEntity = await this.updateTestResultTimeStamp(
+      testResultEntity,
+      requestBody.timestamp
+    );
 
     // add test step.
     const newTestStepEntity = await getRepository(TestStepEntity).save({
@@ -174,13 +166,9 @@ export class TestStepServiceImpl implements TestStepService {
         ({ url, title }) =>
           url === requestBody.url && title === requestBody.title
       );
-    const coverageSource = {
-      title: savedCoverageSourceEntity?.title ?? "",
-      url: savedCoverageSourceEntity?.url ?? "",
-      screenElements: savedCoverageSourceEntity
-        ? JSON.parse(savedCoverageSourceEntity.screenElements)
-        : [],
-    };
+    const coverageSource = coverageSourceEntityToResponse(
+      savedCoverageSourceEntity
+    );
 
     return {
       id: newTestStepEntity.id,
@@ -211,7 +199,7 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return convertTestStepEntityToResponse(updatedTestStepEntity);
+    return testStepEntityToResponse(updatedTestStepEntity);
   }
 
   public async attachTestPurposeToTestStep(
@@ -230,7 +218,7 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return convertTestStepEntityToResponse(updatedTestStepEntity);
+    return testStepEntityToResponse(updatedTestStepEntity);
   }
 
   public async getTestStepOperation(
@@ -277,6 +265,25 @@ export class TestStepServiceImpl implements TestStepService {
         ignoreTags.includes(elmInfo.tagname.toUpperCase()) ||
         ignoreTags.includes(elmInfo.tagname.toLowerCase())
       );
+    });
+  }
+
+  private async updateTestResultTimeStamp(
+    testResultEntity: TestResultEntity,
+    testStepTimeStamp: number
+  ) {
+    const startTimeStamp = testResultEntity.startTimestamp;
+    const lastUpdateTimeStamp = testResultEntity.lastUpdateTimestamp;
+
+    if (lastUpdateTimeStamp > startTimeStamp) {
+      const testingTime = testStepTimeStamp - lastUpdateTimeStamp;
+      testResultEntity.testingTime = testResultEntity.testingTime + testingTime;
+    }
+
+    testResultEntity.lastUpdateTimestamp = testStepTimeStamp;
+
+    return await getRepository(TestResultEntity).save({
+      ...testResultEntity,
     });
   }
 }

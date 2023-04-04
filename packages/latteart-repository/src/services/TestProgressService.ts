@@ -29,7 +29,6 @@ import {
 } from "@/domain/timeUtil";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectsServiceImpl } from "./ProjectsService";
-import { TransactionRunner } from "@/TransactionRunner";
 
 /**
  * Daily test progress.
@@ -49,10 +48,6 @@ export type DailyTestProgress = {
 };
 
 export interface TestProgressService {
-  registerStoryTestProgresses(...storyIds: string[]): Promise<void>;
-
-  registerProjectTestProgresses(projectId: string): Promise<void>;
-
   saveTodayTestProgresses(
     projectId: string,
     ...storyIds: string[]
@@ -70,55 +65,6 @@ export interface TestProgressService {
 }
 
 export class TestProgressServiceImpl implements TestProgressService {
-  constructor(private transactionRunner: TransactionRunner) {}
-
-  public async registerStoryTestProgresses(
-    ...storyIds: string[]
-  ): Promise<void> {
-    const storyProgresses = await Promise.all(
-      storyIds.map(async (storyId) => {
-        const storyRepository = getRepository(StoryEntity);
-        const story = await storyRepository.findOneOrFail(storyId, {
-          relations: ["sessions"],
-        });
-
-        const testTargetRepository = getRepository(TestTargetEntity);
-        const testTarget = await testTargetRepository.findOneOrFail(
-          story.testTargetId
-        );
-        const plans: { viewPointId: string; value: number }[] = JSON.parse(
-          testTarget.text
-        );
-
-        return {
-          plannedSessionNumber:
-            plans.find((plan) => plan.viewPointId === story.viewPointId)
-              ?.value ?? 0,
-          completedSessionNumber: story.sessions.filter(
-            (session) => session.doneDate
-          ).length,
-          incompletedSessionNumber: story.sessions.filter(
-            (session) => !session.doneDate
-          ).length,
-          story,
-          date: new Date(),
-        };
-      })
-    );
-
-    const testProgressRepository = getRepository(TestProgressEntity);
-
-    await testProgressRepository.save(storyProgresses);
-  }
-
-  public async registerProjectTestProgresses(projectId: string): Promise<void> {
-    const project = await new ProjectsServiceImpl().getProject(projectId);
-
-    const storyIds = project.stories.map((story) => story.id);
-
-    return await this.registerStoryTestProgresses(...storyIds);
-  }
-
   public async saveTodayTestProgresses(
     projectId: string,
     ...storyIds: string[]
@@ -126,8 +72,10 @@ export class TestProgressServiceImpl implements TestProgressService {
     const targetEntities = await this.collectUpdateTargetEntities(...storyIds);
 
     if (targetEntities.length > 0) {
+      // update test progress
       await getRepository(TestProgressEntity).save(targetEntities);
     } else {
+      // register test progress
       await this.registerProjectTestProgresses(projectId);
     }
   }
@@ -209,6 +157,55 @@ export class TestProgressServiceImpl implements TestProgressService {
     const storyIds = project.stories.map((story) => story.id);
 
     return await this.collectStoryDailyTestProgresses(storyIds, filter);
+  }
+
+  private async registerStoryTestProgresses(
+    ...storyIds: string[]
+  ): Promise<void> {
+    const storyProgresses = await Promise.all(
+      storyIds.map(async (storyId) => {
+        const storyRepository = getRepository(StoryEntity);
+        const story = await storyRepository.findOneOrFail(storyId, {
+          relations: ["sessions"],
+        });
+
+        const testTargetRepository = getRepository(TestTargetEntity);
+        const testTarget = await testTargetRepository.findOneOrFail(
+          story.testTargetId
+        );
+        const plans: { viewPointId: string; value: number }[] = JSON.parse(
+          testTarget.text
+        );
+
+        return {
+          plannedSessionNumber:
+            plans.find((plan) => plan.viewPointId === story.viewPointId)
+              ?.value ?? 0,
+          completedSessionNumber: story.sessions.filter(
+            (session) => session.doneDate
+          ).length,
+          incompletedSessionNumber: story.sessions.filter(
+            (session) => !session.doneDate
+          ).length,
+          story,
+          date: new Date(),
+        };
+      })
+    );
+
+    const testProgressRepository = getRepository(TestProgressEntity);
+
+    await testProgressRepository.save(storyProgresses);
+  }
+
+  private async registerProjectTestProgresses(
+    projectId: string
+  ): Promise<void> {
+    const project = await new ProjectsServiceImpl().getProject(projectId);
+
+    const storyIds = project.stories.map((story) => story.id);
+
+    return await this.registerStoryTestProgresses(...storyIds);
   }
 
   private async collectUpdateTargetEntities(...storyIds: string[]) {

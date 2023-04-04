@@ -1,9 +1,9 @@
 import { NoteEntity } from "@/entities/NoteEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
-import { convertTestStepEntityToResponse } from "@/services/helper/entityToResponse";
+import { testStepEntityToResponse } from "@/services/helper/entityToResponse";
 
 describe("entityToResponse", () => {
-  describe("#convertTestStepEntityToResponse", () => {
+  describe("#testStepEntityToResponse", () => {
     it("TestStepEntityをTestStep型へ変換する", () => {
       const note = new NoteEntity();
       note.id = "note1";
@@ -25,7 +25,7 @@ describe("entityToResponse", () => {
         isAutomatic: !!testStepEntity.isAutomatic,
       };
 
-      const result = convertTestStepEntityToResponse(testStepEntity);
+      const result = testStepEntityToResponse(testStepEntity);
       expect(result).toEqual({
         id: testStepEntity.id,
         operation: resultOperation,

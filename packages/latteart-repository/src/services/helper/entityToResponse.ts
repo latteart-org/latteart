@@ -24,9 +24,14 @@ import { Project } from "@/interfaces/Projects";
 import { Session } from "@/interfaces/Sessions";
 import { Story } from "@/interfaces/Stories";
 import { TestMatrix } from "@/interfaces/TestMatrices";
-import { TestStep, TestStepOperation } from "@/interfaces/TestSteps";
+import {
+  TestStep,
+  TestStepCoverageSource,
+  TestStepOperation,
+} from "@/interfaces/TestSteps";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { GetNoteResponse } from "@/interfaces/Notes";
+import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 
 export const storyEntityToResponse = (story: StoryEntity): Story => {
   return {
@@ -58,7 +63,7 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
   };
 };
 
-const testPurposeEntityToResponse = (
+export const testPurposeEntityToResponse = (
   testPurpose: TestPurposeEntity
 ): GetNoteResponse => {
   return {
@@ -235,7 +240,7 @@ export const testMatrixEntityToResponse = (
   };
 };
 
-export const convertTestStepEntityToResponse = (
+export const testStepEntityToResponse = (
   testStepEntity: TestStepEntity
 ): TestStep => {
   return {
@@ -264,5 +269,17 @@ export const convertToTestStepOperation = (
     windowHandle: testStepEntity.windowHandle,
     keywordTexts: JSON.parse(testStepEntity.keywordTexts),
     isAutomatic: !!testStepEntity.isAutomatic,
+  };
+};
+
+export const coverageSourceEntityToResponse = (
+  coverageSourceEntity?: CoverageSourceEntity
+): TestStepCoverageSource => {
+  return {
+    title: coverageSourceEntity?.title ?? "",
+    url: coverageSourceEntity?.url ?? "",
+    screenElements: coverageSourceEntity
+      ? JSON.parse(coverageSourceEntity.screenElements)
+      : [],
   };
 };
