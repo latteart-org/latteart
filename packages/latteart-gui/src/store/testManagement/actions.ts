@@ -25,10 +25,7 @@ import {
   TestResultFile,
   Plan,
 } from "@/lib/testManagement/types";
-import TestManagementBuilder from "@/lib/testManagement/TestManagementBuilder";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
-import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
-import { WriteDataFileAction } from "@/lib/testManagement/actions/WriteDataFileAction";
 import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
 import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
@@ -50,11 +47,8 @@ import { AddNewSessionAction } from "@/lib/testManagement/actions/AddNewSessionA
 import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
 import { Timestamp } from "@/lib/common/Timestamp";
 import { ProjectFileRepository } from "../../lib/common/ProjectFileRepository";
-import SessionDataConverter from "@/lib/testManagement/SessionDataConverter";
-import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
 import { ReadStoryDataAction } from "@/lib/testManagement/actions/ReadStoryDataAction";
 import { ReadProjectAction } from "@/lib/testManagement/actions/ReadProjectAction";
-import { ManagedSessionForRepository } from "latteart-client";
 
 const actions: ActionTree<TestManagementState, RootState> = {
   /**
@@ -132,69 +126,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
   },
 
   /**
-   * Load project with all test results and update the State.
-   * @param context Action context.
-   */
-  async readProjectWithTestResult(context) {
-    if (Vue.prototype.$snapshot) {
-      return;
-    }
-    const repository = context.rootState.repositoryService;
-
-    const result = await new ReadProjectAction(repository).read();
-
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
-
-    context.commit("setProjectId", { projectId: result.data.projectId });
-    context.commit("setManagedData", {
-      testMatrices: result.data.testMatrices,
-    });
-    const testResultReader = async (
-      managedSession: ManagedSessionForRepository
-    ) => {
-      const testResultId =
-        managedSession.testResultFiles &&
-        managedSession.testResultFiles.length > 0
-          ? managedSession.testResultFiles[0].id
-          : undefined;
-
-      const getTestResult = async (testResultId: string) => {
-        const getTestResultResult = await new GetTestResultAction(
-          repository
-        ).getTestResult(testResultId);
-
-        if (getTestResultResult.isFailure()) {
-          return undefined;
-        } else {
-          return getTestResultResult.data;
-        }
-      };
-      return testResultId ? await getTestResult(testResultId) : undefined;
-    };
-    const readStoryResult = await new ReadStoryDataAction(
-      repository
-    ).createStoryWithTestResult(result.data.stories, testResultReader);
-
-    if (readStoryResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          readStoryResult.error.messageKey,
-          readStoryResult.error.variables
-        )
-      );
-    }
-
-    context.commit("setStoriesData", { stories: readStoryResult.data });
-  },
-
-  /**
    * Load project and update the State.
    * @param context Action context.
    */
@@ -220,55 +151,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       testMatrices: result.data.testMatrices,
     });
 
-    const testResultReader = async (_: ManagedSessionForRepository) => {
-      return undefined;
-    };
-    const readStoryResult = await new ReadStoryDataAction(
-      repository
-    ).createStoryWithTestResult(result.data.stories, testResultReader);
-
-    if (readStoryResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          readStoryResult.error.messageKey,
-          readStoryResult.error.variables
-        )
-      );
-    }
-
-    context.commit("setStoriesData", { stories: readStoryResult.data });
-  },
-
-  /**
-   * Save test management data in the repository and set the saved data in the State.
-   * @param context Action context.
-   * @param payload.testManagementData Test management data.
-   */
-  async writeDataFile(
-    context,
-    payload: {
-      testMatrices: TestMatrix[];
-      stories: Story[];
-    }
-  ): Promise<void> {
-    const builder = new TestManagementBuilder();
-    builder.testMatrices = payload.testMatrices;
-    builder.stories = payload.stories;
-    const testManagementData = builder.build();
-
-    await new WriteDataFileAction(
-      {
-        setManagedData: (data: { testMatrices: TestMatrix[] }): void => {
-          context.commit("setManagedData", {
-            testMatrices: data.testMatrices,
-          });
-        },
-        setStoriesData: (data: { stories: Story[] }): void => {
-          context.commit("setStoriesData", { stories: data.stories });
-        },
-      },
-      context.rootState.repositoryService
-    ).write(context.state.projectId, testManagementData, context.state.stories);
+    context.commit("setStoriesData", { stories: result.data.stories });
   },
 
   /**
@@ -550,22 +433,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
     });
   },
 
-  /**
-   * Save test management data.
-   * @param context Action context.
-   * @param payload.testMatrices Test matrices.
-   * @param payload.stories Stories.
-   */
-  async saveManagedData(
-    context,
-    payload: { testMatrices: TestMatrix[]; stories: Story[] }
-  ): Promise<void> {
-    return context.dispatch("writeDataFile", {
-      testMatrices: payload.testMatrices,
-      stories: payload.stories,
-    });
-  },
-
   async addNewSession(
     context,
     payload: {
@@ -639,46 +506,9 @@ const actions: ActionTree<TestManagementState, RootState> = {
       );
     }
 
-    const updatedSession = result.data;
-
-    const getTestResultResult =
-      updatedSession.testResultFiles &&
-      updatedSession.testResultFiles.length > 0
-        ? await new GetTestResultAction(
-            context.rootState.repositoryService
-          ).getTestResult(updatedSession.testResultFiles[0].id)
-        : undefined;
-
-    if (getTestResultResult && getTestResultResult.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          getTestResultResult.error.messageKey,
-          getTestResultResult.error.variables
-        )
-      );
-    }
-
-    const parsedSession = await new SessionDataConverter().convertToSession(
-      {
-        name: updatedSession.name,
-        id: updatedSession.id,
-        isDone: updatedSession.isDone,
-        doneDate: updatedSession.doneDate,
-        testItem: updatedSession.testItem,
-        testerName: updatedSession.testerName,
-        memo: updatedSession.memo,
-        attachedFiles: updatedSession.attachedFiles,
-        testResultFiles: updatedSession.testResultFiles ?? undefined,
-        issues: updatedSession.issues,
-        testingTime: updatedSession.testingTime,
-        testResult: getTestResultResult ? getTestResultResult.data : undefined,
-      },
-      session
-    );
-
     context.commit("setSession", {
       storyId: payload.storyId,
-      session: parsedSession,
+      session: result.data,
     });
   },
 
@@ -707,25 +537,6 @@ const actions: ActionTree<TestManagementState, RootState> = {
     }
 
     context.commit("deleteSession", payload);
-  },
-
-  async addNewStory(context): Promise<void> {
-    const newStory: Story = {
-      id: "",
-      index: 0,
-      testMatrixId: "",
-      testTargetId: "",
-      viewPointId: "",
-      status: CHARTER_STATUS.OUT_OF_SCOPE.id,
-      sessions: [],
-    };
-
-    const newStories = [...context.state.stories, newStory];
-
-    return context.dispatch("writeDataFile", {
-      testMatrices: context.state.testMatrices,
-      stories: newStories,
-    });
   },
 
   async updateStory(

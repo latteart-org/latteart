@@ -1,7 +1,9 @@
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
+import { FileRepository } from "@/interfaces/fileRepository";
 import { CreateTestResultDto } from "@/interfaces/TestResults";
 import { TestResultServiceImpl } from "@/services/TestResultService";
+import { TestStepService } from "@/services/TestStepService";
 import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 
@@ -16,6 +18,55 @@ afterEach(async () => {
 });
 
 describe("TestResultService", () => {
+  let screenshotFileRepository: FileRepository;
+  let workingFileRepository: FileRepository;
+  let compareReportRepository: FileRepository;
+  let testStepService: TestStepService;
+
+  beforeEach(() => {
+    screenshotFileRepository = {
+      readFile: jest.fn(),
+      outputFile: jest.fn(),
+      outputJSON: jest.fn(),
+      outputZip: jest.fn(),
+      removeFile: jest.fn(),
+      getFileUrl: jest.fn(),
+      getFilePath: jest.fn(),
+      moveFile: jest.fn(),
+      copyFile: jest.fn(),
+    };
+    workingFileRepository = {
+      readFile: jest.fn(),
+      outputFile: jest.fn(),
+      outputJSON: jest.fn(),
+      outputZip: jest.fn(),
+      removeFile: jest.fn(),
+      getFileUrl: jest.fn(),
+      getFilePath: jest.fn(),
+      moveFile: jest.fn(),
+      copyFile: jest.fn(),
+    };
+    compareReportRepository = {
+      readFile: jest.fn(),
+      outputFile: jest.fn(),
+      outputJSON: jest.fn(),
+      outputZip: jest.fn(),
+      removeFile: jest.fn(),
+      getFileUrl: jest.fn(),
+      getFilePath: jest.fn(),
+      moveFile: jest.fn(),
+      copyFile: jest.fn(),
+    };
+    testStepService = {
+      getTestStep: jest.fn(),
+      createTestStep: jest.fn(),
+      attachNotesToTestStep: jest.fn(),
+      attachTestPurposeToTestStep: jest.fn(),
+      getTestStepOperation: jest.fn(),
+      getTestStepScreenshot: jest.fn(),
+    };
+  });
+
   describe("#collectAllTestStepIds", () => {
     it("保有するすべてのテストステップIDを取得する", async () => {
       const testResultEntity = await getRepository(TestResultEntity).save(
@@ -33,14 +84,10 @@ describe("TestResultService", () => {
           format: jest.fn(),
           epochMilliseconds: jest.fn(),
         },
-        testStep: {
-          getTestStep: jest.fn(),
-          createTestStep: jest.fn(),
-          attachNotesToTestStep: jest.fn(),
-          attachTestPurposeToTestStep: jest.fn(),
-          getTestStepOperation: jest.fn(),
-          getTestStepScreenshot: jest.fn(),
-        },
+        testStep: testStepService,
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       });
 
       const testStepIds = await service.collectAllTestStepIds(
@@ -62,14 +109,10 @@ describe("TestResultService", () => {
           format: jest.fn(),
           epochMilliseconds: jest.fn().mockReturnValue(0),
         },
-        testStep: {
-          getTestStep: jest.fn(),
-          createTestStep: jest.fn(),
-          attachNotesToTestStep: jest.fn(),
-          attachTestPurposeToTestStep: jest.fn(),
-          getTestStepOperation: jest.fn(),
-          getTestStepScreenshot: jest.fn(),
-        },
+        testStep: testStepService,
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       });
 
       const body: CreateTestResultDto = {

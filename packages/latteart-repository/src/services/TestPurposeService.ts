@@ -24,6 +24,7 @@ import {
   CreateNoteResponse,
 } from "@/interfaces/Notes";
 import { getRepository } from "typeorm";
+import { testPurposeEntityToResponse } from "./helper/entityToResponse";
 
 export interface TestPurposeService {
   createTestPurpose(
@@ -58,14 +59,7 @@ export class TestPurposeServiceImpl implements TestPurposeService {
       })
     );
 
-    return {
-      id: registeredTestPurposeEntity.id,
-      type: "intention",
-      value: registeredTestPurposeEntity.title,
-      details: registeredTestPurposeEntity.details,
-      imageFileUrl: "",
-      tags: [],
-    };
+    return testPurposeEntityToResponse(registeredTestPurposeEntity);
   }
 
   public async getTestPurpose(
@@ -79,14 +73,7 @@ export class TestPurposeServiceImpl implements TestPurposeService {
       return undefined;
     }
 
-    return {
-      id: testPurposeEntity.id,
-      type: "intention",
-      value: testPurposeEntity.title,
-      details: testPurposeEntity.details,
-      imageFileUrl: "",
-      tags: [],
-    };
+    return testPurposeEntityToResponse(testPurposeEntity);
   }
 
   public async updateTestPurpose(
@@ -102,14 +89,7 @@ export class TestPurposeServiceImpl implements TestPurposeService {
 
     await getRepository(TestPurposeEntity).save(testPurposeEntity);
 
-    return {
-      id: testPurposeEntity.id,
-      type: "intention",
-      value: testPurposeEntity.title,
-      details: testPurposeEntity.details,
-      imageFileUrl: "",
-      tags: [],
-    };
+    return testPurposeEntityToResponse(testPurposeEntity);
   }
 
   public async deleteTestPurpose(testPurposeId: string): Promise<void> {

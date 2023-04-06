@@ -19,7 +19,6 @@ import {
   PatchTestMatrixResponse,
   PostTestMatrixResponse,
 } from "../interfaces/TestMatrices";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TestMatricesService } from "@/services/TestMatricesService";
 import {
@@ -36,6 +35,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { transactionRunner } from "..";
+import { createLogger } from "@/logger/logger";
 
 @Route("/test-matrices/")
 @Tags("test-matrices")
@@ -58,7 +58,7 @@ export class TestMatricesController extends Controller {
       return await new TestMatricesService().get(testMatrixId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get testMatrix failed.", error);
+        createLogger().error("Get testMatrix failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_matrix_failed",
@@ -86,7 +86,7 @@ export class TestMatricesController extends Controller {
       return await new TestMatricesService().post(body);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Post testMatrix failed.", error);
+        createLogger().error("Post testMatrix failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_matrix_failed",
@@ -116,7 +116,7 @@ export class TestMatricesController extends Controller {
       return await new TestMatricesService().patch(testMatrixId, body);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch testMatrix failed.", error);
+        createLogger().error("Patch testMatrix failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_matrix_failed",
@@ -144,7 +144,7 @@ export class TestMatricesController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete testMatrix failed.", error);
+        createLogger().error("Delete testMatrix failed.", error);
 
         throw new ServerError(500, {
           code: "delete_test_matrix_failed",

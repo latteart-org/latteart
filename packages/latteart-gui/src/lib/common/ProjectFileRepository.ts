@@ -86,16 +86,6 @@ export class ProjectFileRepository implements ProjectRepository {
     return createConnectionRefusedFailure();
   }
 
-  /**
-   * Update the project with the specified project ID.
-   * @param projectId  Project ID.
-   * @param body  Project information to update.
-   * @returns Updated project information.
-   */
-  public async putProject(): Promise<RepositoryAccessResult<Project>> {
-    return createConnectionRefusedFailure();
-  }
-
   public async getTestProgress(
     projectId: string,
     filter: {

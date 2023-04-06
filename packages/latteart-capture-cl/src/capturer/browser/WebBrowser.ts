@@ -291,6 +291,9 @@ export default class WebBrowser {
           windowHandle: from?.windowHandle ?? "",
           input: to.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
+          screenElements:
+            (await this.client.execute(captureScript.collectScreenElements)) ??
+            [],
         })
       );
     }

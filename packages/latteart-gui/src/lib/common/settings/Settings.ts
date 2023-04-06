@@ -49,3 +49,6 @@ export type ViewSettings = {
 };
 
 export type SnapshotConfig = SnapshotConfigForRepository;
+
+export type TestResultComparisonSetting =
+  ProjectSettings["config"]["testResultComparison"];

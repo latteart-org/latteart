@@ -62,13 +62,11 @@ export class TestResultRepository {
    * @returns Test script URL.
    */
   public async postTestResultForExport(
-    testResultId: string,
-    shouldSaveTemporary: boolean
+    testResultId: string
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-results/${testResultId}/export`,
-        { temp: shouldSaveTemporary }
+        `api/v1/test-results/${testResultId}/export`
       );
 
       if (response.status !== 200) {
@@ -89,15 +87,15 @@ export class TestResultRepository {
    * @returns  Created test result information.
    */
   public async postEmptyTestResult(
-    initialUrl?: string,
-    name?: string
+    option: {
+      initialUrl?: string;
+      name?: string;
+      parentTestResultId?: string;
+    } = {}
   ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
     try {
       const url = `api/v1/test-results`;
-      const response = await this.restClient.httpPost(url, {
-        initialUrl,
-        name,
-      });
+      const response = await this.restClient.httpPost(url, option);
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);

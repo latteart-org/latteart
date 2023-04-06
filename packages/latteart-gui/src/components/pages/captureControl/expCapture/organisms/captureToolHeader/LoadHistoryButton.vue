@@ -42,7 +42,14 @@
           @click="loadHistory(testResult.id)"
           :disabled="!testResult.id"
         >
-          <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
+          <v-list-tile-action :style="{ 'min-width': '30px' }">
+            <v-icon :disabled="!testResult.parentTestResultId" small
+              >compare</v-icon
+            >
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
+          </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-menu>

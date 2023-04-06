@@ -72,7 +72,8 @@ export interface CaptureControlState {
    */
   replayOption: {
     testResultName: string;
-    replayCaptureMode: boolean;
+    resultSavingEnabled: boolean;
+    comparisonEnabled: boolean;
   };
 
   captureSession: CaptureSession | null;
@@ -110,7 +111,8 @@ const state: CaptureControlState = {
   },
   replayOption: {
     testResultName: "",
-    replayCaptureMode: false,
+    resultSavingEnabled: false,
+    comparisonEnabled: false,
   },
   autofillSelectDialogData: null,
   autofillRegisterDialogData: null,

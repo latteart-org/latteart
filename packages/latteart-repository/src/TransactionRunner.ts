@@ -15,7 +15,7 @@
  */
 
 import { EntityManager, getManager } from "typeorm";
-import LoggingService from "./logger/LoggingService";
+import { createLogger } from "./logger/logger";
 
 export class TransactionRunner {
   private queue: {
@@ -36,10 +36,10 @@ export class TransactionRunner {
     this.queue.unshift(queueItem);
 
     for (let i = 0; i < this.maxRetry; i++) {
-      LoggingService.info("Try starting transaction.");
+      createLogger().info("Try starting transaction.");
 
       if (!this.queueItemIsNext(queueItem)) {
-        LoggingService.warn("Transaction is locked.");
+        createLogger().warn("Transaction is locked.");
         await this.sleep(200);
         continue;
       }
@@ -60,7 +60,7 @@ export class TransactionRunner {
             "TransactionNotStartedError",
           ].includes(error.name)
         ) {
-          LoggingService.warn("Transaction is locked.");
+          createLogger().warn("Transaction is locked.");
           if (i === this.maxRetry - 1) {
             this.queue.pop();
             throw error;

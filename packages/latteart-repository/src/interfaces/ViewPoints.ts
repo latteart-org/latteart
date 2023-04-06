@@ -38,3 +38,8 @@ export type PostViewPointResponse = ViewPoint;
  * Updated view point data.
  */
 export type PatchViewPointResponse = ViewPoint;
+
+/**
+ * View point for project.
+ */
+export type ProjectViewPoint = Omit<ViewPoint, "index"> & { index: number };

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
 
@@ -28,8 +27,9 @@ import {
   Tags,
   SuccessResponse,
 } from "tsoa";
-import { exportDirectoryService } from "..";
 import { ConfigExportService } from "@/services/ConfigExportService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/configs/export")
 @Tags("projects")
@@ -48,17 +48,20 @@ export class ConfigExportController extends Controller {
   public async exportProjectSettings(
     @Path() projectId: string
   ): Promise<{ url: string }> {
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const exportFileRepository = fileRepositoryManager.getRepository("export");
+
     const result = await new ConfigExportService().export(projectId, {
       configService: new ConfigsService(),
       timestampService: new TimestampServiceImpl(),
-      tempDirectoryService: exportDirectoryService,
+      exportFileRepository,
     });
 
     try {
       return { url: result };
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Export config failed.", error);
+        createLogger().error("Export config failed.", error);
         throw new ServerError(500, {
           code: "export_config_failed",
         });

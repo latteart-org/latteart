@@ -117,6 +117,12 @@ describe("動作確認用", () => {
           tagname: "select",
           xpath: "/html/body/select",
           attributes: {},
+          boundingRect: {
+            top: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+          },
         },
       });
 

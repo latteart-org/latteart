@@ -94,7 +94,8 @@ const mutations: MutationTree<CaptureControlState> = {
     payload: {
       replayOption: {
         testResultName: string;
-        replayCaptureMode: boolean;
+        resultSavingEnabled: boolean;
+        comparisonEnabled: boolean;
       };
     }
   ) {

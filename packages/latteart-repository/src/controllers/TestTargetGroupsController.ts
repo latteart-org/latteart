@@ -19,7 +19,6 @@ import {
   PatchTestTargetGroupResponse,
   PostTestTargetGroupResponse,
 } from "../interfaces/TestTargetGroups";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TestTargetGroupsService } from "@/services/TestTargetGroupsService";
 import {
@@ -36,6 +35,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { transactionRunner } from "..";
+import { createLogger } from "@/logger/logger";
 
 @Route("/test-target-groups/")
 @Tags("test-target-groups")
@@ -58,7 +58,7 @@ export class TestTargetGroupsController extends Controller {
       return await new TestTargetGroupsService().get(testTargetGroupId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get testTargetGroup failed.", error);
+        createLogger().error("Get testTargetGroup failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_target_group_failed",
@@ -86,7 +86,7 @@ export class TestTargetGroupsController extends Controller {
       return await new TestTargetGroupsService().post(body);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Post testTargetGroup failed.", error);
+        createLogger().error("Post testTargetGroup failed.", error);
 
         throw new ServerError(500, {
           code: "post_test_target_group_failed",
@@ -116,7 +116,7 @@ export class TestTargetGroupsController extends Controller {
       return await new TestTargetGroupsService().patch(testTargetGroupId, body);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch targetGroup failed.", error);
+        createLogger().error("Patch targetGroup failed.", error);
 
         throw new ServerError(500, {
           code: "patch_test_target_group_failed",
@@ -146,7 +146,7 @@ export class TestTargetGroupsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete testTargetGroup failed.", error);
+        createLogger().error("Delete testTargetGroup failed.", error);
 
         throw new ServerError(500, {
           code: "delete_test_target_group_failed",

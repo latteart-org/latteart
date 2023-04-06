@@ -168,6 +168,16 @@
       "isEnabled": true,
       "isDeleteSrcImage": true,
       "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp"
+    },
+    "testResultComparison": {
+      "excludeItems": {
+        "isEnabled": false,
+        "values": []
+      },
+      "excludeElements": {
+        "isEnabled": false,
+        "values": []
+      }
     }
   },
   "captureSettings": {

@@ -33,3 +33,4 @@ export * from "./testStepRepository";
 export * from "./testTargetRepository";
 export * from "./testTargetGroupRepository";
 export * from "./viewPointRepository";
+export * from "./testResultComparisonRepository";

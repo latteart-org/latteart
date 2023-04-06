@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ScreenshotsService } from "@/services/ScreenshotsService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
@@ -27,7 +26,8 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, tempDirectoryService } from "..";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/screenshots")
 @Tags("test-results")
@@ -47,17 +47,20 @@ export class ScreenshotsController extends Controller {
     @Path() testResultId: string
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const tempFileRepository = fileRepositoryManager.getRepository("temp");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
     try {
       const url = await new ScreenshotsService().getScreenshots(
         testResultId,
-        tempDirectoryService,
-        screenshotDirectoryService,
+        tempFileRepository,
+        workingFileRepository,
         timestampService
       );
       return { url };
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get screenshots failed.", error);
+        createLogger().error("Get screenshots failed.", error);
 
         throw new ServerError(500, {
           code: "get_screenshots_failed",

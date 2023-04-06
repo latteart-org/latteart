@@ -21,7 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
-import { SessionForRepository, ManagedSessionForRepository } from "./types";
+import { PatchSessionDto, SessionForRepository } from "./types";
 
 export class SessionRepository {
   constructor(private restClient: RESTClient) {}
@@ -53,8 +53,8 @@ export class SessionRepository {
   public async patchSession(
     projectId: string,
     sessionId: string,
-    body: Partial<ManagedSessionForRepository>
-  ): Promise<RepositoryAccessResult<ManagedSessionForRepository>> {
+    body: Partial<PatchSessionDto>
+  ): Promise<RepositoryAccessResult<SessionForRepository>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/projects/${projectId}/sessions/${sessionId}`,
@@ -66,7 +66,7 @@ export class SessionRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as ManagedSessionForRepository,
+        data: response.data as SessionForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

@@ -16,10 +16,7 @@
 
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { ProgressData, Project } from "@/interfaces/Projects";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { TestResultService } from "./TestResultService";
-import path from "path";
-import { readZip } from "@/lib/zipReader";
 import { TestPurposeService } from "./TestPurposeService";
 import { NotesService } from "./NotesService";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
@@ -32,35 +29,19 @@ import { AttachedFileEntity } from "@/entities/AttachedFilesEntity";
 import { TimestampService } from "./TimestampService";
 import { TestStepService } from "./TestStepService";
 import { TestResultEntity } from "@/entities/TestResultEntity";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TransactionRunner } from "@/TransactionRunner";
 import { TestProgressEntity } from "@/entities/TestProgressEntity";
-import { unixtimeToDate } from "@/lib/timeUtil";
+import { unixtimeToDate } from "@/domain/timeUtil";
 import { DailyTestProgress } from "./TestProgressService";
 import { TestResultImportService } from "./TestResultImportService";
-import { ImportFileRepositoryServiceImpl } from "./ImportFileRepositoryService";
-
-interface TestResultData {
-  testResultId: string;
-  testResultFile: { fileName: string; data: string };
-  screenshots: { filePath: string; data: string }[];
-}
-
-interface ProjectData {
-  projectId: string;
-  projectFile: { fileName: string; data: string };
-  stories: {
-    storyId: string;
-    sessions: {
-      sessionId: string;
-      attachedFiles: {
-        filePath: string;
-        data: string;
-      }[];
-    }[];
-  }[];
-  progressesFile?: { fileName: string; data: string };
-}
+import { FileRepository } from "@/interfaces/fileRepository";
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
+import {
+  extractProjectData,
+  extractTestResultsData,
+  ProjectData,
+  TestResultData,
+} from "@/domain/dataExtractor";
 
 export class ProjectImportService {
   public async import(
@@ -71,25 +52,17 @@ export class ProjectImportService {
       timestampService: TimestampService;
       testResultService: TestResultService;
       testStepService: TestStepService;
-      screenshotRepositoryService: ImageFileRepositoryService;
-      attachedFileRepositoryService: ImageFileRepositoryService;
-      importDirectoryRepositoryService: ImageFileRepositoryService;
-      importDirectoryService: StaticDirectoryService;
+      screenshotFileRepository: FileRepository;
+      attachedFileRepository: FileRepository;
       notesService: NotesService;
       testPurposeService: TestPurposeService;
       transactionRunner: TransactionRunner;
+      testResultImportService: TestResultImportService;
+      importFileRepository: ImportFileRepository;
     }
   ): Promise<{ projectId: string }> {
-    const testResultImportService = new TestResultImportService({
-      importFileRepository: new ImportFileRepositoryServiceImpl({
-        staticDirectory: service.importDirectoryService,
-        imageFileRepository: service.screenshotRepositoryService,
-        timestamp: service.timestampService,
-      }),
-      imageFileRepository: service.screenshotRepositoryService,
-      timestamp: service.timestampService,
-    });
     const { testResultFiles, projectFiles } = await this.readImportFile(
+      service.importFileRepository,
       importFile.data,
       {
         includeProject,
@@ -100,133 +73,22 @@ export class ProjectImportService {
     let testResultIdMap: Map<string, string> = new Map();
     let projectId = "";
     if (includeTestResults) {
-      const testResultDatas = this.extractTestResultsData(testResultFiles);
+      const testResultDatas = extractTestResultsData(testResultFiles);
       testResultIdMap = await this.importTestResults(testResultDatas, {
-        testResultImportService,
+        testResultImportService: service.testResultImportService,
       });
     }
 
     if (includeProject) {
-      const projectData = this.extractProjectData(projectFiles);
+      const projectData = extractProjectData(projectFiles);
       projectId = await this.importProject(projectData, testResultIdMap, {
         timestampService: service.timestampService,
-        attachedFileRepositoryService: service.attachedFileRepositoryService,
+        attachedFileRepository: service.attachedFileRepository,
         transactionRunner: service.transactionRunner,
       });
     }
 
     return { projectId };
-  }
-
-  private extractProjectData(
-    files: {
-      filePath: string;
-      data: string | Buffer;
-    }[]
-  ): ProjectData {
-    const projectData: ProjectData = {
-      projectId: "",
-      projectFile: { fileName: "", data: "" },
-      stories: [],
-    };
-    for (const file of files) {
-      const fileName = path.basename(file.filePath);
-      const divs = file.filePath.split("/");
-      const projectsDirIndex = divs.findIndex((div) => {
-        return div === "projects";
-      });
-      if (fileName === "project.json") {
-        projectData.projectId = divs[projectsDirIndex + 1];
-        projectData.projectFile.fileName = "project.json";
-        projectData.projectFile.data = file.data as string;
-        continue;
-      }
-      if (fileName === "progress.json") {
-        projectData.progressesFile = {
-          fileName: "progress.json",
-          data: file.data as string,
-        };
-        continue;
-      }
-      const storyId = divs[projectsDirIndex + 2];
-      const sessionId = divs[projectsDirIndex + 3];
-
-      let targetStory = projectData.stories.find((story) => {
-        return story.storyId === storyId;
-      });
-      if (!targetStory) {
-        targetStory = {
-          storyId,
-          sessions: [],
-        };
-        projectData.stories.push(targetStory);
-      }
-
-      let targetSession = targetStory.sessions.find((session) => {
-        return session.sessionId === sessionId;
-      });
-      if (!targetSession) {
-        targetSession = {
-          sessionId,
-          attachedFiles: [],
-        };
-        targetStory.sessions.push(targetSession);
-      }
-      const dataBuffer =
-        typeof file.data === "string" ? Buffer.from(file.data) : file.data;
-      targetSession.attachedFiles.push({
-        filePath: file.filePath,
-        data: dataBuffer.toString("base64"),
-      });
-    }
-
-    return projectData;
-  }
-
-  private extractTestResultsData(
-    testResultFiles: {
-      filePath: string;
-      data: string | Buffer;
-    }[]
-  ): TestResultData[] {
-    const testResultMap: Map<string, TestResultData> = new Map();
-    for (const testResultFile of testResultFiles) {
-      const divs = testResultFile.filePath.split("/");
-      const testResultPosition = divs.findIndex((div) => {
-        return div === "test-results";
-      });
-      const testResultId = divs[testResultPosition + 1];
-
-      const testResultObj: TestResultData = testResultMap.get(testResultId) ?? {
-        testResultId,
-        testResultFile: { fileName: "", data: "" },
-        screenshots: [],
-      };
-
-      if (path.basename(testResultFile.filePath) === "log.json") {
-        testResultObj.testResultFile = {
-          fileName: testResultFile.filePath,
-          data: testResultFile.data as string,
-        };
-      } else if (
-        [".png", ".webp"].includes(path.extname(testResultFile.filePath))
-      ) {
-        testResultObj.screenshots.push({
-          filePath: path.basename(testResultFile.filePath),
-          data:
-            typeof testResultFile.data !== "string"
-              ? testResultFile.data.toString("base64")
-              : "",
-        });
-      }
-      testResultMap.set(testResultId, testResultObj);
-    }
-
-    const result = Array.from(testResultMap).map((testResult) => {
-      return testResult[1];
-    });
-
-    return result;
   }
 
   private async importProject(
@@ -235,7 +97,7 @@ export class ProjectImportService {
     service: {
       timestampService: TimestampService;
       transactionRunner: TransactionRunner;
-      attachedFileRepositoryService: ImageFileRepositoryService;
+      attachedFileRepository: FileRepository;
     }
   ): Promise<string> {
     const projectJson = JSON.parse(projectData.projectFile.data) as Project & {
@@ -439,13 +301,16 @@ export class ProjectImportService {
                     }
                     const attachedFileData =
                       sessionData.attachedFiles[attachedFileIndex];
+                    const fileName = `${service.timestampService
+                      .unix()
+                      .toString()}_${attachedFileBeforeSaving.name}`;
+                    await service.attachedFileRepository.outputFile(
+                      fileName,
+                      attachedFileData.data,
+                      "base64"
+                    );
                     const attachedFileImageUrl =
-                      await service.attachedFileRepositoryService.writeBase64ToFile(
-                        `${service.timestampService.unix().toString()}_${
-                          attachedFileBeforeSaving.name
-                        }`,
-                        attachedFileData.data
-                      );
+                      service.attachedFileRepository.getFileUrl(fileName);
                     attachedFileEntities.push(
                       new AttachedFileEntity({
                         session: newSessionEntity,
@@ -543,14 +408,14 @@ export class ProjectImportService {
   }
 
   private async readImportFile(
+    importFileRepository: ImportFileRepository,
     base64FileData: string,
     option: {
       includeProject: boolean;
       includeTestResults: boolean;
     }
   ) {
-    const decoded = Buffer.from(base64FileData, "base64");
-    const files = await readZip(decoded);
+    const files = await importFileRepository.read(base64FileData);
 
     const testResultFiles = files.filter((file) => {
       return file.filePath.includes("test-results");

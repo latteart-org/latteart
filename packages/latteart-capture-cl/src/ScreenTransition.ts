@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
+import { ElementInfo } from "./Operation";
 import { TimestampImpl } from "./Timestamp";
 
 /**
  * Screen transition information.
  */
 export default class ScreenTransition {
+  /**
+   * Scroll position.
+   */
+  public scrollPosition = { x: 0, y: 0 };
+
+  /**
+   * Client size.
+   */
+  public clientSize = { width: 0, height: 0 };
+
   /**
    * The title of destination screen.
    */
@@ -49,6 +60,11 @@ export default class ScreenTransition {
    * Html page source.
    */
   public pageSource = "";
+
+  /**
+   * The screen elements in the screen.
+   */
+  public screenElements: ElementInfo[] = [];
 
   /**
    * Constructor.

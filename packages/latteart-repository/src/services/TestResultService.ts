@@ -27,21 +27,37 @@ import {
   CreateTestResultResponse,
   GetTestResultResponse,
   PatchTestResultResponse,
-  TestResultViewOption,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
-import { StaticDirectoryServiceImpl } from "./StaticDirectoryService";
 import { TestStepService } from "./TestStepService";
 import { TimestampService } from "./TimestampService";
 import path from "path";
 import ScreenDefFactory, {
   ScreenDefinitionConfig,
-} from "@/lib/ScreenDefFactory";
+} from "@/domain/ScreenDefFactory";
 import {
   generateSequenceView,
   SequenceView,
-} from "@/lib/sequenceViewGenerator";
+} from "@/domain/sequenceViewGeneration";
+import { TestResultViewOption } from "@/domain/types";
+import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  createTestActions,
+  isSameProcedure,
+} from "@/domain/pageTesting/action";
+import {
+  assertPageStateEqual,
+  PageAssertionOption,
+} from "@/domain/pageTesting";
+import {
+  createReportSummary,
+  createReport,
+  outputReport,
+  extractOperation,
+} from "./helper/testResultCompareHelper";
+import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
+import { ServerError } from "@/ServerError";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -72,6 +88,12 @@ export interface TestResultService {
     testResultId: string,
     option?: TestResultViewOption
   ): Promise<SequenceView>;
+
+  compareTestResults(
+    testResultId1: string,
+    testResultId2: string,
+    option?: PageAssertionOption
+  ): Promise<CompareTestResultsResponse>;
 }
 
 export class TestResultServiceImpl implements TestResultService {
@@ -79,6 +101,9 @@ export class TestResultServiceImpl implements TestResultService {
     private service: {
       timestamp: TimestampService;
       testStep: TestStepService;
+      screenshotFileRepository: FileRepository;
+      workingFileRepository: FileRepository;
+      compareReportRepository: FileRepository;
     }
   ) {}
 
@@ -89,6 +114,7 @@ export class TestResultServiceImpl implements TestResultService {
       return {
         id: testResult.id,
         name: testResult.name,
+        parentTestResultId: testResult.parentTestResultId,
       };
     });
   }
@@ -152,6 +178,7 @@ export class TestResultServiceImpl implements TestResultService {
       testPurposes: [],
       notes: [],
       screenshots: [],
+      parentTestResultId: body.parentTestResultId,
     });
 
     if (testResultId) {
@@ -172,7 +199,7 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotDirectoryService: StaticDirectoryServiceImpl
+    screenshotFileRepository: FileRepository
   ): Promise<void> {
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
@@ -201,7 +228,7 @@ export class TestResultServiceImpl implements TestResultService {
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
       fileUrls.forEach((fileUrl) => {
-        screenshotDirectoryService.removeFile(path.basename(fileUrl));
+        screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
     return;
@@ -340,12 +367,86 @@ export class TestResultServiceImpl implements TestResultService {
         screenDef: screenDefFactory.create({
           url: testStep.operation.url,
           title: testStep.operation.title,
-          keywordSet: new Set(testStep.operation.keywordTexts),
+          keywordSet: new Set(
+            testStep.operation.keywordTexts?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
         }),
       };
     });
 
     return generateSequenceView(testStepWithScreenDefs);
+  }
+
+  public async compareTestResults(
+    actualTestResultId: string,
+    expectedTestResultId: string,
+    option: PageAssertionOption = {}
+  ): Promise<CompareTestResultsResponse> {
+    const testStepRepository = getRepository(TestStepEntity);
+    const findOption = {
+      relations: ["screenshot"],
+      order: { timestamp: "ASC" as const },
+    };
+    const actualTestStepEntities = await testStepRepository.find({
+      ...findOption,
+      where: { testResult: actualTestResultId },
+    });
+    const expectedTestStepEntities = await testStepRepository.find({
+      ...findOption,
+      where: { testResult: expectedTestResultId },
+    });
+
+    const actualOperations = actualTestStepEntities.map((entity) => {
+      return extractOperation(entity, this.service.screenshotFileRepository);
+    });
+    const expectedOperations = expectedTestStepEntities.map((entity) => {
+      return extractOperation(entity, this.service.screenshotFileRepository);
+    });
+
+    const actualActions = createTestActions(...actualOperations);
+    const expectedActions = createTestActions(...expectedOperations);
+
+    if (!isSameProcedure(actualActions, expectedActions)) {
+      throw new ServerError(500, {
+        code: "comparison_targets_not_same_procedures",
+      });
+    }
+
+    const assertionResults = await Promise.all(
+      expectedActions.map((expected, index) => {
+        return assertPageStateEqual(
+          { actual: actualActions[index].result, expected: expected.result },
+          option
+        );
+      })
+    );
+
+    const testResultRepository = getRepository(TestResultEntity);
+    const actualTestResult = await testResultRepository.findOneOrFail(
+      actualTestResultId
+    );
+    const expectedTestResult = await testResultRepository.findOneOrFail(
+      expectedTestResultId
+    );
+
+    const targetNames = {
+      actual: actualTestResult.name,
+      expected: expectedTestResult.name,
+    };
+    const report = createReport(targetNames, assertionResults);
+    const summary = createReportSummary(report);
+    const reportUrl = await outputReport(
+      `compare_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+      report,
+      this.service.compareReportRepository,
+      this.service.workingFileRepository
+    );
+
+    return { url: reportUrl, targetNames, summary };
   }
 
   private async convertTestResultEntityToTestResult(
@@ -413,6 +514,7 @@ export class TestResultServiceImpl implements TestResultService {
       testingTime: testResultEntity.testingTime,
       testSteps,
       coverageSources,
+      parentTestResultId: testResultEntity.parentTestResultId,
     };
   }
 }

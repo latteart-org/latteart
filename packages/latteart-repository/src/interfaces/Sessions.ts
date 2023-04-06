@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { GetNoteResponse } from "./Notes";
+
 /**
  * Registered session data.
  */
@@ -33,34 +35,19 @@ export type ListSessionResponse = string[];
  * Session data for update.
  */
 export interface PatchSessionDto {
+  isDone?: boolean;
+  testItem?: string;
+  testerName?: string;
+  memo?: string;
   attachedFiles?: {
     name: string;
     fileUrl?: string;
     fileData?: string;
   }[];
-  doneDate?: string;
-  isDone?: boolean;
-  issues?: {
-    details: string;
-    source: {
-      index: number;
-      type: string;
-    };
-    status: string;
-    ticketId: string;
-    type: string;
-    value: string;
-    imageFilePath?: string;
-  }[];
-  memo?: string;
-  name?: string;
-  testItem?: string;
   testResultFiles?: {
     name: string;
     id: string;
   }[];
-  testerName?: string;
-  testingTime?: number;
 }
 
 /**
@@ -68,32 +55,23 @@ export interface PatchSessionDto {
  */
 export type Session = {
   index: number;
+  name: string;
   id: string;
+  isDone: boolean;
+  doneDate: string;
+  testItem: string;
+  testerName: string;
+  memo: string;
   attachedFiles: {
     name: string;
     fileUrl: string;
   }[];
-  doneDate: string;
-  isDone: boolean;
-  issues: {
-    details: string;
-    source: {
-      index: number;
-      type: string;
-    };
-    status: string;
-    ticketId: string;
-    type: string;
-    value: string;
-    imageFilePath?: string;
-  }[];
-  memo: string;
-  name: string;
-  testItem: string;
   testResultFiles: {
     name: string;
     id: string;
   }[];
-  testerName: string;
+  initialUrl: string;
+  testPurposes: GetNoteResponse[];
+  notes: GetNoteResponse[];
   testingTime: number;
 };

@@ -9,6 +9,7 @@ localVue.use(Vuetify);
 describe("Storyの", () => {
   describe("getTargetSessionは", () => {
     const session: Session = {
+      index: 0,
       id: "s001",
       name: "session1",
       isDone: true,
@@ -19,8 +20,9 @@ describe("Storyの", () => {
       attachedFiles: [],
       testResultFiles: [],
       initialUrl: "",
-      issues: [],
-      intentions: [],
+      testPurposes: [],
+      notes: [],
+      testingTime: 0,
     };
 
     const story: Story = {

@@ -20,7 +20,6 @@ import {
   Operation,
   CoverageSource,
   TestStepNote,
-  TestStep,
 } from "../types";
 import { ServiceResult } from "../result";
 

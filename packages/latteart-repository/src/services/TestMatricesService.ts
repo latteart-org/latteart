@@ -20,6 +20,7 @@ import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { TestMatrix } from "@/interfaces/TestMatrices";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
+import { testMatrixEntityToResponse } from "./helper/entityToResponse";
 
 export class TestMatricesService {
   public async get(testMatrixId: string): Promise<TestMatrix> {
@@ -32,7 +33,7 @@ export class TestMatricesService {
       throw new Error(`TestMatrix not found. ${testMatrixId}`);
     }
 
-    return this.testMatrixIdToResponse(testMatrix.id);
+    return this.entityToResponse(testMatrix.id);
   }
 
   public async post(body: {
@@ -52,7 +53,7 @@ export class TestMatricesService {
     const testMatrix = await getRepository(TestMatrixEntity).save(
       new TestMatrixEntity(body.name, nextIndex, projectEntity)
     );
-    return this.testMatrixIdToResponse(testMatrix.id);
+    return this.entityToResponse(testMatrix.id);
   }
 
   public async patch(
@@ -68,7 +69,7 @@ export class TestMatricesService {
       testMatrix.name = body.name;
       testMatrix = await testMatrixRepository.save(testMatrix);
     }
-    return this.testMatrixIdToResponse(testMatrix.id);
+    return this.entityToResponse(testMatrix.id);
   }
 
   public async delete(
@@ -119,9 +120,7 @@ export class TestMatricesService {
     return;
   }
 
-  private async testMatrixIdToResponse(
-    testMatrixId: string
-  ): Promise<TestMatrix> {
+  private async entityToResponse(testMatrixId: string): Promise<TestMatrix> {
     const testMatrix = await getRepository(TestMatrixEntity).findOne(
       testMatrixId,
       {
@@ -136,43 +135,6 @@ export class TestMatricesService {
       throw new Error(`TestMatrix not found. ${testMatrix}`);
     }
 
-    const orderByIndex = (val1: any, val2: any) => {
-      return val1.index - val2.index;
-    };
-
-    return {
-      id: testMatrix.id,
-      name: testMatrix.name,
-      index: testMatrix.index,
-      groups: (testMatrix.testTargetGroups ?? [])
-        .sort(orderByIndex)
-        .map((group) => {
-          return {
-            id: group.id,
-            name: group.name,
-            index: group.index,
-            testTargets: (group.testTargets ?? [])
-              .sort(orderByIndex)
-              .map((testTarget) => {
-                return {
-                  id: testTarget.id,
-                  name: testTarget.name,
-                  index: testTarget.index,
-                  plans: JSON.parse(testTarget.text),
-                };
-              }),
-          };
-        }),
-      viewPoints: (testMatrix.viewPoints ?? [])
-        .sort(orderByIndex)
-        .map((viewPoint, index) => {
-          return {
-            id: viewPoint.id,
-            name: viewPoint.name,
-            index,
-            description: viewPoint.description ?? "",
-          };
-        }),
-    };
+    return testMatrixEntityToResponse(testMatrix);
   }
 }

@@ -21,7 +21,6 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import {
   OperationWithNotes,
   OperationHistory,
-  ScreenTransition,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
@@ -489,12 +488,18 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   setTestResultInfo(
     state,
-    payload: { repositoryUrl: string; id: string; name: string }
+    payload: {
+      repositoryUrl: string;
+      id: string;
+      name: string;
+      parentTestResultId: string;
+    }
   ) {
     state.testResultInfo = {
       repositoryUrl: payload.repositoryUrl,
       id: payload.id,
       name: payload.name,
+      parentTestResultId: payload.parentTestResultId,
     };
   },
 

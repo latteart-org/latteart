@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+import { FileRepository } from "@/interfaces/fileRepository";
+
 export interface TestScriptDocRenderingService {
   render(
-    testScriptDirectoryPath: string,
-    screenshotFilePaths: string[]
+    workingFileRepository: FileRepository,
+    testScriptDirName: string,
+    screenshotFileNames: string[]
   ): Promise<void>;
 }

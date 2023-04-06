@@ -93,7 +93,20 @@
     "delete-test-result-title": "テスト結果の削除",
     "delete-test-result-associated-session-message": "管理ツールで本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
-    "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "compare-test-result": "テスト結果の比較",
+    "compare-test-result-title": "テスト結果の比較",
+    "compare-test-result-message": "テスト結果を比較してよろしいですか？",
+    "comparing-test-result": "テスト結果を比較中",
+    "compare-test-result-completed": "テスト結果「{actual}」と「{expected}」の比較が完了しました。",
+    "compare-test-result-is-same": "テスト結果に差異はありません。",
+    "compare-test-result-is-different": "テスト結果に {diffCount} 件の差異があります。",
+    "compare-test-result-download": "詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-not-exist": "比較するテスト結果がありません。",
+    "compare-diffs-sequence": "操作の通番",
+    "compare-diffs-items": "差異のあった操作内情報",
+    "compare-diffs-remarks": "備考",
+    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
@@ -142,6 +155,11 @@
     "image-compression-enabled": "取得したスクリーンショットを圧縮する",
     "image-compression-delete-source-image": "元画像を削除する",
     "include-coverage": "カバレッジ計算に含めるタグ",
+    "setting-test-result-comparison": "テスト結果比較の設定",
+    "comparison-exclude-items-enabled": "指定した操作内情報の差分を検出しない",
+    "comparison-exclude-items-value": "除外する操作内情報",
+    "comparison-exclude-elements-enabled": "指定した画面要素の差分を検出しない",
+    "comparison-exclude-elements-tagname": "除外するタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
@@ -232,6 +250,8 @@
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
+    "replay-capture": "リプレイ結果を保存する",
+    "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
     "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
   },
@@ -269,6 +289,12 @@
     "input": "入力値",
     "timestamp": "時刻",
     "url": "URL"
+  },
+  "test-result-comparison-items": {
+    "title": "ページタイトル",
+    "url": "ページURL",
+    "elementTexts": "ページ内文字列",
+    "screenshot": "スクリーンショット"
   },
   "sequence": {
     "window-title": "シーケンス図"
@@ -547,7 +573,9 @@
       "get_test_result_failed": "テスト結果の取得に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
-      "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}"
+      "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",
+      "compare_test_results_failed": "テスト結果の比較に失敗しました。",
+      "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

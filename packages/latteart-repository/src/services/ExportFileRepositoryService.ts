@@ -15,13 +15,8 @@
  */
 
 import path from "path";
-import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import FileArchiver from "@/lib/FileArchiver";
-import { StaticDirectoryService } from "./StaticDirectoryService";
-import os from "os";
-import { attachedFileDirectoryService } from "..";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 interface exportProjectData {
   projectId: string;
@@ -60,8 +55,8 @@ export class ExportFileRepositoryServiceImpl
 {
   constructor(
     private service: {
-      staticDirectory: StaticDirectoryService;
-      imageFileRepository: ImageFileRepositoryService;
+      exportFileRepository: FileRepository;
+      workingFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -71,19 +66,17 @@ export class ExportFileRepositoryServiceImpl
     testResults: exportTestResultData[]
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
-    const outputDirectoryPath = path.join(tmpDirPath, `project_${timestamp}`);
+    const outputDirName = `project_${timestamp}`;
 
     if (project) {
       await this.outputProjectFiles(
-        path.join(outputDirectoryPath, "projects"),
+        path.join(outputDirName, "projects"),
         project
       );
     }
 
     if (testResults.length > 0) {
-      const testResultsDirPath = path.join(outputDirectoryPath, "test-results");
-      await fs.mkdirp(testResultsDirPath);
+      const testResultsDirPath = path.join(outputDirName, "test-results");
       await Promise.all(
         testResults.map(async (testResult) => {
           await this.outputTestResultFiles(testResultsDirPath, testResult);
@@ -91,18 +84,21 @@ export class ExportFileRepositoryServiceImpl
       );
     }
 
-    const zipFilePath = await new FileArchiver(outputDirectoryPath, {
-      deleteSource: false,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      false
+    );
     console.log("<< completed zip!! >>");
 
-    await this.service.staticDirectory.moveFile(
+    await this.service.exportFileRepository.moveFile(
       zipFilePath,
       path.basename(zipFilePath)
     );
     console.log("<< completed move!! >>");
 
-    return this.service.staticDirectory.getFileUrl(path.basename(zipFilePath));
+    return this.service.exportFileRepository.getFileUrl(
+      path.basename(zipFilePath)
+    );
   }
 
   public async outputProjectFiles(
@@ -110,12 +106,12 @@ export class ExportFileRepositoryServiceImpl
     project: exportProjectData
   ): Promise<void> {
     const projectPath = path.join(projectsDirPath, project.projectId);
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(projectPath, project.projectFile.fileName),
       project.projectFile.data
     );
 
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(projectPath, project.progressesFile.fileName),
       project.progressesFile.data
     );
@@ -134,19 +130,12 @@ export class ExportFileRepositoryServiceImpl
                     "attached"
                   );
 
-                  await fs.mkdirp(distAttachedDirPath);
                   const fileName = attachedFile.fileUrl.split("/").slice(-1)[0];
-                  const srcFilePath =
-                    attachedFileDirectoryService.getJoinedPath(fileName);
-                  console.log(
-                    `attached: ${srcFilePath} => ${path.join(
-                      distAttachedDirPath,
-                      fileName
-                    )}`
-                  );
-                  await fs.copyFile(
-                    srcFilePath,
-                    path.join(distAttachedDirPath, fileName)
+
+                  await this.service.workingFileRepository.copyFile(
+                    fileName,
+                    path.join(distAttachedDirPath, fileName),
+                    "attachedFile"
                   );
                 }
                 return;
@@ -172,21 +161,20 @@ export class ExportFileRepositoryServiceImpl
         testResult.testResultFile.fileName
       )}`
     );
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(testResultPath, testResult.testResultFile.fileName),
       testResult.testResultFile.data
     );
-    await fs.mkdirp(path.join(testResultPath, "screenshot"));
 
     await Promise.all(
       testResult.screenshots.map(async (screenshot) => {
         const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
 
-        const srcFilePath =
-          this.service.imageFileRepository.getFilePath(fileName);
-        const distFilePath = path.join(testResultPath, "screenshot", fileName);
-        console.log(`${srcFilePath} => ${distFilePath}`);
-        return await fs.copyFile(srcFilePath, distFilePath);
+        return await this.service.workingFileRepository.copyFile(
+          fileName,
+          path.join(testResultPath, "screenshot", fileName),
+          "screenshot"
+        );
       })
     ).catch((e) => {
       console.log(e);
@@ -199,19 +187,23 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: { fileName: string; data: string };
     screenshots: { id: string; fileUrl: string }[];
   }): Promise<string> {
-    const tmpTestScriptDirectoryPath = await this.outputFiles(testResult);
+    const outputDirName = await this.outputFiles(testResult);
 
-    const zipFilePath = await new FileArchiver(tmpTestScriptDirectoryPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      true
+    );
 
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
 
     const exportFileName = `${testResult.name}_${timestamp}.zip`;
 
-    await this.service.staticDirectory.moveFile(zipFilePath, exportFileName);
+    await this.service.exportFileRepository.moveFile(
+      zipFilePath,
+      exportFileName
+    );
 
-    return this.service.staticDirectory.getFileUrl(exportFileName);
+    return this.service.exportFileRepository.getFileUrl(exportFileName);
   }
 
   private async outputFiles(testResult: {
@@ -219,33 +211,26 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: { fileName: string; data: string };
     screenshots: { id: string; fileUrl: string }[];
   }) {
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
-
-    const outputDirectoryPath = path.join(tmpDirPath, `test_result`);
-
-    const destTestResultFilePath = path.join(
-      outputDirectoryPath,
-      testResult.testResultFile.fileName
+    const outputDirName = `test_result`;
+    await this.service.workingFileRepository.outputFile(
+      path.join(outputDirName, testResult.testResultFile.fileName),
+      testResult.testResultFile.data
     );
 
-    await fs.outputFile(destTestResultFilePath, testResult.testResultFile.data);
-
-    const screenshotFilePaths = testResult.screenshots.map(({ fileUrl }) => {
-      const fileName = fileUrl.split("/").slice(-1)[0];
-
-      return this.service.imageFileRepository.getFilePath(fileName);
+    const screenshotFileNames = testResult.screenshots.map(({ fileUrl }) => {
+      return fileUrl.split("/").slice(-1)[0];
     });
 
     await Promise.all(
-      screenshotFilePaths.map((filePath) => {
-        const destScreenshotFilePath = path.join(
-          outputDirectoryPath,
-          path.basename(filePath)
+      screenshotFileNames.map((fileName) => {
+        return this.service.workingFileRepository.copyFile(
+          fileName,
+          path.join(outputDirName, path.basename(fileName)),
+          "screenshot"
         );
-        return fs.copyFile(filePath, destScreenshotFilePath);
       })
     );
 
-    return outputDirectoryPath;
+    return outputDirName;
   }
 }

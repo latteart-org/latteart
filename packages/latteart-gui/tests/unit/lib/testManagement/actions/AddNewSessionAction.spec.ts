@@ -19,6 +19,7 @@ describe("AddNewSessionAction", () => {
         httpPost: jest.fn().mockResolvedValue({
           status: 200,
           data: {
+            index: 0,
             name: "",
             id: "sessionId",
             isDone: false,
@@ -29,8 +30,8 @@ describe("AddNewSessionAction", () => {
             attachedFiles: [],
             testResultFiles: [],
             initialUrl: "",
-            issues: [],
-            intentions: [],
+            testPurposes: [],
+            notes: [],
             testingTime: 0,
           },
         }),
@@ -43,6 +44,7 @@ describe("AddNewSessionAction", () => {
 
       const result = await new AddNewSessionAction().addNewSession(args, {
         sessionRepository: new SessionRepository(postSessionResponse),
+        serviceUrl: "serviceUrl",
       });
 
       if (result.isFailure()) {
@@ -57,18 +59,19 @@ describe("AddNewSessionAction", () => {
       );
 
       expect(result.data).toEqual({
-        attachedFiles: [],
-        doneDate: "",
+        index: 0,
+        name: "sessionId",
         id: "sessionId",
-        initialUrl: "",
-        intentions: [],
         isDone: false,
-        issues: [],
-        memo: "",
-        name: "",
+        doneDate: "",
         testItem: "",
-        testResultFiles: [],
         testerName: "",
+        memo: "",
+        attachedFiles: [],
+        testResultFiles: [],
+        initialUrl: "",
+        testPurposes: [],
+        notes: [],
         testingTime: 0,
       });
     });

@@ -17,7 +17,6 @@
 import {
   ProjectListResponse,
   GetProjectResponse,
-  Project,
 } from "../interfaces/Projects";
 import { ProjectEntity } from "../entities/ProjectEntity";
 import { getManager } from "typeorm";
@@ -26,7 +25,7 @@ import { getRepository } from "typeorm";
 import { TestMatrixEntity } from "../entities/TestMatrixEntity";
 import { TestTargetGroupEntity } from "../entities/TestTargetGroupEntity";
 import { ViewPointEntity } from "../entities/ViewPointEntity";
-import { storyEntityToResponse } from "@/lib/entityToResponse";
+import { projectEntityToResponse } from "@/services/helper/entityToResponse";
 
 export interface ProjectsService {
   getProjectIdentifiers(): Promise<ProjectListResponse[]>;
@@ -78,7 +77,7 @@ export class ProjectsServiceImpl implements ProjectsService {
       throw new Error(`Project not found: ${projectId}`);
     }
 
-    return this.projectEntityToResponse(project);
+    return projectEntityToResponse(project);
   }
 
   private async getReturnProject(projectId: string): Promise<ProjectEntity> {
@@ -103,6 +102,7 @@ export class ProjectsServiceImpl implements ProjectsService {
               "stories.sessions",
               "stories.sessions.attachedFiles",
               "stories.sessions.testResult",
+              "stories.sessions.testResult.testPurposes",
               "stories.sessions.testResult.notes",
               "stories.sessions.testResult.notes.testSteps",
               "stories.sessions.testResult.notes.testSteps.screenshot",
@@ -130,68 +130,5 @@ export class ProjectsServiceImpl implements ProjectsService {
       })
     );
     return updatedProject;
-  }
-
-  public projectEntityToResponse(project: ProjectEntity): Project {
-    const stories: Project["stories"] = [];
-    for (const testMatrix of project.testMatrices) {
-      for (const story of testMatrix.stories) {
-        stories.push(storyEntityToResponse(story));
-      }
-    }
-
-    const ascSortFunc = (a: any, b: any) => (a.index > b.index ? 1 : -1);
-
-    return {
-      id: project.id,
-      name: project.name,
-      testMatrices: project.testMatrices.sort(ascSortFunc).map((testMatrix) => {
-        return {
-          id: testMatrix.id,
-          name: testMatrix.name,
-          index: testMatrix.index,
-          groups: testMatrix.testTargetGroups
-            .sort(ascSortFunc)
-            .map((testTargetGroup) => {
-              return {
-                id: testTargetGroup.id,
-                name: testTargetGroup.name,
-                index: testTargetGroup.index,
-                testTargets: testTargetGroup.testTargets
-                  .sort(ascSortFunc)
-                  .map((testTarget) => {
-                    const plans = JSON.parse(testTarget.text) as {
-                      value: number;
-                      viewPointId: string;
-                    }[];
-                    for (const v of testMatrix.viewPoints) {
-                      if (!plans.find((plan) => plan.viewPointId === v.id)) {
-                        plans.push({
-                          viewPointId: v.id,
-                          value: 0,
-                        });
-                      }
-                    }
-                    return {
-                      id: testTarget.id,
-                      name: testTarget.name,
-                      index: testTarget.index,
-                      plans,
-                    };
-                  }),
-              };
-            }),
-          viewPoints: testMatrix.sortedViewPoint().map((viewPoint) => {
-            return {
-              id: viewPoint.id,
-              name: viewPoint.name,
-              index: viewPoint.index,
-              description: viewPoint.description ?? "",
-            };
-          }),
-        };
-      }),
-      stories,
-    };
   }
 }

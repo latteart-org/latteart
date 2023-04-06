@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
@@ -32,7 +30,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService } from "..";
 import {
   CreateNoteDto,
   UpdateNoteDto,
@@ -41,6 +38,8 @@ import {
   UpdateNoteResponse,
 } from "../interfaces/Notes";
 import { NotesServiceImpl } from "../services/NotesService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/notes")
 @Tags("test-results")
@@ -62,12 +61,14 @@ export class NotesController extends Controller {
     console.log("NotesController - addNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
+    const logger = createLogger();
 
     if (!["notice", "intention"].includes(requestBody.type)) {
-      LoggingService.error(`invalid note type: ${requestBody.type}`);
+      logger.error(`invalid note type: ${requestBody.type}`);
 
       throw new ServerError(400, {
         code: "add_note_failed",
@@ -77,7 +78,7 @@ export class NotesController extends Controller {
     try {
       if (requestBody.type === "notice") {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).createNote(testResultId, requestBody);
       } else {
@@ -88,7 +89,7 @@ export class NotesController extends Controller {
       }
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Add note failed.", error);
+        logger.error("Add note failed.", error);
 
         throw new ServerError(500, {
           code: "add_note_failed",
@@ -115,13 +116,15 @@ export class NotesController extends Controller {
     console.log("NotesController - getNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
+    const logger = createLogger();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
@@ -138,7 +141,7 @@ export class NotesController extends Controller {
       }
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get note failed.", error);
+        logger.error("Get note failed.", error);
 
         throw new ServerError(500, {
           code: "get_note_failed",
@@ -147,7 +150,7 @@ export class NotesController extends Controller {
       throw error;
     }
 
-    LoggingService.error(`Note not found. noteId: ${noteId}`);
+    logger.error(`Note not found. noteId: ${noteId}`);
 
     throw new ServerError(404, {
       code: "get_note_failed",
@@ -173,19 +176,21 @@ export class NotesController extends Controller {
     console.log("NotesController - updateNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
+    const logger = createLogger();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).updateNote(noteId, requestBody);
       }
@@ -202,7 +207,7 @@ export class NotesController extends Controller {
       }
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Edit note failed.", error);
+        logger.error("Edit note failed.", error);
 
         throw new ServerError(500, {
           code: "edit_note_failed",
@@ -211,7 +216,7 @@ export class NotesController extends Controller {
       throw error;
     }
 
-    LoggingService.error(`Note not found. noteId: ${noteId}`);
+    logger.error(`Note not found. noteId: ${noteId}`);
 
     throw new ServerError(404, {
       code: "edit_note_failed",
@@ -234,19 +239,21 @@ export class NotesController extends Controller {
     console.log("NotesController - deleteNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+
+    const logger = createLogger();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).deleteNote(noteId);
       }
@@ -260,7 +267,7 @@ export class NotesController extends Controller {
       }
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete note failed.", error);
+        logger.error("Delete note failed.", error);
 
         throw new ServerError(500, {
           code: "delete_note_failed",
@@ -269,7 +276,7 @@ export class NotesController extends Controller {
       throw error;
     }
 
-    LoggingService.error(`Note not found. noteId: ${noteId}`);
+    logger.error(`Note not found. noteId: ${noteId}`);
 
     throw new ServerError(404, {
       code: "delete_note_failed",

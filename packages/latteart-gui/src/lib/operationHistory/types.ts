@@ -16,7 +16,13 @@
 
 import { OperationForGUI } from "./OperationForGUI";
 import { NoteForGUI } from "./NoteForGUI";
-import { CoverageSource, Operation, ElementInfo } from "latteart-client";
+import {
+  CoverageSource,
+  Operation,
+  ElementInfo,
+  TestResultForRepository,
+  TestResultComparisonResultForRepository,
+} from "latteart-client";
 
 /**
  * Operation history and Notes information.
@@ -145,13 +151,7 @@ interface ApiNote {
   tags: string[];
 }
 
-export interface TestResult {
-  id: string;
-  name: string;
-  startTimeStamp: number;
-  lastUpdateTimeStamp: number;
-  initialUrl: string;
-  testingTime: number;
+export type TestResult = Omit<TestResultForRepository, "testSteps"> & {
   testSteps: {
     id: string;
     operation: Operation;
@@ -160,9 +160,12 @@ export interface TestResult {
     notices: ApiNote[];
   }[];
   coverageSources: CoverageSource[];
-}
+};
 
-export type TestResultSummary = Pick<TestResult, "id" | "name">;
+export type TestResultSummary = Pick<
+  TestResult,
+  "id" | "name" | "parentTestResultId"
+>;
 
 export type AutoOperation = {
   input: string;
@@ -187,3 +190,6 @@ export interface NoteDialogInfo {
   sequence: number;
   maxSequence: number;
 }
+
+export type TestResultComparisonResult =
+  TestResultComparisonResultForRepository;

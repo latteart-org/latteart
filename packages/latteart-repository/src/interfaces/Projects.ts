@@ -15,6 +15,8 @@
  */
 
 import { DailyTestProgress } from "../services/TestProgressService";
+import { Story } from "./Stories";
+import { ProjectTestMatrix } from "./TestMatrices";
 
 /**
  * Project list record.
@@ -38,78 +40,12 @@ export type GetTestProgressResponse = DailyTestProgress;
 /**
  * Project data.
  */
-export interface Project {
+export type Project = {
   id: string;
   name: string;
-  testMatrices: {
-    id: string;
-    name: string;
-    index: number;
-    groups: {
-      id: string;
-      name: string;
-      index: number;
-      testTargets: {
-        id: string;
-        name: string;
-        index: number;
-        plans: {
-          viewPointId: string;
-          value: number;
-        }[];
-      }[];
-    }[];
-    viewPoints: {
-      id: string;
-      name: string;
-      index: number;
-      description: string;
-    }[];
-  }[];
-  stories: StoryDetails[];
-}
-
-/**
- * Story data.
- */
-interface StoryDetails {
-  id: string;
-  testMatrixId: string;
-  testTargetId: string;
-  viewPointId: string;
-  status: string;
-  sessions: {
-    id: string;
-    attachedFiles: {
-      name: string;
-      fileUrl?: string;
-    }[];
-    doneDate: string;
-    isDone: boolean;
-    issues: {
-      details: string;
-      source: {
-        index: number;
-        type: string;
-      };
-      status: string;
-      ticketId: string;
-      type: string;
-      value: string;
-      imageFilePath?: string;
-      tags?: string[];
-    }[];
-    memo: string;
-    name: string;
-    testItem: string;
-    testResultFiles?: {
-      name: string;
-      id: string;
-    }[];
-    testerName: string;
-    testingTime: number;
-  }[];
-}
+  testMatrices: ProjectTestMatrix[];
+  stories: Story[];
+};
 
 /**
  * Test progress data for the specified ID.

@@ -16,12 +16,8 @@
 
 import { TestScriptDocRenderingService } from "./testScriptDocRendering/TestScriptDocRenderingService";
 import path from "path";
-import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import FileArchiver from "@/lib/FileArchiver";
-import { StaticDirectoryService } from "./StaticDirectoryService";
-import os from "os";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 export interface TestScriptFileRepositoryService {
   write(
@@ -49,9 +45,10 @@ export class TestScriptFileRepositoryServiceImpl
 {
   constructor(
     private service: {
-      staticDirectory: StaticDirectoryService;
+      testScriptRepository: FileRepository;
       testScriptDocRendering: TestScriptDocRenderingService;
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
+      workingFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -74,29 +71,31 @@ export class TestScriptFileRepositoryServiceImpl
     },
     screenshots: { id: string; fileUrl: string }[]
   ): Promise<string> {
-    const tmpTestScriptDirectoryPath = await this.outputScripts(testScripts);
+    const testScriptDirName = await this.outputScripts(testScripts);
 
-    const screenshotFilePaths = screenshots.map(({ fileUrl }) => {
-      const fileName = fileUrl.split("/").slice(-1)[0];
-
-      return this.service.imageFileRepository.getFilePath(fileName);
+    const screenshotFileNames = screenshots.map(({ fileUrl }) => {
+      return fileUrl.split("/").slice(-1)[0];
     });
 
     await this.service.testScriptDocRendering.render(
-      tmpTestScriptDirectoryPath,
-      screenshotFilePaths
+      this.service.workingFileRepository,
+      testScriptDirName,
+      screenshotFileNames
     );
 
-    const zipFilePath = await new FileArchiver(tmpTestScriptDirectoryPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      testScriptDirName,
+      true
+    );
 
-    await this.service.staticDirectory.moveFile(
+    await this.service.testScriptRepository.moveFile(
       zipFilePath,
       path.basename(zipFilePath)
     );
 
-    return this.service.staticDirectory.getFileUrl(path.basename(zipFilePath));
+    return this.service.testScriptRepository.getFileUrl(
+      path.basename(zipFilePath)
+    );
   }
 
   private async outputScripts(testScripts: {
@@ -106,45 +105,43 @@ export class TestScriptFileRepositoryServiceImpl
     others?: { name: string; script: string }[];
   }) {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
-
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
-
-    const outputDirectoryPath = path.join(
-      tmpDirPath,
-      `test_script_${timestamp}`
-    );
+    const outputDirName = `test_script_${timestamp}`;
 
     await Promise.all(
       testScripts.pageObjects.map((po) => {
-        const poDirPath = path.join(outputDirectoryPath, "page_objects");
-        const outputPath = path.join(poDirPath, po.name);
-        return fs.outputFile(outputPath, po.script);
+        const poPath = path.join(outputDirName, "page_objects", po.name);
+        return this.service.workingFileRepository.outputFile(poPath, po.script);
       })
     );
 
     await Promise.all(
       testScripts.testData.map((testData) => {
-        const testDataDirPath = path.join(outputDirectoryPath, "test_data");
-        const outputPath = path.join(testDataDirPath, testData.name);
-        return fs.outputFile(outputPath, testData.testData);
+        const testDataPath = path.join(
+          outputDirName,
+          "test_data",
+          testData.name
+        );
+        return this.service.workingFileRepository.outputFile(
+          testDataPath,
+          testData.testData
+        );
       })
     );
 
     if (testScripts.testSuite) {
-      const outputPath = path.join(
-        outputDirectoryPath,
-        testScripts.testSuite.name
+      await this.service.workingFileRepository.outputFile(
+        path.join(outputDirName, testScripts.testSuite.name),
+        testScripts.testSuite.spec
       );
-      await fs.outputFile(outputPath, testScripts.testSuite.spec);
     }
 
     for (const other of testScripts.others ?? []) {
-      await fs.outputFile(
-        path.join(outputDirectoryPath, other.name),
+      await this.service.workingFileRepository.outputFile(
+        path.join(outputDirName, other.name),
         other.script
       );
     }
 
-    return outputDirectoryPath;
+    return outputDirName;
   }
 }

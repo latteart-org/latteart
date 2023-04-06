@@ -34,6 +34,7 @@ import {
   TestTargetRepository,
   ViewPointRepository,
   StoryRepository,
+  TestResultComparisonRepository,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -41,7 +42,10 @@ import {
   ServiceFailure,
   ServiceSuccess,
 } from "../result";
-import { TestResultAccessorImpl } from "./testResultAccessor";
+import {
+  RepositoryContainer,
+  TestResultAccessorImpl,
+} from "./testResultAccessor";
 
 /**
  * create a Repository Service
@@ -50,7 +54,7 @@ import { TestResultAccessorImpl } from "./testResultAccessor";
 export function createRepositoryService(
   restClient: RESTClient
 ): RepositoryService {
-  const repositories = {
+  const repositories: RepositoryContainer = {
     testStepRepository: new TestStepRepositoryImpl(restClient),
     noteRepository: new NoteRepositoryImpl(restClient),
     testResultRepository: new TestResultRepository(restClient),
@@ -68,22 +72,20 @@ export function createRepositoryService(
     testTargetRepository: new TestTargetRepository(restClient),
     viewPointRepository: new ViewPointRepository(restClient),
     storyRepository: new StoryRepository(restClient),
+    testResultComparisonRepository: new TestResultComparisonRepository(
+      restClient
+    ),
   };
 
   return {
     serviceUrl: restClient.serverUrl,
-    async createEmptyTestResult(
-      option: {
-        initialUrl?: string;
-        name?: string;
-        source?: string;
-      } = {}
-    ): Promise<ServiceResult<{ id: string; name: string }>> {
+    async createEmptyTestResult(option?: {
+      initialUrl?: string;
+      name?: string;
+      parentTestResultId?: string;
+    }): Promise<ServiceResult<{ id: string; name: string }>> {
       const result =
-        await repositories.testResultRepository.postEmptyTestResult(
-          option.initialUrl,
-          option.name
-        );
+        await repositories.testResultRepository.postEmptyTestResult(option);
 
       if (result.isFailure()) {
         const error: ServiceError = {

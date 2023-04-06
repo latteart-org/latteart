@@ -19,7 +19,6 @@ import {
   PatchTestTargetResponse,
   PostTestTargetResponse,
 } from "../interfaces/TestTargets";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TestTargetService } from "@/services/TestTargetsService";
 import {
@@ -36,6 +35,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { transactionRunner } from "..";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/test-targets/")
 @Tags("projects")
@@ -60,7 +60,7 @@ export class TestTargetsController extends Controller {
       return await new TestTargetService().get(testTargetId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get testTarget failed.", error);
+        createLogger().error("Get testTarget failed.", error);
 
         throw new ServerError(500, {
           code: "get_test_target_failed",
@@ -90,7 +90,7 @@ export class TestTargetsController extends Controller {
       return await new TestTargetService().post(body, transactionRunner);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Post testTarget failed.", error);
+        createLogger().error("Post testTarget failed.", error);
 
         throw new ServerError(500, {
           code: "post_test_target_failed",
@@ -132,7 +132,7 @@ export class TestTargetsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch testTarget failed.", error);
+        createLogger().error("Patch testTarget failed.", error);
 
         throw new ServerError(500, {
           code: "patch_test_target_failed",
@@ -164,7 +164,7 @@ export class TestTargetsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Delete testTarget failed.", error);
+        createLogger().error("Delete testTarget failed.", error);
 
         throw new ServerError(500, {
           code: "delete_test_target_failed",

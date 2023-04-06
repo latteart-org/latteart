@@ -144,9 +144,10 @@ export class TestTargetService {
 
     const storyIds = testTarget.stories.map((story) => story.id);
 
-    await new TestProgressServiceImpl(
-      transactionRunner
-    ).saveTodayTestProgresses(projectId, ...storyIds);
+    await new TestProgressServiceImpl().saveTodayTestProgresses(
+      projectId,
+      ...storyIds
+    );
 
     return await this.testTargetIdToResponse(testTarget.id);
   }

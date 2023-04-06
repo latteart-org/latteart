@@ -47,7 +47,7 @@
           ></number-field>
           <v-expansion-panel v-model="panel" class="py-0">
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{ $store.getters.message("config-view.setting-device") }}
               </template>
               <v-container>
@@ -81,7 +81,7 @@
             </v-expansion-panel-content>
 
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{
                   $store.getters.message(
                     "config-view.setting-image-compression"
@@ -97,7 +97,7 @@
             </v-expansion-panel-content>
 
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{
                   $store.getters.message("config-view.setting-inclusion-tags")
                 }}
@@ -112,7 +112,7 @@
             </v-expansion-panel-content>
 
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{ $store.getters.message("config-view.setting-screen") }}
               </template>
               <screen-definition-config
@@ -124,7 +124,7 @@
             </v-expansion-panel-content>
 
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{ $store.getters.message("config-view.setting-autofill") }}
               </template>
               <autofill-setting
@@ -136,7 +136,7 @@
             </v-expansion-panel-content>
 
             <v-expansion-panel-content>
-              <template v-slot:header class="py-0">
+              <template v-slot:header>
                 {{
                   $store.getters.message("config-view.setting-auto-operation")
                 }}
@@ -147,6 +147,22 @@
                 @save-config="saveConfig"
               >
               </auto-operation-setting>
+            </v-expansion-panel-content>
+
+            <v-expansion-panel-content>
+              <template v-slot:header>
+                {{
+                  $store.getters.message(
+                    "config-view.setting-test-result-comparison"
+                  )
+                }}
+              </template>
+              <compare-setting
+                :tags="defaultTagList"
+                :setting="testResultComparisonSetting"
+                @save-config="saveConfig"
+              >
+              </compare-setting>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
@@ -175,6 +191,7 @@ import {
   DeviceSettings,
   ProjectSettings,
   ViewSettings,
+  TestResultComparisonSetting,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import {
@@ -183,6 +200,7 @@ import {
 } from "@/lib/operationHistory/types";
 import { default as AutoOperationSettingComponent } from "../../operationHistory/organisms/configViewer/AutoOperationSetting.vue";
 import { RootState } from "@/store";
+import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
 
 @Component({
   components: {
@@ -191,6 +209,7 @@ import { RootState } from "@/store";
     "screen-definition-config": ScreenDefinitionConfig,
     "image-compression-config": ImageCompressionConfig,
     "autofill-setting": AutofillSettingComponent,
+    "compare-setting": CompareSetting,
     "auto-operation-setting": AutoOperationSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
   },
@@ -274,6 +293,11 @@ export default class ConfigView extends Vue {
         conditionGroups: [],
       }
     );
+  }
+
+  private get testResultComparisonSetting(): TestResultComparisonSetting {
+    return (this.$store.state as RootState).projectSettings.config
+      .testResultComparison;
   }
 
   @Watch("locale")
@@ -475,6 +499,7 @@ export default class ConfigView extends Vue {
     screenDefinition?: ScreenDefinitionSetting;
     coverage?: CoverageSetting;
     imageCompression?: ImageCompressionSetting;
+    testResultComparison?: TestResultComparisonSetting;
   }) {
     const projectConfig = {
       ...config,
