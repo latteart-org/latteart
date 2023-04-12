@@ -151,9 +151,9 @@ export interface OperationHistoryState {
   canUpdateModels: boolean;
 
   /**
-   * Whether screen history is updating or not.
+   * Whether test result view model is updating or not.
    */
-  screenHistoryIsUpdating: boolean;
+  isTestResultViewModelUpdating: boolean;
 
   /**
    * Selected window handle.
@@ -169,11 +169,6 @@ export interface OperationHistoryState {
    * Selected note.
    */
   selectedOperationNote: { sequence: number | null; index: number | null };
-
-  /**
-   * Screen definition of selected screen.
-   */
-  selectedScreenDef: string;
 
   /**
    * Displayed operations.
@@ -248,11 +243,10 @@ const state: OperationHistoryState = {
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
-  screenHistoryIsUpdating: false,
+  isTestResultViewModelUpdating: false,
   selectedWindowHandle: "",
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
-  selectedScreenDef: "",
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
   checkedOperations: [],

@@ -63,11 +63,9 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import {
-  MessageProvider,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
+import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 
 @Component({
   components: {
@@ -77,32 +75,14 @@ import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 })
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
-  @Prop({ type: Array, default: [] }) testSteps?: OperationWithNotes[];
+  @Prop({ type: Array, default: [] }) notes?: Pick<
+    NoteForGUI,
+    "value" | "details" | "tags" | "sequence" | "imageFilePath"
+  >[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private close() {
     this.$emit("close");
-  }
-
-  private get notes() {
-    return (
-      this.testSteps?.flatMap((testStep) => {
-        return (
-          testStep.notices?.map(
-            ({ value, details, sequence, tags, imageFilePath }) => {
-              return {
-                value,
-                details,
-                tags,
-                sequence,
-                imageFilePath:
-                  imageFilePath || testStep.operation.imageFilePath,
-              };
-            }
-          ) ?? []
-        );
-      }) ?? []
-    );
   }
 }
 </script>

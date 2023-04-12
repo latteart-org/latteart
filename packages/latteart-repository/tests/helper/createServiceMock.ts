@@ -40,6 +40,7 @@ export const createTestResultServiceMock = (): TestResultService => {
     collectAllTestPurposeIds: jest.fn(),
     collectAllTestStepScreenshots: jest.fn(),
     generateSequenceView: jest.fn(),
+    generateGraphView: jest.fn(),
     compareTestResults: jest.fn(),
   };
 };

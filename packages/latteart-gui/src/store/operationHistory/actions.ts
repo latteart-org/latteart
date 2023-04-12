@@ -20,8 +20,6 @@ import { OperationHistoryState } from ".";
 import { RootState } from "..";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import {
-  Edge,
-  ScreenTransition,
   OperationWithNotes,
   AutofillConditionGroup,
   AutoOperation,
@@ -32,9 +30,9 @@ import {
   convertToSequenceDiagramGraph,
   SequenceDiagramGraphExtenderSource,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
 import * as Coverage from "@/lib/operationHistory/Coverage";
-import ScreenTransitionDiagramGraphConverter, {
+import {
+  convertToScreenTransitionDiagramGraph,
   FlowChartGraphCallback,
   FlowChartGraphExtenderSource,
 } from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
@@ -51,14 +49,11 @@ import { convertNote } from "@/lib/common/replyDataConverter";
 import {
   ServiceSuccess,
   TestResultViewOption,
-  CoverageSource,
   SequenceView,
+  GraphView,
 } from "latteart-client";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
-import OperationHistorySelector from "@/lib/operationHistory/OperationHistorySelector";
-import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
 
@@ -454,7 +449,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       },
       { root: true }
     );
-    await context.dispatch("updateScreenHistory");
+    await context.dispatch("updateTestResultViewModel");
 
     context.dispatch(
       "captureControl/resetTimer",
@@ -669,60 +664,172 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       callback: FlowChartGraphCallback;
     }
   ) {
-    const config = context.rootState.projectSettings.config.screenDefinition;
-    const screenDefFactory = new ScreenDefFactory(config);
-    const history = context.state.history.map((item) => {
-      const screenDef = screenDefFactory.createFrom(
-        item.operation.title,
-        item.operation.url,
-        item.operation.keywordSet
-      );
-      const operation = OperationForGUI.createFromOtherOperation({
-        other: item.operation,
-        overrideParams: { screenDef },
-      });
-
-      return { ...item, operation };
-    });
-
-    const screenHistory = ScreenHistory.createFromOperationHistory(
-      history,
-      context.state.coverageSources
-    );
-
     const windowHandles = context.state.windows.map(({ value }) => value);
 
+    let graphView: GraphView;
+    if (Vue.prototype.$graphView) {
+      graphView = Vue.prototype.$graphView;
+    } else {
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
+        );
+      const result = await testResult.generateGraphView(payload.viewOption);
+      if (result.isFailure()) {
+        return;
+      }
+      graphView = result.data;
+    }
+
     const createFlowChartGraphExtender = (
-      source: FlowChartGraphExtenderSource
+      args: FlowChartGraphExtenderSource
     ) => {
+      const testStepIdToSequence = args.source.testStepIdToSequence;
+
+      const screenTransitions = args.source.nodes.flatMap(
+        (node, index, array) => {
+          const nextNode = array.at(index + 1);
+
+          const sourceScreen = args.source.screens.find(
+            ({ id }) => id === node?.screenId
+          );
+          const destScreen = args.source.screens.find(
+            ({ id }) => id === nextNode?.screenId
+          );
+          const trigger = node?.testSteps.at(-1);
+          const defaultValues = node?.defaultValues;
+
+          if (!sourceScreen || !destScreen || !trigger || !defaultValues) {
+            return [];
+          }
+
+          const screenTransition = {
+            sourceScreen: { id: sourceScreen.id, name: sourceScreen.name },
+            destScreen: { id: destScreen.id, name: destScreen.name },
+            trigger: {
+              sequence: testStepIdToSequence.get(trigger.id) ?? 0,
+              type: trigger.type,
+              targetElementId: trigger.targetElementId,
+              input: trigger.input,
+              pageUrl: trigger.pageUrl,
+              pageTitle: trigger.pageTitle,
+            },
+            inputElements: defaultValues.flatMap(({ elementId, value }) => {
+              const element = graphView.store.elements.find(
+                ({ id }) => id === elementId
+              );
+
+              if (!element) {
+                return [];
+              }
+
+              const inputs = node.testSteps
+                .filter(({ targetElementId }) => {
+                  return targetElementId === elementId;
+                })
+                .flatMap(({ id, input }) => {
+                  const sequence = testStepIdToSequence.get(id);
+                  if (sequence === undefined || input === undefined) {
+                    return [];
+                  }
+
+                  return { sequence, value: input };
+                });
+
+              return [{ ...element, defaultValue: value, inputs }];
+            }),
+            notes: node.testSteps.flatMap((testStep) => {
+              return testStep.noteIds.flatMap((noteId) => {
+                const note = graphView.store.notes.find(
+                  ({ id }) => id === noteId
+                );
+                if (!note) {
+                  return [];
+                }
+                const imageFileUrl =
+                  note.imageFileUrl ?? testStep.imageFileUrl ?? "";
+
+                const sequence = testStepIdToSequence.get(testStep.id) ?? 0;
+
+                return [
+                  {
+                    ...note,
+                    imageFileUrl,
+                    tags: note.tags ?? [],
+                    sequence,
+                  },
+                ];
+              });
+            }),
+            testPurposes: graphView.store.testPurposes,
+          };
+
+          return [screenTransition];
+        }
+      );
+
       return new FlowChartGraphExtender({
         callback: {
-          onClickEdge: (index: number) =>
-            payload.callback.onClickEdge(source.edges[index]),
-          onClickScreenRect: (index: number) =>
-            payload.callback.onClickScreenRect(
-              source.appearedScreens[index].operationHistory[0].operation
-                .sequence
-            ),
+          onClickEdge: (index: number) => {
+            const screenTransition = screenTransitions.at(index);
+
+            if (!screenTransition) {
+              return;
+            }
+
+            const inputValueTable = new InputValueTable([screenTransition]);
+            const sequence = screenTransition.trigger.sequence;
+
+            payload.callback.onClickEdge(sequence, inputValueTable);
+          },
+          onClickScreenRect: (index: number) => {
+            const inputValueTable = new InputValueTable(
+              screenTransitions.filter((screenTransition) => {
+                return (
+                  screenTransition.sourceScreen.id ===
+                  args.source.screens.at(index)?.id
+                );
+              })
+            );
+            const sequence =
+              args.source.testStepIdToSequence.get(
+                args.source.nodes
+                  .find(
+                    ({ screenId }) => screenId === args.source.screens[index].id
+                  )
+                  ?.testSteps.at(0)?.id ?? ""
+              ) ?? 0;
+
+            payload.callback.onClickScreenRect(sequence, inputValueTable);
+          },
         },
-        nameMap: source.nameMap,
+        nameMap: new Map(
+          args.source.screens.map(({ name }, index) => [index, name])
+        ),
       });
     };
 
     const graphAndWindowHandles = await Promise.all(
       windowHandles.map(async (windowHandle) => {
         return {
-          graph: await ScreenTransitionDiagramGraphConverter.convert(
-            screenHistory,
-            windowHandle,
-            createFlowChartGraphExtender
-          ),
+          graph: (
+            await convertToScreenTransitionDiagramGraph(
+              graphView,
+              createFlowChartGraphExtender
+            )
+          ).find(({ window }) => {
+            return window.id === windowHandle;
+          })?.graph,
           windowHandle,
         };
       })
     );
 
     for (const { graph, windowHandle } of graphAndWindowHandles) {
+      if (!graph) {
+        continue;
+      }
+
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(
@@ -750,42 +857,37 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: { viewOption: TestResultViewOption }
   ) {
-    const config = context.rootState.projectSettings.config.screenDefinition;
-    const screenDefFactory = new ScreenDefFactory(config);
-    const history = context.state.history.map((item) => {
-      const screenDef = screenDefFactory.createFrom(
-        item.operation.title,
-        item.operation.url,
-        item.operation.keywordSet
-      );
-      const operation = OperationForGUI.createFromOtherOperation({
-        other: item.operation,
-        overrideParams: { screenDef },
-      });
+    let graphView: GraphView;
+    if (Vue.prototype.$graphView) {
+      graphView = Vue.prototype.$graphView;
+    } else {
+      const testResult =
+        context.rootState.repositoryService.createTestResultAccessor(
+          context.state.testResultInfo.id
+        );
+      const result = await testResult.generateGraphView(payload.viewOption);
+      if (result.isFailure()) {
+        return;
+      }
+      graphView = result.data;
+    }
 
-      return { ...item, operation };
-    });
-
-    const screenHistory = ScreenHistory.createFromOperationHistory(
-      history,
-      context.state.coverageSources
-    );
     const inclusionTags =
       context.rootState.projectSettings.config.coverage?.include?.tags ?? [];
 
-    const coverages = await Coverage.getCoverages(screenHistory, inclusionTags);
+    const coverages = Coverage.getCoverages(graphView, inclusionTags);
 
     context.commit("setElementCoverages", { coverages });
   },
 
   /**
-   * Update screen history.
+   * Update test result view model.
    * @param context Action context.
    */
-  async updateScreenHistory(context) {
+  async updateTestResultViewModel(context) {
     try {
-      context.commit("setScreenHistoryIsUpdating", {
-        screenHistoryIsUpdating: true,
+      context.commit("setTestResultViewModelUpdating", {
+        isTestResultViewModelUpdating: true,
       });
 
       context.commit("clearModels");
@@ -816,16 +918,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       const selectOperation = (sequence: number) => {
         context.commit("selectOperation", { sequence });
-
-        const operationWithNotes: OperationWithNotes | undefined =
-          context.getters.findHistoryItem(sequence);
-        if (!operationWithNotes) {
-          return;
-        }
-
-        context.commit("selectScreen", {
-          screenDef: operationWithNotes.operation.screenDef,
-        });
       };
 
       await context.dispatch("buildSequenceDiagramGraph", {
@@ -864,114 +956,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       });
 
-      const buildInputValueTable = (params: {
-        selectedScreenTransition: ScreenTransition | null;
-        screenDefinitionConfig: {
-          screenDefType: "title" | "url";
-          conditionGroups: {
-            isEnabled: boolean;
-            screenName: string;
-            conditions: {
-              isEnabled: boolean;
-              definitionType: "title" | "url" | "keyword";
-              matchType: "contains" | "equals" | "regex";
-              word: string;
-            }[];
-          }[];
-        };
-        coverageSources: CoverageSource[];
-        history: OperationWithNotes[];
-        selectedScreenDef: string;
-        selectedWindowHandle: string;
-      }) => {
-        const config = params.screenDefinitionConfig;
-        const screenDefFactory = new ScreenDefFactory(config);
-        const history = params.history.map((item) => {
-          const screenDef = screenDefFactory.createFrom(
-            item.operation.title,
-            item.operation.url,
-            item.operation.keywordSet
-          );
-          const operation = OperationForGUI.createFromOtherOperation({
-            other: item.operation,
-            overrideParams: { screenDef },
-          });
-
-          return { ...item, operation };
-        });
-
-        const screenHistory = ScreenHistory.createFromOperationHistory(
-          history,
-          params.coverageSources
-        );
-
-        const transitions = screenHistory
-          .collectScreenTransitions(params.selectedScreenDef)
-          .map((transition) => {
-            return {
-              sourceScreenDef: transition.source.screenDef,
-              targetScreenDef: transition.target.screenDef,
-              history: transition.history.filter(({ operation }) => {
-                return operation.windowHandle === params.selectedWindowHandle;
-              }),
-              screenElements: transition.screenElements,
-              inputElements: transition.inputElements,
-            };
-          })
-          .filter((transition) => {
-            if (transition.history.length === 0) {
-              return false;
-            }
-
-            const selectedTransition = params.selectedScreenTransition;
-
-            if (!selectedTransition) {
-              return true;
-            }
-
-            return (
-              transition.sourceScreenDef ===
-                selectedTransition.source.screenDef &&
-              transition.targetScreenDef === selectedTransition.target.screenDef
-            );
-          });
-
-        const selectedScreenTransitions = transitions;
-        const inputValueTable = new InputValueTable(selectedScreenTransitions);
-
-        return inputValueTable;
-      };
-
-      const selectScreenTransition = (
-        screenTransition: ScreenTransition | null
-      ) => {
-        const inputValueTable = buildInputValueTable({
-          selectedScreenTransition: screenTransition,
-          screenDefinitionConfig:
-            context.rootState.projectSettings.config.screenDefinition,
-          coverageSources: context.state.coverageSources,
-          history: context.state.history,
-          selectedScreenDef: context.state.selectedScreenDef,
-          selectedWindowHandle: context.state.selectedWindowHandle,
-        });
-
-        context.commit("setInputValueTable", { inputValueTable });
-      };
-
       await context.dispatch("buildScreenTransitionDiagramGraph", {
         viewOption,
         callback: {
-          onClickEdge: ({ source, target, operationHistory }: Edge) => {
-            if (!operationHistory[0]) {
-              return;
-            }
-
-            selectOperation(operationHistory[0].operation.sequence);
-            selectScreenTransition({ source, target });
-          },
-          onClickScreenRect: (sequence: number) => {
+          onClickEdge: (sequence: number, inputValueTable: InputValueTable) => {
             selectOperation(sequence);
-            selectScreenTransition(null);
+            context.commit("setInputValueTable", { inputValueTable });
+          },
+          onClickScreenRect: (
+            sequence: number,
+            inputValueTable: InputValueTable
+          ) => {
+            selectOperation(sequence);
+            context.commit("setInputValueTable", { inputValueTable });
           },
         },
       });
@@ -980,8 +977,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         viewOption,
       });
     } finally {
-      context.commit("setScreenHistoryIsUpdating", {
-        screenHistoryIsUpdating: false,
+      context.commit("setTestResultViewModelUpdating", {
+        isTestResultViewModelUpdating: false,
       });
     }
   },

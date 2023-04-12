@@ -83,7 +83,6 @@
                 color="purple lighten-3"
                 @click="
                   selectedColumnNotes = header.notes;
-                  selectedColumnTestSteps = header.operationHistory;
                   opened = true;
                 "
                 >announcement</v-icon
@@ -148,7 +147,7 @@
     </v-flex>
     <note-list-dialog
       :opened="opened"
-      :testSteps="selectedColumnTestSteps"
+      :notes="selectedColumnNotes"
       :message="message"
       @close="opened = false"
     />
@@ -157,10 +156,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
-import {
-  MessageProvider,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "../../common/organisms/NoteListDialog.vue";
 
@@ -193,7 +189,6 @@ export default class DecisionTable extends Vue {
   };
   private opened = false;
   private selectedColumnNotes = [];
-  private selectedColumnTestSteps = [];
 
   private get isViewerMode(): boolean {
     return (this as any).$isViewerMode ?? false;
@@ -269,7 +264,7 @@ export default class DecisionTable extends Vue {
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
               notes: screenTransition.notes,
-              operationHistory: screenTransition.operationHistory,
+              testPurposes: screenTransition.testPurposes,
               index,
             };
           }
@@ -323,42 +318,34 @@ export default class DecisionTable extends Vue {
 
   private hasInputElements(index: number): boolean {
     return (
-      (this.getOperationWithNotesAtScreenTransitionFromHeader(index)?.operation
-        .inputElements?.length ?? 0) > 0
+      (this.inputValueTable.getScreenTransitions().at(index)?.inputElements
+        .length ?? 0) > 0
     );
   }
 
-  private getOperationWithNotesAtScreenTransitionFromHeader(
-    index: number
-  ): OperationWithNotes | null {
-    const data = this.inputValueTable.getScreenTransition();
-    if (!data) {
-      return null;
-    }
-    return data[index].history[data[index].history.length - 1];
-  }
-
   private registerAutofillSetting(index: number): void {
-    const operationWithNotes =
-      this.getOperationWithNotesAtScreenTransitionFromHeader(index);
-    if (operationWithNotes === null) {
+    const screenTransition = this.inputValueTable
+      .getScreenTransitions()
+      .at(index);
+
+    if (!screenTransition) {
       return;
     }
 
     this.$store.commit("captureControl/setAutofillRegisterDialog", {
-      title: operationWithNotes.operation.title,
-      url: operationWithNotes.operation.url,
+      title: screenTransition.trigger.pageTitle,
+      url: screenTransition.trigger.pageUrl,
       message: this.$store.getters.message(
         "input-value.autofill-dialog-message"
       ),
-      inputElements: operationWithNotes.operation.inputElements?.map(
-        (element) => {
-          return {
-            ...element,
-            xpath: element.xpath.toLowerCase(),
-          };
-        }
-      ),
+      inputElements: screenTransition.inputElements?.map((element) => {
+        return {
+          xpath: element.xpath.toLowerCase(),
+          attributes: element.attributes,
+          inputValue:
+            element.inputs.at(-1)?.value ?? element.defaultValue ?? "",
+        };
+      }),
       callback: null,
     });
   }

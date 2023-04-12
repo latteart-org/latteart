@@ -88,6 +88,7 @@ describe("ProjectExportService", () => {
         },
       ]),
       generateSequenceView: jest.fn(),
+      generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
     };
 

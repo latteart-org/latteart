@@ -50,7 +50,7 @@ import {
   ProjectRepository,
   TestResultComparisonRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor, SequenceView } from "./types";
+import { TestResultAccessor, SequenceView, GraphView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -540,6 +540,27 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       const error: ServiceError = {
         errorCode: "generate_sequence_view_failed",
         message: "Generate Sequence View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async generateGraphView(
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<GraphView>> {
+    const result =
+      await this.repositories.testResultRepository.generateGraphView(
+        this.testResultId,
+        option
+      );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

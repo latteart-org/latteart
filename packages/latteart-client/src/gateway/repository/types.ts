@@ -50,6 +50,46 @@ export type SequenceViewNodeForRepository = {
   disabled?: boolean;
 };
 
+export type GraphViewForRepository = {
+  nodes: GraphViewNodeForRepository[];
+  store: {
+    windows: { id: string; name: string }[];
+    screens: { id: string; name: string; elementIds: string[] }[];
+    elements: {
+      id: string;
+      xpath: string;
+      tagname: string;
+      text: string;
+      attributes: { [key: string]: string };
+    }[];
+    testPurposes: { id: string; value: string; details: string }[];
+    notes: {
+      id: string;
+      value: string;
+      details: string;
+      tags?: string[];
+      imageFileUrl?: string;
+    }[];
+  };
+};
+
+export type GraphViewNodeForRepository = {
+  windowId: string;
+  screenId: string;
+  testSteps: {
+    id: string;
+    type: string;
+    input?: string;
+    targetElementId?: string;
+    noteIds: string[];
+    testPurposeId?: string;
+    pageUrl: string;
+    pageTitle: string;
+    imageFileUrl?: string;
+  }[];
+  defaultValues: { elementId: string; value?: string }[];
+};
+
 export type NoteForRepository = {
   id: string;
   type: string;

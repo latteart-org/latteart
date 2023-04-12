@@ -340,15 +340,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Select a screen.
-   * @param state State.
-   * @param payload.screenDef Screen definition.
-   */
-  selectScreen(state, payload: { screenDef: string }) {
-    state.selectedScreenDef = payload.screenDef;
-  },
-
-  /**
    * Set displayed operations to the State.
    * @param state State.
    * @param payload.sequences Sequence numbers of displayed operations.
@@ -427,15 +418,15 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set whether screen history is updating or not to the State.
+   * Set whether test result view model is updating or not to the State.
    * @param state State.
-   * @param payload.screenHistoryIsUpdating Whether screen history is updating or not.
+   * @param payload.isTestResultViewModelUpdating Whether test result view model is updating or not.
    */
-  setScreenHistoryIsUpdating(
+  setTestResultViewModelUpdating(
     state,
-    payload: { screenHistoryIsUpdating: boolean }
+    payload: { isTestResultViewModelUpdating: boolean }
   ) {
-    state.screenHistoryIsUpdating = payload.screenHistoryIsUpdating;
+    state.isTestResultViewModelUpdating = payload.isTestResultViewModelUpdating;
   },
 
   /**

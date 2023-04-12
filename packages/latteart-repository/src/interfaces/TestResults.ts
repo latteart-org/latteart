@@ -70,3 +70,49 @@ export type GetSequenceViewDto = TestResultViewOption;
  * Generated sequence view.
  */
 export type GetSequenceViewResponse = SequenceView;
+
+/**
+ * Graph view generation option.
+ */
+export type GetGraphViewDto = TestResultViewOption;
+
+/**
+ * Generated graph view.
+ */
+export type GetGraphViewResponse = {
+  nodes: {
+    windowId: string;
+    screenId: string;
+    testSteps: {
+      id: string;
+      type: string;
+      input?: string;
+      targetElementId?: string;
+      noteIds: string[];
+      testPurposeId?: string;
+      pageUrl: string;
+      pageTitle: string;
+      imageFileUrl?: string;
+    }[];
+    defaultValues: { elementId: string; value?: string }[];
+  }[];
+  store: {
+    windows: { id: string; name: string }[];
+    screens: { id: string; name: string; elementIds: string[] }[];
+    elements: {
+      id: string;
+      xpath: string;
+      tagname: string;
+      text: string;
+      attributes: { [key: string]: string };
+    }[];
+    testPurposes: { id: string; value: string; details: string }[];
+    notes: {
+      id: string;
+      value: string;
+      details: string;
+      tags?: string[];
+      imageFileUrl?: string;
+    }[];
+  };
+};

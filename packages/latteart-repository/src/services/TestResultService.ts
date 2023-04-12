@@ -27,9 +27,10 @@ import {
   CreateTestResultResponse,
   GetTestResultResponse,
   PatchTestResultResponse,
+  GetGraphViewResponse,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
+import { getRepository, In } from "typeorm";
 import { TestStepService } from "./TestStepService";
 import { TimestampService } from "./TimestampService";
 import path from "path";
@@ -39,7 +40,7 @@ import ScreenDefFactory, {
 import {
   generateSequenceView,
   SequenceView,
-} from "@/domain/sequenceViewGeneration";
+} from "@/domain/testResultViewGeneration/sequenceView";
 import { TestResultViewOption } from "@/domain/types";
 import { FileRepository } from "@/interfaces/fileRepository";
 import {
@@ -58,6 +59,8 @@ import {
 } from "./helper/testResultCompareHelper";
 import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { ServerError } from "@/ServerError";
+import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
+import { v4 as uuidv4 } from "uuid";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -88,6 +91,11 @@ export interface TestResultService {
     testResultId: string,
     option?: TestResultViewOption
   ): Promise<SequenceView>;
+
+  generateGraphView(
+    testResultId: string,
+    option?: TestResultViewOption
+  ): Promise<GetGraphViewResponse>;
 
   compareTestResults(
     testResultId1: string,
@@ -379,6 +387,121 @@ export class TestResultServiceImpl implements TestResultService {
     });
 
     return generateSequenceView(testStepWithScreenDefs);
+  }
+
+  public async generateGraphView(
+    testResultId: string,
+    option: TestResultViewOption = { node: { unit: "title", definitions: [] } }
+  ): Promise<GetGraphViewResponse> {
+    const screenDefinitionConfig: ScreenDefinitionConfig = {
+      screenDefType: option.node.unit,
+      conditionGroups: option.node.definitions.map((definition) => {
+        return {
+          isEnabled: true,
+          screenName: definition.name,
+          conditions: definition.conditions.map((condition) => {
+            return {
+              isEnabled: true,
+              definitionType: condition.target,
+              matchType: condition.method,
+              word: condition.value,
+            };
+          }),
+        };
+      }),
+    };
+
+    const testResult = await this.getTestResult(testResultId);
+
+    if (!testResult) {
+      return {
+        nodes: [],
+        store: {
+          windows: [],
+          screens: [],
+          elements: [],
+          testPurposes: [],
+          notes: [],
+        },
+      };
+    }
+
+    const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
+    const testStepWithScreenDefs = testResult.testSteps.map((testStep) => {
+      return {
+        ...testStep,
+        screenDef: screenDefFactory.create({
+          url: testStep.operation.url,
+          title: testStep.operation.title,
+          keywordSet: new Set(
+            testStep.operation.keywordTexts?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
+        }),
+      };
+    });
+
+    const idGenerator = {
+      generateScreenId: () => uuidv4(),
+      generateElementId: () => uuidv4(),
+    };
+
+    const graphView = generateGraphView(
+      testStepWithScreenDefs,
+      testResult.coverageSources,
+      idGenerator
+    );
+
+    const testStepEntities = await getRepository(TestStepEntity).find({
+      where: {
+        id: In(
+          graphView.nodes.flatMap(({ testSteps }) =>
+            testSteps.map(({ id }) => id)
+          )
+        ),
+      },
+      relations: ["screenshot"],
+    });
+
+    const nodes = graphView.nodes.map((node) => {
+      const testSteps = node.testSteps.map((testStep) => {
+        const imageFileUrl = testStepEntities.find(
+          ({ id }) => id === testStep.id
+        )?.screenshot?.fileUrl;
+
+        return { ...testStep, imageFileUrl };
+      });
+      return { ...node, testSteps };
+    });
+
+    const notes = (
+      await getRepository(NoteEntity).find({
+        where: { id: In(graphView.store.notes.map(({ id }) => id)) },
+        relations: ["tags", "screenshot"],
+      })
+    ).map((noteEntity) => {
+      const { id, value, details } = noteEntity;
+      const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
+      const imageFileUrl = noteEntity.screenshot?.fileUrl;
+      return { id, value, details, tags, imageFileUrl };
+    });
+
+    const testPurposes = (
+      await getRepository(TestPurposeEntity).find({
+        where: { id: In(graphView.store.testPurposes.map(({ id }) => id)) },
+      })
+    ).map((testPurposeEntity) => {
+      const { id, title: value, details } = testPurposeEntity;
+      return { id, value, details };
+    });
+
+    return {
+      nodes,
+      store: { ...graphView.store, notes, testPurposes },
+    };
   }
 
   public async compareTestResults(
