@@ -20,7 +20,7 @@
       :disabled="!isCapturing"
       @click="pushPauseButton"
       icon
-      flat
+      text
       large
       :title="pauseButtonTooltip"
       :color="pauseButtonColor"

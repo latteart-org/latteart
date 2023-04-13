@@ -20,7 +20,7 @@
       v-if="!isCapturing"
       :disabled="isDisabled"
       icon
-      flat
+      text
       large
       color="grey darken-3"
       @click="testOptionDialogOpened = true"
@@ -32,7 +32,7 @@
     <v-btn
       v-else
       icon
-      flat
+      text
       large
       color="red"
       @click="endCapture"

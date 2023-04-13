@@ -16,11 +16,11 @@
 
 <template>
   <v-container fluid class="pa-3 pt-4">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+      <v-app-bar-title>{{
         $store.getters.message("story-view.story")
-      }}</v-toolbar-title>
-    </v-toolbar>
+      }}</v-app-bar-title>
+    </v-app-bar>
 
     <v-layout row wrap v-if="story">
       <v-flex x3>
@@ -112,17 +112,17 @@
 
       <v-flex xs12>
         <v-container fluid class="pa-0">
-          <v-expansion-panel
+          <v-expansion-panels
             class="py-0 mb-2"
             v-model="sessionPanelExpantionStates"
             expand
           >
-            <v-expansion-panel-content
+            <v-expansion-panel
               v-for="(session, index) in story.sessions"
               :key="session.id"
               class="py-0"
             >
-              <template v-slot:header class="py-0">
+              <v-expansion-panel-header class="py-0">
                 <div>
                   {{
                     `${$store.getters.message(
@@ -148,14 +148,15 @@
                   small
                   >{{ $store.getters.message("session-list.delete") }}</v-btn
                 >
-              </template>
-
-              <session-info
-                :storyId="story.id"
-                :sessionId="session.id"
-              ></session-info>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <session-info
+                  :storyId="story.id"
+                  :sessionId="session.id"
+                ></session-info>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
 
           <v-btn
             v-if="!isViewerMode"

@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-list-tile @click="execute" :disabled="isDisabled">
-    <v-list-tile-title>{{ title }}</v-list-tile-title>
+  <v-list-item @click="execute" :disabled="isDisabled">
+    <v-list-item-title>{{ title }}</v-list-item-title>
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="$store.getters.message('replay.done-title')"
@@ -49,7 +49,7 @@
       :comparisonResult="comparisonResult"
       @close="resultDialogOpened = false"
     />
-  </v-list-tile>
+  </v-list-item>
 </template>
 
 <script lang="ts">

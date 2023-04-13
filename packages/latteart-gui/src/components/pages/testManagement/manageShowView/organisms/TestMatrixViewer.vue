@@ -24,24 +24,25 @@
 
     <v-layout justify-end row>
       <v-flex xs12>
-        <v-expansion-panel v-model="expandedPanelIndex" class="py-0">
-          <v-expansion-panel-content
+        <v-expansion-panels v-model="expandedPanelIndex" class="py-0">
+          <v-expansion-panel
             v-for="(group, index) in testMatrix.groups"
             :key="group.id"
             class="py-0"
             :id="`groupShowArea${index}`"
           >
-            <template v-slot:header class="py-0">
+            <v-expansion-panel-header class="py-0">
               <div :title="group.name" class="ellipsis">{{ group.name }}</div>
-            </template>
-
-            <group-viewer
-              :testMatrixId="testMatrixId"
-              :viewPoints="testMatrix.viewPoints"
-              :group="group"
-            ></group-viewer>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <group-viewer
+                :testMatrixId="testMatrixId"
+                :viewPoints="testMatrix.viewPoints"
+                :group="group"
+              ></group-viewer>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-flex>
     </v-layout>
   </v-container>

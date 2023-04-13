@@ -20,7 +20,9 @@ import Vuetify from "vuetify/lib";
 Vue.use(Vuetify);
 
 const opts = {
-  iconfont: "md",
+  icons: {
+    iconfont: "md",
+  },
   theme: {
     themes: {
       light: {
@@ -28,6 +30,6 @@ const opts = {
       },
     },
   },
-};
+} as const;
 
 export default new Vuetify(opts);

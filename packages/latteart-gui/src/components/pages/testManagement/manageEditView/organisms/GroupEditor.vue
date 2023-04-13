@@ -43,7 +43,7 @@
             <v-layout>
               <v-flex>
                 <v-btn
-                  flat
+                  text
                   icon
                   class="mt-3"
                   @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
@@ -65,7 +65,7 @@
               <v-flex xs1 mr-2>
                 <v-btn
                   small
-                  flat
+                  text
                   icon
                   class="ml-0 pl-0 mb-0 pb-0"
                   :disabled="
@@ -76,7 +76,7 @@
                 >
                 <v-btn
                   small
-                  flat
+                  text
                   icon
                   class="ml-0 pl-0 mt-0 pt-0"
                   :disabled="
@@ -146,7 +146,6 @@
 import {
   Group,
   Plan,
-  Story,
   TestMatrix,
   TestTarget,
   ViewPoint,
@@ -154,7 +153,6 @@ import {
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
 

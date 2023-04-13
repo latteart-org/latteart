@@ -15,7 +15,12 @@
 -->
 
 <template>
-  <v-tabs dark color="latteart-main" show-arrows :value="selectedItemIndex">
+  <v-tabs
+    dark
+    background-color="latteart-main"
+    show-arrows
+    :value="selectedItemIndex"
+  >
     <v-tabs-slider color="yellow"></v-tabs-slider>
     <v-tab dark v-for="item in items" :key="item.id" @click="select(item.id)">
       {{ wordOmitted(item.name, 10) }}

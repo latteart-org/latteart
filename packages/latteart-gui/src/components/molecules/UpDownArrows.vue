@@ -16,12 +16,12 @@
 
 <template>
   <div @click="stopPropagation">
-    <v-btn small flat icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
+    <v-btn small text icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
       ><v-icon>arrow_drop_up</v-icon></v-btn
     >
     <v-btn
       small
-      flat
+      text
       icon
       class="ma-0 pa-0"
       :disabled="downDisabled"

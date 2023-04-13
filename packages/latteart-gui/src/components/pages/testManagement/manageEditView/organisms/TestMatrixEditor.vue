@@ -36,14 +36,14 @@
       </v-flex>
     </v-layout>
 
-    <v-expansion-panel v-model="expandedPanelIndex" class="py-0">
-      <v-expansion-panel-content
+    <v-expansion-panels v-model="expandedPanelIndex" class="py-0">
+      <v-expansion-panel
         :id="`groupEditAreaToggle${index}`"
         v-for="(group, index) in testMatrix.groups"
         :key="group.id"
         class="py-0 elevation-0"
       >
-        <template v-slot:header class="py-0">
+        <v-expansion-panel-header class="py-0">
           <v-flex xs10>
             <div
               v-if="expandedPanelIndex !== index"
@@ -70,11 +70,12 @@
               >{{ $store.getters.message("group-edit-list.delete") }}</v-btn
             >
           </v-flex>
-        </template>
-
-        <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
-      </v-expansion-panel-content>
-    </v-expansion-panel>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
     <v-btn id="createGroupButton" @click="addNewGroup">{{
       $store.getters.message("group-edit-list.add")
