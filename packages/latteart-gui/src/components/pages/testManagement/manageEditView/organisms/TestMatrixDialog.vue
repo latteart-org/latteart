@@ -58,12 +58,12 @@
                       ></v-select>
                     </v-flex>
                     <v-flex xs12>
-                      <v-expansion-panel>
-                        <v-expansion-panel-content
+                      <v-expansion-panels>
+                        <v-expansion-panel
                           v-for="(tempViewPoint, index) in tempViewPoints"
                           :key="tempViewPoint.key + index"
                         >
-                          <template v-slot:header>
+                          <v-expansion-panel-header>
                             <v-flex xs9>
                               <v-text-field
                                 :placeholder="
@@ -89,28 +89,30 @@
                             </v-flex>
                             <v-flex xs2>
                               <v-btn
-                                flat
+                                text
                                 icon
                                 color="error"
                                 @click="deleteTempViewPoint(index)"
                                 ><v-icon>delete</v-icon></v-btn
                               >
                             </v-flex>
-                          </template>
-                          <div class="view-point-description">
-                            <v-textarea
-                              outline
-                              rows="3"
-                              v-model="tempViewPoint.description"
-                              :placeholder="
-                                $store.getters.message(
-                                  'test-matrix-dialog.view-point-description'
-                                )
-                              "
-                            ></v-textarea>
-                          </div>
-                        </v-expansion-panel-content>
-                      </v-expansion-panel>
+                          </v-expansion-panel-header>
+                          <v-expansion-panel-content>
+                            <div class="view-point-description">
+                              <v-textarea
+                                outlined
+                                rows="3"
+                                v-model="tempViewPoint.description"
+                                :placeholder="
+                                  $store.getters.message(
+                                    'test-matrix-dialog.view-point-description'
+                                  )
+                                "
+                              ></v-textarea>
+                            </div>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                      </v-expansion-panels>
                     </v-flex>
                     <v-flex xs12>
                       <v-btn small @click="createTempViewPoint">{{

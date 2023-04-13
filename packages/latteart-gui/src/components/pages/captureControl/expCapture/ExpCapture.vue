@@ -16,11 +16,11 @@
 
 <template>
   <v-app>
-    <v-toolbar color="white" fixed flat app height="64px">
+    <v-app-bar color="white" fixed flat app height="64px">
       <capture-tool-header />
-    </v-toolbar>
+    </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container
         fluid
         pa-0
@@ -29,9 +29,9 @@
       >
         <router-view />
       </v-container>
-    </v-content>
+    </v-main>
 
-    <v-footer app height="auto" mt-5>
+    <v-footer app height="auto" class="mt-5 py-4">
       <capture-tool-footer />
     </v-footer>
 

@@ -16,11 +16,11 @@
 
 <template>
   <v-container fluid class="pt-3">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+      <v-app-bar-title>{{
         $store.getters.message("manage-edit-view.edit-plan")
-      }}</v-toolbar-title>
-    </v-toolbar>
+      }}</v-app-bar-title>
+    </v-app-bar>
 
     <v-btn @click="openTestMatrixDialogInCreateMode">{{
       $store.getters.message("manage-edit-view.add-test-matrix")

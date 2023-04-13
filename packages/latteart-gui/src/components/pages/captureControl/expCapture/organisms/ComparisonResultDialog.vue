@@ -39,7 +39,7 @@
         <v-data-table
           :headers="headers"
           :items="diffs"
-          hide-actions
+          hide-default-footer
           class="hover-disabled"
         >
           <template v-slot:items="props">

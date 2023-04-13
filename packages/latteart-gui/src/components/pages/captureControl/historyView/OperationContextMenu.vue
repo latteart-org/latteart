@@ -26,22 +26,22 @@
     >
       <v-list subheader>
         <v-subheader>{{ $store.getters.message("app.intention") }}</v-subheader>
-        <v-list-tile
+        <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
           @click="intention.onClick"
         >
-          <v-list-tile-title>{{ intention.label }}</v-list-tile-title>
-        </v-list-tile>
+          <v-list-item-title>{{ intention.label }}</v-list-item-title>
+        </v-list-item>
 
         <v-subheader>{{ $store.getters.message("app.notice") }}</v-subheader>
-        <v-list-tile
+        <v-list-item
           v-for="notice in noticeItems"
           :key="notice.label"
           @click="notice.onClick"
         >
-          <v-list-tile-title>{{ notice.label }}</v-list-tile-title>
-        </v-list-tile>
+          <v-list-item-title>{{ notice.label }}</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-menu>
   </div>

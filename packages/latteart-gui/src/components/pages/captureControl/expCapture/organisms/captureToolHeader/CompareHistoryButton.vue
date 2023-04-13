@@ -16,11 +16,11 @@
 
 <template>
   <div>
-    <v-list-tile @click="openConfirmDialog" :disabled="isDisabled">
-      <v-list-tile-title>{{
+    <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
+      <v-list-item-title>{{
         $store.getters.message("history-view.compare-test-result")
-      }}</v-list-tile-title>
-    </v-list-tile>
+      }}</v-list-item-title>
+    </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"

@@ -19,7 +19,7 @@
     <v-btn
       :disabled="isDisabled"
       icon
-      flat
+      text
       large
       color="grey darken-3"
       @click="resetHistory"

@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-list-tile
+  <v-list-item
     @click="scriptGenerationOptionDialogIsOpened = true"
     :disabled="isDisabled"
   >
-    <v-list-tile-title>{{
+    <v-list-item-title>{{
       $store.getters.message("history-view.generate-testscript")
-    }}</v-list-tile-title>
+    }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -43,7 +43,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </v-list-tile>
+  </v-list-item>
 </template>
 
 <script lang="ts">

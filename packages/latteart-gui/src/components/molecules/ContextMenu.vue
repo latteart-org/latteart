@@ -24,13 +24,13 @@
     close-on-content-click
   >
     <v-list>
-      <v-list-tile
+      <v-list-item
         v-for="item in items"
         :key="item.label"
         @click="item.onClick"
       >
-        <v-list-tile-title>{{ item.label }}</v-list-tile-title>
-      </v-list-tile>
+        <v-list-item-title>{{ item.label }}</v-list-item-title>
+      </v-list-item>
     </v-list>
   </v-menu>
 </template>

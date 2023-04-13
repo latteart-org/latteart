@@ -97,7 +97,7 @@
           :headers="headers"
           :items="items"
           item-key="name"
-          hide-actions
+          hide-default-footer
         >
           <template v-slot:items="props">
             <td

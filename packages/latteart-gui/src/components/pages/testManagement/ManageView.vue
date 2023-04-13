@@ -16,15 +16,19 @@
 
 <template>
   <div>
-    <v-toolbar color="latteart-main" dark tabs height="40" class="no-print">
-      <v-toolbar-title height="40">{{
+    <v-app-bar color="latteart-main" dark tabs height="40" class="no-print">
+      <v-app-bar-title height="40">{{
         $store.getters.message("manage-header.tool-name")
-      }}</v-toolbar-title>
+      }}</v-app-bar-title>
       <template v-slot:extension>
         <v-layout row>
           <v-flex>
             <v-layout row>
-              <v-tabs v-model="tabNum" color="latteart-main" align-with-title>
+              <v-tabs
+                v-model="tabNum"
+                background-color="latteart-main"
+                align-with-title
+              >
                 <v-tabs-slider color="yellow"></v-tabs-slider>
                 <v-tab
                   id="manageShowViewButton"
@@ -79,13 +83,13 @@
                   >
                 </template>
                 <v-list>
-                  <v-list-tile
+                  <v-list-item
                     v-for="(menu, index) in optionMenuList"
                     :key="index"
                     @click="getMenuMethod(menu.method)"
                   >
-                    <v-list-tile-title>{{ menu.title }}</v-list-tile-title>
-                  </v-list-tile>
+                    <v-list-item-title>{{ menu.title }}</v-list-item-title>
+                  </v-list-item>
                 </v-list>
               </v-menu>
             </v-layout>
@@ -107,7 +111,7 @@
           ></v-flex>
         </v-layout>
       </template>
-    </v-toolbar>
+    </v-app-bar>
     <router-view @selectTestMatrix="changeMatrixId"></router-view>
     <download-link-dialog
       :opened="downloadLinkDialogOpened"
