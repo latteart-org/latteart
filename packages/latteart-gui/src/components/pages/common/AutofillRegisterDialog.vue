@@ -40,7 +40,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
-import { ElementInfo } from "latteart-client";
 
 @Component({
   components: {
@@ -55,7 +54,11 @@ export default class AutofillRegisterDialog extends Vue {
     title: string;
     url: string;
     message: string;
-    inputElements: ElementInfo[];
+    inputElements: {
+      xpath: string;
+      attributes: { [key: string]: string };
+      inputValue: string;
+    }[];
     callback: () => void;
   } | null {
     this.settingName =
@@ -87,13 +90,7 @@ export default class AutofillRegisterDialog extends Vue {
             locator: element.attributes.id ?? element.xpath,
             locatorType: element.attributes.id ? "id" : "xpath",
             locatorMatchType: "equals",
-            inputValue:
-              element.tagname === "INPUT" &&
-              ["checkbox", "radio"].includes(element.attributes.type)
-                ? element.checked === true
-                  ? "on"
-                  : "off"
-                : element.value ?? "",
+            inputValue: element.inputValue,
           };
         }),
     };

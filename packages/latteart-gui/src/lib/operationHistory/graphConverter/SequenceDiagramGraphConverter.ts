@@ -87,13 +87,6 @@ export type SequenceDiagramGraphExtenderSource = {
 
 /**
  * Convert Sequence View model to Diagram Graph.
- * @param screenHistory  Screen transition history.
- * @param windows Window informations.
- * @param callback.onClickEdge  Callback function called when you click Edge.
- * @param callback.onClickScreenRect  Callback function called when Rect is clicked.
- * @param callback.onClickNote  Callback function called by clicking Note.
- * @param callback.onRightClickNote  Callback function called by right-clicking on Note.
- * @param callback.onRightClickLoopArea  Callback function called by right-clicking on LoopArea.
  * @returns Graph text and graph extension information.
  */
 export async function convertToSequenceDiagramGraph(

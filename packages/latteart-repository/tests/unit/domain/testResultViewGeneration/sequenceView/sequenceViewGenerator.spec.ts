@@ -2,7 +2,7 @@ import {
   generateSequenceView,
   SequenceView,
   TestStepForSequenceView,
-} from "@/domain/sequenceViewGeneration";
+} from "@/domain/testResultViewGeneration/sequenceView";
 
 describe("generateSequenceView", () => {
   describe("テストステップ群を元に、テストの大まかな流れを表現するオブジェクトを生成して返す", () => {

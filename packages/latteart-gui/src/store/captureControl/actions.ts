@@ -361,6 +361,14 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               return {
                 ...element,
                 xpath: element.xpath.toLowerCase(),
+                attributes: element.attributes,
+                inputValue:
+                  element.tagname === "INPUT" &&
+                  ["checkbox", "radio"].includes(element.attributes.type)
+                    ? element.checked === true
+                      ? "on"
+                      : "off"
+                    : element.value ?? "",
               };
             }
           ),

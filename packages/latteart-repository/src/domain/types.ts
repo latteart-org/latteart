@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export { SequenceView } from "./sequenceViewGeneration";
+export { SequenceView } from "./testResultViewGeneration/sequenceView";
 
 /**
  * Test result.

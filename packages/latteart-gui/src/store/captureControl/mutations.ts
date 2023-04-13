@@ -128,7 +128,11 @@ const mutations: MutationTree<CaptureControlState> = {
       title: string;
       url: string;
       message: string;
-      inputElements: ElementInfo[];
+      inputElements: {
+        xpath: string;
+        attributes: { [key: string]: string };
+        inputValue: string;
+      }[];
       callback: () => void;
     } | null
   ) {

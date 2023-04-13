@@ -28,7 +28,7 @@
           :loading="updating"
           :dark="canUpdateModels"
           :disabled="!canUpdateModels"
-          @click="updateScreenHistory"
+          @click="updateTestResultViewModel"
           >{{ message("history-view.update-model-and-coverage") }}</v-btn
         >
         <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
@@ -221,7 +221,7 @@ export default class HistoryDisplay extends Vue {
   private recentImageInfo = "";
 
   private get updating(): boolean {
-    return this.$store.state.operationHistory.screenHistoryIsUpdating;
+    return this.$store.state.operationHistory.isTestResultViewModelUpdating;
   }
 
   private get screenshotUrl(): string {
@@ -250,9 +250,9 @@ export default class HistoryDisplay extends Vue {
     return this.$store.state.operationHistory.canUpdateModels;
   }
 
-  private updateScreenHistory() {
+  private updateTestResultViewModel() {
     (async () => {
-      await this.$store.dispatch("operationHistory/updateScreenHistory");
+      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
     })();
   }
 

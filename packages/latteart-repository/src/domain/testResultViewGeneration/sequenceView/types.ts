@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { TestStep } from "../types";
+import { TestStep } from "../../types";
 
 /**
  * Sequence view.

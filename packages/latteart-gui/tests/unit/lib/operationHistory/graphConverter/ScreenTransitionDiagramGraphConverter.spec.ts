@@ -1,845 +1,878 @@
 /* tslint:disable:max-line-length */
 
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import ScreenTransitionDiagramGraphConverter from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { convertToScreenTransitionDiagramGraph } from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
 
-describe("ScreenTransitionDiagramGraphConverterは", () => {
-  describe("convertが呼ばれた場合、screenHistoryをMermaidのフローチャート形式の文字列に変換して返す", () => {
-    let testScreenHistory: ScreenHistory;
-
+describe("convertToScreenTransitionDiagramGraph", () => {
+  describe("GraphViewモデルを元に画面遷移図を生成する", () => {
     describe("画面遷移なし", () => {
-      beforeEach(() => {
-        testScreenHistory = new ScreenHistory([
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "type1",
-                  elementInfo: { text: "elementValue1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-        ]);
-      });
-
       it("画面A", async () => {
-        expect(
-          (
-            await ScreenTransitionDiagramGraphConverter.convert(
-              testScreenHistory,
-              "window1"
-            )
-          ).graphText
-        ).toEqual("graph TD;" + '0["defA"];' + "0;");
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [{ id: "s1", name: "画面A", elementIds: [] }],
+            elements: [],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+`);
       });
     });
 
     describe("他画面遷移", () => {
-      beforeEach(() => {
-        testScreenHistory = new ScreenHistory([
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-1",
-                  elementInfo: { text: "elementValueA-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-2",
-                  elementInfo: { text: "elementValueA-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlB",
-            title: "B",
-            screenDef: "defB",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-1",
-                  elementInfo: { text: "elementValueB-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-2",
-                  elementInfo: { text: "elementValueB-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlC",
-            title: "C",
-            screenDef: "defC",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeC-1",
-                  elementInfo: { text: "elementValueC-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeC-2",
-                  elementInfo: { text: "elementValueC-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-        ]);
-      });
-
       it("画面A → 画面B → 画面C", async () => {
-        expect(
-          (
-            await ScreenTransitionDiagramGraphConverter.convert(
-              testScreenHistory,
-              "window1"
-            )
-          ).graphText
-        ).toEqual(
-          "graph TD;" +
-            '0["defA"];' +
-            '1["defB"];' +
-            '2["defC"];' +
-            "0;" +
-            '0 --> |"typeA-2: elementValueA-2"|1;' +
-            '1 --> |"typeB-2: elementValueB-2"|2;'
-        );
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts2",
+                  type: "type2",
+                  targetElementId: "e2",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s2",
+              testSteps: [
+                {
+                  id: "ts3",
+                  type: "type3",
+                  targetElementId: "e3",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts4",
+                  type: "type4",
+                  targetElementId: "e4",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s3",
+              testSteps: [
+                {
+                  id: "ts5",
+                  type: "type5",
+                  targetElementId: "e5",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts6",
+                  type: "type6",
+                  targetElementId: "e6",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [
+              { id: "s1", name: "画面A", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] },
+              { id: "s3", name: "画面C", elementIds: [] },
+            ],
+            elements: [
+              {
+                id: "e1",
+                xpath: "",
+                tagname: "",
+                text: "要素1",
+                attributes: {},
+              },
+              {
+                id: "e2",
+                xpath: "",
+                tagname: "",
+                text: "要素2",
+                attributes: {},
+              },
+              {
+                id: "e3",
+                xpath: "",
+                tagname: "",
+                text: "要素3",
+                attributes: {},
+              },
+              {
+                id: "e4",
+                xpath: "",
+                tagname: "",
+                text: "要素4",
+                attributes: {},
+              },
+              {
+                id: "e5",
+                xpath: "",
+                tagname: "",
+                text: "要素5",
+                attributes: {},
+              },
+              {
+                id: "e6",
+                xpath: "",
+                tagname: "",
+                text: "要素6",
+                attributes: {},
+              },
+            ],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s3["画面C"];
+s1 --> |"type2: 要素2"|s2;
+s2 --> |"type4: 要素4"|s3;
+`);
       });
     });
 
     describe("他画面遷移して戻る", () => {
-      beforeEach(() => {
-        testScreenHistory = new ScreenHistory([
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-1",
-                  elementInfo: { text: "elementValueA-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-2",
-                  elementInfo: { text: "elementValueA-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlB",
-            title: "B",
-            screenDef: "defB",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-1",
-                  elementInfo: { text: "elementValueB-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-2",
-                  elementInfo: { text: "elementValueB-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-1",
-                  elementInfo: { text: "elementValueA-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-2",
-                  elementInfo: { text: "elementValueA-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-        ]);
-      });
-
       it("画面A → 画面B → 画面A", async () => {
-        expect(
-          (
-            await ScreenTransitionDiagramGraphConverter.convert(
-              testScreenHistory,
-              "window1"
-            )
-          ).graphText
-        ).toEqual(
-          "graph TD;" +
-            '0["defA"];' +
-            '1["defB"];' +
-            "0;" +
-            '0 --> |"typeA-2: elementValueA-2"|1;' +
-            '1 --> |"typeB-2: elementValueB-2"|0;'
-        );
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts2",
+                  type: "type2",
+                  targetElementId: "e2",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s2",
+              testSteps: [
+                {
+                  id: "ts3",
+                  type: "type3",
+                  targetElementId: "e3",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts4",
+                  type: "type4",
+                  targetElementId: "e4",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [
+              { id: "s1", name: "画面A", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] },
+            ],
+            elements: [
+              {
+                id: "e1",
+                xpath: "",
+                tagname: "",
+                text: "要素1",
+                attributes: {},
+              },
+              {
+                id: "e2",
+                xpath: "",
+                tagname: "",
+                text: "要素2",
+                attributes: {},
+              },
+              {
+                id: "e3",
+                xpath: "",
+                tagname: "",
+                text: "要素3",
+                attributes: {},
+              },
+              {
+                id: "e4",
+                xpath: "",
+                tagname: "",
+                text: "要素4",
+                attributes: {},
+              },
+            ],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s1 --> |"type2: 要素2"|s2;
+s2 --> |"type4: 要素4"|s1;
+`);
       });
     });
 
     describe("同一画面遷移", () => {
-      beforeEach(() => {
-        testScreenHistory = new ScreenHistory([
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-1",
-                  elementInfo: { text: "elementValueA-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-2",
-                  elementInfo: { text: "elementValueA-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-3",
-                  elementInfo: { text: "elementValueA-3" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-4",
-                  elementInfo: { text: "elementValueA-4" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-        ]);
-      });
-
       it("画面A → 画面A", async () => {
-        expect(
-          (
-            await ScreenTransitionDiagramGraphConverter.convert(
-              testScreenHistory,
-              "window1"
-            )
-          ).graphText
-        ).toEqual(
-          "graph TD;" +
-            '0["defA"];' +
-            "0;" +
-            '0 --> |"typeA-2: elementValueA-2"|0;'
-        );
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts2",
+                  type: "type2",
+                  targetElementId: "e2",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts3",
+                  type: "type3",
+                  targetElementId: "e3",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts4",
+                  type: "type4",
+                  targetElementId: "e4",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [{ id: "s1", name: "画面A", elementIds: [] }],
+            elements: [
+              {
+                id: "e1",
+                xpath: "",
+                tagname: "",
+                text: "要素1",
+                attributes: {},
+              },
+              {
+                id: "e2",
+                xpath: "",
+                tagname: "",
+                text: "要素2",
+                attributes: {},
+              },
+              {
+                id: "e3",
+                xpath: "",
+                tagname: "",
+                text: "要素3",
+                attributes: {},
+              },
+              {
+                id: "e4",
+                xpath: "",
+                tagname: "",
+                text: "要素4",
+                attributes: {},
+              },
+            ],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s1 --> |"type2: 要素2"|s1;
+`);
       });
     });
 
-    describe("画面遷移直後に操作なしで遷移した場合", () => {
-      beforeEach(() => {
-        testScreenHistory = new ScreenHistory([
-          {
-            url: "urlA",
-            title: "A",
-            screenDef: "defA",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeA-1",
-                  elementInfo: { text: "elementValueA-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "screen_transition",
-                  elementInfo: null,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-          {
-            url: "urlB",
-            title: "B",
-            screenDef: "defB",
-            operationHistory: [
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-1",
-                  elementInfo: { text: "elementValueB-1" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-              {
-                operation: OperationForGUI.createOperation({
-                  type: "typeB-2",
-                  elementInfo: { text: "elementValueB-2" } as any,
-                  windowHandle: "window1",
-                  isAutomatic: false,
-                }),
-                intention: null,
-                bugs: null,
-                notices: null,
-              },
-            ],
-            screenElements: [],
-            inputElements: [],
-          },
-        ]);
-      });
-
+    describe("操作なしで遷移した場合", () => {
       it("画面A → 画面B", async () => {
-        expect(
-          (
-            await ScreenTransitionDiagramGraphConverter.convert(
-              testScreenHistory,
-              "window1"
-            )
-          ).graphText
-        ).toEqual(
-          "graph TD;" +
-            '0["defA"];' +
-            '1["defB"];' +
-            "0;" +
-            '0 --> |"screen_transition: "|1;'
-        );
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s2",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+                {
+                  id: "ts2",
+                  type: "type2",
+                  targetElementId: "e2",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [
+              { id: "s1", name: "画面A", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] },
+            ],
+            elements: [
+              {
+                id: "e1",
+                xpath: "",
+                tagname: "",
+                text: "要素1",
+                attributes: {},
+              },
+              {
+                id: "e2",
+                xpath: "",
+                tagname: "",
+                text: "要素2",
+                attributes: {},
+              },
+            ],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s1 --> |"screen transition"|s2;
+`);
       });
     });
   });
 
   describe("画面遷移図にエッジが表示されているとき", () => {
-    let testScreenHistory: ScreenHistory;
-
-    beforeEach(() => {
-      testScreenHistory = new ScreenHistory([
-        {
-          url: "urlA",
-          title: "A",
-          screenDef: "defA",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                type: "typeA-1",
-                elementInfo: { text: "elementValueA-1" } as any,
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "urlB",
-          title: "B",
-          screenDef: "defB",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                type: "typeB-1",
-                elementInfo: { text: "elementValueB-1" } as any,
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-      ]);
-    });
-
     it("エッジ文字列に表示する遷移時のトリガーとなる要素のvalue値に改行が含まれる場合は改行を半角スペースに変換して表示する", async () => {
-      testScreenHistory.body[0].operationHistory[0].operation.elementInfo!.text =
-        "element\r\nValue1";
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
+                type: "type1",
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [{ id: "w1", name: "ウィンドウ1" }],
+          screens: [{ id: "s1", name: "画面A", elementIds: [] }],
+          elements: [
+            {
+              id: "e1",
+              xpath: "",
+              tagname: "",
+              text: "aaa\nbbb",
+              attributes: {},
+            },
+          ],
+          testPurposes: [],
+          notes: [],
+        },
+      };
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window1"
-          )
-        ).graphText
-      ).toEqual(
-        "graph TD;" +
-          '0["defA"];' +
-          '1["defB"];' +
-          "0;" +
-          '0 --> |"typeA-1: element Value1"|1;'
-      );
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
+      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+        .graphText;
+
+      expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s1 --> |"type1: aaa bbb"|s1;
+`);
     });
 
     it("エッジ文字列に表示する遷移時のトリガーとなる要素のvalue値が20文字より大きい場合、省略した上で末尾に...を表示する", async () => {
-      testScreenHistory.body[0].operationHistory[0].operation.elementInfo!.text =
-        "aaaaaaaaaaaaaaaaaaaaa";
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
+                type: "type1",
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [{ id: "w1", name: "ウィンドウ1" }],
+          screens: [{ id: "s1", name: "画面A", elementIds: [] }],
+          elements: [
+            {
+              id: "e1",
+              xpath: "",
+              tagname: "",
+              text: "aaaaaaaaaaaaaaaaaaaaa",
+              attributes: {},
+            },
+          ],
+          testPurposes: [],
+          notes: [],
+        },
+      };
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window1"
-          )
-        ).graphText
-      ).toEqual(
-        "graph TD;" +
-          '0["defA"];' +
-          '1["defB"];' +
-          "0;" +
-          '0 --> |"typeA-1: aaaaaaaaaaaaaaaaaaaa..."|1;'
-      );
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
+      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+        .graphText;
+
+      expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s1 --> |"type1: aaaaaaaaaaaaaaaaaaaa..."|s1;
+`);
     });
 
     it('エッジ文字列に表示する遷移時のトリガーとなる要素のvalue値に「#;<>"」が含まれる場合は数値文字参照変換して表示する', async () => {
-      testScreenHistory.body[0].operationHistory[0].operation.elementInfo!.text =
-        'aa##;;<<>>""aa';
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
+                type: "type1",
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [{ id: "w1", name: "ウィンドウ1" }],
+          screens: [{ id: "s1", name: "画面A", elementIds: [] }],
+          elements: [
+            {
+              id: "e1",
+              xpath: "",
+              tagname: "",
+              text: 'aa##;;<<>>""aa',
+              attributes: {},
+            },
+          ],
+          testPurposes: [],
+          notes: [],
+        },
+      };
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window1"
-          )
-        ).graphText
-      ).toEqual(
-        "graph TD;" +
-          '0["defA"];' +
-          '1["defB"];' +
-          "0;" +
-          '0 --> |"typeA-1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|1;'
-      );
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
+      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+        .graphText;
+
+      expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
+`);
     });
   });
 
   describe("タブを切り替えたとき", () => {
-    it("window1 -> window2 -> windows1 -> windows3", async () => {
-      const testScreenHistory = new ScreenHistory([
-        {
-          url: "url1",
-          title: "titie1",
-          screenDef: "screenDef1",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: {
-                  attributes: { type: "type1" },
-                  text: "elementValue1",
-                } as any,
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
+    it("ウィンドウ1 -> ウィンドウ2 -> ウィンドウ1 -> ウィンドウ3", async () => {
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
+                type: "type1",
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w2",
+            screenId: "s2",
+            testSteps: [
+              {
+                id: "ts2",
+                type: "type2",
+                targetElementId: "e2",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts3",
+                type: "type3",
+                targetElementId: "e3",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w3",
+            screenId: "s3",
+            testSteps: [
+              {
+                id: "ts4",
+                type: "type4",
+                targetElementId: "e4",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [
+            { id: "w1", name: "ウィンドウ1" },
+            { id: "w2", name: "ウィンドウ2" },
+            { id: "w3", name: "ウィンドウ3" },
           ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url2",
-          title: "titie2",
-          screenDef: "screenDef2",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: {
-                  attributes: { type: "type2" },
-                  text: "elementValue2",
-                } as any,
-                windowHandle: "window2",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
+          screens: [
+            { id: "s1", name: "画面A", elementIds: [] },
+            { id: "s2", name: "画面B", elementIds: [] },
+            { id: "s3", name: "画面C", elementIds: [] },
           ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url1",
-          title: "titie1",
-          screenDef: "screenDef1",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: {
-                  attributes: { type: "type3" },
-                  text: "elementValue3",
-                } as any,
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
+          elements: [
+            { id: "e1", xpath: "", tagname: "", text: "要素1", attributes: {} },
+            { id: "e2", xpath: "", tagname: "", text: "要素2", attributes: {} },
+            { id: "e3", xpath: "", tagname: "", text: "要素3", attributes: {} },
+            { id: "e4", xpath: "", tagname: "", text: "要素4", attributes: {} },
           ],
-          screenElements: [],
-          inputElements: [],
+          testPurposes: [],
+          notes: [],
         },
-        {
-          url: "url3",
-          title: "titie3",
-          screenDef: "screenDef3",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: {
-                  attributes: { type: "type4" },
-                  text: "elementValue4",
-                } as any,
-                windowHandle: "window3",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-      ]);
+      };
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window1"
-          )
-        ).graphText
-      ).toEqual("graph TD;" + '0["screenDef1"];' + "0;");
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window2"
-          )
-        ).graphText
-      ).toEqual("graph TD;" + '0["screenDef2"];' + "0;");
+      expect(graphs.find(({ window }) => window.id === "w1")?.graph.graphText)
+        .toEqual(`\
+graph TD;
+s1["画面A"];
+`);
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window3"
-          )
-        ).graphText
-      ).toEqual("graph TD;" + '0["screenDef3"];' + "0;");
+      expect(graphs.find(({ window }) => window.id === "w2")?.graph.graphText)
+        .toEqual(`\
+graph TD;
+s2["画面B"];
+`);
+
+      expect(graphs.find(({ window }) => window.id === "w3")?.graph.graphText)
+        .toEqual(`\
+graph TD;
+s3["画面C"];
+`);
     });
 
-    it("window1[scrDef1] -> window1[scrDef2] -> window2[scrDef3] -> window2[scrDef4] -> window1[scrDef5]", async () => {
-      const testScreenHistory = new ScreenHistory([
-        {
-          url: "url1",
-          title: "titie1",
-          screenDef: "screenDef1",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue1" } as any,
+    it("ウィンドウ1[画面A] -> ウィンドウ1[画面B] -> ウィンドウ2[画面C] -> ウィンドウ2[画面D] -> ウィンドウ1[画面E] -> ウィンドウ1[画面E]", async () => {
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
                 type: "type1",
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url2",
-          title: "titie2",
-          screenDef: "screenDef2",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue2" } as any,
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s2",
+            testSteps: [
+              {
+                id: "ts2",
                 type: "type2",
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url3",
-          title: "titie3",
-          screenDef: "screenDef3",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue3" } as any,
+                targetElementId: "e2",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w2",
+            screenId: "s3",
+            testSteps: [
+              {
+                id: "ts3",
                 type: "type3",
-                windowHandle: "window2",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url4",
-          title: "titie4",
-          screenDef: "screenDef4",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue4" } as any,
+                targetElementId: "e3",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w2",
+            screenId: "s4",
+            testSteps: [
+              {
+                id: "ts4",
                 type: "type4",
-                windowHandle: "window2",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
-          ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url5",
-          title: "titie5",
-          screenDef: "screenDef5",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue5" } as any,
+                targetElementId: "e4",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s5",
+            testSteps: [
+              {
+                id: "ts5",
                 type: "type5",
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
+                targetElementId: "e5",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w1",
+            screenId: "s5",
+            testSteps: [],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [
+            { id: "w1", name: "ウィンドウ1" },
+            { id: "w2", name: "ウィンドウ2" },
           ],
-          screenElements: [],
-          inputElements: [],
-        },
-        {
-          url: "url5",
-          title: "titie5",
-          screenDef: "screenDef5",
-          operationHistory: [
-            {
-              operation: OperationForGUI.createOperation({
-                elementInfo: { text: "elementValue6" } as any,
-                type: "type6",
-                windowHandle: "window1",
-                isAutomatic: false,
-              }),
-              intention: null,
-              bugs: null,
-              notices: null,
-            },
+          screens: [
+            { id: "s1", name: "画面A", elementIds: [] },
+            { id: "s2", name: "画面B", elementIds: [] },
+            { id: "s3", name: "画面C", elementIds: [] },
+            { id: "s4", name: "画面D", elementIds: [] },
+            { id: "s5", name: "画面E", elementIds: [] },
           ],
-          screenElements: [],
-          inputElements: [],
+          elements: [
+            { id: "e1", xpath: "", tagname: "", text: "要素1", attributes: {} },
+            { id: "e2", xpath: "", tagname: "", text: "要素2", attributes: {} },
+            { id: "e3", xpath: "", tagname: "", text: "要素3", attributes: {} },
+            { id: "e4", xpath: "", tagname: "", text: "要素4", attributes: {} },
+            { id: "e5", xpath: "", tagname: "", text: "要素5", attributes: {} },
+          ],
+          testPurposes: [],
+          notes: [],
         },
-      ]);
+      };
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window1"
-          )
-        ).graphText
-      ).toEqual(
-        "graph TD;" +
-          '0["screenDef1"];' +
-          '1["screenDef2"];' +
-          '2["screenDef5"];' +
-          "0;" +
-          '0 --> |"type1: elementValue1"|1;' +
-          '2 --> |"type5: elementValue5"|2;'
-      );
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
 
-      expect(
-        (
-          await ScreenTransitionDiagramGraphConverter.convert(
-            testScreenHistory,
-            "window2"
-          )
-        ).graphText
-      ).toEqual(
-        "graph TD;" +
-          '0["screenDef3"];' +
-          '1["screenDef4"];' +
-          "0;" +
-          '0 --> |"type3: elementValue3"|1;'
-      );
+      expect(graphs.find(({ window }) => window.id === "w1")?.graph.graphText)
+        .toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s5["画面E"];
+s1 --> |"type1: 要素1"|s2;
+s5 --> |"type5: 要素5"|s5;
+`);
+
+      expect(graphs.find(({ window }) => window.id === "w2")?.graph.graphText)
+        .toEqual(`\
+graph TD;
+s3["画面C"];
+s4["画面D"];
+s3 --> |"type3: 要素3"|s4;
+`);
     });
   });
 });

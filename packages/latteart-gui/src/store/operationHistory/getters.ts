@@ -17,8 +17,6 @@
 import { GetterTree } from "vuex";
 import { OperationHistoryState } from ".";
 import { RootState } from "..";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 
 const getters: GetterTree<OperationHistoryState, RootState> = {
   /**
@@ -26,7 +24,7 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
    * @param state State.
    * @returns Operation with notes.
    */
-  findHistoryItem: (state, _, rootState) => (sequence: number) => {
+  findHistoryItem: (state) => (sequence: number) => {
     const operationWithNotes = state.history.find((item) => {
       return item.operation.sequence === sequence;
     });
@@ -35,19 +33,8 @@ const getters: GetterTree<OperationHistoryState, RootState> = {
       return operationWithNotes;
     }
 
-    const screenDefCreator = new ScreenDefFactory(
-      rootState.projectSettings.config.screenDefinition
-    );
-    const { title, url, keywordSet } = operationWithNotes.operation;
-    const screenDef = screenDefCreator.createFrom(title, url, keywordSet);
-
     return {
-      operation: OperationForGUI.createFromOtherOperation({
-        other: operationWithNotes.operation,
-        overrideParams: {
-          screenDef,
-        },
-      }),
+      operation: operationWithNotes.operation,
       bugs: operationWithNotes.bugs,
       notices: operationWithNotes.notices,
       intention: operationWithNotes.intention,
