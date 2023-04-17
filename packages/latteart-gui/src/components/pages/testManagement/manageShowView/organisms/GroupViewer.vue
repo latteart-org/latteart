@@ -19,11 +19,11 @@
     <fixed-data-table
       :items="items"
       :headers="headers"
-      :pagination.sync="pagination"
+      :options.sync="options"
       class="text-xs-center pb-3"
       hide-actions
     >
-      <template #headers="props">
+      <template #header="props">
         <tr>
           <th
             v-for="(header, index) in props.headers"
@@ -34,7 +34,7 @@
             <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
           </th></tr
       ></template>
-      <template #items="props">
+      <template #item="props">
         <tr class="business-info-row">
           <td class="py-0 px-2 my-0 business-info-title">
             <div
@@ -116,8 +116,8 @@ export default class GroupViewer extends Vue {
     return headers;
   }
 
-  private pagination: any = {
-    rowsPerPage: -1,
+  private options: any = {
+    itemsPerPage: -1,
   };
 
   private get items(): any[] {

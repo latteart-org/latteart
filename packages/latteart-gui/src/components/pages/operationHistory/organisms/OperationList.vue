@@ -50,7 +50,7 @@
           ]"
           shortcut
           sortBy="operation.sequence"
-          :rowsPerPage="10"
+          :itemsPerPage="10"
           :hide-check-box="isViewerMode"
         >
           <template v-slot:row="{ columns }">

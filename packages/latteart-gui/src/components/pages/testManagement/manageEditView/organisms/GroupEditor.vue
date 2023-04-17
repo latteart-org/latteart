@@ -23,10 +23,10 @@
       :headers="headers"
       sort-icon=""
       hide-actions
-      :pagination.sync="pagination"
+      :options.sync="options"
       :grid-column-number="8"
     >
-      <template #headers="props">
+      <template #header="props">
         <tr>
           <th
             v-for="(header, index) in props.headers"
@@ -37,7 +37,7 @@
             <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
           </th></tr
       ></template>
-      <template #items="props">
+      <template #item="props">
         <tr>
           <td class="px-0 py-0 my-0" style="width: 52px">
             <v-layout>
@@ -175,8 +175,8 @@ export default class GroupEditor extends Vue {
     /* Do nothing */
   }
 
-  private pagination = {
-    rowsPerPage: -1,
+  private options = {
+    itemsPerPage: -1,
   };
 
   private newTestTargetName = "";

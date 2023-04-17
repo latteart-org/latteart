@@ -212,41 +212,43 @@
                   :headers="testResultNoticeHeaders"
                   hide-default-footer
                 >
-                  <template v-slot:items="props">
-                    <td class="px-2 py-0">
-                      <v-text-field
-                        v-bind:value="issueOptions[props.item.status]"
-                        :placeholder="
-                          $store.getters.message('session-info.bug-status')
-                        "
-                        readonly
-                      ></v-text-field>
-                    </td>
+                  <template v-slot:item="props">
+                    <tr>
+                      <td class="px-2 py-0">
+                        <v-text-field
+                          v-bind:value="issueOptions[props.item.status]"
+                          :placeholder="
+                            $store.getters.message('session-info.bug-status')
+                          "
+                          readonly
+                        ></v-text-field>
+                      </td>
 
-                    <td class="px-2 py-0 ellipsis_short">
-                      <span :title="props.item.value">{{
-                        props.item.value
-                      }}</span>
-                    </td>
+                      <td class="px-2 py-0 ellipsis_short">
+                        <span :title="props.item.value">{{
+                          props.item.value
+                        }}</span>
+                      </td>
 
-                    <td class="px-2 py-0">
-                      <v-btn
-                        small
-                        :title="props.item.details"
-                        @click="
-                          openIssueDetailsDialog(
-                            props.item.status,
-                            props.item.value,
-                            props.item.details,
-                            props.item.imageFilePath,
-                            props.item.tags
-                          )
-                        "
-                        >{{
-                          $store.getters.message("session-info.bug-details")
-                        }}</v-btn
-                      >
-                    </td>
+                      <td class="px-2 py-0">
+                        <v-btn
+                          small
+                          :title="props.item.details"
+                          @click="
+                            openIssueDetailsDialog(
+                              props.item.status,
+                              props.item.value,
+                              props.item.details,
+                              props.item.imageFilePath,
+                              props.item.tags
+                            )
+                          "
+                          >{{
+                            $store.getters.message("session-info.bug-details")
+                          }}</v-btn
+                        >
+                      </td>
+                    </tr>
                   </template>
                 </v-data-table>
               </v-card-text>
@@ -315,7 +317,7 @@
       <template v-slot:footer>
         <v-spacer></v-spacer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" flat @click="issueDetailsDialogOpened = false">{{
+        <v-btn color="primary" text @click="issueDetailsDialogOpened = false">{{
           $store.getters.message("common.close")
         }}</v-btn>
       </template>

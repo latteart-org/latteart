@@ -42,16 +42,18 @@
           hide-default-footer
           class="hover-disabled"
         >
-          <template v-slot:items="props">
-            <td>
-              {{ props.item.sequence }}
-            </td>
-            <td>
-              {{ props.item.ngItemNames }}
-            </td>
-            <td>
-              {{ props.item.remarks }}
-            </td>
+          <template v-slot:item="props">
+            <tr>
+              <td>
+                {{ props.item.sequence }}
+              </td>
+              <td>
+                {{ props.item.ngItemNames }}
+              </td>
+              <td>
+                {{ props.item.remarks }}
+              </td>
+            </tr>
           </template>
         </v-data-table>
       </div>
