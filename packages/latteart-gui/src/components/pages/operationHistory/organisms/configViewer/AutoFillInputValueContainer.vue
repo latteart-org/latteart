@@ -108,7 +108,7 @@
           ></v-text-field>
         </v-flex>
         <v-flex xs1>
-          <v-btn flat icon @click="deleteCondition(index)" color="error"
+          <v-btn text icon @click="deleteCondition(index)" color="error"
             ><v-icon>delete</v-icon></v-btn
           >
         </v-flex>

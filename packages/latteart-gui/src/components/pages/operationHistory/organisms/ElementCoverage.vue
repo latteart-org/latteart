@@ -43,7 +43,7 @@
               class="elevation-1"
               :items-per-page="-1"
             >
-              <template v-slot:items="props">
+              <template v-slot:item="props">
                 <tr
                   :key="props.item.xpath"
                   :class="{

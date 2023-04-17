@@ -55,7 +55,7 @@
     <auto-operation-dialog
       :opened="dialogOpened"
       :autoOperations="conditionGroup.autoOperations"
-      :rowsPerPage="10"
+      :itemsPerPage="10"
       @close="dialogOpened = false"
     />
   </v-container>

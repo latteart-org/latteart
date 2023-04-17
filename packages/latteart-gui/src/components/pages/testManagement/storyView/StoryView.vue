@@ -115,7 +115,7 @@
           <v-expansion-panels
             class="py-0 mb-2"
             v-model="sessionPanelExpantionStates"
-            expand
+            multiple
           >
             <v-expansion-panel
               v-for="(session, index) in story.sessions"

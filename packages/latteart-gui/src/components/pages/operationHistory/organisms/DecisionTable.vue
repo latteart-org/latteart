@@ -43,15 +43,15 @@
 
     <v-flex xs12 :style="{ height: '100%', 'overflow-y': 'scroll' }">
       <v-data-table
-        disable-initial-sort
         :headers="headers"
         :custom-filter="filterByWord"
         :items="inputValues"
         :search="search"
         class="elevation-1"
-        :pagination.sync="pagination"
+        :items-per-page.sync="pagination"
+        hide-default-header
       >
-        <template slot="headers" slot-scope="props">
+        <template v-slot:header="{ props: { headers } }">
           <tr class="tr-times">
             <th
               :style="
@@ -61,9 +61,7 @@
               "
               :class="{ 'column-width': index <= 2 }"
               :rowspan="index <= 2 ? 2 : 1"
-              v-for="(header, index) in props.headers.flatMap(
-                (item) => item.values
-              )"
+              v-for="(header, index) in headers.flatMap((item) => item.values)"
               :key="index"
             >
               {{ header.text }}
@@ -93,7 +91,7 @@
             <th
               :style="{ borderBottom: '1px solid rgba(0,0,0,0.12)' }"
               :class="{ 'column-width': index <= 2 }"
-              v-for="(header, index) in props.headers
+              v-for="(header, index) in headers
                 .flatMap((item) => item.values)
                 .filter((_, i) => i > 2)"
               :key="index"
@@ -109,7 +107,7 @@
             </th>
           </tr>
         </template>
-        <template v-slot:items="props">
+        <template v-slot:item="props">
           <tr
             :class="{
               'hidden-row': elementTypeIsHidden(props.item.elementType),
@@ -184,9 +182,7 @@ export default class DecisionTable extends Vue {
   private shouldHideHiddenElements = true;
 
   private search = "";
-  private pagination: any = {
-    rowsPerPage: -1,
-  };
+  private pagination = -1;
   private opened = false;
   private selectedColumnNotes = [];
 
@@ -288,24 +284,19 @@ export default class DecisionTable extends Vue {
     );
   }
 
-  private filterByWord(inputValues: InputValue[]) {
-    return inputValues.filter((inputValueTableRow) => {
-      if (!this.search) {
-        return true;
-      }
-      const columns = Object.entries(inputValueTableRow);
-      return columns
-        .filter(([columnName]) => {
-          return columnName !== "sequence";
-        })
-        .some(([_, columnValue]) => {
-          if (typeof columnValue === "string") {
-            return columnValue.includes(this.search);
-          } else {
-            return columnValue.value.includes(this.search);
-          }
-        });
-    });
+  private filterByWord(_: any, search: string, item: InputValue) {
+    const columns = Object.entries(item);
+    return columns
+      .filter(([columnName]) => {
+        return columnName !== "sequence";
+      })
+      .some(([_, columnValue]) => {
+        if (typeof columnValue === "string") {
+          return columnValue.includes(search);
+        } else {
+          return columnValue.value.includes(search);
+        }
+      });
   }
 
   private selectInputValueSet(index: number): void {

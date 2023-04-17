@@ -99,15 +99,17 @@
           item-key="name"
           hide-default-footer
         >
-          <template v-slot:items="props">
-            <td
-              v-for="(val, index) in headers"
-              :key="index"
-              class="py-0 my-0 center-column ellipsis_short"
-              :title="!!props.item[val.value] ? props.item[val.value] : '0'"
-            >
-              {{ !!props.item[val.value] ? props.item[val.value] : "0" }}
-            </td>
+          <template v-slot:item="props">
+            <tr>
+              <td
+                v-for="(val, index) in headers"
+                :key="index"
+                class="py-0 my-0 center-column ellipsis_short"
+                :title="!!props.item[val.value] ? props.item[val.value] : '0'"
+              >
+                {{ !!props.item[val.value] ? props.item[val.value] : "0" }}
+              </td>
+            </tr>
           </template>
         </v-data-table>
       </v-flex>

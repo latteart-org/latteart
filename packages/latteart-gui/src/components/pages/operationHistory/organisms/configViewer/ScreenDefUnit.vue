@@ -151,7 +151,7 @@
               <v-flex xs1>
                 <v-btn
                   v-if="conditionGroup.conditions.length > 1"
-                  flat
+                  text
                   icon
                   @click="deleteCondition(index)"
                   color="error"
