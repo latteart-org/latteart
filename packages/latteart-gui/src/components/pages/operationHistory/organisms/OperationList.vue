@@ -52,6 +52,7 @@
           sortBy="operation.sequence"
           :itemsPerPage="10"
           :hide-check-box="isViewerMode"
+          :hide-headers="true"
         >
           <template v-slot:row="{ columns }">
             <td class="seq-col">

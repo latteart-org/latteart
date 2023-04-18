@@ -24,10 +24,9 @@
       :hide-default-header="hideHeaders"
       :hide-default-footer="hideFooters"
       must-sort
-      show-select
     >
-      <template v-slot:header="props">
-        <tr :style="{ height: '40px !important' }">
+      <template v-slot:header="{ props }">
+        <tr :style="{ height: '40px !important' }" class="v-data-table-header">
           <th class="check-col" v-if="!hideCheckBox">
             <v-checkbox
               :input-value="props.all"
@@ -52,7 +51,9 @@
             @click="changeSort(header.value)"
           >
             {{ header.text }}
-            <v-icon small>arrow_upward</v-icon>
+            <v-icon class="v-data-table-header__icon" small
+              >arrow_upward</v-icon
+            >
           </th>
         </tr>
       </template>
