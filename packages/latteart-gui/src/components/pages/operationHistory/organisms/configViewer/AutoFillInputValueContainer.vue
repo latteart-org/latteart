@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container class="mt-1 pt-0" style="background-color: #eee">
+  <v-container pa-8 style="background-color: #eee">
     <v-layout row>
       <v-flex xs1>
         <v-checkbox
