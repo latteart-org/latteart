@@ -42,7 +42,7 @@
           $store.getters.message("config-view.autofill.add-setting")
         }}</v-btn>
       </v-flex>
-      <v-flex xs12 class="py-0 my-0">
+      <v-flex xs12 class="py-0 mt-6">
         <autofill-input-value-container
           v-for="(group, index) in conditionGroups"
           :key="index"
@@ -53,6 +53,7 @@
           @update-condition="updateCondition"
           @delete-condition-group="deleteConditionGroup"
           @delete-condition="deleteCondition"
+          class="mt-4"
         ></autofill-input-value-container>
       </v-flex>
     </v-layout>

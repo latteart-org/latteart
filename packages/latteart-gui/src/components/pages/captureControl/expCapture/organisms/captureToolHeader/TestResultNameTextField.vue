@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row>
+  <v-layout justify-start align-center>
     <v-icon class="pl-4 pr-1">save_alt</v-icon>
     <v-text-field
       single-line

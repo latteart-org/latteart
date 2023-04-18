@@ -16,14 +16,14 @@
 
 <template>
   <v-app>
-    <v-app-bar color="white" fixed flat app height="64px">
+    <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
       <capture-tool-header />
     </v-app-bar>
 
     <v-main>
       <v-container
         fluid
-        pa-0
+        pa-4
         fill-height
         :style="{ 'max-height': 'calc(100vh - 64px - 64px)' }"
       >

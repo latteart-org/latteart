@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div style="margin-bottom: 20px">
+  <div class="mt-4">
     <v-layout align-space-between column>
       <v-card max-width="100%">
         <v-card-text>
@@ -59,13 +59,14 @@
               class="conditions-area conditions-row"
               align-center
             >
-              <v-flex xs1 style="text-align: right">
-                <span v-show="index > 0">{{
+              <v-flex cols="1" style="text-align: right">
+                <span v-if="index > 0">{{
                   $store.getters.message("config-view.screen-def.and")
                 }}</span>
+                <span v-else>　　</span>
               </v-flex>
 
-              <v-flex xs1 style="text-align: center">
+              <v-flex cols="1" style="text-align: center">
                 <v-checkbox
                   :input-value="item.isEnabled"
                   @change="
@@ -76,7 +77,7 @@
               </v-flex>
 
               <template v-if="$store.getters.getLocale() === 'ja'">
-                <v-flex xs3>
+                <v-flex cols="3">
                   <v-select
                     :value="item.definitionType"
                     @change="
@@ -91,7 +92,7 @@
                   ><span style="margin-left: 10px">に</span>
                 </v-flex>
 
-                <v-flex xs4>
+                <v-flex cols="4">
                   <v-text-field
                     :value="item.word"
                     @change="(value) => updateCondition(index, { word: value })"
@@ -100,7 +101,7 @@
                   <span style="margin-left: 10px">という</span>
                 </v-flex>
 
-                <v-flex xs3>
+                <v-flex cols="3">
                   <v-select
                     :value="item.matchType"
                     @change="

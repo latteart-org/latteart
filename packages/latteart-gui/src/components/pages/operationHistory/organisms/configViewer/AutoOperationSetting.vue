@@ -28,6 +28,7 @@
           :index="index"
           @update-condition-group="updateConditionGroup"
           @delete-condition-group="deleteConditionGroup"
+          class="mt-4"
         ></auto-operation-container>
       </v-flex>
     </v-layout>
