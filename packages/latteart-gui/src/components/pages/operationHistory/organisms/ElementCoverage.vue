@@ -27,7 +27,7 @@
         <v-expansion-panel>
           <v-expansion-panel-header class="py-0 fullwidth">
             <div class="fullwidth">
-              <p class="subheading font-weight-bold">
+              <p class="subtitle-1 font-weight-bold">
                 <span class="ellipsis-title" :title="coverage.screenTitle">{{
                   coverage.screenTitle
                 }}</span>

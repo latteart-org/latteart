@@ -17,7 +17,7 @@
 <template>
   <v-layout fill-height justify-start>
     <v-flex pt-3 px-3>
-      <p class="subheading">
+      <p class="subtitle-1">
         {{ $store.getters.message("config-view.target") }}
       </p>
       <v-layout row wrap>

@@ -176,7 +176,7 @@
                     sub-group
                     :id="`testPurposeArea${index}`"
                   >
-                    <v-list-item slot="activator">
+                    <template v-slot:activator>
                       <v-list-item-content>
                         <v-list-item-title
                           ><span :title="item.value">{{
@@ -184,7 +184,7 @@
                           }}</span></v-list-item-title
                         >
                       </v-list-item-content>
-                    </v-list-item>
+                    </template>
                     <v-layout>
                       <p class="break-word pl-5 break-word">
                         {{ item.details }}
