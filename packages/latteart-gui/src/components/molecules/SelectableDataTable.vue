@@ -176,13 +176,12 @@ export default class SelectableDataTable<T> extends Vue {
   }
 
   private get tableHeaders() {
-    const a = this.headers.map((header) => {
+    return this.headers.map((header) => {
       return {
         ...header,
         value: header.value,
       };
     });
-    return a;
   }
 
   private get visibleItems() {
