@@ -65,7 +65,6 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
-import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { InputValueTableHeaderColumn } from "@/lib/operationHistory/InputValueTable";
 
 @Component({
