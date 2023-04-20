@@ -27,21 +27,25 @@
     }}</v-btn>
 
     <template v-if="hasTestMatrix">
-      <v-layout justify-end row>
-        <v-flex xs12>
+      <v-row class="mt-4">
+        <v-col>
           <tab-selector
             :selectedItemId="selectedTestMatrixId"
             :items="testMatrices"
             @select="(id) => selectTestMatrix(id)"
           ></tab-selector>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
 
-      <v-card class="pa-2">
-        <test-matrix-editor
-          :testMatrixId="selectedTestMatrixId"
-        ></test-matrix-editor>
-      </v-card>
+      <v-row>
+        <v-col>
+          <v-card class="pa-2">
+            <test-matrix-editor
+              :testMatrixId="selectedTestMatrixId"
+            ></test-matrix-editor>
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
 
     <manage-edit-footer @cancel="goToTop"> </manage-edit-footer>

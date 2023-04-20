@@ -15,13 +15,12 @@
 -->
 
 <template>
-  <v-container fluid class="pa-0" v-if="testMatrix">
-    <v-layout justify-end row>
-      <v-flex xs6>
+  <v-container fluid v-if="testMatrix">
+    <v-row>
+      <v-col cols="10">
         <div class="mt-2 ml-2">{{ testMatrix.name }}</div>
-      </v-flex>
-
-      <v-flex xs6 style="text-align: right">
+      </v-col>
+      <v-col cols="2" style="text-align: right">
         <v-btn small @click="testMatrixBeingEdited = testMatrix">
           {{ $store.getters.message("manage-edit-view.settings") }}
         </v-btn>
@@ -30,56 +29,65 @@
           color="red"
           dark
           @click="openConfirmDialogToDeleteTestMatrix"
+          class="ml-2"
         >
           {{ $store.getters.message("common.delete") }}
         </v-btn>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-expansion-panels v-model="expandedPanelIndex">
+          <v-expansion-panel
+            :id="`groupEditAreaToggle${index}`"
+            v-for="(group, index) in testMatrix.groups"
+            :key="group.id"
+            class="py-0 elevation-0"
+          >
+            <v-expansion-panel-header class="py-0">
+              <v-row>
+                <v-col cols="10">
+                  <div
+                    v-if="expandedPanelIndex !== index"
+                    :title="group.name"
+                    class="ellipsis"
+                  >
+                    {{ group.name }}
+                  </div>
+                  <v-text-field
+                    :id="`groupNameTextField${index}`"
+                    v-if="expandedPanelIndex === index"
+                    :value="group.name"
+                    @click="$event.stopPropagation()"
+                    @change="(value) => renameGroup(group.id, value)"
+                  ></v-text-field>
+                </v-col>
 
-    <v-expansion-panels v-model="expandedPanelIndex" class="py-0">
-      <v-expansion-panel
-        :id="`groupEditAreaToggle${index}`"
-        v-for="(group, index) in testMatrix.groups"
-        :key="group.id"
-        class="py-0 elevation-0"
-      >
-        <v-expansion-panel-header class="py-0">
-          <v-flex xs10>
-            <div
-              v-if="expandedPanelIndex !== index"
-              :title="group.name"
-              class="ellipsis"
-            >
-              {{ group.name }}
-            </div>
-            <v-text-field
-              :id="`groupNameTextField${index}`"
-              v-if="expandedPanelIndex === index"
-              :value="group.name"
-              @click="$event.stopPropagation()"
-              @change="(value) => renameGroup(group.id, value)"
-            ></v-text-field>
-          </v-flex>
-
-          <v-flex xs2>
-            <v-btn
-              v-if="expandedPanelIndex === index"
-              @click.stop="openConfirmDialogToDeleteGroup(group.id)"
-              small
-              color="error"
-              >{{ $store.getters.message("group-edit-list.delete") }}</v-btn
-            >
-          </v-flex>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
-
-    <v-btn id="createGroupButton" @click="addNewGroup">{{
-      $store.getters.message("group-edit-list.add")
-    }}</v-btn>
+                <v-col cols="2" class="align-self-center d-flex justify-end">
+                  <v-btn
+                    v-if="expandedPanelIndex === index"
+                    @click.stop="openConfirmDialogToDeleteGroup(group.id)"
+                    small
+                    color="error"
+                    class="mr-4"
+                    >{{
+                      $store.getters.message("group-edit-list.delete")
+                    }}</v-btn
+                  >
+                </v-col>
+              </v-row>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels> </v-col
+    ></v-row>
+    <v-row>
+      <v-btn id="createGroupButton" @click="addNewGroup" class="my-4">{{
+        $store.getters.message("group-edit-list.add")
+      }}</v-btn>
+    </v-row>
 
     <test-matrix-dialog
       :testMatrixBeingEdited="testMatrixBeingEdited"
@@ -124,7 +132,7 @@ export default class TestMatrixEditor extends Vue {
     /* Do nothing */
   };
 
-  private expandedPanelIndex: number | null = null;
+  private expandedPanelIndex: number | undefined | null = null;
 
   private get expandedGroupPanelIndexKey(): string {
     return `latteart-management-expandedEditorGroupPanelIndex_${this.testMatrixId}`;
@@ -141,13 +149,13 @@ export default class TestMatrixEditor extends Vue {
     this.expandedPanelIndex = -1;
 
     setTimeout(() => {
-      this.expandedPanelIndex = index;
+      this.expandedPanelIndex = index ?? null;
     }, 100);
   }
 
   @Watch("expandedPanelIndex")
-  private saveExpandedPanelIndex(value: number | null) {
-    if (value === null) {
+  private saveExpandedPanelIndex(value: number | null | undefined) {
+    if (value === null || value === undefined) {
       localStorage.removeItem(this.expandedGroupPanelIndexKey);
       return;
     }
@@ -155,11 +163,11 @@ export default class TestMatrixEditor extends Vue {
     localStorage.setItem(this.expandedGroupPanelIndexKey, value.toString());
   }
 
-  private getSavedExpandedPanelIndex(): number | null {
+  private getSavedExpandedPanelIndex(): number | undefined {
     const item = localStorage.getItem(this.expandedGroupPanelIndexKey);
 
     if (item === null) {
-      return 0;
+      return undefined;
     }
 
     return parseInt(item, 10);

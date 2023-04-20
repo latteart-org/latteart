@@ -15,23 +15,20 @@
 -->
 
 <template>
-  <v-container fluid class="pa-0" v-if="testMatrix">
-    <v-layout justify-end row>
-      <v-flex xs12>
-        <div class="mt-2 ml-2 mb-2">{{ testMatrix.name }}</div>
-      </v-flex>
-    </v-layout>
-
-    <v-layout justify-end row>
-      <v-flex xs12>
-        <v-expansion-panels v-model="expandedPanelIndex" class="py-0">
+  <v-container fluid v-if="testMatrix">
+    <v-row>
+      <v-col class="ma-2">{{ testMatrix.name }}</v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-expansion-panels v-model="expandedPanelIndex">
           <v-expansion-panel
             v-for="(group, index) in testMatrix.groups"
             :key="group.id"
             class="py-0"
             :id="`groupShowArea${index}`"
           >
-            <v-expansion-panel-header class="py-0">
+            <v-expansion-panel-header>
               <div :title="group.name" class="ellipsis">{{ group.name }}</div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
@@ -43,8 +40,8 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -61,7 +58,7 @@ import { TestMatrix } from "@/lib/testManagement/types";
 export default class TestMatrixViewer extends Vue {
   @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
 
-  private expandedPanelIndex: number | null = null;
+  private expandedPanelIndex: number | undefined | null = null;
 
   private get expandedGroupPanelIndexKey(): string {
     return `latteart-management-expandedGroupPanelIndex_${this.testMatrixId}`;
@@ -78,13 +75,13 @@ export default class TestMatrixViewer extends Vue {
     this.expandedPanelIndex = -1;
 
     setTimeout(() => {
-      this.expandedPanelIndex = index;
+      this.expandedPanelIndex = index ?? null;
     }, 100);
   }
 
   @Watch("expandedPanelIndex")
-  private saveExpandedPanelIndex(value: number | null) {
-    if (value === null) {
+  private saveExpandedPanelIndex(value: number | null | undefined) {
+    if (value === null || value === undefined) {
       localStorage.removeItem(this.expandedGroupPanelIndexKey);
       return;
     }
@@ -92,11 +89,11 @@ export default class TestMatrixViewer extends Vue {
     localStorage.setItem(this.expandedGroupPanelIndexKey, value.toString());
   }
 
-  private getSavedExpandedPanelIndex(): number | null {
+  private getSavedExpandedPanelIndex(): number | undefined {
     const item = localStorage.getItem(this.expandedGroupPanelIndexKey);
 
     if (item === null) {
-      return 0;
+      return undefined;
     }
 
     return parseInt(item, 10);

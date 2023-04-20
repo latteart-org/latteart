@@ -50,6 +50,8 @@ export default class LabelWithTooltip extends Vue {
   text-overflow: ellipsis
   white-space: nowrap
   padding-top: 16px
+  size: 12px
+  font-weight: normal
 
 .icon-info
   margin-right: 4px
