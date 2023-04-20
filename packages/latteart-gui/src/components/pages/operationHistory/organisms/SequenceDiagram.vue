@@ -15,13 +15,15 @@
 -->
 
 <template>
-  <v-layout justify-end column id="sequence-diagram-container">
-    <mermaid-graph-renderer
-      v-if="graph"
-      :graph="graph"
-      graphType="sequence"
-    ></mermaid-graph-renderer>
-  </v-layout>
+  <v-row justify="end" id="sequence-diagram-container">
+    <v-col cols="12">
+      <mermaid-graph-renderer
+        v-if="graph"
+        :graph="graph"
+        graphType="sequence"
+      ></mermaid-graph-renderer>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

@@ -16,8 +16,8 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-layout row wrap>
-      <v-flex xs12 class="py-0 my-0">
+    <v-row>
+      <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupRegistrationDialog"
           :label="
@@ -27,8 +27,8 @@
           "
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs12 class="py-0 my-0">
+      </v-col>
+      <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupSelectionDialog"
           :label="
@@ -36,13 +36,13 @@
           "
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs12 class="py-0 my-0">
+      </v-col>
+      <v-col cols="12" class="py-0 my-0">
         <v-btn @click="addConditionGroup">{{
           $store.getters.message("config-view.autofill.add-setting")
         }}</v-btn>
-      </v-flex>
-      <v-flex xs12 class="py-0 mt-6">
+      </v-col>
+      <v-col cols="12" class="py-0 mt-6">
         <autofill-input-value-container
           v-for="(group, index) in conditionGroups"
           :key="index"
@@ -55,8 +55,8 @@
           @delete-condition="deleteCondition"
           class="mt-4"
         ></autofill-input-value-container>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

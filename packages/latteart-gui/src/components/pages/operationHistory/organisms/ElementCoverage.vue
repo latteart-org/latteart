@@ -16,12 +16,11 @@
 
 <template>
   <div>
-    <v-layout
-      justify-end
-      column
+    <v-row
+      justify="end"
       v-for="(coverage, index) in coverages"
       :key="index"
-      pb-4
+      class="py-2"
     >
       <v-expansion-panels>
         <v-expansion-panel>
@@ -70,7 +69,7 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-layout>
+    </v-row>
   </div>
 </template>
 

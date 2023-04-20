@@ -25,6 +25,7 @@
           v-on="on"
           icon
           large
+          class="mx-2"
           >...</v-btn
         >
       </template>

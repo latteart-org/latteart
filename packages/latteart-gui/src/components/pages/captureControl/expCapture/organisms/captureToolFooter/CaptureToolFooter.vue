@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row pl-2 pr-2>
+  <v-row justify="start" align="center" class="pl-2 pr-2">
     <browser-back-button />
     <browser-forward-button />
 
@@ -39,7 +39,7 @@
     <go-history-view-button v-else />
 
     <span class="px-1"><recording-time /></span>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

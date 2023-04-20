@@ -24,6 +24,7 @@
       fab
       small
       :title="$store.getters.message('app.autofill')"
+      class="mx-2"
     >
       <v-icon>edit</v-icon>
     </v-btn>

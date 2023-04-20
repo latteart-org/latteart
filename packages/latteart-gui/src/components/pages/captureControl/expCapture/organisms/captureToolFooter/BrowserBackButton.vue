@@ -22,6 +22,7 @@
       @click="browserBack"
       :disabled="isDisabled"
       :title="$store.getters.message('navigate.back')"
+      class="mx-2"
     >
       <v-icon dark>arrow_back</v-icon>
     </v-btn>

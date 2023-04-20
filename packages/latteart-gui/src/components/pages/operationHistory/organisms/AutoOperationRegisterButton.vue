@@ -22,6 +22,7 @@
       :dark="!isDisabled"
       @click="registerDialogOpened = true"
       small
+      class="mx-2"
       >{{ $store.getters.message("app.register-operation") }}
     </v-btn>
 

@@ -18,7 +18,7 @@
   <v-app>
     <error-handler>
       <div style="height: 100vh">
-        <v-layout fill-height>
+        <v-row class="fill-height">
           <history-display
             :rawHistory="testResult.history"
             :coverageSources="testResult.coverageSources"
@@ -26,7 +26,7 @@
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
           ></history-display>
-        </v-layout>
+        </v-row>
       </div>
     </error-handler>
   </v-app>

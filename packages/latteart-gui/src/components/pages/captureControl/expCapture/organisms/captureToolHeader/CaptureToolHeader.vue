@@ -15,26 +15,33 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row @keydown="cancelKeydown">
-    <url-text-field />
-    <test-result-name-text-field />
+  <v-row justify="start" align="center" @keydown="cancelKeydown">
+    <v-col cols="3">
+      <url-text-field />
+    </v-col>
+    <v-col cols="3" class="pl-7">
+      <test-result-name-text-field />
+    </v-col>
+    <v-col cols="auto">
+      <div>
+        <v-row>
+          <record-button />
+          <pause-button />
+          <clear-history-button />
+          <load-history-button />
+          <menu-button />
+        </v-row>
+      </div>
+    </v-col>
 
-    <div>
-      <v-layout>
-        <record-button />
-        <pause-button />
-        <clear-history-button />
-        <load-history-button />
-        <menu-button />
-      </v-layout>
-    </div>
-
-    <v-flex shrink pa-1 pl-3>
+    <v-col cols="2">
       <locale-select-box />
-    </v-flex>
+    </v-col>
 
-    <remote-access-field color="inherit" />
-  </v-layout>
+    <v-col cols="2">
+      <remote-access-field color="inherit" />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -59,7 +66,6 @@ import MenuButton from "./MenuButton.vue";
     "clear-history-button": ClearHistoryButton,
     "load-history-button": LoadHistoryButton,
     "generate-test-script-button": GenerateTestScriptButton,
-
     "locale-select-box": LocaleSelectBox,
     "remote-access-field": RemoteAccessField,
     "menu-button": MenuButton,
