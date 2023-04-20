@@ -26,6 +26,7 @@
       @click="testOptionDialogOpened = true"
       :title="$store.getters.message('app.start')"
       id="startButton"
+      class="mx-1"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>
@@ -38,6 +39,7 @@
       @click="endCapture"
       :title="$store.getters.message('app.finish')"
       id="endButton"
+      class="mx-2"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>

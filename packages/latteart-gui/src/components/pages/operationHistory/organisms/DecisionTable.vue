@@ -15,33 +15,38 @@
 -->
 
 <template>
-  <v-layout
-    align-space-around
-    justify-space-between
-    column
-    fill-height
-    id="decision-table"
-  >
-    <v-checkbox
-      class="checkbox-gray-out"
-      v-model="shouldGrayOutNotInputValueCell"
-      :label="message('input-value.gray-out-not-input-value-cell')"
-    ></v-checkbox>
-
-    <v-checkbox
-      class="checkbox-hide-elements"
-      v-model="shouldHideHiddenElements"
-      :label="message('input-value.hide-hidden-elements')"
-      hide-details
-    ></v-checkbox>
-
-    <v-text-field
-      v-model="search"
-      prepend-inner-icon="search"
-      :label="message('operation.query')"
-    ></v-text-field>
-
-    <v-flex xs12 :style="{ height: '100%', 'overflow-y': 'scroll' }">
+  <v-row justify="space-between" class="fill-height" id="decision-table">
+    <v-col cols="12" class="pb-0">
+      <v-checkbox
+        class="checkbox-gray-out"
+        v-model="shouldGrayOutNotInputValueCell"
+        :label="message('input-value.gray-out-not-input-value-cell')"
+      ></v-checkbox>
+    </v-col>
+    <v-col cols="12" class="pb-0">
+      <v-checkbox
+        class="checkbox-hide-elements"
+        v-model="shouldHideHiddenElements"
+        :label="message('input-value.hide-hidden-elements')"
+        hide-details
+      ></v-checkbox>
+    </v-col>
+    <v-col cols="12" class="py-0">
+      <v-text-field
+        v-model="search"
+        prepend-inner-icon="search"
+        :label="message('operation.query')"
+        hide-details
+      ></v-text-field>
+    </v-col>
+    <v-col
+      cols="12"
+      :style="{
+        height: '100%',
+        'overflow-y': 'scroll',
+        'padding-bottom': '150px',
+      }"
+    >
       <v-data-table
         :headers="headers"
         :custom-filter="filterByWord"
@@ -142,14 +147,14 @@
           </tr>
         </template>
       </v-data-table>
-    </v-flex>
+    </v-col>
     <note-list-dialog
       :opened="opened"
       :notes="selectedColumnNotes"
       :message="message"
       @close="opened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -259,7 +264,20 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
-              notes: screenTransition.notes,
+              notes: screenTransition.notes
+                ? screenTransition.notes.map((note) => {
+                    const noteImageFileUrl = note.imageFileUrl
+                      ? new URL(
+                          note.imageFileUrl,
+                          this.$store.state.repositoryService.serviceUrl
+                        ).toString()
+                      : "";
+                    return {
+                      ...note,
+                      imageFileUrl: noteImageFileUrl,
+                    };
+                  })
+                : [],
               testPurposes: screenTransition.testPurposes,
               index,
             };
@@ -344,6 +362,9 @@ export default class DecisionTable extends Vue {
 </script>
 
 <style lang="sass" scoped>
+th
+  font-size: 0.75rem
+
 td
   height: 30px !important
 

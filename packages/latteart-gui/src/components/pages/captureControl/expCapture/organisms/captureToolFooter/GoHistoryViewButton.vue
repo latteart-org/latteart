@@ -22,6 +22,7 @@
       dark
       color="orange darken-1"
       :title="$store.getters.message('app.history')"
+      class="mx-2"
     >
       <v-icon>history</v-icon>
     </v-btn>

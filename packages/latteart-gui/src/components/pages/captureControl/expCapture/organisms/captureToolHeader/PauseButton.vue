@@ -24,6 +24,7 @@
       large
       :title="pauseButtonTooltip"
       :color="pauseButtonColor"
+      class="mx-2"
     >
       <v-icon>pause</v-icon>
     </v-btn>

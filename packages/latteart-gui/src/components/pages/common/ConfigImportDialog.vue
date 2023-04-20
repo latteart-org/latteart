@@ -25,13 +25,13 @@
     :acceptButtonDisabled="okButtonIsDisabled"
   >
     <template>
-      <v-container class="px-0 pt-0 pb-0" fluid id="import-option-dialog">
-        <v-layout column>
-          <v-flex xs12>
+      <v-container id="import-option-dialog">
+        <v-row>
+          <v-col cols="12">
             {{ $store.getters.message("config-io.select-config-file") }}
-          </v-flex>
+          </v-col>
 
-          <v-flex xs12 class="pl-2 pr-2 pt-2">
+          <v-col cols="12" class="pl-2 pr-2 pt-2">
             <select-file-button
               accept=".json"
               :details-message="targetFile ? targetFile.name : ''"
@@ -43,8 +43,8 @@
                 )
               }}
             </select-file-button>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </template>
   </execute-dialog>

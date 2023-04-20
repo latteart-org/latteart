@@ -15,39 +15,40 @@
 -->
 
 <template>
-  <v-layout wrap px-4>
+  <v-row class="px-4">
     <div class="head-label">
       {{ $store.getters.message("config-view.include-coverage") }}
     </div>
-    <v-flex v-if="tempTagList.length <= 0">
+    <v-col v-if="tempTagList.length <= 0">
       <v-card color="#EEE">
         <v-card-text>
-          <v-layout align-center>
-            <v-flex ma-3> NO DATA </v-flex>
-          </v-layout>
+          <v-row align="center">
+            <v-col class="ma-3"> NO DATA </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
-    </v-flex>
-    <v-flex
+    </v-col>
+    <v-col
+      cols="1"
       style="width: 150px"
       v-for="tag in tempTagList"
       v-bind:key="tag"
-      pa-1
+      class="pa-1"
     >
       <v-card class="ma-1 pa-1" color="#EEE">
         <v-card-text class="my-0 py-0">
-          <v-layout align-center ma-0 pa-0>
-            <v-flex xs10 ma-0 pa-0 class="tagName">
+          <v-row align="center" class="ma-0 pa-0">
+            <v-col cols="10" class="tagName ma-0 pa-0">
               {{ tag }}
-            </v-flex>
-            <v-flex xs2 ma-0 pa-0 align-right>
+            </v-col>
+            <v-col cols="2" class="ma-0 pa-0">
               <v-checkbox v-model="tempTags" :value="tag" />
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

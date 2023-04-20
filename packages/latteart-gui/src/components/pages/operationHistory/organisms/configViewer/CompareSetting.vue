@@ -16,8 +16,8 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-layout row wrap>
-      <v-flex xs12>
+    <v-row>
+      <v-col cols="12">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
           :label="
@@ -28,8 +28,8 @@
           hide-details
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs12 class="select-box">
+      </v-col>
+      <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeItems"
           :items="tempExcludeItems"
@@ -44,8 +44,8 @@
           :disabled="!isExcludeItemsEnabled"
           class="px-1"
         ></v-select>
-      </v-flex>
-      <v-flex xs12>
+      </v-col>
+      <v-col cols="12">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
           :label="
@@ -56,8 +56,8 @@
           hide-details
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs12 class="select-box">
+      </v-col>
+      <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeElements"
           :items="tempTags"
@@ -72,8 +72,8 @@
           :disabled="!isExcludeElementsEnabled"
           class="px-1"
         ></v-select>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

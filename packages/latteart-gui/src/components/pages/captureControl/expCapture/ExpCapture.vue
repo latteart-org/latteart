@@ -22,8 +22,9 @@
 
     <v-main>
       <v-container
-        fluid
-        pa-4
+        container--fluid
+        px-4
+        py-0
         fill-height
         :style="{ 'max-height': 'calc(100vh - 64px - 64px)' }"
       >
@@ -31,7 +32,7 @@
       </v-container>
     </v-main>
 
-    <v-footer app height="auto" class="mt-5 py-4">
+    <v-footer app height="64px">
       <capture-tool-footer />
     </v-footer>
 

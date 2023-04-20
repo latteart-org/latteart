@@ -22,7 +22,7 @@
         'hidden-coverage': !dispCoverage,
       }"
     >
-      <div style="position: relative">
+      <div style="position: relative" class="pt-2">
         <v-btn
           color="blue"
           :loading="updating"
@@ -75,7 +75,12 @@
           </v-flex>
         </pane>
         <pane>
-          <v-container fluid pa-0 fill-height style="position: relative">
+          <v-container
+            container--fluid
+            pa-0
+            fill-height
+            style="position: relative"
+          >
             <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
 
             <a
@@ -89,7 +94,7 @@
               <v-btn
                 v-show="screenshotUrl !== ''"
                 color="white"
-                class="screenshot-button screenshot-button-single"
+                class="screenshot-button screenshot-button-single ma-1"
                 fab
                 small
               >

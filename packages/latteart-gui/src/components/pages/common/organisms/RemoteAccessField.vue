@@ -15,23 +15,27 @@
 -->
 
 <template>
-  <v-layout>
-    <v-combobox
-      :hide-details="hideDetails"
-      v-model="targetUrl"
-      :items="urls"
-      :label="$store.getters.message('remote-access.remote-connection-url')"
-      id="connectUrlTextField"
-      ref="urlField"
-      :disabled="isCapturing"
-    ></v-combobox>
-    <v-btn
-      :color="color"
-      id="connecttButton"
-      @click="connect()"
-      :disabled="isCapturing || targetUrl === url"
-      >{{ $store.getters.message("remote-access.connect") }}</v-btn
-    >
+  <v-row>
+    <v-col cols="10">
+      <v-combobox
+        :hide-details="hideDetails"
+        v-model="targetUrl"
+        :items="urls"
+        :label="$store.getters.message('remote-access.remote-connection-url')"
+        id="connectUrlTextField"
+        ref="urlField"
+        :disabled="isCapturing"
+      ></v-combobox>
+    </v-col>
+    <v-col cols="2">
+      <v-btn
+        :color="color"
+        id="connecttButton"
+        @click="connect()"
+        :disabled="isCapturing || targetUrl === url"
+        >{{ $store.getters.message("remote-access.connect") }}</v-btn
+      >
+    </v-col>
 
     <information-message-dialog
       :opened="informationMessageDialogOpened"
@@ -45,7 +49,7 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

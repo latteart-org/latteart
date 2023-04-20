@@ -24,6 +24,7 @@
       fab
       small
       :title="$store.getters.message('app.record-note')"
+      class="mx-2"
     >
       <v-icon>add_comment</v-icon>
     </v-btn>
