@@ -96,7 +96,7 @@
               </v-list>
             </v-menu>
           </v-col>
-          <v-col cols="1" pl-3 v-if="!isViewerMode">
+          <v-col cols="1" v-if="!isViewerMode">
             <v-select
               hide-details
               :label="$store.getters.message('manage-header.locale')"
@@ -105,7 +105,7 @@
               v-on:change="changeLocale"
             ></v-select>
           </v-col>
-          <v-col cols="2" pl-3 v-if="!isViewerMode">
+          <v-col cols="2" v-if="!isViewerMode">
             <remote-access-field
               color="primary"
               hide-details

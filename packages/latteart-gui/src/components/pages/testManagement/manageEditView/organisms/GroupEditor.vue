@@ -232,7 +232,6 @@ export default class GroupEditor extends Vue {
         class: ["text-xs-center", "py-1", "ellipsis_short"],
       });
     });
-    console.log(headers);
     return headers;
   }
 

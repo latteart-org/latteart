@@ -199,7 +199,7 @@
         </v-row>
 
         <v-row>
-          <v-col cols="1212">
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.notice")
