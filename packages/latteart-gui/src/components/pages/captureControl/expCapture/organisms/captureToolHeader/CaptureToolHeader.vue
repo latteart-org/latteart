@@ -16,29 +16,39 @@
 
 <template>
   <v-row justify="start" align="center" @keydown="cancelKeydown">
-    <v-col cols="3">
+    <v-col>
       <url-text-field />
     </v-col>
-    <v-col cols="3" class="pl-7">
+    <v-col class="pl-7">
       <test-result-name-text-field />
     </v-col>
-    <v-col cols="auto">
+    <v-col>
       <div>
         <v-row>
-          <record-button />
-          <pause-button />
-          <clear-history-button />
-          <load-history-button />
-          <menu-button />
+          <v-col cols="2">
+            <record-button />
+          </v-col>
+          <v-col cols="2">
+            <pause-button />
+          </v-col>
+          <v-col cols="2">
+            <clear-history-button />
+          </v-col>
+          <v-col cols="2">
+            <load-history-button />
+          </v-col>
+          <v-col cols="2">
+            <menu-button />
+          </v-col>
         </v-row>
       </div>
     </v-col>
 
-    <v-col cols="2">
+    <v-col>
       <locale-select-box />
     </v-col>
 
-    <v-col cols="2">
+    <v-col>
       <remote-access-field color="inherit" />
     </v-col>
   </v-row>

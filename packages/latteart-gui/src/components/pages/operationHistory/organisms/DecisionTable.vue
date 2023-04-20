@@ -264,7 +264,20 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
-              notes: screenTransition.notes,
+              notes: screenTransition.notes
+                ? screenTransition.notes.map((note) => {
+                    const noteImageFileUrl = note.imageFileUrl
+                      ? new URL(
+                          note.imageFileUrl,
+                          this.$store.state.repositoryService.serviceUrl
+                        ).toString()
+                      : "";
+                    return {
+                      ...note,
+                      imageFileUrl: noteImageFileUrl,
+                    };
+                  })
+                : [],
               testPurposes: screenTransition.testPurposes,
               index,
             };
