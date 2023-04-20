@@ -27,13 +27,13 @@
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
-    <v-layout column fill-height>
+    <v-row fill-height>
       <iframe
         style="width: 100%; height: 100%"
         :src="historyPageUrl"
         frameborder="0"
       ></iframe>
-    </v-layout>
+    </v-row>
   </div>
 </template>
 
