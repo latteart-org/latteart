@@ -24,6 +24,7 @@
       @click="updateTestResults"
       :disabled="isDisabled"
       :title="$store.getters.message('app.import')"
+      class="mx-2"
     >
       <v-icon>folder_open</v-icon>
     </v-btn>
@@ -42,7 +43,7 @@
           @click="loadHistory(testResult.id)"
           :disabled="!testResult.id"
         >
-          <v-list-item-action :style="{ 'min-width': '30px' }">
+          <v-list-item-action class="mr-0" :style="{ 'min-width': '30px' }">
             <v-icon :disabled="!testResult.parentTestResultId" small
               >compare</v-icon
             >

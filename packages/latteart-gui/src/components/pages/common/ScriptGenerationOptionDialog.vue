@@ -32,9 +32,14 @@
       >
       </v-checkbox>
 
-      <v-container fluid pa-1 fill-height id="simple-test-script-generation">
-        <v-layout row wrap>
-          <v-flex xs12 pb-2>
+      <v-container
+        container--fluid
+        pa-1
+        fill-height
+        id="simple-test-script-generation"
+      >
+        <v-row>
+          <v-col cols="12" class="pb-2">
             <p
               :class="{
                 'mb-0': true,
@@ -45,8 +50,8 @@
                 $store.getters.message("history-view.custom-button-definition")
               }}
             </p>
-          </v-flex>
-          <v-flex xs12 pl-2>
+          </v-col>
+          <v-col cols="12" class="pl-2">
             <span
               :class="{
                 caption: true,
@@ -99,12 +104,17 @@
                 </v-list-item>
               </template>
             </v-combobox>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
-      <v-container fluid pa-1 fill-height id="max-test-data-generation">
-        <v-layout row wrap>
-          <v-flex xs12 pb-2>
+      <v-container
+        container--fluid
+        pa-1
+        fill-height
+        id="max-test-data-generation"
+      >
+        <v-row>
+          <v-col cols="12" class="pb-2">
             <p
               :class="{
                 'mb-0': true,
@@ -113,16 +123,16 @@
             >
               {{ $store.getters.message("history-view.testdata") }}
             </p>
-          </v-flex>
-          <v-flex xs12 pl-2>
+          </v-col>
+          <v-col cols="12" class="pl-2">
             <v-checkbox
               :label="$store.getters.message('history-view.method-data-driven')"
               :disabled="testGenerationOption.testScript.isSimple"
               v-model="testGenerationOption.testData.useDataDriven"
             >
             </v-checkbox>
-          </v-flex>
-          <v-flex xs12 pl-2>
+          </v-col>
+          <v-col cols="12" class="pl-2">
             <number-field
               :value="testGenerationOption.maxGeneration"
               @updateNumberFieldValue="updateMaxGeneration"
@@ -134,8 +144,8 @@
               :minValue="0"
             >
             </number-field>
-          </v-flex>
-          <v-flex xs12 pl-3>
+          </v-col>
+          <v-col cols="12" class="pl-3">
             <span
               :class="{
                 'text--disabled':
@@ -146,8 +156,8 @@
                 $store.getters.message("history-view.generate-only-template")
               }}</span
             >
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </template>
   </execute-dialog>

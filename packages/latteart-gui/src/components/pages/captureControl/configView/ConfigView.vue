@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-layout fill-height justify-start>
-    <v-flex pt-3 px-3>
+  <v-row justify="start" class="fill-height">
+    <v-col class="pt-3 px-3">
       <p class="subtitle-1">
         {{ $store.getters.message("config-view.target") }}
       </p>
-      <v-layout row wrap>
-        <v-flex xs12 pr-1 class="pb-18">
+      <v-row>
+        <v-col cols="12" class="pb-18 pr-1">
           <v-select
             :label="$store.getters.message('config-view.platform')"
             :items="platformNames"
@@ -179,16 +179,16 @@
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
-        </v-flex>
-      </v-layout>
-    </v-flex>
+        </v-col>
+      </v-row>
+    </v-col>
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

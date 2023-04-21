@@ -24,6 +24,7 @@
       color="grey darken-3"
       @click="resetHistory"
       :title="$store.getters.message('app.reset')"
+      class="mx-2"
     >
       <v-icon>refresh</v-icon>
     </v-btn>

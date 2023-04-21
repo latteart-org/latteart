@@ -16,7 +16,7 @@
 
 <template>
   <v-row>
-    <v-col cols="8">
+    <v-col cols="10">
       <v-combobox
         :hide-details="hideDetails"
         v-model="targetUrl"
@@ -27,7 +27,7 @@
         :disabled="isCapturing"
       ></v-combobox>
     </v-col>
-    <v-col cols="4">
+    <v-col cols="2">
       <v-btn
         :color="color"
         id="connecttButton"

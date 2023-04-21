@@ -15,7 +15,10 @@
 -->
 
 <template>
-  <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
+  <div
+    class="overflow-y-auto"
+    :style="{ height: '100%', 'overflow-y': 'scroll' }"
+  >
     <v-data-table
       :value="selected"
       :headers="tableHeaders"
@@ -27,13 +30,14 @@
     >
       <template v-slot:header="{ props }">
         <tr :style="{ height: '40px !important' }" class="v-data-table-header">
-          <th class="check-col" v-if="!hideCheckBox">
+          <th class="check-col pl-4" v-if="!hideCheckBox">
             <v-checkbox
               :input-value="props.all"
               :indeterminate="isPartiallyChecked"
               primary
               hide-details
               @click.stop="toggleAll"
+              class="ml-1 mt-0"
             ></v-checkbox>
           </th>
           <th
@@ -43,6 +47,7 @@
             :sortable="header.sortable"
             align="left"
             :class="[
+              'pl-4',
               'column sortable',
               options.sortDesc ? 'desc' : 'asc',
               header.value === options.sortBy.at(0) ? 'active' : '',
@@ -73,7 +78,7 @@
         >
           <td class="check-col check-item" v-if="!hideCheckBox">
             <v-checkbox
-              class="mr-1"
+              class="ml-1 mt-0"
               hide-details
               :input-value="
                 selected.find(({ index }) => {
@@ -261,7 +266,7 @@ export default class SelectableDataTable<T> extends Vue {
 
   private scrollToTableRow(rowIndex: number, itemsPerPage: number) {
     this.$vuetify.goTo(30 * Math.floor(rowIndex % itemsPerPage), {
-      container: ".scroll-y",
+      container: ".overflow-y-auto",
       duration: 100,
     });
   }
@@ -464,6 +469,9 @@ export default class SelectableDataTable<T> extends Vue {
 table tr
   transition: background 0s !important
   height: 30px !important
+
+th
+  font-size: 0.75rem
 
 .selected
   background-color: lemonchiffon !important

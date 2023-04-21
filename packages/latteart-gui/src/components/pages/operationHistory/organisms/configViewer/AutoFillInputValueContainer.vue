@@ -16,60 +16,60 @@
 
 <template>
   <v-container pa-8 style="background-color: #eee">
-    <v-layout row>
-      <v-flex xs1>
+    <v-row>
+      <v-col cols="1">
         <v-checkbox
           :input-value="conditionGroup.isEnabled"
           @change="(isEnabled) => updateconditionGroup({ isEnabled })"
           class="default-flex"
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs9>
+      </v-col>
+      <v-col cols="9">
         <v-text-field
           :label="$store.getters.message('config-view.autofill.setting-name')"
           :value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
-      </v-flex>
-      <v-flex xs2>
+      </v-col>
+      <v-col cols="2">
         <v-btn @click="deleteConditionGroup" color="error">{{
           $store.getters.message("common.delete")
         }}</v-btn>
-      </v-flex>
-    </v-layout>
-    <v-layout row>
-      <v-flex xs6>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="6">
         <v-text-field
           label="url"
           :value="conditionGroup.url"
           @change="(url) => updateconditionGroup({ url })"
           class="px-1"
         ></v-text-field>
-      </v-flex>
-      <v-flex xs6>
+      </v-col>
+      <v-col cols="6">
         <v-text-field
           label="title"
           :value="conditionGroup.title"
           @change="(title) => updateconditionGroup({ title })"
           class="px-1"
         ></v-text-field>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
     <div
       v-for="(item, index) in conditionGroup.inputValueConditions"
       :key="index"
     >
-      <v-layout row>
-        <v-flex xs1 style="text-align: center">
+      <v-row>
+        <v-col cols="1" style="text-align: center">
           <v-checkbox
             :input-value="item.isEnabled"
             @change="(isEnabled) => updateCondition(index, { isEnabled })"
             style="display: inline-block"
             class="px-1"
           ></v-checkbox>
-        </v-flex>
-        <v-flex xs2>
+        </v-col>
+        <v-col cols="2">
           <v-select
             :label="$store.getters.message('config-view.autofill.locator-type')"
             :value="item.locatorType"
@@ -77,8 +77,8 @@
             :items="locatorTypeList"
             class="px-1"
           ></v-select>
-        </v-flex>
-        <v-flex xs2>
+        </v-col>
+        <v-col cols="2">
           <v-select
             :label="
               $store.getters.message('config-view.autofill.locator-match-type')
@@ -90,29 +90,29 @@
             :items="locatorMatchType(item.locatorType)"
             class="px-1"
           ></v-select>
-        </v-flex>
-        <v-flex xs3>
+        </v-col>
+        <v-col cols="3">
           <v-text-field
             :label="$store.getters.message('config-view.autofill.locator')"
             :value="item.locator"
             @change="(locator) => updateCondition(index, { locator })"
             class="px-1"
           ></v-text-field>
-        </v-flex>
-        <v-flex xs3>
+        </v-col>
+        <v-col cols="3">
           <v-text-field
             :label="$store.getters.message('config-view.autofill.input-value')"
             :value="item.inputValue"
             @change="(value) => updateCondition(index, { inputValue: value })"
             class="px-1"
           ></v-text-field>
-        </v-flex>
-        <v-flex xs1>
+        </v-col>
+        <v-col cols="1">
           <v-btn text icon @click="deleteCondition(index)" color="error"
             ><v-icon>delete</v-icon></v-btn
           >
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
     </div>
     <v-btn @click="addCondition">{{
       $store.getters.message("config-view.autofill.adding-autofill-values")

@@ -22,6 +22,7 @@
       @click="browserForward"
       :disabled="isDisabled"
       :title="$store.getters.message('navigate.forward')"
+      class="mx-2"
     >
       <v-icon dark>arrow_forward</v-icon>
     </v-btn>
