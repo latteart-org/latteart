@@ -32,11 +32,12 @@
         <tr :style="{ height: '40px !important' }" class="v-data-table-header">
           <th class="check-col pl-4" v-if="!hideCheckBox">
             <v-checkbox
-              :input-value="props.all"
+              v-model="selectedAll"
               :indeterminate="isPartiallyChecked"
               primary
               hide-details
-              @click.stop="toggleAll"
+              readonly
+              @click.prevent="toggleAll"
               class="ml-1 mt-0"
             ></v-checkbox>
           </th>
@@ -143,6 +144,7 @@ export default class SelectableDataTable<T> extends Vue {
   private selected: { index: number; columns: T }[] = [];
   private lastCheckedRowIndex = -1;
   private lastUncheckedRowIndex = -1;
+  private selectedAll = false;
 
   private options: {
     sortDesc?: boolean;
@@ -258,6 +260,7 @@ export default class SelectableDataTable<T> extends Vue {
     this.selected = this.visibleItems.filter((item) => {
       return this.checkedItemIndexes.includes(item.index);
     });
+    this.changeSelectedAll();
   }
 
   private switchTablePage(rowIndex: number, itemsPerPage: number) {
@@ -423,6 +426,12 @@ export default class SelectableDataTable<T> extends Vue {
 
     this.lastCheckedRowIndex = -1;
     this.lastUncheckedRowIndex = -1;
+  }
+
+  private changeSelectedAll(): void {
+    this.selectedAll =
+      this.selected.length > 0 &&
+      this.visibleItems.length === this.selected.length;
   }
 
   private checkRows(...targetRowIndexes: number[]) {
