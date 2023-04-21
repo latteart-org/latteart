@@ -161,6 +161,7 @@ export class TestScriptsService {
                         input: testStep.operationInput,
                         type: testStep.operationType,
                         elementInfo:
+                          elementInfo != null &&
                           Object.keys(elementInfo).length > 0
                             ? (elementInfo as ElementInfo)
                             : null,
