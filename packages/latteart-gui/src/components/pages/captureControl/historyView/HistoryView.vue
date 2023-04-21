@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout fill-height>
+  <v-row class="fill-height">
     <history-display
       :locale="$store.state.i18n.locale"
       :changeWindowTitle="changeWindowTitle"
@@ -26,7 +26,7 @@
       scriptGenerationEnabled
       operationContextEnabled
     ></history-display>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

@@ -18,12 +18,13 @@
   <div>
     <v-btn
       icon
-      flat
+      text
       large
       color="grey darken-3"
       @click="updateTestResults"
       :disabled="isDisabled"
       :title="$store.getters.message('app.import')"
+      class="mx-2"
     >
       <v-icon>folder_open</v-icon>
     </v-btn>
@@ -36,21 +37,21 @@
       absolute
     >
       <v-list>
-        <v-list-tile
+        <v-list-item
           v-for="(testResult, index) in testResults"
           :key="index"
           @click="loadHistory(testResult.id)"
           :disabled="!testResult.id"
         >
-          <v-list-tile-action :style="{ 'min-width': '30px' }">
+          <v-list-item-action class="mr-0" :style="{ 'min-width': '30px' }">
             <v-icon :disabled="!testResult.parentTestResultId" small
               >compare</v-icon
             >
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ testResult.name }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>{{ testResult.name }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-menu>
 

@@ -21,10 +21,11 @@
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
-          flat
+          text
           v-on="on"
           icon
           large
+          class="mx-2"
           >...</v-btn
         >
       </template>
@@ -33,26 +34,26 @@
         <test-tesult-export-button />
         <config-import-button />
         <config-export-button v-slot:default="slotProps">
-          <v-list-tile
+          <v-list-item
             @click="slotProps.obj.execute"
             :disabled="slotProps.obj.isDisabled"
           >
-            <v-list-tile-title>{{
+            <v-list-item-title>{{
               $store.getters.message("config-io.export-config")
-            }}</v-list-tile-title>
-          </v-list-tile>
+            }}</v-list-item-title>
+          </v-list-item>
         </config-export-button>
         <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
-          <v-list-tile
+          <v-list-item
             @click="slotProps.obj.execute"
             :disabled="slotProps.obj.isDisabled"
           >
-            <v-list-tile-title>{{
+            <v-list-item-title>{{
               $store.getters.message("history-view.export-screenshots")
-            }}</v-list-tile-title>
-          </v-list-tile>
+            }}</v-list-item-title>
+          </v-list-item>
         </screenshots-download-button>
         <compare-history-button />
         <delete-test-result-button />

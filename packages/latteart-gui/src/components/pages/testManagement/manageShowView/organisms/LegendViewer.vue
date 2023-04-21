@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout row wrap justify-center align-start>
+  <v-row class="d-flex justify-center">
     <div
       v-for="(legend, index) in legendInfos"
       v-bind:key="index"
@@ -38,7 +38,7 @@
       {{ $store.getters.message("manage-show.legend2") }}<br />
       {{ $store.getters.message("manage-show.legend3") }}<br />
     </div>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -89,7 +89,7 @@ export default class LegendViewer extends Vue {
 .manage-show-legend
   margin: 0px 10px
   padding-top: 10px
-  width: 140px
+  width: 150px
   color: #ffffff
 
 .status-fine

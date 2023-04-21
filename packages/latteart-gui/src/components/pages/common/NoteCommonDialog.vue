@@ -55,14 +55,14 @@
           hide-selected
         >
           <template v-slot:no-data>
-            <v-list-tile v-if="search">
-              <v-list-tile-content>
-                <v-list-tile-title>
+            <v-list-item v-if="search">
+              <v-list-item-content>
+                <v-list-item-title>
                   No results matching "<strong>{{ search }}</strong
                   >". Press <kbd>enter</kbd> to create a new one
-                </v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </template>
         </v-combobox>
 

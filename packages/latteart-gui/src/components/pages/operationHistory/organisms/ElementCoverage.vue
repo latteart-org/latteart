@@ -16,61 +16,60 @@
 
 <template>
   <div>
-    <v-layout
-      justify-end
-      column
+    <v-row
+      justify="end"
       v-for="(coverage, index) in coverages"
       :key="index"
-      pb-4
+      class="py-2"
     >
-      <v-expansion-panel>
-        <v-expansion-panel-content>
-          <template v-slot:header class="py-0 fullwidth">
+      <v-expansion-panels>
+        <v-expansion-panel>
+          <v-expansion-panel-header class="py-0 fullwidth">
             <div class="fullwidth">
-              <p class="subheading font-weight-bold">
+              <p class="subtitle-1 font-weight-bold">
                 <span class="ellipsis-title" :title="coverage.screenTitle">{{
                   coverage.screenTitle
                 }}</span>
               </p>
               coverage: {{ coverage.percentage }} %
             </div>
-          </template>
-
-          <v-data-table
-            disable-initial-sort
-            hide-actions
-            :headers="headers[index]"
-            :items="coverage.elements"
-            class="elevation-1"
-            pagination.sync="{ rowsPerPage: -1 }"
-          >
-            <template v-slot:items="props">
-              <tr
-                :key="props.item.xpath"
-                :class="{
-                  covered: props.item.operated,
-                  missed: !props.item.operated,
-                }"
-                @click="selectElement(props.item.sequence)"
-              >
-                <td :title="props.item.xpath">{{ props.item.tagname }}</td>
-                <td>{{ props.item.type }}</td>
-                <td>{{ props.item.id }}</td>
-                <td>{{ props.item.name }}</td>
-                <td :title="props.item.text">
-                  <div class="ellipsis">{{ props.item.text }}</div>
-                </td>
-                <td>
-                  <v-icon v-if="props.item.operated" small class="mr-2"
-                    >done</v-icon
-                  >
-                </td>
-              </tr>
-            </template>
-          </v-data-table>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-layout>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-data-table
+              hide-default-footer
+              :headers="headers[index]"
+              :items="coverage.elements"
+              class="elevation-1"
+              :items-per-page="-1"
+            >
+              <template v-slot:item="props">
+                <tr
+                  :key="props.item.xpath"
+                  :class="{
+                    covered: props.item.operated,
+                    missed: !props.item.operated,
+                  }"
+                  @click="selectElement(props.item.sequence)"
+                >
+                  <td :title="props.item.xpath">{{ props.item.tagname }}</td>
+                  <td>{{ props.item.type }}</td>
+                  <td>{{ props.item.id }}</td>
+                  <td>{{ props.item.name }}</td>
+                  <td :title="props.item.text">
+                    <div class="ellipsis">{{ props.item.text }}</div>
+                  </td>
+                  <td>
+                    <v-icon v-if="props.item.operated" small class="mr-2"
+                      >done</v-icon
+                    >
+                  </td>
+                </tr>
+              </template>
+            </v-data-table>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </v-row>
   </div>
 </template>
 

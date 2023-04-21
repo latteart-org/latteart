@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout row>
+  <v-row>
     <sequence-diagram
       v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
       :message="message"
@@ -26,7 +26,7 @@
       :windows="windows"
       :message="message"
     ></screen-transition-diagram>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

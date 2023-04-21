@@ -16,11 +16,20 @@
 
 import Vue from "vue";
 import Vuetify from "vuetify/lib";
-import "vuetify/src/stylus/app.styl";
 
-Vue.use(Vuetify, {
-  iconfont: "md",
-  theme: {
-    "latteart-main": "#424242",
+Vue.use(Vuetify);
+
+const opts = {
+  icons: {
+    iconfont: "md",
   },
-});
+  theme: {
+    themes: {
+      light: {
+        "latteart-main": "#424242",
+      },
+    },
+  },
+} as const;
+
+export default new Vuetify(opts);

@@ -18,9 +18,12 @@
     :headers-length="headersLength"
     :items="items"
     :headers="addedPaddingCellheaders"
-    :sort-icon="sortIcon"
-    :hide-actions="hideActions"
-    :pagination.sync="paginationSync"
+    :header-props="{
+      'sort-icon': sortIcon,
+    }"
+    :hide-default-header="hideDefaultHeader"
+    :hide-default-footer="hideActions"
+    :options.sync="optionsSync"
   >
     <template v-for="(slot, name) of $scopedSlots" #[name]="props">
       <slot :name="name" v-bind="props"></slot>
@@ -56,35 +59,47 @@ export default class FixedDataTable extends Vue {
   public readonly hideActions!: boolean;
 
   @Prop({ type: Object, default: undefined })
-  public readonly pagination!: {
-    descending: boolean;
+  public readonly options!: {
     page: number;
-    rowsPerPage: number;
-    sortBy: string;
-    totalItems: number;
+    itemsPerPage: number;
+    sortBy: string[];
+    sortDesc: boolean[];
+    groupBy: string[];
+    groupDesc: boolean[];
+    multiSort: boolean;
+    mustSort: boolean;
   };
 
   @Prop({ type: Number, default: 7 })
   public readonly gridColumnNumber!: number;
 
-  get paginationSync(): {
-    descending: boolean;
+  @Prop({ type: Boolean, default: false })
+  public readonly hideDefaultHeader!: boolean;
+
+  get optionsSync(): {
     page: number;
-    rowsPerPage: number;
-    sortBy: string;
-    totalItems: number;
+    itemsPerPage: number;
+    sortBy: string[];
+    sortDesc: boolean[];
+    groupBy: string[];
+    groupDesc: boolean[];
+    multiSort: boolean;
+    mustSort: boolean;
   } {
-    return this.pagination;
+    return this.options;
   }
 
-  set paginationSync(value: {
-    descending: boolean;
+  set optionsSync(value: {
     page: number;
-    rowsPerPage: number;
-    sortBy: string;
-    totalItems: number;
+    itemsPerPage: number;
+    sortBy: string[];
+    sortDesc: boolean[];
+    groupBy: string[];
+    groupDesc: boolean[];
+    multiSort: boolean;
+    mustSort: boolean;
   }) {
-    this.$emit("update:pagination", value);
+    this.$emit("update:options", value);
   }
 
   get addedPaddingCellheaders(): {

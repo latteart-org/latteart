@@ -15,47 +15,51 @@
 -->
 
 <template>
-  <v-container class="mt-1 pt-0" style="background-color: #eee">
-    <v-layout row>
-      <v-flex xs12 class="mt-2">
-        <v-layout row>
-          <v-checkbox
-            :style="{ maxWidth: '40px' }"
-            :input-value="conditionGroup.isEnabled"
-            @change="(isEnabled) => updateconditionGroup({ isEnabled })"
-            class="default-flex"
-          >
-          </v-checkbox>
-          <v-text-field
-            :label="$store.getters.message('config-view.autoOperation.name')"
-            :value="conditionGroup.settingName"
-            @change="(settingName) => updateconditionGroup({ settingName })"
-          ></v-text-field>
-          <v-btn @click="dialogOpened = true">{{
-            $store.getters.message("config-view.autoOperation.details-list")
-          }}</v-btn>
-          <v-btn @click="deleteConditionGroup" color="error">{{
-            $store.getters.message("common.delete")
-          }}</v-btn>
-        </v-layout>
-      </v-flex>
-    </v-layout>
-    <v-layout row>
-      <v-flex xs12>
+  <v-container pa-4 style="background-color: #eee">
+    <v-row>
+      <v-col cols="1" align="right">
+        <v-checkbox
+          :style="{ maxWidth: '40px' }"
+          :input-value="conditionGroup.isEnabled"
+          @change="(isEnabled) => updateconditionGroup({ isEnabled })"
+          class="default-flex"
+        >
+        </v-checkbox>
+      </v-col>
+      <v-col cols="9">
+        <v-text-field
+          :label="$store.getters.message('config-view.autoOperation.name')"
+          :value="conditionGroup.settingName"
+          @change="(settingName) => updateconditionGroup({ settingName })"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="2">
+        <v-btn @click="dialogOpened = true">{{
+          $store.getters.message("config-view.autoOperation.details-list")
+        }}</v-btn>
+        <v-btn @click="deleteConditionGroup" color="error" class="ml-4">{{
+          $store.getters.message("common.delete")
+        }}</v-btn>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col cols="1" />
+      <v-col cols="9">
         <v-textarea
           hide-details
-          :style="{ paddingLeft: '40px !important' }"
           :label="$store.getters.message('config-view.autoOperation.details')"
           :value="conditionGroup.details"
           @change="(details) => updateconditionGroup({ details })"
           class="px-1"
         ></v-textarea>
-      </v-flex>
-    </v-layout>
+      </v-col>
+      <v-col cols="2" />
+    </v-row>
     <auto-operation-dialog
       :opened="dialogOpened"
       :autoOperations="conditionGroup.autoOperations"
-      :rowsPerPage="10"
+      :itemsPerPage="10"
       @close="dialogOpened = false"
     />
   </v-container>

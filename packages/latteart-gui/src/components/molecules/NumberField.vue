@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-layout align-center justify-center>
-    <v-flex xs12>
+  <v-row align="center" justify="center">
+    <v-col cols="12">
       <div class="wrap">
         <div class="text-wrap">
           <v-text-field
@@ -54,8 +54,8 @@
           </button>
         </div>
       </div>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

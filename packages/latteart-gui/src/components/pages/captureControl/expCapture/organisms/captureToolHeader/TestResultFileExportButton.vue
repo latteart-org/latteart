@@ -15,10 +15,10 @@
 -->
 
 <template>
-  <v-list-tile @click="exportData" :disabled="isDisabled">
-    <v-list-tile-title>{{
+  <v-list-item @click="exportData" :disabled="isDisabled">
+    <v-list-item-title>{{
       $store.getters.message("import-export-dialog.test-result-export-title")
-    }}</v-list-tile-title>
+    }}</v-list-item-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -33,7 +33,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </v-list-tile>
+  </v-list-item>
 </template>
 
 <script lang="ts">

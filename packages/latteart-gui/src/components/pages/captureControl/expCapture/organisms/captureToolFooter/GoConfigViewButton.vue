@@ -22,6 +22,7 @@
       dark
       color="grey darken-3"
       :title="$store.getters.message('app.target')"
+      class="mx-2"
     >
       <v-icon>settings</v-icon>
     </v-btn>

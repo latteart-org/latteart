@@ -15,43 +15,48 @@
 -->
 
 <template>
-  <v-layout
-    align-space-around
-    justify-space-between
-    column
-    fill-height
-    id="decision-table"
-  >
-    <v-checkbox
-      class="checkbox-gray-out"
-      v-model="shouldGrayOutNotInputValueCell"
-      :label="message('input-value.gray-out-not-input-value-cell')"
-    ></v-checkbox>
-
-    <v-checkbox
-      class="checkbox-hide-elements"
-      v-model="shouldHideHiddenElements"
-      :label="message('input-value.hide-hidden-elements')"
-      hide-details
-    ></v-checkbox>
-
-    <v-text-field
-      v-model="search"
-      prepend-inner-icon="search"
-      :label="message('operation.query')"
-    ></v-text-field>
-
-    <v-flex xs12 :style="{ height: '100%', 'overflow-y': 'scroll' }">
+  <v-row justify="space-between" class="fill-height" id="decision-table">
+    <v-col cols="12" class="pb-0">
+      <v-checkbox
+        class="checkbox-gray-out"
+        v-model="shouldGrayOutNotInputValueCell"
+        :label="message('input-value.gray-out-not-input-value-cell')"
+      ></v-checkbox>
+    </v-col>
+    <v-col cols="12" class="pb-0">
+      <v-checkbox
+        class="checkbox-hide-elements"
+        v-model="shouldHideHiddenElements"
+        :label="message('input-value.hide-hidden-elements')"
+        hide-details
+      ></v-checkbox>
+    </v-col>
+    <v-col cols="12" class="py-0">
+      <v-text-field
+        v-model="search"
+        prepend-inner-icon="search"
+        :label="message('operation.query')"
+        hide-details
+      ></v-text-field>
+    </v-col>
+    <v-col
+      cols="12"
+      :style="{
+        height: '100%',
+        'overflow-y': 'scroll',
+        'padding-bottom': '150px',
+      }"
+    >
       <v-data-table
-        disable-initial-sort
         :headers="headers"
         :custom-filter="filterByWord"
         :items="inputValues"
         :search="search"
         class="elevation-1"
-        :pagination.sync="pagination"
+        :items-per-page.sync="pagination"
+        hide-default-header
       >
-        <template slot="headers" slot-scope="props">
+        <template v-slot:header="{ props: { headers } }">
           <tr class="tr-times">
             <th
               :style="
@@ -61,9 +66,7 @@
               "
               :class="{ 'column-width': index <= 2 }"
               :rowspan="index <= 2 ? 2 : 1"
-              v-for="(header, index) in props.headers.flatMap(
-                (item) => item.values
-              )"
+              v-for="(header, index) in headers.flatMap((item) => item.values)"
               :key="index"
             >
               {{ header.text }}
@@ -93,7 +96,7 @@
             <th
               :style="{ borderBottom: '1px solid rgba(0,0,0,0.12)' }"
               :class="{ 'column-width': index <= 2 }"
-              v-for="(header, index) in props.headers
+              v-for="(header, index) in headers
                 .flatMap((item) => item.values)
                 .filter((_, i) => i > 2)"
               :key="index"
@@ -109,7 +112,7 @@
             </th>
           </tr>
         </template>
-        <template v-slot:items="props">
+        <template v-slot:item="props">
           <tr
             :class="{
               'hidden-row': elementTypeIsHidden(props.item.elementType),
@@ -144,14 +147,14 @@
           </tr>
         </template>
       </v-data-table>
-    </v-flex>
+    </v-col>
     <note-list-dialog
       :opened="opened"
       :notes="selectedColumnNotes"
       :message="message"
       @close="opened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -184,9 +187,7 @@ export default class DecisionTable extends Vue {
   private shouldHideHiddenElements = true;
 
   private search = "";
-  private pagination: any = {
-    rowsPerPage: -1,
-  };
+  private pagination = -1;
   private opened = false;
   private selectedColumnNotes = [];
 
@@ -263,7 +264,20 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
-              notes: screenTransition.notes,
+              notes: screenTransition.notes
+                ? screenTransition.notes.map((note) => {
+                    const noteImageFileUrl = note.imageFileUrl
+                      ? new URL(
+                          note.imageFileUrl,
+                          this.$store.state.repositoryService.serviceUrl
+                        ).toString()
+                      : "";
+                    return {
+                      ...note,
+                      imageFileUrl: noteImageFileUrl,
+                    };
+                  })
+                : [],
               testPurposes: screenTransition.testPurposes,
               index,
             };
@@ -288,24 +302,19 @@ export default class DecisionTable extends Vue {
     );
   }
 
-  private filterByWord(inputValues: InputValue[]) {
-    return inputValues.filter((inputValueTableRow) => {
-      if (!this.search) {
-        return true;
-      }
-      const columns = Object.entries(inputValueTableRow);
-      return columns
-        .filter(([columnName]) => {
-          return columnName !== "sequence";
-        })
-        .some(([_, columnValue]) => {
-          if (typeof columnValue === "string") {
-            return columnValue.includes(this.search);
-          } else {
-            return columnValue.value.includes(this.search);
-          }
-        });
-    });
+  private filterByWord(_: any, search: string, item: InputValue) {
+    const columns = Object.entries(item);
+    return columns
+      .filter(([columnName]) => {
+        return columnName !== "sequence";
+      })
+      .some(([_, columnValue]) => {
+        if (typeof columnValue === "string") {
+          return columnValue.includes(search);
+        } else {
+          return columnValue.value.includes(search);
+        }
+      });
   }
 
   private selectInputValueSet(index: number): void {
@@ -353,6 +362,9 @@ export default class DecisionTable extends Vue {
 </script>
 
 <style lang="sass" scoped>
+th
+  font-size: 0.75rem
+
 td
   height: 30px !important
 

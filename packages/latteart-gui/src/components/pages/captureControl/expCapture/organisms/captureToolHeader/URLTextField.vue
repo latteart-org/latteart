@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row>
+  <v-row justify="start" align="center">
     <v-icon class="pr-1">open_in_browser</v-icon>
     <v-text-field
       single-line
@@ -24,7 +24,7 @@
       :disabled="isDisabled"
       id="urlTextField"
     ></v-text-field>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

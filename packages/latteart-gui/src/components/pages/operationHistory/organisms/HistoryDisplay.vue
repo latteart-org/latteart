@@ -22,7 +22,7 @@
         'hidden-coverage': !dispCoverage,
       }"
     >
-      <div style="position: relative">
+      <div style="position: relative" class="pt-2">
         <v-btn
           color="blue"
           :loading="updating"
@@ -37,45 +37,52 @@
       </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
-          <v-flex xs12 wrap mb-0 pb-0 px-2>
-            <v-radio-group v-model="diagramType" row class="py-0">
-              <v-radio
-                :label="message('history-view.sequence')"
-                :value="DIAGRAM_TYPE_SEQUENCE"
-              ></v-radio>
-              <v-radio
-                :label="message('history-view.screen-transition')"
-                :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
-              ></v-radio>
-              <v-radio
-                :label="message('history-view.element-coverage')"
-                :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              ></v-radio>
-            </v-radio-group>
-          </v-flex>
-          <v-flex
-            xs12
-            :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
-            column
-            justify-center
-            fill-height
-            ref="mermaidGraphDisplay"
-          >
-            <element-coverage
-              v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              :onSelectElement="selectOperation"
-              :message="message"
-            ></element-coverage>
-            <history-summary-diagram
-              v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              :diagramType="diagramType"
-              :windows="windows"
-              :message="message"
-            ></history-summary-diagram>
-          </v-flex>
+          <v-container fluid fill-height>
+            <v-row class="mb-0 pb-0 px-2">
+              <v-col cols="12">
+                <v-radio-group v-model="diagramType" row class="py-0">
+                  <v-radio
+                    :label="message('history-view.sequence')"
+                    :value="DIAGRAM_TYPE_SEQUENCE"
+                  ></v-radio>
+                  <v-radio
+                    :label="message('history-view.screen-transition')"
+                    :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
+                  ></v-radio>
+                  <v-radio
+                    :label="message('history-view.element-coverage')"
+                    :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  ></v-radio>
+                </v-radio-group>
+              </v-col>
+            </v-row>
+            <v-row
+              :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
+              ref="mermaidGraphDisplay"
+            >
+              <v-col cols="12" class="ma-4">
+                <element-coverage
+                  v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  :onSelectElement="selectOperation"
+                  :message="message"
+                ></element-coverage>
+                <history-summary-diagram
+                  v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  :diagramType="diagramType"
+                  :windows="windows"
+                  :message="message"
+                ></history-summary-diagram>
+              </v-col>
+            </v-row>
+          </v-container>
         </pane>
         <pane>
-          <v-container fluid pa-0 fill-height style="position: relative">
+          <v-container
+            container--fluid
+            pa-0
+            fill-height
+            style="position: relative"
+          >
             <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
 
             <a
@@ -89,7 +96,7 @@
               <v-btn
                 v-show="screenshotUrl !== ''"
                 color="white"
-                class="screenshot-button screenshot-button-single"
+                class="screenshot-button screenshot-button-single ma-1"
                 fab
                 small
               >

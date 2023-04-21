@@ -16,10 +16,10 @@
 
 <template>
   <div style="height: calc(100vh - 120px)">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+      <v-app-bar-title>{{
         $store.getters.message("manager-history-view.review")
-      }}</v-toolbar-title>
+      }}</v-app-bar-title>
       <v-spacer></v-spacer>
 
       <screenshots-download-button v-slot:default="slotProps">
@@ -41,7 +41,7 @@
       <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
         $store.getters.message("manage-header.capture-config")
       }}</v-btn>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-btn :disabled="isResuming" @click="toBack()">{{
       $store.getters.message("manager-history-view.back")

@@ -23,6 +23,7 @@
       @click="windowSelectorOpened = true"
       :title="$store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
+      class="mx-2"
     >
       <v-icon dark>tab</v-icon>
     </v-btn>

@@ -22,74 +22,82 @@
     transition="dialog-bottom-transition"
   >
     <v-card>
-      <v-toolbar dark color="primary">
+      <v-app-bar dark color="primary">
         <v-btn icon dark @click="close">
           <v-icon>close</v-icon>
         </v-btn>
-        <v-toolbar-title>{{
+        <v-app-bar-title>{{
           $store.getters.message("config-view.settings")
-        }}</v-toolbar-title>
+        }}</v-app-bar-title>
         <v-spacer></v-spacer>
-      </v-toolbar>
+      </v-app-bar>
 
-      <v-container grid-list-md text-xs-center>
-        <v-layout row wrap>
-          <v-flex xs12>
-            <v-expansion-panel v-model="panel">
-              <v-expansion-panel-content>
-                <template v-slot:header class="py-0">
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <v-expansion-panels v-model="panel">
+              <v-expansion-panel>
+                <v-expansion-panel-header class="py-0">
                   {{
                     $store.getters.message("config-view.setting-inclusion-tags")
                   }}
-                </template>
-                <coverage-config
-                  :opened="coverageOpened"
-                  :include-tags="includeTags"
-                  :default-tag-list="defaultTagList"
-                  @save-config="saveConfig"
-                >
-                </coverage-config>
-              </v-expansion-panel-content>
-              <v-expansion-panel-content>
-                <template v-slot:header class="py-0">
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <coverage-config
+                    :opened="coverageOpened"
+                    :include-tags="includeTags"
+                    :default-tag-list="defaultTagList"
+                    @save-config="saveConfig"
+                  >
+                  </coverage-config>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="py-0">
                   {{ $store.getters.message("config-view.setting-screen") }}
-                </template>
-                <screen-definition-config
-                  :opened="screenDefinitionSettingOpened"
-                  :screenDefinition="screenDefinition"
-                  @save-config="saveConfig"
-                >
-                </screen-definition-config>
-              </v-expansion-panel-content>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <screen-definition-config
+                    :opened="screenDefinitionSettingOpened"
+                    :screenDefinition="screenDefinition"
+                    @save-config="saveConfig"
+                  >
+                  </screen-definition-config>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
 
-              <v-expansion-panel-content>
-                <template v-slot:header class="py-0">
+              <v-expansion-panel>
+                <v-expansion-panel-header class="py-0">
                   {{ $store.getters.message("config-view.setting-autofill") }}
-                </template>
-                <autofill-setting
-                  :opened="autofillSettingOpened"
-                  :autofillSetting="autofillSetting"
-                  @save-config="saveConfig"
-                >
-                </autofill-setting>
-              </v-expansion-panel-content>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <autofill-setting
+                    :opened="autofillSettingOpened"
+                    :autofillSetting="autofillSetting"
+                    @save-config="saveConfig"
+                  >
+                  </autofill-setting>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
 
-              <v-expansion-panel-content>
-                <template v-slot:header class="py-0">
+              <v-expansion-panel>
+                <v-expansion-panel-header class="py-0">
                   {{
                     $store.getters.message("config-view.setting-auto-operation")
                   }}
-                </template>
-                <auto-operation-setting
-                  :opened="autoOperationSettingOpened"
-                  :autoOperationSetting="autoOperationSetting"
-                  @save-config="saveConfig"
-                >
-                </auto-operation-setting>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-flex>
-        </v-layout>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <auto-operation-setting
+                    :opened="autoOperationSettingOpened"
+                    :autoOperationSetting="autoOperationSetting"
+                    @save-config="saveConfig"
+                  >
+                  </auto-operation-setting>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
       </v-container>
     </v-card>
   </v-dialog>

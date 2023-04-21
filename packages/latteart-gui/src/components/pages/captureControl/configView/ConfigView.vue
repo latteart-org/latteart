@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-layout fill-height justify-start>
-    <v-flex pt-3 px-3>
-      <p class="subheading">
+  <v-row justify="start" class="fill-height">
+    <v-col class="pt-3 px-3">
+      <p class="subtitle-1">
         {{ $store.getters.message("config-view.target") }}
       </p>
-      <v-layout row wrap>
-        <v-flex xs12 pr-1 class="pb-18">
+      <v-row>
+        <v-col cols="12" class="pb-18 pr-1">
           <v-select
             :label="$store.getters.message('config-view.platform')"
             :items="platformNames"
@@ -45,136 +45,150 @@
             :label="$store.getters.message('config-view.reload-setting')"
             :suffix="$store.getters.message('config-view.reload-suffix')"
           ></number-field>
-          <v-expansion-panel v-model="panel" class="py-0">
-            <v-expansion-panel-content>
-              <template v-slot:header>
+          <v-expansion-panels v-model="panel" class="py-0">
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{ $store.getters.message("config-view.setting-device") }}
-              </template>
-              <v-container>
-                <v-btn
-                  @click="updateDevices"
-                  :disabled="isDisabledDeviceConfig"
-                  >{{
-                    $store.getters.message("config-view.update-device")
-                  }}</v-btn
-                >
-                <v-select
-                  :label="$store.getters.message('config-view.select-device')"
-                  :value="selectedDevice"
-                  @change="selectDevice"
-                  :items="devices"
-                  item-text="modelNumber"
-                  item-value="deviceName"
-                  :disabled="isDisabledDeviceConfig"
-                  :no-data-text="
-                    $store.getters.message('config-view.no-device')
-                  "
-                  return-object
-                ></v-select>
-                <v-text-field
-                  :label="$store.getters.message('config-view.os-version')"
-                  v-model="selectedDevice.osVersion"
-                  :disabled="isDisabledDeviceConfig"
-                  readonly
-                ></v-text-field>
-              </v-container>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-container>
+                  <v-btn
+                    @click="updateDevices"
+                    :disabled="isDisabledDeviceConfig"
+                    >{{
+                      $store.getters.message("config-view.update-device")
+                    }}</v-btn
+                  >
+                  <v-select
+                    :label="$store.getters.message('config-view.select-device')"
+                    :value="selectedDevice"
+                    @change="selectDevice"
+                    :items="devices"
+                    item-text="modelNumber"
+                    item-value="deviceName"
+                    :disabled="isDisabledDeviceConfig"
+                    :no-data-text="
+                      $store.getters.message('config-view.no-device')
+                    "
+                    return-object
+                  ></v-select>
+                  <v-text-field
+                    :label="$store.getters.message('config-view.os-version')"
+                    v-model="selectedDevice.osVersion"
+                    :disabled="isDisabledDeviceConfig"
+                    readonly
+                  ></v-text-field>
+                </v-container>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{
                   $store.getters.message(
                     "config-view.setting-image-compression"
                   )
                 }}
-              </template>
-              <image-compression-config
-                :imageCompression="imageCompression"
-                :opened="imageCompressionSettingOpened"
-                @save-config="saveConfig"
-              >
-              </image-compression-config>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <image-compression-config
+                  :imageCompression="imageCompression"
+                  :opened="imageCompressionSettingOpened"
+                  @save-config="saveConfig"
+                >
+                </image-compression-config>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{
                   $store.getters.message("config-view.setting-inclusion-tags")
                 }}
-              </template>
-              <coverage-config
-                :opened="coverageOpened"
-                :include-tags="includeTags"
-                :default-tag-list="defaultTagList"
-                @save-config="saveConfig"
-              >
-              </coverage-config>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <coverage-config
+                  :opened="coverageOpened"
+                  :include-tags="includeTags"
+                  :default-tag-list="defaultTagList"
+                  @save-config="saveConfig"
+                >
+                </coverage-config>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{ $store.getters.message("config-view.setting-screen") }}
-              </template>
-              <screen-definition-config
-                :opened="screenDefinitionSettingOpened"
-                :screenDefinition="screenDefinition"
-                @save-config="saveConfig"
-              >
-              </screen-definition-config>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <screen-definition-config
+                  :opened="screenDefinitionSettingOpened"
+                  :screenDefinition="screenDefinition"
+                  @save-config="saveConfig"
+                >
+                </screen-definition-config>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{ $store.getters.message("config-view.setting-autofill") }}
-              </template>
-              <autofill-setting
-                :opened="autofillSettingOpened"
-                :autofillSetting="autofillSetting"
-                @save-config="saveConfig"
-              >
-              </autofill-setting>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <autofill-setting
+                  :opened="autofillSettingOpened"
+                  :autofillSetting="autofillSetting"
+                  @save-config="saveConfig"
+                >
+                </autofill-setting>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{
                   $store.getters.message("config-view.setting-auto-operation")
                 }}
-              </template>
-              <auto-operation-setting
-                :opened="autoOperationSettingOpened"
-                :autoOperationSetting="autoOperationSetting"
-                @save-config="saveConfig"
-              >
-              </auto-operation-setting>
-            </v-expansion-panel-content>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <auto-operation-setting
+                  :opened="autoOperationSettingOpened"
+                  :autoOperationSetting="autoOperationSetting"
+                  @save-config="saveConfig"
+                >
+                </auto-operation-setting>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
-            <v-expansion-panel-content>
-              <template v-slot:header>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 {{
                   $store.getters.message(
                     "config-view.setting-test-result-comparison"
                   )
                 }}
-              </template>
-              <compare-setting
-                :tags="defaultTagList"
-                :setting="testResultComparisonSetting"
-                @save-config="saveConfig"
-              >
-              </compare-setting>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-flex>
-      </v-layout>
-    </v-flex>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <compare-setting
+                  :tags="defaultTagList"
+                  :setting="testResultComparisonSetting"
+                  @save-config="saveConfig"
+                >
+                </compare-setting>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-col>
+      </v-row>
+    </v-col>
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

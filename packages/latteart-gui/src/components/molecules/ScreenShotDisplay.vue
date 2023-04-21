@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout>
+  <v-row class="pl-2" :style="{ height: '100%' }">
     <l-map
       ref="map"
       :crs="crs"
@@ -33,7 +33,7 @@
       >
       </l-image-overlay>
     </l-map>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

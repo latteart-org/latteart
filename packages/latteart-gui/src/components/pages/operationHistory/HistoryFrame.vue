@@ -16,24 +16,24 @@
 
 <template>
   <div style="height: calc(100vh - 120px)">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+      <v-app-bar-title>{{
         $store.getters.message("manager-history-view.review")
-      }}</v-toolbar-title>
+      }}</v-app-bar-title>
       <v-spacer></v-spacer>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-btn @click="toBack()">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
-    <v-layout column fill-height>
+    <v-row fill-height>
       <iframe
         style="width: 100%; height: 100%"
         :src="historyPageUrl"
         frameborder="0"
       ></iframe>
-    </v-layout>
+    </v-row>
   </div>
 </template>
 

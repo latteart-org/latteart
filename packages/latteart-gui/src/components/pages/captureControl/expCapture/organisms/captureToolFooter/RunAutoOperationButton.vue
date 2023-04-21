@@ -24,6 +24,7 @@
       fab
       small
       :title="$store.getters.message('app.auto-operation')"
+      class="mx-2"
     >
       <v-icon>video_library</v-icon>
     </v-btn>

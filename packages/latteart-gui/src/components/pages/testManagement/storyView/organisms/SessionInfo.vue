@@ -55,8 +55,8 @@
       </v-card-text>
 
       <v-card-text v-show="reportSectionDisplayed" class="pa-2">
-        <v-layout row wrap>
-          <v-flex xs6>
+        <v-row>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.model")
@@ -73,14 +73,14 @@
                     }})
                     <v-btn
                       class="mr-0"
-                      flat
+                      text
                       icon
                       v-if="!isViewerMode"
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
                     <v-btn
-                      flat
+                      text
                       icon
                       color="error"
                       v-if="!isViewerMode"
@@ -109,9 +109,9 @@
                 >
               </v-card-actions>
             </v-card>
-          </v-flex>
+          </v-col>
 
-          <v-flex xs6>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.file")
@@ -129,7 +129,7 @@
                       ><span class="break-all">{{ file.name }}</span></a
                     >
                     <v-btn
-                      flat
+                      text
                       icon
                       color="error"
                       @click="
@@ -156,11 +156,11 @@
                 />
               </v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.test")
@@ -176,31 +176,30 @@
                     sub-group
                     :id="`testPurposeArea${index}`"
                   >
-                    <v-list-tile slot="activator">
-                      <v-list-tile-content>
-                        <v-list-tile-title
+                    <template v-slot:activator>
+                      <v-list-item-content>
+                        <v-list-item-title
                           ><span :title="item.value">{{
                             item.value
-                          }}</span></v-list-tile-title
+                          }}</span></v-list-item-title
                         >
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <v-layout>
-                      <p class="break-word pl-5 break-word">
-                        {{ item.details }}
-                      </p>
-                    </v-layout>
+                      </v-list-item-content>
+                    </template>
+
+                    <p class="break-word pl-5 break-word">
+                      {{ item.details }}
+                    </p>
                   </v-list-group>
                 </v-list>
               </v-card-text>
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.notice")
@@ -210,51 +209,53 @@
                 <v-data-table
                   :items="testResultNotices"
                   :headers="testResultNoticeHeaders"
-                  hide-actions
+                  hide-default-footer
                 >
-                  <template v-slot:items="props">
-                    <td class="px-2 py-0">
-                      <v-text-field
-                        v-bind:value="issueOptions[props.item.status]"
-                        :placeholder="
-                          $store.getters.message('session-info.bug-status')
-                        "
-                        readonly
-                      ></v-text-field>
-                    </td>
+                  <template v-slot:item="props">
+                    <tr>
+                      <td class="px-2 py-0">
+                        <v-text-field
+                          v-bind:value="issueOptions[props.item.status]"
+                          :placeholder="
+                            $store.getters.message('session-info.bug-status')
+                          "
+                          readonly
+                        ></v-text-field>
+                      </td>
 
-                    <td class="px-2 py-0 ellipsis_short">
-                      <span :title="props.item.value">{{
-                        props.item.value
-                      }}</span>
-                    </td>
+                      <td class="px-2 py-0 ellipsis_short">
+                        <span :title="props.item.value">{{
+                          props.item.value
+                        }}</span>
+                      </td>
 
-                    <td class="px-2 py-0">
-                      <v-btn
-                        small
-                        :title="props.item.details"
-                        @click="
-                          openIssueDetailsDialog(
-                            props.item.status,
-                            props.item.value,
-                            props.item.details,
-                            props.item.imageFilePath,
-                            props.item.tags
-                          )
-                        "
-                        >{{
-                          $store.getters.message("session-info.bug-details")
-                        }}</v-btn
-                      >
-                    </td>
+                      <td class="px-2 py-0">
+                        <v-btn
+                          small
+                          :title="props.item.details"
+                          @click="
+                            openIssueDetailsDialog(
+                              props.item.status,
+                              props.item.value,
+                              props.item.details,
+                              props.item.imageFilePath,
+                              props.item.tags
+                            )
+                          "
+                          >{{
+                            $store.getters.message("session-info.bug-details")
+                          }}</v-btn
+                        >
+                      </td>
+                    </tr>
                   </template>
                 </v-data-table>
               </v-card-text>
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
 
@@ -271,43 +272,43 @@
 
       <template v-slot:content>
         <v-list class="note-details-dialog">
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.bug-status")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all">{{ issueDetailsDialogStatus }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.summary")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all">{{ issueDetailsDialogSummary }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.details")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile v-if="issueDetailsDialogTags.length > 0" class="mb-2">
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item v-if="issueDetailsDialogTags.length > 0" class="mb-2">
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.tags")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <note-tag-chip-group
                 :tags="issueDetailsDialogTags"
               ></note-tag-chip-group>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
           <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
         </v-list>
       </template>
@@ -315,7 +316,7 @@
       <template v-slot:footer>
         <v-spacer></v-spacer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" flat @click="issueDetailsDialogOpened = false">{{
+        <v-btn color="primary" text @click="issueDetailsDialogOpened = false">{{
           $store.getters.message("common.close")
         }}</v-btn>
       </template>
@@ -327,27 +328,21 @@
       }}</template>
 
       <template v-slot:content>
-        <v-layout
-          row
-          wrap
-          v-for="testResult in testResults"
-          :key="testResult.id"
-        >
-          <v-flex xs9>{{ testResult.name }}</v-flex>
-          <v-flex xs3
+        <v-row row wrap v-for="testResult in testResults" :key="testResult.id">
+          <v-col cols="9">{{ testResult.name }}</v-col>
+          <v-col cols="3"
             ><v-btn @click="addTestResultToSession(testResult)">{{
               $store.getters.message("session-info.result-import")
-            }}</v-btn></v-flex
+            }}</v-btn></v-col
           >
-        </v-layout>
+        </v-row>
       </template>
 
       <template v-slot:footer>
         <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
         <v-btn
           color="primary"
-          flat
+          text
           @click="testResultSelectionDialogOpened = false"
           >{{ $store.getters.message("common.close") }}</v-btn
         >

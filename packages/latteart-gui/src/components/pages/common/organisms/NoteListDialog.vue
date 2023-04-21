@@ -46,7 +46,7 @@
             readonly
           >
           </v-textarea>
-          <v-img :src="note.imageFilePath" />
+          <v-img :src="note.imageFileUrl" />
         </v-card-text>
         <v-divider v-if="index + 1 !== notes.length"></v-divider>
       </v-card>
@@ -65,7 +65,7 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
-import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
+import { InputValueTableHeaderColumn } from "@/lib/operationHistory/InputValueTable";
 
 @Component({
   components: {
@@ -76,9 +76,9 @@ import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
   @Prop({ type: Array, default: [] }) notes?: Pick<
-    NoteForGUI,
-    "value" | "details" | "tags" | "sequence" | "imageFilePath"
-  >[];
+    InputValueTableHeaderColumn,
+    "notes"
+  >;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private close() {

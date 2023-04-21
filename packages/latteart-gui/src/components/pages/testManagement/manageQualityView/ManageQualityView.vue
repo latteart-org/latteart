@@ -15,104 +15,102 @@
 -->
 
 <template>
-  <div>
-    <v-layout column pa-3 pb-5 justify-center align-left>
-      <v-flex>
-        <v-layout row align-center>
-          <p class="title">
-            {{ $store.getters.message("manage-quality.title") }}
-          </p>
-          <v-spacer></v-spacer>
-        </v-layout>
-      </v-flex>
-      <v-flex>
-        {{ $store.getters.message("manage-quality.filter-section") }}
-        <v-layout row align-center>
-          <v-flex xs6>
-            <v-layout row align-center>
-              {{ $store.getters.message("manage-quality.group") }} :
-              <v-select
-                single-line
-                v-model="selectedGroup"
-                :items="groups"
-                item-text="text"
-                item-value="id"
-                class="mx-3 ellipsis"
-              ></v-select>
-            </v-layout>
-          </v-flex>
-          <v-flex xs6>
-            <v-layout row align-center>
-              {{ $store.getters.message("manage-quality.test-target") }} :
-              <v-select
-                single-line
-                v-model="selectedTestTarget"
-                :items="testTargets"
-                item-text="text"
-                item-value="id"
-                class="mx-3 ellipsis"
-              ></v-select>
-            </v-layout>
-          </v-flex>
-        </v-layout>
-      </v-flex>
-      <v-flex pb-3>
-        {{ $store.getters.message("manage-quality.pb-curve") }}
+  <v-container>
+    <v-row class="mt-4">
+      <p class="title">
+        {{ $store.getters.message("manage-quality.title") }}
+      </p>
+      <v-spacer></v-spacer>
+    </v-row>
+    <v-row>
+      {{ $store.getters.message("manage-quality.filter-section") }}
+    </v-row>
+    <v-row class="mt-0">
+      <v-col align-self="center" cols="1" class="pt-0 ml-4">
+        {{ $store.getters.message("manage-quality.group") }} :
+      </v-col>
+      <v-col align-self="center" class="pt-0">
+        <v-select
+          single-line
+          v-model="selectedGroup"
+          :items="groups"
+          item-text="text"
+          item-value="id"
+          class="mx-3 ellipsis"
+        ></v-select>
+      </v-col>
+      <v-col align-self="center" cols="1" class="pt-0">
+        {{ $store.getters.message("manage-quality.test-target") }} :
+      </v-col>
+      <v-col align-self="center" class="pt-0">
+        <v-select
+          single-line
+          v-model="selectedTestTarget"
+          :items="testTargets"
+          item-text="text"
+          item-value="id"
+          class="mx-3 ellipsis"
+        ></v-select>
+      </v-col>
+    </v-row>
+    <v-row>
+      {{ $store.getters.message("manage-quality.pb-curve") }}
+    </v-row>
+    <v-row>
+      <v-col cols="12">
         <quality-chart
           v-if="rerender"
           :qualityDatas="qualityDatas"
           :totalBugNum="totalBugNum"
         ></quality-chart>
-      </v-flex>
-    </v-layout>
-    <v-layout column pa-3 pb-5 justify-center align-left class="new-page">
-      <v-flex>
-        {{ $store.getters.message("manage-quality.bug-report") }}
-        <v-layout row align-center>
-          <v-flex xs12>
-            <v-layout row align-center>
-              <v-radio-group v-model="displayMode" row>
-                <v-radio
-                  :label="$store.getters.message('manage-quality.total-number')"
-                  :value="DISPLAYMODE_TOTAL"
-                ></v-radio>
-                <v-radio
-                  :label="
-                    $store.getters.message('manage-quality.times-per-session')
-                  "
-                  :value="DISPLAYMODE_TIMES_PER_SESSION"
-                ></v-radio>
-              </v-radio-group>
-            </v-layout>
-          </v-flex>
-        </v-layout>
-      </v-flex>
-      <v-flex xs12>
-        {{
-          displayMode === DISPLAYMODE_TOTAL
-            ? $store.getters.message("manage-quality.unit-description-total")
-            : $store.getters.message("manage-quality.unit-description")
-        }}
+      </v-col>
+    </v-row>
+    <v-row>
+      {{ $store.getters.message("manage-quality.bug-report") }}
+    </v-row>
+    <v-row class="mt-0">
+      <v-radio-group v-model="displayMode" row>
+        <v-radio
+          :label="$store.getters.message('manage-quality.total-number')"
+          :value="DISPLAYMODE_TOTAL"
+        ></v-radio>
+        <v-radio
+          :label="$store.getters.message('manage-quality.times-per-session')"
+          :value="DISPLAYMODE_TIMES_PER_SESSION"
+        ></v-radio>
+      </v-radio-group>
+    </v-row>
+    <v-row>
+      {{
+        displayMode === DISPLAYMODE_TOTAL
+          ? $store.getters.message("manage-quality.unit-description-total")
+          : $store.getters.message("manage-quality.unit-description")
+      }}
+    </v-row>
+    <v-row>
+      <v-col cols="12">
         <v-data-table
           :headers="headers"
           :items="items"
           item-key="name"
-          hide-actions
+          hide-default-footer
         >
-          <template v-slot:items="props">
-            <td
-              v-for="(val, index) in headers"
-              :key="index"
-              class="py-0 my-0 center-column ellipsis_short"
-              :title="!!props.item[val.value] ? props.item[val.value] : '0'"
-            >
-              {{ !!props.item[val.value] ? props.item[val.value] : "0" }}
-            </td>
+          <template v-slot:item="props">
+            <tr>
+              <td
+                v-for="(val, index) in headers"
+                :key="index"
+                class="py-0 my-0 center-column ellipsis_short"
+                :title="!!props.item[val.value] ? props.item[val.value] : '0'"
+              >
+                {{ !!props.item[val.value] ? props.item[val.value] : "0" }}
+              </td>
+            </tr>
           </template>
         </v-data-table>
-      </v-flex>
-    </v-layout>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
