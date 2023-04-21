@@ -57,11 +57,7 @@
               </v-col>
             </v-row>
             <v-row
-              xs12
               :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
-              column
-              justify-center
-              fill-height
               ref="mermaidGraphDisplay"
             >
               <v-col cols="12" class="ma-4">

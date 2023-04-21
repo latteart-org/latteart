@@ -32,7 +32,7 @@
         <v-spacer></v-spacer>
       </v-app-bar>
 
-      <v-container grid-list-md text-xs-center>
+      <v-container>
         <v-row>
           <v-col cols="12">
             <v-expansion-panels v-model="panel">
