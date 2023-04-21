@@ -55,8 +55,8 @@
       </v-card-text>
 
       <v-card-text v-show="reportSectionDisplayed" class="pa-2">
-        <v-layout row wrap>
-          <v-flex xs6>
+        <v-row>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.model")
@@ -109,9 +109,9 @@
                 >
               </v-card-actions>
             </v-card>
-          </v-flex>
+          </v-col>
 
-          <v-flex xs6>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.file")
@@ -156,11 +156,11 @@
                 />
               </v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.test")
@@ -185,22 +185,21 @@
                         >
                       </v-list-item-content>
                     </template>
-                    <v-layout>
-                      <p class="break-word pl-5 break-word">
-                        {{ item.details }}
-                      </p>
-                    </v-layout>
+
+                    <p class="break-word pl-5 break-word">
+                      {{ item.details }}
+                    </p>
                   </v-list-group>
                 </v-list>
               </v-card-text>
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.notice")
@@ -255,8 +254,8 @@
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
 
@@ -329,23 +328,17 @@
       }}</template>
 
       <template v-slot:content>
-        <v-layout
-          row
-          wrap
-          v-for="testResult in testResults"
-          :key="testResult.id"
-        >
-          <v-flex xs9>{{ testResult.name }}</v-flex>
-          <v-flex xs3
+        <v-row row wrap v-for="testResult in testResults" :key="testResult.id">
+          <v-col cols="9">{{ testResult.name }}</v-col>
+          <v-col cols="3"
             ><v-btn @click="addTestResultToSession(testResult)">{{
               $store.getters.message("session-info.result-import")
-            }}</v-btn></v-flex
+            }}</v-btn></v-col
           >
-        </v-layout>
+        </v-row>
       </template>
 
       <template v-slot:footer>
-        <v-spacer></v-spacer>
         <v-spacer></v-spacer>
         <v-btn
           color="primary"

@@ -32,9 +32,9 @@
         <v-spacer></v-spacer>
       </v-app-bar>
 
-      <v-container grid-list-md text-xs-center>
-        <v-layout row wrap>
-          <v-flex xs12>
+      <v-container>
+        <v-row>
+          <v-col cols="12">
             <v-expansion-panels v-model="panel">
               <v-expansion-panel>
                 <v-expansion-panel-header class="py-0">
@@ -96,8 +96,8 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </v-card>
   </v-dialog>

@@ -22,11 +22,12 @@
       :options.sync="options"
       class="text-xs-center pb-3"
       hide-actions
+      hide-default-header
     >
       <template #header="props">
         <tr>
           <th
-            v-for="(header, index) in props.headers"
+            v-for="(header, index) in props.props.headers"
             :width="header.width"
             :class="header.class"
             :key="index"

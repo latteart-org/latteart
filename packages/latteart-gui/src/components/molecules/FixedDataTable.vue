@@ -21,6 +21,7 @@
     :header-props="{
       'sort-icon': sortIcon,
     }"
+    :hide-default-header="hideDefaultHeader"
     :hide-default-footer="hideActions"
     :options.sync="optionsSync"
   >
@@ -71,6 +72,9 @@ export default class FixedDataTable extends Vue {
 
   @Prop({ type: Number, default: 7 })
   public readonly gridColumnNumber!: number;
+
+  @Prop({ type: Boolean, default: false })
+  public readonly hideDefaultHeader!: boolean;
 
   get optionsSync(): {
     page: number;
