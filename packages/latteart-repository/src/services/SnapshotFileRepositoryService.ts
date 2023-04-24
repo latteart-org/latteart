@@ -308,6 +308,11 @@ export class SnapshotFileRepositoryServiceImpl
       viewOption
     );
 
+    const graphViewData = await this.service.testResult.generateGraphView(
+      testResultId,
+      viewOption
+    );
+
     const historyLogData = {
       history,
       coverageSources: testResult?.coverageSources ?? [],
@@ -324,6 +329,13 @@ export class SnapshotFileRepositoryServiceImpl
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "sequence-view.js"),
       `const sequenceView = ${JSON.stringify(sequenceViewData)}`,
+      "utf8"
+    );
+
+    // output graph view file
+    await this.service.workingFileRepository.outputFile(
+      path.join(destTestResultPath, "graph-view.js"),
+      `const graphView = ${JSON.stringify(graphViewData)}`,
       "utf8"
     );
 

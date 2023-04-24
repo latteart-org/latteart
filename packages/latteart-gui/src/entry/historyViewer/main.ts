@@ -24,10 +24,12 @@ import store from "@/store";
 
 declare const historyLog: any;
 declare const sequenceView: any;
+declare const graphView: any;
 declare const settings: any;
 
 Vue.prototype.$historyLog = historyLog;
 Vue.prototype.$sequenceView = sequenceView;
+Vue.prototype.$graphView = graphView;
 Vue.prototype.$settings = settings;
 Vue.prototype.$isViewerMode = true;
 
