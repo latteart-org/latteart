@@ -20,7 +20,6 @@ import { OperationHistoryState } from ".";
 import { RootState } from "..";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import {
-  OperationWithNotes,
   AutofillConditionGroup,
   AutoOperation,
   TestResultComparisonResult,
@@ -681,122 +680,36 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       graphView = result.data;
     }
 
-    const createFlowChartGraphExtender = (
-      args: FlowChartGraphExtenderSource
-    ) => {
-      const testStepIdToSequence = args.source.testStepIdToSequence;
-
-      const screenTransitions = args.source.nodes.flatMap(
-        (node, index, array) => {
-          const nextNode = array.at(index + 1);
-
-          const sourceScreen = args.source.screens.find(
-            ({ id }) => id === node?.screenId
-          );
-          const destScreen = args.source.screens.find(
-            ({ id }) => id === nextNode?.screenId
-          );
-          const trigger = node?.testSteps.at(-1);
-          const defaultValues = node?.defaultValues;
-
-          if (!sourceScreen || !destScreen || !trigger || !defaultValues) {
-            return [];
-          }
-
-          const screenTransition = {
-            sourceScreen: { id: sourceScreen.id, name: sourceScreen.name },
-            destScreen: { id: destScreen.id, name: destScreen.name },
-            trigger: {
-              sequence: testStepIdToSequence.get(trigger.id) ?? 0,
-              type: trigger.type,
-              targetElementId: trigger.targetElementId,
-              input: trigger.input,
-              pageUrl: trigger.pageUrl,
-              pageTitle: trigger.pageTitle,
-            },
-            inputElements: defaultValues.flatMap(({ elementId, value }) => {
-              const element = graphView.store.elements.find(
-                ({ id }) => id === elementId
-              );
-
-              if (!element) {
-                return [];
-              }
-
-              const inputs = node.testSteps
-                .filter(({ targetElementId }) => {
-                  return targetElementId === elementId;
-                })
-                .flatMap(({ id, input }) => {
-                  const sequence = testStepIdToSequence.get(id);
-                  if (sequence === undefined || input === undefined) {
-                    return [];
-                  }
-
-                  return { sequence, value: input };
-                });
-
-              return [{ ...element, defaultValue: value, inputs }];
-            }),
-            notes: node.testSteps.flatMap((testStep) => {
-              return testStep.noteIds.flatMap((noteId) => {
-                const note = graphView.store.notes.find(
-                  ({ id }) => id === noteId
-                );
-                if (!note) {
-                  return [];
-                }
-                const imageFileUrl =
-                  note.imageFileUrl ?? testStep.imageFileUrl ?? "";
-
-                const sequence = testStepIdToSequence.get(testStep.id) ?? 0;
-
-                return [
-                  {
-                    ...note,
-                    imageFileUrl,
-                    tags: note.tags ?? [],
-                    sequence,
-                  },
-                ];
-              });
-            }),
-            testPurposes: graphView.store.testPurposes,
-          };
-
-          return [screenTransition];
-        }
-      );
-
+    const createFlowChartGraphExtender = ({
+      edges,
+      source,
+    }: FlowChartGraphExtenderSource) => {
       return new FlowChartGraphExtender({
         callback: {
           onClickEdge: (index: number) => {
-            const screenTransition = screenTransitions.at(index);
+            const edge = edges.at(index);
 
-            if (!screenTransition) {
+            if (!edge) {
               return;
             }
 
-            const inputValueTable = new InputValueTable([screenTransition]);
-            const sequence = screenTransition.trigger.sequence;
+            const inputValueTable = new InputValueTable(edge.details);
+            const sequence = edge.trigger?.sequence ?? 0;
 
             payload.callback.onClickEdge(sequence, inputValueTable);
           },
           onClickScreenRect: (index: number) => {
             const inputValueTable = new InputValueTable(
-              screenTransitions.filter((screenTransition) => {
-                return (
-                  screenTransition.sourceScreen.id ===
-                  args.source.screens.at(index)?.id
-                );
-              })
+              edges
+                .filter(({ sourceScreenId }) => {
+                  return sourceScreenId === source.screens.at(index)?.id;
+                })
+                .flatMap(({ details }) => details)
             );
             const sequence =
-              args.source.testStepIdToSequence.get(
-                args.source.nodes
-                  .find(
-                    ({ screenId }) => screenId === args.source.screens[index].id
-                  )
+              source.testStepIdToSequence.get(
+                source.nodes
+                  .find(({ screenId }) => screenId === source.screens[index].id)
                   ?.testSteps.at(0)?.id ?? ""
               ) ?? 0;
 
@@ -804,7 +717,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           },
         },
         nameMap: new Map(
-          args.source.screens.map(({ name }, index) => [index, name])
+          source.screens.map(({ name }, index) => [index, name])
         ),
       });
     };

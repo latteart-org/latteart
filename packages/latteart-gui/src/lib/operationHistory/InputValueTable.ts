@@ -51,7 +51,7 @@ export type InputValueTableRow = {
 export type ScreenTransition = {
   sourceScreen: { id: string; name: string };
   destScreen: { id: string; name: string };
-  trigger: {
+  trigger?: {
     sequence: number;
     type: string;
     targetElementId?: string;
@@ -110,9 +110,9 @@ export default class InputValueTable {
         trigger: {
           elementText:
             transition.inputElements.find(
-              ({ id }) => id === transition.trigger.targetElementId
+              ({ id }) => id === transition.trigger?.targetElementId
             )?.text ?? "",
-          eventType: transition.trigger.type,
+          eventType: transition.trigger?.type ?? "",
         },
         notes: transition.notes,
         testPurposes: transition.testPurposes,

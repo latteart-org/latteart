@@ -337,7 +337,7 @@ export default class DecisionTable extends Vue {
       .getScreenTransitions()
       .at(index);
 
-    if (!screenTransition) {
+    if (!screenTransition || !screenTransition.trigger) {
       return;
     }
 
