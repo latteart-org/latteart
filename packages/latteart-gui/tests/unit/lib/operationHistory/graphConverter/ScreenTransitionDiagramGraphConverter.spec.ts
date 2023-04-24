@@ -300,6 +300,186 @@ s2 --> |"type4: 要素4"|s1;
       });
     });
 
+    describe("遷移元画面、遷移先画面、画面遷移契機の全てが同じものは同じ画面遷移とみなす", () => {
+      it("画面A → 画面B → 画面A -> 画面B", async () => {
+        const view = {
+          nodes: [
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s2",
+              testSteps: [],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s1",
+              testSteps: [
+                {
+                  id: "ts2",
+                  type: "type1",
+                  targetElementId: "e1",
+                  noteIds: [],
+                  pageUrl: "",
+                  pageTitle: "",
+                },
+              ],
+              defaultValues: [],
+            },
+            {
+              windowId: "w1",
+              screenId: "s2",
+              testSteps: [],
+              defaultValues: [],
+            },
+          ],
+          store: {
+            windows: [{ id: "w1", name: "ウィンドウ1" }],
+            screens: [
+              { id: "s1", name: "画面A", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] },
+            ],
+            elements: [
+              {
+                id: "e1",
+                xpath: "",
+                tagname: "",
+                text: "要素1",
+                attributes: {},
+              },
+            ],
+            testPurposes: [],
+            notes: [],
+          },
+        };
+
+        const graphs = await convertToScreenTransitionDiagramGraph(view);
+        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
+          .graphText;
+
+        expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s1 --> |"type1: 要素1"|s2;
+s2 --> |"screen transition"|s1;
+`);
+      });
+    });
+
+    describe("遷移元画面、遷移先画面が同じでも画面遷移契機が異なるものは別の画面遷移とみなす", () => {
+      describe("画面A → 画面B → 画面A -> 画面B", () => {
+        it.each`
+          trigger1                                                         | trigger2
+          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type1", targetElement: { id: "e2", text: "要素2" } }}
+          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e1", text: "要素1" } }}
+          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e2", text: "要素2" } }}
+        `(
+          "画面遷移契機1: { 操作種別: $trigger1.type, 対象要素: $trigger1.targetElement.text }, 画面遷移契機2: { 操作種別: $trigger2.type, 対象要素: $trigger2.targetElement.text }",
+          async ({ trigger1, trigger2 }) => {
+            const view = {
+              nodes: [
+                {
+                  windowId: "w1",
+                  screenId: "s1",
+                  testSteps: [
+                    {
+                      id: "ts1",
+                      type: trigger1.type,
+                      targetElementId: trigger1.targetElement.id,
+                      noteIds: [],
+                      pageUrl: "",
+                      pageTitle: "",
+                    },
+                  ],
+                  defaultValues: [],
+                },
+                {
+                  windowId: "w1",
+                  screenId: "s2",
+                  testSteps: [],
+                  defaultValues: [],
+                },
+                {
+                  windowId: "w1",
+                  screenId: "s1",
+                  testSteps: [
+                    {
+                      id: "ts2",
+                      type: trigger2.type,
+                      targetElementId: trigger2.targetElement.id,
+                      noteIds: [],
+                      pageUrl: "",
+                      pageTitle: "",
+                    },
+                  ],
+                  defaultValues: [],
+                },
+                {
+                  windowId: "w1",
+                  screenId: "s2",
+                  testSteps: [],
+                  defaultValues: [],
+                },
+              ],
+              store: {
+                windows: [{ id: "w1", name: "ウィンドウ1" }],
+                screens: [
+                  { id: "s1", name: "画面A", elementIds: [] },
+                  { id: "s2", name: "画面B", elementIds: [] },
+                ],
+                elements: [
+                  {
+                    id: trigger1.targetElement.id,
+                    xpath: "",
+                    tagname: "",
+                    text: trigger1.targetElement.text,
+                    attributes: {},
+                  },
+                  {
+                    id: trigger2.targetElement.id,
+                    xpath: "",
+                    tagname: "",
+                    text: trigger2.targetElement.text,
+                    attributes: {},
+                  },
+                ],
+                testPurposes: [],
+                notes: [],
+              },
+            };
+
+            const graphs = await convertToScreenTransitionDiagramGraph(view);
+            const graphText = graphs.find(({ window }) => window.id === "w1")
+              ?.graph.graphText;
+
+            expect(graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
+s1 --> |"${trigger1.type}: ${trigger1.targetElement.text}"|s2;
+s2 --> |"screen transition"|s1;
+s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
+`);
+          }
+        );
+      });
+    });
+
     describe("同一画面遷移", () => {
       it("画面A → 画面A", async () => {
         const view = {
