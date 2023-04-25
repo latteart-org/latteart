@@ -26,6 +26,7 @@
             :id="`numberField${id}_text`"
             :value="internalValue"
             @input="(value) => update(parseInt(value))"
+            @blur="onBlur"
             :readonly="arrowOnly"
             :disabled="disabled"
           ></v-text-field>
