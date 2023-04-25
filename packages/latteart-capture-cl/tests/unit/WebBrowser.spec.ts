@@ -95,9 +95,7 @@ describe("WebBrowserは", () => {
         .mockResolvedValueOnce(undefined) // updateState内のinjectFunctionToDetectWindowSwitch
         // 2回目のupdateState
         .mockResolvedValueOnce("windowHandle2") // createWindows内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce("windowHandle2") // updateState内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
-        .mockResolvedValueOnce(undefined); // updateState内のinjectFunctionToDetectWindowSwitch
+        .mockResolvedValueOnce(undefined); // switchWindow内のcollectScreenElements
 
       const browser = new WebBrowser(clientMock, config);
 
