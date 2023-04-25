@@ -19,7 +19,7 @@
     <div class="head-label">
       {{ $store.getters.message("config-view.include-coverage") }}
     </div>
-    <v-col v-if="tempTagList.length <= 0">
+    <v-col v-if="displayedTagList <= 0">
       <v-card color="#EEE">
         <v-card-text>
           <v-row align="center">
@@ -31,7 +31,7 @@
     <v-col
       cols="1"
       style="width: 150px"
-      v-for="tag in tempTagList"
+      v-for="tag in displayedTagList"
       v-bind:key="tag"
       class="pa-1"
     >
@@ -42,7 +42,12 @@
               {{ tag }}
             </v-col>
             <v-col cols="2" class="ma-0 pa-0">
-              <v-checkbox v-model="tempTags" :value="tag" />
+              <v-checkbox
+                v-model="tempIncludeTags"
+                :value="tag"
+                @click="changeValue(tag)"
+                readonly
+              />
             </v-col>
           </v-row>
         </v-card-text>
@@ -52,7 +57,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class CoverageConfig extends Vue {
@@ -61,74 +66,37 @@ export default class CoverageConfig extends Vue {
   public readonly includeTags!: string[];
   @Prop({ type: Array, required: true }) public defaultTagList!: string[];
 
-  private tempInclusionTagMap = new Map();
-  private tempTags: string[] = [];
-  private tempDisplayInclusionList: string[] = [];
-  private tempTagList: string[] = [];
+  private tempIncludeTags = this.includeTags;
 
-  created(): void {
-    this.updateTempTagsAndTempDisplayInclusionList();
-  }
-
-  @Watch("includeTags")
-  private updateTempConfig() {
-    if (!this.opened) {
-      this.updateTempTagsAndTempDisplayInclusionList();
-    }
-  }
-
-  private updateTempTagsAndTempDisplayInclusionList() {
-    this.tempTags = [...this.includeTags];
-    this.tempDisplayInclusionList = Array.from(
-      new Set(this.tempTags.concat(this.defaultTagList))
-    );
-    this.createInclusionTagMap();
-  }
-
-  @Watch("tempTags")
-  private saveTags() {
-    if (this.opened) {
-      this.$emit("save-config", {
-        coverage: { include: { tags: this.tempTags } },
-      });
-    }
-    this.createInclusionTagMap();
-  }
-
-  @Watch("opened")
-  private updateTagList(opened: boolean) {
-    if (!opened) {
-      return;
-    }
-
-    this.tempTagList = this.tempDisplayInclusionList.sort(
-      (a: string, b: string) => {
-        const aVal = this.tempInclusionTagMap.get(a);
-        const bVal = this.tempInclusionTagMap.get(b);
-        if (!!aVal > !!bVal) {
-          return -1;
-        } else if (!!aVal < !!bVal) {
-          return 1;
-        }
-        if (a < b) {
-          return -1;
-        } else if (a > b) {
-          return 1;
-        }
-        return 0;
+  get displayedTagList() {
+    const sortFunc = (a: string, b: string) => {
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
       }
-    );
+      return 0;
+    };
+
+    return [
+      ...this.tempIncludeTags.sort(sortFunc),
+      ...this.defaultTagList
+        .filter((defaultTag) => !this.tempIncludeTags.includes(defaultTag))
+        .sort(sortFunc),
+    ];
   }
 
-  private createInclusionTagMap() {
-    const tagMap = new Map();
-    this.tempDisplayInclusionList.forEach((tag: string) => {
-      tagMap.set(tag, false);
-    });
-    this.tempTags.forEach((tag) => {
-      tagMap.set(tag, true);
-    });
-    this.tempInclusionTagMap = tagMap;
+  private changeValue(tag: string): void {
+    if (this.opened) {
+      const hasTag = this.tempIncludeTags.includes(tag);
+      const tags = hasTag
+        ? this.tempIncludeTags.filter((t) => t !== tag)
+        : [...this.tempIncludeTags, tag];
+      this.$emit("save-config", {
+        coverage: { include: { tags } },
+      });
+      this.tempIncludeTags = tags;
+    }
   }
 }
 </script>
