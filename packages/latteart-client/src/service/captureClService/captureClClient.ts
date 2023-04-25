@@ -216,24 +216,9 @@ class CaptureSessionImpl implements CaptureSession {
             this.browserState.currentWindowHandle = capturedOperation.input;
           }
 
-          const screenElements = capturedOperation.screenElements.map(
-            (element) => {
-              return {
-                ...element,
-                text: element.text != null ? element.text : undefined,
-              };
-            }
-          );
-
           const result = await this.testResult.addOperation(
-            {
-              ...capturedOperation,
-              isAutomatic: this.isAutomated,
-              screenElements,
-            },
-            {
-              compressScreenshot: payload.option.compressScreenshots,
-            }
+            { ...capturedOperation, isAutomatic: this.isAutomated },
+            { compressScreenshot: payload.option.compressScreenshots }
           );
 
           if (result.isFailure()) {
@@ -277,15 +262,6 @@ class CaptureSessionImpl implements CaptureSession {
             return;
           }
 
-          const screenElements = capturedScreenTransition.screenElements.map(
-            (element) => {
-              return {
-                ...element,
-                text: element.text != null ? element.text : undefined,
-              };
-            }
-          );
-
           const result = await this.testResult.addOperation(
             {
               ...capturedScreenTransition,
@@ -294,7 +270,6 @@ class CaptureSessionImpl implements CaptureSession {
               elementInfo: null,
               inputElements: [],
               isAutomatic: this.isAutomated,
-              screenElements,
             },
             { compressScreenshot: payload.option.compressScreenshots }
           );
