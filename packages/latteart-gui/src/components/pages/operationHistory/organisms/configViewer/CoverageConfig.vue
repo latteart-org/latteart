@@ -63,8 +63,8 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class CoverageConfig extends Vue {
   @Prop({ type: Boolean, required: true }) public readonly opened!: boolean;
   @Prop({ type: Array, required: true })
-  public readonly includeTags!: string[]; // 計算対象のタグ
-  @Prop({ type: Array, required: true }) public defaultTagList!: string[]; // データ取得対象のタグ（固定）
+  public readonly includeTags!: string[];
+  @Prop({ type: Array, required: true }) public defaultTagList!: string[];
 
   private tempIncludeTags = this.includeTags;
 
