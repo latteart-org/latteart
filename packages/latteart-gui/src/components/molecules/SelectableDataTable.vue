@@ -54,10 +54,13 @@
               header.value === options.sortBy.at(0) ? 'active' : '',
               header.class ?? '',
             ]"
-            @click="changeSort(header.value)"
+            @click="if (header.sortable !== false) changeSort(header.value);"
           >
             {{ header.text }}
-            <v-icon class="v-data-table-header__icon" small
+            <v-icon
+              v-if="header.sortable !== false"
+              class="v-data-table-header__icon"
+              small
               >arrow_upward</v-icon
             >
           </th>
