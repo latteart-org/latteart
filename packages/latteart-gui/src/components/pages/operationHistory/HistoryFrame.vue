@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div style="height: calc(100vh - 120px)">
+  <v-container fluid class="fill-height">
     <v-app-bar color="latteart-main" dark fixed app clipped-right>
       <v-app-bar-title>{{
         $store.getters.message("manager-history-view.review")
@@ -23,18 +23,16 @@
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <v-btn @click="toBack()">{{
+    <v-btn class="mb-3" @click="toBack()">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
-    <v-row fill-height>
-      <iframe
-        style="width: 100%; height: 100%"
-        :src="historyPageUrl"
-        frameborder="0"
-      ></iframe>
-    </v-row>
-  </div>
+    <iframe
+      style="width: 100%; height: calc(100% - 36px)"
+      :src="historyPageUrl"
+      frameborder="0"
+    ></iframe>
+  </v-container>
 </template>
 
 <script lang="ts">
