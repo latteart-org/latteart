@@ -15,26 +15,28 @@
 -->
 
 <template>
-  <v-row justify="end" id="screen-transition-diagram-container">
-    <v-col cols="12">
-      <v-select
-        class="pb-2 pt-5 pl-5"
-        :label="message('app.target-tab-window')"
-        :items="usedWindowHandles"
-        item-text="text"
-        item-value="value"
-        :value="selectedWindowHandle"
-        @change="(value) => selectWindow(value)"
-      />
-    </v-col>
-    <v-col cols="12">
-      <mermaid-graph-renderer
-        v-if="graph"
-        :graph="graph"
-        graphType="screenTransition"
-      ></mermaid-graph-renderer>
-    </v-col>
-  </v-row>
+  <v-container>
+    <v-row justify="end" id="screen-transition-diagram-container">
+      <v-col cols="12">
+        <v-select
+          class="pb-2 pt-5 pr-2"
+          :label="message('app.target-tab-window')"
+          :items="usedWindowHandles"
+          item-text="text"
+          item-value="value"
+          :value="selectedWindowHandle"
+          @change="(value) => selectWindow(value)"
+        />
+      </v-col>
+      <v-col cols="12">
+        <mermaid-graph-renderer
+          v-if="graph"
+          :graph="graph"
+          graphType="screenTransition"
+        ></mermaid-graph-renderer>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
