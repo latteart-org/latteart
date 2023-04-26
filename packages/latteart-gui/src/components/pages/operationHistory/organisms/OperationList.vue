@@ -30,7 +30,7 @@
       class="fill-height"
       style="height: calc(100% - 90px)"
     >
-      <v-col cols="12" :style="{ height: '100%' }">
+      <v-col cols="12" :style="{ height: '100%' }" class="pr-12">
         <selectable-data-table
           @selectItems="onSelectOperations"
           @contextmenu="openOperationContextMenu"
