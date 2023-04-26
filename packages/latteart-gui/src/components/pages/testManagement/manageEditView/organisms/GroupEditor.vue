@@ -119,7 +119,7 @@
           height="24"
         ></v-text-field
       ></v-col>
-      <v-col cols="2"
+      <v-col cols="2" class="d-flex align-center"
         ><v-btn
           :id="`createTestTargetButton${group.id}`"
           small
