@@ -17,6 +17,7 @@
 <template>
   <div>
     <v-select
+      hide-details
       :label="$store.getters.message('manage-header.locale')"
       :items="locales"
       :value="initLocale"

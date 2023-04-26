@@ -17,101 +17,94 @@
 <template>
   <div>
     <v-app-bar color="latteart-main" dark tabs app class="no-print">
-      <v-app-bar-title height="40">{{
+      <v-toolbar-title height="40">{{
         $store.getters.message("manage-header.tool-name")
-      }}</v-app-bar-title>
+      }}</v-toolbar-title>
       <template v-slot:extension>
-        <v-row>
-          <v-col cols="4">
-            <v-tabs
-              v-model="tabNum"
-              background-color="latteart-main"
-              align-with-title
-            >
-              <v-tabs-slider color="yellow"></v-tabs-slider>
-              <v-tab
-                id="manageShowViewButton"
-                @click="toOtherManagePage('manageShowView')"
-                >{{ $store.getters.message("manage-header.top") }}</v-tab
-              >
-              <v-tab
-                id="manageProgressViewButton"
-                :disabled="!isTestMatrixSelected"
-                @click="toOtherManagePage('manageProgressView')"
-                >{{
-                  $store.getters.message("manage-header.manage-progress")
-                }}</v-tab
-              >
-              <v-tab
-                id="manageQualityViewButton"
-                :disabled="!isTestMatrixSelected"
-                @click="toOtherManagePage('manageQualityView')"
-                >{{
-                  $store.getters.message("manage-header.manage-quality")
-                }}</v-tab
-              >
-            </v-tabs>
-          </v-col>
-          <v-col cols="5" class="d-flex justify-end">
+        <v-tabs
+          v-model="tabNum"
+          background-color="latteart-main"
+          align-with-title
+        >
+          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tab
+            id="manageShowViewButton"
+            @click="toOtherManagePage('manageShowView')"
+            >{{ $store.getters.message("manage-header.top") }}</v-tab
+          >
+          <v-tab
+            id="manageProgressViewButton"
+            :disabled="!isTestMatrixSelected"
+            @click="toOtherManagePage('manageProgressView')"
+            >{{
+              $store.getters.message("manage-header.manage-progress")
+            }}</v-tab
+          >
+          <v-tab
+            id="manageQualityViewButton"
+            :disabled="!isTestMatrixSelected"
+            @click="toOtherManagePage('manageQualityView')"
+            >{{ $store.getters.message("manage-header.manage-quality") }}</v-tab
+          >
+        </v-tabs>
+
+        <v-spacer></v-spacer>
+
+        <v-btn
+          v-if="!isViewerMode"
+          id="editPlanButton"
+          color="primary"
+          @click="toManageEdit"
+          class="mr-4"
+          >{{ $store.getters.message("manage-header.edit-plan") }}</v-btn
+        >
+        <v-btn
+          v-if="!isViewerMode"
+          id="viewerConfigButton"
+          color="primary"
+          @click="toViewerConfig"
+          class="mr-4"
+          >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
+        >
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
             <v-btn
               v-if="!isViewerMode"
-              id="editPlanButton"
+              id="optionMenuButton"
               color="primary"
-              @click="toManageEdit"
-              class="mr-4"
-              >{{ $store.getters.message("manage-header.edit-plan") }}</v-btn
-            >
-            <v-btn
-              v-if="!isViewerMode"
-              id="viewerConfigButton"
-              color="primary"
-              @click="toViewerConfig"
-              class="mr-4"
+              dark
+              @click="getOptionMenuList"
+              v-on="on"
               >{{
-                $store.getters.message("manage-header.capture-config")
+                $store.getters.message("manage-header.optional-function")
               }}</v-btn
             >
-            <v-menu offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-if="!isViewerMode"
-                  id="optionMenuButton"
-                  color="primary"
-                  dark
-                  @click="getOptionMenuList"
-                  v-on="on"
-                  >{{
-                    $store.getters.message("manage-header.optional-function")
-                  }}</v-btn
-                >
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="(menu, index) in optionMenuList"
-                  :key="index"
-                  @click="getMenuMethod(menu.method)"
-                >
-                  <v-list-item-title>{{ menu.title }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-col>
-          <v-col cols="1" v-if="!isViewerMode">
-            <v-select
-              hide-details
-              :label="$store.getters.message('manage-header.locale')"
-              :items="locales"
-              :value="initLocale"
-              v-on:change="changeLocale"
-            ></v-select>
-          </v-col>
-          <v-col cols="2" v-if="!isViewerMode">
-            <remote-access-field
-              color="primary"
-              hide-details
-            ></remote-access-field
-          ></v-col>
-        </v-row>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(menu, index) in optionMenuList"
+              :key="index"
+              @click="getMenuMethod(menu.method)"
+            >
+              <v-list-item-title>{{ menu.title }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <div v-if="!isViewerMode" class="pl-3">
+          <v-select
+            hide-details
+            :label="$store.getters.message('manage-header.locale')"
+            :items="locales"
+            :value="initLocale"
+            v-on:change="changeLocale"
+          ></v-select>
+        </div>
+        <v-col cols="2" v-if="!isViewerMode">
+          <remote-access-field
+            color="primary"
+            hide-details
+          ></remote-access-field>
+        </v-col>
       </template>
     </v-app-bar>
     <router-view @selectTestMatrix="changeMatrixId"></router-view>
