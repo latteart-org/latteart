@@ -60,7 +60,7 @@
               :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
               ref="mermaidGraphDisplay"
             >
-              <v-col cols="12" class="ma-4">
+              <v-col cols="12">
                 <element-coverage
                   v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
                   :onSelectElement="selectOperation"
