@@ -44,7 +44,7 @@
       </div>
     </v-col>
 
-    <v-col>
+    <v-col :style="{ 'padding-top': '2px' }">
       <locale-select-box />
     </v-col>
 
