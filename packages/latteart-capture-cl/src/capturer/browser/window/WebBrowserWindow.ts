@@ -267,21 +267,13 @@ export default class WebBrowserWindow {
     inputElements?: ElementInfo[];
     pageSource?: string;
   }): Operation {
-    const screenElements = args.screenElements
-      ? args.screenElements.map((element) => {
-          return {
-            ...element,
-            text: element.text != null ? element.text : undefined,
-          };
-        })
-      : [];
     return new Operation({
       type: args.type,
       input: args.input ?? "",
       scrollPosition: args.scrollPosition,
       clientSize: args.clientSize,
       elementInfo: args.elementInfo ?? null,
-      screenElements,
+      screenElements: args.screenElements ?? [],
       windowHandle: args.windowHandle,
       title: this.currentScreenSummary.title,
       url: this.currentScreenSummary.url,
@@ -445,15 +437,8 @@ export default class WebBrowserWindow {
       return null;
     }
 
-    const tempElements =
+    const screenElements =
       (await this.client.execute(captureScript.collectScreenElements)) ?? [];
-
-    const screenElements = tempElements.map((element) => {
-      return {
-        ...element,
-        text: element.text != null ? element.text : undefined,
-      };
-    });
 
     return new ScreenTransition({
       windowHandle: this._windowHandle,

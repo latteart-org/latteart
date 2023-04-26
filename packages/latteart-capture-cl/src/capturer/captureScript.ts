@@ -556,7 +556,6 @@ function setFunctionToExtractElements() {
       const boundingRect = element.getBoundingClientRect();
       const newElement: CapturedElementInfo = {
         tagname: element.tagName,
-        text: element.innerText,
         xpath: currentXPath,
         attributes: extendedDocument.getAttributesFromElement(element),
         boundingRect: {
@@ -572,6 +571,9 @@ function setFunctionToExtractElements() {
       }
       if (element.checked !== undefined) {
         newElement.checked = element.checked;
+      }
+      if (element.innerText != null) {
+        newElement.text = element.innerText;
       }
 
       elementsWithTargetXPath.elements.push(newElement);
@@ -660,7 +662,6 @@ function setFunctionToBuildOperationInfo() {
     const boundingRect = element.getBoundingClientRect();
     const elementInfo: CapturedElementInfo = {
       tagname: element.tagName,
-      text: element.innerText,
       xpath,
       attributes: extendedDocument.getAttributesFromElement(element),
       boundingRect: {
@@ -676,6 +677,9 @@ function setFunctionToBuildOperationInfo() {
     }
     if (element.checked !== undefined) {
       elementInfo.checked = element.checked;
+    }
+    if (element.innerText != null) {
+      elementInfo.text = element.innerText;
     }
 
     return {
