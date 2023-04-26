@@ -218,9 +218,7 @@ class CaptureSessionImpl implements CaptureSession {
 
           const result = await this.testResult.addOperation(
             { ...capturedOperation, isAutomatic: this.isAutomated },
-            {
-              compressScreenshot: payload.option.compressScreenshots,
-            }
+            { compressScreenshot: payload.option.compressScreenshots }
           );
 
           if (result.isFailure()) {
