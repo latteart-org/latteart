@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div>
+  <v-container>
     <v-row
       justify="end"
       v-for="(coverage, index) in coverages"
@@ -24,9 +24,9 @@
     >
       <v-expansion-panels>
         <v-expansion-panel>
-          <v-expansion-panel-header class="py-0 fullwidth">
+          <v-expansion-panel-header class="py-4 fullwidth">
             <div class="fullwidth">
-              <p class="subtitle-1 font-weight-bold">
+              <p class="subtitle-1 font-weight-bold mb-0">
                 <span class="ellipsis-title" :title="coverage.screenTitle">{{
                   coverage.screenTitle
                 }}</span>
@@ -70,7 +70,7 @@
         </v-expansion-panel>
       </v-expansion-panels>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
