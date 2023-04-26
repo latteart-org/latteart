@@ -28,6 +28,7 @@
           color="primary"
           :dark="!slotProps.obj.processing"
           @click="slotProps.obj.execute"
+          class="ma-2"
         >
           {{ $store.getters.message("history-view.export-screenshots") }}
         </v-btn>
@@ -36,11 +37,16 @@
         id="scriptGenerateButton"
         color="primary"
         @click="scriptGenerationOptionDialogIsOpened = true"
+        class="ma-2"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
-        $store.getters.message("manage-header.capture-config")
-      }}</v-btn>
+      <v-btn
+        id="viewerConfigButton"
+        color="primary"
+        @click="toViewerConfig"
+        class="ma-2"
+        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
+      >
     </v-app-bar>
 
     <v-btn :disabled="isResuming" @click="toBack()">{{
