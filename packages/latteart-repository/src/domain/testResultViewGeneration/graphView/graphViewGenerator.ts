@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { TestResult } from "@/domain/types";
+import { ElementInfo } from "@/domain/types";
 import { GraphView, TestStepForGraphView } from "./types";
 
 export type IdGenerator = {
@@ -24,7 +24,10 @@ export type IdGenerator = {
 
 export function generateGraphView(
   testSteps: TestStepForGraphView[],
-  coverageSources: TestResult["coverageSources"],
+  coverageSources: {
+    screenDef: string;
+    screenElements: (ElementInfo & { pageUrl: string; pageTitle: string })[];
+  }[],
   idGenerator: {
     generateScreenId: () => string;
     generateElementId: () => string;
@@ -43,12 +46,9 @@ export function generateGraphView(
           ) === index
         );
       })
-      .map(({ screenDef, operation }) => {
+      .map(({ screenDef }) => {
         const elementIds = elementMapper
-          .collectElements({
-            pageTitle: operation.title,
-            pageUrl: operation.url,
-          })
+          .collectElements({ screenDef })
           .map(({ id }) => id);
         return [
           screenDef,
@@ -93,31 +93,37 @@ export function generateGraphView(
   return { nodes, store: { windows, screens, elements, testPurposes, notes } };
 }
 
-type ElementMapper = {
+export type ElementMapper = {
   findElement: (
     pageUrl: string,
     pageTitle: string,
     xpath: string
   ) => GraphView["store"]["elements"][0] | undefined;
   collectElements: (filter?: {
-    pageUrl?: string;
-    pageTitle?: string;
+    screenDef?: string;
   }) => GraphView["store"]["elements"];
 };
 
-class ElementMapperFactory {
+export class ElementMapperFactory {
   constructor(private idGenerator: Pick<IdGenerator, "generateElementId">) {}
 
-  create(coverageSources: TestResult["coverageSources"]): ElementMapper {
+  create(
+    coverageSources: {
+      screenDef: string;
+      screenElements: (ElementInfo & { pageUrl: string; pageTitle: string })[];
+    }[]
+  ): ElementMapper {
     const keyToScreenElement = new Map(
-      coverageSources.flatMap(({ title, url, screenElements }) => {
-        return screenElements.map((element) => {
+      coverageSources.flatMap(({ screenDef, screenElements }) => {
+        return screenElements.map((screenElement) => {
           return [
-            `${url}_${title}_${element.xpath}`,
+            `${screenElement.pageUrl}_${screenElement.pageTitle}_${screenElement.xpath}`,
             {
-              pageTitle: title,
-              pageUrl: url,
-              element: { id: this.idGenerator.generateElementId(), ...element },
+              screenDef,
+              element: {
+                id: this.idGenerator.generateElementId(),
+                ...screenElement,
+              },
             },
           ];
         });
@@ -134,20 +140,33 @@ class ElementMapperFactory {
           return undefined;
         }
 
-        const { id, xpath: elmXPath, tagname, text, attributes } = element;
-        return { id, xpath: elmXPath, tagname, text: text ?? "", attributes };
+        const {
+          id,
+          pageUrl: url,
+          pageTitle: title,
+          xpath: elmXPath,
+          tagname,
+          text,
+          attributes,
+        } = element;
+
+        return {
+          id,
+          pageUrl: url,
+          pageTitle: title,
+          xpath: elmXPath,
+          tagname,
+          text: text ?? "",
+          attributes,
+        };
       },
-      collectElements: (filter?: { pageTitle?: string; pageUrl?: string }) => {
+      collectElements: (filter?: { screenDef?: string }) => {
         const screenElements = [...keyToScreenElement.values()].filter(
           (pageElement) => {
             if (
-              filter?.pageTitle &&
-              pageElement.pageTitle !== filter.pageTitle
+              filter?.screenDef &&
+              pageElement.screenDef !== filter.screenDef
             ) {
-              return false;
-            }
-
-            if (filter?.pageUrl && pageElement.pageUrl !== filter.pageUrl) {
               return false;
             }
 
@@ -156,8 +175,26 @@ class ElementMapperFactory {
         );
 
         return screenElements.map(({ element }) => {
-          const { id, xpath, tagname, text, value, attributes } = element;
-          return { id, xpath, tagname, text: text ?? "", value, attributes };
+          const {
+            id,
+            pageUrl: url,
+            pageTitle: title,
+            xpath,
+            tagname,
+            text,
+            value,
+            attributes,
+          } = element;
+          return {
+            id,
+            pageUrl: url,
+            pageTitle: title,
+            xpath,
+            tagname,
+            text: text ?? "",
+            value,
+            attributes,
+          };
         });
       },
     };

@@ -41,7 +41,7 @@ import {
   generateSequenceView,
   SequenceView,
 } from "@/domain/testResultViewGeneration/sequenceView";
-import { TestResultViewOption } from "@/domain/types";
+import { ElementInfo, TestResultViewOption } from "@/domain/types";
 import { FileRepository } from "@/interfaces/fileRepository";
 import {
   createTestActions,
@@ -449,9 +449,65 @@ export class TestResultServiceImpl implements TestResultService {
       generateElementId: () => uuidv4(),
     };
 
+    const coverageSourceGroupedByScreenDef = testResult.coverageSources
+      .map(({ url, title, screenElements }) => {
+        const keywordTexts = screenElements
+          .map((screenElement) => {
+            return {
+              tagname: screenElement.tagname,
+              value: screenElement.textWithoutChildren ?? "",
+            };
+          })
+          .filter(({ value }) => value);
+
+        const screenDef = screenDefFactory.create({
+          url,
+          title,
+          keywordSet: new Set(
+            keywordTexts.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            })
+          ),
+        });
+
+        return {
+          screenDef,
+          screenElements: screenElements.map((element) => {
+            return { pageUrl: url, pageTitle: title, ...element };
+          }),
+        };
+      })
+      .reduce(
+        (
+          acc: {
+            screenDef: string;
+            screenElements: (ElementInfo & {
+              pageUrl: string;
+              pageTitle: string;
+            })[];
+          }[],
+          { screenDef, screenElements }
+        ) => {
+          const sameScreenDefItem = acc.find(
+            (item) => item.screenDef === screenDef
+          );
+
+          if (sameScreenDefItem) {
+            sameScreenDefItem.screenElements.push(...screenElements);
+          } else {
+            acc.push({ screenDef, screenElements });
+          }
+
+          return acc;
+        },
+        []
+      );
+
     const graphView = generateGraphView(
       testStepWithScreenDefs,
-      testResult.coverageSources,
+      coverageSourceGroupedByScreenDef,
       idGenerator
     );
 

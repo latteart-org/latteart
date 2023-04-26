@@ -706,12 +706,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
                 })
                 .flatMap(({ details }) => details)
             );
-            const sequence =
-              source.testStepIdToSequence.get(
-                source.nodes
-                  .find(({ screenId }) => screenId === source.screens[index].id)
-                  ?.testSteps.at(0)?.id ?? ""
-              ) ?? 0;
+            const sequence = source.screens[index].sequence;
 
             payload.callback.onClickScreenRect(sequence, inputValueTable);
           },

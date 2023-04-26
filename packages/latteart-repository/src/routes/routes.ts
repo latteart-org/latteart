@@ -2033,6 +2033,8 @@ const models: TsoaRoute.Models = {
                   text: { dataType: "string", required: true },
                   tagname: { dataType: "string", required: true },
                   xpath: { dataType: "string", required: true },
+                  pageTitle: { dataType: "string", required: true },
+                  pageUrl: { dataType: "string", required: true },
                   id: { dataType: "string", required: true },
                 },
               },
