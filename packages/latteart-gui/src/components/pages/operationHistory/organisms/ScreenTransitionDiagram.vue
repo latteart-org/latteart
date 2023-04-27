@@ -17,7 +17,7 @@
 <template>
   <v-container>
     <v-row justify="end" id="screen-transition-diagram-container">
-      <v-col cols="12">
+      <v-col cols="12" class="py-0">
         <v-select
           class="pb-2 pt-5 pr-2"
           :label="message('app.target-tab-window')"
@@ -28,7 +28,7 @@
           @change="(value) => selectWindow(value)"
         />
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" class="pt-0">
         <mermaid-graph-renderer
           v-if="graph"
           :graph="graph"

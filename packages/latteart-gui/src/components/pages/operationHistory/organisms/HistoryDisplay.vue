@@ -37,10 +37,15 @@
       </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
-          <v-container fluid fill-height>
+          <v-container fluid fill-height class="pt-0">
             <v-row class="mb-0 pb-0 px-2">
-              <v-col cols="12">
-                <v-radio-group v-model="diagramType" row class="py-0">
+              <v-col cols="12" class="pa-0">
+                <v-radio-group
+                  v-model="diagramType"
+                  row
+                  class="py-0"
+                  hide-details
+                >
                   <v-radio
                     :label="message('history-view.sequence')"
                     :value="DIAGRAM_TYPE_SEQUENCE"
@@ -57,10 +62,11 @@
               </v-col>
             </v-row>
             <v-row
+              class="mt-0"
               :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
               ref="mermaidGraphDisplay"
             >
-              <v-col cols="12">
+              <v-col cols="12" class="pt-0">
                 <element-coverage
                   v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
                   :onSelectElement="selectOperation"
