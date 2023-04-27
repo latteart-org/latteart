@@ -551,4 +551,7 @@ td
 
 .seq-col
   padding-right: 8px !important
+
+td
+  height: 30px !important
 </style>
