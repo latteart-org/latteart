@@ -150,3 +150,8 @@ export default class ScreenShotDisplay extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+:deep(.leaflet-bar) a
+  color: black !important
+</style>

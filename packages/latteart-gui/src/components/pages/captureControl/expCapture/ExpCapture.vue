@@ -22,7 +22,7 @@
 
     <v-main>
       <v-container
-        container--fluid
+        fluid
         px-4
         py-0
         fill-height

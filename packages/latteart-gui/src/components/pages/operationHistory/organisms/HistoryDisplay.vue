@@ -77,12 +77,7 @@
           </v-container>
         </pane>
         <pane>
-          <v-container
-            container--fluid
-            pa-0
-            fill-height
-            style="position: relative"
-          >
+          <v-container fluid pa-0 fill-height style="position: relative">
             <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
 
             <a
