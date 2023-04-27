@@ -32,12 +32,7 @@
       >
       </v-checkbox>
 
-      <v-container
-        container--fluid
-        pa-1
-        fill-height
-        id="simple-test-script-generation"
-      >
+      <v-container fluid pa-1 fill-height id="simple-test-script-generation">
         <v-row>
           <v-col cols="12" class="pb-2">
             <p
@@ -107,12 +102,7 @@
           </v-col>
         </v-row>
       </v-container>
-      <v-container
-        container--fluid
-        pa-1
-        fill-height
-        id="max-test-data-generation"
-      >
+      <v-container fluid pa-1 fill-height id="max-test-data-generation">
         <v-row>
           <v-col cols="12" class="pb-2">
             <p
