@@ -484,6 +484,7 @@ table tr
 
 th
   font-size: 0.75rem
+  border-bottom: thin solid rgba(0, 0, 0, 0.12)
 
 .selected
   background-color: lemonchiffon !important
