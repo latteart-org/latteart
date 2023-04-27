@@ -166,6 +166,7 @@ import NoteListDialog from "../../common/organisms/NoteListDialog.vue";
 type InputValue = {
   [key: string]:
     | string
+    | number
     | {
         value: string;
         isDefaultValue: boolean;
@@ -309,8 +310,11 @@ export default class DecisionTable extends Vue {
         return columnName !== "sequence";
       })
       .some(([_, columnValue]) => {
-        if (typeof columnValue === "string") {
-          return columnValue.includes(search);
+        if (
+          typeof columnValue === "string" ||
+          typeof columnValue === "number"
+        ) {
+          return columnValue.toString().includes(search);
         } else {
           return columnValue.value.includes(search);
         }
@@ -318,7 +322,11 @@ export default class DecisionTable extends Vue {
   }
 
   private selectInputValueSet(index: number): void {
-    this.onSelectValueSet(String(this.inputValues[index].sequence));
+    const sequence = this.inputValues[index].sequence;
+
+    if (typeof sequence === "number" && sequence > 0) {
+      this.onSelectValueSet(String(sequence));
+    }
   }
 
   private elementTypeIsHidden(elementType: string): boolean {

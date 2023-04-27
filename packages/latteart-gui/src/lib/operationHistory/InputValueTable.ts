@@ -54,13 +54,12 @@ export type ScreenTransition = {
   trigger?: {
     sequence: number;
     type: string;
-    targetElementId?: string;
+    target?: { xpath: string; text: string };
     input?: string;
     pageUrl: string;
     pageTitle: string;
   };
   inputElements: {
-    id: string;
     xpath: string;
     tagname: string;
     text: string;
@@ -108,10 +107,7 @@ export default class InputValueTable {
         sourceScreenDef: transition.sourceScreen.name,
         targetScreenDef: transition.destScreen.name,
         trigger: {
-          elementText:
-            transition.inputElements.find(
-              ({ id }) => id === transition.trigger?.targetElementId
-            )?.text ?? "",
+          elementText: transition.trigger?.target?.text ?? "",
           eventType: transition.trigger?.type ?? "",
         },
         notes: transition.notes,
@@ -124,18 +120,16 @@ export default class InputValueTable {
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const elements = this.screenTransitions
-      .flatMap((screenTransition) => {
+    const elementWithSequences = this.screenTransitions.flatMap(
+      (screenTransition) => {
         return screenTransition.inputElements.map((inputElement) => {
-          const { id, xpath, tagname, text, attributes } = inputElement;
+          const { xpath, tagname, text, attributes } = inputElement;
           const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
-          const info = { xpath, tagname, text, attributes };
-          return { id, info, sequence };
+          const element = { xpath, tagname, text, attributes };
+          return { element, sequence };
         });
-      })
-      .filter(({ id }, index, array) => {
-        return array.findIndex((element) => element.id === id) === index;
-      });
+      }
+    );
 
     const inputs = this.screenTransitions.flatMap((screenTransition) => {
       return screenTransition.inputElements.map((element) => {
@@ -143,34 +137,44 @@ export default class InputValueTable {
 
         if (input === undefined) {
           return {
-            elementId: element.id,
+            xpath: element.xpath,
             value: element.defaultValue ?? "",
             isDefaultValue: true,
           };
         }
 
         return {
-          elementId: element.id,
+          xpath: element.xpath,
           value: input.value,
           isDefaultValue: false,
         };
       });
     });
 
-    return elements.map((element) => {
-      const attributes = element.info.attributes;
-      return {
-        elementId: attributes["id"] ?? "",
-        elementName: attributes["name"] ?? "",
-        elementType: attributes["type"] ?? "",
-        sequence: element.sequence,
-        inputs: inputs
-          .filter(({ elementId }) => elementId === element.id)
-          .map(({ value, isDefaultValue }) => {
-            return { value, isDefaultValue };
-          }),
-      };
-    });
+    return elementWithSequences
+      .filter(({ element: e1 }, index, array) => {
+        return (
+          array.findIndex(({ element: e2 }) => e2.xpath === e1.xpath) === index
+        );
+      })
+      .map(({ element }) => {
+        const attributes = element.attributes;
+        return {
+          elementId: attributes["id"] ?? "",
+          elementName: attributes["name"] ?? "",
+          elementType: attributes["type"] ?? "",
+          sequence:
+            elementWithSequences.find(
+              ({ element: { xpath }, sequence }) =>
+                xpath === element.xpath && sequence > 0
+            )?.sequence ?? 0,
+          inputs: inputs
+            .filter(({ xpath }) => xpath === element.xpath)
+            .map(({ value, isDefaultValue }) => {
+              return { value, isDefaultValue };
+            }),
+        };
+      });
   }
 
   /**

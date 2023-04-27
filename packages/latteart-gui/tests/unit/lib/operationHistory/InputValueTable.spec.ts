@@ -12,15 +12,14 @@ describe("InputValueTable", () => {
           trigger: {
             sequence: 2,
             type: "",
-            targetElementId: "e2",
+            target: { xpath: "xpath2", text: "" },
             input: "",
             pageUrl: "",
             pageTitle: "",
           },
           inputElements: [
             {
-              id: "e1",
-              xpath: "",
+              xpath: "xpath1",
               tagname: "",
               text: "",
               attributes: { id: "id1", name: "name1", type: "type1" },
@@ -28,8 +27,7 @@ describe("InputValueTable", () => {
               inputs: [],
             },
             {
-              id: "e2",
-              xpath: "",
+              xpath: "xpath2",
               tagname: "",
               text: "",
               attributes: { id: "id2", name: "name2", type: "type2" },

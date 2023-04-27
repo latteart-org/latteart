@@ -34,6 +34,8 @@ describe("getCoverages", () => {
         elements: [
           {
             id: "e1",
+            pageUrl: "",
+            pageTitle: "",
             xpath: "xpath1",
             tagname: "tagname1",
             text: "text1",
@@ -41,6 +43,8 @@ describe("getCoverages", () => {
           },
           {
             id: "e2",
+            pageUrl: "",
+            pageTitle: "",
             xpath: "xpath2",
             tagname: "tagname2",
             text: "text2",

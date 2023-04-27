@@ -127,6 +127,8 @@ s1["画面A"];
             elements: [
               {
                 id: "e1",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素1",
@@ -134,6 +136,8 @@ s1["画面A"];
               },
               {
                 id: "e2",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素2",
@@ -141,6 +145,8 @@ s1["画面A"];
               },
               {
                 id: "e3",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素3",
@@ -148,6 +154,8 @@ s1["画面A"];
               },
               {
                 id: "e4",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素4",
@@ -155,6 +163,8 @@ s1["画面A"];
               },
               {
                 id: "e5",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素5",
@@ -162,6 +172,8 @@ s1["画面A"];
               },
               {
                 id: "e6",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素6",
@@ -254,6 +266,8 @@ s2 --> |"type4: 要素4"|s3;
             elements: [
               {
                 id: "e1",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素1",
@@ -261,6 +275,8 @@ s2 --> |"type4: 要素4"|s3;
               },
               {
                 id: "e2",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素2",
@@ -268,6 +284,8 @@ s2 --> |"type4: 要素4"|s3;
               },
               {
                 id: "e3",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素3",
@@ -275,6 +293,8 @@ s2 --> |"type4: 要素4"|s3;
               },
               {
                 id: "e4",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素4",
@@ -356,6 +376,8 @@ s2 --> |"type4: 要素4"|s1;
             elements: [
               {
                 id: "e1",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素1",
@@ -384,10 +406,10 @@ s2 --> |"screen transition"|s1;
     describe("遷移元画面、遷移先画面が同じでも画面遷移契機が異なるものは別の画面遷移とみなす", () => {
       describe("画面A → 画面B → 画面A -> 画面B", () => {
         it.each`
-          trigger1                                                         | trigger2
-          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type1", targetElement: { id: "e2", text: "要素2" } }}
-          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e1", text: "要素1" } }}
-          ${{ type: "type1", targetElement: { id: "e1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e2", text: "要素2" } }}
+          trigger1                                                                          | trigger2
+          ${{ type: "type1", targetElement: { id: "e1", xpath: "xpath1", text: "要素1" } }} | ${{ type: "type1", targetElement: { id: "e2", xpath: "xpath2", text: "要素2" } }}
+          ${{ type: "type1", targetElement: { id: "e1", xpath: "xpath1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e1", xpath: "xpath1", text: "要素1" } }}
+          ${{ type: "type1", targetElement: { id: "e1", xpath: "xpath1", text: "要素1" } }} | ${{ type: "type2", targetElement: { id: "e2", xpath: "xpath2", text: "要素2" } }}
         `(
           "画面遷移契機1: { 操作種別: $trigger1.type, 対象要素: $trigger1.targetElement.text }, 画面遷移契機2: { 操作種別: $trigger2.type, 対象要素: $trigger2.targetElement.text }",
           async ({ trigger1, trigger2 }) => {
@@ -445,14 +467,18 @@ s2 --> |"screen transition"|s1;
                 elements: [
                   {
                     id: trigger1.targetElement.id,
-                    xpath: "",
+                    pageUrl: "",
+                    pageTitle: "",
+                    xpath: trigger1.targetElement.xpath,
                     tagname: "",
                     text: trigger1.targetElement.text,
                     attributes: {},
                   },
                   {
                     id: trigger2.targetElement.id,
-                    xpath: "",
+                    pageUrl: "",
+                    pageTitle: "",
+                    xpath: trigger2.targetElement.xpath,
                     tagname: "",
                     text: trigger2.targetElement.text,
                     attributes: {},
@@ -537,6 +563,8 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
             elements: [
               {
                 id: "e1",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素1",
@@ -544,6 +572,8 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
               },
               {
                 id: "e2",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素2",
@@ -551,6 +581,8 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
               },
               {
                 id: "e3",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素3",
@@ -558,6 +590,8 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
               },
               {
                 id: "e4",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素4",
@@ -624,6 +658,8 @@ s1 --> |"type2: 要素2"|s1;
             elements: [
               {
                 id: "e1",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素1",
@@ -631,6 +667,8 @@ s1 --> |"type2: 要素2"|s1;
               },
               {
                 id: "e2",
+                pageUrl: "",
+                pageTitle: "",
                 xpath: "",
                 tagname: "",
                 text: "要素2",
@@ -688,6 +726,8 @@ s1 --> |"screen transition"|s2;
           elements: [
             {
               id: "e1",
+              pageUrl: "",
+              pageTitle: "",
               xpath: "",
               tagname: "",
               text: "aaa\nbbb",
@@ -741,6 +781,8 @@ s1 --> |"type1: aaa bbb"|s1;
           elements: [
             {
               id: "e1",
+              pageUrl: "",
+              pageTitle: "",
               xpath: "",
               tagname: "",
               text: "aaaaaaaaaaaaaaaaaaaaa",
@@ -794,6 +836,8 @@ s1 --> |"type1: aaaaaaaaaaaaaaaaaaaa..."|s1;
           elements: [
             {
               id: "e1",
+              pageUrl: "",
+              pageTitle: "",
               xpath: "",
               tagname: "",
               text: 'aa##;;<<>>""aa',
@@ -894,10 +938,42 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
             { id: "s3", name: "画面C", elementIds: [] },
           ],
           elements: [
-            { id: "e1", xpath: "", tagname: "", text: "要素1", attributes: {} },
-            { id: "e2", xpath: "", tagname: "", text: "要素2", attributes: {} },
-            { id: "e3", xpath: "", tagname: "", text: "要素3", attributes: {} },
-            { id: "e4", xpath: "", tagname: "", text: "要素4", attributes: {} },
+            {
+              id: "e1",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素1",
+              attributes: {},
+            },
+            {
+              id: "e2",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素2",
+              attributes: {},
+            },
+            {
+              id: "e3",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素3",
+              attributes: {},
+            },
+            {
+              id: "e4",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素4",
+              attributes: {},
+            },
           ],
           testPurposes: [],
           notes: [],
@@ -1023,11 +1099,51 @@ s3["画面C"];
             { id: "s5", name: "画面E", elementIds: [] },
           ],
           elements: [
-            { id: "e1", xpath: "", tagname: "", text: "要素1", attributes: {} },
-            { id: "e2", xpath: "", tagname: "", text: "要素2", attributes: {} },
-            { id: "e3", xpath: "", tagname: "", text: "要素3", attributes: {} },
-            { id: "e4", xpath: "", tagname: "", text: "要素4", attributes: {} },
-            { id: "e5", xpath: "", tagname: "", text: "要素5", attributes: {} },
+            {
+              id: "e1",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素1",
+              attributes: {},
+            },
+            {
+              id: "e2",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素2",
+              attributes: {},
+            },
+            {
+              id: "e3",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素3",
+              attributes: {},
+            },
+            {
+              id: "e4",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素4",
+              attributes: {},
+            },
+            {
+              id: "e5",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素5",
+              attributes: {},
+            },
           ],
           testPurposes: [],
           notes: [],

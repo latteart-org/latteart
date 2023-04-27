@@ -101,6 +101,8 @@ export type GetGraphViewResponse = {
     screens: { id: string; name: string; elementIds: string[] }[];
     elements: {
       id: string;
+      pageUrl: string;
+      pageTitle: string;
       xpath: string;
       tagname: string;
       text: string;

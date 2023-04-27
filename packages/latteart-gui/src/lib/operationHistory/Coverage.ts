@@ -64,7 +64,7 @@ export function getCoverages(
             return [];
           }
 
-          const operatedElement = { id: targetElement.id, sequence };
+          const operatedElement = { xpath: targetElement.xpath, sequence };
 
           if (targetElement?.tagname.toLowerCase() !== "select") {
             return [operatedElement];
@@ -88,59 +88,77 @@ export function getCoverages(
           );
 
           return optionElement
-            ? [operatedElement, { id: optionElement.id, sequence }]
+            ? [operatedElement, { xpath: optionElement.xpath, sequence }]
             : [operatedElement];
         }),
       };
     })
-    .reduce((acc, screen) => {
-      if (!acc.has(screen.screenId)) {
-        acc.set(screen.screenId, []);
+    .reduce((acc, { screenId, elements }) => {
+      if (!acc.has(screenId)) {
+        acc.set(screenId, []);
       }
 
-      for (const element of screen.elements) {
-        if (acc.get(screen.screenId)?.find(({ id }) => id === element.id)) {
+      for (const element of elements) {
+        const foundItem = acc
+          .get(screenId)
+          ?.find(({ xpath }) => xpath === element.xpath);
+
+        if (foundItem) {
+          foundItem.sequences.push(element.sequence);
           continue;
         }
 
-        acc.get(screen.screenId)?.push(element);
+        acc
+          .get(screenId)
+          ?.push({ xpath: element.xpath, sequences: [element.sequence] });
       }
 
       return acc;
-    }, new Map<string, { id: string; sequence: number }[]>());
+    }, new Map<string, { xpath: string; sequences: number[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
   const results = graphView.store.screens.map((screen) => {
-    const elements = screen.elementIds.flatMap((elementId) => {
-      const element = graphView.store.elements.find(
-        ({ id }) => id === elementId
-      );
+    const elements = screen.elementIds
+      .flatMap((elementId) => {
+        const element = graphView.store.elements.find(
+          ({ id }) => id === elementId
+        );
 
-      if (!element || element.attributes["type"] === "hidden") {
-        return [];
-      }
+        if (!element || element.attributes["type"] === "hidden") {
+          return [];
+        }
 
-      if (!inclusionSet.has(element.tagname)) {
-        return [];
-      }
+        if (!inclusionSet.has(element.tagname)) {
+          return [];
+        }
 
-      const operatedElement = screenIdToOperatedElements
-        .get(screen.id)
-        ?.find(({ id }) => id === elementId);
+        return [element];
+      })
+      .filter((element, index, array) => {
+        return (
+          array.findIndex(({ xpath }) => xpath === element.xpath) === index
+        );
+      })
+      .flatMap((element) => {
+        const operatedElement = screenIdToOperatedElements
+          .get(screen.id)
+          ?.find(({ xpath }) => xpath === element.xpath);
 
-      return [
-        {
-          sequence: operatedElement?.sequence,
-          tagname: element.tagname,
-          type: element.attributes["type"] ?? "",
-          id: element.attributes["id"] ?? "",
-          name: element.attributes["name"] ?? "",
-          text: element.text ? element.text : element.attributes["href"] ?? "",
-          operated: operatedElement !== undefined,
-        },
-      ];
-    });
+        return [
+          {
+            sequence: operatedElement?.sequences.at(0),
+            tagname: element.tagname,
+            type: element.attributes["type"] ?? "",
+            id: element.attributes["id"] ?? "",
+            name: element.attributes["name"] ?? "",
+            text: element.text
+              ? element.text
+              : element.attributes["href"] ?? "",
+            operated: operatedElement !== undefined,
+          },
+        ];
+      });
 
     const percent =
       (elements.filter((element) => element.operated).length /
