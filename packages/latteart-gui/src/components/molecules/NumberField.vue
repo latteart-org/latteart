@@ -29,6 +29,7 @@
             @blur="onBlur"
             :readonly="arrowOnly"
             :disabled="disabled"
+            ref="textField"
           ></v-text-field>
         </div>
         <div class="button-wrap">
@@ -109,6 +110,10 @@ export default class NumberField extends Vue {
   }
 
   private update(value: number): void {
+    if (value != value) {
+      (this.$refs.textField as any).internalValue = this.internalValue;
+      return;
+    }
     let val = value;
     if (this.maxValue !== undefined && val > this.maxValue) {
       val = this.maxValue;
@@ -118,6 +123,10 @@ export default class NumberField extends Vue {
     }
 
     this.internalValue = val;
+    const internalValue = (this.$refs.textField as any).internalValue;
+    if (this.internalValue !== Number(internalValue)) {
+      (this.$refs.textField as any).internalValue = this.internalValue;
+    }
   }
 
   private send(): void {
