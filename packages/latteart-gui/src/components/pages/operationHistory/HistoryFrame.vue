@@ -23,7 +23,7 @@
       <v-spacer></v-spacer>
     </v-app-bar>
 
-    <v-btn class="mb-3" @click="toBack()">{{
+    <v-btn @click="toBack()" class="ma-2">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
