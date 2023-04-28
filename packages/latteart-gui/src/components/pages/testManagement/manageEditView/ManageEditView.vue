@@ -17,9 +17,9 @@
 <template>
   <v-container fluid class="pt-3">
     <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-app-bar-title>{{
+      <v-toolbar-title>{{
         $store.getters.message("manage-edit-view.edit-plan")
-      }}</v-app-bar-title>
+      }}</v-toolbar-title>
     </v-app-bar>
 
     <v-btn @click="openTestMatrixDialogInCreateMode">{{

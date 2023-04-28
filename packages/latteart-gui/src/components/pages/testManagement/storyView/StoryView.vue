@@ -17,9 +17,9 @@
 <template>
   <div>
     <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-app-bar-title>{{
+      <v-toolbar-title>{{
         $store.getters.message("story-view.story")
-      }}</v-app-bar-title>
+      }}</v-toolbar-title>
     </v-app-bar>
     <v-container fluid class="pa-4 pt-4">
       <v-row v-if="story">
