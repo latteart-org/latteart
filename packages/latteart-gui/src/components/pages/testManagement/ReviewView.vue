@@ -49,7 +49,7 @@
       >
     </v-app-bar>
 
-    <v-btn :disabled="isResuming" @click="toBack()">{{
+    <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
