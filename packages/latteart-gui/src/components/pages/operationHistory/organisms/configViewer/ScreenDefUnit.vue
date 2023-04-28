@@ -121,7 +121,7 @@
                 </template>
 
                 <template v-if="$store.getters.getLocale() === 'en'">
-                  <v-col cols="3">
+                  <v-col cols="2">
                     <v-select
                       :value="item.definitionType"
                       @change="
