@@ -328,7 +328,12 @@
       }}</template>
 
       <template v-slot:content>
-        <v-row row wrap v-for="testResult in testResults" :key="testResult.id">
+        <v-row
+          class="mt-0"
+          wrap
+          v-for="testResult in testResults"
+          :key="testResult.id"
+        >
           <v-col cols="9">{{ testResult.name }}</v-col>
           <v-col cols="3"
             ><v-btn @click="addTestResultToSession(testResult)">{{
