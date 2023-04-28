@@ -114,10 +114,9 @@ export default class ElementCoverage extends Vue {
   }
 
   private selectElement(sequence: number | null) {
-    if (sequence === null) {
-      return;
+    if (typeof sequence === "number" && sequence > 0) {
+      this.onSelectElement(sequence);
     }
-    this.onSelectElement(sequence);
   }
 }
 </script>
