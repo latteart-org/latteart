@@ -26,14 +26,14 @@
         >
         </v-checkbox>
       </v-col>
-      <v-col cols="9">
+      <v-col cols="8">
         <v-text-field
           :label="$store.getters.message('config-view.autoOperation.name')"
           :value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
       </v-col>
-      <v-col cols="2">
+      <v-col cols="3" class="d-flex align-center pt-0">
         <v-btn @click="dialogOpened = true">{{
           $store.getters.message("config-view.autoOperation.details-list")
         }}</v-btn>
