@@ -99,7 +99,7 @@
             v-on:change="changeLocale"
           ></v-select>
         </div>
-        <v-col cols="2" v-if="!isViewerMode">
+        <v-col cols="auto" v-if="!isViewerMode">
           <remote-access-field
             color="primary"
             hide-details
