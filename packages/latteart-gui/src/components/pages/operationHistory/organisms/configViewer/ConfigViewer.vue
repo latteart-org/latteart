@@ -26,9 +26,9 @@
         <v-btn icon dark @click="close">
           <v-icon>close</v-icon>
         </v-btn>
-        <v-app-bar-title>{{
+        <v-toolbar-title>{{
           $store.getters.message("config-view.settings")
-        }}</v-app-bar-title>
+        }}</v-toolbar-title>
         <v-spacer></v-spacer>
       </v-app-bar>
 

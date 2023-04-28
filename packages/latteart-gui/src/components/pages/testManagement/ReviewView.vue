@@ -17,9 +17,9 @@
 <template>
   <div style="height: calc(100vh - 120px)">
     <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-app-bar-title>{{
+      <v-toolbar-title>{{
         $store.getters.message("manager-history-view.review")
-      }}</v-app-bar-title>
+      }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
       <screenshots-download-button v-slot:default="slotProps">
