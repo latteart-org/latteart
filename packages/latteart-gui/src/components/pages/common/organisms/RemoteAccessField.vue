@@ -16,26 +16,28 @@
 
 <template>
   <v-row class="pl-3">
-    <v-combobox
-      :hide-details="hideDetails"
-      v-model="targetUrl"
-      :items="urls"
-      :label="$store.getters.message('remote-access.remote-connection-url')"
-      id="connectUrlTextField"
-      ref="urlField"
-      :disabled="isCapturing"
-      :style="{ 'padding-top': '10px' }"
-    ></v-combobox>
-
-    <v-btn
-      :color="color"
-      id="connecttButton"
-      @click="connect()"
-      :disabled="isCapturing || targetUrl === url"
-      class="ma-2"
-      >{{ $store.getters.message("remote-access.connect") }}</v-btn
-    >
-
+    <v-col>
+      <v-combobox
+        :hide-details="hideDetails"
+        v-model="targetUrl"
+        :items="urls"
+        :label="$store.getters.message('remote-access.remote-connection-url')"
+        id="connectUrlTextField"
+        ref="urlField"
+        :disabled="isCapturing"
+        :style="{ 'padding-top': '10px' }"
+      ></v-combobox>
+    </v-col>
+    <v-col cols="auto">
+      <v-btn
+        :color="color"
+        id="connecttButton"
+        @click="connect()"
+        :disabled="isCapturing || targetUrl === url"
+        class="ma-2"
+        >{{ $store.getters.message("remote-access.connect") }}</v-btn
+      >
+    </v-col>
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="informationTitle"
