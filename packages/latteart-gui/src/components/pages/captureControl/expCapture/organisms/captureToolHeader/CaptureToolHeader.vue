@@ -15,7 +15,13 @@
 -->
 
 <template>
-  <v-row justify="start" align="center" @keydown="cancelKeydown">
+  <v-row
+    justify="start"
+    align="center"
+    @keydown="cancelKeydown"
+    :style="{ height: '64px' }"
+    class="mt-n9"
+  >
     <v-col>
       <url-text-field />
     </v-col>
@@ -48,7 +54,7 @@
       <locale-select-box />
     </v-col>
 
-    <v-col>
+    <v-col cols="3">
       <remote-access-field color="inherit" />
     </v-col>
   </v-row>
