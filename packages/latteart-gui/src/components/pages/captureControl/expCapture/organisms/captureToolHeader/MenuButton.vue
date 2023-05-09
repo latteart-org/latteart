@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
-          flat
+          text
           v-on="on"
           icon
           large
+          class="mx-2"
           >...</v-btn
         >
       </template>
@@ -33,27 +34,28 @@
         <test-tesult-export-button />
         <config-import-button />
         <config-export-button v-slot:default="slotProps">
-          <v-list-tile
+          <v-list-item
             @click="slotProps.obj.execute"
             :disabled="slotProps.obj.isDisabled"
           >
-            <v-list-tile-title>{{
+            <v-list-item-title>{{
               $store.getters.message("config-io.export-config")
-            }}</v-list-tile-title>
-          </v-list-tile>
+            }}</v-list-item-title>
+          </v-list-item>
         </config-export-button>
         <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
-          <v-list-tile
+          <v-list-item
             @click="slotProps.obj.execute"
             :disabled="slotProps.obj.isDisabled"
           >
-            <v-list-tile-title>{{
+            <v-list-item-title>{{
               $store.getters.message("history-view.export-screenshots")
-            }}</v-list-tile-title>
-          </v-list-tile>
+            }}</v-list-item-title>
+          </v-list-item>
         </screenshots-download-button>
+        <compare-history-button />
         <delete-test-result-button />
       </v-list>
     </v-menu>
@@ -71,6 +73,7 @@ import ScreenshotsDownloadButton from "@/components/pages/operationHistory/organ
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import ConfigImportButton from "@/components/pages/common/ConfigImportButton.vue";
 import ConfigExportButton from "@/components/pages/common/ConfigExportButton.vue";
+import CompareHistoryButton from "./CompareHistoryButton.vue";
 
 @Component({
   components: {
@@ -82,6 +85,7 @@ import ConfigExportButton from "@/components/pages/common/ConfigExportButton.vue
     "delete-test-result-button": DeleteTestResultButton,
     "config-import-button": ConfigImportButton,
     "config-export-button": ConfigExportButton,
+    "compare-history-button": CompareHistoryButton,
   },
 })
 export default class MenuButton extends Vue {

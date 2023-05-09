@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row>
+  <v-row justify="start" align="center">
     <v-icon class="pr-1">open_in_browser</v-icon>
     <v-text-field
       single-line
@@ -24,7 +24,7 @@
       :disabled="isDisabled"
       id="urlTextField"
     ></v-text-field>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

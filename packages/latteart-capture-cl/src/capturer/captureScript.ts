@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,6 +182,7 @@ export type CaptureScript = {
   isCurrentScreenObserved: () => boolean;
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
+  collectScreenElements: () => CapturedElementInfo[];
 };
 
 /**
@@ -213,6 +214,7 @@ export const captureScript: CaptureScript = {
   isCurrentScreenObserved,
   observeCurrentScreen,
   focusWindow,
+  collectScreenElements,
 };
 
 type CapturedElementInfo = {
@@ -221,19 +223,18 @@ type CapturedElementInfo = {
   value?: string;
   xpath: string;
   checked?: boolean;
-  attributes: { [key: string]: any };
-};
-
-type ElementInfoWithBoundingRect = CapturedElementInfo & {
+  attributes: { [key: string]: string };
   boundingRect: BoundingRect;
+  textWithoutChildren?: string;
 };
 
 type CapturedOperationInfo = {
   input: string;
   type: string;
-  elementInfo: ElementInfoWithBoundingRect;
+  elementInfo: CapturedElementInfo;
   title: string;
   url: string;
+  scrollPosition: { x: number; y: number };
 };
 
 type ExtendedDocument = Document & {
@@ -260,13 +261,15 @@ type ExtendedDocument = Document & {
   buildOperationInfo?: (
     element: HTMLInputElement,
     xpath: string,
-    eventType: string
+    eventType: string,
+    window: Window
   ) => CapturedOperationInfo | null;
 };
 
-type ExtendedDocumentForScreenTransition = Document & {
-  __hasBeenObserved?: boolean;
-};
+type ExtendedDocumentForScreenTransition = Document &
+  Pick<ExtendedDocument, "extractElements"> & {
+    __hasBeenObserved?: boolean;
+  };
 
 type ExtendedWindowForWindowSwitch = Window & {
   setWindowHandleToLocalStorage?: () => void;
@@ -539,16 +542,38 @@ function setFunctionToExtractElements() {
         return `${parentXPath}/${tagNameWithIndex}`;
       })(path, element, allElements);
 
+      const textWithoutChildren = Array.from(element.childNodes)
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((textNode) => {
+          if (!textNode.textContent) {
+            return "";
+          }
+          return textNode.textContent.replace(/\s/g, "");
+        })
+        .filter((text) => text !== "")
+        .join(" ");
+
+      const boundingRect = element.getBoundingClientRect();
       const newElement: CapturedElementInfo = {
         tagname: element.tagName,
-        text: element.innerText,
-        value: element.value,
         xpath: currentXPath,
         attributes: extendedDocument.getAttributesFromElement(element),
+        boundingRect: {
+          top: boundingRect.top,
+          left: boundingRect.left,
+          width: boundingRect.width,
+          height: boundingRect.height,
+        },
+        textWithoutChildren,
       };
-
+      if (element.value != null) {
+        newElement.value = `${element.value}`;
+      }
       if (element.checked !== undefined) {
         newElement.checked = element.checked;
+      }
+      if (element.innerText != null) {
+        newElement.text = element.innerText;
       }
 
       elementsWithTargetXPath.elements.push(newElement);
@@ -614,7 +639,8 @@ function setFunctionToBuildOperationInfo() {
   extendedDocument.buildOperationInfo = (
     element: HTMLInputElement,
     xpath: string,
-    eventType: string
+    eventType: string,
+    window: Window
   ) => {
     const extendedDocument: ExtendedDocument = document;
 
@@ -622,16 +648,38 @@ function setFunctionToBuildOperationInfo() {
       return null;
     }
 
-    const elementInfo: ElementInfoWithBoundingRect = {
+    const textWithoutChildren = Array.from(element.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((textNode) => {
+        if (!textNode.textContent) {
+          return "";
+        }
+        return textNode.textContent.replace(/\s/g, "");
+      })
+      .filter((text) => text !== "")
+      .join(" ");
+
+    const boundingRect = element.getBoundingClientRect();
+    const elementInfo: CapturedElementInfo = {
       tagname: element.tagName,
-      text: element.innerText,
-      value: element.value,
       xpath,
       attributes: extendedDocument.getAttributesFromElement(element),
-      boundingRect: element.getBoundingClientRect(),
+      boundingRect: {
+        top: boundingRect.top,
+        left: boundingRect.left,
+        width: boundingRect.width,
+        height: boundingRect.height,
+      },
+      textWithoutChildren,
     };
+    if (element.value != null) {
+      elementInfo.value = `${element.value}`;
+    }
     if (element.checked !== undefined) {
       elementInfo.checked = element.checked;
+    }
+    if (element.innerText != null) {
+      elementInfo.text = element.innerText;
     }
 
     return {
@@ -640,6 +688,10 @@ function setFunctionToBuildOperationInfo() {
       elementInfo,
       title: extendedDocument.title,
       url: extendedDocument.URL,
+      scrollPosition: {
+        x: window.scrollX,
+        y: window.scrollY,
+      },
     };
   };
   return true;
@@ -692,7 +744,8 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
     const operation = extendedDocument.buildOperationInfo(
       targetElement,
       targetXPath,
-      event.type
+      event.type,
+      window
     );
 
     if (operation !== null) {
@@ -1053,4 +1106,17 @@ function focusWindow(windowHandle: string) {
   }
 
   localStorage.currentWindowHandle = windowHandle;
+}
+
+function collectScreenElements() {
+  const extendedDocument: ExtendedDocumentForScreenTransition = document;
+  if (!extendedDocument.extractElements) {
+    return [];
+  }
+
+  const { elements } = extendedDocument.extractElements(
+    extendedDocument.body,
+    "/HTML/BODY"
+  );
+  return elements;
 }

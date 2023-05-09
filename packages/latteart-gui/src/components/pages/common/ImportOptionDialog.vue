@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@
     :acceptButtonDisabled="okButtonIsDisabled"
   >
     <template>
-      <v-container class="px-0 pt-0" fluid id="import-option-dialog">
-        <v-layout column>
-          <v-flex xs12>
+      <v-container fluid id="import-option-dialog">
+        <v-row>
+          <v-col cols="12">
             {{
               $store.getters.message(
                 "import-export-dialog.select-project-file-label"
               )
             }}
-          </v-flex>
+          </v-col>
 
-          <v-flex xs12 class="pl-2 pr-2 pt-2">
+          <v-col cols="12" class="pl-2 pr-2 pt-2">
             <select-file-button
               accept=".zip"
               :details-message="targetFile ? targetFile.name : ''"
@@ -47,9 +47,9 @@
                 )
               }}
             </select-file-button>
-          </v-flex>
+          </v-col>
 
-          <v-flex class="pt-3">
+          <v-col class="pt-3">
             <v-checkbox
               :label="
                 $store.getters.message('import-export-dialog.project-data')
@@ -64,8 +64,8 @@
               v-model="importOption.selectedOptionTestresult"
             >
             </v-checkbox>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </template>
   </execute-dialog>

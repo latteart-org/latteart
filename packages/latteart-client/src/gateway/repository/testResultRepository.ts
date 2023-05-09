@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import {
   TestResultForRepository,
   TestResultViewOptionForRepository,
   SequenceViewForRepository,
+  GraphViewForRepository,
 } from "./types";
 
 export class TestResultRepository {
@@ -62,13 +63,11 @@ export class TestResultRepository {
    * @returns Test script URL.
    */
   public async postTestResultForExport(
-    testResultId: string,
-    shouldSaveTemporary: boolean
+    testResultId: string
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(
-        `api/v1/test-results/${testResultId}/export`,
-        { temp: shouldSaveTemporary }
+        `api/v1/test-results/${testResultId}/export`
       );
 
       if (response.status !== 200) {
@@ -89,15 +88,15 @@ export class TestResultRepository {
    * @returns  Created test result information.
    */
   public async postEmptyTestResult(
-    initialUrl?: string,
-    name?: string
+    option: {
+      initialUrl?: string;
+      name?: string;
+      parentTestResultId?: string;
+    } = {}
   ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
     try {
       const url = `api/v1/test-results`;
-      const response = await this.restClient.httpPost(url, {
-        initialUrl,
-        name,
-      });
+      const response = await this.restClient.httpPost(url, option);
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
@@ -218,6 +217,26 @@ export class TestResultRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as SequenceViewForRepository,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async generateGraphView(
+    testResultId: string,
+    option?: TestResultViewOptionForRepository
+  ): Promise<RepositoryAccessResult<GraphViewForRepository>> {
+    try {
+      const url = `api/v1/test-results/${testResultId}/graph-views`;
+      const response = await this.restClient.httpPost(url, option);
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as GraphViewForRepository,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

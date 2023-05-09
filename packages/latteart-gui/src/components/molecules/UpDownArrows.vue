@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 <template>
   <div @click="stopPropagation">
-    <v-btn small flat icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
+    <v-btn small text icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
       ><v-icon>arrow_drop_up</v-icon></v-btn
     >
     <v-btn
       small
-      flat
+      text
       icon
       class="ma-0 pa-0"
       :disabled="downDisabled"

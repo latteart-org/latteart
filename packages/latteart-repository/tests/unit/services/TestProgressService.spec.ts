@@ -6,7 +6,6 @@ import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
-import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 
@@ -35,9 +34,8 @@ describe.each([
   describe("#registerStoryTestProgresses", () => {
     it("テスト進捗を登録する", async () => {
       const { storyId } = await saveTestStory(progress);
-      await new TestProgressServiceImpl(
-        new TransactionRunner()
-      ).registerStoryTestProgresses(storyId);
+      const service = new TestProgressServiceImpl();
+      await service["registerStoryTestProgresses"](storyId);
       const progressEntities = await getRepository(TestProgressEntity).find({
         relations: ["story"],
       });
@@ -65,8 +63,8 @@ describe.each([
         testMatrixId,
       } = await saveTestStory(progress);
 
-      const service = new TestProgressServiceImpl(new TransactionRunner());
-      await service.registerStoryTestProgresses(storyId);
+      const service = new TestProgressServiceImpl();
+      await service["registerStoryTestProgresses"](storyId);
 
       const result = await service.collectStoryDailyTestProgresses([storyId]);
 

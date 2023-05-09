@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,25 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
+  public async getReadyToCapture(): Promise<void> {
+    const isReadyToCapture =
+      (await this.client.execute(captureScript.isReadyToCapture)) ?? false;
+
+    if (isReadyToCapture) {
+      return;
+    }
+
+    (await this.injectFunctionToGetAttributesFromElement()) &&
+      (await this.injectFunctionToCollectVisibleElements()) &&
+      (await this.injectFunctionToExtractElements()) &&
+      (await this.injectFunctionToEnqueueEventForReFire()) &&
+      (await this.injectFunctionToBuildOperationInfo()) &&
+      (await this.injectFunctionToHandleCapturedEvent([
+        WebBrowser.SHIELD_ID,
+      ])) &&
+      (await this.resetEventListeners());
+  }
+
   /**
    * Check if a screen transition is captured and if so, call the callback function.
    */
@@ -190,14 +209,9 @@ export default class WebBrowserWindow {
    * Check if operations are captured and if so, call the callback function.
    */
   public async captureOperations(): Promise<void> {
-    if (
-      !((await this.client.execute(captureScript.isReadyToCapture)) ?? false)
-    ) {
-      await this.getReadyToCapture([WebBrowser.SHIELD_ID]);
-    }
-
     // Get and notice operations.
     const capturedDatas = await this.pullCapturedDatas();
+    const clientSize = await this.client.getClientSize();
     if (capturedDatas.length === 0) {
       return;
     }
@@ -206,9 +220,10 @@ export default class WebBrowserWindow {
         break;
       }
 
-      const capturedOperations = await this.convertToCapturedOperations([
-        capturedData,
-      ]);
+      const capturedOperations = await this.convertToCapturedOperations(
+        [capturedData],
+        clientSize
+      );
 
       if (
         capturedOperations[0] &&
@@ -245,6 +260,8 @@ export default class WebBrowserWindow {
     type: string;
     windowHandle: string;
     input?: string;
+    scrollPosition?: { x: number; y: number };
+    clientSize?: { width: number; height: number };
     elementInfo?: ElementInfo;
     screenElements?: ElementInfo[];
     inputElements?: ElementInfo[];
@@ -253,6 +270,8 @@ export default class WebBrowserWindow {
     return new Operation({
       type: args.type,
       input: args.input ?? "",
+      scrollPosition: args.scrollPosition,
+      clientSize: args.clientSize,
       elementInfo: args.elementInfo ?? null,
       screenElements: args.screenElements ?? [],
       windowHandle: args.windowHandle,
@@ -273,6 +292,8 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_BACK,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
+      screenElements:
+        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
     });
     await this.client.browserBack();
 
@@ -291,6 +312,8 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_FORWARD,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
+      screenElements:
+        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
     });
     await this.client.browserForward();
 
@@ -407,16 +430,24 @@ export default class WebBrowserWindow {
 
   private async createScreenTransition(): Promise<ScreenTransition | null> {
     await this.updateScreenAndOperationSummary();
+
     const pageText = await this.client.getCurrentPageText();
+
     if (!pageText) {
       return null;
     }
+
+    const screenElements =
+      (await this.client.execute(captureScript.collectScreenElements)) ?? [];
+
     return new ScreenTransition({
       windowHandle: this._windowHandle,
       title: this.currentScreenSummary.title,
       url: this.currentScreenSummary.url,
       imageData: this.currentOperationSummary.screenshotBase64,
       pageSource: pageText,
+      clientSize: await this.client.getClientSize(),
+      screenElements,
     });
   }
 
@@ -462,7 +493,8 @@ export default class WebBrowserWindow {
   }
 
   private async convertToCapturedOperations(
-    capturedDatas: SuspendedCapturedData[]
+    capturedDatas: SuspendedCapturedData[],
+    clientSize: { width: number; height: number }
   ) {
     const filteredDatas = capturedDatas.filter((data) => {
       // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
@@ -515,6 +547,7 @@ export default class WebBrowserWindow {
           value: data.operation.elementInfo.value,
           xpath: data.operation.elementInfo.xpath,
           attributes: data.operation.elementInfo.attributes,
+          boundingRect: data.operation.elementInfo.boundingRect,
         };
         if (data.operation.elementInfo.checked !== undefined) {
           elementInfo.checked = data.operation.elementInfo.checked;
@@ -546,6 +579,8 @@ export default class WebBrowserWindow {
         return this.createCapturedOperation({
           input: data.operation.input,
           type: data.operation.type,
+          scrollPosition: data.operation.scrollPosition,
+          clientSize,
           elementInfo,
           screenElements: data.elements,
           windowHandle: this._windowHandle,
@@ -595,16 +630,6 @@ export default class WebBrowserWindow {
       return true;
     }
     return false;
-  }
-
-  private async getReadyToCapture(ignoreElementIds: string[]): Promise<void> {
-    (await this.injectFunctionToGetAttributesFromElement()) &&
-      (await this.injectFunctionToCollectVisibleElements()) &&
-      (await this.injectFunctionToExtractElements()) &&
-      (await this.injectFunctionToEnqueueEventForReFire()) &&
-      (await this.injectFunctionToBuildOperationInfo()) &&
-      (await this.injectFunctionToHandleCapturedEvent(ignoreElementIds)) &&
-      (await this.resetEventListeners());
   }
 
   private async injectFunctionToGetAttributesFromElement(): Promise<

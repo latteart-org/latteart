@@ -4,11 +4,9 @@ import { SessionEntity } from "@/entities/SessionEntity";
 import { SessionsService } from "@/services/SessionsService";
 import { StoryEntity } from "@/entities/StoryEntity";
 import { TimestampService } from "@/services/TimestampService";
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
-import { Session } from "@/interfaces/Sessions";
 import { ProjectEntity } from "@/entities/ProjectEntity";
-import { TransactionRunner } from "@/TransactionRunner";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -21,21 +19,6 @@ afterEach(async () => {
 });
 
 describe("SessionService", () => {
-  const emptySessionParams: Session = {
-    isDone: false,
-    memo: "",
-    name: "",
-    testerName: "",
-    testingTime: 0,
-    doneDate: "",
-    attachedFiles: [],
-    issues: [],
-    testItem: "",
-    testResultFiles: [],
-    index: 0,
-    id: "",
-  };
-
   describe("#postSession", () => {
     describe("空のセッションを新規作成する", () => {
       it("指定のIDのストーリーに空のセッションを追加する", async () => {
@@ -44,24 +27,31 @@ describe("SessionService", () => {
 
         const result = await new SessionsService().postSession(
           projectId,
-          storyId,
-          new TransactionRunner()
+          storyId
         );
 
         expect(result).toEqual({
-          ...emptySessionParams,
+          index: 0,
+          name: "",
           id: expect.any(String),
+          isDone: false,
+          doneDate: "",
+          testItem: "",
+          testerName: "",
+          memo: "",
+          attachedFiles: [],
+          testResultFiles: [],
+          initialUrl: "",
+          testPurposes: [],
+          notes: [],
+          testingTime: 0,
         });
       });
 
       it("指定のIDのストーリーが見つからない場合はエラーをスローする", async () => {
         try {
           const projectId = (await saveTestProject()).projectId;
-          await new SessionsService().postSession(
-            projectId,
-            "AAA",
-            new TransactionRunner()
-          );
+          await new SessionsService().postSession(projectId, "AAA");
         } catch (error) {
           expect((error as Error).message).toEqual(`Story not found. AAA`);
         }
@@ -88,8 +78,7 @@ describe("SessionService", () => {
           const storyId = (await saveTestStory()).storyId;
           const savedSession = await new SessionsService().postSession(
             projectId,
-            storyId,
-            new TransactionRunner()
+            storyId
           );
           const sessionId = savedSession.id;
 
@@ -97,15 +86,21 @@ describe("SessionService", () => {
             projectId,
             sessionId,
             params,
-            createServiceMock({ doneDate }),
-            new TransactionRunner()
+            createServiceMock({ doneDate })
           );
 
           expect(result).toEqual({
-            ...emptySessionParams,
             ...params,
-            doneDate,
+            index: 0,
+            name: "",
             id: expect.any(String),
+            doneDate,
+            testItem: "",
+            attachedFiles: [],
+            testResultFiles: [],
+            initialUrl: "",
+            testPurposes: [],
+            notes: [],
           });
         }
       );
@@ -119,8 +114,7 @@ describe("SessionService", () => {
             projectId,
             sessionId,
             {},
-            createServiceMock({ doneDate }),
-            new TransactionRunner()
+            createServiceMock({ doneDate })
           );
         } catch (error) {
           expect((error as Error).message).toEqual(`Session not found: AAA`);
@@ -135,29 +129,23 @@ describe("SessionService", () => {
         const projectId = (await saveTestProject()).projectId;
         const storyId = (await saveTestStory()).storyId;
 
-        const savedSession = await new SessionsService().postSession(
+        const session1 = await new SessionsService().postSession(
           projectId,
-          storyId,
-          new TransactionRunner()
+          storyId
         );
 
-        const sessionRepository = getRepository(SessionEntity);
-        const session1 = await sessionRepository.findOne(savedSession.id);
-        if (!session1) {
-          throw new Error("no session");
-        }
-
-        await new SessionsService().deleteSession(
+        const session2 = await new SessionsService().postSession(
           projectId,
-          session1.id,
-          new TransactionRunner()
+          storyId
         );
 
-        const session2 = await sessionRepository.findOne(savedSession.id);
+        await new SessionsService().deleteSession(projectId, session1.id);
 
-        if (session2) {
-          throw new Error("delete failed");
-        }
+        const result = await getRepository(SessionEntity).find();
+
+        expect((result ?? []).length).toEqual(1);
+
+        expect((result ?? [])[0].id).toEqual(session2.id);
       });
     });
   });
@@ -195,16 +183,20 @@ function createServiceMock(params: { doneDate: string }) {
     format: jest.fn().mockReturnValue(params.doneDate),
     epochMilliseconds: jest.fn(),
   };
-  const imageFileRepositoryService: ImageFileRepositoryService = {
-    writeBufferToFile: jest.fn(),
-    writeBase64ToFile: jest.fn().mockResolvedValue("testStep.png"),
+  const attachedFileRepository: FileRepository = {
+    readFile: jest.fn(),
+    outputFile: jest.fn(),
+    outputJSON: jest.fn(),
+    outputZip: jest.fn(),
     removeFile: jest.fn(),
+    getFileUrl: jest.fn().mockReturnValue("testStep.png"),
     getFilePath: jest.fn(),
-    getFileUrl: jest.fn(),
+    moveFile: jest.fn(),
+    copyFile: jest.fn(),
   };
 
   return {
     timestampService,
-    imageFileRepositoryService,
+    attachedFileRepository,
   };
 }

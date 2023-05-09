@@ -5,6 +5,7 @@ import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { TransactionRunner } from "@/TransactionRunner";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { TestTargetGroupsService } from "@/services/TestTargetGroupsService";
+import { TestTargetEntity } from "@/entities/TestTargetEntity";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -16,7 +17,7 @@ afterEach(async () => {
   await testConnectionHelper.closeTestConnection();
 });
 
-describe("TestMatrixService", () => {
+describe("TestTargetGroupsService", () => {
   describe("#get", () => {
     it("正常系", async () => {
       const projectEntity = await getRepository(ProjectEntity).save(
@@ -35,6 +36,20 @@ describe("TestMatrixService", () => {
         testMatrix: testMatrixEntity,
       });
 
+      const testTarget1 = await getRepository(TestTargetEntity).save({
+        name: "testTargetName",
+        index: 0,
+        testTargetGroup: testTargetGroupEntity,
+        text: "[]",
+      });
+
+      const testTarget2 = await getRepository(TestTargetEntity).save({
+        name: "testTargetName2",
+        index: 1,
+        testTargetGroup: testTargetGroupEntity,
+        text: "[]",
+      });
+
       const result = await new TestTargetGroupsService().get(
         testTargetGroupEntity.id
       );
@@ -43,7 +58,20 @@ describe("TestMatrixService", () => {
         id: testTargetGroupEntity.id,
         name: testTargetGroupEntity.name,
         index: 0,
-        testTargets: [],
+        testTargets: [
+          {
+            id: testTarget1.id,
+            name: testTarget1.name,
+            index: testTarget1.index,
+            plans: JSON.parse(testTarget1.text),
+          },
+          {
+            id: testTarget2.id,
+            name: testTarget2.name,
+            index: testTarget2.index,
+            plans: JSON.parse(testTarget2.text),
+          },
+        ],
       });
     });
     it("異常系", async () => {

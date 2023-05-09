@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,26 +15,24 @@
 -->
 
 <template>
-  <div style="height: calc(100vh - 120px)">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
+  <v-container fluid class="fill-height">
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
       <v-toolbar-title>{{
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
       <v-spacer></v-spacer>
-    </v-toolbar>
+    </v-app-bar>
 
-    <v-btn @click="toBack()">{{
+    <v-btn @click="toBack()" class="ma-2">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 
-    <v-layout column fill-height>
-      <iframe
-        style="width: 100%; height: 100%"
-        :src="historyPageUrl"
-        frameborder="0"
-      ></iframe>
-    </v-layout>
-  </div>
+    <iframe
+      style="width: 100%; height: calc(100% - 36px)"
+      :src="historyPageUrl"
+      frameborder="0"
+    ></iframe>
+  </v-container>
 </template>
 
 <script lang="ts">

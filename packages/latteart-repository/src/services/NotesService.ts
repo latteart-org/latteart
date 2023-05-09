@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import {
 } from "@/interfaces/Notes";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 export interface NotesService {
   createNote(
@@ -43,10 +43,10 @@ export interface NotesService {
   getNoteScreenshot(noteId: string): Promise<{ id: string; fileUrl: string }>;
 }
 
-export class NotesServiceImpl {
+export class NotesServiceImpl implements NotesService {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -76,11 +76,14 @@ export class NotesServiceImpl {
     });
 
     if (requestBody.imageData) {
+      const fileName = `${registeredNoteEntity.id}.png`;
+      await this.service.screenshotFileRepository.outputFile(
+        fileName,
+        requestBody.imageData,
+        "base64"
+      );
       const fileUrl = requestBody.imageData
-        ? await this.service.imageFileRepository.writeBase64ToFile(
-            `${registeredNoteEntity.id}.png`,
-            requestBody.imageData
-          )
+        ? this.service.screenshotFileRepository.getFileUrl(fileName)
         : "";
 
       const screenshotEntity = new ScreenshotEntity({
@@ -95,14 +98,7 @@ export class NotesServiceImpl {
       registeredNoteEntity
     );
 
-    return {
-      id: updatedNoteEntity.id,
-      type: "notice",
-      value: updatedNoteEntity.value,
-      details: updatedNoteEntity.details,
-      imageFileUrl: updatedNoteEntity.screenshot?.fileUrl ?? "",
-      tags: updatedNoteEntity.tags.map((tag) => tag.name),
-    };
+    return this.convertToResponse(updatedNoteEntity);
   }
 
   public async getNote(noteId: string): Promise<GetNoteResponse | undefined> {
@@ -114,14 +110,7 @@ export class NotesServiceImpl {
       return undefined;
     }
 
-    return {
-      id: noteEntity.id,
-      type: "notice",
-      value: noteEntity.value,
-      details: noteEntity.details,
-      imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
-      tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
-    };
+    return this.convertToResponse(noteEntity);
   }
 
   public async updateNote(
@@ -146,14 +135,7 @@ export class NotesServiceImpl {
 
     await getRepository(NoteEntity).save(noteEntity);
 
-    return {
-      id: noteEntity.id,
-      type: "notice",
-      value: noteEntity.value,
-      details: noteEntity.details,
-      imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
-      tags: noteEntity.tags.map((tag) => tag.name),
-    };
+    return this.convertToResponse(noteEntity);
   }
 
   public async deleteNote(noteId: string): Promise<void> {
@@ -174,6 +156,17 @@ export class NotesServiceImpl {
     return {
       id: noteEntity?.screenshot?.id ?? "",
       fileUrl: noteEntity?.screenshot?.fileUrl ?? "",
+    };
+  }
+
+  private convertToResponse(noteEntity: NoteEntity) {
+    return {
+      id: noteEntity.id,
+      type: "notice",
+      value: noteEntity.value,
+      details: noteEntity.details,
+      imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
+      tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
     };
   }
 }

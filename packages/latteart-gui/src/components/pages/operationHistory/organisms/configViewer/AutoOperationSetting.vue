@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-layout row wrap>
-      <v-flex xs12 class="py-0 my-0">
+    <v-row>
+      <v-col cols="12" class="py-0 my-0">
         <p v-if="conditionGroups < 1">
           {{ $store.getters.message("config-view.no-data") }}
         </p>
@@ -28,9 +28,10 @@
           :index="index"
           @update-condition-group="updateConditionGroup"
           @delete-condition-group="deleteConditionGroup"
+          class="mt-4"
         ></auto-operation-container>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

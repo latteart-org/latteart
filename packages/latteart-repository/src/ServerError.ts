@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,10 @@ export type ServerErrorCode =
   | "patch_story_failed"
   | "get_story_failed"
   | "export_config_failed"
-  | "generate_sequence_view_failed";
+  | "generate_sequence_view_failed"
+  | "generate_graph_view_failed"
+  | "compare_test_results_failed"
+  | "comparison_targets_not_same_procedures";
 
 /**
  * Server error data.

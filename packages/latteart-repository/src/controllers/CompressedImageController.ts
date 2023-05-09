@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,14 @@ import {
   Tags,
 } from "tsoa";
 import { CompressedImageService } from "../services/CompressedImageService";
-import { CommandExecutionServiceImpl } from "@/services/CommandExecutionService";
+import { CommandExecutorImpl } from "@/gateways/commandExecutor";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
-import { screenshotDirectoryService } from "..";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("test-results/{testResultId}/test-steps/{testStepId}/compressed-image")
 @Tags("test-results")
@@ -57,33 +56,35 @@ export class CompressedImageController extends Controller {
     console.log("CompressedImageController - compressTestStepScreenshot");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
       config: new ConfigsService(),
     });
     const noteService = new NotesServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
+    const logger = createLogger();
 
     try {
       return new CompressedImageService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         testStep: testStepService,
         note: noteService,
-        commandExecution: new CommandExecutionServiceImpl(),
+        commandExecutor: new CommandExecutorImpl(),
+        logger,
       }).compressImage(testStepId, {
         shouldDeleteOriginalFile: (await new ConfigsService().getConfig(""))
           .config.imageCompression.isDeleteSrcImage,
       });
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Compress test step image failed.", error);
+        logger.error("Compress test step image failed.", error);
 
         throw new ServerError(500, {
           code: "compress_test_step_image_failed",

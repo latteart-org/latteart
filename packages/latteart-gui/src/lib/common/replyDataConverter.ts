@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 import { OperationForGUI } from "../operationHistory/OperationForGUI";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
 import { Operation } from "latteart-client";
-import { Story } from "../testManagement/types";
-import { ManagedStory } from "../testManagement/TestManagementData";
 
 export function convertTestStepOperation(
   testStepOperation: Operation,
@@ -34,7 +32,13 @@ export function convertTestStepOperation(
     windowHandle: testStepOperation.windowHandle,
     timestamp: testStepOperation.timestamp,
     inputElements: testStepOperation.inputElements,
-    keywordSet: new Set(testStepOperation.keywordTexts),
+    keywordSet: new Set(
+      testStepOperation.keywordTexts?.map((keywordText) => {
+        return typeof keywordText === "string"
+          ? keywordText
+          : keywordText.value;
+      }) ?? []
+    ),
     sequence,
     isAutomatic: testStepOperation.isAutomatic,
   });
@@ -85,41 +89,4 @@ export function convertNote(
   });
 
   return data;
-}
-
-export function convertManagedStory(story: Story): {
-  storyData: ManagedStory;
-} {
-  return {
-    storyData: {
-      ...story,
-      sessions: story.sessions.map((session) => {
-        return {
-          name: session.name,
-          id: session.id,
-          isDone: session.isDone,
-          doneDate: session.doneDate,
-          testItem: session.testItem,
-          testerName: session.testerName,
-          memo: session.memo,
-          attachedFiles: session.attachedFiles,
-          testResultFiles: session.testResultFiles,
-          issues: session.issues.map((issue) => {
-            return {
-              type: issue.source.type,
-              value: issue.value,
-              details: issue.details,
-              status: issue.status,
-              ticketId: issue.ticketId,
-              source: {
-                type: issue.source.type,
-                index: issue.source.index,
-              },
-            };
-          }),
-          testingTime: session.testingTime,
-        };
-      }),
-    },
-  };
 }

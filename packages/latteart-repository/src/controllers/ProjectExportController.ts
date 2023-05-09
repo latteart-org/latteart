@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import { CreateProjectExportDto } from "../interfaces/ProjectExport";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ProjectExportService } from "@/services/ProjectExportService";
 
@@ -29,20 +28,15 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import {
-  exportDirectoryService,
-  screenshotDirectoryService,
-  transactionRunner,
-} from "..";
-import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
+import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/export")
 @Tags("projects")
@@ -65,31 +59,32 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepositoryService =
-        new ImageFileRepositoryServiceImpl({
-          staticDirectory: screenshotDirectoryService,
-        });
+      const fileRepositoryManager = await createFileRepositoryManager();
+      const screenshotFileRepository =
+        fileRepositoryManager.getRepository("screenshot");
+      const exportFileRepository =
+        fileRepositoryManager.getRepository("export");
+      const workingFileRepository = fileRepositoryManager.getRepository("work");
+      const compareReportRepository =
+        fileRepositoryManager.getRepository("temp");
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-        staticDirectory: exportDirectoryService,
-        imageFileRepository: screenshotFileRepositoryService,
+        exportFileRepository,
+        workingFileRepository,
         timestamp: timestampService,
       });
       const testResultService = new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: screenshotFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
-      });
-      const exportService = new ExportServiceImpl({
-        testResult: testResultService,
-        exportFileRepository: exportFileRepositoryService,
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
       });
 
-      const testProgressService = new TestProgressServiceImpl(
-        transactionRunner
-      );
+      const testProgressService = new TestProgressServiceImpl();
 
       const projectService = new ProjectsServiceImpl();
 
@@ -100,7 +95,6 @@ export class ProjectExportController extends Controller {
         {
           projectService,
           testResultService,
-          exportService,
           exportFileRepositoryService,
           testProgressService,
         }
@@ -110,7 +104,7 @@ export class ProjectExportController extends Controller {
       };
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Export project failed.", error);
+        createLogger().error("Export project failed.", error);
         throw new ServerError(500, {
           code: "export_project_failed",
         });

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,24 +15,29 @@
 -->
 
 <template>
-  <v-layout>
-    <v-combobox
-      :hide-details="hideDetails"
-      v-model="targetUrl"
-      :items="urls"
-      :label="$store.getters.message('remote-access.remote-connection-url')"
-      id="connectUrlTextField"
-      ref="urlField"
-      :disabled="isCapturing"
-    ></v-combobox>
-    <v-btn
-      :color="color"
-      id="connecttButton"
-      @click="connect()"
-      :disabled="isCapturing || targetUrl === url"
-      >{{ $store.getters.message("remote-access.connect") }}</v-btn
-    >
-
+  <v-row class="pl-3">
+    <v-col>
+      <v-combobox
+        :hide-details="hideDetails"
+        v-model="targetUrl"
+        :items="urls"
+        :label="$store.getters.message('remote-access.remote-connection-url')"
+        id="connectUrlTextField"
+        ref="urlField"
+        :disabled="isCapturing"
+        :style="{ 'padding-top': '10px' }"
+      ></v-combobox>
+    </v-col>
+    <v-col cols="auto">
+      <v-btn
+        :color="color"
+        id="connecttButton"
+        @click="connect()"
+        :disabled="isCapturing || targetUrl === url"
+        class="ma-2"
+        >{{ $store.getters.message("remote-access.connect") }}</v-btn
+      >
+    </v-col>
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="informationTitle"
@@ -45,7 +50,7 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

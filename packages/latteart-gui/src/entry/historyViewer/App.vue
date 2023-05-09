@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
   <v-app>
     <error-handler>
       <div style="height: 100vh">
-        <v-layout fill-height>
+        <v-row class="fill-height">
           <history-display
             :rawHistory="testResult.history"
             :coverageSources="testResult.coverageSources"
@@ -26,7 +26,7 @@
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
           ></history-display>
-        </v-layout>
+        </v-row>
       </div>
     </error-handler>
   </v-app>
@@ -42,7 +42,6 @@ import {
 import { NoteForGUI } from "../../lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "../../lib/operationHistory/OperationForGUI";
 import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
-import ScreenDefFactory from "@/lib/operationHistory/ScreenDefFactory";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
@@ -81,7 +80,7 @@ export default class App extends Vue {
         { root: true }
       );
 
-      await this.$store.dispatch("operationHistory/updateScreenHistory");
+      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
     })();
   }
 
@@ -94,21 +93,25 @@ export default class App extends Vue {
     history: OperationWithNotes[];
     coverageSources: CoverageSource[];
   } {
-    const screenDefFactory = new ScreenDefFactory(
-      this.settings.config.screenDefinition
-    );
-
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
-        const { title, url, keywordSet } = item.operation;
-
         return {
           operation: OperationForGUI.createFromOtherOperation({
             other: item.operation,
             overrideParams: {
-              screenDef: screenDefFactory.createFrom(title, url, keywordSet),
               imageFilePath: item.operation.imageFileUrl,
-              keywordSet: new Set(item.operation.keywordTexts),
+              keywordSet: new Set(
+                (
+                  item.operation.keywordTexts as (
+                    | string
+                    | { tagname: string; value: string }
+                  )[]
+                )?.map((keywordText) => {
+                  return typeof keywordText === "string"
+                    ? keywordText
+                    : keywordText.value;
+                }) ?? []
+              ),
             },
           }),
           bugs:

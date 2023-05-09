@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,35 +19,43 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
-import { ManagedSession } from "../TestManagementData";
 import { RepositoryService } from "latteart-client";
+import { PatchSession, Session } from "../types";
+import SessionDataConverter from "../SessionDataConverter";
 
 const UPDATE_SESSION_FAILED_MESSAGE_KEY =
   "error.test_management.update_session_failed";
 
 export class UpdateSessionAction {
   constructor(
-    private repositoryService: Pick<RepositoryService, "sessionRepository">
+    private repositoryService: Pick<
+      RepositoryService,
+      "sessionRepository" | "serviceUrl"
+    >
   ) {}
 
   public async updateSession(
     projectId: string,
     sessionId: string,
-    body: Partial<ManagedSession>
-  ): Promise<ActionResult<ManagedSession>> {
-    const patchSessionResult =
-      await this.repositoryService.sessionRepository.patchSession(
-        projectId,
-        sessionId,
-        body
-      );
+    body: Partial<PatchSession>
+  ): Promise<ActionResult<Session>> {
+    const result = await this.repositoryService.sessionRepository.patchSession(
+      projectId,
+      sessionId,
+      body
+    );
 
-    if (patchSessionResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
         messageKey: UPDATE_SESSION_FAILED_MESSAGE_KEY,
       });
     }
 
-    return new ActionSuccess(patchSessionResult.data);
+    const convertedSession = new SessionDataConverter().convertToSession(
+      result.data,
+      this.repositoryService.serviceUrl
+    );
+
+    return new ActionSuccess(convertedSession);
   }
 }

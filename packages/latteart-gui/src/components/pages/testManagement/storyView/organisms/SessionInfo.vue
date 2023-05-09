@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@
       </v-card-text>
 
       <v-card-text v-show="reportSectionDisplayed" class="pa-2">
-        <v-layout row wrap>
-          <v-flex xs6>
+        <v-row>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.model")
@@ -73,14 +73,14 @@
                     }})
                     <v-btn
                       class="mr-0"
-                      flat
+                      text
                       icon
                       v-if="!isViewerMode"
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
                     <v-btn
-                      flat
+                      text
                       icon
                       color="error"
                       v-if="!isViewerMode"
@@ -109,9 +109,9 @@
                 >
               </v-card-actions>
             </v-card>
-          </v-flex>
+          </v-col>
 
-          <v-flex xs6>
+          <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.file")
@@ -129,7 +129,7 @@
                       ><span class="break-all">{{ file.name }}</span></a
                     >
                     <v-btn
-                      flat
+                      text
                       icon
                       color="error"
                       @click="
@@ -156,11 +156,11 @@
                 />
               </v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.test")
@@ -169,38 +169,37 @@
               <v-card-text class="py-0">
                 <v-list>
                   <v-list-group
-                    v-for="(item, index) in session.intentions"
+                    v-for="(item, index) in session.testPurposes"
                     v-model="item.active"
                     :key="item.title"
                     value="true"
                     sub-group
                     :id="`testPurposeArea${index}`"
                   >
-                    <v-list-tile slot="activator">
-                      <v-list-tile-content>
-                        <v-list-tile-title
+                    <template v-slot:activator>
+                      <v-list-item-content>
+                        <v-list-item-title
                           ><span :title="item.value">{{
                             item.value
-                          }}</span></v-list-tile-title
+                          }}</span></v-list-item-title
                         >
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <v-layout>
-                      <p class="break-word pl-5 break-word">
-                        {{ item.details }}
-                      </p>
-                    </v-layout>
+                      </v-list-item-content>
+                    </template>
+
+                    <p class="break-word pl-5 break-word">
+                      {{ item.details }}
+                    </p>
                   </v-list-group>
                 </v-list>
               </v-card-text>
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
 
-        <v-layout row wrap>
-          <v-flex xs12>
+        <v-row>
+          <v-col cols="12">
             <v-card class="ma-2">
               <v-card-title>{{
                 $store.getters.message("session-info.notice")
@@ -210,52 +209,53 @@
                 <v-data-table
                   :items="testResultNotices"
                   :headers="testResultNoticeHeaders"
-                  hide-actions
+                  hide-default-footer
                 >
-                  <template v-slot:items="props">
-                    <td class="px-2 py-0">
-                      <v-text-field
-                        v-bind:value="issueOptions[props.item.status]"
-                        :placeholder="
-                          $store.getters.message('session-info.bug-status')
-                        "
-                        readonly
-                      ></v-text-field>
-                    </td>
+                  <template v-slot:item="props">
+                    <tr>
+                      <td class="px-2 py-0">
+                        <v-text-field
+                          v-bind:value="issueOptions[props.item.status]"
+                          :placeholder="
+                            $store.getters.message('session-info.bug-status')
+                          "
+                          readonly
+                        ></v-text-field>
+                      </td>
 
-                    <td class="px-2 py-0 ellipsis_short">
-                      <span :title="props.item.value">{{
-                        props.item.value
-                      }}</span>
-                    </td>
+                      <td class="px-2 py-0 ellipsis_short">
+                        <span :title="props.item.value">{{
+                          props.item.value
+                        }}</span>
+                      </td>
 
-                    <td class="px-2 py-0">
-                      <v-btn
-                        small
-                        :title="props.item.details"
-                        @click="
-                          openIssueDetailsDialog(
-                            props.item.status,
-                            props.item.ticketId,
-                            props.item.value,
-                            props.item.details,
-                            props.item.imageFilePath,
-                            props.item.tags
-                          )
-                        "
-                        >{{
-                          $store.getters.message("session-info.bug-details")
-                        }}</v-btn
-                      >
-                    </td>
+                      <td class="px-2 py-0">
+                        <v-btn
+                          small
+                          :title="props.item.details"
+                          @click="
+                            openIssueDetailsDialog(
+                              props.item.status,
+                              props.item.value,
+                              props.item.details,
+                              props.item.imageFilePath,
+                              props.item.tags
+                            )
+                          "
+                          >{{
+                            $store.getters.message("session-info.bug-details")
+                          }}</v-btn
+                        >
+                      </td>
+                    </tr>
                   </template>
                 </v-data-table>
               </v-card-text>
 
               <v-card-actions></v-card-actions>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-card-text>
     </v-card>
 
@@ -272,43 +272,43 @@
 
       <template v-slot:content>
         <v-list class="note-details-dialog">
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.bug-status")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all">{{ issueDetailsDialogStatus }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.summary")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all">{{ issueDetailsDialogSummary }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile>
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.details")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <p class="break-all pre-wrap">{{ issueDetailsDialogText }}</p>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
 
-          <v-list-tile v-if="issueDetailsDialogTags.length > 0" class="mb-2">
-            <v-list-tile-content>
-              <v-list-tile-title>{{
+          <v-list-item v-if="issueDetailsDialogTags.length > 0" class="mb-2">
+            <v-list-item-content>
+              <v-list-item-title>{{
                 $store.getters.message("session-info.tags")
-              }}</v-list-tile-title>
+              }}</v-list-item-title>
               <note-tag-chip-group
                 :tags="issueDetailsDialogTags"
               ></note-tag-chip-group>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-content>
+          </v-list-item>
           <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
         </v-list>
       </template>
@@ -316,7 +316,7 @@
       <template v-slot:footer>
         <v-spacer></v-spacer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" flat @click="issueDetailsDialogOpened = false">{{
+        <v-btn color="primary" text @click="issueDetailsDialogOpened = false">{{
           $store.getters.message("common.close")
         }}</v-btn>
       </template>
@@ -328,27 +328,26 @@
       }}</template>
 
       <template v-slot:content>
-        <v-layout
-          row
+        <v-row
+          class="mt-0"
           wrap
           v-for="testResult in testResults"
           :key="testResult.id"
         >
-          <v-flex xs9>{{ testResult.name }}</v-flex>
-          <v-flex xs3
+          <v-col cols="9">{{ testResult.name }}</v-col>
+          <v-col cols="3"
             ><v-btn @click="addTestResultToSession(testResult)">{{
               $store.getters.message("session-info.result-import")
-            }}</v-btn></v-flex
+            }}</v-btn></v-col
           >
-        </v-layout>
+        </v-row>
       </template>
 
       <template v-slot:footer>
         <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
         <v-btn
           color="primary"
-          flat
+          text
           @click="testResultSelectionDialogOpened = false"
           >{{ $store.getters.message("common.close") }}</v-btn
         >
@@ -377,7 +376,6 @@ import {
   Session,
   AttachedFile,
   TestResultFile,
-  Issue,
 } from "@/lib/testManagement/types";
 import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
@@ -386,6 +384,7 @@ import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
+import { TestResultSummary } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -420,7 +419,6 @@ export default class SessionInfo extends Vue {
 
   private issueDetailsDialogOpened = false;
   private issueDetailsDialogStatus = "";
-  private issueDetailsDialogTicketId = "";
   private issueDetailsDialogSummary = "";
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
@@ -477,9 +475,12 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      this.testResults = await this.$store.dispatch(
-        "testManagement/getTestResults"
-      );
+      const testResultSummaries: TestResultSummary[] =
+        await this.$store.dispatch("testManagement/getTestResults");
+
+      this.testResults = testResultSummaries.map(({ id, name }) => {
+        return { id, name };
+      });
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }
@@ -634,8 +635,6 @@ export default class SessionInfo extends Vue {
     memo?: string;
     attachedFiles?: AttachedFile[];
     testResultFiles?: TestResultFile[];
-    issues?: Issue[];
-    testingTime?: number;
   }) {
     await this.$store.dispatch("testManagement/updateSession", {
       storyId: this.storyId,
@@ -644,50 +643,45 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private get testResultNotices(): Issue[] {
+  private get testResultNotices() {
     if (!this.session) {
       return [];
     }
-    return this.session.issues;
-  }
+    const notices = this.session.notes.map((note) => {
+      const status = (() => {
+        if (!note.tags) {
+          return "";
+        }
 
-  private updateIssue(
-    source: { type: string; sequence: number; index: number },
-    params: {
-      status?: string;
-      ticketId?: string;
-    }
-  ) {
-    const newIssues = this.session?.issues.map((issue) => {
-      const key1 = `${issue.source.type}_${issue.source.sequence}_${issue.source.index}`;
-      const key2 = `${source.type}_${source.sequence}_${source.index}`;
+        if (note.tags.includes("reported")) {
+          return "reported";
+        }
 
-      if (key1 !== key2) {
-        return issue;
-      }
+        if (note.tags.includes("invalid")) {
+          return "invalid";
+        }
+
+        return "";
+      })();
 
       return {
-        source,
-        status: params.status ?? issue.status,
-        ticketId: params.ticketId ?? issue.ticketId,
-        value: issue.value,
-        details: issue.details,
-        imageFilePath: issue.imageFilePath,
+        status,
+        value: note.value,
+        details: note.details,
+        tags: note.tags ?? [],
+        imageFilePath: note.imageFileUrl ?? "",
       };
     });
 
-    this.updateSession({
-      issues: newIssues,
-    });
+    return notices;
   }
 
   private openIssueDetailsDialog(
     status: string,
-    ticketId: string,
     summary: string,
     text: string,
     imageFilePath: string,
-    tags?: string[]
+    tags: string[]
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -697,11 +691,10 @@ export default class SessionInfo extends Vue {
         : status === "invalid"
         ? this.$store.getters.message("session-info.bug-unreported")
         : none;
-    this.issueDetailsDialogTicketId = ticketId !== "" ? ticketId : none;
     this.issueDetailsDialogSummary = summary;
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogImagePath = imageFilePath;
-    this.issueDetailsDialogTags = tags ? tags : [];
+    this.issueDetailsDialogTags = tags ?? [];
     this.issueDetailsDialogOpened = true;
   }
 

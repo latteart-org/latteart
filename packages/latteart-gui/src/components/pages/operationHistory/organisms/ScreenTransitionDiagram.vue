@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,23 +15,28 @@
 -->
 
 <template>
-  <v-layout justify-end column id="screen-transition-diagram-container">
-    <v-select
-      class="pb-2"
-      :label="message('app.target-tab-window')"
-      :items="usedWindowHandles"
-      item-text="text"
-      item-value="value"
-      :value="selectedWindowHandle"
-      @change="(value) => selectWindow(value)"
-    />
-
-    <mermaid-graph-renderer
-      v-if="graph"
-      :graph="graph"
-      graphType="screenTransition"
-    ></mermaid-graph-renderer>
-  </v-layout>
+  <v-container>
+    <v-row justify="end" id="screen-transition-diagram-container">
+      <v-col cols="12" class="py-0">
+        <v-select
+          class="pb-2 pt-5 pr-2"
+          :label="message('app.target-tab-window')"
+          :items="usedWindowHandles"
+          item-text="text"
+          item-value="value"
+          :value="selectedWindowHandle"
+          @change="(value) => selectWindow(value)"
+        />
+      </v-col>
+      <v-col cols="12" class="pt-0">
+        <mermaid-graph-renderer
+          v-if="graph"
+          :graph="graph"
+          graphType="screenTransition"
+        ></mermaid-graph-renderer>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">

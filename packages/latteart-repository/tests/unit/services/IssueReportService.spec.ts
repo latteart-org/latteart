@@ -1,6 +1,6 @@
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
-import { IssueReportOutputService } from "@/services/IssueReportOutputService";
+import { IssueReportCreator } from "@/interfaces/issueReportCreator";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
 import { Project } from "@/interfaces/Projects";
@@ -18,7 +18,7 @@ afterEach(async () => {
 describe("IssueReportService", () => {
   describe("#writeReport", () => {
     it("プロジェクト情報を元に指定の出力先にIssueのレポートを出力する", async () => {
-      const issueReportOutputService: IssueReportOutputService = {
+      const issueReportCreator: IssueReportCreator = {
         output: jest.fn(),
       };
 
@@ -44,6 +44,8 @@ describe("IssueReportService", () => {
         collectAllTestPurposeIds: jest.fn(),
         collectAllTestStepScreenshots: jest.fn(),
         generateSequenceView: jest.fn(),
+        generateGraphView: jest.fn(),
+        compareTestResults: jest.fn(),
       };
 
       const testStepService: TestStepService = {
@@ -74,7 +76,7 @@ describe("IssueReportService", () => {
       };
 
       const service = new IssueReportServiceImpl({
-        issueReportOutput: issueReportOutputService,
+        issueReportCreator,
         testResult: testResultService,
         testStep: testStepService,
         testPurpose: testPurposeService,
@@ -126,20 +128,24 @@ describe("IssueReportService", () => {
             testTargetId: "testTarget1",
             viewPointId: "viewPoint1",
             status: "",
+            index: 0,
             sessions: [
               {
-                id: "session1",
-                attachedFiles: [],
-                doneDate: "",
-                isDone: false,
-                issues: [],
-                memo: "",
+                index: 0,
                 name: "sessionName1",
+                id: "session1",
+                isDone: false,
+                doneDate: "",
                 testItem: "testItem1",
+                testerName: "",
+                memo: "",
+                attachedFiles: [],
                 testResultFiles: [
                   { id: "testResult1", name: "testResultName1" },
                 ],
-                testerName: "",
+                initialUrl: "",
+                testPurposes: [],
+                notes: [],
                 testingTime: 0,
               },
             ],
@@ -173,7 +179,7 @@ describe("IssueReportService", () => {
         },
       ];
 
-      expect(issueReportOutputService.output).toBeCalledWith(
+      expect(issueReportCreator.output).toBeCalledWith(
         outputDirectoryPath,
         expectedReport[0]
       );

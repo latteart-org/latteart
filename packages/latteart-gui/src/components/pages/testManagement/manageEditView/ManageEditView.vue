@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,32 +16,36 @@
 
 <template>
   <v-container fluid class="pt-3">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
       <v-toolbar-title>{{
         $store.getters.message("manage-edit-view.edit-plan")
       }}</v-toolbar-title>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-btn @click="openTestMatrixDialogInCreateMode">{{
       $store.getters.message("manage-edit-view.add-test-matrix")
     }}</v-btn>
 
     <template v-if="hasTestMatrix">
-      <v-layout justify-end row>
-        <v-flex xs12>
+      <v-row class="mt-4">
+        <v-col>
           <tab-selector
             :selectedItemId="selectedTestMatrixId"
             :items="testMatrices"
             @select="(id) => selectTestMatrix(id)"
           ></tab-selector>
-        </v-flex>
-      </v-layout>
+        </v-col>
+      </v-row>
 
-      <v-card class="pa-2">
-        <test-matrix-editor
-          :testMatrixId="selectedTestMatrixId"
-        ></test-matrix-editor>
-      </v-card>
+      <v-row>
+        <v-col>
+          <v-card class="pa-2">
+            <test-matrix-editor
+              :testMatrixId="selectedTestMatrixId"
+            ></test-matrix-editor>
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
 
     <manage-edit-footer @cancel="goToTop"> </manage-edit-footer>

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,24 +20,26 @@
       v-if="!isCapturing"
       :disabled="isDisabled"
       icon
-      flat
+      text
       large
       color="grey darken-3"
       @click="testOptionDialogOpened = true"
       :title="$store.getters.message('app.start')"
       id="startButton"
+      class="mx-1"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>
     <v-btn
       v-else
       icon
-      flat
+      text
       large
       color="red"
       @click="endCapture"
       :title="$store.getters.message('app.finish')"
       id="endButton"
+      class="mx-2"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>

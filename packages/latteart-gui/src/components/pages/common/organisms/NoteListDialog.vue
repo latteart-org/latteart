@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@
             readonly
           >
           </v-textarea>
-          <v-img :src="note.imageFilePath" />
+          <v-img :src="note.imageFileUrl" />
         </v-card-text>
         <v-divider v-if="index + 1 !== notes.length"></v-divider>
       </v-card>
@@ -63,11 +63,9 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import {
-  MessageProvider,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
+import { InputValueTableHeaderColumn } from "@/lib/operationHistory/InputValueTable";
 
 @Component({
   components: {
@@ -77,32 +75,14 @@ import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 })
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
-  @Prop({ type: Array, default: [] }) testSteps?: OperationWithNotes[];
+  @Prop({ type: Array, default: [] }) notes?: Pick<
+    InputValueTableHeaderColumn,
+    "notes"
+  >;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private close() {
     this.$emit("close");
-  }
-
-  private get notes() {
-    return (
-      this.testSteps?.flatMap((testStep) => {
-        return (
-          testStep.notices?.map(
-            ({ value, details, sequence, tags, imageFilePath }) => {
-              return {
-                value,
-                details,
-                tags,
-                sequence,
-                imageFilePath:
-                  imageFilePath || testStep.operation.imageFilePath,
-              };
-            }
-          ) ?? []
-        );
-      }) ?? []
-    );
   }
 }
 </script>

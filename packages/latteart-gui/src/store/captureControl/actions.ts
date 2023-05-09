@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,11 +89,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState as any
       ).operationHistory;
 
-      const sourceTestResultId = operationHistoryState.testResultInfo.id;
+      const parentTestResultId = operationHistoryState.testResultInfo.id;
 
       const operations = await (async () => {
         const collectTestStepsResult = await context.rootState.repositoryService
-          .createTestResultAccessor(sourceTestResultId)
+          .createTestResultAccessor(parentTestResultId)
           .collectTestSteps();
 
         if (collectTestStepsResult.isFailure()) {
@@ -108,33 +108,40 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       })();
 
       const replayOption = context.state.replayOption;
-      const destTestResult = replayOption.replayCaptureMode
+      const destTestResult = replayOption.resultSavingEnabled
         ? await (async () => {
-            const createResult =
-              await context.rootState.repositoryService.createEmptyTestResult({
-                initialUrl: payload.initialUrl,
-                name: replayOption.testResultName,
-                source: sourceTestResultId,
+            try {
+              await context.dispatch("operationHistory/resetHistory", null, {
+                root: true,
               });
 
-            if (createResult.isFailure()) {
+              await context.dispatch(
+                "operationHistory/createTestResult",
+                {
+                  initialUrl: payload.initialUrl,
+                  name: replayOption.testResultName,
+                  parentTestResultId,
+                },
+                {
+                  root: true,
+                }
+              );
+
+              const operationHistoryState: OperationHistoryState = (
+                context.rootState as any
+              ).operationHistory;
+
+              return context.rootState.repositoryService.createTestResultAccessor(
+                operationHistoryState.testResultInfo.id
+              );
+            } catch (error) {
               const errorMessage = context.rootGetters.message(
                 `error.capture_control.run_operations_failed`
               );
               throw new Error(errorMessage);
             }
-
-            return context.rootState.repositoryService.createTestResultAccessor(
-              createResult.data.id
-            );
           })()
         : undefined;
-
-      if (destTestResult) {
-        await context.dispatch("operationHistory/resetHistory", null, {
-          root: true,
-        });
-      }
 
       const captureCl = context.rootState.captureClService;
       const client = captureCl.createCaptureClient({
@@ -354,6 +361,14 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               return {
                 ...element,
                 xpath: element.xpath.toLowerCase(),
+                attributes: element.attributes,
+                inputValue:
+                  element.tagname === "INPUT" &&
+                  ["checkbox", "radio"].includes(element.attributes.type)
+                    ? element.checked === true
+                      ? "on"
+                      : "off"
+                    : element.value ?? "",
               };
             }
           ),

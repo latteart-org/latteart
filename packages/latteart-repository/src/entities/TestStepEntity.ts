@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,18 @@ export class TestStepEntity {
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "input_elements" })
   inputElements: string = "[]";
+
+  @Column({ name: "scroll_position_x", nullable: true })
+  scrollPositionX?: number;
+
+  @Column({ name: "scroll_position_y", nullable: true })
+  scrollPositionY?: number;
+
+  @Column({ name: "client_size_width", nullable: true })
+  clientSizeWidth?: number;
+
+  @Column({ name: "client_size_height", nullable: true })
+  clientSizeHeight?: number;
 
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "timestamp" })

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-layout row>
+  <v-row>
     <sequence-diagram
       v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
       :message="message"
@@ -26,7 +26,7 @@
       :windows="windows"
       :message="message"
     ></screen-transition-diagram>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

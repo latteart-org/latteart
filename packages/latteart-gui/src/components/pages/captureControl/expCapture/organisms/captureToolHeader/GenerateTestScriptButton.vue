@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-list-tile
+  <v-list-item
     @click="scriptGenerationOptionDialogIsOpened = true"
     :disabled="isDisabled"
   >
-    <v-list-tile-title>{{
+    <v-list-item-title>{{
       $store.getters.message("history-view.generate-testscript")
-    }}</v-list-tile-title>
+    }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -43,7 +43,7 @@
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
-  </v-list-tile>
+  </v-list-item>
 </template>
 
 <script lang="ts">

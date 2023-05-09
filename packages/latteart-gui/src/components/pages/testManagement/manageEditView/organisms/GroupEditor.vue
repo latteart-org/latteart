@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,49 +23,47 @@
       :headers="headers"
       sort-icon=""
       hide-actions
-      :pagination.sync="pagination"
+      :options.sync="options"
       :grid-column-number="8"
+      hide-default-header
     >
-      <template #headers="props">
+      <template #header="props">
         <tr>
           <th
-            v-for="(header, index) in props.headers"
+            v-for="(header, index) in props.props.headers"
             :width="header.width"
             :class="header.class"
             :key="index"
+            style="border-bottom: solid 1px #ddd"
           >
             <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
           </th></tr
       ></template>
-      <template #items="props">
+      <template #item="props">
         <tr>
           <td class="px-0 py-0 my-0" style="width: 52px">
-            <v-layout>
-              <v-flex>
-                <v-btn
-                  flat
-                  icon
-                  class="mt-3"
-                  @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
-                  color="error"
-                  ><v-icon>delete</v-icon></v-btn
-                >
-              </v-flex>
-            </v-layout>
+            <v-btn
+              text
+              icon
+              class="mt-3"
+              @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
+              color="error"
+              ><v-icon>delete</v-icon></v-btn
+            >
           </td>
-          <td class="px-0 py-0 my-0 test-target-name-td">
-            <v-layout row>
-              <v-flex xs11>
+          <td class="pl-0 pr-1 py-0 my-0 test-target-name-td">
+            <v-row>
+              <v-col cols="11" class="pr-0">
                 <v-text-field
                   :id="`testTargetNameTextField${group.id}${props.item.id}`"
                   :value="props.item.name"
                   @change="(value) => renameTestTarget(value, props.item.id)"
                 ></v-text-field>
-              </v-flex>
-              <v-flex xs1 mr-2>
+              </v-col>
+              <v-col cols="1" align-self="center" class="pa-0 ma-0">
                 <v-btn
                   small
-                  flat
+                  text
                   icon
                   class="ml-0 pl-0 mb-0 pb-0"
                   :disabled="
@@ -76,7 +74,7 @@
                 >
                 <v-btn
                   small
-                  flat
+                  text
                   icon
                   class="ml-0 pl-0 mt-0 pt-0"
                   :disabled="
@@ -85,8 +83,8 @@
                   @click="changeTestTargetOrder(props.item.id, 'down')"
                   ><v-icon>arrow_drop_down</v-icon></v-btn
                 >
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </td>
           <td
             v-for="(viewPoint, index) in viewPoints"
@@ -112,25 +110,25 @@
       </template>
     </fixed-data-table>
 
-    <v-layout justify-start align-center row>
-      <v-flex xs2
+    <v-row>
+      <v-col cols="2"
         ><v-text-field
           :id="`newTestTargetNameTextField${group.id}`"
           v-model="newTestTargetName"
           :label="this.$store.getters.message('group-edit-info.target')"
           height="24"
         ></v-text-field
-      ></v-flex>
-      <v-flex xs2
+      ></v-col>
+      <v-col cols="2" class="d-flex align-center"
         ><v-btn
           :id="`createTestTargetButton${group.id}`"
           small
           @click="addNewTestTarget"
           v-bind:disabled="newTestTargetName === ''"
           >{{ $store.getters.message("group-edit-info.add") }}</v-btn
-        ></v-flex
+        ></v-col
       >
-    </v-layout>
+    </v-row>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
@@ -146,7 +144,6 @@
 import {
   Group,
   Plan,
-  Story,
   TestMatrix,
   TestTarget,
   ViewPoint,
@@ -154,7 +151,6 @@ import {
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { Component, Vue, Prop } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
 
@@ -177,8 +173,8 @@ export default class GroupEditor extends Vue {
     /* Do nothing */
   }
 
-  private pagination = {
-    rowsPerPage: -1,
+  private options = {
+    itemsPerPage: -1,
   };
 
   private newTestTargetName = "";
@@ -236,7 +232,6 @@ export default class GroupEditor extends Vue {
         class: ["text-xs-center", "py-1", "ellipsis_short"],
       });
     });
-
     return headers;
   }
 

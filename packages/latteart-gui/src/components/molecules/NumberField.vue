@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-layout align-center justify-center>
-    <v-flex xs12>
+  <v-row align="center" justify="center">
+    <v-col cols="12">
       <div class="wrap">
         <div class="text-wrap">
           <v-text-field
@@ -25,9 +25,11 @@
             :suffix="suffix"
             :id="`numberField${id}_text`"
             :value="internalValue"
-            @input="(value) => update(parseInt(value))"
+            @input="(value) => update(value)"
+            @blur="onBlur"
             :readonly="arrowOnly"
             :disabled="disabled"
+            ref="textField"
           ></v-text-field>
         </div>
         <div class="button-wrap">
@@ -54,8 +56,8 @@
           </button>
         </div>
       </div>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -72,7 +74,7 @@ export default class NumberField extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly arrowOnly!: boolean;
   @Prop({ type: Boolean, default: false }) public readonly disabled!: boolean;
 
-  private internalValue = 0;
+  private internalValue: number | string = 0;
   private clicking = false;
 
   private created() {
@@ -90,33 +92,51 @@ export default class NumberField extends Vue {
 
   private onBlur() {
     if (!this.clicking) {
+      const num = this.internalValue;
+      if (num === "") {
+        this.internalValue = this.minValue;
+      } else if (this.maxValue !== undefined && num > this.maxValue) {
+        this.internalValue = this.maxValue;
+      } else if (this.minValue !== undefined && num < this.minValue) {
+        this.internalValue = this.minValue;
+      }
       this.send();
     }
   }
+
   private onMouseDown() {
     this.clicking = true;
   }
 
   private increase(): void {
-    !this.internalValue ? this.update(1) : this.update(this.internalValue + 1);
+    if (this.internalValue < this.maxValue) {
+      !this.internalValue
+        ? this.update("1")
+        : this.update(`${Number(this.internalValue) + 1}`);
+    }
     this.clicking = false;
   }
 
   private decrease(): void {
-    !this.internalValue ? this.update(-1) : this.update(this.internalValue - 1);
+    if (this.internalValue > this.minValue) {
+      !this.internalValue
+        ? this.update("-1")
+        : this.update(`${Number(this.internalValue) - 1}`);
+    }
     this.clicking = false;
   }
 
-  private update(value: number): void {
-    let val = value;
-    if (this.maxValue !== undefined && val > this.maxValue) {
-      val = this.maxValue;
+  private update(value: string): void {
+    if (value === "") {
+      this.internalValue = "";
+      return;
     }
-    if (this.minValue !== undefined && val < this.minValue) {
-      val = this.minValue;
+    const num = Number(value);
+    if (num !== num) {
+      (this.$refs.textField as any).internalValue = this.internalValue;
+      return;
     }
-
-    this.internalValue = val;
+    this.internalValue = num;
   }
 
   private send(): void {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
+import { FileRepository } from "@/interfaces/fileRepository";
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import { NotesService } from "@/services/NotesService";
-import { StaticDirectoryService } from "@/services/StaticDirectoryService";
 import { TestPurposeService } from "@/services/TestPurposeService";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
@@ -40,6 +40,8 @@ export const createTestResultServiceMock = (): TestResultService => {
     collectAllTestPurposeIds: jest.fn(),
     collectAllTestStepScreenshots: jest.fn(),
     generateSequenceView: jest.fn(),
+    generateGraphView: jest.fn(),
+    compareTestResults: jest.fn(),
   };
 };
 
@@ -54,28 +56,17 @@ export const createTestStepServiceMock = (): TestStepService => {
   };
 };
 
-export const createImageFileRepositoryServiceMock =
-  (): ImageFileRepositoryService => {
-    return {
-      writeBufferToFile: jest.fn(),
-      writeBase64ToFile: jest.fn(),
-      removeFile: jest.fn(),
-      getFilePath: jest.fn(),
-      getFileUrl: jest.fn(),
-    };
-  };
-
-export const createStaticDirectoryServiceMock = (): StaticDirectoryService => {
+export const createStaticDirectoryServiceMock = (): FileRepository => {
   return {
-    mkdir: jest.fn(),
+    readFile: jest.fn(),
     outputFile: jest.fn(),
+    outputJSON: jest.fn(),
+    outputZip: jest.fn(),
     removeFile: jest.fn(),
     getFileUrl: jest.fn(),
-    getJoinedPath: jest.fn(),
+    getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
-    collectFileNames: jest.fn(),
-    collectFilePaths: jest.fn(),
   };
 };
 
@@ -95,5 +86,11 @@ export const createTestPurposeServiceMock = (): TestPurposeService => {
     getTestPurpose: jest.fn(),
     updateTestPurpose: jest.fn(),
     deleteTestPurpose: jest.fn(),
+  };
+};
+
+export const createImportFileRepositoryMock = (): ImportFileRepository => {
+  return {
+    read: jest.fn(),
   };
 };

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,108 +23,101 @@
     :acceptButtonDisabled="testMatrix.name === ''"
   >
     <template>
-      <v-container class="ma-0 pa-0">
-        <v-layout row wrap class="mt-0 pt-0">
-          <v-flex xs12 class="py-0 my-0">
-            <v-text-field
-              :label="
-                $store.getters.message('test-matrix-dialog.test-matrix-name')
-              "
-              v-model="testMatrix.name"
-              class="pt-0"
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs12 class="py-0 my-0">
-            <v-card>
-              <v-card-title>
-                {{
-                  $store.getters.message("test-matrix-dialog.setting-viewPoint")
-                }}
-              </v-card-title>
-              <v-card-text class="pt-0">
-                <v-container class="ma-0 pa-0">
-                  <v-layout row wrap class="mt-0 pt-0">
-                    <v-flex v-if="isCreate" xs12 class="py-0 my-0">
-                      <v-select
-                        class="pt-0 pm-0"
-                        v-model="selectedViewPointsPresetId"
-                        @change="changeSelectedViewPoints"
-                        :label="
-                          $store.getters.message('test-matrix-dialog.preset')
-                        "
-                        :items="viewPointsPresetsWithUnselected"
-                        item-text="name"
-                        item-value="id"
-                      ></v-select>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-expansion-panel>
-                        <v-expansion-panel-content
-                          v-for="(tempViewPoint, index) in tempViewPoints"
-                          :key="tempViewPoint.key + index"
-                        >
-                          <template v-slot:header>
-                            <v-flex xs9>
-                              <v-text-field
-                                :placeholder="
-                                  $store.getters.message(
-                                    'test-matrix-dialog.viewPoint-name'
-                                  )
-                                "
-                                v-model="tempViewPoint.name"
-                                @click="(e) => e.stopPropagation()"
-                                class="view-point-name"
-                              ></v-text-field>
-                            </v-flex>
-                            <v-flex x1>
-                              <up-down-arrows
-                                :index="index"
-                                :upDisabled="index <= 0"
-                                :downDisabled="
-                                  tempViewPoints.length - 1 <= index
-                                "
-                                @up="upViewPoint"
-                                @down="downViewPoint"
-                              />
-                            </v-flex>
-                            <v-flex xs2>
-                              <v-btn
-                                flat
-                                icon
-                                color="error"
-                                @click="deleteTempViewPoint(index)"
-                                ><v-icon>delete</v-icon></v-btn
-                              >
-                            </v-flex>
-                          </template>
-                          <div class="view-point-description">
-                            <v-textarea
-                              outline
-                              rows="3"
-                              v-model="tempViewPoint.description"
+      <v-container>
+        <v-row class="mt-2">
+          <v-text-field
+            :label="
+              $store.getters.message('test-matrix-dialog.test-matrix-name')
+            "
+            v-model="testMatrix.name"
+            class="pt-0"
+          ></v-text-field>
+        </v-row>
+        <v-row>
+          <v-card>
+            <v-card-title>
+              {{
+                $store.getters.message("test-matrix-dialog.setting-viewPoint")
+              }}
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row v-if="isCreate">
+                  <v-select
+                    v-model="selectedViewPointsPresetId"
+                    @change="changeSelectedViewPoints"
+                    :label="$store.getters.message('test-matrix-dialog.preset')"
+                    :items="viewPointsPresetsWithUnselected"
+                    item-text="name"
+                    item-value="id"
+                  ></v-select>
+                </v-row>
+                <v-row>
+                  <v-expansion-panels>
+                    <v-expansion-panel
+                      v-for="(tempViewPoint, index) in tempViewPoints"
+                      :key="tempViewPoint.key + index"
+                    >
+                      <v-expansion-panel-header>
+                        <v-row>
+                          <v-col cols="9">
+                            <v-text-field
                               :placeholder="
                                 $store.getters.message(
-                                  'test-matrix-dialog.view-point-description'
+                                  'test-matrix-dialog.viewPoint-name'
                                 )
                               "
-                            ></v-textarea>
-                          </div>
-                        </v-expansion-panel-content>
-                      </v-expansion-panel>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-btn small @click="createTempViewPoint">{{
-                        $store.getters.message(
-                          "test-matrix-dialog.new-viewPoint"
-                        )
-                      }}</v-btn>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-            </v-card>
-          </v-flex>
-        </v-layout>
+                              v-model="tempViewPoint.name"
+                              @click="(e) => e.stopPropagation()"
+                              class="view-point-name"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="1">
+                            <up-down-arrows
+                              :index="index"
+                              :upDisabled="index <= 0"
+                              :downDisabled="tempViewPoints.length - 1 <= index"
+                              @up="upViewPoint"
+                              @down="downViewPoint"
+                            />
+                          </v-col>
+                          <v-col cols="2" align-self="center">
+                            <v-btn
+                              text
+                              icon
+                              color="error"
+                              @click="deleteTempViewPoint(index)"
+                              ><v-icon>delete</v-icon></v-btn
+                            >
+                          </v-col>
+                        </v-row>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <div class="view-point-description">
+                          <v-textarea
+                            outlined
+                            rows="3"
+                            v-model="tempViewPoint.description"
+                            :placeholder="
+                              $store.getters.message(
+                                'test-matrix-dialog.view-point-description'
+                              )
+                            "
+                          ></v-textarea>
+                        </div>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </v-row>
+                <v-row>
+                  <v-btn small @click="createTempViewPoint" class="mt-4">{{
+                    $store.getters.message("test-matrix-dialog.new-viewPoint")
+                  }}</v-btn>
+                </v-row>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-row>
       </v-container>
     </template>
   </execute-dialog>

@@ -81,4 +81,38 @@ describe("TestPurposeService", () => {
       });
     });
   });
+
+  describe("#deleteTestPurpose", () => {
+    it("指定のIDのtestPurposeを削除する", async () => {
+      const service = new TestPurposeServiceImpl();
+
+      const testResultEntity = await getRepository(TestResultEntity).save(
+        new TestResultEntity()
+      );
+
+      const purpose1 = await service.createTestPurpose(testResultEntity.id, {
+        type: "intention",
+        value: "value",
+        details: "details",
+      });
+
+      const purpose2 = await service.createTestPurpose(testResultEntity.id, {
+        type: "intention2",
+        value: "value2",
+        details: "details2",
+      });
+
+      await service.deleteTestPurpose(purpose1.id);
+
+      const result = await getRepository(TestPurposeEntity).find();
+
+      expect((result ?? []).length).toEqual(1);
+
+      expect((result ?? [])[0]).toEqual({
+        id: purpose2.id,
+        title: purpose2.value,
+        details: purpose2.details,
+      });
+    });
+  });
 });

@@ -18,7 +18,7 @@ afterEach(async () => {
   await testConnectionHelper.closeTestConnection();
 });
 
-describe("TestMatrixService", () => {
+describe("TestTargetService", () => {
   describe("#get", () => {
     it("正常系", async () => {
       const projectEntity = await getRepository(ProjectEntity).save(
@@ -90,7 +90,7 @@ describe("TestMatrixService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const testTargetServiceResult = await new TestTargetService().post(
+      const result = await new TestTargetService().post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName",
@@ -98,12 +98,13 @@ describe("TestMatrixService", () => {
         new TransactionRunner()
       );
 
-      const testTargetEntityResult = await getRepository(
-        TestTargetEntity
-      ).findOne(testTargetServiceResult.id, { relations: ["stories"] });
+      const testTarget = await getRepository(TestTargetEntity).findOne(
+        result.id,
+        { relations: ["stories"] }
+      );
 
-      expect(testTargetServiceResult).toEqual({
-        id: testTargetServiceResult.id,
+      expect(result).toEqual({
+        id: testTarget?.id,
         name: "testTargetName",
         index: 0,
         plans: [
@@ -114,13 +115,13 @@ describe("TestMatrixService", () => {
         ],
       });
 
-      expect(testTargetEntityResult?.stories[0]).toEqual({
+      expect(testTarget?.stories[0]).toEqual({
         id: expect.any(String),
         status: "out-of-scope",
         index: 0,
         planedSessionNumber: 0,
         testMatrixId: testMatrixEntity.id,
-        testTargetId: testTargetServiceResult.id,
+        testTargetId: result.id,
         viewPointId: viewPointEntity.id,
       });
     });
@@ -251,7 +252,7 @@ describe("TestMatrixService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const viewPointEntity = await getRepository(ViewPointEntity).save({
+      await getRepository(ViewPointEntity).save({
         name: "viewPointName",
         description: "",
         index: 0,

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
 -->
 
 <template>
-  <v-layout justify-end column id="sequence-diagram-container">
-    <mermaid-graph-renderer
-      v-if="graph"
-      :graph="graph"
-      graphType="sequence"
-    ></mermaid-graph-renderer>
-  </v-layout>
+  <v-row justify="end" id="sequence-diagram-container">
+    <v-col cols="12">
+      <mermaid-graph-renderer
+        v-if="graph"
+        :graph="graph"
+        graphType="sequence"
+      ></mermaid-graph-renderer>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

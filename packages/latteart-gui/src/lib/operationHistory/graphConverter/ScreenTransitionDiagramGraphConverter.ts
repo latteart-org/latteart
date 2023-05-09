@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,171 +15,72 @@
  */
 
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import { OperationWithNotes, Edge } from "@/lib/operationHistory/types";
 import TextUtil from "./TextUtil";
 import FlowChartGraphExtender from "../mermaidGraph/extender/FlowChartGraphExtender";
+import { GraphView, GraphViewNode } from "latteart-client";
+import InputValueTable, { ScreenTransition } from "../InputValueTable";
 
 export interface FlowChartGraphCallback {
-  onClickEdge: (edge: Edge) => void;
-  onClickScreenRect: (screenRectIndex: number) => void;
+  onClickEdge: (sequence: number, inputValueTable: InputValueTable) => void;
+  onClickScreenRect: (
+    sequence: number,
+    inputValueTable: InputValueTable
+  ) => void;
 }
 
 export type FlowChartGraphExtenderSource = {
   edges: Edge[];
-  nameMap: Map<number, string>;
-  appearedScreens: ScreenHistory["body"];
+  source: {
+    screens: { id: string; name: string; sequence: number }[];
+    nodes: Omit<GraphViewNode, "windowId">[];
+  };
+};
+
+type Edge = {
+  sourceScreenId: string;
+  destScreenId: string;
+  trigger?: {
+    type: string;
+    target?: { xpath: string; text: string };
+    sequence: number;
+  };
+  details: ScreenTransition[];
+};
+
+type GraphSource = {
+  window: { id: string; name: string };
+  screens: { id: string; name: string; sequence: number }[];
+  edges: Edge[];
 };
 
 /**
- * Class that performs conversion related to screen transition diagram display of Mermaid.
+ * Convert screen transition information to Mermaid screen transition diagram drawing text.
+ * @returns Textualized screen transition diagram information.
  */
-export default class ScreenTransitionDiagramGraphConverter {
-  /**
-   * Convert screen transition information to Mermaid screen transition diagram drawing text.
-   * @param screenHistory  Screen transition information.
-   * @param selectedWindowHandle  Selected windowHandle.
-   * @param callback.onClickEdge  Callback function when clicking Edge.
-   * @param callback.onClickScreenRect  Callback function when ScreenRect is clicked.
-   * @returns Textualized screen transition diagram information.
-   */
-  public static async convert(
-    screenHistory: ScreenHistory,
-    selectedWindowHandle: string,
-    createFlowChartGraphExtender?: (
-      source: FlowChartGraphExtenderSource
-    ) => FlowChartGraphExtender
-  ): Promise<MermaidGraph> {
-    const newNameMap = new Map<number, string>();
-    const edges: Edge[] = [];
-    let nameMap = new Map<number, string>();
+export async function convertToScreenTransitionDiagramGraph(
+  view: GraphView,
+  createFlowChartGraphExtender?: (
+    source: FlowChartGraphExtenderSource
+  ) => FlowChartGraphExtender
+): Promise<{ window: { id: string; name: string }; graph: MermaidGraph }[]> {
+  const graphModels = extractGraphSources(view);
 
-    const appearedScreens = screenHistory.appearedScreens.filter((screen) => {
-      return (
-        screen.operationHistory.filter((operationWithNotes) => {
-          return (
-            operationWithNotes.operation.windowHandle === selectedWindowHandle
-          );
-        }).length > 0
-      );
+  const graphs = graphModels.map(({ window, screens, edges }) => {
+    const screenTexts = screens.map(({ id, name }) => {
+      const lineLength = 30;
+      return `${id}["${TextUtil.escapeSpecialCharacters(
+        TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength - 3)
+      )}"];`;
     });
-
-    // Text of the screen definition part in the mermaid graph.
-    const screenDefinitionText = appearedScreens.reduce(
-      (acc, currentScreen, currentIndex) => {
-        const screenDef =
-          ScreenTransitionDiagramGraphConverter.displayScreenDefOptimal(
-            currentIndex,
-            newNameMap,
-            currentScreen.screenDef,
-            30
-          );
-
-        return `${acc}${currentIndex}["${screenDef}"];`;
-      },
-      ""
+    const graphTextLines = createGraphTextLines(edges);
+    const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join(
+      "\n"
     );
-
-    const graphTextSource = screenHistory.body.map((currentScreen) => {
-      return {
-        operationHistory: currentScreen.operationHistory,
-        screenDef: currentScreen.screenDef,
-        title: currentScreen.title,
-        url: currentScreen.url,
-      };
-    });
-
-    // Build mermaid graph text.
-    const graphTextLines: string[] = [];
-
-    for (const [currentIndex, currentScreen] of graphTextSource.entries()) {
-      // Exclude if there is no operation of the target windowHandle.
-      const existsScreenDef = currentScreen.operationHistory.find(
-        (operationWithNotes: OperationWithNotes) => {
-          return (
-            operationWithNotes.operation.windowHandle === selectedWindowHandle
-          );
-        }
-      );
-      if (!existsScreenDef) {
-        continue;
-      }
-
-      // Collect the text part of each step in an array.
-      const currentScreenId = appearedScreens.findIndex((screen) => {
-        return screen.screenDef === currentScreen.screenDef;
-      });
-
-      if (graphTextLines.length === 0) {
-        graphTextLines.push(`${currentScreenId}`);
-        continue;
-      }
-
-      const preScreen = graphTextSource[currentIndex - 1];
-      const preScreenId = appearedScreens.findIndex((screen) => {
-        return screen.screenDef === preScreen.screenDef;
-      });
-      if (preScreenId === -1) {
-        continue;
-      }
-
-      const lastOperation =
-        preScreen.operationHistory[preScreen.operationHistory.length - 1]
-          .operation;
-      // Skip own screen transition by switching tabs.
-      if (lastOperation.type === "switch_window") {
-        continue;
-      }
-
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          const lastOperationElementValue =
-            lastOperation.elementInfo === null
-              ? ""
-              : TextUtil.ellipsis(
-                  TextUtil.toSingleLine(lastOperation.textValue),
-                  20
-                );
-          const transitionText = `${
-            lastOperation.type
-          }: ${TextUtil.escapeSpecialCharacters(lastOperationElementValue)}`;
-
-          // Delete duplicate transitions
-          // (transition source and transition destination are the same and transition trigger is the same).
-          const stepText = `${preScreenId} --> |"${transitionText}"|${currentScreenId}`;
-          if (graphTextLines.indexOf(stepText) === -1) {
-            graphTextLines.push(stepText);
-            edges.push({
-              source: {
-                title: preScreen.title,
-                url: preScreen.url,
-                screenDef: preScreen.screenDef,
-              },
-              target: {
-                title: currentScreen.title,
-                url: currentScreen.url,
-                screenDef: currentScreen.screenDef,
-              },
-              operationHistory: preScreen.operationHistory,
-            });
-          }
-          nameMap = newNameMap;
-
-          resolve();
-        }, 1);
-      });
-    }
-
-    const graphText = graphTextLines.reduce((acc, currentStepText) => {
-      // Convert to text.
-      return `${acc}${currentStepText};`;
-    }, `graph TD;${screenDefinitionText}`);
 
     const graphExtender = createFlowChartGraphExtender
       ? createFlowChartGraphExtender({
           edges,
-          appearedScreens,
-          nameMap,
+          source: { screens, nodes: view.nodes },
         })
       : {
           extendGraph: () => {
@@ -190,29 +91,179 @@ export default class ScreenTransitionDiagramGraphConverter {
           },
         };
 
-    return {
-      graphText,
-      graphExtender,
-    };
-  }
+    console.debug(graphText);
 
-  private static displayScreenDefOptimal(
-    index: number,
-    map: Map<number, string>,
-    screenDef: string,
-    lineLength: number
-  ): string {
-    map.set(index, screenDef);
-    let name = screenDef;
-    if (screenDef.length > lineLength) {
-      name = name.substring(0, lineLength - 3) + "...";
-    }
-    name = name
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-    return name;
-  }
+    return { window, graph: { graphText, graphExtender } };
+  });
+
+  return graphs;
+}
+
+function extractGraphSources(view: GraphView): GraphSource[] {
+  const testStepIdToSequence = new Map(
+    view.nodes
+      .flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
+      .map((id, index) => [id, index + 1])
+  );
+
+  return view.store.windows.map((window) => {
+    const screens = view.nodes
+      .filter(({ windowId }) => windowId === window.id)
+      .map(({ screenId, testSteps }) => {
+        const sequence =
+          testStepIdToSequence.get(testSteps.at(0)?.id ?? "") ?? 0;
+        return { screenId, sequence };
+      })
+      .filter(
+        ({ screenId: id1 }, index, array) =>
+          array.findIndex(({ screenId: id2 }) => id2 === id1) === index
+      )
+      .flatMap(({ screenId, sequence }) => {
+        const screen = view.store.screens.find(({ id }) => screenId === id);
+        if (!screen) {
+          return [];
+        }
+        const { id, name } = screen;
+        return [{ id, name, sequence }];
+      });
+
+    const edgeDetails = view.nodes.flatMap((node, index, array) => {
+      const nextNode = array.at(index + 1);
+      if (node.windowId !== window.id || nextNode?.windowId !== window.id) {
+        return [];
+      }
+
+      const sourceScreen = screens.find(({ id }) => id === node.screenId);
+      const destScreen = screens.find(({ id }) => id === nextNode.screenId);
+
+      if (!sourceScreen || !destScreen) {
+        return [];
+      }
+
+      const lastTestStep = node.testSteps.at(-1);
+
+      const targetElement = view.store.elements.find(
+        ({ id }) => id === lastTestStep?.targetElementId
+      );
+
+      const trigger = lastTestStep
+        ? {
+            type: lastTestStep.type,
+            target: targetElement
+              ? { xpath: targetElement.xpath, text: targetElement.text }
+              : undefined,
+            sequence: testStepIdToSequence.get(lastTestStep.id) ?? 0,
+            input: lastTestStep.input,
+            pageUrl: lastTestStep.pageUrl,
+            pageTitle: lastTestStep.pageTitle,
+          }
+        : undefined;
+
+      const inputElements = node.defaultValues.flatMap(
+        ({ elementId, value }) => {
+          const element = view.store.elements.find(
+            ({ id }) => id === elementId
+          );
+
+          if (!element) {
+            return [];
+          }
+
+          const inputs = node.testSteps
+            .filter(({ targetElementId }) => {
+              return targetElementId === elementId;
+            })
+            .flatMap(({ id, input }) => {
+              const sequence = testStepIdToSequence.get(id);
+              if (sequence === undefined || input === undefined) {
+                return [];
+              }
+
+              return { sequence, value: input };
+            });
+
+          return [{ ...element, defaultValue: value, inputs }];
+        }
+      );
+
+      const notes = node.testSteps.flatMap((testStep) => {
+        return testStep.noteIds.flatMap((noteId) => {
+          const note = view.store.notes.find(({ id }) => id === noteId);
+          if (!note) {
+            return [];
+          }
+          const imageFileUrl = note.imageFileUrl ?? testStep.imageFileUrl ?? "";
+
+          const sequence = testStepIdToSequence.get(testStep.id) ?? 0;
+
+          return [
+            {
+              ...note,
+              imageFileUrl,
+              tags: note.tags ?? [],
+              sequence,
+            },
+          ];
+        });
+      });
+
+      const testPurposes = view.store.testPurposes;
+
+      return [
+        {
+          sourceScreen,
+          destScreen,
+          trigger,
+          inputElements,
+          notes,
+          testPurposes,
+        },
+      ];
+    });
+
+    const edges = edgeDetails.reduce((acc: Edge[], detail) => {
+      const foundEdge = acc.find((edge) => {
+        return (
+          edge.sourceScreenId === detail.sourceScreen.id &&
+          edge.destScreenId === detail.destScreen.id &&
+          edge.trigger?.type === detail.trigger?.type &&
+          edge.trigger?.target?.xpath === detail.trigger?.target?.xpath
+        );
+      });
+
+      if (foundEdge) {
+        foundEdge.details.push(detail);
+      } else {
+        acc.push({
+          sourceScreenId: detail.sourceScreen.id,
+          destScreenId: detail.destScreen.id,
+          trigger: detail.trigger,
+          details: [detail],
+        });
+      }
+
+      return acc;
+    }, []);
+
+    return { window, screens, edges };
+  });
+}
+
+function createGraphTextLines(edges: Edge[]) {
+  return edges.map(({ sourceScreenId, destScreenId, trigger }) => {
+    const screenTransitionTrigger = (() => {
+      if (!trigger) {
+        return "screen transition";
+      }
+
+      const operationType = trigger.type;
+      const targetElement = TextUtil.escapeSpecialCharacters(
+        TextUtil.ellipsis(TextUtil.toSingleLine(trigger.target?.text ?? ""), 20)
+      );
+
+      return `${operationType}: ${targetElement}`;
+    })();
+
+    return `${sourceScreenId} --> |"${screenTransitionTrigger}"|${destScreenId};`;
+  });
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ export interface PatchStoryDto {
 /**
  * Story.
  */
-export interface Story {
+export type Story = {
   id: string;
   testMatrixId: string;
   testTargetId: string;
@@ -44,4 +44,4 @@ export interface Story {
   status: string;
   index: number;
   sessions: Session[];
-}
+};

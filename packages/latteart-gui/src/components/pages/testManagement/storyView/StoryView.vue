@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
 -->
 
 <template>
-  <v-container fluid class="pa-3 pt-4">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
+  <div>
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
       <v-toolbar-title>{{
         $store.getters.message("story-view.story")
       }}</v-toolbar-title>
-    </v-toolbar>
-
-    <v-layout row wrap v-if="story">
-      <v-flex x3>
-        <v-container fluid class="pa-2">
+    </v-app-bar>
+    <v-container fluid class="pa-4 pt-4">
+      <v-row v-if="story">
+        <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
@@ -37,11 +36,8 @@
             :label="this.$store.getters.message('story-view.group')"
             :value="groupName"
           ></v-text-field>
-        </v-container>
-      </v-flex>
-
-      <v-flex xs3>
-        <v-container fluid class="pa-2">
+        </v-col>
+        <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
@@ -64,11 +60,8 @@
             :readonly="isViewerMode"
             @change="updateStatus"
           ></v-select>
-        </v-container>
-      </v-flex>
-
-      <v-flex xs3>
-        <v-container fluid class="pa-2">
+        </v-col>
+        <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
@@ -87,11 +80,8 @@
             :label="this.$store.getters.message('story-view.bug-count')"
             v-model="extractionBugNum"
           ></v-text-field>
-        </v-container>
-      </v-flex>
-
-      <v-flex xs3>
-        <v-container fluid>
+        </v-col>
+        <v-col cols="3">
           <v-select
             :items="reviewableSessions"
             :label="this.$store.getters.message('story-view.review-target')"
@@ -99,30 +89,27 @@
             item-value="id"
             v-model="reviewTargetSessionId"
           ></v-select>
-          <v-layout row>
-            <v-spacer></v-spacer>
-            <review-button
-              :disabled="!canReviewSession"
-              :story="story"
-              :sessionId="reviewTargetSessionId"
-            ></review-button>
-          </v-layout>
-        </v-container>
-      </v-flex>
 
-      <v-flex xs12>
-        <v-container fluid class="pa-0">
-          <v-expansion-panel
+          <review-button
+            :disabled="!canReviewSession"
+            :story="story"
+            :sessionId="reviewTargetSessionId"
+          ></review-button>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
+          <v-expansion-panels
             class="py-0 mb-2"
             v-model="sessionPanelExpantionStates"
-            expand
+            multiple
           >
-            <v-expansion-panel-content
+            <v-expansion-panel
               v-for="(session, index) in story.sessions"
               :key="session.id"
               class="py-0"
             >
-              <template v-slot:header class="py-0">
+              <v-expansion-panel-header class="py-0">
                 <div>
                   {{
                     `${$store.getters.message(
@@ -148,44 +135,44 @@
                   small
                   >{{ $store.getters.message("session-list.delete") }}</v-btn
                 >
-              </template>
-
-              <session-info
-                :storyId="story.id"
-                :sessionId="session.id"
-              ></session-info>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <session-info
+                  :storyId="story.id"
+                  :sessionId="session.id"
+                ></session-info>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
           <v-btn
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
             >{{ $store.getters.message("story-view.add-session") }}</v-btn
           >
-        </v-container>
-      </v-flex>
-    </v-layout>
+        </v-col>
+      </v-row>
 
-    <v-footer app height="auto" color="latteart-main">
-      <v-container fluid class="py-0">
-        <v-layout row justify-end>
-          <v-spacer></v-spacer>
-          <v-btn @click="toIndex">{{
-            $store.getters.message("edit-footer.top")
-          }}</v-btn>
-        </v-layout>
-      </v-container>
-    </v-footer>
+      <v-footer app height="auto" color="latteart-main">
+        <v-spacer></v-spacer>
+        <v-btn @click="toIndex">{{
+          $store.getters.message("edit-footer.top")
+        }}</v-btn>
+      </v-footer>
 
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
-  </v-container>
+      <confirm-dialog
+        :opened="confirmDialogOpened"
+        :title="confirmDialogTitle"
+        :message="confirmDialogMessage"
+        :onAccept="confirmDialogAccept"
+        @close="confirmDialogOpened = false"
+      />
+    </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -364,8 +351,8 @@ export default class StoryView extends Vue {
           return bugNum;
         }
 
-        bugNum += currentSession.issues.filter((issue) => {
-          return issue.status === "reported";
+        bugNum += currentSession.notes.filter((note) => {
+          (note.tags ?? []).includes("reported");
         }).length;
 
         return bugNum;

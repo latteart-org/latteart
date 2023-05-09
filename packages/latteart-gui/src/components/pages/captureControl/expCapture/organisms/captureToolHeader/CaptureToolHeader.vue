@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,26 +15,49 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row @keydown="cancelKeydown">
-    <url-text-field />
-    <test-result-name-text-field />
+  <v-row
+    justify="start"
+    align="center"
+    @keydown="cancelKeydown"
+    :style="{ height: '64px' }"
+    class="mt-n9"
+  >
+    <v-col>
+      <url-text-field />
+    </v-col>
+    <v-col class="pl-7">
+      <test-result-name-text-field />
+    </v-col>
+    <v-col>
+      <div>
+        <v-row>
+          <v-col cols="2">
+            <record-button />
+          </v-col>
+          <v-col cols="2">
+            <pause-button />
+          </v-col>
+          <v-col cols="2">
+            <clear-history-button />
+          </v-col>
+          <v-col cols="2">
+            <load-history-button />
+          </v-col>
+          <v-col cols="2">
+            <menu-button />
+          </v-col>
+        </v-row>
+      </div>
+    </v-col>
 
-    <div>
-      <v-layout>
-        <record-button />
-        <pause-button />
-        <clear-history-button />
-        <load-history-button />
-        <menu-button />
-      </v-layout>
-    </div>
-
-    <v-flex shrink pa-1 pl-3>
+    <v-col :style="{ 'padding-top': '2px' }">
       <locale-select-box />
-    </v-flex>
+    </v-col>
 
-    <remote-access-field color="inherit" />
-  </v-layout>
+    <v-col cols="3">
+      <remote-access-field color="inherit" />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -59,7 +82,6 @@ import MenuButton from "./MenuButton.vue";
     "clear-history-button": ClearHistoryButton,
     "load-history-button": LoadHistoryButton,
     "generate-test-script-button": GenerateTestScriptButton,
-
     "locale-select-box": LocaleSelectBox,
     "remote-access-field": RemoteAccessField,
     "menu-button": MenuButton,

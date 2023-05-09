@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import {
   PatchStoryDto,
   PatchStoryResponse,
 } from "../interfaces/Stories";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { StoriesService } from "@/services/StoriesService";
 import {
@@ -33,6 +32,7 @@ import {
   SuccessResponse,
   Get,
 } from "tsoa";
+import { createLogger } from "@/logger/logger";
 
 @Route("stories")
 @Tags("stories")
@@ -54,7 +54,7 @@ export class StoriesController extends Controller {
       return await new StoriesService().patchStory(storyId, requestBody);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Patch story failed.", error);
+        createLogger().error("Patch story failed.", error);
 
         throw new ServerError(500, {
           code: "patch_story_failed",
@@ -77,7 +77,7 @@ export class StoriesController extends Controller {
       return await new StoriesService().getStory(storyId);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get story failed.", error);
+        createLogger().error("Get story failed.", error);
 
         throw new ServerError(500, {
           code: "get_story_failed",

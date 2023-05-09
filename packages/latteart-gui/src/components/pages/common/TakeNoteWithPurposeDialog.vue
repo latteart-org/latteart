@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -70,14 +70,14 @@
               hide-selected
             >
               <template v-slot:no-data>
-                <v-list-tile v-if="search">
-                  <v-list-tile-content>
-                    <v-list-tile-title>
+                <v-list-item v-if="search">
+                  <v-list-item-content>
+                    <v-list-item-title>
                       No results matching "<strong>{{ search }}</strong
                       >". Press <kbd>enter</kbd> to create a new one
-                    </v-list-tile-title>
-                  </v-list-tile-content>
-                </v-list-tile>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
               </template>
             </v-combobox>
 

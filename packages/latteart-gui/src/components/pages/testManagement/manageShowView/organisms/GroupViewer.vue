@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@
     <fixed-data-table
       :items="items"
       :headers="headers"
-      :pagination.sync="pagination"
+      :options.sync="options"
       class="text-xs-center pb-3"
       hide-actions
+      hide-default-header
     >
-      <template #headers="props">
+      <template #header="props">
         <tr>
           <th
-            v-for="(header, index) in props.headers"
+            v-for="(header, index) in props.props.headers"
             :width="header.width"
             :class="header.class"
             :key="index"
@@ -34,7 +35,7 @@
             <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
           </th></tr
       ></template>
-      <template #items="props">
+      <template #item="props">
         <tr class="business-info-row">
           <td class="py-0 px-2 my-0 business-info-title">
             <div
@@ -116,8 +117,8 @@ export default class GroupViewer extends Vue {
     return headers;
   }
 
-  private pagination: any = {
-    rowsPerPage: -1,
+  private options: any = {
+    itemsPerPage: -1,
   };
 
   private get items(): any[] {

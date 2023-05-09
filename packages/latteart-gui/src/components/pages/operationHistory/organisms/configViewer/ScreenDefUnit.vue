@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,154 +15,164 @@
 -->
 
 <template>
-  <div style="margin-bottom: 20px">
-    <v-layout align-space-between column>
-      <v-card max-width="100%">
-        <v-card-text>
-          <v-container class="pa-0 ma-0">
-            <v-layout row>
-              <v-checkbox
-                :input-value="conditionGroup.isEnabled"
-                @change="(value) => updateConditionGroup({ isEnabled: value })"
-                class="default-flex"
-              >
-              </v-checkbox>
-              <v-text-field
-                :label="
-                  $store.getters.message('config-view.screen-def.screen-name')
-                "
-                :value="conditionGroup.screenName"
-                @change="(value) => updateConditionGroup({ screenName: value })"
-              ></v-text-field>
-              <v-btn @click="deleteConditionGroup" color="error"
-                >{{
-                  $store.getters.message(
-                    "config-view.screen-def.delete-definition"
-                  )
-                }}
-              </v-btn>
-            </v-layout>
-
-            <v-layout class="mb-2">
-              <v-btn small class="mt-3" @click="addCondition">{{
-                $store.getters.message("config-view.screen-def.add-condition")
-              }}</v-btn
-              ><span class="description">{{
-                $store.getters.message("config-view.screen-def.description")
-              }}</span>
-            </v-layout>
-
-            <v-layout
-              v-for="(item, index) in conditionGroup.conditions"
-              :key="index"
-              row
-              class="conditions-area conditions-row"
-              align-center
-            >
-              <v-flex xs1 style="text-align: right">
-                <span v-show="index > 0">{{
-                  $store.getters.message("config-view.screen-def.and")
-                }}</span>
-              </v-flex>
-
-              <v-flex xs1 style="text-align: center">
+  <div class="mt-4">
+    <v-row align-content="space-between">
+      <v-col cols="12">
+        <v-card max-width="100%">
+          <v-card-text>
+            <v-container>
+              <v-row>
                 <v-checkbox
-                  :input-value="item.isEnabled"
+                  :input-value="conditionGroup.isEnabled"
                   @change="
-                    (value) => updateCondition(index, { isEnabled: value })
+                    (value) => updateConditionGroup({ isEnabled: value })
                   "
-                  style="display: inline-block"
-                ></v-checkbox>
-              </v-flex>
-
-              <template v-if="$store.getters.getLocale() === 'ja'">
-                <v-flex xs3>
-                  <v-select
-                    :value="item.definitionType"
-                    @change="
-                      (value) =>
-                        updateCondition(index, { definitionType: value })
-                    "
-                    :items="definitionTypeList"
-                    item-text="label"
-                    item-value="value"
-                    class="select-with-word"
-                  ></v-select
-                  ><span style="margin-left: 10px">に</span>
-                </v-flex>
-
-                <v-flex xs4>
-                  <v-text-field
-                    :value="item.word"
-                    @change="(value) => updateCondition(index, { word: value })"
-                    class="select-with-word"
-                  ></v-text-field>
-                  <span style="margin-left: 10px">という</span>
-                </v-flex>
-
-                <v-flex xs3>
-                  <v-select
-                    :value="item.matchType"
-                    @change="
-                      (value) => updateCondition(index, { matchType: value })
-                    "
-                    :items="matchType"
-                    item-text="label"
-                    item-value="value"
-                  ></v-select>
-                </v-flex>
-              </template>
-
-              <template v-if="$store.getters.getLocale() === 'en'">
-                <v-flex xs3>
-                  <v-select
-                    :value="item.definitionType"
-                    @change="
-                      (value) =>
-                        updateCondition(index, { definitionType: value })
-                    "
-                    :items="definitionTypeList"
-                    item-text="label"
-                    item-value="value"
-                    class="select-with-word"
-                  ></v-select>
-                </v-flex>
-
-                <v-flex xs3 class="pr-4">
-                  <v-select
-                    :value="item.matchType"
-                    @change="
-                      (value) => updateCondition(index, { matchType: value })
-                    "
-                    :items="matchType"
-                    item-text="label"
-                    item-value="value"
-                  ></v-select>
-                </v-flex>
-
-                <v-flex xs4 class="pl-4">
-                  <v-text-field
-                    :value="item.word"
-                    @change="(value) => updateCondition(index, { word: value })"
-                  ></v-text-field>
-                </v-flex>
-              </template>
-
-              <v-flex xs1>
-                <v-btn
-                  v-if="conditionGroup.conditions.length > 1"
-                  flat
-                  icon
-                  @click="deleteCondition(index)"
-                  color="error"
-                  ><v-icon>delete</v-icon></v-btn
+                  class="default-flex"
                 >
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-layout>
+                </v-checkbox>
+                <v-text-field
+                  :label="
+                    $store.getters.message('config-view.screen-def.screen-name')
+                  "
+                  :value="conditionGroup.screenName"
+                  @change="
+                    (value) => updateConditionGroup({ screenName: value })
+                  "
+                ></v-text-field>
+                <v-btn @click="deleteConditionGroup" color="error"
+                  >{{
+                    $store.getters.message(
+                      "config-view.screen-def.delete-definition"
+                    )
+                  }}
+                </v-btn>
+              </v-row>
+
+              <v-row class="mb-2">
+                <v-btn small class="mt-3" @click="addCondition">{{
+                  $store.getters.message("config-view.screen-def.add-condition")
+                }}</v-btn
+                ><span class="description">{{
+                  $store.getters.message("config-view.screen-def.description")
+                }}</span>
+              </v-row>
+
+              <v-row
+                v-for="(item, index) in conditionGroup.conditions"
+                :key="index"
+                class="conditions-area conditions-row"
+                align="center"
+              >
+                <v-col cols="1" style="text-align: right">
+                  <span v-if="index > 0">{{
+                    $store.getters.message("config-view.screen-def.and")
+                  }}</span>
+                  <span v-else>　　</span>
+                </v-col>
+
+                <v-col cols="1" style="text-align: center">
+                  <v-checkbox
+                    :input-value="item.isEnabled"
+                    @change="
+                      (value) => updateCondition(index, { isEnabled: value })
+                    "
+                    style="display: inline-block"
+                  ></v-checkbox>
+                </v-col>
+
+                <template v-if="$store.getters.getLocale() === 'ja'">
+                  <v-col cols="2">
+                    <v-select
+                      :value="item.definitionType"
+                      @change="
+                        (value) =>
+                          updateCondition(index, { definitionType: value })
+                      "
+                      :items="definitionTypeList"
+                      item-text="label"
+                      item-value="value"
+                      class="select-with-word"
+                    ></v-select
+                    ><span style="margin-left: 10px">に</span>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <v-text-field
+                      :value="item.word"
+                      @change="
+                        (value) => updateCondition(index, { word: value })
+                      "
+                      class="select-with-word"
+                    ></v-text-field>
+                    <span style="margin-left: 10px">という</span>
+                  </v-col>
+
+                  <v-col cols="3">
+                    <v-select
+                      :value="item.matchType"
+                      @change="
+                        (value) => updateCondition(index, { matchType: value })
+                      "
+                      :items="matchType"
+                      item-text="label"
+                      item-value="value"
+                    ></v-select>
+                  </v-col>
+                </template>
+
+                <template v-if="$store.getters.getLocale() === 'en'">
+                  <v-col cols="2">
+                    <v-select
+                      :value="item.definitionType"
+                      @change="
+                        (value) =>
+                          updateCondition(index, { definitionType: value })
+                      "
+                      :items="definitionTypeList"
+                      item-text="label"
+                      item-value="value"
+                      class="select-with-word"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col cols="3" class="pr-4">
+                    <v-select
+                      :value="item.matchType"
+                      @change="
+                        (value) => updateCondition(index, { matchType: value })
+                      "
+                      :items="matchType"
+                      item-text="label"
+                      item-value="value"
+                    ></v-select>
+                  </v-col>
+
+                  <v-col cols="4" class="pl-4">
+                    <v-text-field
+                      :value="item.word"
+                      @change="
+                        (value) => updateCondition(index, { word: value })
+                      "
+                    ></v-text-field>
+                  </v-col>
+                </template>
+
+                <v-col cols="1">
+                  <v-btn
+                    v-if="conditionGroup.conditions.length > 1"
+                    text
+                    icon
+                    @click="deleteCondition(index)"
+                    color="error"
+                    ><v-icon>delete</v-icon></v-btn
+                  >
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 </template>
 

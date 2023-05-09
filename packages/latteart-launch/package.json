@@ -1,6 +1,6 @@
 {
   "name": "latteart-launch",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "private": true,
   "main": "dist/index.js",
   "scripts": {
@@ -8,8 +8,8 @@
     "watch": "tsc -w",
     "run": "node dist/index.js",
     "package": "run-p package:win package:mac",
-    "package:win": "pkg -t node16-win-x64 --out-path dist/package/win/latteart pkg.config.json",
-    "package:mac": "pkg -t node16-macos-x64 --out-path dist/package/mac/latteart pkg.config.json",
+    "package:win": "pkg -t node18-win-x64 --out-path dist/package/win/latteart pkg.config.json",
+    "package:mac": "pkg -t node18-macos-x64 --out-path dist/package/mac/latteart pkg.config.json",
     "prepackage:win": "npm run build",
     "prepackage:mac": "npm run build",
     "postpackage:win": "run-p copy:script:win copy:config:win",

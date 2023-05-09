@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,20 @@
 
 import Vue from "vue";
 import Vuetify from "vuetify/lib";
-import "vuetify/src/stylus/app.styl";
 
-Vue.use(Vuetify, {
-  iconfont: "md",
-  theme: {
-    "latteart-main": "#424242",
+Vue.use(Vuetify);
+
+const opts = {
+  icons: {
+    iconfont: "md",
   },
-});
+  theme: {
+    themes: {
+      light: {
+        "latteart-main": "#424242",
+      },
+    },
+  },
+} as const;
+
+export default new Vuetify(opts);

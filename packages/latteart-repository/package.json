@@ -1,6 +1,6 @@
 {
   "name": "latteart-repository",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "private": true,
   "main": "dist/index.js",
   "scripts": {
@@ -9,8 +9,8 @@
     "watch": "webpack -w --config webpack.dev.js",
     "run": "node dist/index.js",
     "package": "run-p package:win package:mac",
-    "package:win": "pkg -t node16-win-x64 --out-path dist/package/win/latteart/latteart-repository pkg.config.json",
-    "package:mac": "pkg -t node16-macos-x64 --out-path dist/package/mac/latteart/latteart-repository pkg.config.json",
+    "package:win": "pkg -t node18-win-x64 --out-path dist/package/win/latteart/latteart-repository pkg.config.json",
+    "package:mac": "pkg -t node18-macos-x64 --out-path dist/package/mac/latteart/latteart-repository pkg.config.json",
     "prepackage:win": "run-s copy:settings:win install:dependencies:win build",
     "prepackage:mac": "run-s copy:settings:mac install:dependencies:mac build",
     "copy:settings:win": "cpx \"latteart*.config.json\" dist/package/win/latteart/latteart-repository",
@@ -20,7 +20,7 @@
     "generate:routes": "tsoa routes",
     "postgenerate:routes": "prettier --write src/routes/routes.ts",
     "generate:apidoc": "tsoa spec",
-    "generate:migration": "typeorm migration:generate",
+    "generate:migration": "npm run typeorm migration:generate --",
     "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js --config cli_ormconfig.ts",
     "lint": "eslint src tests",
     "fix": "run-s fix:lint fix:format",
@@ -40,6 +40,8 @@
     "jsdoc-api": "^8.0.0",
     "jsdoc-mermaid": "^1.0.0",
     "log4js": "^6.3.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "tsoa": "^5.1.1",
@@ -55,6 +57,8 @@
     "@types/express": "4.17.13",
     "@types/fs-extra": "^9.0.3",
     "@types/log4js": "^2.3.5",
+    "@types/pixelmatch": "^5.2.4",
+    "@types/pngjs": "^6.0.1",
     "@types/uuid": "^8.3.4"
   }
 }

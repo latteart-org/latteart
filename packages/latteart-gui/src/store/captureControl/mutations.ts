@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,8 @@ const mutations: MutationTree<CaptureControlState> = {
     payload: {
       replayOption: {
         testResultName: string;
-        replayCaptureMode: boolean;
+        resultSavingEnabled: boolean;
+        comparisonEnabled: boolean;
       };
     }
   ) {
@@ -127,7 +128,11 @@ const mutations: MutationTree<CaptureControlState> = {
       title: string;
       url: string;
       message: string;
-      inputElements: ElementInfo[];
+      inputElements: {
+        xpath: string;
+        attributes: { [key: string]: string };
+        inputValue: string;
+      }[];
       callback: () => void;
     } | null
   ) {

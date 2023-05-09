@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,12 @@ export default class TextUtil {
             .replace(/;;/g, "#59;") // Escape of; (Be sure to replace first because;
             // after conversion of numerical character reference is affected)
             .replace(/##/g, "#35;") // # Escape
+            .replace(/&/g, "#38;") // & Escape
             .replace(/</g, "#60;") // < Escape
             .replace(/>/g, "#62;") // > Escape
-            .replace(/"/g, "#34;")
-        ); // " Escape
+            .replace(/"/g, "#34;") // " Escape
+            .replace(/'/g, "#39;") // ' Escape
+        );
       })
       .join("<br/>");
   }

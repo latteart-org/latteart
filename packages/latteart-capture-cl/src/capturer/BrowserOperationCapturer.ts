@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
+import { CapturedData, captureScript } from "./captureScript";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -125,6 +126,7 @@ export default class BrowserOperationCapturer {
     let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
+    let screenElements: CapturedData["elements"] = [];
 
     while (this.isCapturing()) {
       try {
@@ -132,6 +134,11 @@ export default class BrowserOperationCapturer {
 
         if (!this.alertIsVisible) {
           pageSource = await this.client.getCurrentPageText();
+          screenElements = [
+            ...((await this.client.execute(
+              captureScript.collectScreenElements
+            )) ?? []),
+          ];
 
           if (shouldDeleteCapturedData) {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
@@ -176,6 +183,7 @@ export default class BrowserOperationCapturer {
             type: SpecialOperationType.ACCEPT_ALERT,
             windowHandle: currentWindow.windowHandle,
             pageSource,
+            screenElements,
           });
 
           continue;
@@ -215,6 +223,7 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
+          await currentWindow.getReadyToCapture();
           await currentWindow.captureScreenTransition();
           await currentWindow.captureOperations();
         }
@@ -378,6 +387,9 @@ export default class BrowserOperationCapturer {
           type: SpecialOperationType.PAUSE_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
+          screenElements:
+            (await this.client.execute(captureScript.collectScreenElements)) ??
+            [],
         })
       );
     }
@@ -397,6 +409,9 @@ export default class BrowserOperationCapturer {
           type: SpecialOperationType.RESUME_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
+          screenElements:
+            (await this.client.execute(captureScript.collectScreenElements)) ??
+            [],
         })
       );
     }

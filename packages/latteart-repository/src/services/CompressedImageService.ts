@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,21 @@
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CreateCompressedImageResponse } from "@/interfaces/CompressedImage";
 import { getRepository } from "typeorm";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import path from "path";
-import LoggingService from "@/logger/LoggingService";
-import { CommandExecutionService } from "./CommandExecutionService";
 import { TestStepService } from "./TestStepService";
 import { NotesServiceImpl } from "./NotesService";
+import { FileRepository } from "@/interfaces/fileRepository";
+import { CommandExecutor } from "@/interfaces/commandExecutor";
+import { Logger } from "@/interfaces/logger";
 
 export class CompressedImageService {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       testStep: TestStepService;
       note: NotesServiceImpl;
-      commandExecution: CommandExecutionService;
+      commandExecutor: CommandExecutor;
+      logger: Logger;
     }
   ) {}
 
@@ -96,7 +97,7 @@ export class CompressedImageService {
     const originalFileName =
       originalImageFileUrl?.split("/").slice(-1)[0] ?? "";
     const originalFilePath =
-      this.service.imageFileRepository.getFilePath(originalFileName);
+      this.service.screenshotFileRepository.getFilePath(originalFileName);
 
     const compressedImageFileName = `${path.basename(
       originalFileName,
@@ -107,16 +108,15 @@ export class CompressedImageService {
       originalFilePath
     )}/${compressedImageFileName}`;
 
-    LoggingService.debug(`command: ${command}`);
+    this.service.logger.debug(`command: ${command}`);
 
-    await this.service.commandExecution.execute(command);
+    await this.service.commandExecutor.execute(command);
 
-    const compressedImageFileUrl = this.service.imageFileRepository.getFileUrl(
-      compressedImageFileName
-    );
+    const compressedImageFileUrl =
+      this.service.screenshotFileRepository.getFileUrl(compressedImageFileName);
 
     if (shouldDeleteOriginalFile) {
-      this.service.imageFileRepository.removeFile(originalFileName);
+      this.service.screenshotFileRepository.removeFile(originalFileName);
     }
 
     return compressedImageFileUrl;

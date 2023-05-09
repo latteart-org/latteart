@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,27 +15,25 @@
 -->
 
 <template>
-  <v-layout column pa-3 justify-center align-left>
-    <v-flex>
-      <v-layout row align-center>
-        <p class="title">
-          {{ $store.getters.message("manage-progress.title") }}
-        </p>
-        <v-spacer></v-spacer>
-      </v-layout>
-    </v-flex>
-
-    <v-flex>
+  <v-container>
+    <v-row class="mt-4">
+      <p class="title">
+        {{ $store.getters.message("manage-progress.title") }}
+      </p>
+      <v-spacer></v-spacer>
+    </v-row>
+    <v-row>
       {{ $store.getters.message("manage-progress.display-settings-section") }}
-
-      <v-layout row align-center>
+    </v-row>
+    <v-row class="mt-0">
+      <v-col align-self="center" cols="1" class="pt-0 ml-4">
         {{ $store.getters.message("manage-progress.period") }}
-
+      </v-col>
+      <v-col align-self="center" class="pt-0">
         <v-menu
           v-model="startDateMenu"
           :close-on-content-click="false"
           :nudge-right="40"
-          lazy
           transition="scale-transition"
           offset-y
           full-width
@@ -58,14 +56,15 @@
             @input="startDateMenu = false"
           ></v-date-picker>
         </v-menu>
-
+      </v-col>
+      <v-col align-self="center" cols="1" class="pt-0">
         {{ $store.getters.message("manage-progress.period-symbol") }}
-
+      </v-col>
+      <v-col align-self="center" class="pt-0">
         <v-menu
           v-model="endDateMenu"
           :close-on-content-click="false"
           :nudge-right="40"
-          lazy
           transition="scale-transition"
           offset-y
           full-width
@@ -88,47 +87,48 @@
             @input="endDateMenu = false"
           ></v-date-picker>
         </v-menu>
-      </v-layout>
-    </v-flex>
+      </v-col>
+    </v-row>
 
-    <v-flex>
+    <v-row>
       {{ $store.getters.message("manage-progress.filter-section") }}
+    </v-row>
+    <v-row class="mt-0">
+      <v-col align-self="center" cols="1" class="pt-0 ml-4">
+        {{ $store.getters.message("manage-progress.group") }}
+      </v-col>
+      <v-col align-self="center" class="pt-0">
+        <v-select
+          v-model="selectedGroupId"
+          single-line
+          :items="groups"
+          item-text="name"
+          item-value="id"
+          class="mx-3 ellipsis"
+        ></v-select>
+      </v-col>
 
-      <v-layout row align-center>
-        <v-flex xs6>
-          <v-layout row align-center>
-            {{ $store.getters.message("manage-progress.group") }}
-            <v-select
-              v-model="selectedGroupId"
-              single-line
-              :items="groups"
-              item-text="name"
-              item-value="id"
-              class="mx-3 ellipsis"
-            ></v-select>
-          </v-layout>
-        </v-flex>
+      <v-col cols="1" align-self="center" class="pt-0">
+        {{ $store.getters.message("manage-progress.test-target") }}
+      </v-col>
+      <v-col align-self="center" class="pt-0">
+        <v-select
+          v-model="selectedTestTargetId"
+          single-line
+          :items="testTargets"
+          item-text="name"
+          item-value="id"
+          class="mx-3 ellipsis"
+        ></v-select>
+      </v-col>
+    </v-row>
 
-        <v-flex xs6>
-          <v-layout row align-center>
-            {{ $store.getters.message("manage-progress.test-target") }}
-            <v-select
-              v-model="selectedTestTargetId"
-              single-line
-              :items="testTargets"
-              item-text="name"
-              item-value="id"
-              class="mx-3 ellipsis"
-            ></v-select>
-          </v-layout>
-        </v-flex>
-      </v-layout>
-    </v-flex>
-
-    <v-flex pb-3>
-      <progress-chart v-if="rerender" :datas="chartData"></progress-chart>
-    </v-flex>
-  </v-layout>
+    <v-row>
+      <v-col cols="12">
+        <progress-chart v-if="rerender" :datas="chartData"></progress-chart>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">

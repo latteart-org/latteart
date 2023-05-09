@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,22 +16,23 @@
 
 <template>
   <v-app>
-    <v-toolbar color="white" fixed flat app height="64px">
+    <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
       <capture-tool-header />
-    </v-toolbar>
+    </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container
         fluid
-        pa-0
+        px-4
+        py-0
         fill-height
         :style="{ 'max-height': 'calc(100vh - 64px - 64px)' }"
       >
         <router-view />
       </v-container>
-    </v-content>
+    </v-main>
 
-    <v-footer app height="auto" mt-5>
+    <v-footer app height="64px">
       <capture-tool-footer />
     </v-footer>
 

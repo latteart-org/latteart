@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { ScreenDefinitionConfig } from "../lib/ScreenDefFactory";
+import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
   AutofillSetting,
   AutoOperationSetting,
   Coverage,
-} from "../lib/settings/Settings";
+} from "../gateways/settings/Settings";
 
 /**
  * Data for setting update.
@@ -68,7 +68,7 @@ type ServerConfig = {
 /**
  * Project settings.
  */
-export interface ProjectConfig {
+export type ProjectConfig = {
   viewPointsPreset: Array<{
     id: string;
     name: string;
@@ -84,5 +84,15 @@ export interface ProjectConfig {
       isEnabled: boolean;
       isDeleteSrcImage: boolean;
     };
+    testResultComparison: {
+      excludeItems: {
+        isEnabled: boolean;
+        values: ("title" | "url" | "elementTexts" | "screenshot")[];
+      };
+      excludeElements: {
+        isEnabled: boolean;
+        values: { tagname: string }[];
+      };
+    };
   };
-}
+};

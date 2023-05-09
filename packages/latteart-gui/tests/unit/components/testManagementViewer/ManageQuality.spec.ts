@@ -42,6 +42,15 @@ describe("ManageQualityView.vueは", () => {
       ],
     },
   ];
+  const emptySession = {
+    testItem: "",
+    testerName: "",
+    memo: "",
+    attachedFiles: [],
+    testResultFiles: [],
+    initialUrl: "",
+    testPurposes: [],
+  };
   const stories = [
     {
       id: "storyId1",
@@ -50,16 +59,48 @@ describe("ManageQualityView.vueは", () => {
       viewPointId: "s000",
       sessions: [
         {
+          ...emptySession,
+          index: 0,
+          name: "session00",
           id: "session00",
           isDone: true,
           doneDate: "20190101000004",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
         {
+          ...emptySession,
+          index: 1,
+          name: "session01",
           id: "session01",
           isDone: true,
           doneDate: "20190101000006",
-          issues: [{ status: "reported" }, { status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+            {
+              id: "note02",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
       ],
     },
@@ -70,10 +111,22 @@ describe("ManageQualityView.vueは", () => {
       viewPointId: "s000",
       sessions: [
         {
+          ...emptySession,
+          index: 0,
+          name: "session00",
           id: "session00",
           isDone: true,
           doneDate: "20190101000001",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
       ],
     },
@@ -84,10 +137,22 @@ describe("ManageQualityView.vueは", () => {
       viewPointId: "s001",
       sessions: [
         {
+          ...emptySession,
+          index: 0,
+          name: "session00",
           id: "session00",
           isDone: true,
           doneDate: "20190101000005",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
       ],
     },
@@ -98,28 +163,72 @@ describe("ManageQualityView.vueは", () => {
       viewPointId: "s001",
       sessions: [
         {
+          ...emptySession,
+          name: "session00",
           id: "session00",
           isDone: true,
           doneDate: "20190101000002",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
         {
+          ...emptySession,
+          name: "session00",
           id: "session00",
           isDone: true,
           doneDate: "20190101000003",
-          issues: [{ status: "unreported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["unreported"],
+            },
+          ],
         },
         {
+          ...emptySession,
+          name: "session00",
           id: "session00",
           isDone: false,
           doneDate: "",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
         {
+          ...emptySession,
+          name: "session00",
           id: "session00",
           isDone: false,
           doneDate: "",
-          issues: [{ status: "reported" }],
+          notes: [
+            {
+              id: "note01",
+              type: "notice",
+              value: "",
+              details: "",
+              imageFileUrl: "",
+              tags: ["reported"],
+            },
+          ],
         },
       ],
     },

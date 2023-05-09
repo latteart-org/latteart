@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,9 @@ import {
   TestStepRepository,
   NoteRepository,
   ProjectRepository,
+  TestResultComparisonRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor, SequenceView } from "./types";
+import { TestResultAccessor, SequenceView, GraphView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -69,6 +70,7 @@ export type RepositoryContainer = {
   readonly testTargetRepository: TestTargetRepository;
   readonly viewPointRepository: ViewPointRepository;
   readonly storyRepository: StoryRepository;
+  readonly testResultComparisonRepository: TestResultComparisonRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
@@ -140,15 +142,10 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       inputElementInfo: InputElementInfo;
     }>
   > {
-    const capturedOperation = {
-      ...operation,
-      keywordTexts: operation.pageSource.split("\n"),
-    };
-
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
-        capturedOperation
+        operation
       );
 
     if (registerOperationResult.isFailure()) {
@@ -543,6 +540,27 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       const error: ServiceError = {
         errorCode: "generate_sequence_view_failed",
         message: "Generate Sequence View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async generateGraphView(
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<GraphView>> {
+    const result =
+      await this.repositories.testResultRepository.generateGraphView(
+        this.testResultId,
+        option
+      );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

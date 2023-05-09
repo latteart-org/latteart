@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 -->
 
 <template>
-  <v-list-tile @click="openTestResultImportDialog" :disabled="isDisabled">
-    <v-list-tile-title>{{
+  <v-list-item @click="openTestResultImportDialog" :disabled="isDisabled">
+    <v-list-item-title>{{
       $store.getters.message("import-export-dialog.test-result-import-title")
-    }}</v-list-tile-title>
+    }}</v-list-item-title>
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -38,7 +38,7 @@
       :message="informationMessage"
       @close="informationMessageDialogOpened = false"
     />
-  </v-list-tile>
+  </v-list-item>
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,17 +23,19 @@
       <v-data-table
         :headers="headers"
         :items="viewOperations"
-        :pagination.sync="pagination"
+        :options.sync="options"
       >
         <template v-slot:items="props">
-          <td>{{ props.item.sequence }}</td>
-          <td>{{ props.item.title }}</td>
-          <td>{{ props.item.url }}</td>
-          <td>{{ props.item.tag }}</td>
-          <td>{{ props.item.tagname }}</td>
-          <td>{{ props.item.text }}</td>
-          <td>{{ props.item.type }}</td>
-          <td>{{ props.item.input }}</td>
+          <tr>
+            <td>{{ props.item.sequence }}</td>
+            <td>{{ props.item.title }}</td>
+            <td>{{ props.item.url }}</td>
+            <td>{{ props.item.tag }}</td>
+            <td>{{ props.item.tagname }}</td>
+            <td>{{ props.item.text }}</td>
+            <td>{{ props.item.type }}</td>
+            <td>{{ props.item.input }}</td>
+          </tr>
         </template>
       </v-data-table>
     </template>
@@ -64,7 +66,7 @@ export default class AutoOperationDialog extends Vue {
   @Prop({ type: Number, default: 1 })
   private readonly page!: number;
   @Prop({ type: Number, default: -1 })
-  private readonly rowsPerPage!: number;
+  private readonly itemsPerPage!: number;
 
   @Watch("opened")
   private initialize() {
@@ -73,12 +75,12 @@ export default class AutoOperationDialog extends Vue {
     }
   }
 
-  private pagination: {
+  private options: {
     page: number;
-    rowsPerPage: number;
+    itemsPerPage: number;
   } = {
     page: this.page,
-    rowsPerPage: this.rowsPerPage,
+    itemsPerPage: this.itemsPerPage,
   };
 
   private get headers() {

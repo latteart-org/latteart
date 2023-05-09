@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,8 +150,17 @@ const mutations: MutationTree<RootState> = {
    * @param state State.
    * @param payload.settings Common settings.
    */
-  setProjectSettings(state, payload: { settings: ProjectSettings }) {
-    state.projectSettings = payload.settings;
+  setProjectSettings(
+    state,
+    payload: {
+      settings: Omit<ProjectSettings, "config"> & {
+        config: Partial<ProjectSettings["config"]>;
+      };
+    }
+  ) {
+    Object.assign(state.projectSettings.config, payload.settings.config);
+    state.projectSettings.defaultTagList = payload.settings.defaultTagList;
+    state.projectSettings.viewPointsPreset = payload.settings.viewPointsPreset;
   },
 
   setViewSettings(
@@ -398,6 +407,9 @@ const actions: ActionTree<RootState, RootState> = {
         imageCompression:
           payload.config.imageCompression ??
           context.rootState.projectSettings.config.imageCompression,
+        testResultComparison:
+          payload.config.testResultComparison ??
+          context.rootState.projectSettings.config.testResultComparison,
       },
     };
 
@@ -611,6 +623,16 @@ const store: StoreOptions<RootState> = {
         imageCompression: {
           isEnabled: true,
           isDeleteSrcImage: true,
+        },
+        testResultComparison: {
+          excludeItems: {
+            isEnabled: false,
+            values: [],
+          },
+          excludeElements: {
+            isEnabled: false,
+            values: [],
+          },
         },
       },
     },

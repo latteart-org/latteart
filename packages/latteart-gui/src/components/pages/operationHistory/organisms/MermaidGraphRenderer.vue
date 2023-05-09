@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
 -->
 
 <template>
-  <v-layout justify-start fill-height row>
+  <v-row justify="start" class="fill-height pt-5 pl-5">
     <svg-pan-zoom
       @changeSvgScale="changeSvgScale"
       :scaleUpDisabled="isMaxSize"
       :scaleDownDisabled="isMinSize"
     ></svg-pan-zoom>
     <div ref="graph" class="graphDisplay"></div>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

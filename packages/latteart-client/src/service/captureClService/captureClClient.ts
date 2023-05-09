@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -218,9 +218,7 @@ class CaptureSessionImpl implements CaptureSession {
 
           const result = await this.testResult.addOperation(
             { ...capturedOperation, isAutomatic: this.isAutomated },
-            {
-              compressScreenshot: payload.option.compressScreenshots,
-            }
+            { compressScreenshot: payload.option.compressScreenshots }
           );
 
           if (result.isFailure()) {
@@ -270,9 +268,7 @@ class CaptureSessionImpl implements CaptureSession {
               type: "screen_transition",
               input: "",
               elementInfo: null,
-              screenElements: [],
               inputElements: [],
-              keywordTexts: [],
               isAutomatic: this.isAutomated,
             },
             { compressScreenshot: payload.option.compressScreenshots }

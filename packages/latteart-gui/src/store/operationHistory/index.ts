@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  OperationWithNotes,
-  ScreenTransition,
-  WindowInfo,
-} from "@/lib/operationHistory/types";
+import { OperationWithNotes, WindowInfo } from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
@@ -50,6 +46,11 @@ export interface OperationHistoryState {
      * Test result name.
      */
     name: string;
+
+    /**
+     * Parent test result ID.
+     */
+    parentTestResultId: string;
   };
 
   /**
@@ -150,9 +151,9 @@ export interface OperationHistoryState {
   canUpdateModels: boolean;
 
   /**
-   * Whether screen history is updating or not.
+   * Whether test result view model is updating or not.
    */
-  screenHistoryIsUpdating: boolean;
+  isTestResultViewModelUpdating: boolean;
 
   /**
    * Selected window handle.
@@ -168,11 +169,6 @@ export interface OperationHistoryState {
    * Selected note.
    */
   selectedOperationNote: { sequence: number | null; index: number | null };
-
-  /**
-   * Screen definition of selected screen.
-   */
-  selectedScreenDef: string;
 
   /**
    * Displayed operations.
@@ -236,6 +232,7 @@ const state: OperationHistoryState = {
     repositoryUrl: "",
     id: "",
     name: "",
+    parentTestResultId: "",
   },
   testStepIds: [],
   history: [],
@@ -246,11 +243,10 @@ const state: OperationHistoryState = {
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
-  screenHistoryIsUpdating: false,
+  isTestResultViewModelUpdating: false,
   selectedWindowHandle: "",
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
-  selectedScreenDef: "",
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
   checkedOperations: [],

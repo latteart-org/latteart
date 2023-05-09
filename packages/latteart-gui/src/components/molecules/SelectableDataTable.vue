@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,26 +15,30 @@
 -->
 
 <template>
-  <div class="scroll-y" :style="{ height: '100%', 'overflow-y': 'scroll' }">
+  <div
+    class="overflow-y-auto"
+    :style="{ height: '100%', 'overflow-y': 'scroll' }"
+  >
     <v-data-table
       :value="selected"
       :headers="tableHeaders"
       :items="visibleItems"
-      :pagination.sync="pagination"
-      :hide-headers="hideHeaders"
-      :hide-actions="hideFooters"
+      :options.sync="options"
+      :hide-default-header="hideHeaders"
+      :hide-default-footer="hideFooters"
       must-sort
-      select-all
     >
-      <template v-slot:headers="props">
-        <tr :style="{ height: '40px !important' }">
-          <th class="check-col" v-if="!hideCheckBox">
+      <template v-slot:header="{ props }">
+        <tr :style="{ height: '40px !important' }" class="v-data-table-header">
+          <th class="check-col pl-4" v-if="!hideCheckBox">
             <v-checkbox
-              :input-value="props.all"
+              v-model="selectedAll"
               :indeterminate="isPartiallyChecked"
               primary
               hide-details
-              @click.stop="toggleAll"
+              readonly
+              @click.prevent="toggleAll"
+              class="ml-1 mt-0"
             ></v-checkbox>
           </th>
           <th
@@ -44,20 +48,26 @@
             :sortable="header.sortable"
             align="left"
             :class="[
+              'pl-4',
               'column sortable',
-              pagination.descending ? 'desc' : 'asc',
-              header.value === pagination.sortBy ? 'active' : '',
+              options.sortDesc ? 'desc' : 'asc',
+              header.value === options.sortBy.at(0) ? 'active' : '',
               header.class ?? '',
             ]"
-            @click="changeSort(header.value)"
+            @click="if (header.sortable !== false) changeSort(header.value);"
           >
             {{ header.text }}
-            <v-icon small>arrow_upward</v-icon>
+            <v-icon
+              v-if="header.sortable !== false"
+              class="v-data-table-header__icon"
+              small
+              >arrow_upward</v-icon
+            >
           </th>
         </tr>
       </template>
 
-      <template v-slot:items="props">
+      <template v-slot:item="props">
         <tr
           :key="props.item.index"
           :class="{
@@ -72,7 +82,7 @@
         >
           <td class="check-col check-item" v-if="!hideCheckBox">
             <v-checkbox
-              class="mr-1"
+              class="ml-1 mt-0"
               hide-details
               :input-value="
                 selected.find(({ index }) => {
@@ -120,11 +130,11 @@ export default class SelectableDataTable<T> extends Vue {
   private readonly filteringPredicates!: ((item: T) => boolean)[];
   @Prop({ type: Boolean, default: true }) private readonly shortcut!: boolean;
   @Prop({ type: Boolean, default: false })
-  private readonly descending!: boolean;
+  private readonly sortDesc!: boolean;
   @Prop({ type: Number, default: 1 })
   private readonly page!: number;
   @Prop({ type: Number, default: -1 })
-  private readonly rowsPerPage!: number;
+  private readonly itemsPerPage!: number;
   @Prop({ type: String, default: "" })
   private readonly sortBy!: string;
   @Prop({ type: Boolean, default: false })
@@ -137,41 +147,42 @@ export default class SelectableDataTable<T> extends Vue {
   private selected: { index: number; columns: T }[] = [];
   private lastCheckedRowIndex = -1;
   private lastUncheckedRowIndex = -1;
+  private selectedAll = false;
 
-  private pagination: {
-    descending?: boolean;
+  private options: {
+    sortDesc?: boolean;
     page: number;
-    rowsPerPage: number;
-    sortBy?: string;
+    itemsPerPage: number;
+    sortBy?: string[];
   } = {
-    descending: this.descending,
+    sortDesc: this.sortDesc,
     page: this.page,
-    rowsPerPage: this.rowsPerPage,
-    sortBy: this.sortBy,
+    itemsPerPage: this.itemsPerPage,
+    sortBy: [this.sortBy],
   };
 
-  @Watch("pagination.descending")
-  private notifyDescendingChange() {
-    this.$emit("changeDescending", this.pagination.descending);
+  @Watch("options.sortDesc")
+  private notifySortDescChange() {
+    this.$emit("changeSortDesc", this.options.sortDesc);
   }
 
-  @Watch("pagination.page")
+  @Watch("options.page")
   private notifyPageChange() {
-    this.$emit("changePage", this.pagination.page);
+    this.$emit("changePage", this.options.page);
     this.lastCheckedRowIndex = -1;
     this.lastUncheckedRowIndex = -1;
   }
 
-  @Watch("pagination.rowsPerPage")
-  private notifyRowsPerPageChange() {
-    this.$emit("changeRowsPerPage", this.pagination.rowsPerPage);
+  @Watch("options.itemsPerPage")
+  private notifyItemsPerPageChange() {
+    this.$emit("changeItemsPerPage", this.options.itemsPerPage);
     this.lastCheckedRowIndex = -1;
     this.lastUncheckedRowIndex = -1;
   }
 
-  @Watch("pagination.sortBy")
+  @Watch("options.sortBy")
   private notifySortByChange() {
-    this.$emit("changeSortBy", this.pagination.sortBy);
+    this.$emit("changeSortBy", this.options.sortBy);
   }
 
   private get tableHeaders() {
@@ -190,14 +201,9 @@ export default class SelectableDataTable<T> extends Vue {
 
     const filteredItems = filterTableRows(tableItems, this.filteringPredicates);
 
-    const sortedItems = sortTableRows(
-      filteredItems,
-      `${this.pagination.sortBy}`
-    );
+    const sortedItems = sortTableRows(filteredItems, `${this.options.sortBy}`);
 
-    return this.pagination.descending
-      ? sortedItems.slice().reverse()
-      : sortedItems;
+    return this.options.sortDesc ? sortedItems.slice().reverse() : sortedItems;
   }
 
   private get currentItemIndex() {
@@ -231,7 +237,7 @@ export default class SelectableDataTable<T> extends Vue {
     document.removeEventListener("keydown", this.keyDown);
   }
 
-  @Watch("pagination.rowsPerPage")
+  @Watch("options.itemsPerPage")
   @Watch("selectedItemIndexes")
   @Watch("visibleItemsStr")
   private resetPosition() {
@@ -242,13 +248,13 @@ export default class SelectableDataTable<T> extends Vue {
     );
 
     if (rowIndex !== -1) {
-      const rowsPerPage =
-        this.pagination.rowsPerPage > 0
-          ? this.pagination.rowsPerPage
+      const itemsPerPage =
+        this.options.itemsPerPage > 0
+          ? this.options.itemsPerPage
           : this.visibleItems.length;
 
-      this.switchTablePage(rowIndex, rowsPerPage);
-      this.scrollToTableRow(rowIndex, rowsPerPage);
+      this.switchTablePage(rowIndex, itemsPerPage);
+      this.scrollToTableRow(rowIndex, itemsPerPage);
     }
   }
 
@@ -257,30 +263,31 @@ export default class SelectableDataTable<T> extends Vue {
     this.selected = this.visibleItems.filter((item) => {
       return this.checkedItemIndexes.includes(item.index);
     });
+    this.changeSelectedAll();
   }
 
-  private switchTablePage(rowIndex: number, rowsPerPage: number) {
-    this.pagination.page = Math.floor(rowIndex / rowsPerPage) + 1;
+  private switchTablePage(rowIndex: number, itemsPerPage: number) {
+    this.options.page = Math.floor(rowIndex / itemsPerPage) + 1;
   }
 
-  private scrollToTableRow(rowIndex: number, rowsPerPage: number) {
-    this.$vuetify.goTo(30 * Math.floor(rowIndex % rowsPerPage), {
-      container: ".scroll-y",
+  private scrollToTableRow(rowIndex: number, itemsPerPage: number) {
+    this.$vuetify.goTo(30 * Math.floor(rowIndex % itemsPerPage), {
+      container: ".overflow-y-auto",
       duration: 100,
     });
   }
 
   private selectCurrentPageRows() {
-    if (this.pagination.rowsPerPage <= 0) {
+    if (this.options.itemsPerPage <= 0) {
       return this.visibleItems;
     }
 
     const filteredItems = this.visibleItems.filter((item, index) => {
-      if (index < this.pagination.rowsPerPage * (this.pagination.page - 1)) {
+      if (index < this.options.itemsPerPage * (this.options.page - 1)) {
         return false;
       }
 
-      if (index >= this.pagination.rowsPerPage * this.pagination.page) {
+      if (index >= this.options.itemsPerPage * this.options.page) {
         return false;
       }
 
@@ -354,7 +361,7 @@ export default class SelectableDataTable<T> extends Vue {
   }
 
   private pageForward() {
-    const destIndex = this.currentItemIndex + this.pagination.rowsPerPage;
+    const destIndex = this.currentItemIndex + this.options.itemsPerPage;
     const destItem =
       this.visibleItems[
         destIndex > this.visibleItems.length - 1
@@ -368,7 +375,7 @@ export default class SelectableDataTable<T> extends Vue {
   }
 
   private pageBack() {
-    const destIndex = this.currentItemIndex - this.pagination.rowsPerPage;
+    const destIndex = this.currentItemIndex - this.options.itemsPerPage;
     const destItem = this.visibleItems[destIndex < 0 ? 0 : destIndex];
 
     if (destItem) {
@@ -424,6 +431,12 @@ export default class SelectableDataTable<T> extends Vue {
     this.lastUncheckedRowIndex = -1;
   }
 
+  private changeSelectedAll(): void {
+    this.selectedAll =
+      this.selected.length > 0 &&
+      this.visibleItems.length === this.selected.length;
+  }
+
   private checkRows(...targetRowIndexes: number[]) {
     const targetRows = this.visibleItems.filter(({ index }) =>
       targetRowIndexes.includes(index)
@@ -454,11 +467,11 @@ export default class SelectableDataTable<T> extends Vue {
   }
 
   private changeSort(column: string) {
-    if (this.pagination.sortBy === column) {
-      this.pagination.descending = !this.pagination.descending;
+    if (this.options.sortBy?.at(0) === column) {
+      this.options.sortDesc = !this.options.sortDesc;
     } else {
-      this.pagination.sortBy = column;
-      this.pagination.descending = false;
+      this.options.sortBy = [column];
+      this.options.sortDesc = false;
     }
   }
 }
@@ -468,6 +481,10 @@ export default class SelectableDataTable<T> extends Vue {
 table tr
   transition: background 0s !important
   height: 30px !important
+
+th
+  font-size: 0.75rem
+  border-bottom: thin solid rgba(0, 0, 0, 0.12)
 
 .selected
   background-color: lemonchiffon !important

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,51 +14,11 @@
  * limitations under the License.
  */
 
-import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
-import { normalizeXPath } from "@/lib/common/util";
-import { ElementInfo } from "latteart-client";
+import { GraphView } from "latteart-client";
 
 export interface InclusionTableItem {
   text: string;
   isInclude: boolean;
-}
-
-/**
- * Get a list of used tags.
- * @param screenHistory  Screen transition information.
- * @param inclusionTagList  Included tag list.
- * @returns List of tags used.
- */
-export function getTagUseTags(
-  screenHistory: ScreenHistory,
-  inclusionTagList: string[]
-): InclusionTableItem[] {
-  // Inclusion settings set in config.json.
-  const includeTagSet: Set<string> = new Set();
-  for (const tag of inclusionTagList) {
-    includeTagSet.add(tag);
-  }
-
-  // Set with all tags existing in the operation history added to the above set.
-  const useTagSet: Set<string> = new Set(Array.from(includeTagSet));
-  for (const screen of screenHistory.appearedScreens) {
-    screen.screenElements.forEach((elementInfo: ElementInfo) => {
-      if (elementInfo.tagname) {
-        useTagSet.add(elementInfo.tagname.toUpperCase());
-      }
-    });
-  }
-
-  // Generate tableItems.
-  const useTagItems: InclusionTableItem[] = [];
-  for (const useTag of Array.from(useTagSet).sort()) {
-    useTagItems.push({
-      text: useTag,
-      isInclude: includeTagSet.has(useTag),
-    });
-  }
-
-  return useTagItems;
 }
 
 /**
@@ -67,150 +27,150 @@ export function getTagUseTags(
  * @param inclusionTags  Included tag list.
  * @returns Coverage information.
  */
-export async function getCoverages(
-  screenHistory: ScreenHistory,
+export function getCoverages(
+  graphView: GraphView,
   inclusionTags: string[]
-): Promise<
-  Array<{
-    screenTitle: string;
-    percentage: number;
-    elements: Array<{
-      sequence: number | null;
-      tagname: string;
-      type: string;
-      id: string;
-      name: string;
-      text: string;
-      operated: boolean;
-    }>;
-  }>
-> {
-  const inclusionSet = new Set(inclusionTags);
-  const result = [];
-  for (const screen of screenHistory.appearedScreens) {
-    const operatedElementsMap = new Map<
-      string,
-      {
-        sequence: number;
-        info: ElementInfo;
-      }
-    >();
+): {
+  screenTitle: string;
+  percentage: number;
+  elements: {
+    sequence?: number;
+    tagname: string;
+    text: string;
+    type: string;
+    id: string;
+    name: string;
+    operated: boolean;
+  }[];
+}[] {
+  const testStepIdToSequence = new Map(
+    graphView.nodes
+      .flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
+      .map((id, index) => [id, index + 1])
+  );
 
-    for (const current of screen.operationHistory) {
-      if (current.operation.elementInfo === null) {
-        continue;
-      }
+  const screenIdToOperatedElements = graphView.nodes
+    .map((node) => {
+      return {
+        screenId: node.screenId,
+        elements: node.testSteps.flatMap((testStep) => {
+          const { id, targetElementId } = testStep;
+          const sequence = testStepIdToSequence.get(id);
+          const targetElement = graphView.store.elements.find(({ id }) => {
+            return id === targetElementId;
+          });
 
-      await (async (currentElementInfo: ElementInfo): Promise<void> => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            // Register the operated element (including inclusion tags)
-            if (inclusionSet.has(currentElementInfo.tagname)) {
-              operatedElementsMap.set(
-                normalizeXPath(currentElementInfo.xpath),
-                {
-                  sequence: current.operation.sequence,
-                  info: currentElementInfo,
-                }
-              );
-            }
+          if (!targetElement || sequence === undefined) {
+            return [];
+          }
 
-            // If the operated element is a select element, the selected option element is also registered.
-            if (
-              currentElementInfo.tagname.toLowerCase() === "select" &&
-              (inclusionSet.has("option") || inclusionSet.has("OPTION"))
-            ) {
-              for (const screenElement of screen.screenElements) {
-                const screenElmValue =
-                  screenElement.attributes.value !== undefined
-                    ? screenElement.attributes.value
-                    : screenElement.text;
-                const operatedOptionXPath =
-                  currentElementInfo.xpath + "/option";
+          const operatedElement = { xpath: targetElement.xpath, sequence };
 
-                if (
-                  screenElement.xpath
-                    .toLowerCase()
-                    .indexOf(operatedOptionXPath.toLowerCase()) !== -1 &&
-                  screenElmValue === current.operation.input
-                ) {
-                  operatedElementsMap.set(normalizeXPath(screenElement.xpath), {
-                    sequence: current.operation.sequence,
-                    info: screenElement,
-                  });
-                }
+          if (targetElement?.tagname.toLowerCase() !== "select") {
+            return [operatedElement];
+          }
+
+          const input = testStep.input;
+          const optionElement = graphView.store.elements.find(
+            ({ tagname, xpath, attributes }) => {
+              if (tagname.toLowerCase() !== "option") {
+                return false;
               }
+
+              const optionXPath = xpath.toLowerCase();
+              const selectXPath = targetElement.xpath.toLowerCase();
+              if (!optionXPath.startsWith(`${selectXPath}/option`)) {
+                return false;
+              }
+
+              return input === attributes["value"];
             }
+          );
 
-            resolve();
-          }, 1);
-        });
-      })(current.operation.elementInfo);
-    }
+          return optionElement
+            ? [operatedElement, { xpath: optionElement.xpath, sequence }]
+            : [operatedElement];
+        }),
+      };
+    })
+    .reduce((acc, { screenId, elements }) => {
+      if (!acc.has(screenId)) {
+        acc.set(screenId, []);
+      }
 
-    // Register the elements found on the screen (including inclusion tags).
-    const foundElementsMap = new Map(
-      screen.screenElements
-        .filter((screenElement) => inclusionSet.has(screenElement.tagname))
-        .map((screenElement) => [
-          normalizeXPath(screenElement.xpath),
-          screenElement,
-        ])
-    );
+      for (const element of elements) {
+        const foundItem = acc
+          .get(screenId)
+          ?.find(({ xpath }) => xpath === element.xpath);
 
-    const elements: Array<{
-      sequence: number | null;
-      tagname: string;
-      type: string;
-      id: string;
-      name: string;
-      text: string;
-      xpath: string;
-      operated: boolean;
-    }> = [];
-
-    foundElementsMap.forEach((elementInfo: ElementInfo, foundElementXPath) => {
-      let operatedElementWithSequence: {
-        sequence: number;
-        info: ElementInfo;
-      } | null = null;
-
-      for (const [key, value] of operatedElementsMap) {
-        if (foundElementXPath === key) {
-          operatedElementWithSequence = value;
-          break;
+        if (foundItem) {
+          foundItem.sequences.push(element.sequence);
+          continue;
         }
+
+        acc
+          .get(screenId)
+          ?.push({ xpath: element.xpath, sequences: [element.sequence] });
       }
 
-      if (elementInfo.attributes.type !== "hidden") {
-        elements.push({
-          sequence:
-            operatedElementWithSequence === null
-              ? null
-              : operatedElementWithSequence.sequence,
-          tagname: elementInfo.tagname,
-          type: elementInfo.attributes.type ? elementInfo.attributes.type : "",
-          id: elementInfo.attributes.id ? elementInfo.attributes.id : "",
-          name: elementInfo.attributes.name ? elementInfo.attributes.name : "",
-          text: elementInfo.text
-            ? elementInfo.text
-            : elementInfo.attributes.href
-            ? elementInfo.attributes.href
-            : "",
-          xpath: elementInfo.xpath,
-          operated: operatedElementWithSequence !== null,
-        });
-      }
-    });
+      return acc;
+    }, new Map<string, { xpath: string; sequences: number[] }[]>());
+
+  const inclusionSet = new Set(inclusionTags);
+
+  const results = graphView.store.screens.map((screen) => {
+    const elements = screen.elementIds
+      .flatMap((elementId) => {
+        const element = graphView.store.elements.find(
+          ({ id }) => id === elementId
+        );
+
+        if (!element || element.attributes["type"] === "hidden") {
+          return [];
+        }
+
+        if (!inclusionSet.has(element.tagname)) {
+          return [];
+        }
+
+        return [element];
+      })
+      .filter((element, index, array) => {
+        return (
+          array.findIndex(({ xpath }) => xpath === element.xpath) === index
+        );
+      })
+      .flatMap((element) => {
+        const operatedElement = screenIdToOperatedElements
+          .get(screen.id)
+          ?.find(({ xpath }) => xpath === element.xpath);
+
+        return [
+          {
+            sequence: operatedElement?.sequences.at(0),
+            tagname: element.tagname,
+            type: element.attributes["type"] ?? "",
+            id: element.attributes["id"] ?? "",
+            name: element.attributes["name"] ?? "",
+            text: element.text
+              ? element.text
+              : element.attributes["href"] ?? "",
+            operated: operatedElement !== undefined,
+          },
+        ];
+      });
+
     const percent =
       (elements.filter((element) => element.operated).length /
         elements.length) *
       100;
-    result.push({
-      screenTitle: screen.screenDef,
+
+    return {
+      screenTitle: screen.name,
       percentage: Number.isNaN(percent) ? 0 : Math.round(percent * 100) / 100,
       elements,
-    });
-  }
-  return result;
+    };
+  });
+
+  return results;
 }

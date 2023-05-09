@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@
     close-on-content-click
   >
     <v-list>
-      <v-list-tile
+      <v-list-item
         v-for="item in items"
         :key="item.label"
         @click="item.onClick"
       >
-        <v-list-tile-title>{{ item.label }}</v-list-tile-title>
-      </v-list-tile>
+        <v-list-item-title>{{ item.label }}</v-list-item-title>
+      </v-list-item>
     </v-list>
   </v-menu>
 </template>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ export class LoadHistoryAction {
       coverageSources: CoverageSource[];
       historyItems: OperationHistoryItem[];
       url: string;
-      testResultInfo: { id: string; name: string };
+      testResultInfo: { id: string; name: string; parentTestResultId?: string };
       testStepIds: string[];
       testingTime: number;
     }>
@@ -95,7 +95,11 @@ export class LoadHistoryAction {
       coverageSources: testResult.coverageSources,
       historyItems: operationHistoryItems,
       url: testResult.initialUrl,
-      testResultInfo: { id: testResult.id, name: testResult.name },
+      testResultInfo: {
+        id: testResult.id,
+        name: testResult.name,
+        parentTestResultId: testResult.parentTestResultId,
+      },
       testStepIds: testResult.testSteps.map(({ id }) => id),
       testingTime: testResult.testingTime,
     };

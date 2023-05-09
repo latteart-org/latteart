@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-layout row wrap>
-      <v-flex xs12>
+    <v-row>
+      <v-col cols="12">
         <v-checkbox
           v-model="tempConfig.isEnabled"
           :label="
@@ -26,8 +26,8 @@
           @change="saveConfig"
         >
         </v-checkbox>
-      </v-flex>
-      <v-flex xs12>
+      </v-col>
+      <v-col cols="12">
         <v-checkbox
           v-model="tempConfig.isDeleteSrcImage"
           :label="
@@ -39,8 +39,8 @@
           @change="saveConfig"
         >
         </v-checkbox>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

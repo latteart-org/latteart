@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import { OperationForGUI } from "./OperationForGUI";
-import { OperationWithNotes } from "./types";
-import { normalizeXPath } from "../common/util";
-import { NoteForGUI } from "./NoteForGUI";
-import { ElementInfo } from "latteart-client";
-
-export interface InputValueTableHeaderColumn {
+export type InputValueTableHeaderColumn = {
   index: number;
   sourceScreenDef: string;
   targetScreenDef: string;
@@ -28,11 +22,22 @@ export interface InputValueTableHeaderColumn {
     elementText: string;
     eventType: string;
   };
-  notes: NoteForGUI[];
-  operationHistory: OperationWithNotes[];
-}
+  notes: {
+    sequence: number;
+    id: string;
+    imageFileUrl: string;
+    tags: string[];
+    value: string;
+    details: string;
+  }[];
+  testPurposes: {
+    id: string;
+    value: string;
+    details: string;
+  }[];
+};
 
-export interface InputValueTableRow {
+export type InputValueTableRow = {
   elementId: string;
   elementName: string;
   elementType: string;
@@ -41,69 +46,72 @@ export interface InputValueTableRow {
     value: string;
     isDefaultValue: boolean;
   }>;
-}
+};
+
+export type ScreenTransition = {
+  sourceScreen: { id: string; name: string };
+  destScreen: { id: string; name: string };
+  trigger?: {
+    sequence: number;
+    type: string;
+    target?: { xpath: string; text: string };
+    input?: string;
+    pageUrl: string;
+    pageTitle: string;
+  };
+  inputElements: {
+    xpath: string;
+    tagname: string;
+    text: string;
+    attributes: {
+      [key: string]: string;
+    };
+    defaultValue?: string;
+    inputs: { sequence: number; value: string }[];
+  }[];
+  notes: {
+    sequence: number;
+    id: string;
+    imageFileUrl: string;
+    tags: string[];
+    value: string;
+    details: string;
+  }[];
+  testPurposes: {
+    id: string;
+    value: string;
+    details: string;
+  }[];
+};
 
 /**
  * Class that handles input value table.
  */
 export default class InputValueTable {
-  private screenTransition: Array<{
-    sourceScreenDef: string;
-    targetScreenDef: string;
-    history: OperationWithNotes[];
-    screenElements: ElementInfo[];
-    inputElements: ElementInfo[];
-  }> = [];
-
-  constructor(
-    screenTransition?: Array<{
-      sourceScreenDef: string;
-      targetScreenDef: string;
-      history: OperationWithNotes[];
-      screenElements: ElementInfo[];
-      inputElements: ElementInfo[];
-    }>
-  ) {
-    if (screenTransition) {
-      this.screenTransition = screenTransition;
-    }
-  }
+  constructor(private screenTransitions: ScreenTransition[] = []) {}
 
   /**
    * Get column size.
    */
   public get columnSize(): number {
-    return this.screenTransition.length;
+    return this.screenTransitions.length;
   }
 
   /**
    * Get column header.
    */
   public get headerColumns(): InputValueTableHeaderColumn[] {
-    return this.screenTransition.map((transition, index) => {
-      const triggerOperation: OperationForGUI | undefined =
-        transition.history[transition.history.length - 1]?.operation;
-      const transitionNotes: NoteForGUI[] = transition.history.flatMap(
-        (item) => {
-          return [...(item.notices ?? []), ...(item.bugs ?? [])];
-        }
-      );
-      const transitionHistory: OperationWithNotes[] = transition.history.filter(
-        (history) => {
-          return !!history.notices && history.notices.length > 0;
-        }
-      );
-
+    return this.screenTransitions.map((transition, index) => {
       return {
         index,
-        sourceScreenDef: transition.sourceScreenDef,
-        targetScreenDef: transition.targetScreenDef,
+        sourceScreenDef: transition.sourceScreen.name,
+        targetScreenDef: transition.destScreen.name,
         trigger: {
-          elementText: triggerOperation?.elementInfo?.text ?? "",
-          eventType: triggerOperation?.type ?? "",
+          elementText: transition.trigger?.target?.text ?? "",
+          eventType: transition.trigger?.type ?? "",
         },
-        notes: transitionNotes,
-        operationHistory: transitionHistory,
+        notes: transition.notes,
+        testPurposes: transition.testPurposes,
       };
     });
   }
@@ -112,215 +120,68 @@ export default class InputValueTable {
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const inputElementsWithSequence = this.createInputElementsWithSequence(
-      this.screenTransition
+    const elementWithSequences = this.screenTransitions.flatMap(
+      (screenTransition) => {
+        return screenTransition.inputElements.map((inputElement) => {
+          const { xpath, tagname, text, attributes } = inputElement;
+          const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
+          const element = { xpath, tagname, text, attributes };
+          return { element, sequence };
+        });
+      }
     );
 
-    return inputElementsWithSequence
-      .map(({ name, elementInfo, sequence }) => {
-        const inputs = [];
-        for (const { history, inputElements } of this.screenTransition) {
-          const operationsOfTargetElement = history.filter(({ operation }) => {
-            if (operation.elementInfo === null) {
-              return false;
-            }
+    const inputs = this.screenTransitions.flatMap((screenTransition) => {
+      return screenTransition.inputElements.map((element) => {
+        const input = element.inputs.at(-1);
 
-            return (
-              normalizeXPath(operation.elementInfo.xpath) ===
-              normalizeXPath(elementInfo.xpath)
-            );
-          });
-
-          const inputValues = operationsOfTargetElement.map(({ operation }) => {
-            return {
-              inputValue: operation.inputValue,
-            };
-          });
-          const targetElement = inputElements.find((inputElement) => {
-            return (
-              normalizeXPath(inputElement.xpath) ===
-              normalizeXPath(elementInfo.xpath)
-            );
-          });
-
-          const defaultValue = targetElement
-            ? InputValueTable.getDefaultValueOfElement(targetElement)
-            : "";
-
-          if (inputValues.length !== 0) {
-            inputs.push({
-              value: inputValues.slice(-1)[0]?.inputValue ?? "",
-              isDefaultValue: false,
-            });
-          } else {
-            inputs.push({
-              value: defaultValue,
-              isDefaultValue: true,
-            });
-          }
+        if (input === undefined) {
+          return {
+            xpath: element.xpath,
+            value: element.defaultValue ?? "",
+            isDefaultValue: true,
+          };
         }
+
         return {
-          elementId: elementInfo.attributes.id ?? "",
-          elementName: name,
-          elementType: elementInfo.attributes.type ?? "",
-          sequence,
-          inputs,
+          xpath: element.xpath,
+          value: input.value,
+          isDefaultValue: false,
         };
+      });
+    });
+
+    return elementWithSequences
+      .filter(({ element: e1 }, index, array) => {
+        return (
+          array.findIndex(({ element: e2 }) => e2.xpath === e1.xpath) === index
+        );
       })
-      .reverse();
+      .map(({ element }) => {
+        const attributes = element.attributes;
+        return {
+          elementId: attributes["id"] ?? "",
+          elementName: attributes["name"] ?? "",
+          elementType: attributes["type"] ?? "",
+          sequence:
+            elementWithSequences.find(
+              ({ element: { xpath }, sequence }) =>
+                xpath === element.xpath && sequence > 0
+            )?.sequence ?? 0,
+          inputs: inputs
+            .filter(({ xpath }) => xpath === element.xpath)
+            .map(({ value, isDefaultValue }) => {
+              return { value, isDefaultValue };
+            }),
+        };
+      });
   }
 
   /**
    * Get screen transition.
    * @returns Screen transitions.
    */
-  public getScreenTransition():
-    | {
-        sourceScreenDef: string;
-        targetScreenDef: string;
-        history: OperationWithNotes[];
-        screenElements: ElementInfo[];
-        inputElements: ElementInfo[];
-      }[]
-    | undefined {
-    return this.screenTransition;
-  }
-
-  private static getDefaultValueOfElement(targetElement: ElementInfo) {
-    if (targetElement.tagname.toLowerCase() === "input") {
-      if (
-        targetElement.attributes.type &&
-        targetElement.attributes.type.toLowerCase() === "checkbox"
-      ) {
-        return targetElement.checked ? "on" : "off";
-      }
-
-      if (
-        targetElement.attributes.type &&
-        targetElement.attributes.type.toLowerCase() === "radio"
-      ) {
-        return targetElement.checked ? "on" : "off";
-      }
-    }
-
-    return targetElement.value ?? "";
-  }
-
-  private collectInputOperations(operationHistory: OperationWithNotes[]) {
-    return operationHistory
-      .filter(({ operation }) => {
-        // Excludes those without elementInfo.
-        if (operation.elementInfo === null) {
-          return false;
-        }
-        // Exclude click events without input.
-        const hasNoInput =
-          operation.input === undefined || operation.input === "";
-        if (hasNoInput && operation.type === "click") {
-          return false;
-        }
-        // Excluded if element type is submit.
-        if (
-          !!operation.elementInfo.attributes.type &&
-          operation.elementInfo.attributes.type === "submit"
-        ) {
-          return false;
-        }
-        return true;
-      })
-
-      .filter((item, index, history) => {
-        // Exclude duplicate input elements between OperationHistoryItems.
-        return (
-          history.findIndex(({ operation }) => {
-            return (
-              operation.elementInfo!.attributes.name ===
-              item.operation.elementInfo!.attributes.name
-            );
-          }) === index
-        );
-      });
-  }
-
-  private createInputElementsWithSequence(
-    transitions: Array<{
-      sourceScreenDef: string;
-      targetScreenDef: string;
-      history: OperationWithNotes[];
-      screenElements: ElementInfo[];
-      inputElements: ElementInfo[];
-    }>
-  ): Array<{
-    id: string;
-    name: string;
-    elementInfo: ElementInfo;
-    sequence: number;
-  }> {
-    // The last input element that appeared and the sequence number at that time.
-    const inputtedElements: Array<{
-      sequence: number;
-      element: ElementInfo;
-    }> = [];
-    const defaultElements: Array<{
-      sequence: number;
-      element: ElementInfo;
-    }> = [];
-
-    for (const transition of transitions) {
-      inputtedElements.push(
-        ...this.collectInputOperations(transition.history)
-          .map(({ operation }) => {
-            return {
-              sequence: operation.sequence,
-              element: operation.elementInfo,
-            };
-          })
-          .filter(
-            (
-              elementWithSequence
-            ): elementWithSequence is {
-              sequence: number;
-              element: ElementInfo;
-            } => {
-              return elementWithSequence.element !== null;
-            }
-          )
-      );
-
-      defaultElements.push(
-        ...transition.inputElements.map((inputElement) => {
-          return {
-            sequence: transition.history[0]?.operation.sequence ?? 0,
-            element: inputElement,
-          };
-        })
-      );
-    }
-
-    return inputtedElements
-      .concat(defaultElements)
-      .filter(({ element }, index, array) => {
-        return (
-          array.findIndex((item) => {
-            if (element.xpath) {
-              return (
-                normalizeXPath(item.element.xpath) ===
-                normalizeXPath(element.xpath)
-              );
-            }
-
-            return false;
-          }) === index
-        );
-      })
-      .reverse()
-      .map(({ sequence, element }) => {
-        return {
-          id: element.attributes.id ?? "",
-          name: element.attributes.name ?? "",
-          elementInfo: element,
-          sequence,
-        };
-      });
+  public getScreenTransitions(): ScreenTransition[] {
+    return this.screenTransitions;
   }
 }

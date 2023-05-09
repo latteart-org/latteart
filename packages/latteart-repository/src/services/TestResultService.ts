@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,40 @@ import {
   CreateTestResultResponse,
   GetTestResultResponse,
   PatchTestResultResponse,
-  TestResultViewOption,
+  GetGraphViewResponse,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
-import { StaticDirectoryServiceImpl } from "./StaticDirectoryService";
+import { getRepository, In } from "typeorm";
 import { TestStepService } from "./TestStepService";
 import { TimestampService } from "./TimestampService";
 import path from "path";
 import ScreenDefFactory, {
   ScreenDefinitionConfig,
-} from "@/lib/ScreenDefFactory";
+} from "@/domain/ScreenDefFactory";
 import {
   generateSequenceView,
   SequenceView,
-} from "@/lib/sequenceViewGenerator";
+} from "@/domain/testResultViewGeneration/sequenceView";
+import { ElementInfo, TestResultViewOption } from "@/domain/types";
+import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  createTestActions,
+  isSameProcedure,
+} from "@/domain/pageTesting/action";
+import {
+  assertPageStateEqual,
+  PageAssertionOption,
+} from "@/domain/pageTesting";
+import {
+  createReportSummary,
+  createReport,
+  outputReport,
+  extractOperation,
+} from "./helper/testResultCompareHelper";
+import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
+import { ServerError } from "@/ServerError";
+import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
+import { v4 as uuidv4 } from "uuid";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -72,6 +91,17 @@ export interface TestResultService {
     testResultId: string,
     option?: TestResultViewOption
   ): Promise<SequenceView>;
+
+  generateGraphView(
+    testResultId: string,
+    option?: TestResultViewOption
+  ): Promise<GetGraphViewResponse>;
+
+  compareTestResults(
+    testResultId1: string,
+    testResultId2: string,
+    option?: PageAssertionOption
+  ): Promise<CompareTestResultsResponse>;
 }
 
 export class TestResultServiceImpl implements TestResultService {
@@ -79,6 +109,9 @@ export class TestResultServiceImpl implements TestResultService {
     private service: {
       timestamp: TimestampService;
       testStep: TestStepService;
+      screenshotFileRepository: FileRepository;
+      workingFileRepository: FileRepository;
+      compareReportRepository: FileRepository;
     }
   ) {}
 
@@ -89,6 +122,7 @@ export class TestResultServiceImpl implements TestResultService {
       return {
         id: testResult.id,
         name: testResult.name,
+        parentTestResultId: testResult.parentTestResultId,
       };
     });
   }
@@ -152,6 +186,7 @@ export class TestResultServiceImpl implements TestResultService {
       testPurposes: [],
       notes: [],
       screenshots: [],
+      parentTestResultId: body.parentTestResultId,
     });
 
     if (testResultId) {
@@ -172,7 +207,7 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotDirectoryService: StaticDirectoryServiceImpl
+    screenshotFileRepository: FileRepository
   ): Promise<void> {
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
@@ -201,7 +236,7 @@ export class TestResultServiceImpl implements TestResultService {
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
       fileUrls.forEach((fileUrl) => {
-        screenshotDirectoryService.removeFile(path.basename(fileUrl));
+        screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
     return;
@@ -340,12 +375,257 @@ export class TestResultServiceImpl implements TestResultService {
         screenDef: screenDefFactory.create({
           url: testStep.operation.url,
           title: testStep.operation.title,
-          keywordSet: new Set(testStep.operation.keywordTexts),
+          keywordSet: new Set(
+            testStep.operation.keywordTexts?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
         }),
       };
     });
 
     return generateSequenceView(testStepWithScreenDefs);
+  }
+
+  public async generateGraphView(
+    testResultId: string,
+    option: TestResultViewOption = { node: { unit: "title", definitions: [] } }
+  ): Promise<GetGraphViewResponse> {
+    const screenDefinitionConfig: ScreenDefinitionConfig = {
+      screenDefType: option.node.unit,
+      conditionGroups: option.node.definitions.map((definition) => {
+        return {
+          isEnabled: true,
+          screenName: definition.name,
+          conditions: definition.conditions.map((condition) => {
+            return {
+              isEnabled: true,
+              definitionType: condition.target,
+              matchType: condition.method,
+              word: condition.value,
+            };
+          }),
+        };
+      }),
+    };
+
+    const testResult = await this.getTestResult(testResultId);
+
+    if (!testResult) {
+      return {
+        nodes: [],
+        store: {
+          windows: [],
+          screens: [],
+          elements: [],
+          testPurposes: [],
+          notes: [],
+        },
+      };
+    }
+
+    const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
+    const testStepWithScreenDefs = testResult.testSteps.map((testStep) => {
+      return {
+        ...testStep,
+        screenDef: screenDefFactory.create({
+          url: testStep.operation.url,
+          title: testStep.operation.title,
+          keywordSet: new Set(
+            testStep.operation.keywordTexts?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
+        }),
+      };
+    });
+
+    const idGenerator = {
+      generateScreenId: () => uuidv4(),
+      generateElementId: () => uuidv4(),
+    };
+
+    const coverageSourceGroupedByScreenDef = testResult.coverageSources
+      .map(({ url, title, screenElements }) => {
+        const keywordTexts = screenElements
+          .map((screenElement) => {
+            return {
+              tagname: screenElement.tagname,
+              value: screenElement.textWithoutChildren ?? "",
+            };
+          })
+          .filter(({ value }) => value);
+
+        const screenDef = screenDefFactory.create({
+          url,
+          title,
+          keywordSet: new Set(
+            keywordTexts.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            })
+          ),
+        });
+
+        return {
+          screenDef,
+          screenElements: screenElements.map((element) => {
+            return { pageUrl: url, pageTitle: title, ...element };
+          }),
+        };
+      })
+      .reduce(
+        (
+          acc: {
+            screenDef: string;
+            screenElements: (ElementInfo & {
+              pageUrl: string;
+              pageTitle: string;
+            })[];
+          }[],
+          { screenDef, screenElements }
+        ) => {
+          const sameScreenDefItem = acc.find(
+            (item) => item.screenDef === screenDef
+          );
+
+          if (sameScreenDefItem) {
+            sameScreenDefItem.screenElements.push(...screenElements);
+          } else {
+            acc.push({ screenDef, screenElements });
+          }
+
+          return acc;
+        },
+        []
+      );
+
+    const graphView = generateGraphView(
+      testStepWithScreenDefs,
+      coverageSourceGroupedByScreenDef,
+      idGenerator
+    );
+
+    const testStepEntities = await getRepository(TestStepEntity).find({
+      where: {
+        id: In(
+          graphView.nodes.flatMap(({ testSteps }) =>
+            testSteps.map(({ id }) => id)
+          )
+        ),
+      },
+      relations: ["screenshot"],
+    });
+
+    const nodes = graphView.nodes.map((node) => {
+      const testSteps = node.testSteps.map((testStep) => {
+        const imageFileUrl = testStepEntities.find(
+          ({ id }) => id === testStep.id
+        )?.screenshot?.fileUrl;
+
+        return { ...testStep, imageFileUrl };
+      });
+      return { ...node, testSteps };
+    });
+
+    const notes = (
+      await getRepository(NoteEntity).find({
+        where: { id: In(graphView.store.notes.map(({ id }) => id)) },
+        relations: ["tags", "screenshot"],
+      })
+    ).map((noteEntity) => {
+      const { id, value, details } = noteEntity;
+      const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
+      const imageFileUrl = noteEntity.screenshot?.fileUrl;
+      return { id, value, details, tags, imageFileUrl };
+    });
+
+    const testPurposes = (
+      await getRepository(TestPurposeEntity).find({
+        where: { id: In(graphView.store.testPurposes.map(({ id }) => id)) },
+      })
+    ).map((testPurposeEntity) => {
+      const { id, title: value, details } = testPurposeEntity;
+      return { id, value, details };
+    });
+
+    return {
+      nodes,
+      store: { ...graphView.store, notes, testPurposes },
+    };
+  }
+
+  public async compareTestResults(
+    actualTestResultId: string,
+    expectedTestResultId: string,
+    option: PageAssertionOption = {}
+  ): Promise<CompareTestResultsResponse> {
+    const testStepRepository = getRepository(TestStepEntity);
+    const findOption = {
+      relations: ["screenshot"],
+      order: { timestamp: "ASC" as const },
+    };
+    const actualTestStepEntities = await testStepRepository.find({
+      ...findOption,
+      where: { testResult: actualTestResultId },
+    });
+    const expectedTestStepEntities = await testStepRepository.find({
+      ...findOption,
+      where: { testResult: expectedTestResultId },
+    });
+
+    const actualOperations = actualTestStepEntities.map((entity) => {
+      return extractOperation(entity, this.service.screenshotFileRepository);
+    });
+    const expectedOperations = expectedTestStepEntities.map((entity) => {
+      return extractOperation(entity, this.service.screenshotFileRepository);
+    });
+
+    const actualActions = createTestActions(...actualOperations);
+    const expectedActions = createTestActions(...expectedOperations);
+
+    if (!isSameProcedure(actualActions, expectedActions)) {
+      throw new ServerError(500, {
+        code: "comparison_targets_not_same_procedures",
+      });
+    }
+
+    const assertionResults = await Promise.all(
+      expectedActions.map((expected, index) => {
+        return assertPageStateEqual(
+          { actual: actualActions[index].result, expected: expected.result },
+          option
+        );
+      })
+    );
+
+    const testResultRepository = getRepository(TestResultEntity);
+    const actualTestResult = await testResultRepository.findOneOrFail(
+      actualTestResultId
+    );
+    const expectedTestResult = await testResultRepository.findOneOrFail(
+      expectedTestResultId
+    );
+
+    const targetNames = {
+      actual: actualTestResult.name,
+      expected: expectedTestResult.name,
+    };
+    const report = createReport(targetNames, assertionResults);
+    const summary = createReportSummary(report);
+    const reportUrl = await outputReport(
+      `compare_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+      report,
+      this.service.compareReportRepository,
+      this.service.workingFileRepository
+    );
+
+    return { url: reportUrl, targetNames, summary };
   }
 
   private async convertTestResultEntityToTestResult(
@@ -413,6 +693,7 @@ export class TestResultServiceImpl implements TestResultService {
       testingTime: testResultEntity.testingTime,
       testSteps,
       coverageSources,
+      parentTestResultId: testResultEntity.parentTestResultId,
     };
   }
 }

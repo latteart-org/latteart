@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 <template>
   <div style="height: calc(100vh - 120px)">
-    <v-toolbar color="latteart-main" dark fixed app clipped-right>
+    <v-app-bar color="latteart-main" dark fixed app clipped-right>
       <v-toolbar-title>{{
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
@@ -28,6 +28,7 @@
           color="primary"
           :dark="!slotProps.obj.processing"
           @click="slotProps.obj.execute"
+          class="ma-2"
         >
           {{ $store.getters.message("history-view.export-screenshots") }}
         </v-btn>
@@ -36,14 +37,19 @@
         id="scriptGenerateButton"
         color="primary"
         @click="scriptGenerationOptionDialogIsOpened = true"
+        class="ma-2"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn id="viewerConfigButton" color="primary" @click="toViewerConfig">{{
-        $store.getters.message("manage-header.capture-config")
-      }}</v-btn>
-    </v-toolbar>
+      <v-btn
+        id="viewerConfigButton"
+        color="primary"
+        @click="toViewerConfig"
+        class="ma-2"
+        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
+      >
+    </v-app-bar>
 
-    <v-btn :disabled="isResuming" @click="toBack()">{{
+    <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,16 +83,6 @@ export class ProjectFileRepository implements ProjectRepository {
   public async postProject(): Promise<
     RepositoryAccessResult<{ id: string; name: string }>
   > {
-    return createConnectionRefusedFailure();
-  }
-
-  /**
-   * Update the project with the specified project ID.
-   * @param projectId  Project ID.
-   * @param body  Project information to update.
-   * @returns Updated project information.
-   */
-  public async putProject(): Promise<RepositoryAccessResult<Project>> {
     return createConnectionRefusedFailure();
   }
 

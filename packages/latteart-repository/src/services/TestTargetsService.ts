@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,9 +144,10 @@ export class TestTargetService {
 
     const storyIds = testTarget.stories.map((story) => story.id);
 
-    await new TestProgressServiceImpl(
-      transactionRunner
-    ).saveTodayTestProgresses(projectId, ...storyIds);
+    await new TestProgressServiceImpl().saveTodayTestProgresses(
+      projectId,
+      ...storyIds
+    );
 
     return await this.testTargetIdToResponse(testTarget.id);
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 import WebDriverClient from "./WebDriverClient";
 import { Alert, By, Key, WebDriver, WebElement } from "selenium-webdriver";
+import LoggingService from "@/logger/LoggingService";
 
 /**
  * Selenium WebDriver client.
@@ -414,5 +415,25 @@ export class SeleniumWebDriverClient implements WebDriverClient {
 
   public async getElementByTagName(tagName: string): Promise<WebElement[]> {
     return await this.driver.findElements(By.tagName(tagName));
+  }
+
+  public async getClientSize(): Promise<{ width: number; height: number }> {
+    let rect = await this.driver.manage().window().getRect();
+
+    for (let i = 0; i < 10; i++) {
+      const correctedRect = await this.driver.manage().window().setRect(rect);
+      if (rect.width === correctedRect.width && rect.height === rect.height) {
+        break;
+      }
+
+      LoggingService.warn(
+        `Correct client size: ${JSON.stringify(rect)} -> ${JSON.stringify(
+          correctedRect
+        )}`
+      );
+      rect = correctedRect;
+    }
+
+    return { width: rect.width, height: rect.height };
   }
 }

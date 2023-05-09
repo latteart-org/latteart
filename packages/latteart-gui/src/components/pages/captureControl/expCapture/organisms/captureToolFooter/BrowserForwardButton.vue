@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
       @click="browserForward"
       :disabled="isDisabled"
       :title="$store.getters.message('navigate.forward')"
+      class="mx-2"
     >
       <v-icon dark>arrow_forward</v-icon>
     </v-btn>

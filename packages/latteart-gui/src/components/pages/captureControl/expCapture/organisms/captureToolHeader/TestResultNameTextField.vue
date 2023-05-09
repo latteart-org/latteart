@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-layout justify-start align-center row>
-    <v-icon class="pl-4 pr-1">save_alt</v-icon>
+  <v-row justify="start" align="center">
+    <v-icon>save_alt</v-icon>
     <v-text-field
       single-line
       :label="$store.getters.message('app.test-result-name')"
@@ -25,7 +25,7 @@
       :disabled="isDisabled"
       id="outputDirectoryTextField"
     ></v-text-field>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">

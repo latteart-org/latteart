@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,22 @@ export interface ElementInfo {
   /**
    * The attributes of the element.
    */
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
+
+  /**
+   * Bounding rectangle.
+   */
+  boundingRect: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+
+  /**
+   * The text of the element without children.
+   */
+  textWithoutChildren?: string;
 }
 
 /**
@@ -64,6 +79,16 @@ export class Operation {
    * Operation type.
    */
   public type = "";
+
+  /**
+   * Scroll position.
+   */
+  public scrollPosition = { x: 0, y: 0 };
+
+  /**
+   * Client size.
+   */
+  public clientSize = { width: 0, height: 0 };
 
   /**
    * The screen element that has been operated.

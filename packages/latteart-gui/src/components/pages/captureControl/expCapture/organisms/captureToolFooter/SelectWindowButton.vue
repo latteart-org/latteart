@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
       @click="windowSelectorOpened = true"
       :title="$store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
+      class="mx-2"
     >
       <v-icon dark>tab</v-icon>
     </v-btn>

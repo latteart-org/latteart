@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import {
   PutConfigDto,
   PutConfigResponse,
 } from "../interfaces/Configs";
-import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import {
   Get,
@@ -32,7 +31,8 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { ConfigsService } from "../services/ConfigsService";
-import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/configHelper";
+import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/configs")
 @Tags("projects")
@@ -53,7 +53,7 @@ export class ConfigsController {
       return convertToExportableConfig(config);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Get settings failed.", error);
+        createLogger().error("Get settings failed.", error);
 
         throw new ServerError(404, {
           code: "get_settings_failed",
@@ -87,7 +87,7 @@ export class ConfigsController {
       return convertToExportableConfig(config);
     } catch (error) {
       if (error instanceof Error) {
-        LoggingService.error("Save settings failed.", error);
+        createLogger().error("Save settings failed.", error);
 
         throw new ServerError(500, {
           code: "save_settings_failed",

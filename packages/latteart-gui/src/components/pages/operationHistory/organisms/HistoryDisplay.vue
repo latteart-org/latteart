@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@
         'hidden-coverage': !dispCoverage,
       }"
     >
-      <div style="position: relative">
+      <div style="position: relative" class="pt-2">
         <v-btn
           color="blue"
           :loading="updating"
           :dark="canUpdateModels"
           :disabled="!canUpdateModels"
-          @click="updateScreenHistory"
+          @click="updateTestResultViewModel"
           >{{ message("history-view.update-model-and-coverage") }}</v-btn
         >
         <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
@@ -37,42 +37,50 @@
       </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
-          <v-flex xs12 wrap mb-0 pb-0 px-2>
-            <v-radio-group v-model="diagramType" row class="py-0">
-              <v-radio
-                :label="message('history-view.sequence')"
-                :value="DIAGRAM_TYPE_SEQUENCE"
-              ></v-radio>
-              <v-radio
-                :label="message('history-view.screen-transition')"
-                :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
-              ></v-radio>
-              <v-radio
-                :label="message('history-view.element-coverage')"
-                :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              ></v-radio>
-            </v-radio-group>
-          </v-flex>
-          <v-flex
-            xs12
-            :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
-            column
-            justify-center
-            fill-height
-            ref="mermaidGraphDisplay"
-          >
-            <element-coverage
-              v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              :onSelectElement="selectOperation"
-              :message="message"
-            ></element-coverage>
-            <history-summary-diagram
-              v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
-              :diagramType="diagramType"
-              :windows="windows"
-              :message="message"
-            ></history-summary-diagram>
-          </v-flex>
+          <v-container fluid fill-height class="pt-0">
+            <v-row class="mb-0 pb-0 px-2">
+              <v-col cols="12" class="pa-0">
+                <v-radio-group
+                  v-model="diagramType"
+                  row
+                  class="py-0"
+                  hide-details
+                >
+                  <v-radio
+                    :label="message('history-view.sequence')"
+                    :value="DIAGRAM_TYPE_SEQUENCE"
+                  ></v-radio>
+                  <v-radio
+                    :label="message('history-view.screen-transition')"
+                    :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
+                  ></v-radio>
+                  <v-radio
+                    :label="message('history-view.element-coverage')"
+                    :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  ></v-radio>
+                </v-radio-group>
+              </v-col>
+            </v-row>
+            <v-row
+              class="mt-0"
+              :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
+              ref="mermaidGraphDisplay"
+            >
+              <v-col cols="12" class="pt-0">
+                <element-coverage
+                  v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  :onSelectElement="selectOperation"
+                  :message="message"
+                ></element-coverage>
+                <history-summary-diagram
+                  v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
+                  :diagramType="diagramType"
+                  :windows="windows"
+                  :message="message"
+                ></history-summary-diagram>
+              </v-col>
+            </v-row>
+          </v-container>
         </pane>
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
@@ -89,7 +97,7 @@
               <v-btn
                 v-show="screenshotUrl !== ''"
                 color="white"
-                class="screenshot-button screenshot-button-single"
+                class="screenshot-button screenshot-button-single ma-1"
                 fab
                 small
               >
@@ -221,7 +229,7 @@ export default class HistoryDisplay extends Vue {
   private recentImageInfo = "";
 
   private get updating(): boolean {
-    return this.$store.state.operationHistory.screenHistoryIsUpdating;
+    return this.$store.state.operationHistory.isTestResultViewModelUpdating;
   }
 
   private get screenshotUrl(): string {
@@ -250,9 +258,9 @@ export default class HistoryDisplay extends Vue {
     return this.$store.state.operationHistory.canUpdateModels;
   }
 
-  private updateScreenHistory() {
+  private updateTestResultViewModel() {
     (async () => {
-      await this.$store.dispatch("operationHistory/updateScreenHistory");
+      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
     })();
   }
 

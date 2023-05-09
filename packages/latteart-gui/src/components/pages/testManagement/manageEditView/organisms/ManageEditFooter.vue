@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
 -->
 
 <template>
-  <div>
-    <v-footer app height="auto" color="latteart-main">
-      <v-container fluid class="py-0">
-        <v-layout row justify-end>
-          <v-spacer></v-spacer>
-          <v-btn id="toTopFromEditPlanButton" @click="toIndex">{{
-            $store.getters.message("edit-footer.top")
-          }}</v-btn>
-        </v-layout>
-      </v-container>
-    </v-footer>
-  </div>
+  <v-footer app height="auto" color="latteart-main">
+    <v-container fluid>
+      <v-row>
+        <v-spacer></v-spacer>
+        <v-btn id="toTopFromEditPlanButton" @click="toIndex">{{
+          $store.getters.message("edit-footer.top")
+        }}</v-btn>
+      </v-row>
+    </v-container>
+  </v-footer>
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,10 @@ import express, {
   NextFunction,
 } from "express";
 import { ValidateError } from "tsoa";
-import LoggingService from "./logger/LoggingService";
-import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import bodyParser from "body-parser";
-import { SettingsUtility } from "./lib/settings/SettingsUtility";
+import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
-import {
-  ConnectionOptions,
-  createConnection,
-  getConnectionOptions,
-} from "typeorm";
+import { ConnectionOptions, createConnection } from "typeorm";
 import { NoteEntity } from "./entities/NoteEntity";
 import { TagEntity } from "./entities/TagEntity";
 import fs from "fs-extra";
@@ -41,7 +35,6 @@ import { CoverageSourceEntity } from "./entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "./entities/TestPurposeEntity";
 import { TestResultEntity } from "./entities/TestResultEntity";
 import { ScreenshotEntity } from "./entities/ScreenshotEntity";
-import { StaticDirectoryServiceImpl } from "./services/StaticDirectoryService";
 import { AttachedFileEntity } from "./entities/AttachedFilesEntity";
 import { ConfigEntity } from "./entities/ConfigEntity";
 import { ProjectEntity } from "./entities/ProjectEntity";
@@ -66,43 +59,9 @@ import { AddTestProgressEntity1657768635961 } from "./migrations/1657768635961-A
 import { DeleteDefaultInputElementEntity1661223982605 } from "./migrations/1661223982605-DeleteDefaultInputElementEntity";
 import { UpdateTestStepEntity1666848612089 } from "./migrations/1666848612089-UpdateTestStepEntity";
 import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-UpdateTestResultEntity";
-
-LoggingService.initialize(
-  new StandardLogger(
-    RunningMode.Debug,
-    path.join(appRootPath, "logs", "latteart-repository.log")
-  )
-);
-
-export const screenshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "screenshots"
-);
-export const attachedFileDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "attached-files"
-);
-export const snapshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "snapshots"
-);
-export const testScriptDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "test-scripts"
-);
-export const importDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "imports"
-);
-export const exportDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "exports"
-);
-
-export const tempDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "temp"
-);
+import { createLogger } from "./logger/logger";
+import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
+import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -118,7 +77,7 @@ export const transactionRunner = new TransactionRunner();
 
   runServer(port, timeout);
 })().catch((error) => {
-  LoggingService.error(error);
+  createLogger().error(error);
 });
 
 async function initializeOrmConnection() {
@@ -163,6 +122,8 @@ async function initializeOrmConnection() {
       DeleteDefaultInputElementEntity1661223982605,
       UpdateTestStepEntity1666848612089,
       UpdateTestResultEntity1671087205573,
+      UpdateTestStepEntity1677835465468,
+      UpdateTestResultEntity1680078703857,
     ],
   };
 
@@ -176,7 +137,7 @@ async function initializeOrmConnection() {
     options.database = databasePath;
 
     if (fs.existsSync(databasePath)) {
-      LoggingService.info(
+      createLogger().info(
         `Backup sqlite database file. -> ${backupDatabasePath}`
       );
 
@@ -187,7 +148,7 @@ async function initializeOrmConnection() {
   const connection = await createConnection(options);
   await connection.query("PRAGMA foreign_keys=OFF;");
   await connection.runMigrations().catch(async (error) => {
-    LoggingService.error(error);
+    createLogger().error(error);
 
     await connection.close();
 
@@ -221,6 +182,8 @@ function runServer(port: number, timeout?: number) {
 
   RegisterRoutes(app);
 
+  const logger = createLogger();
+
   app.use(function errorHandler(
     err: unknown,
     req: ExRequest,
@@ -230,34 +193,34 @@ function runServer(port: number, timeout?: number) {
     console.log("errorHandler");
 
     if (err instanceof ValidateError) {
-      LoggingService.warn(
+      logger.warn(
         `Caught Validation Error for ${req.path}: ${JSON.stringify(err.fields)}`
       );
-      LoggingService.warn(req.body);
+      logger.warn(req.body);
 
       return res.status(422).json({
         message: "Validation Failed",
         details: err?.fields,
       });
     } else if (err instanceof ServerError) {
-      LoggingService.error(JSON.stringify(err));
+      logger.error(JSON.stringify(err));
 
       return res.status(err.statusCode).json(err.data);
     } else if (err instanceof Error) {
-      LoggingService.error(JSON.stringify(err));
+      logger.error(JSON.stringify(err));
 
       return res.status(500).json({
         message: "Internal Server Error",
       });
     } else {
-      LoggingService.error(`${err}`);
+      logger.error(`${err}`);
     }
 
     next();
   });
 
   const server = app.listen(port, () => {
-    LoggingService.info(`Listening on *:${port}`);
+    logger.info(`Listening on *:${port}`);
   });
 
   if (timeout) {

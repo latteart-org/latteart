@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import {
   OperationWithNotes,
   OperationHistory,
-  ScreenTransition,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
@@ -341,15 +340,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Select a screen.
-   * @param state State.
-   * @param payload.screenDef Screen definition.
-   */
-  selectScreen(state, payload: { screenDef: string }) {
-    state.selectedScreenDef = payload.screenDef;
-  },
-
-  /**
    * Set displayed operations to the State.
    * @param state State.
    * @param payload.sequences Sequence numbers of displayed operations.
@@ -428,15 +418,15 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set whether screen history is updating or not to the State.
+   * Set whether test result view model is updating or not to the State.
    * @param state State.
-   * @param payload.screenHistoryIsUpdating Whether screen history is updating or not.
+   * @param payload.isTestResultViewModelUpdating Whether test result view model is updating or not.
    */
-  setScreenHistoryIsUpdating(
+  setTestResultViewModelUpdating(
     state,
-    payload: { screenHistoryIsUpdating: boolean }
+    payload: { isTestResultViewModelUpdating: boolean }
   ) {
-    state.screenHistoryIsUpdating = payload.screenHistoryIsUpdating;
+    state.isTestResultViewModelUpdating = payload.isTestResultViewModelUpdating;
   },
 
   /**
@@ -489,12 +479,18 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   setTestResultInfo(
     state,
-    payload: { repositoryUrl: string; id: string; name: string }
+    payload: {
+      repositoryUrl: string;
+      id: string;
+      name: string;
+      parentTestResultId: string;
+    }
   ) {
     state.testResultInfo = {
       repositoryUrl: payload.repositoryUrl,
       id: payload.id,
       name: payload.name,
+      parentTestResultId: payload.parentTestResultId,
     };
   },
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ export type RepositoryService = {
   createEmptyTestResult(option?: {
     initialUrl?: string;
     name?: string;
-    source?: string;
+    parentTestResultId?: string;
   }): Promise<ServiceResult<{ id: string; name: string }>>;
 
   /**
@@ -173,6 +173,14 @@ export type TestResultAccessor = {
   generateSequenceView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>>;
+
+  /**
+   * generate Graph View of Test Result
+   * @param option option
+   */
+  generateGraphView(
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<GraphView>>;
 };
 
 export type SequenceView = {
@@ -216,6 +224,48 @@ export type SequenceViewNode = {
   disabled?: boolean | undefined;
 };
 
+export type GraphView = {
+  nodes: GraphViewNode[];
+  store: {
+    windows: { id: string; name: string }[];
+    screens: { id: string; name: string; elementIds: string[] }[];
+    elements: {
+      id: string;
+      pageUrl: string;
+      pageTitle: string;
+      xpath: string;
+      tagname: string;
+      text: string;
+      attributes: { [key: string]: string };
+    }[];
+    testPurposes: { id: string; value: string; details: string }[];
+    notes: {
+      id: string;
+      value: string;
+      details: string;
+      tags?: string[];
+      imageFileUrl?: string;
+    }[];
+  };
+};
+
+export type GraphViewNode = {
+  windowId: string;
+  screenId: string;
+  testSteps: {
+    id: string;
+    type: string;
+    input?: string;
+    targetElementId?: string;
+    noteIds: string[];
+    testPurposeId?: string;
+    pageUrl: string;
+    pageTitle: string;
+    imageFileUrl?: string;
+  }[];
+  defaultValues: { elementId: string; value?: string }[];
+};
+
 export type RepositoryServiceErrorCode =
   | "create_empty_test_result_failed"
   | "get_test_result_failed"
@@ -233,4 +283,5 @@ export type RepositoryServiceErrorCode =
   | "delete_test_purpose_failed"
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
-  | "generate_sequence_view_failed";
+  | "generate_sequence_view_failed"
+  | "generate_graph_view_failed";

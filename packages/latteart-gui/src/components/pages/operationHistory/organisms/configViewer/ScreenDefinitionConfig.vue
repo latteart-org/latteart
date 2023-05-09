@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-layout row wrap>
-      <v-flex xs12 class="py-0 my-0">
+    <v-row>
+      <v-col cols="12" class="py-0 my-0">
         <h4>
           {{
             $store.getters.message(
@@ -44,8 +44,8 @@
             value="url"
           ></v-radio>
         </v-radio-group>
-      </v-flex>
-      <v-flex xs12 style="margin-top: 10px">
+      </v-col>
+      <v-col cols="12">
         <h4>
           {{
             $store.getters.message("config-view.screen-def.priority-condition")
@@ -55,8 +55,8 @@
           :screenDefinition="tempConfig"
           @update-condition-groups="updateConditionGroups"
         ></screen-def-unit-container>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

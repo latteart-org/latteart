@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,8 @@ export interface CaptureControlState {
    */
   replayOption: {
     testResultName: string;
-    replayCaptureMode: boolean;
+    resultSavingEnabled: boolean;
+    comparisonEnabled: boolean;
   };
 
   captureSession: CaptureSession | null;
@@ -92,7 +93,11 @@ export interface CaptureControlState {
     title: string;
     url: string;
     message: string;
-    inputElements: ElementInfo[];
+    inputElements: {
+      xpath: string;
+      attributes: { [key: string]: string };
+      inputValue: string;
+    }[];
     callback: () => void;
   } | null;
 }
@@ -110,7 +115,8 @@ const state: CaptureControlState = {
   },
   replayOption: {
     testResultName: "",
-    replayCaptureMode: false,
+    resultSavingEnabled: false,
+    comparisonEnabled: false,
   },
   autofillSelectDialogData: null,
   autofillRegisterDialogData: null,

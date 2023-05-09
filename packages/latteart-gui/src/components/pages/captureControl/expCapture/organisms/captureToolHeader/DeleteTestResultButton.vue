@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 <template>
   <div>
-    <v-list-tile @click="openConfirmDialog" :disabled="isDisabled">
-      <v-list-tile-title>{{
+    <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
+      <v-list-item-title>{{
         $store.getters.message("history-view.delete-test-result")
-      }}</v-list-tile-title>
-    </v-list-tile>
+      }}</v-list-item-title>
+    </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"

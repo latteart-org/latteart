@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 import { BackendConfig, PutConfigDto } from "../interfaces/Configs";
 import { getRepository } from "typeorm";
 import { ConfigEntity } from "../entities/ConfigEntity";
-import { SettingsUtility } from "../lib/settings/SettingsUtility";
+import { SettingsUtility } from "../gateways/settings/SettingsUtility";
+import { convertToConfigText } from "./helper/configHelper";
 
 export class ConfigsService {
   private static imageCompressionCommand = "";
@@ -33,20 +34,13 @@ export class ConfigsService {
     requestBody: PutConfigDto
   ): Promise<BackendConfig> {
     const configEntity = await this.getConfigSource(projectId);
-    const configText = JSON.parse(configEntity.text) as BackendConfig;
-    const settings: BackendConfig = {
-      ...requestBody,
-      config: {
-        ...requestBody.config,
-        imageCompression: {
-          ...requestBody.config.imageCompression,
-          command: ConfigsService.imageCompressionCommand,
-        },
-      },
-      captureSettings: configText.captureSettings,
-    };
+    const settings = convertToConfigText(
+      configEntity.text,
+      requestBody,
+      ConfigsService.imageCompressionCommand
+    );
 
-    configEntity.text = JSON.stringify(settings);
+    configEntity.text = settings;
 
     const savedConfigEntity = await getRepository(ConfigEntity).save(
       configEntity

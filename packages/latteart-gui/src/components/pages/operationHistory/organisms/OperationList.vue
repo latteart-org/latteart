@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,24 +15,22 @@
 -->
 
 <template>
-  <v-layout
+  <v-row
     id="operation-list"
-    align-space-around
-    justify-space-between
-    column
-    fill-height
+    align-content="space-around"
+    justify="space-between"
+    class="fill-height"
   >
-    <v-layout align-center style="height: 40px">
+    <v-col cols="12" align-self="center" style="height: 40px">
       <auto-operation-register-button v-if="!isViewerMode" />
-    </v-layout>
-    <v-layout
-      align-space-around
-      justify-end
-      column
-      fill-height
+    </v-col>
+    <v-row
+      align-content="space-around"
+      justify="end"
+      class="fill-height"
       style="height: calc(100% - 90px)"
     >
-      <v-flex xs12 :style="{ height: '100%' }">
+      <v-col cols="12" :style="{ height: '100%' }" class="pr-12">
         <selectable-data-table
           @selectItems="onSelectOperations"
           @contextmenu="openOperationContextMenu"
@@ -50,8 +48,9 @@
           ]"
           shortcut
           sortBy="operation.sequence"
-          :rowsPerPage="10"
+          :itemsPerPage="10"
           :hide-check-box="isViewerMode"
+          :hide-headers="true"
         >
           <template v-slot:row="{ columns }">
             <td class="seq-col">
@@ -138,33 +137,35 @@
             </td>
           </template>
         </selectable-data-table>
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
 
-    <v-layout
-      id="operation-search"
-      style="height: 50px"
-      @keydown="cancelKeydown"
-    >
-      <span class="search-title"
-        ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+    <v-col cols="12">
+      <v-row
+        id="operation-search"
+        style="height: 50px"
+        @keydown="cancelKeydown"
       >
-      <v-checkbox
-        class="search-checkbox search-item"
-        :label="message('operation.purpose')"
-        v-model="purposeCheckbox"
-      ></v-checkbox>
-      <v-checkbox
-        class="search-checkbox"
-        :label="message('operation.notice')"
-        v-model="noticeCheckbox"
-      ></v-checkbox>
-      <v-text-field
-        class="search-item"
-        v-model="search"
-        :label="message('operation.query')"
-      ></v-text-field>
-    </v-layout>
+        <span class="search-title pt-5 pl-4"
+          ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+        >
+        <v-checkbox
+          class="search-checkbox pl-4"
+          :label="message('operation.purpose')"
+          v-model="purposeCheckbox"
+        ></v-checkbox>
+        <v-checkbox
+          class="search-checkbox"
+          :label="message('operation.notice')"
+          v-model="noticeCheckbox"
+        ></v-checkbox>
+        <v-text-field
+          class="pl-4"
+          v-model="search"
+          :label="message('operation.query')"
+        ></v-text-field>
+      </v-row>
+    </v-col>
 
     <operation-context-menu
       :opened="contextMenuOpened"
@@ -173,7 +174,7 @@
       :operationInfo="contextMenuInfo"
       @operationContextMenuClose="contextMenuOpened = false"
     />
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -538,10 +539,6 @@ td
 
 .search-title
   color: rgba(0,0,0,0.54)
-  padding-top: 17px
-
-.search-item
-  padding-left: 16px
 </style>
 
 <style lang="sass">
@@ -554,4 +551,7 @@ td
 
 .seq-col
   padding-right: 8px !important
+
+td
+  height: 30px !important
 </style>

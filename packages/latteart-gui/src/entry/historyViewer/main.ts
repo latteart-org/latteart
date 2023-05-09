@@ -1,5 +1,5 @@
 /**
- * Copyright 2022 NTT Corporation.
+ * Copyright 2023 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,19 @@
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import "leaflet/dist/leaflet.css";
 import Vue from "vue";
-import "../../plugins/vuetify";
+import vuetify from "../../plugins/vuetify";
 import App from "./App.vue";
 import router from "../../viewerRouter";
 import store from "@/store";
 
 declare const historyLog: any;
 declare const sequenceView: any;
+declare const graphView: any;
 declare const settings: any;
 
 Vue.prototype.$historyLog = historyLog;
 Vue.prototype.$sequenceView = sequenceView;
+Vue.prototype.$graphView = graphView;
 Vue.prototype.$settings = settings;
 Vue.prototype.$isViewerMode = true;
 
@@ -35,6 +37,7 @@ Vue.config.productionTip = false;
 
 new Vue({
   router,
+  vuetify,
   store,
   render: (h) => h(App),
 }).$mount("#app");

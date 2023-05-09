@@ -1,5 +1,5 @@
 <!--
- Copyright 2022 NTT Corporation.
+ Copyright 2023 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 <template>
   <div>
     <v-select
+      hide-details
       :label="$store.getters.message('manage-header.locale')"
       :items="locales"
       :value="initLocale"
