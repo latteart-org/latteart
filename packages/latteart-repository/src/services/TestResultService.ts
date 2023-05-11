@@ -61,6 +61,7 @@ import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
+import { createLogger } from "@/logger/logger";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -590,6 +591,18 @@ export class TestResultServiceImpl implements TestResultService {
     const expectedActions = createTestActions(...expectedOperations);
 
     if (!isSameProcedure(actualActions, expectedActions)) {
+      createLogger().error("Comparison targets not same procedures.");
+      createLogger().error(
+        `expected: ${JSON.stringify(
+          expectedActions.map(({ operation }) => operation)
+        )}`
+      );
+      createLogger().error(
+        `actual: ${JSON.stringify(
+          actualActions.map(({ operation }) => operation)
+        )}`
+      );
+
       throw new ServerError(500, {
         code: "comparison_targets_not_same_procedures",
       });

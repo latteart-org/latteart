@@ -26,7 +26,7 @@ import {
   CaptureConfig,
   CapturedOperation,
   CapturedScreenTransition,
-  Operation,
+  RunnableOperation,
 } from "../../service/types";
 import { CaptureCLServerError } from "./types";
 
@@ -325,9 +325,7 @@ export class CaptureClServerAdapter {
     }
   }
 
-  public async runOperation(
-    operation: Pick<Operation, "type" | "input" | "elementInfo">
-  ): Promise<{
+  public async runOperation(operation: RunnableOperation): Promise<{
     data: unknown;
     error?: CaptureCLServerError | undefined;
   }> {
@@ -362,7 +360,7 @@ export class CaptureClServerAdapter {
   }
 
   public async runOperationAndScreenTransition(
-    operation: Pick<Operation, "type" | "input" | "elementInfo">
+    operation: RunnableOperation
   ): Promise<{
     data: unknown;
     error?: CaptureCLServerError | undefined;

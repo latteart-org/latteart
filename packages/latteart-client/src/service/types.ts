@@ -89,6 +89,12 @@ export type Operation = {
   isAutomatic: boolean;
 };
 
+export type RunnableOperation = Pick<
+  Operation,
+  "type" | "input" | "elementInfo" | "clientSize" | "scrollPosition"
+> &
+  Partial<Pick<Operation, "timestamp" | "windowHandle">>;
+
 export type TestStep = {
   id: string;
   operation: Operation;
