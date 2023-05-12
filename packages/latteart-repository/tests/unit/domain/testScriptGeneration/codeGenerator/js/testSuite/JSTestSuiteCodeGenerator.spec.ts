@@ -155,33 +155,33 @@ import name_of_pageObjectId2 from './page_objects/name_of_pageObjectId2.page';
  * testSuiteComment1
  */
 describe('testSuite1', () => {
-  beforeEach('open top page', () => {
-    browser.url('topPageUrl1');
+  beforeEach('open top page', async () => {
+    await browser.url('topPageUrl1');
   });
 
   /**
    * testCaseComment1
    */
-  it('testCase1', () => {
-    new name_of_pageObjectId1()
+  it('testCase1', async () => {
+    await new name_of_pageObjectId1()
       // methodComment1
       .name_of_methodId1-1({
         param1-1: 'value1-1',
         param1-2: 'value1-2'
       })
       // methodComment2
-      .name_of_methodId1-2();
+      .then((page) => page.name_of_methodId1-2());
   });
 
   /**
    * testCaseComment2
    */
-  it('testCase2', () => {
-    new name_of_pageObjectId2()
+  it('testCase2', async () => {
+    await new name_of_pageObjectId2()
       .name_of_methodId2-1({
         param2-1: 'value2-1'
       })
-      .name_of_methodId2-2();
+      .then((page) => page.name_of_methodId2-2());
   });
 });
 
@@ -189,33 +189,33 @@ describe('testSuite1', () => {
  * testSuiteComment2
  */
 describe('testSuite2', () => {
-  beforeEach('open top page', () => {
-    browser.url('topPageUrl2');
+  beforeEach('open top page', async () => {
+    await browser.url('topPageUrl2');
   });
 
   /**
    * testCaseComment1
    */
-  it('testCase1', () => {
-    new name_of_pageObjectId1()
+  it('testCase1', async () => {
+    await new name_of_pageObjectId1()
       // methodComment1
       .name_of_methodId1-1({
         param1-1: 'value1-1',
         param1-2: 'value1-2'
       })
       // methodComment2
-      .name_of_methodId1-2();
+      .then((page) => page.name_of_methodId1-2());
   });
 
   /**
    * testCaseComment2
    */
-  it('testCase2', () => {
-    new name_of_pageObjectId2()
+  it('testCase2', async () => {
+    await new name_of_pageObjectId2()
       .name_of_methodId2-1({
         param2-1: 'value2-1'
       })
-      .name_of_methodId2-2();
+      .then((page) => page.name_of_methodId2-2());
   });
 });
 `;

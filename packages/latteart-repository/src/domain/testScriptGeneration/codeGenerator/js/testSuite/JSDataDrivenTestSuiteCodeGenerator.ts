@@ -84,8 +84,8 @@ ${CodeFormatter.prependTextToAllLines(testSuite.comment, " * ")}
 
         return `\
 ${testSuiteComment}describe('${testSuite.name}', () => {
-  beforeEach('open top page', () => {
-    browser.url('${testSuite.topPageUrl}');
+  beforeEach('open top page', async () => {
+    await browser.url('${testSuite.topPageUrl}');
   });
 
 ${CodeFormatter.indentToAllLines(testCasesString, 2)}
@@ -128,7 +128,7 @@ ${CodeFormatter.prependTextToAllLines(testCase.comment, " * ")}
           : "";
 
         const testCaseString = `\
-it(\`test data: \${JSON.stringify(data)}\`, () => {
+it(\`test data: \${JSON.stringify(data)}\`, async () => {
 ${CodeFormatter.indentToAllLines(scenarioString, 2)}
 });`;
 
@@ -156,7 +156,7 @@ ${CodeFormatter.indentToAllLines(testCaseGroupString, 2)}
     );
 
     return `\
-new ${topPageObjectName}()
+await new ${topPageObjectName}()
 ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
   }
 
@@ -165,7 +165,7 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
     methodCalls: MethodCall[]
   ) {
     return methodCalls
-      .map((methodCall) => {
+      .map((methodCall, index) => {
         const methodCallTestDatas =
           testDataSet.variations[0]?.methodCallTestDatas.filter((data) => {
             return data.methodArguments.length > 0;
@@ -198,8 +198,12 @@ ${CodeFormatter.indentToAllLines(methodCallsString, 2)};`;
           methodCall.methodId
         );
 
-        return `\
+        if (index === 0) {
+          return `\
 ${methodComment}.${methodName}(${argumentGroupString})`;
+        }
+        return `\
+${methodComment}.then((page) => page.${methodName}(${argumentGroupString}))`;
       })
       .join("\n");
   }
