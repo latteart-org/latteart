@@ -132,8 +132,8 @@ class Page1 {
    * <ol><li>Change [ <a href="imageFileUrl1">textfield1</a> ]</li>
    * <li>Move to [ <a href="imageFileUrl1">Page1</a> ]</li></ol>
    */
-  dotextfield1() {
-    this.textfield1.setValue('hoge');
+  async dotextfield1() {
+    await this.textfield1.setValue('hoge');
 
     return new Page1();
   }
@@ -155,8 +155,8 @@ import Page1 from './page_objects/Page1.page';
  *   Page1 --> Page1;
  */
 describe('TestSuite1', () => {
-  beforeEach('open top page', () => {
-    browser.url('');
+  beforeEach('open top page', async () => {
+    await browser.url('');
   });
 
   /**
@@ -166,8 +166,8 @@ describe('TestSuite1', () => {
    * graph TD;
    *   Page1 ==> |dotextfield1|Page1;
    */
-  it('Page1', () => {
-    new Page1()
+  it('Page1', async () => {
+    await new Page1()
       // Page1.page.js
       .dotextfield1();
   });
@@ -275,7 +275,7 @@ class Page1 {
    * <ol><li><span style="color:red">Do 'Accept alert'</span><span style="color:gray"># Please implement it manually</span></li>
    * <li>Move to [ <a href="imageFileUrl1">Page1</a> ]</li></ol>
    */
-  do() {
+  async do() {
     // Please insert code for 'accept_alert' here.
 
     return new Page1();
@@ -298,8 +298,8 @@ import Page1 from './page_objects/Page1.page';
  *   Page1 --> Page1;
  */
 describe('TestSuite1', () => {
-  beforeEach('open top page', () => {
-    browser.url('');
+  beforeEach('open top page', async () => {
+    await browser.url('');
   });
 
   /**
@@ -309,8 +309,8 @@ describe('TestSuite1', () => {
    * graph TD;
    *   Page1 ==> |do|Page1;
    */
-  it('Page1', () => {
-    new Page1()
+  it('Page1', async () => {
+    await new Page1()
       // Page1.page.js
       .do();
   });

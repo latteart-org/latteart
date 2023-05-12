@@ -37,8 +37,8 @@ ${CodeFormatter.indentToAllLines(valuesString, 4)}
   }
 }
 
-set_${identifier}(value) {
-  $("//input[@name='${name}' and @value='" + value + "']").click();
+async set_${identifier}(value) {
+  await $("//input[@name='${name}' and @value='" + value + "']").click();
 }`;
   }
 

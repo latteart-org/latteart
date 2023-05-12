@@ -152,9 +152,10 @@ export default ${pageObjectName};
     return `\
 get ${identifier}() { return $('${locator}'); }
 
-set_${identifier}(isClick) {
-  if (this.${identifier}.isSelected() ^ isClick) {
-    this.${identifier}.click();
+async set_${identifier}(isClick) {
+  const locator = this.${identifier};
+  if (await locator.isSelected() !== (isClick === "true")) {
+    await locator.click();
   }
 }`;
   }
@@ -195,7 +196,7 @@ set_${identifier}(isClick) {
           }
 
           if (operation.type === "switch_window") {
-            return [`browser.switchWindow("${operation.input}");`];
+            return [`await browser.switchWindow("${operation.input}");`];
           }
 
           if (operation.type === "accept_alert") {
@@ -232,7 +233,7 @@ ${CodeFormatter.prependTextToAllLines(method.comment, " * ")}
       const methodName = this.nameGenerator.method.generate(method.id);
 
       return `\
-${methodComment}${methodName}(${argsString}) {
+${methodComment}async ${methodName}(${argsString}) {
 ${CodeFormatter.indentToAllLines(
   operationsString ? operationsString : "// no operation",
   2
@@ -273,16 +274,16 @@ ${Array.from(args)
         return "";
       }
 
-      return `this.set_${element.identifier}(${element.identifier});`;
+      return `await this.set_${element.identifier}(${element.identifier});`;
     }
 
     const identifier = element.identifier;
 
     if (element.type === "CheckBox") {
-      return `this.set_${identifier}(${identifier});`;
+      return `await this.set_${identifier}(${identifier});`;
     }
 
-    return `this.${identifier}.click();`;
+    return `await this.${identifier}.click();`;
   }
 
   private static generateChangeEventOperationString(
@@ -291,9 +292,9 @@ ${Array.from(args)
     const identifier = element.identifier;
 
     if (element.type === "SelectBox") {
-      return `this.${identifier}.selectByAttribute('value', ${identifier});`;
+      return `await this.${identifier}.selectByAttribute('value', ${identifier});`;
     }
 
-    return `this.${identifier}.setValue(${identifier});`;
+    return `await this.${identifier}.setValue(${identifier});`;
   }
 }

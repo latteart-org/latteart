@@ -15,8 +15,8 @@ static get id() {
   }
 }
 
-set_id(value) {
-  $("//input[@name='name' and @value='" + value + "']").click();
+async set_id(value) {
+  await $("//input[@name='name' and @value='" + value + "']").click();
 }`);
     });
   });

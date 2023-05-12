@@ -188,7 +188,7 @@ get ${identifier}() { return $('${locator}'); }
           }
 
           if (operation.type === "switch_window") {
-            return [`browser.switchWindow("${operation.input}");`];
+            return [`await browser.switchWindow("${operation.input}");`];
           }
 
           if (operation.type === "accept_alert") {
@@ -225,7 +225,7 @@ ${CodeFormatter.prependTextToAllLines(method.comment, " * ")}
       const methodName = this.nameGenerator.method.generate(method.id);
 
       return `\
-${methodComment}${methodName}() {
+${methodComment}async ${methodName}() {
 ${CodeFormatter.indentToAllLines(
   operationsString ? operationsString : "// no operation",
   2
@@ -244,11 +244,11 @@ ${CodeFormatter.indentToAllLines(
     const identifier = element.identifier;
 
     if (element.type === "RadioButton") {
-      return `this.set_${identifier}('${operation.input}');`;
+      return `await this.set_${identifier}('${operation.input}');`;
     }
 
     if (identifier) {
-      return `this.${identifier}.click();`;
+      return `await this.${identifier}.click();`;
     }
   }
 
@@ -259,9 +259,9 @@ ${CodeFormatter.indentToAllLines(
     const identifier = element.identifier;
 
     if (element.type === "SelectBox") {
-      return `this.${identifier}.selectByAttribute('value', '${operation.input}');`;
+      return `await this.${identifier}.selectByAttribute('value', '${operation.input}');`;
     }
 
-    return `this.${identifier}.setValue('${operation.input}');`;
+    return `await this.${identifier}.setValue('${operation.input}');`;
   }
 }
