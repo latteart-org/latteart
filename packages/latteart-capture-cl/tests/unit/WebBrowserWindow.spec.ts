@@ -40,6 +40,8 @@ describe("WebBrowserWindow", () => {
         .fn()
         .mockImplementation(async (script, args) => script(args)),
       getClientSize: jest.fn(),
+      setClientSize: jest.fn(),
+      setScrollPosition: jest.fn(),
     };
   });
 

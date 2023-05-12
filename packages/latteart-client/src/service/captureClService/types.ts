@@ -20,6 +20,7 @@ import {
   Operation,
   CoverageSource,
   TestStepNote,
+  RunnableOperation,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -123,13 +124,7 @@ export type CaptureSession = {
    * @param option.interval interval in milliseconds (default: duration between timestamps)
    */
   automate(option?: {
-    preScript?: (
-      operation: Pick<
-        Operation,
-        "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
-      >,
-      index: number
-    ) => Promise<void>;
+    preScript?: (operation: RunnableOperation, index: number) => Promise<void>;
     interval?: number;
   }): {
     /**
@@ -137,7 +132,7 @@ export type CaptureSession = {
      * @param operations operation contexts
      */
     runOperations(
-      ...operations: Pick<Operation, "type" | "input" | "elementInfo">[]
+      ...operations: RunnableOperation[]
     ): Promise<ServiceResult<void>>;
 
     /**
