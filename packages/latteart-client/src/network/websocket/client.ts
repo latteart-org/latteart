@@ -125,7 +125,7 @@ export class SocketIOClient {
   public invoke(
     eventName: string,
     replyEventName: { success: string; failure: string } | string,
-    ...args: unknown[]
+    ...args: string[]
   ): Promise<{ status: "success" | "failure"; data: unknown }> {
     if (!this.socket) {
       throw new Error("Not connected.");
@@ -147,7 +147,7 @@ export class SocketIOClient {
           });
         }
 
-        this.socket?.emit(eventName, ...args.map((arg) => JSON.stringify(arg)));
+        this.socket?.emit(eventName, ...args);
       }
     );
   }
