@@ -49,7 +49,7 @@ export class ConfigsController {
     @Path() projectId: string
   ): Promise<GetConfigResponse> {
     try {
-      const config = await new ConfigsService().getConfig(projectId);
+      const config = await new ConfigsService().getProjectConfig(projectId);
       return convertToExportableConfig(config);
     } catch (error) {
       if (error instanceof Error) {

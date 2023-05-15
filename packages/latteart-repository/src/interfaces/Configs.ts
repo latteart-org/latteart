@@ -47,14 +47,9 @@ export type ExportableConfig = ProjectConfig;
 export type SnapshotConfig = { locale: string };
 
 /**
- * Settings registered in the database.
- */
-export type BackendConfig = ProjectConfig & ServerConfig;
-
-/**
  * Settings for the server.
  */
-type ServerConfig = {
+export type ServerConfig = {
   config: {
     imageCompression: {
       command: string;
