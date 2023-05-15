@@ -223,7 +223,7 @@ export class CaptureClServerAdapter {
         "start_capture",
         "capture_started",
         url,
-        target
+        JSON.stringify(target)
       );
 
       console.info(`onStart: ${JSON.stringify(result.data)}`);
@@ -336,7 +336,7 @@ export class CaptureClServerAdapter {
           success: "run_operation_completed",
           failure: "run_operation_failed",
         },
-        operation
+        JSON.stringify(operation)
       );
 
       if (result.status === "failure") {
@@ -372,7 +372,7 @@ export class CaptureClServerAdapter {
           success: "run_operation_and_screen_transition_completed",
           failure: "run_operation_and_screen_transition_failed",
         },
-        operation
+        JSON.stringify(operation)
       );
 
       if (result.status === "failure") {
@@ -412,9 +412,11 @@ export class CaptureClServerAdapter {
       const result = await this.socketIOClient.invoke(
         "enter_values",
         "enter_values_completed",
-        targetAndValues.map(({ target, value }) => {
-          return { ...target, inputValue: value };
-        })
+        JSON.stringify(
+          targetAndValues.map(({ target, value }) => {
+            return { ...target, inputValue: value };
+          })
+        )
       );
 
       if (result.status === "failure") {
