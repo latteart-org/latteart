@@ -36,6 +36,7 @@ import {
   testStepEntityToResponse,
   convertToTestStepOperation,
 } from "./helper/entityToResponse";
+import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -269,8 +270,9 @@ export class TestStepServiceImpl implements TestStepService {
   }
 
   private async removeIgnoreTagsFrom(screenElements: ElementInfo[]) {
-    const ignoreTags = (await this.service.config.getConfig("")).captureSettings
-      .ignoreTags;
+    const ignoreTags = SettingsUtility.getSetting(
+      "captureSettings.ignoreTags"
+    ) as string[];
 
     return screenElements.filter((elmInfo) => {
       return !(

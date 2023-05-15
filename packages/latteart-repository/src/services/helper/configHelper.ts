@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-import {
-  BackendConfig,
-  ExportableConfig,
-  ProjectConfig,
-} from "@/interfaces/Configs";
+import { ExportableConfig, ProjectConfig } from "@/interfaces/Configs";
 
 export function convertToExportableConfig(
-  settings: BackendConfig
+  settings: ProjectConfig
 ): ExportableConfig {
   return {
     config: {
@@ -36,23 +32,19 @@ export function convertToExportableConfig(
   };
 }
 
-export function convertToConfigText(
-  text: string,
-  projectConfig: ProjectConfig,
-  command: string
-): string {
-  const configText = JSON.parse(text) as BackendConfig;
-  const settings: BackendConfig = {
-    ...projectConfig,
-    config: {
-      ...projectConfig.config,
-      imageCompression: {
-        ...projectConfig.config.imageCompression,
-        command,
-      },
-    },
-    captureSettings: configText.captureSettings,
-  };
+export function parseProjectConfig(configText: string): ProjectConfig {
+  const config = JSON.parse(configText) as ProjectConfig;
 
-  return JSON.stringify(settings);
+  return {
+    viewPointsPreset: config.viewPointsPreset,
+    defaultTagList: config.defaultTagList,
+    config: {
+      autofillSetting: config.config.autofillSetting,
+      autoOperationSetting: config.config.autoOperationSetting,
+      screenDefinition: config.config.screenDefinition,
+      coverage: config.config.coverage,
+      imageCompression: config.config.imageCompression,
+      testResultComparison: config.config.testResultComparison,
+    },
+  };
 }

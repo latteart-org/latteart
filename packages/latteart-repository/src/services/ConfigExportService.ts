@@ -28,7 +28,7 @@ export class ConfigExportService {
       exportFileRepository: FileRepository;
     }
   ): Promise<string> {
-    const tempConfig = await service.configService.getConfig(projectId);
+    const tempConfig = await service.configService.getProjectConfig(projectId);
 
     const config = convertToExportableConfig(tempConfig);
 
