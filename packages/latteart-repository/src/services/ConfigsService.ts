@@ -21,8 +21,6 @@ import { SettingsUtility } from "../gateways/settings/SettingsUtility";
 import { parseProjectConfig } from "./helper/configHelper";
 
 export class ConfigsService {
-  private static imageCompressionCommand = "";
-
   public async getProjectConfig(projectId: string): Promise<ProjectConfig> {
     const configEntity = await this.getConfigSource(projectId);
     return parseProjectConfig(configEntity.text);
@@ -48,8 +46,6 @@ export class ConfigsService {
     let config = await configRepository.find();
     if (!config[0]) {
       const settings = SettingsUtility.settingsProvider.settings;
-      ConfigsService.imageCompressionCommand =
-        settings.config.imageCompression.command;
       console.log(settings);
       const deviceSettings = {
         config: {
