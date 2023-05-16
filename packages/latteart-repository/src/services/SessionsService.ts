@@ -217,6 +217,7 @@ export class SessionsService {
         "testResult.notes.testSteps",
         "testResult.notes.testSteps.screenshot",
         "testResult.notes.tags",
+        "testResult.notes.screenshot",
       ],
     });
     if (!session) {
