@@ -164,11 +164,11 @@ export default class SequenceDiagramGraphExtender
       }
     });
 
-    // When pressing the alt string.
+    // When pressing the opt string.
     svg
       .selectAll("text.labelText")
       .filter((_, i, nodes) => {
-        return (nodes[i] as Node).textContent === "alt";
+        return (nodes[i] as Node).textContent === "opt";
       })
       .each((_, i, nodes) => {
         const loopTexts = d3

@@ -35,14 +35,9 @@ export type SequenceDiagramGraphCallback = {
     note: NoteInfo,
     eventInfo: { clientX: number; clientY: number }
   ) => void;
-  onRightClickLoopArea: (
-    note: NoteInfo,
-    eventInfo: { clientX: number; clientY: number }
-  ) => void;
 };
 
 type SourceNode = {
-  scenario: { sequence: number; text: string };
   window: { sequence: number; text: string };
   screenId: string;
   testSteps: SequenceViewNode["testSteps"];
@@ -69,125 +64,32 @@ export type SequenceDiagramGraphExtenderSource = {
     type: string;
     details: string;
   }[];
-  testPurposes: {
-    sequence: number;
-    type: string;
-    details: string;
+  screens: {
+    id: string;
+    name: string;
   }[];
-  source: {
-    screens: {
-      id: string;
-      name: string;
-    }[];
-    nodes: Omit<SequenceViewNode, "windowId">[];
-    testStepIdToSequence: Map<string, number>;
-  };
-  view: SequenceView;
+  nodes: (Omit<SequenceViewNode, "windowId"> & {
+    window: { sequence: number; text: string };
+  })[];
+  testStepIdToSequence: Map<string, number>;
 };
 
 /**
- * Convert Sequence View model to Diagram Graph.
- * @returns Graph text and graph extension information.
+ * Convert Sequence View model to Diagram Graphs.
+ * @returns Graph text and graph extension information for each test purpose.
  */
-export async function convertToSequenceDiagramGraph(
+export async function convertToSequenceDiagramGraphs(
   view: SequenceView,
   createSequenceDiagramGraphExtender?: (
     source: SequenceDiagramGraphExtenderSource
   ) => SequenceDiagramGraphExtender
-): Promise<MermaidGraph> {
-  const source = extractGraphSource(view);
-
-  const graphText = buildGraphText(source);
-
-  const notes = view.scenarios
-    .flatMap(({ nodes }) => nodes)
-    .flatMap(({ testSteps }) => testSteps)
-    .flatMap((testStep) => {
-      if (!testStep.notes) {
-        return [];
-      }
-
-      return testStep.notes.map((note, index) => {
-        return {
-          sequence: source.testStepIdToSequence.get(testStep.id) ?? 0,
-          index,
-          type: note.tags.includes("bug") ? "bug" : "notice",
-          details: note.details ?? "",
-        };
-      });
-    });
-
-  const testPurposes = view.scenarios.flatMap(({ testPurpose, nodes }) => {
-    if (!testPurpose) {
-      return [];
-    }
-
-    const firstTestStepId = nodes.at(0)?.testSteps.at(0)?.id ?? "";
-    const firstSequence = source.testStepIdToSequence.get(firstTestStepId) ?? 0;
-
-    return [
-      {
-        sequence: firstSequence,
-        type: "intention",
-        details: testPurpose.details ?? "",
-      },
-    ];
-  });
-
-  const edges = view.scenarios
-    .flatMap(({ nodes }) => nodes)
-    .map((node, index, nodes) => {
-      const nextNode = nodes.at(index + 1);
-
-      return {
-        source: { title: "", url: "", screenDef: node.screenId },
-        target: {
-          title: "",
-          url: "",
-          screenDef: (nextNode ?? node).screenId,
-        },
-        sequences: node.testSteps.flatMap((testStep) => {
-          const sequence = source.testStepIdToSequence.get(testStep.id);
-
-          if (sequence === undefined) {
-            return [];
-          }
-
-          return [sequence];
-        }),
-      };
-    });
-
-  const graphExtender = createSequenceDiagramGraphExtender
-    ? createSequenceDiagramGraphExtender({
-        edges,
-        notes,
-        testPurposes,
-        source,
-        view,
-      })
-    : {
-        extendGraph: () => {
-          /* nothing */
-        },
-        clearEvent: () => {
-          /* nothing */
-        },
-      };
-
-  console.debug(graphText);
-
-  return {
-    graphText,
-    graphExtender,
-  };
-}
-
-function extractGraphSource(view: SequenceView) {
-  const windowIdToName = new Map(
-    view.windows.map(({ id, name }) => [id, name])
-  );
-
+): Promise<
+  {
+    sequence: number;
+    testPurpose?: { value: string; details?: string };
+    graph: MermaidGraph;
+  }[]
+> {
   const testStepIdToSequence = new Map(
     view.scenarios
       .flatMap(({ nodes }) =>
@@ -195,60 +97,174 @@ function extractGraphSource(view: SequenceView) {
       )
       .map((id, index) => [id, index + 1])
   );
+  const windowIdToName = new Map(
+    view.windows.map(({ id, name }) => [id, name])
+  );
 
-  const nodes = view.scenarios.flatMap((scenario) => {
-    const testPurposeSequence = testStepIdToSequence.get(
-      scenario.nodes.at(0)?.testSteps.at(0)?.id ?? ""
-    );
-    if (testPurposeSequence === undefined) {
-      return [];
-    }
+  const graphBuilder = createGraphBuilder(
+    windowIdToName,
+    testStepIdToSequence,
+    createSequenceDiagramGraphExtender
+  );
 
-    return scenario.nodes
-      .reduce(
-        (acc, node, index, nodes) => {
-          const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
+  return view.scenarios.map((scenario) => {
+    const nodeScreenIds = scenario.nodes.map(({ screenId }) => screenId);
+    const screens = view.screens.filter(({ id }) => nodeScreenIds.includes(id));
 
-          if (beforeNode?.windowId !== node.windowId) {
-            const windowName = windowIdToName.get(node.windowId);
-            const sequence = testStepIdToSequence.get(
-              node.testSteps.at(0)?.id ?? ""
-            );
+    const graph = graphBuilder.build(screens, scenario.nodes);
 
-            if (windowName !== undefined && sequence !== undefined) {
-              acc.push({
-                window: { sequence, text: windowName },
-                nodes: [],
-              });
-            }
+    const firstTestStepId = scenario.nodes.at(0)?.testSteps.at(0)?.id ?? "";
+    const firstSequence = testStepIdToSequence.get(firstTestStepId) ?? 0;
+
+    const testPurpose = scenario.testPurpose;
+
+    return {
+      sequence: firstSequence,
+      testPurpose: testPurpose
+        ? { value: testPurpose.value, details: testPurpose.details }
+        : undefined,
+      graph,
+    };
+  });
+}
+
+function createGraphBuilder(
+  windowIdToName: Map<string, string>,
+  testStepIdToSequence: Map<string, number>,
+  createSequenceDiagramGraphExtender?: (
+    source: SequenceDiagramGraphExtenderSource
+  ) => SequenceDiagramGraphExtender
+) {
+  return {
+    build(screens: { id: string; name: string }[], nodes: SequenceViewNode[]) {
+      const sourceNodes = createSourceNodes(
+        nodes,
+        windowIdToName,
+        testStepIdToSequence
+      );
+
+      const graphText = buildGraphText({
+        screens,
+        nodes: sourceNodes,
+        testStepIdToSequence,
+      });
+
+      const notes = nodes
+        .flatMap(({ testSteps }) => testSteps)
+        .flatMap((testStep) => {
+          if (!testStep.notes) {
+            return [];
           }
 
-          acc.at(-1)?.nodes.push(node);
+          return testStep.notes.map((note, index) => {
+            return {
+              sequence: testStepIdToSequence.get(testStep.id) ?? 0,
+              index,
+              type: note.tags.includes("bug") ? "bug" : "notice",
+              details: note.details ?? "",
+            };
+          });
+        });
 
-          return acc;
-        },
-        new Array<{
-          window: { sequence: number; text: string };
-          nodes: Omit<SequenceViewNode, "windowId">[];
-        }>()
-      )
-      .flatMap(({ window, nodes }) =>
-        nodes.map(({ screenId, testSteps, disabled }) => {
-          return {
-            scenario: {
-              sequence: testPurposeSequence,
-              text: scenario.testPurpose?.value ?? "",
+      const edges = nodes.map((node, index, nodes) => {
+        const nextNode = nodes.at(index + 1);
+
+        return {
+          source: { title: "", url: "", screenDef: node.screenId },
+          target: {
+            title: "",
+            url: "",
+            screenDef: (nextNode ?? node).screenId,
+          },
+          sequences: node.testSteps.flatMap((testStep) => {
+            const sequence = testStepIdToSequence.get(testStep.id);
+
+            if (sequence === undefined) {
+              return [];
+            }
+
+            return [sequence];
+          }),
+        };
+      });
+
+      const graphExtender = createSequenceDiagramGraphExtender
+        ? createSequenceDiagramGraphExtender({
+            edges,
+            notes,
+            screens,
+            nodes: sourceNodes,
+            testStepIdToSequence,
+          })
+        : {
+            extendGraph: () => {
+              /* nothing */
             },
-            window,
-            screenId,
-            testSteps,
-            disabled,
+            clearEvent: () => {
+              /* nothing */
+            },
           };
-        })
-      );
-  });
 
-  return { screens: view.screens, nodes, testStepIdToSequence };
+      console.debug(graphText);
+
+      return {
+        graphText,
+        graphExtender,
+      };
+    },
+  };
+}
+
+function createSourceNodes(
+  nodes: SequenceViewNode[],
+  windowIdToName: Map<string, string>,
+  testStepIdToSequence: Map<string, number>
+) {
+  const firstSequence = testStepIdToSequence.get(
+    nodes.at(0)?.testSteps.at(0)?.id ?? ""
+  );
+  if (firstSequence === undefined) {
+    return [];
+  }
+
+  const nodeChunks = nodes.reduce(
+    (acc, node, index, nodes) => {
+      const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
+
+      if (beforeNode?.windowId !== node.windowId) {
+        const windowName = windowIdToName.get(node.windowId);
+        const sequence = testStepIdToSequence.get(
+          node.testSteps.at(0)?.id ?? ""
+        );
+
+        if (windowName !== undefined && sequence !== undefined) {
+          acc.push({
+            window: { sequence, text: windowName },
+            nodes: [],
+          });
+        }
+      }
+
+      acc.at(-1)?.nodes.push(node);
+
+      return acc;
+    },
+    new Array<{
+      window: { sequence: number; text: string };
+      nodes: Omit<SequenceViewNode, "windowId">[];
+    }>()
+  );
+
+  return nodeChunks.flatMap(({ window, nodes }) =>
+    nodes.map(({ screenId, testSteps, disabled }) => {
+      return {
+        window,
+        screenId,
+        testSteps,
+        disabled,
+      };
+    })
+  );
 }
 
 function buildGraphText(source: {
@@ -256,7 +272,7 @@ function buildGraphText(source: {
   nodes: SourceNode[];
   testStepIdToSequence: Map<string, number>;
 }) {
-  const scenarios = source.nodes.reduce((acc, node, index, nodes) => {
+  const nodeTexts = source.nodes.reduce((acc, node, index, nodes) => {
     const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
     const nextNode = nodes.at(index + 1);
 
@@ -298,17 +314,7 @@ function buildGraphText(source: {
 
     const scenarioItemTexts = [
       ...(() => {
-        const startScenarioText = `alt (${
-          node.scenario.sequence
-        })${TextUtil.escapeSpecialCharacters(node.scenario.text)};`;
         const startWindowText = `opt (${node.window.sequence})${node.window.text};`;
-
-        if (
-          node.scenario.text &&
-          beforeNode?.scenario.text !== node.scenario.text
-        ) {
-          return [startScenarioText, startWindowText];
-        }
 
         if (node.window.text && beforeNode?.window.text !== node.window.text) {
           return [startWindowText];
@@ -318,15 +324,7 @@ function buildGraphText(source: {
       })(),
       ...nodeTexts,
       ...(() => {
-        const endScenarioText = "end;";
         const endWindowText = "end;";
-
-        if (nextNode?.scenario.text !== node.scenario.text) {
-          if (node.scenario.text) {
-            return [endWindowText, endScenarioText];
-          }
-          return [endWindowText];
-        }
 
         if (node.window.text && nextNode?.window.text !== node.window.text) {
           return [endWindowText];
@@ -349,7 +347,7 @@ function buildGraphText(source: {
     )};`;
   });
 
-  return ["sequenceDiagram;", ...screenTexts, ...scenarios, ""].join("\n");
+  return ["sequenceDiagram;", ...screenTexts, ...nodeTexts, ""].join("\n");
 }
 
 function buildCommentTexts(
@@ -387,11 +385,10 @@ function buildScreenTransitionTexts(
     return [];
   }
 
-  const isScenarioChanged = nextNode.scenario.text !== node.scenario.text;
   const isWindowChanged = nextNode.window.text !== node.window.text;
   const isDisabledChanged = node.disabled !== nextNode.disabled;
 
-  if (isScenarioChanged || isWindowChanged || isDisabledChanged) {
+  if (isWindowChanged || isDisabledChanged) {
     return [`${node.screenId} --x ${node.screenId}: ;`];
   }
 

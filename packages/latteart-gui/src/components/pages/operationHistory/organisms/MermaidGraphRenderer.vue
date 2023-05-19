@@ -15,14 +15,16 @@
 -->
 
 <template>
-  <v-row justify="start" class="fill-height pt-5 pl-5">
-    <svg-pan-zoom
-      @changeSvgScale="changeSvgScale"
-      :scaleUpDisabled="isMaxSize"
-      :scaleDownDisabled="isMinSize"
-    ></svg-pan-zoom>
-    <div ref="graph" class="graphDisplay"></div>
-  </v-row>
+  <v-container fluid>
+    <v-row justify="start" class="fill-height">
+      <svg-pan-zoom
+        @changeSvgScale="changeSvgScale"
+        :scaleUpDisabled="isMaxSize"
+        :scaleDownDisabled="isMinSize"
+      ></svg-pan-zoom>
+      <div ref="graph" class="graphDisplay"></div>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">

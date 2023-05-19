@@ -98,7 +98,7 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param state State.
    */
   clearModels(state) {
-    Vue.set(state, "sequenceDiagramGraph", null);
+    Vue.set(state, "sequenceDiagramGraphs", []);
     Vue.set(state, "windowHandleToScreenTransitionDiagramGraph", {});
     Vue.set(state, "elementCoverages", []);
     state.canUpdateModels = false;
@@ -240,12 +240,21 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set a sequence diagram to the State.
+   * Set a sequence diagrams to the State.
    * @param state State.
    * @param payload.graph Sequence diagram.
    */
-  setSequenceDiagramGraph(state, payload: { graph: Element }) {
-    state.sequenceDiagramGraph = payload.graph;
+  setSequenceDiagramGraphs(
+    state,
+    payload: {
+      graphs: {
+        sequence: number;
+        testPurpose?: { value: string; details?: string };
+        element: Element;
+      }[];
+    }
+  ) {
+    state.sequenceDiagramGraphs = [...payload.graphs];
   },
 
   /**
@@ -377,7 +386,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       openNoteEditDialog: (
         noteType: string,
         sequence: number,
-        index: number
+        index?: number
       ) => void;
     }
   ) {
@@ -396,7 +405,7 @@ const mutations: MutationTree<OperationHistoryState> = {
         noteType: string,
         title: string,
         sequence: number,
-        index: number
+        index?: number
       ) => void;
     }
   ) {
@@ -411,7 +420,7 @@ const mutations: MutationTree<OperationHistoryState> = {
   setDeleteNoteFunction(
     state,
     payload: {
-      deleteNote: (noteType: string, sequence: number, index: number) => void;
+      deleteNote: (noteType: string, sequence: number, index?: number) => void;
     }
   ) {
     state.deleteNote = payload.deleteNote;

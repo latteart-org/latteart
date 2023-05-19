@@ -106,7 +106,11 @@
     "compare-diffs-sequence": "操作の通番",
     "compare-diffs-items": "差異のあった操作内情報",
     "compare-diffs-remarks": "備考",
-    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。"
+    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。",
+    "test-purpose": "テスト目的",
+    "no-test-purpose": "目的なし",
+    "edit-test-purpose": "編集",
+    "delete-test-purpose": "削除"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",

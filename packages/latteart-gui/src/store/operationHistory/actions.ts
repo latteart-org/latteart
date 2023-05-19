@@ -26,7 +26,7 @@ import {
 } from "@/lib/operationHistory/types";
 import {
   SequenceDiagramGraphCallback,
-  convertToSequenceDiagramGraph,
+  convertToSequenceDiagramGraphs,
   SequenceDiagramGraphExtenderSource,
 } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 import * as Coverage from "@/lib/operationHistory/Coverage";
@@ -584,12 +584,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             payload.callback.onClickEdge(args.edges[index].sequences),
           onClickScreenRect: (index: number) =>
             payload.callback.onClickScreenRect(
-              args.source.testStepIdToSequence.get(
-                args.view.scenarios
-                  .flatMap(({ nodes }) => nodes)
-                  .find(
-                    ({ screenId }) => screenId === args.view.screens[index].id
-                  )
+              args.testStepIdToSequence.get(
+                args.nodes
+                  .find(({ screenId }) => screenId === args.screens[index].id)
                   ?.testSteps.at(0)?.id ?? ""
               ) ?? 0
             ),
@@ -605,48 +602,46 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             index: number,
             eventInfo: { clientX: number; clientY: number }
           ) => {
-            payload.callback.onRightClickLoopArea(
-              args.testPurposes[index],
-              eventInfo
-            );
+            // on click 'Window' loop area.
           },
         },
         tooltipTextsOfNote: args.notes.map((noteInfo) => noteInfo.details),
-        tooltipTextsOfLoopArea: args.testPurposes.map(
-          (intentionInfo) => intentionInfo.details
-        ),
-        nameMap: new Map(
-          args.view.screens.map(({ name }, index) => [index, name])
-        ),
+        tooltipTextsOfLoopArea: [],
+        nameMap: new Map(args.screens.map(({ name }, index) => [index, name])),
       });
     };
-    const graph = await convertToSequenceDiagramGraph(
-      sequenceView,
-      createSequenceDiagramGraphExtender
-    );
 
-    const svgElement = (() => {
-      const element = document.createElement("div");
-      element.innerHTML = new MermaidGraphConverter().toSVG(
-        "sequenceDiagram",
-        graph.graphText
-      );
-      return element.firstElementChild!;
-    })();
+    const graphs = (
+      await convertToSequenceDiagramGraphs(
+        sequenceView,
+        createSequenceDiagramGraphExtender
+      )
+    ).map(({ sequence, testPurpose, graph }) => {
+      const svgElement = (() => {
+        const element = document.createElement("div");
+        element.innerHTML = new MermaidGraphConverter().toSVG(
+          "sequenceDiagram",
+          graph.graphText
+        );
+        return element.firstElementChild!;
+      })();
 
-    const disabledList = sequenceView.scenarios
-      .flatMap(({ nodes }) => nodes)
-      .map((node, index) => {
-        return {
-          index,
-          disabled: node.disabled ?? false,
-        };
-      })
-      .filter((item) => item.disabled);
+      const disabledList = sequenceView.scenarios
+        .flatMap(({ nodes }) => nodes)
+        .map((node, index) => {
+          return {
+            index,
+            disabled: node.disabled ?? false,
+          };
+        })
+        .filter((item) => item.disabled);
 
-    graph.graphExtender.extendGraph(svgElement, disabledList);
+      graph.graphExtender.extendGraph(svgElement, disabledList);
 
-    context.commit("setSequenceDiagramGraph", { graph: svgElement });
+      return { sequence, testPurpose, element: svgElement };
+    });
+
+    context.commit("setSequenceDiagramGraphs", { graphs });
   },
 
   /**
