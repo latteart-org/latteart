@@ -15,15 +15,40 @@
 -->
 
 <template>
-  <v-row justify="end" id="sequence-diagram-container">
-    <v-col cols="12">
+  <v-container fluid class="ma-0 fill-height align-start">
+    <v-row no-gutters align="center" :style="{ height: '70px' }">
+      <v-select
+        class="mr-3"
+        :label="message('history-view.test-purpose')"
+        :items="testPurposes"
+        item-text="text"
+        item-value="value"
+        v-model="selectedTestPurposeIndex"
+        hide-details
+        dense
+      />
+      <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
+        message("history-view.edit-test-purpose")
+      }}</v-btn>
+      <v-btn
+        color="error"
+        :disabled="!this.graph || !this.graph.testPurpose"
+        @click="deleteTestPurpose"
+        >{{ message("history-view.delete-test-purpose") }}</v-btn
+      >
+    </v-row>
+    <v-row
+      no-gutters
+      id="sequence-diagram-container"
+      :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
+    >
       <mermaid-graph-renderer
-        v-if="graph"
-        :graph="graph"
+        v-if="graphElement"
+        :graph="graphElement"
         graphType="sequence"
       ></mermaid-graph-renderer>
-    </v-col>
-  </v-row>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -32,6 +57,7 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -41,15 +67,63 @@ import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 export default class SequenceDiagram extends Vue {
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
+  private selectedTestPurposeIndex = 0;
+
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
+
+  private get testPurposes() {
+    return this.operationHistoryState.sequenceDiagramGraphs.map(
+      ({ testPurpose }, index) => {
+        return {
+          text:
+            testPurpose?.value ?? this.message("history-view.no-test-purpose"),
+          value: index,
+        };
+      }
+    );
+  }
+
   private get graph() {
-    return this.$store.state.operationHistory.sequenceDiagramGraph;
+    return this.operationHistoryState.sequenceDiagramGraphs.at(
+      this.selectedTestPurposeIndex
+    );
+  }
+
+  private get graphElement() {
+    return this.graph?.element ?? null;
   }
 
   private mounted() {
+    this.selectedTestPurposeIndex = 0;
     const sequenceDiagram = document.getElementById(
       "sequence-diagram-container"
     ) as any;
     sequenceDiagram.oncontextmenu = () => false;
+  }
+
+  private editTestPurpose() {
+    if (!this.graph) {
+      return;
+    }
+
+    this.operationHistoryState.openNoteEditDialog(
+      "intention",
+      this.graph.sequence
+    );
+  }
+
+  private deleteTestPurpose() {
+    if (!this.graph?.testPurpose) {
+      return;
+    }
+
+    this.operationHistoryState.openNoteDeleteConfirmDialog(
+      "intention",
+      this.graph.testPurpose?.value ?? "",
+      this.graph.sequence
+    );
   }
 }
 </script>

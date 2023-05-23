@@ -102,7 +102,11 @@
     "compare-diffs-sequence": "Operation number",
     "compare-diffs-items": "Operation information",
     "compare-diffs-remarks": "Remarks",
-    "compare-remarks-invalid-screenshot": "Invalid format screenshot."
+    "compare-remarks-invalid-screenshot": "Invalid format screenshot.",
+    "test-purpose": "Test Purpose",
+    "no-test-purpose": "No Test Purpose",
+    "edit-test-purpose": "Edit",
+    "delete-test-purpose": "Delete"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",

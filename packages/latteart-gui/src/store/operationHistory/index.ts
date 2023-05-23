@@ -76,7 +76,11 @@ export interface OperationHistoryState {
   /**
    * Sequence diagram.
    */
-  sequenceDiagramGraph: Element | null;
+  sequenceDiagramGraphs: {
+    sequence: number;
+    testPurpose?: { value: string; details?: string };
+    element: Element;
+  }[];
 
   /**
    * Window handle to screen transition diagram.
@@ -192,7 +196,7 @@ export interface OperationHistoryState {
   openNoteEditDialog: (
     noteType: string,
     sequence: number,
-    index: number
+    index?: number
   ) => void;
 
   /**
@@ -202,13 +206,13 @@ export interface OperationHistoryState {
     noteType: string,
     title: string,
     sequence: number,
-    index: number
+    index?: number
   ) => void;
 
   /**
    * The function to delete a note.
    */
-  deleteNote: (noteType: string, sequence: number, index: number) => void;
+  deleteNote: (noteType: string, sequence: number, index?: number) => void;
 
   /**
    * The function to open the menu for note.
@@ -238,7 +242,7 @@ const state: OperationHistoryState = {
   history: [],
   windows: [],
   coverageSources: [],
-  sequenceDiagramGraph: null,
+  sequenceDiagramGraphs: [],
   windowHandleToScreenTransitionDiagramGraph: {},
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
