@@ -30,12 +30,6 @@
       <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
         message("history-view.edit-test-purpose")
       }}</v-btn>
-      <v-btn
-        color="error"
-        :disabled="!this.graph || !this.graph.testPurpose"
-        @click="deleteTestPurpose"
-        >{{ message("history-view.delete-test-purpose") }}</v-btn
-      >
     </v-row>
     <v-row
       no-gutters
@@ -110,18 +104,6 @@ export default class SequenceDiagram extends Vue {
 
     this.operationHistoryState.openNoteEditDialog(
       "intention",
-      this.graph.sequence
-    );
-  }
-
-  private deleteTestPurpose() {
-    if (!this.graph?.testPurpose) {
-      return;
-    }
-
-    this.operationHistoryState.openNoteDeleteConfirmDialog(
-      "intention",
-      this.graph.testPurpose?.value ?? "",
       this.graph.sequence
     );
   }

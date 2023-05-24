@@ -105,8 +105,7 @@
     "compare-remarks-invalid-screenshot": "Invalid format screenshot.",
     "test-purpose": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
-    "edit-test-purpose": "Edit",
-    "delete-test-purpose": "Delete"
+    "edit-test-purpose": "Edit Test Purpose"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",

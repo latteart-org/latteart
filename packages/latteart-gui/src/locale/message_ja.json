@@ -109,8 +109,7 @@
     "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。",
     "test-purpose": "テスト目的",
     "no-test-purpose": "目的なし",
-    "edit-test-purpose": "編集",
-    "delete-test-purpose": "削除"
+    "edit-test-purpose": "テスト目的の編集"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
