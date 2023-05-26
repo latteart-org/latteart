@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-import { ServerError } from "../ServerError";
+import { ServerError, ServerErrorData } from "../ServerError";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { Controller, Body, Post, Route, Tags, SuccessResponse } from "tsoa";
+import {
+  Controller,
+  Body,
+  Post,
+  Route,
+  Tags,
+  SuccessResponse,
+  Response,
+} from "tsoa";
 
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
-import { MergeGraphViewsDto } from "@/interfaces/GraphViews";
+import { GenerateGraphViewDto } from "@/interfaces/GraphViews";
 import { GetGraphViewResponse } from "@/interfaces/TestResults";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -35,10 +43,14 @@ import { ConfigsService } from "@/services/ConfigsService";
 @Route("graph-views")
 @Tags("graph-views")
 export class GraphViewsController extends Controller {
+  @Response<ServerErrorData<"generate_graph_view_failed">>(
+    500,
+    "Generate graph view failed"
+  )
   @SuccessResponse(200, "Success")
   @Post()
-  public async ganerate(
-    @Body() requestBody: MergeGraphViewsDto
+  public async generate(
+    @Body() requestBody: GenerateGraphViewDto
   ): Promise<GetGraphViewResponse> {
     const timestampService = new TimestampServiceImpl();
     const fileRepositoryManager = await createFileRepositoryManager();

@@ -587,6 +587,33 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_generate_graph_view_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["generate_graph_view_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   TestResultViewOption: {
     dataType: "refAlias",
     type: {
@@ -649,7 +676,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MergeGraphViewsDto: {
+  GenerateGraphViewDto: {
     dataType: "refAlias",
     type: {
       dataType: "intersection",
@@ -3369,10 +3396,10 @@ export function RegisterRoutes(app: Router) {
     "/api/v1/graph-views",
     ...fetchMiddlewares<RequestHandler>(GraphViewsController),
     ...fetchMiddlewares<RequestHandler>(
-      GraphViewsController.prototype.ganerate
+      GraphViewsController.prototype.generate
     ),
 
-    function GraphViewsController_ganerate(
+    function GraphViewsController_generate(
       request: any,
       response: any,
       next: any
@@ -3382,7 +3409,7 @@ export function RegisterRoutes(app: Router) {
           in: "body",
           name: "requestBody",
           required: true,
-          ref: "MergeGraphViewsDto",
+          ref: "GenerateGraphViewDto",
         },
       };
 
@@ -3394,7 +3421,7 @@ export function RegisterRoutes(app: Router) {
 
         const controller = new GraphViewsController();
 
-        const promise = controller.ganerate.apply(
+        const promise = controller.generate.apply(
           controller,
           validatedArgs as any
         );

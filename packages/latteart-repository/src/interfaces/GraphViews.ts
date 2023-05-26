@@ -1,5 +1,5 @@
 import { TestResultViewOption } from "@/domain/types";
 
-export type MergeGraphViewsDto = {
+export type GenerateGraphViewDto = {
   testResultIds: string[];
 } & TestResultViewOption;

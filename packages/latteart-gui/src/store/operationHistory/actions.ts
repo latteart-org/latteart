@@ -500,7 +500,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (!testResult) {
       return;
     }
-    console.log({ testResult });
     context.commit("setTestResultInfo", {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
       id: testResult.id,
