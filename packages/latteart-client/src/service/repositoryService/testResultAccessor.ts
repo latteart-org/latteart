@@ -549,11 +549,12 @@ export class TestResultAccessorImpl implements TestResultAccessor {
   }
 
   async generateGraphView(
+    testResultIds: string[],
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>> {
     const result =
       await this.repositories.testResultRepository.generateGraphView(
-        this.testResultId,
+        testResultIds,
         option
       );
 

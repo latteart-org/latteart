@@ -22,16 +22,16 @@ import { Story, Session } from "@/lib/testManagement/types";
  * @param sessionId  Search target session id.
  * @returns session information.
  */
-export function getTargetSession(
+export function getTargetSessions(
   story: Story,
-  sessionId: string
-): Session | null {
-  const targetSession = story.sessions.find((session: Session) => {
-    return session.id === sessionId;
+  sessionIds: string[]
+): Session[] | null {
+  const targetSessions = story.sessions.filter((session: Session) => {
+    return sessionIds.includes(session.id);
   });
 
-  if (!targetSession) {
+  if (targetSessions.length === 0) {
     return null;
   }
-  return targetSession;
+  return targetSessions;
 }

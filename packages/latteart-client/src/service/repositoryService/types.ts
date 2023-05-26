@@ -179,11 +179,13 @@ export type TestResultAccessor = {
    * @param option option
    */
   generateGraphView(
+    testResultIds: string[],
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>>;
 };
 
 export type SequenceView = {
+  testResultId?: string;
   windows: {
     id: string;
     name: string;

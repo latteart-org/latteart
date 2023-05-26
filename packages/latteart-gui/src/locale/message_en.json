@@ -103,6 +103,7 @@
     "compare-diffs-items": "Operation information",
     "compare-diffs-remarks": "Remarks",
     "compare-remarks-invalid-screenshot": "Invalid format screenshot.",
+    "test-result-name": "Test Result Name",
     "test-purpose": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose"

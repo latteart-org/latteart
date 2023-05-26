@@ -107,6 +107,7 @@
     "compare-diffs-items": "差異のあった操作内情報",
     "compare-diffs-remarks": "備考",
     "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。",
+    "test-result-name": "テスト結果名",
     "test-purpose": "テスト目的",
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集"

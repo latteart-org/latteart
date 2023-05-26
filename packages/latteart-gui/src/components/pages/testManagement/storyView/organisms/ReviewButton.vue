@@ -37,7 +37,8 @@ import * as StoryService from "@/lib/testManagement/Story";
 export default class ReviewButton extends Vue {
   @Prop({ type: Object, default: () => ({ sessions: [] }) })
   public readonly story!: Story;
-  @Prop({ type: String, default: "" }) public readonly sessionId!: string;
+  @Prop({ type: Array, default: () => [] })
+  public readonly sessionIds!: string[];
   @Prop({ type: Boolean, default: false }) public readonly disabled!: boolean;
 
   private alertDialogOpened = false;
@@ -47,15 +48,16 @@ export default class ReviewButton extends Vue {
   public toReviewPage(): void {
     (async () => {
       this.$store.commit("testManagement/setTempStory", { story: this.story });
-      const testResultFile = StoryService.getTargetSession(
+      const sessions = StoryService.getTargetSessions(
         this.story,
-        this.sessionId
-      )!.testResultFiles![0];
-      const testResultId = testResultFile.id;
-
+        this.sessionIds
+      );
+      const testResultIds = sessions!.map(
+        (session) => session.testResultFiles[0].id
+      );
       this.$router.push({
         path: `../history`,
-        query: { sessionId: this.sessionId, testResultId },
+        query: { sessionIds: this.sessionIds, testResultIds },
       });
     })();
   }

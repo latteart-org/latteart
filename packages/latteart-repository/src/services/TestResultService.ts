@@ -366,7 +366,7 @@ export class TestResultServiceImpl implements TestResultService {
     const testResult = await this.getTestResult(testResultId);
 
     if (!testResult) {
-      return { windows: [], screens: [], scenarios: [] };
+      return { testResultId: "", windows: [], screens: [], scenarios: [] };
     }
 
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
@@ -387,11 +387,11 @@ export class TestResultServiceImpl implements TestResultService {
       };
     });
 
-    return generateSequenceView(testStepWithScreenDefs);
+    return generateSequenceView(testResultId, testStepWithScreenDefs);
   }
 
   public async generateGraphView(
-    testResultId: string,
+    testResultIds: string | string[],
     option: TestResultViewOption = { node: { unit: "title", definitions: [] } }
   ): Promise<GetGraphViewResponse> {
     const screenDefinitionConfig: ScreenDefinitionConfig = {
@@ -412,9 +412,19 @@ export class TestResultServiceImpl implements TestResultService {
       }),
     };
 
-    const testResult = await this.getTestResult(testResultId);
+    const testResults = Array.isArray(testResultIds)
+      ? await Promise.all(
+          testResultIds.map(async (testResultId) => {
+            return await this.getTestResult(testResultId);
+          })
+        )
+      : await this.getTestResult(testResultIds);
 
-    if (!testResult) {
+    if (
+      (Array.isArray(testResults) &&
+        testResults.some((testResult) => !testResult)) ||
+      !testResults
+    ) {
       return {
         nodes: [],
         store: {
@@ -427,8 +437,14 @@ export class TestResultServiceImpl implements TestResultService {
       };
     }
 
+    const testSteps = Array.isArray(testResults)
+      ? testResults
+          .map((testResult) => (testResult as GetTestResultResponse).testSteps)
+          .flat()
+      : testResults.testSteps;
+
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
-    const testStepWithScreenDefs = testResult.testSteps.map((testStep) => {
+    const testStepWithScreenDefs = testSteps.map((testStep) => {
       return {
         ...testStep,
         screenDef: screenDefFactory.create({
@@ -450,7 +466,16 @@ export class TestResultServiceImpl implements TestResultService {
       generateElementId: () => uuidv4(),
     };
 
-    const coverageSourceGroupedByScreenDef = testResult.coverageSources
+    const coverageSources = Array.isArray(testResults)
+      ? testResults
+          .map(
+            (testResult) =>
+              (testResult as GetTestResultResponse).coverageSources
+          )
+          .flat()
+      : testResults.coverageSources;
+
+    const coverageSourceGroupedByScreenDef = coverageSources
       .map(({ url, title, screenElements }) => {
         const keywordTexts = screenElements
           .map((screenElement) => {

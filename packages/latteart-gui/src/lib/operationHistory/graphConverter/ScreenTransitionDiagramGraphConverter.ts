@@ -48,7 +48,6 @@ type Edge = {
 };
 
 type GraphSource = {
-  window: { id: string; name: string };
   screens: { id: string; name: string; sequence: number }[];
   edges: Edge[];
 };
@@ -62,191 +61,181 @@ export async function convertToScreenTransitionDiagramGraph(
   createFlowChartGraphExtender?: (
     source: FlowChartGraphExtenderSource
   ) => FlowChartGraphExtender
-): Promise<{ window: { id: string; name: string }; graph: MermaidGraph }[]> {
-  const graphModels = extractGraphSources(view);
+): Promise<{ graph: MermaidGraph }> {
+  const graphModel = extractGraphSources(view);
 
-  const graphs = graphModels.map(({ window, screens, edges }) => {
-    const screenTexts = screens.map(({ id, name }) => {
-      const lineLength = 30;
-      return `${id}["${TextUtil.escapeSpecialCharacters(
-        TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength - 3)
-      )}"];`;
-    });
-    const graphTextLines = createGraphTextLines(edges);
-    const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join(
-      "\n"
-    );
-
-    const graphExtender = createFlowChartGraphExtender
-      ? createFlowChartGraphExtender({
-          edges,
-          source: { screens, nodes: view.nodes },
-        })
-      : {
-          extendGraph: () => {
-            /* nothing */
-          },
-          clearEvent: () => {
-            /* nothing */
-          },
-        };
-
-    console.debug(graphText);
-
-    return { window, graph: { graphText, graphExtender } };
+  const screens = graphModel.screens;
+  const edges = graphModel.edges;
+  const screenTexts = graphModel.screens.map(({ id, name }) => {
+    const lineLength = 30;
+    return `${id}["${TextUtil.escapeSpecialCharacters(
+      TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength - 3)
+    )}"];`;
   });
+  const graphTextLines = createGraphTextLines(edges);
+  const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join(
+    "\n"
+  );
 
-  return graphs;
+  const graphExtender = createFlowChartGraphExtender
+    ? createFlowChartGraphExtender({
+        edges,
+        source: { screens, nodes: view.nodes },
+      })
+    : {
+        extendGraph: () => {
+          /* nothing */
+        },
+        clearEvent: () => {
+          /* nothing */
+        },
+      };
+
+  console.debug(graphText);
+
+  return { graph: { graphText, graphExtender } };
 }
 
-function extractGraphSources(view: GraphView): GraphSource[] {
+function extractGraphSources(view: GraphView): GraphSource {
   const testStepIdToSequence = new Map(
     view.nodes
       .flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
       .map((id, index) => [id, index + 1])
   );
 
-  return view.store.windows.map((window) => {
-    const screens = view.nodes
-      .filter(({ windowId }) => windowId === window.id)
-      .map(({ screenId, testSteps }) => {
-        const sequence =
-          testStepIdToSequence.get(testSteps.at(0)?.id ?? "") ?? 0;
-        return { screenId, sequence };
-      })
-      .filter(
-        ({ screenId: id1 }, index, array) =>
-          array.findIndex(({ screenId: id2 }) => id2 === id1) === index
-      )
-      .flatMap(({ screenId, sequence }) => {
-        const screen = view.store.screens.find(({ id }) => screenId === id);
-        if (!screen) {
-          return [];
-        }
-        const { id, name } = screen;
-        return [{ id, name, sequence }];
-      });
-
-    const edgeDetails = view.nodes.flatMap((node, index, array) => {
-      const nextNode = array.at(index + 1);
-      if (node.windowId !== window.id || nextNode?.windowId !== window.id) {
+  const screens = view.nodes
+    .map(({ screenId, testSteps }) => {
+      const sequence = testStepIdToSequence.get(testSteps.at(0)?.id ?? "") ?? 0;
+      return { screenId, sequence };
+    })
+    .filter(
+      ({ screenId: id1 }, index, array) =>
+        array.findIndex(({ screenId: id2 }) => id2 === id1) === index
+    )
+    .flatMap(({ screenId, sequence }) => {
+      const screen = view.store.screens.find(({ id }) => screenId === id);
+      if (!screen) {
         return [];
       }
-
-      const sourceScreen = screens.find(({ id }) => id === node.screenId);
-      const destScreen = screens.find(({ id }) => id === nextNode.screenId);
-
-      if (!sourceScreen || !destScreen) {
-        return [];
-      }
-
-      const lastTestStep = node.testSteps.at(-1);
-
-      const targetElement = view.store.elements.find(
-        ({ id }) => id === lastTestStep?.targetElementId
-      );
-
-      const trigger = lastTestStep
-        ? {
-            type: lastTestStep.type,
-            target: targetElement
-              ? { xpath: targetElement.xpath, text: targetElement.text }
-              : undefined,
-            sequence: testStepIdToSequence.get(lastTestStep.id) ?? 0,
-            input: lastTestStep.input,
-            pageUrl: lastTestStep.pageUrl,
-            pageTitle: lastTestStep.pageTitle,
-          }
-        : undefined;
-
-      const inputElements = node.defaultValues.flatMap(
-        ({ elementId, value }) => {
-          const element = view.store.elements.find(
-            ({ id }) => id === elementId
-          );
-
-          if (!element) {
-            return [];
-          }
-
-          const inputs = node.testSteps
-            .filter(({ targetElementId }) => {
-              return targetElementId === elementId;
-            })
-            .flatMap(({ id, input }) => {
-              const sequence = testStepIdToSequence.get(id);
-              if (sequence === undefined || input === undefined) {
-                return [];
-              }
-
-              return { sequence, value: input };
-            });
-
-          return [{ ...element, defaultValue: value, inputs }];
-        }
-      );
-
-      const notes = node.testSteps.flatMap((testStep) => {
-        return testStep.noteIds.flatMap((noteId) => {
-          const note = view.store.notes.find(({ id }) => id === noteId);
-          if (!note) {
-            return [];
-          }
-          const imageFileUrl = note.imageFileUrl ?? testStep.imageFileUrl ?? "";
-
-          const sequence = testStepIdToSequence.get(testStep.id) ?? 0;
-
-          return [
-            {
-              ...note,
-              imageFileUrl,
-              tags: note.tags ?? [],
-              sequence,
-            },
-          ];
-        });
-      });
-
-      const testPurposes = view.store.testPurposes;
-
-      return [
-        {
-          sourceScreen,
-          destScreen,
-          trigger,
-          inputElements,
-          notes,
-          testPurposes,
-        },
-      ];
+      const { id, name } = screen;
+      return [{ id, name, sequence }];
     });
 
-    const edges = edgeDetails.reduce((acc: Edge[], detail) => {
-      const foundEdge = acc.find((edge) => {
-        return (
-          edge.sourceScreenId === detail.sourceScreen.id &&
-          edge.destScreenId === detail.destScreen.id &&
-          edge.trigger?.type === detail.trigger?.type &&
-          edge.trigger?.target?.xpath === detail.trigger?.target?.xpath
-        );
-      });
+  const edgeDetails = view.nodes.flatMap((node, index, array) => {
+    const nextNode = array.at(index + 1);
+    if (!nextNode || node.windowId !== nextNode.windowId) {
+      return [];
+    }
 
-      if (foundEdge) {
-        foundEdge.details.push(detail);
-      } else {
-        acc.push({
-          sourceScreenId: detail.sourceScreen.id,
-          destScreenId: detail.destScreen.id,
-          trigger: detail.trigger,
-          details: [detail],
-        });
+    const sourceScreen = screens.find(({ id }) => id === node.screenId);
+    const destScreen = screens.find(({ id }) => id === nextNode.screenId);
+
+    if (!sourceScreen || !destScreen) {
+      return [];
+    }
+
+    const lastTestStep = node.testSteps.at(-1);
+
+    const targetElement = view.store.elements.find(
+      ({ id }) => id === lastTestStep?.targetElementId
+    );
+
+    const trigger = lastTestStep
+      ? {
+          type: lastTestStep.type,
+          target: targetElement
+            ? { xpath: targetElement.xpath, text: targetElement.text }
+            : undefined,
+          sequence: testStepIdToSequence.get(lastTestStep.id) ?? 0,
+          input: lastTestStep.input,
+          pageUrl: lastTestStep.pageUrl,
+          pageTitle: lastTestStep.pageTitle,
+        }
+      : undefined;
+
+    const inputElements = node.defaultValues.flatMap(({ elementId, value }) => {
+      const element = view.store.elements.find(({ id }) => id === elementId);
+
+      if (!element) {
+        return [];
       }
 
-      return acc;
-    }, []);
+      const inputs = node.testSteps
+        .filter(({ targetElementId }) => {
+          return targetElementId === elementId;
+        })
+        .flatMap(({ id, input }) => {
+          const sequence = testStepIdToSequence.get(id);
+          if (sequence === undefined || input === undefined) {
+            return [];
+          }
 
-    return { window, screens, edges };
+          return { sequence, value: input };
+        });
+
+      return [{ ...element, defaultValue: value, inputs }];
+    });
+
+    const notes = node.testSteps.flatMap((testStep) => {
+      return testStep.noteIds.flatMap((noteId) => {
+        const note = view.store.notes.find(({ id }) => id === noteId);
+        if (!note) {
+          return [];
+        }
+        const imageFileUrl = note.imageFileUrl ?? testStep.imageFileUrl ?? "";
+
+        const sequence = testStepIdToSequence.get(testStep.id) ?? 0;
+
+        return [
+          {
+            ...note,
+            imageFileUrl,
+            tags: note.tags ?? [],
+            sequence,
+          },
+        ];
+      });
+    });
+
+    const testPurposes = view.store.testPurposes;
+
+    return [
+      {
+        sourceScreen,
+        destScreen,
+        trigger,
+        inputElements,
+        notes,
+        testPurposes,
+      },
+    ];
   });
+
+  const edges = edgeDetails.reduce((acc: Edge[], detail) => {
+    const foundEdge = acc.find((edge) => {
+      return (
+        edge.sourceScreenId === detail.sourceScreen.id &&
+        edge.destScreenId === detail.destScreen.id &&
+        edge.trigger?.type === detail.trigger?.type &&
+        edge.trigger?.target?.xpath === detail.trigger?.target?.xpath
+      );
+    });
+
+    if (foundEdge) {
+      foundEdge.details.push(detail);
+    } else {
+      acc.push({
+        sourceScreenId: detail.sourceScreen.id,
+        destScreenId: detail.destScreen.id,
+        trigger: detail.trigger,
+        details: [detail],
+      });
+    }
+
+    return acc;
+  }, []);
+
+  return { screens, edges };
 }
 
 function createGraphTextLines(edges: Edge[]) {

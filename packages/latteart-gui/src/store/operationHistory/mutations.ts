@@ -248,6 +248,7 @@ const mutations: MutationTree<OperationHistoryState> = {
     state,
     payload: {
       graphs: {
+        testResultId: string;
         sequence: number;
         testPurpose?: { value: string; details?: string };
         element: Element;
@@ -263,15 +264,8 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param payload.graph Screen transition diagram.
    * @param payload.windowHandle Window handle.
    */
-  setScreenTransitionDiagramGraph(
-    state,
-    payload: { graph: Element; windowHandle: string }
-  ) {
-    Vue.set(
-      state.windowHandleToScreenTransitionDiagramGraph,
-      payload.windowHandle,
-      payload.graph
-    );
+  setScreenTransitionDiagramGraph(state, payload: { graph: Element }) {
+    state.screenTransitionDiagramGraph = payload.graph;
   },
 
   /**
@@ -501,6 +495,24 @@ const mutations: MutationTree<OperationHistoryState> = {
       name: payload.name,
       parentTestResultId: payload.parentTestResultId,
     };
+  },
+
+  /**
+   * Set storing test result information.
+   * @param state State.
+   * @param payload Test result information.
+   */
+  setStoringTestResultInfos(
+    state,
+    payload: {
+      testResultInfos: {
+        id: string;
+        name: string;
+        historyItems: OperationWithNotes[];
+      }[];
+    }
+  ) {
+    state.storingTestResultInfos = [...payload.testResultInfos];
   },
 
   /**
