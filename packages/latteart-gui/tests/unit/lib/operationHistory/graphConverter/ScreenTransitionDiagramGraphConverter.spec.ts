@@ -33,8 +33,7 @@ describe("convertToScreenTransitionDiagramGraph", () => {
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -186,8 +185,7 @@ s1["画面A"];
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -307,8 +305,7 @@ s2 --> |"type4: 要素4"|s3;
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -390,8 +387,7 @@ s2 --> |"type4: 要素4"|s1;
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -490,8 +486,7 @@ s2 --> |"screen transition"|s1;
             };
 
             const graphs = await convertToScreenTransitionDiagramGraph(view);
-            const graphText = graphs.find(({ window }) => window.id === "w1")
-              ?.graph.graphText;
+            const graphText = graphs.graph.graphText;
 
             expect(graphText).toEqual(`\
 graph TD;
@@ -604,8 +599,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -681,8 +675,7 @@ s1 --> |"type2: 要素2"|s1;
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
-        const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-          .graphText;
+        const graphText = graphs.graph.graphText;
 
         expect(graphText).toEqual(`\
 graph TD;
@@ -740,8 +733,7 @@ s1 --> |"screen transition"|s2;
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
-      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-        .graphText;
+      const graphText = graphs.graph.graphText;
 
       expect(graphText).toEqual(`\
 graph TD;
@@ -795,8 +787,7 @@ s1 --> |"type1: aaa bbb"|s1;
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
-      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-        .graphText;
+      const graphText = graphs.graph.graphText;
 
       expect(graphText).toEqual(`\
 graph TD;
@@ -850,8 +841,7 @@ s1 --> |"type1: aaaaaaaaaaaaaaaaaaaa..."|s1;
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
-      const graphText = graphs.find(({ window }) => window.id === "w1")?.graph
-        .graphText;
+      const graphText = graphs.graph.graphText;
 
       expect(graphText).toEqual(`\
 graph TD;
@@ -982,21 +972,10 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
 
-      expect(graphs.find(({ window }) => window.id === "w1")?.graph.graphText)
-        .toEqual(`\
+      expect(graphs.graph.graphText).toEqual(`\
 graph TD;
 s1["画面A"];
-`);
-
-      expect(graphs.find(({ window }) => window.id === "w2")?.graph.graphText)
-        .toEqual(`\
-graph TD;
 s2["画面B"];
-`);
-
-      expect(graphs.find(({ window }) => window.id === "w3")?.graph.graphText)
-        .toEqual(`\
-graph TD;
 s3["画面C"];
 `);
     });
@@ -1152,22 +1131,16 @@ s3["画面C"];
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
 
-      expect(graphs.find(({ window }) => window.id === "w1")?.graph.graphText)
-        .toEqual(`\
+      expect(graphs.graph.graphText).toEqual(`\
 graph TD;
 s1["画面A"];
 s2["画面B"];
-s5["画面E"];
-s1 --> |"type1: 要素1"|s2;
-s5 --> |"type5: 要素5"|s5;
-`);
-
-      expect(graphs.find(({ window }) => window.id === "w2")?.graph.graphText)
-        .toEqual(`\
-graph TD;
 s3["画面C"];
 s4["画面D"];
+s5["画面E"];
+s1 --> |"type1: 要素1"|s2;
 s3 --> |"type3: 要素3"|s4;
+s5 --> |"type5: 要素5"|s5;
 `);
     });
   });

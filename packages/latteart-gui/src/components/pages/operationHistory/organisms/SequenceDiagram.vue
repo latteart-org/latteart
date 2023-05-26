@@ -18,6 +18,18 @@
   <v-container fluid class="ma-0 fill-height align-start">
     <v-row no-gutters align="center" :style="{ height: '70px' }">
       <v-select
+        v-if="testResults.length > 1"
+        class="mr-3"
+        :label="message('history-view.test-result-name')"
+        :items="testResults"
+        item-text="name"
+        item-value="id"
+        :value="currentTestResultId"
+        @change="changeCurrentTestResultId"
+        hide-details
+        dense
+      />
+      <v-select
         class="mr-3"
         :label="message('history-view.test-purpose')"
         :items="testPurposes"
@@ -67,22 +79,41 @@ export default class SequenceDiagram extends Vue {
     return this.$store.state.operationHistory as OperationHistoryState;
   }
 
+  private get currentTestResultId() {
+    return this.operationHistoryState.testResultInfo.id;
+  }
+
+  private get testResults() {
+    return this.operationHistoryState.storingTestResultInfos;
+  }
+
   private get testPurposes() {
-    return this.operationHistoryState.sequenceDiagramGraphs.map(
-      ({ testPurpose }, index) => {
+    return this.operationHistoryState.sequenceDiagramGraphs
+      .filter((graph) => {
+        return (
+          this.currentTestResultId === "" ||
+          graph.testResultId === this.currentTestResultId
+        );
+      })
+      .map(({ testPurpose }, index) => {
         return {
           text:
             testPurpose?.value ?? this.message("history-view.no-test-purpose"),
           value: index,
         };
-      }
-    );
+      });
   }
 
   private get graph() {
-    return this.operationHistoryState.sequenceDiagramGraphs.at(
-      this.selectedTestPurposeIndex
+    const graphs = this.operationHistoryState.sequenceDiagramGraphs.filter(
+      (graph) =>
+        this.currentTestResultId === "" ||
+        graph.testResultId === this.currentTestResultId
     );
+    if (!graphs) {
+      return;
+    }
+    return graphs.at(this.selectedTestPurposeIndex);
   }
 
   private get graphElement() {
@@ -95,6 +126,12 @@ export default class SequenceDiagram extends Vue {
       "sequence-diagram-container"
     ) as any;
     sequenceDiagram.oncontextmenu = () => false;
+  }
+
+  private changeCurrentTestResultId(id: string) {
+    this.$store.dispatch("operationHistory/changeTestResultInfo", {
+      testResultId: id,
+    });
   }
 
   private editTestPurpose() {

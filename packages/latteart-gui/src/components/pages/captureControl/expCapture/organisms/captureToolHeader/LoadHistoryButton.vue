@@ -137,7 +137,7 @@ export default class LoadHistoryButton extends Vue {
         });
 
         await this.$store.dispatch("operationHistory/loadHistory", {
-          testResultId,
+          testResultIds: [testResultId],
         });
       } catch (error) {
         if (error instanceof Error) {

@@ -181,9 +181,15 @@ export type TestResultAccessor = {
   generateGraphView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>>;
+
+  mergeGraphView(
+    testResultIds: string[],
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<GraphView>>;
 };
 
 export type SequenceView = {
+  testResultId?: string;
   windows: {
     id: string;
     name: string;
@@ -284,4 +290,5 @@ export type RepositoryServiceErrorCode =
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
   | "generate_sequence_view_failed"
-  | "generate_graph_view_failed";
+  | "generate_graph_view_failed"
+  | "merge_graph_view_failed";

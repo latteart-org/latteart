@@ -399,47 +399,72 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async loadHistory(context, payload: { testResultId: string }) {
+  async loadHistory(context, payload: { testResultIds: string[] }) {
     context.commit(
       "captureControl/setIsResuming",
       { isResuming: true },
       { root: true }
     );
 
-    const result = await new LoadHistoryAction(
-      context.rootState.repositoryService
-    ).loadHistory(payload.testResultId);
+    const testResultIds = payload.testResultIds;
 
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
-    }
+    const results = await Promise.all(
+      testResultIds.map(async (testResultId) => {
+        const result = await new LoadHistoryAction(
+          context.rootState.repositoryService
+        ).loadHistory(testResultId);
+        if (result.isFailure()) {
+          throw new Error(
+            context.rootGetters.message(
+              result.error.messageKey,
+              result.error.variables
+            )
+          );
+        }
+        return result;
+      })
+    );
 
     await context.dispatch("resetHistory");
 
-    for (const testStepId of result.data.testStepIds) {
-      context.commit("addTestStepId", { testStepId });
-    }
-    context.commit("resetAllCoverageSources", {
-      coverageSources: result.data.coverageSources,
+    results.forEach((result) => {
+      result.data.testStepIds.forEach((testStepId) => {
+        context.commit("addTestStepId", { testStepId });
+      });
     });
+
+    const coverageSources = results
+      .map((result) => result.data.coverageSources)
+      .flat();
+    context.commit("resetAllCoverageSources", {
+      coverageSources,
+    });
+
+    const currentTestResult = results[0].data;
+
     context.commit("resetHistory", {
-      historyItems: result.data.historyItems,
+      historyItems: currentTestResult.historyItems,
     });
     context.commit(
       "captureControl/setUrl",
-      { url: result.data.url },
+      { url: currentTestResult.url },
       { root: true }
     );
     context.commit("setTestResultInfo", {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
-      id: result.data.testResultInfo.id,
-      name: result.data.testResultInfo.name,
-      parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
+      id: currentTestResult.testResultInfo.id,
+      name: currentTestResult.testResultInfo.name,
+      parentTestResultId:
+        currentTestResult.testResultInfo.parentTestResultId ?? "",
+    });
+    context.commit("setStoringTestResultInfos", {
+      testResultInfos: results.map((result) => {
+        return {
+          id: result.data.testResultInfo.id,
+          name: result.data.testResultInfo.name,
+          historyItems: result.data.historyItems,
+        };
+      }),
     });
     context.commit(
       "operationHistory/setWindows",
@@ -452,7 +477,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     context.dispatch(
       "captureControl/resetTimer",
-      { millis: result.data.testingTime },
+      { millis: currentTestResult.testingTime },
       { root: true }
     );
 
@@ -461,6 +486,30 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { isResuming: false },
       { root: true }
     );
+  },
+
+  /**
+   * Change test result info.
+   * @param context Action context.
+   * @param payload.testResultId Test result id.
+   */
+  changeTestResultInfo(context, payload: { testResultId: string }) {
+    const testResult = context.state.storingTestResultInfos.find(
+      (testResult) => testResult.id === payload.testResultId
+    );
+    if (!testResult) {
+      return;
+    }
+    console.log({ testResult });
+    context.commit("setTestResultInfo", {
+      repositoryUrl: context.rootState.repositoryService.serviceUrl,
+      id: testResult.id,
+      name: testResult.name,
+      parentTestResultId: "",
+    });
+    context.commit("resetHistory", {
+      historyItems: testResult.historyItems,
+    });
   },
 
   /**
@@ -541,6 +590,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       name: "",
       parentTestResultId: "",
     });
+    context.commit("setStoringTestResultInfos", { testResultInfos: [] });
     context.commit("clearTestStepIds");
   },
 
@@ -557,20 +607,33 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       callback: SequenceDiagramGraphCallback;
     }
   ) {
-    let sequenceView: SequenceView;
+    let sequenceViews: SequenceView[];
     if (Vue.prototype.$sequenceView) {
-      sequenceView = Vue.prototype.$sequenceView;
+      sequenceViews = [Vue.prototype.$sequenceView];
     } else {
-      const testResult =
-        context.rootState.repositoryService.createTestResultAccessor(
-          context.state.testResultInfo.id
-        );
-      const result = await testResult.generateSequenceView(payload.viewOption);
+      const testResults = context.state.storingTestResultInfos.map(
+        (testResultInfo) => {
+          return context.rootState.repositoryService.createTestResultAccessor(
+            testResultInfo.id
+          );
+        }
+      );
+      const results = await Promise.all(
+        testResults.map(async (testResult) => {
+          const result = await testResult.generateSequenceView(
+            payload.viewOption
+          );
+          if (result.isFailure()) {
+            throw new Error();
+          }
+          return {
+            ...result.data,
+            testResultId: (testResult as any).testResultId,
+          };
+        })
+      );
 
-      if (result.isFailure()) {
-        return;
-      }
-      sequenceView = result.data;
+      sequenceViews = results;
     }
 
     const createSequenceDiagramGraphExtender = (
@@ -611,37 +674,46 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
     };
 
-    const graphs = (
-      await convertToSequenceDiagramGraphs(
-        sequenceView,
-        createSequenceDiagramGraphExtender
-      )
-    ).map(({ sequence, testPurpose, graph }) => {
-      const svgElement = (() => {
-        const element = document.createElement("div");
-        element.innerHTML = new MermaidGraphConverter().toSVG(
-          "sequenceDiagram",
-          graph.graphText
-        );
-        return element.firstElementChild!;
-      })();
+    const graphs = await Promise.all(
+      sequenceViews.map(async (sequenceView) => {
+        return (
+          await convertToSequenceDiagramGraphs(
+            sequenceView,
+            createSequenceDiagramGraphExtender
+          )
+        ).map(({ sequence, testPurpose, graph }) => {
+          const svgElement = (() => {
+            const element = document.createElement("div");
+            element.innerHTML = new MermaidGraphConverter().toSVG(
+              "sequenceDiagram",
+              graph.graphText
+            );
+            return element.firstElementChild!;
+          })();
 
-      const disabledList = sequenceView.scenarios
-        .flatMap(({ nodes }) => nodes)
-        .map((node, index) => {
+          const disabledList = sequenceView.scenarios
+            .flatMap(({ nodes }) => nodes)
+            .map((node, index) => {
+              return {
+                index,
+                disabled: node.disabled ?? false,
+              };
+            })
+            .filter((item) => item.disabled);
+
+          graph.graphExtender.extendGraph(svgElement, disabledList);
+
           return {
-            index,
-            disabled: node.disabled ?? false,
+            testResultId: sequenceView.testResultId,
+            sequence,
+            testPurpose,
+            element: svgElement,
           };
-        })
-        .filter((item) => item.disabled);
+        });
+      })
+    );
 
-      graph.graphExtender.extendGraph(svgElement, disabledList);
-
-      return { sequence, testPurpose, element: svgElement };
-    });
-
-    context.commit("setSequenceDiagramGraphs", { graphs });
+    context.commit("setSequenceDiagramGraphs", { graphs: graphs.flat() });
   },
 
   /**
@@ -664,11 +736,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (Vue.prototype.$graphView) {
       graphView = Vue.prototype.$graphView;
     } else {
-      const testResult =
-        context.rootState.repositoryService.createTestResultAccessor(
-          context.state.testResultInfo.id
-        );
-      const result = await testResult.generateGraphView(payload.viewOption);
+      const result =
+        context.state.storingTestResultInfos.length > 1
+          ? await context.rootState.repositoryService
+              .createTestResultAccessor("")
+              .mergeGraphView(
+                context.state.storingTestResultInfos.map(
+                  (testResultInfo) => testResultInfo.id
+                ),
+                payload.viewOption
+              )
+          : await context.rootState.repositoryService
+              .createTestResultAccessor(context.state.testResultInfo.id)
+              .generateGraphView(payload.viewOption);
       if (result.isFailure()) {
         return;
       }
@@ -712,42 +792,26 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
     };
 
-    const graphAndWindowHandles = await Promise.all(
-      windowHandles.map(async (windowHandle) => {
-        return {
-          graph: (
-            await convertToScreenTransitionDiagramGraph(
-              graphView,
-              createFlowChartGraphExtender
-            )
-          ).find(({ window }) => {
-            return window.id === windowHandle;
-          })?.graph,
-          windowHandle,
-        };
-      })
-    );
+    const graph = (
+      await convertToScreenTransitionDiagramGraph(
+        graphView,
+        createFlowChartGraphExtender
+      )
+    ).graph;
 
-    for (const { graph, windowHandle } of graphAndWindowHandles) {
-      if (!graph) {
-        continue;
-      }
+    const svgElement = (() => {
+      const element = document.createElement("div");
+      element.innerHTML = new MermaidGraphConverter().toSVG(
+        "screenTransitionDiagram",
+        graph.graphText
+      );
+      return element.firstElementChild!;
+    })();
+    graph.graphExtender.extendGraph(svgElement);
 
-      const svgElement = (() => {
-        const element = document.createElement("div");
-        element.innerHTML = new MermaidGraphConverter().toSVG(
-          "screenTransitionDiagram",
-          graph.graphText
-        );
-        return element.firstElementChild!;
-      })();
-      graph.graphExtender.extendGraph(svgElement);
-
-      context.commit("setScreenTransitionDiagramGraph", {
-        graph: svgElement,
-        windowHandle,
-      });
-    }
+    context.commit("setScreenTransitionDiagramGraph", {
+      graph: svgElement,
+    });
   },
 
   /**
@@ -764,11 +828,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     if (Vue.prototype.$graphView) {
       graphView = Vue.prototype.$graphView;
     } else {
-      const testResult =
-        context.rootState.repositoryService.createTestResultAccessor(
-          context.state.testResultInfo.id
-        );
-      const result = await testResult.generateGraphView(payload.viewOption);
+      const result =
+        context.state.storingTestResultInfos.length > 1
+          ? await context.rootState.repositoryService
+              .createTestResultAccessor("")
+              .mergeGraphView(
+                context.state.storingTestResultInfos.map(
+                  (testResultInfo) => testResultInfo.id
+                ),
+                payload.viewOption
+              )
+          : await context.rootState.repositoryService
+              .createTestResultAccessor(context.state.testResultInfo.id)
+              .generateGraphView(payload.viewOption);
       if (result.isFailure()) {
         return;
       }

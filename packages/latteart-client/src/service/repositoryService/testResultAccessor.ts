@@ -568,4 +568,25 @@ export class TestResultAccessorImpl implements TestResultAccessor {
 
     return new ServiceSuccess(result.data);
   }
+
+  async mergeGraphView(
+    testResultIds: string[],
+    option?: TestResultViewOption
+  ): Promise<ServiceResult<GraphView>> {
+    const result = await this.repositories.testResultRepository.mergeGraphView(
+      testResultIds,
+      option
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "merge_graph_view_failed",
+        message: "Merge Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
 }

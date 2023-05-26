@@ -82,9 +82,10 @@ describe("generateSequenceView", () => {
       it("テストステップが1つもない場合", () => {
         const testSteps: TestStepForSequenceView[] = [];
 
-        const result = generateSequenceView(testSteps);
+        const result = generateSequenceView("", testSteps);
 
         expect(result).toEqual({
+          testResultId: "",
           windows: [],
           screens: [],
           scenarios: [],
@@ -92,7 +93,8 @@ describe("generateSequenceView", () => {
       });
 
       it("1つ目のテストステップに目的がある場合", () => {
-        const result: SequenceView = generateSequenceView([
+        const testResultId = "id1";
+        const result: SequenceView = generateSequenceView(testResultId, [
           {
             ...testStepBase1,
             operation: {
@@ -118,6 +120,7 @@ describe("generateSequenceView", () => {
         ]);
 
         expect(result).toEqual({
+          testResultId,
           windows: [{ id: "windowHandle1", name: "window1" }],
           screens: [{ id: "s0", name: "screenDef1" }],
           scenarios: [
@@ -164,9 +167,14 @@ describe("generateSequenceView", () => {
           },
         ];
 
-        const result: SequenceView = generateSequenceView(testSteps);
+        const testResultId = "id1";
+        const result: SequenceView = generateSequenceView(
+          testResultId,
+          testSteps
+        );
 
         expect(result).toEqual({
+          testResultId,
           windows: [{ id: "windowHandle1", name: "window1" }],
           screens: [{ id: "s0", name: "screenDef1" }],
           scenarios: [
@@ -218,10 +226,15 @@ describe("generateSequenceView", () => {
             intention: testPurpose2,
           },
         ];
+        const testResultId = "id1";
 
-        const result: SequenceView = generateSequenceView(testSteps);
+        const result: SequenceView = generateSequenceView(
+          testResultId,
+          testSteps
+        );
 
         expect(result).toEqual({
+          testResultId,
           windows: [{ id: "windowHandle1", name: "window1" }],
           screens: [{ id: "s0", name: "screenDef1" }],
           scenarios: [

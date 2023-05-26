@@ -46,7 +46,7 @@ export default class HistoryFrame extends Vue {
   }
 
   private get sessionId() {
-    const sessionId = this.$route.query.sessionId as string;
+    const sessionId = this.$route.query.sessionIds[0] as string;
     return sessionId;
   }
 

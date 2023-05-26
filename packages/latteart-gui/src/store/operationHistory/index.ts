@@ -54,6 +54,15 @@ export interface OperationHistoryState {
   };
 
   /**
+   * Retention of test result information
+   */
+  storingTestResultInfos: {
+    id: string;
+    name: string;
+    historyItems: OperationWithNotes[];
+  }[];
+
+  /**
    * Test step ids.
    */
   testStepIds: string[];
@@ -77,6 +86,7 @@ export interface OperationHistoryState {
    * Sequence diagram.
    */
   sequenceDiagramGraphs: {
+    testResultId: string;
     sequence: number;
     testPurpose?: { value: string; details?: string };
     element: Element;
@@ -85,9 +95,7 @@ export interface OperationHistoryState {
   /**
    * Window handle to screen transition diagram.
    */
-  windowHandleToScreenTransitionDiagramGraph: {
-    [windowHandle: string]: Element;
-  };
+  screenTransitionDiagramGraph: Element | null;
 
   /**
    * Screen element coverages.
@@ -238,12 +246,13 @@ const state: OperationHistoryState = {
     name: "",
     parentTestResultId: "",
   },
+  storingTestResultInfos: [],
   testStepIds: [],
   history: [],
   windows: [],
   coverageSources: [],
   sequenceDiagramGraphs: [],
-  windowHandleToScreenTransitionDiagramGraph: {},
+  screenTransitionDiagramGraph: null,
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,

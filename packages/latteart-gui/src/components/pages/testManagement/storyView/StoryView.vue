@@ -87,13 +87,14 @@
             :label="this.$store.getters.message('story-view.review-target')"
             item-text="displayName"
             item-value="id"
-            v-model="reviewTargetSessionId"
+            :multiple="!isViewerMode"
+            v-model="reviewTargetSessionIds"
           ></v-select>
 
           <review-button
             :disabled="!canReviewSession"
             :story="story"
-            :sessionId="reviewTargetSessionId"
+            :sessionIds="reviewTargetSessionIds"
           ></review-button>
         </v-col>
       </v-row>
@@ -209,7 +210,7 @@ export default class StoryView extends Vue {
     /* Do nothing */
   }
 
-  private reviewTargetSessionId = "";
+  private reviewTargetSessionIds = [];
 
   private sessionPanelExpantionStates: boolean[] = [];
 
@@ -405,7 +406,7 @@ export default class StoryView extends Vue {
   }
 
   private get canReviewSession(): boolean {
-    return this.reviewTargetSessionId !== "";
+    return this.reviewTargetSessionIds.length >= 1;
   }
 
   private toIndex(): void {

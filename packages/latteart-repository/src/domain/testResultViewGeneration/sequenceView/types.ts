@@ -20,6 +20,7 @@ import { TestStep } from "../../types";
  * Sequence view.
  */
 export type SequenceView = {
+  testResultId: string;
   windows: { id: string; name: string }[];
   screens: { id: string; name: string }[];
   scenarios: {

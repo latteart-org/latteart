@@ -201,14 +201,12 @@ export default class ReviewView extends Vue {
   }
 
   private created() {
-    const testResultId = this.$route.query.testResultId as string;
-
     (async () => {
       this.isResuming = true;
 
       try {
         await this.$store.dispatch("operationHistory/loadHistory", {
-          testResultId,
+          testResultIds: this.testResultIds,
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -224,8 +222,13 @@ export default class ReviewView extends Vue {
     })();
   }
 
+  private get testResultIds(): string[] {
+    return this.$route.query.testResultIds as string[];
+  }
+
   private get testResultId(): string {
-    return this.$route.query.testResultId as string;
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo.id;
   }
 
   private get testResult() {
