@@ -224,31 +224,11 @@ export class TestResultRepository {
   }
 
   public async generateGraphView(
-    testResultId: string,
-    option?: TestResultViewOptionForRepository
-  ): Promise<RepositoryAccessResult<GraphViewForRepository>> {
-    try {
-      const url = `api/v1/test-results/${testResultId}/graph-views`;
-      const response = await this.restClient.httpPost(url, option);
-
-      if (response.status !== 200) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return createRepositoryAccessSuccess({
-        data: response.data as GraphViewForRepository,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  public async mergeGraphView(
     testResultIds: string[],
     option?: TestResultViewOptionForRepository
   ): Promise<RepositoryAccessResult<GraphViewForRepository>> {
     try {
-      const url = `api/v1/graph-views/marge`;
+      const url = `api/v1/graph-views`;
       const response = await this.restClient.httpPost(url, {
         testResultIds,
         node: option?.node,

@@ -26,12 +26,18 @@ import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
 
-@Route("graph-views/marge")
+/**
+ * Generate graph view model of test result.
+ * @param testResultIds Target test result ids.
+ * @param requestBody Test result view option.
+ * @returns Generated graph view model.
+ */
+@Route("graph-views")
 @Tags("graph-views")
 export class GraphViewsController extends Controller {
   @SuccessResponse(200, "Success")
   @Post()
-  public async merge(
+  public async ganerate(
     @Body() requestBody: MergeGraphViewsDto
   ): Promise<GetGraphViewResponse> {
     const timestampService = new TimestampServiceImpl();

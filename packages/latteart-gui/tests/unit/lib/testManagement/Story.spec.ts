@@ -36,7 +36,9 @@ describe("Storyの", () => {
     };
 
     it("story内にsessionIdに一致するsessionが存在する場合、該当sessionを返す", () => {
-      expect(StoryService.getTargetSessions(story, ["s001"])).toEqual(session);
+      expect(StoryService.getTargetSessions(story, ["s001"])).toEqual([
+        session,
+      ]);
     });
 
     it("story内にsessionIdに一致するsessionが存在しない場合、nullを返す", () => {

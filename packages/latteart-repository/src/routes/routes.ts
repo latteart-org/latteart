@@ -2100,6 +2100,7 @@ const models: TsoaRoute.Models = {
           },
           required: true,
         },
+        testResultId: { dataType: "string", required: true },
       },
       validators: {},
     },
@@ -2138,38 +2139,6 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   GetSequenceViewDto: {
-    dataType: "refAlias",
-    type: { ref: "TestResultViewOption", validators: {} },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_generate_graph_view_failed_: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        details: {
-          dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              target: { dataType: "string", required: true },
-              message: { dataType: "string", required: true },
-              code: { dataType: "string", required: true },
-            },
-          },
-        },
-        message: { dataType: "string" },
-        code: {
-          dataType: "enum",
-          enums: ["generate_graph_view_failed"],
-          required: true,
-        },
-      },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  GetGraphViewDto: {
     dataType: "refAlias",
     type: { ref: "TestResultViewOption", validators: {} },
   },
@@ -3397,11 +3366,13 @@ export function RegisterRoutes(app: Router) {
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
-    "/api/v1/graph-views/marge",
+    "/api/v1/graph-views",
     ...fetchMiddlewares<RequestHandler>(GraphViewsController),
-    ...fetchMiddlewares<RequestHandler>(GraphViewsController.prototype.merge),
+    ...fetchMiddlewares<RequestHandler>(
+      GraphViewsController.prototype.ganerate
+    ),
 
-    function GraphViewsController_merge(
+    function GraphViewsController_ganerate(
       request: any,
       response: any,
       next: any
@@ -3423,7 +3394,7 @@ export function RegisterRoutes(app: Router) {
 
         const controller = new GraphViewsController();
 
-        const promise = controller.merge.apply(
+        const promise = controller.ganerate.apply(
           controller,
           validatedArgs as any
         );
@@ -4477,51 +4448,6 @@ export function RegisterRoutes(app: Router) {
         const controller = new TestResultsController();
 
         const promise = controller.generateSequenceView.apply(
-          controller,
-          validatedArgs as any
-        );
-        promiseHandler(controller, promise, response, 200, next);
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  app.post(
-    "/api/v1/test-results/:testResultId/graph-views",
-    ...fetchMiddlewares<RequestHandler>(TestResultsController),
-    ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.generateGraphView
-    ),
-
-    function TestResultsController_generateGraphView(
-      request: any,
-      response: any,
-      next: any
-    ) {
-      const args = {
-        testResultId: {
-          in: "path",
-          name: "testResultId",
-          required: true,
-          dataType: "string",
-        },
-        requestBody: {
-          in: "body",
-          name: "requestBody",
-          ref: "GetGraphViewDto",
-        },
-      };
-
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = getValidatedArgs(args, request, response);
-
-        const controller = new TestResultsController();
-
-        const promise = controller.generateGraphView.apply(
           controller,
           validatedArgs as any
         );

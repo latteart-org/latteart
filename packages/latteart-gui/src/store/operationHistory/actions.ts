@@ -730,8 +730,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       callback: FlowChartGraphCallback;
     }
   ) {
-    const windowHandles = context.state.windows.map(({ value }) => value);
-
     let graphView: GraphView;
     if (Vue.prototype.$graphView) {
       graphView = Vue.prototype.$graphView;
@@ -740,7 +738,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.state.storingTestResultInfos.length > 1
           ? await context.rootState.repositoryService
               .createTestResultAccessor("")
-              .mergeGraphView(
+              .generateGraphView(
                 context.state.storingTestResultInfos.map(
                   (testResultInfo) => testResultInfo.id
                 ),
@@ -748,7 +746,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               )
           : await context.rootState.repositoryService
               .createTestResultAccessor(context.state.testResultInfo.id)
-              .generateGraphView(payload.viewOption);
+              .generateGraphView(
+                [context.state.testResultInfo.id],
+                payload.viewOption
+              );
       if (result.isFailure()) {
         return;
       }
@@ -832,7 +833,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.state.storingTestResultInfos.length > 1
           ? await context.rootState.repositoryService
               .createTestResultAccessor("")
-              .mergeGraphView(
+              .generateGraphView(
                 context.state.storingTestResultInfos.map(
                   (testResultInfo) => testResultInfo.id
                 ),
@@ -840,7 +841,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               )
           : await context.rootState.repositoryService
               .createTestResultAccessor(context.state.testResultInfo.id)
-              .generateGraphView(payload.viewOption);
+              .generateGraphView(
+                [context.state.testResultInfo.id],
+                payload.viewOption
+              );
       if (result.isFailure()) {
         return;
       }
