@@ -124,7 +124,35 @@ Please read [this document](./docs/contributing.md) to contribute to LatteArt.
 
 If you have any questions about LatteArt, please post them to [Discussions](https://github.com/latteart-org/latteart/discussions) on GitHub.
 
-For other inquiries, please contact NTT Software Innovation Center (`latteart-p-ml [at] hco.ntt.co.jp`).
+For other inquiries, please contact NTT Software Innovation Center (`latteart-p-ml [at] ntt.com`).
+
+# For Researchers
+
+If you incorporate LatteArt in your research, we kindly request that you cite the following paper:
+
+```
+@INPROCEEDINGS{Kirinuki2023,
+  author={Kirinuki, Hiroyuki and Tajima, Masaki and Haruto, Tanno},
+  booktitle={2023 IEEE Conference on Software Testing, Verification and Validation (ICST)},
+  title={LatteArt: A Platform for Recording and Analyzing Exploratory Testing},
+  year={2023},
+  pages={443-453},
+  doi={10.1109/ICST57152.2023.00048}}
+```
+
+Furthermore, if you utilize the test generation feature, we respectfully ask that you also cite the following paper:
+
+```
+@article{Kirinuki2022,
+  title={Automating End-to-End Web Testing via Manual Testing},
+  author={Hiroyuki Kirinuki and Haruto Tanno},
+  journal={Journal of Information Processing},
+  volume={30},
+  pages={294-306},
+  year={2022},
+  doi={10.2197/ipsjjip.30.294}
+}
+```
 
 # License
 
