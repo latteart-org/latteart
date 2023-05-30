@@ -99,7 +99,7 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   clearModels(state) {
     Vue.set(state, "sequenceDiagramGraphs", []);
-    Vue.set(state, "windowHandleToScreenTransitionDiagramGraph", {});
+    Vue.set(state, "screenTransitionDiagramGraph", null);
     Vue.set(state, "elementCoverages", []);
     state.canUpdateModels = false;
   },
