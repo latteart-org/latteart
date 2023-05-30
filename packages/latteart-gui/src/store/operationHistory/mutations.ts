@@ -508,6 +508,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       testResultInfos: {
         id: string;
         name: string;
+        testStepIds: string[];
         historyItems: OperationWithNotes[];
       }[];
     }
