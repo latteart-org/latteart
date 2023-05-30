@@ -59,6 +59,7 @@ export interface OperationHistoryState {
   storingTestResultInfos: {
     id: string;
     name: string;
+    testStepIds: string[];
     historyItems: OperationWithNotes[];
   }[];
 

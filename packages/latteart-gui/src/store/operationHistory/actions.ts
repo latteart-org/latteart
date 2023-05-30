@@ -427,10 +427,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     await context.dispatch("resetHistory");
 
-    results.forEach((result) => {
-      result.data.testStepIds.forEach((testStepId) => {
-        context.commit("addTestStepId", { testStepId });
-      });
+    results[0].data.testStepIds.forEach((testStepId) => {
+      context.commit("addTestStepId", { testStepId });
     });
 
     const coverageSources = results
@@ -462,6 +460,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         return {
           id: result.data.testResultInfo.id,
           name: result.data.testResultInfo.name,
+          testStepIds: result.data.testStepIds,
           historyItems: result.data.historyItems,
         };
       }),
@@ -508,6 +507,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     });
     context.commit("resetHistory", {
       historyItems: testResult.historyItems,
+    });
+    context.commit("clearTestStepIds");
+    testResult.testStepIds.forEach((testStepId) => {
+      context.commit("addTestStepId", { testStepId });
     });
   },
 
