@@ -45,7 +45,35 @@ LatteArt は以下の 2 つのツールで構成されています。
 
 LatteArt に関する質問等は GitHub の [Discussions](https://github.com/latteart-org/latteart/discussions) へお願いします。
 
-その他のお問い合わせは、NTT ソフトウェアイノベ－ションセンタ（`latteart-p-ml [at] hco.ntt.co.jp`）までお願いします。
+その他のお問い合わせは、NTT ソフトウェアイノベ－ションセンタ（`latteart-p-ml [at] ntt.com`）までお願いします。
+
+# 研究者の方へ
+
+もし研究で LatteArt を利用される場合は、以下の論文を引用いただきますようお願いいたします。
+
+```
+@INPROCEEDINGS{Kirinuki2023,
+  author={Kirinuki, Hiroyuki and Tajima, Masaki and Haruto, Tanno},
+  booktitle={2023 IEEE Conference on Software Testing, Verification and Validation (ICST)},
+  title={LatteArt: A Platform for Recording and Analyzing Exploratory Testing},
+  year={2023},
+  pages={443-453},
+  doi={10.1109/ICST57152.2023.00048}}
+```
+
+さらに、LatteArt のテスト生成機能を利用される場合は、以下の論文も引用いただきますようお願いいたします。:
+
+```
+@article{Kirinuki2022,
+  title={Automating End-to-End Web Testing via Manual Testing},
+  author={Hiroyuki Kirinuki and Haruto Tanno},
+  journal={Journal of Information Processing},
+  volume={30},
+  pages={294-306},
+  year={2022},
+  doi={10.2197/ipsjjip.30.294}
+}
+```
 
 # License
 
