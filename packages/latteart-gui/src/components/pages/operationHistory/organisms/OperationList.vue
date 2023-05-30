@@ -291,11 +291,6 @@ export default class OperationList extends Vue {
     this.initializeSelectedSequences();
   }
 
-  @Watch("history")
-  private resetHistory() {
-    this.onSelectOperations(0);
-  }
-
   @Watch("selectedOperationSequence")
   private initializeSelectedSequences() {
     this.selectedSequences = [this.selectedOperationSequence];
