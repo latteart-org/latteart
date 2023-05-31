@@ -62,7 +62,6 @@ export type CaptureEventListeners = {
   onAddTestStep?: (testStep: {
     id: string;
     operation: Operation;
-    coverageSource: CoverageSource;
   }) => Promise<void>;
   onAddNote?: (testStepNote: TestStepNote) => Promise<void>;
   onAddTestPurpose?: (testStepNote: TestStepNote) => Promise<void>;

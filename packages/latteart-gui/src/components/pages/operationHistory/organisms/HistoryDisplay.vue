@@ -144,6 +144,7 @@ import OperationList from "@/components/pages/operationHistory/organisms/Operati
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -260,7 +261,21 @@ export default class HistoryDisplay extends Vue {
 
   private updateTestResultViewModel() {
     (async () => {
-      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
+      const testResultId = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo.id;
+
+      await this.$store.dispatch(
+        "operationHistory/updateModelsFromSequenceView",
+        { testResultId }
+      );
+      await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
+        testResultIds: [testResultId],
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
     })();
   }
 

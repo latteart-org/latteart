@@ -23,6 +23,7 @@ import {
   AutofillConditionGroup,
   AutoOperation,
   TestResultComparisonResult,
+  TestResultSummary,
 } from "@/lib/operationHistory/types";
 import {
   SequenceDiagramGraphCallback,
@@ -399,71 +400,45 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async loadHistory(context, payload: { testResultIds: string[] }) {
+  async loadTestResult(context, payload: { testResultId: string }) {
     context.commit(
       "captureControl/setIsResuming",
       { isResuming: true },
       { root: true }
     );
 
-    const testResultIds = payload.testResultIds;
+    const result = await new LoadHistoryAction(
+      context.rootState.repositoryService
+    ).loadHistory(payload.testResultId);
 
-    const results = await Promise.all(
-      testResultIds.map(async (testResultId) => {
-        const result = await new LoadHistoryAction(
-          context.rootState.repositoryService
-        ).loadHistory(testResultId);
-        if (result.isFailure()) {
-          throw new Error(
-            context.rootGetters.message(
-              result.error.messageKey,
-              result.error.variables
-            )
-          );
-        }
-        return result;
-      })
-    );
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
 
-    await context.dispatch("resetHistory");
+    await context.dispatch("clearTestResult");
 
-    results[0].data.testStepIds.forEach((testStepId) => {
+    result.data.testStepIds.forEach((testStepId) => {
       context.commit("addTestStepId", { testStepId });
     });
 
-    const coverageSources = results
-      .map((result) => result.data.coverageSources)
-      .flat();
-    context.commit("resetAllCoverageSources", {
-      coverageSources,
-    });
-
-    const currentTestResult = results[0].data;
-
     context.commit("resetHistory", {
-      historyItems: currentTestResult.historyItems,
+      historyItems: result.data.historyItems,
     });
     context.commit(
       "captureControl/setUrl",
-      { url: currentTestResult.url },
+      { url: result.data.url },
       { root: true }
     );
     context.commit("setTestResultInfo", {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
-      id: currentTestResult.testResultInfo.id,
-      name: currentTestResult.testResultInfo.name,
-      parentTestResultId:
-        currentTestResult.testResultInfo.parentTestResultId ?? "",
-    });
-    context.commit("setStoringTestResultInfos", {
-      testResultInfos: results.map((result) => {
-        return {
-          id: result.data.testResultInfo.id,
-          name: result.data.testResultInfo.name,
-          testStepIds: result.data.testStepIds,
-          historyItems: result.data.historyItems,
-        };
-      }),
+      id: result.data.testResultInfo.id,
+      name: result.data.testResultInfo.name,
+      parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
     });
     context.commit(
       "operationHistory/setWindows",
@@ -472,13 +447,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       },
       { root: true }
     );
-    await context.dispatch("updateTestResultViewModel");
-
     context.dispatch(
       "captureControl/resetTimer",
-      { millis: currentTestResult.testingTime },
+      { millis: result.data.testingTime },
       { root: true }
     );
+
+    await context.dispatch("updateModelsFromSequenceView", {
+      testResultId: payload.testResultId,
+    });
 
     context.commit(
       "captureControl/setIsResuming",
@@ -488,29 +465,29 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
-   * Change test result info.
+   * Load test result summaries.
    * @param context Action context.
-   * @param payload.testResultId Test result id.
    */
-  changeTestResultInfo(context, payload: { testResultId: string }) {
-    const testResult = context.state.storingTestResultInfos.find(
-      (testResult) => testResult.id === payload.testResultId
-    );
-    if (!testResult) {
-      return;
+  async loadTestResultSummaries(
+    context,
+    payload: {
+      testResultIds: string;
     }
-    context.commit("setTestResultInfo", {
-      repositoryUrl: context.rootState.repositoryService.serviceUrl,
-      id: testResult.id,
-      name: testResult.name,
-      parentTestResultId: "",
+  ) {
+    const testResults = (
+      (await context.dispatch("getTestResults")) as TestResultSummary[]
+    ).filter(({ id }) => {
+      return payload.testResultIds.includes(id);
     });
-    context.commit("resetHistory", {
-      historyItems: testResult.historyItems,
+
+    context.commit("setStoringTestResultInfos", {
+      testResultInfos: testResults.map(({ id, name }) => {
+        return { id, name };
+      }),
     });
-    context.commit("clearTestStepIds");
-    testResult.testStepIds.forEach((testStepId) => {
-      context.commit("addTestStepId", { testStepId });
+
+    await context.dispatch("updateModelsFromGraphView", {
+      testResultIds: payload.testResultIds,
     });
   },
 
@@ -575,68 +552,55 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
-   * Empty history in the State.
+   * Clear test result in the State.
    * @param context Action context.
    */
-  resetHistory(context) {
+  clearTestResult(context) {
     context.commit("clearHistory");
     context.commit("clearCheckedOperations");
     context.commit("clearWindows");
-    context.commit("clearAllCoverageSources");
-    context.commit("clearModels");
-    context.commit("selectWindow", { windowHandle: "" });
-    context.commit("clearInputValueTable");
+    context.commit("clearSequenceDiagramGraphs");
     context.commit("setTestResultInfo", {
       repositoryUrl: "",
       id: "",
       name: "",
       parentTestResultId: "",
     });
-    context.commit("setStoringTestResultInfos", { testResultInfos: [] });
     context.commit("clearTestStepIds");
   },
 
   /**
    * Build a sequence diagram from passed informations.
    * @param context Action context.
-   * @param payload.view Sequence View model.
+   * @param payload.testResultId Test result id.
+   * @param payload.viewOption View option.
    * @param payload.callback The callback when the sequence diagram has operated.
    */
   async buildSequenceDiagramGraph(
     context,
     payload: {
+      testResultId: string;
       viewOption: TestResultViewOption;
       callback: SequenceDiagramGraphCallback;
     }
   ) {
-    let sequenceViews: SequenceView[];
-    if (Vue.prototype.$sequenceView) {
-      sequenceViews = [Vue.prototype.$sequenceView];
-    } else {
-      const testResults = context.state.storingTestResultInfos.map(
-        (testResultInfo) => {
-          return context.rootState.repositoryService.createTestResultAccessor(
-            testResultInfo.id
-          );
-        }
-      );
-      const results = await Promise.all(
-        testResults.map(async (testResult) => {
-          const result = await testResult.generateSequenceView(
-            payload.viewOption
-          );
-          if (result.isFailure()) {
+    const sequenceView = Vue.prototype.$sequenceView
+      ? (Vue.prototype.$sequenceView as SequenceView)
+      : await (async () => {
+          const testResult =
+            context.rootState.repositoryService.createTestResultAccessor(
+              payload.testResultId
+            );
+
+          const generateSequenceViewResult =
+            await testResult.generateSequenceView(payload.viewOption);
+
+          if (generateSequenceViewResult.isFailure()) {
             throw new Error();
           }
-          return {
-            ...result.data,
-            testResultId: (testResult as any).testResultId,
-          };
-        })
-      );
 
-      sequenceViews = results;
-    }
+          return generateSequenceViewResult.data;
+        })();
 
     const createSequenceDiagramGraphExtender = (
       args: SequenceDiagramGraphExtenderSource
@@ -676,44 +640,39 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
     };
 
-    const graphs = await Promise.all(
-      sequenceViews.map(async (sequenceView) => {
-        return (
-          await convertToSequenceDiagramGraphs(
-            sequenceView,
-            createSequenceDiagramGraphExtender
-          )
-        ).map(({ sequence, testPurpose, graph }) => {
-          const svgElement = (() => {
-            const element = document.createElement("div");
-            element.innerHTML = new MermaidGraphConverter().toSVG(
-              "sequenceDiagram",
-              graph.graphText
-            );
-            return element.firstElementChild!;
-          })();
+    const graphs = (
+      await convertToSequenceDiagramGraphs(
+        sequenceView,
+        createSequenceDiagramGraphExtender
+      )
+    ).map(({ sequence, testPurpose, graph }) => {
+      const svgElement = (() => {
+        const element = document.createElement("div");
+        element.innerHTML = new MermaidGraphConverter().toSVG(
+          "sequenceDiagram",
+          graph.graphText
+        );
+        return element.firstElementChild!;
+      })();
 
-          const disabledList = sequenceView.scenarios
-            .flatMap(({ nodes }) => nodes)
-            .map((node, index) => {
-              return {
-                index,
-                disabled: node.disabled ?? false,
-              };
-            })
-            .filter((item) => item.disabled);
-
-          graph.graphExtender.extendGraph(svgElement, disabledList);
-
+      const disabledList = sequenceView.scenarios
+        .flatMap(({ nodes }) => nodes)
+        .map((node, index) => {
           return {
-            testResultId: sequenceView.testResultId,
-            sequence,
-            testPurpose,
-            element: svgElement,
+            index,
+            disabled: node.disabled ?? false,
           };
-        });
-      })
-    );
+        })
+        .filter((item) => item.disabled);
+
+      graph.graphExtender.extendGraph(svgElement, disabledList);
+
+      return {
+        sequence,
+        testPurpose,
+        element: svgElement,
+      };
+    });
 
     context.commit("setSequenceDiagramGraphs", { graphs: graphs.flat() });
   },
@@ -721,40 +680,33 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Build a screen transition diagram from passed informations.
    * @param context Action context.
-   * @param payload.screenHistory Screen history.
-   * @param payload.windowHandles Window handles.
+   * @param payload.testResultIds Test result ids.
+   * @param payload.viewOption View option.
    * @param payload.callback The callback when the screen transition diagram has operated.
    */
   async buildScreenTransitionDiagramGraph(
     context,
     payload: {
+      testResultIds: string[];
       viewOption: TestResultViewOption;
       callback: FlowChartGraphCallback;
     }
   ) {
     let graphView: GraphView;
+
     if (Vue.prototype.$graphView) {
       graphView = Vue.prototype.$graphView;
     } else {
       const result =
-        context.state.storingTestResultInfos.length > 1
-          ? await context.rootState.repositoryService
-              .createTestResultAccessor("")
-              .generateGraphView(
-                context.state.storingTestResultInfos.map(
-                  (testResultInfo) => testResultInfo.id
-                ),
-                payload.viewOption
-              )
-          : await context.rootState.repositoryService
-              .createTestResultAccessor(context.state.testResultInfo.id)
-              .generateGraphView(
-                [context.state.testResultInfo.id],
-                payload.viewOption
-              );
+        await context.rootState.repositoryService.testResultRepository.generateGraphView(
+          payload.testResultIds,
+          payload.viewOption
+        );
+
       if (result.isFailure()) {
         return;
       }
+
       graphView = result.data;
     }
 
@@ -820,36 +772,31 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Build element coverages from passed informations.
    * @param context Action context.
-   * @param payload.screenHistory Screen history.
-   * @param payload.inclusionTags Inclusion tags settings for screen element coverage.
+   * @param payload.testResultIds Test result ids.
+   * @param payload.viewOption View option.
    */
   async buildElementCoverages(
     context,
-    payload: { viewOption: TestResultViewOption }
+    payload: {
+      testResultIds: string[];
+      viewOption: TestResultViewOption;
+    }
   ) {
     let graphView: GraphView;
+
     if (Vue.prototype.$graphView) {
       graphView = Vue.prototype.$graphView;
     } else {
       const result =
-        context.state.storingTestResultInfos.length > 1
-          ? await context.rootState.repositoryService
-              .createTestResultAccessor("")
-              .generateGraphView(
-                context.state.storingTestResultInfos.map(
-                  (testResultInfo) => testResultInfo.id
-                ),
-                payload.viewOption
-              )
-          : await context.rootState.repositoryService
-              .createTestResultAccessor(context.state.testResultInfo.id)
-              .generateGraphView(
-                [context.state.testResultInfo.id],
-                payload.viewOption
-              );
+        await context.rootState.repositoryService.testResultRepository.generateGraphView(
+          payload.testResultIds,
+          payload.viewOption
+        );
+
       if (result.isFailure()) {
         return;
       }
+
       graphView = result.data;
     }
 
@@ -862,16 +809,19 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
-   * Update test result view model.
+   * Update models from sequence view.
    * @param context Action context.
+   * @param payload.testResultId Test result id.
    */
-  async updateTestResultViewModel(context) {
+  async updateModelsFromSequenceView(
+    context,
+    payload: { testResultId: string }
+  ) {
     try {
       context.commit("setTestResultViewModelUpdating", {
         isTestResultViewModelUpdating: true,
       });
-
-      context.commit("clearModels");
+      context.commit("clearSequenceDiagramGraphs");
 
       const screenDefinitionConfig =
         context.rootState.projectSettings.config.screenDefinition;
@@ -902,6 +852,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       await context.dispatch("buildSequenceDiagramGraph", {
+        testResultId: payload.testResultId,
         viewOption,
         callback: {
           onClickActivationBox: (sequences: number[]) => {
@@ -936,8 +887,62 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           onRightClickLoopArea: context.state.openNoteMenu,
         },
       });
+    } finally {
+      context.commit("setTestResultViewModelUpdating", {
+        isTestResultViewModelUpdating: false,
+      });
+    }
+  },
+
+  /**
+   * Update models from graph view.
+   * @param context Action context.
+   * @param payload.testResultIds Test result ids.
+   */
+  async updateModelsFromGraphView(
+    context,
+    payload: {
+      testResultIds: string[];
+    }
+  ) {
+    try {
+      context.commit("setTestResultViewModelUpdating", {
+        isTestResultViewModelUpdating: true,
+      });
+
+      context.commit("clearScreenTransitionDiagramGraph");
+      context.commit("clearElementCoverages");
+
+      const screenDefinitionConfig =
+        context.rootState.projectSettings.config.screenDefinition;
+      const viewOption = {
+        node: {
+          unit: screenDefinitionConfig.screenDefType,
+          definitions: screenDefinitionConfig.conditionGroups
+            .filter(({ isEnabled }) => isEnabled)
+            .map((group) => {
+              return {
+                name: group.screenName,
+                conditions: group.conditions
+                  .filter(({ isEnabled }) => isEnabled)
+                  .map((condition) => {
+                    return {
+                      target: condition.definitionType,
+                      method: condition.matchType,
+                      value: condition.word,
+                    };
+                  }),
+              };
+            }),
+        },
+      };
+
+      const selectOperation = (sequence: number) => {
+        context.commit("selectOperation", { sequence });
+      };
 
       await context.dispatch("buildScreenTransitionDiagramGraph", {
+        testResultIds: payload.testResultIds,
         viewOption,
         callback: {
           onClickEdge: (sequence: number, inputValueTable: InputValueTable) => {
@@ -955,6 +960,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       });
 
       await context.dispatch("buildElementCoverages", {
+        testResultIds: payload.testResultIds,
         viewOption,
       });
     } finally {

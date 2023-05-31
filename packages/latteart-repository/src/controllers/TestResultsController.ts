@@ -42,8 +42,6 @@ import {
   CreateTestResultDto,
   GetSequenceViewDto,
   GetSequenceViewResponse,
-  GetGraphViewDto,
-  GetGraphViewResponse,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";

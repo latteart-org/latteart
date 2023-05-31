@@ -113,7 +113,6 @@ import ScriptGenerationOptionDialog from "../common/ScriptGenerationOptionDialog
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/components/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CoverageSource } from "latteart-client";
 import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
@@ -205,9 +204,7 @@ export default class ReviewView extends Vue {
       this.isResuming = true;
 
       try {
-        await this.$store.dispatch("operationHistory/loadHistory", {
-          testResultIds: this.testResultIds,
-        });
+        await this.loadTestResults(...this.testResultIds);
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);
@@ -220,6 +217,20 @@ export default class ReviewView extends Vue {
 
       this.isResuming = false;
     })();
+  }
+
+  private async loadTestResults(...testResultIds: string[]) {
+    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+      testResultIds,
+    });
+
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId: testResultIds[0],
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
+    });
   }
 
   private get testResultIds(): string[] {
@@ -235,10 +246,8 @@ export default class ReviewView extends Vue {
     const history = (
       this.$store.state.operationHistory as OperationHistoryState
     ).history;
-    const coverageSources: CoverageSource[] =
-      this.$store.state.operationHistory.coverageSources;
 
-    return { history, coverageSources };
+    return { history };
   }
 
   private get screenDefinitionConfig() {
@@ -271,7 +280,10 @@ export default class ReviewView extends Vue {
   }
 
   private toBack(): void {
-    this.$store.dispatch("operationHistory/resetHistory");
+    this.$store.dispatch("operationHistory/clearTestResult");
+    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+    this.$store.commit("operationHistory/clearElementCoverages");
+    this.$store.commit("operationHistory/clearInputValueTable");
 
     this.$router.push({
       name: "storyView",

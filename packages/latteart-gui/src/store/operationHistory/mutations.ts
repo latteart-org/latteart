@@ -25,7 +25,6 @@ import {
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { CoverageSource } from "latteart-client";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**
@@ -94,14 +93,51 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Empty models that visualizes operation history in the State.
+   * Clear sequence diagram graphs.
    * @param state State.
    */
-  clearModels(state) {
+  clearSequenceDiagramGraphs(state) {
     Vue.set(state, "sequenceDiagramGraphs", []);
+
+    if (
+      state.sequenceDiagramGraphs.length === 0 &&
+      !state.screenTransitionDiagramGraph &&
+      state.elementCoverages.length === 0
+    ) {
+      state.canUpdateModels = false;
+    }
+  },
+
+  /**
+   * Clear screen transition diagram graphs.
+   * @param state State.
+   */
+  clearScreenTransitionDiagramGraph(state) {
     Vue.set(state, "screenTransitionDiagramGraph", null);
+
+    if (
+      state.sequenceDiagramGraphs.length === 0 &&
+      !state.screenTransitionDiagramGraph &&
+      state.elementCoverages.length === 0
+    ) {
+      state.canUpdateModels = false;
+    }
+  },
+
+  /**
+   * Clear element coverages.
+   * @param state State.
+   */
+  clearElementCoverages(state) {
     Vue.set(state, "elementCoverages", []);
-    state.canUpdateModels = false;
+
+    if (
+      state.sequenceDiagramGraphs.length === 0 &&
+      !state.screenTransitionDiagramGraph &&
+      state.elementCoverages.length === 0
+    ) {
+      state.canUpdateModels = false;
+    }
   },
 
   /**
@@ -191,55 +227,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set element informations for calculating screen element coverage to the State.
-   * @param state State.
-   * @param payload.coverageSources Element informations for calculating screen element coverage.
-   */
-  resetAllCoverageSources(
-    state,
-    payload: { coverageSources: CoverageSource[] }
-  ) {
-    state.coverageSources.splice(
-      0,
-      state.coverageSources.length,
-      ...payload.coverageSources
-    );
-  },
-
-  /**
-   * Empty element informations for calculating screen element coverage in the State.
-   * @param state State.
-   */
-  clearAllCoverageSources(state) {
-    Vue.set(state, "coverageSources", []);
-  },
-
-  /**
-   * Add element informations for calculating screen element coverage to the State.
-   * @param state State.
-   * @param payload.coverageSource Element informations for calculating screen element coverage.
-   */
-  registerCoverageSource(state, payload: { coverageSource: CoverageSource }) {
-    const foundItem = state.coverageSources.find((coverageSource) => {
-      return (
-        coverageSource.title === payload.coverageSource.title &&
-        coverageSource.url === payload.coverageSource.url
-      );
-    });
-
-    if (foundItem) {
-      foundItem.screenElements.splice(
-        0,
-        foundItem.screenElements.length,
-        ...payload.coverageSource.screenElements
-      );
-      return;
-    }
-
-    state.coverageSources.push(payload.coverageSource);
-  },
-
-  /**
    * Set a sequence diagrams to the State.
    * @param state State.
    * @param payload.graph Sequence diagram.
@@ -248,7 +235,6 @@ const mutations: MutationTree<OperationHistoryState> = {
     state,
     payload: {
       graphs: {
-        testResultId: string;
         sequence: number;
         testPurpose?: { value: string; details?: string };
         element: Element;
@@ -305,15 +291,6 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   setCanUpdateModels(state, payload: { canUpdateModels: boolean }) {
     state.canUpdateModels = payload.canUpdateModels;
-  },
-
-  /**
-   * Select a window.
-   * @param state State.
-   * @param payload.windowHandle Window handle.
-   */
-  selectWindow(state, payload: { windowHandle: string }) {
-    state.selectedWindowHandle = payload.windowHandle;
   },
 
   /**
@@ -505,12 +482,7 @@ const mutations: MutationTree<OperationHistoryState> = {
   setStoringTestResultInfos(
     state,
     payload: {
-      testResultInfos: {
-        id: string;
-        name: string;
-        testStepIds: string[];
-        historyItems: OperationWithNotes[];
-      }[];
+      testResultInfos: { id: string; name: string }[];
     }
   ) {
     state.storingTestResultInfos = [...payload.testResultInfos];

@@ -23,10 +23,8 @@ describe("LoadHistoryAction", () => {
         initialUrl: "url",
         testingTime: 0,
         testSteps: [],
-        coverageSources: [],
       };
       const expectedTestResult = {
-        coverageSources: [],
         historyItems: [],
         url: "url",
         testResultInfo: { id: "id", name: "name" },
