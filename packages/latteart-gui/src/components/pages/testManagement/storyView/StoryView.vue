@@ -82,6 +82,12 @@
           ></v-text-field>
         </v-col>
         <v-col cols="3">
+          <review-button
+            :disabled="!canReviewSession"
+            :story="story"
+            :sessionIds="reviewTargetSessionIds"
+          ></review-button>
+
           <v-select
             :items="reviewableSessions"
             :label="this.$store.getters.message('story-view.review-target')"
@@ -90,12 +96,6 @@
             :multiple="!isViewerMode"
             v-model="reviewTargetSessionIds"
           ></v-select>
-
-          <review-button
-            :disabled="!canReviewSession"
-            :story="story"
-            :sessionIds="reviewTargetSessionIds"
-          ></review-button>
         </v-col>
       </v-row>
       <v-row>
@@ -268,11 +268,13 @@ export default class StoryView extends Vue {
       const sessionNameSuffix =
         this.story?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
 
+      const testResultName = session.testResultFiles.at(0)?.name;
+
       return {
         id: session.id,
         displayName: `${this.$store.getters.message("story-view.session")}${
           sessionNameSuffix + 1
-        }`,
+        }${testResultName ? ` (${testResultName})` : ""}`,
       };
     });
   }
