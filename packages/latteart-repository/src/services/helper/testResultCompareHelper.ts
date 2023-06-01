@@ -15,6 +15,7 @@
  */
 
 import {
+  PageAssertionError,
   PageAssertionResult,
   PageOperation,
   PageState,
@@ -48,7 +49,7 @@ export type TestResultCompareReportSummary = {
       elementTexts?: { isOk: boolean };
       screenshot?: { isOk: boolean };
     };
-    errors?: "invalid_screenshot"[];
+    errors?: PageAssertionError[];
   }[];
 };
 
