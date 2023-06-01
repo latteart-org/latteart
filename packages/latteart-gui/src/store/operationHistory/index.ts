@@ -22,7 +22,6 @@ import mutations from "./mutations";
 import actions from "./actions";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { CoverageSource } from "latteart-client";
 
 /**
  * State for operation history.
@@ -59,8 +58,6 @@ export interface OperationHistoryState {
   storingTestResultInfos: {
     id: string;
     name: string;
-    testStepIds: string[];
-    historyItems: OperationWithNotes[];
   }[];
 
   /**
@@ -79,15 +76,9 @@ export interface OperationHistoryState {
   windows: WindowInfo[];
 
   /**
-   * Element informations for calculating screen element coverage.
-   */
-  coverageSources: CoverageSource[];
-
-  /**
    * Sequence diagram.
    */
   sequenceDiagramGraphs: {
-    testResultId: string;
     sequence: number;
     testPurpose?: { value: string; details?: string };
     element: Element;
@@ -169,11 +160,6 @@ export interface OperationHistoryState {
   isTestResultViewModelUpdating: boolean;
 
   /**
-   * Selected window handle.
-   */
-  selectedWindowHandle: string;
-
-  /**
    * Sequence number of selected operation.
    */
   selectedOperationSequence: number;
@@ -251,14 +237,12 @@ const state: OperationHistoryState = {
   testStepIds: [],
   history: [],
   windows: [],
-  coverageSources: [],
   sequenceDiagramGraphs: [],
   screenTransitionDiagramGraph: null,
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
   isTestResultViewModelUpdating: false,
-  selectedWindowHandle: "",
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],

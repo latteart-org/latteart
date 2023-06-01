@@ -341,9 +341,7 @@ export default class ConfigView extends Vue {
           await this.$store.dispatch("testManagement/readProject");
         }
 
-        await this.$store.dispatch("operationHistory/loadHistory", {
-          testResultIds: [testResultId],
-        });
+        await this.loadTestResults(testResultId);
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);
@@ -356,6 +354,20 @@ export default class ConfigView extends Vue {
     }
     await this.$store.dispatch("readSettings");
     await this.$store.dispatch("readViewSettings");
+  }
+
+  private async loadTestResults(...testResultIds: string[]) {
+    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+      testResultIds,
+    });
+
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId: testResultIds[0],
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
+    });
   }
 
   private get imageCompressionSettingOpened() {

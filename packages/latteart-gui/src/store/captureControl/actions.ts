@@ -33,7 +33,6 @@ import { ServiceResult, CaptureEventListeners } from "latteart-client";
 import {
   TestStep,
   TestStepNote,
-  CoverageSource,
   Operation,
   CaptureConfig,
 } from "latteart-client";
@@ -111,7 +110,18 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const destTestResult = replayOption.resultSavingEnabled
         ? await (async () => {
             try {
-              await context.dispatch("operationHistory/resetHistory", null, {
+              await context.dispatch("operationHistory/clearTestResult", null, {
+                root: true,
+              });
+              context.commit(
+                "operationHistory/clearScreenTransitionDiagramGraph",
+                null,
+                { root: true }
+              );
+              context.commit("operationHistory/clearElementCoverages", null, {
+                root: true,
+              });
+              context.commit("operationHistory/clearInputValueTable", null, {
                 root: true,
               });
 
@@ -395,9 +405,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     const postRegisterOperation = async (data: {
       id: string;
       operation: OperationForGUI;
-      coverageSource: CoverageSource;
     }) => {
-      const { id, operation, coverageSource } = data;
+      const { id, operation } = data;
 
       const operationHistoryState: OperationHistoryState = (
         context.rootState as any
@@ -420,13 +429,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         { root: true }
       );
       context.commit(
-        "operationHistory/registerCoverageSource",
-        {
-          coverageSource,
-        },
-        { root: true }
-      );
-      context.commit(
         "operationHistory/setCanUpdateModels",
         {
           canUpdateModels: true,
@@ -441,11 +443,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     };
 
     const captureEventListeners: CaptureEventListeners = {
-      onAddTestStep: async (testStep: {
-        id: string;
-        operation: Operation;
-        coverageSource: CoverageSource;
-      }) => {
+      onAddTestStep: async (testStep: { id: string; operation: Operation }) => {
         const operationHistoryState: OperationHistoryState = (
           context.rootState as any
         ).operationHistory;

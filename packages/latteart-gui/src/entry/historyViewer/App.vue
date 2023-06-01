@@ -21,7 +21,6 @@
         <v-row class="fill-height">
           <history-display
             :rawHistory="testResult.history"
-            :coverageSources="testResult.coverageSources"
             :windows="windows"
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
@@ -45,7 +44,6 @@ import HistoryDisplay from "@/components/pages/operationHistory/organisms/Histor
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
-import { CoverageSource } from "latteart-client";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
 
@@ -64,11 +62,8 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history, coverageSources } = this.testResult;
+      const { history } = this.testResult;
 
-      this.$store.commit("operationHistory/resetAllCoverageSources", {
-        coverageSources,
-      });
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
       });
@@ -80,7 +75,17 @@ export default class App extends Vue {
         { root: true }
       );
 
-      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
+      await this.$store.dispatch(
+        "operationHistory/updateModelsFromSequenceView",
+        { testResultId: "" }
+      );
+      await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
+        testResultIds: [],
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
     })();
   }
 
@@ -91,7 +96,6 @@ export default class App extends Vue {
 
   private get testResult(): {
     history: OperationWithNotes[];
-    coverageSources: CoverageSource[];
   } {
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
@@ -137,7 +141,6 @@ export default class App extends Vue {
             : null,
         };
       }),
-      coverageSources: (this as any).$historyLog.coverageSources,
     };
   }
 

@@ -28,7 +28,6 @@ import {
 } from "@/lib/common/replyDataConverter";
 import { RepositoryService } from "latteart-client";
 import { GetTestResultAction } from "./testResult/GetTestResultAction";
-import { CoverageSource } from "latteart-client";
 
 const LOAD_HISTORY_FAILED_MESSAGE_KEY =
   "error.operation_history.load_history_failed";
@@ -48,7 +47,6 @@ export class LoadHistoryAction {
    */
   public async loadHistory(testResultId: string): Promise<
     ActionResult<{
-      coverageSources: CoverageSource[];
       historyItems: OperationHistoryItem[];
       url: string;
       testResultInfo: { id: string; name: string; parentTestResultId?: string };
@@ -92,7 +90,6 @@ export class LoadHistoryAction {
     );
 
     return {
-      coverageSources: testResult.coverageSources,
       historyItems: operationHistoryItems,
       url: testResult.initialUrl,
       testResultInfo: {

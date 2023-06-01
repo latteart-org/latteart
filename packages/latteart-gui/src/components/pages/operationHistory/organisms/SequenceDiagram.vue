@@ -88,31 +88,20 @@ export default class SequenceDiagram extends Vue {
   }
 
   private get testPurposes() {
-    return this.operationHistoryState.sequenceDiagramGraphs
-      .filter((graph) => {
-        return (
-          this.currentTestResultId === "" ||
-          graph.testResultId === this.currentTestResultId
-        );
-      })
-      .map(({ testPurpose }, index) => {
+    return this.operationHistoryState.sequenceDiagramGraphs.map(
+      ({ testPurpose }, index) => {
         return {
           text:
             testPurpose?.value ?? this.message("history-view.no-test-purpose"),
           value: index,
         };
-      });
+      }
+    );
   }
 
   private get graph() {
-    const graphs = this.operationHistoryState.sequenceDiagramGraphs.filter(
-      (graph) =>
-        this.currentTestResultId === "" ||
-        graph.testResultId === this.currentTestResultId
-    );
-    if (!graphs) {
-      return;
-    }
+    const graphs = this.operationHistoryState.sequenceDiagramGraphs;
+
     return graphs.at(this.selectedTestPurposeIndex);
   }
 
@@ -128,9 +117,13 @@ export default class SequenceDiagram extends Vue {
     sequenceDiagram.oncontextmenu = () => false;
   }
 
-  private changeCurrentTestResultId(id: string) {
-    this.$store.dispatch("operationHistory/changeTestResultInfo", {
-      testResultId: id,
+  private async changeCurrentTestResultId(testResultId: string) {
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId,
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
     });
     this.$store.commit("operationHistory/selectOperation", {
       sequence: 1,

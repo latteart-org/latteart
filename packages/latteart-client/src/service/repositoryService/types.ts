@@ -75,17 +75,8 @@ export type TestResultAccessor = {
    */
   addOperation(
     operation: CapturedOperation,
-    option: {
-      compressScreenshot: boolean;
-    }
-  ): Promise<
-    ServiceResult<{
-      operation: Operation;
-      id: string;
-      coverageSource: CoverageSource;
-      inputElementInfo: InputElementInfo;
-    }>
-  >;
+    option: { compressScreenshot: boolean }
+  ): Promise<ServiceResult<{ operation: Operation; id: string }>>;
 
   /**
    * add a Note to a Test Step
@@ -173,15 +164,6 @@ export type TestResultAccessor = {
   generateSequenceView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>>;
-
-  /**
-   * generate Graph View of Test Result
-   * @param option option
-   */
-  generateGraphView(
-    testResultIds: string[],
-    option?: TestResultViewOption
-  ): Promise<ServiceResult<GraphView>>;
 };
 
 export type SequenceView = {
