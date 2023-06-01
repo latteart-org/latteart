@@ -580,7 +580,9 @@
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
       "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
-      "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。"
+      "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。",
+      "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
+      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

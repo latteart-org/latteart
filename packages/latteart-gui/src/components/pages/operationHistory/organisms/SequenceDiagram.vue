@@ -58,6 +58,12 @@
         graphType="sequence"
       ></mermaid-graph-renderer>
     </v-row>
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
   </v-container>
 </template>
 
@@ -68,15 +74,19 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
     "mermaid-graph-renderer": MermaidGraphRenderer,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class SequenceDiagram extends Vue {
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
   private selectedTestPurposeIndex = 0;
 
   private get isViewerMode() {
@@ -126,18 +136,28 @@ export default class SequenceDiagram extends Vue {
   }
 
   private async changeCurrentTestResultId(testResultId: string) {
-    await this.$store.dispatch("operationHistory/loadTestResult", {
-      testResultId,
-    });
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId,
+      });
 
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      setCanUpdateModels: false,
-    });
-    this.$store.commit("operationHistory/selectOperation", {
-      sequence: 1,
-    });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+      this.$store.commit("operationHistory/selectOperation", {
+        sequence: 1,
+      });
 
-    this.selectedTestPurposeIndex = 0;
+      this.selectedTestPurposeIndex = 0;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 
   private editTestPurpose() {

@@ -357,17 +357,27 @@ export default class ConfigView extends Vue {
   }
 
   private async loadTestResults(...testResultIds: string[]) {
-    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-      testResultIds,
-    });
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds,
+      });
 
-    await this.$store.dispatch("operationHistory/loadTestResult", {
-      testResultId: testResultIds[0],
-    });
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: testResultIds[0],
+      });
 
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      setCanUpdateModels: false,
-    });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 
   private get imageCompressionSettingOpened() {
