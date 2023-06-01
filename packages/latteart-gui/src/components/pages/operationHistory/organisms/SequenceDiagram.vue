@@ -135,6 +135,8 @@ export default class SequenceDiagram extends Vue {
     this.$store.commit("operationHistory/selectOperation", {
       sequence: 1,
     });
+
+    this.selectedTestPurposeIndex = 0;
   }
 
   private editTestPurpose() {
