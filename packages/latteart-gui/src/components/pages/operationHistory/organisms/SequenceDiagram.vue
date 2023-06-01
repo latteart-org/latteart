@@ -39,9 +39,13 @@
         hide-details
         dense
       />
-      <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
-        message("history-view.edit-test-purpose")
-      }}</v-btn>
+      <v-btn
+        v-if="!isViewerMode"
+        class="mr-1"
+        :disabled="!this.graph"
+        @click="editTestPurpose"
+        >{{ message("history-view.edit-test-purpose") }}</v-btn
+      >
     </v-row>
     <v-row
       no-gutters
@@ -74,6 +78,10 @@ export default class SequenceDiagram extends Vue {
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private selectedTestPurposeIndex = 0;
+
+  private get isViewerMode() {
+    return (this as any).$isViewerMode ? (this as any).$isViewerMode : false;
+  }
 
   private get operationHistoryState() {
     return this.$store.state.operationHistory as OperationHistoryState;
