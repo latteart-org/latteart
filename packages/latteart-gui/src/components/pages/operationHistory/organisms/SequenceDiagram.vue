@@ -80,7 +80,7 @@ export default class SequenceDiagram extends Vue {
   private selectedTestPurposeIndex = 0;
 
   private get isViewerMode() {
-    return (this as any).$isViewerMode ? (this as any).$isViewerMode : false;
+    return (this as any).$isViewerMode ?? false;
   }
 
   private get operationHistoryState() {
