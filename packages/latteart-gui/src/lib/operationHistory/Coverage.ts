@@ -35,6 +35,7 @@ export function getCoverages(
   percentage: number;
   elements: {
     sequence?: number;
+    imageFileUrl?: string;
     tagname: string;
     text: string;
     type: string;
@@ -43,10 +44,20 @@ export function getCoverages(
     operated: boolean;
   }[];
 }[] {
-  const testStepIdToSequence = new Map(
+  const testStepIdToSequenceAndImageFileUrl = new Map(
     graphView.nodes
-      .flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
-      .map((id, index) => [id, index + 1])
+      .flatMap(({ testSteps }) =>
+        testSteps.map(({ id, imageFileUrl }) => {
+          return { id, imageFileUrl };
+        })
+      )
+      .map((idAndImageFileUrl, index) => [
+        idAndImageFileUrl.id,
+        {
+          sequence: index + 1,
+          imageFileUrl: idAndImageFileUrl?.imageFileUrl ?? "",
+        },
+      ])
   );
 
   const screenIdToOperatedElements = graphView.nodes
@@ -55,16 +66,20 @@ export function getCoverages(
         screenId: node.screenId,
         elements: node.testSteps.flatMap((testStep) => {
           const { id, targetElementId } = testStep;
-          const sequence = testStepIdToSequence.get(id);
+          const sequenceAndImageFileUrl =
+            testStepIdToSequenceAndImageFileUrl.get(id);
           const targetElement = graphView.store.elements.find(({ id }) => {
             return id === targetElementId;
           });
 
-          if (!targetElement || sequence === undefined) {
+          if (!targetElement || sequenceAndImageFileUrl === undefined) {
             return [];
           }
 
-          const operatedElement = { xpath: targetElement.xpath, sequence };
+          const operatedElement = {
+            xpath: targetElement.xpath,
+            ...sequenceAndImageFileUrl,
+          };
 
           if (targetElement?.tagname.toLowerCase() !== "select") {
             return [operatedElement];
@@ -88,7 +103,10 @@ export function getCoverages(
           );
 
           return optionElement
-            ? [operatedElement, { xpath: optionElement.xpath, sequence }]
+            ? [
+                operatedElement,
+                { ...sequenceAndImageFileUrl, xpath: optionElement.xpath },
+              ]
             : [operatedElement];
         }),
       };
@@ -104,17 +122,26 @@ export function getCoverages(
           ?.find(({ xpath }) => xpath === element.xpath);
 
         if (foundItem) {
-          foundItem.sequences.push(element.sequence);
+          foundItem.sequenceAndImageFileUrl.push({
+            sequence: element.sequence,
+            imageFileUrl: element.imageFileUrl,
+          });
           continue;
         }
 
-        acc
-          .get(screenId)
-          ?.push({ xpath: element.xpath, sequences: [element.sequence] });
+        acc.get(screenId)?.push({
+          xpath: element.xpath,
+          sequenceAndImageFileUrl: [
+            {
+              sequence: element.sequence,
+              imageFileUrl: element.imageFileUrl,
+            },
+          ],
+        });
       }
 
       return acc;
-    }, new Map<string, { xpath: string; sequences: number[] }[]>());
+    }, new Map<string, { xpath: string; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
@@ -145,9 +172,11 @@ export function getCoverages(
           .get(screen.id)
           ?.find(({ xpath }) => xpath === element.xpath);
 
+        const seqAndUrl = operatedElement?.sequenceAndImageFileUrl.at(0);
         return [
           {
-            sequence: operatedElement?.sequences.at(0),
+            sequence: seqAndUrl?.sequence,
+            imageFileUrl: seqAndUrl?.imageFileUrl ?? "",
             tagname: element.tagname,
             type: element.attributes["type"] ?? "",
             id: element.attributes["id"] ?? "",

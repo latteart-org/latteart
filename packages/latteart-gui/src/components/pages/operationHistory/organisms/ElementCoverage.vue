@@ -49,7 +49,7 @@
                     covered: props.item.operated,
                     missed: !props.item.operated,
                   }"
-                  @click="selectElement(props.item.sequence)"
+                  @click="selectElement(props.item.imageFileUrl)"
                 >
                   <td :title="props.item.xpath">{{ props.item.tagname }}</td>
                   <td>{{ props.item.type }}</td>
@@ -79,8 +79,8 @@ import { MessageProvider } from "@/lib/operationHistory/types";
 
 @Component
 export default class ElementCoverage extends Vue {
-  @Prop({ type: Function, default: -1 }) public readonly onSelectElement!: (
-    sequence: number
+  @Prop({ type: Function }) public readonly onSelectElement!: (
+    fileImageUrl: string
   ) => void;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
@@ -113,9 +113,9 @@ export default class ElementCoverage extends Vue {
     return headers;
   }
 
-  private selectElement(sequence: number | null) {
-    if (typeof sequence === "number" && sequence > 0) {
-      this.onSelectElement(sequence);
+  private selectElement(fileImageUrl: string) {
+    if (fileImageUrl !== "") {
+      this.onSelectElement(fileImageUrl);
     }
   }
 }
