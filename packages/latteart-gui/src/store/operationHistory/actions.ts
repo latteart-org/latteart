@@ -680,36 +680,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Build a screen transition diagram from passed informations.
    * @param context Action context.
-   * @param payload.testResultIds Test result ids.
-   * @param payload.viewOption View option.
+   * @param payload.graphView Graph view.
    * @param payload.callback The callback when the screen transition diagram has operated.
    */
   async buildScreenTransitionDiagramGraph(
     context,
     payload: {
-      testResultIds: string[];
-      viewOption: TestResultViewOption;
+      graphView: GraphView;
       callback: FlowChartGraphCallback;
     }
   ) {
-    let graphView: GraphView;
-
-    if (Vue.prototype.$graphView) {
-      graphView = Vue.prototype.$graphView;
-    } else {
-      const result =
-        await context.rootState.repositoryService.testResultRepository.generateGraphView(
-          payload.testResultIds,
-          payload.viewOption
-        );
-
-      if (result.isFailure()) {
-        return;
-      }
-
-      graphView = result.data;
-    }
-
     const createFlowChartGraphExtender = ({
       edges,
       source,
@@ -749,7 +729,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const graph = (
       await convertToScreenTransitionDiagramGraph(
-        graphView,
+        payload.graphView,
         createFlowChartGraphExtender
       )
     ).graph;
@@ -772,38 +752,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
    * Build element coverages from passed informations.
    * @param context Action context.
-   * @param payload.testResultIds Test result ids.
-   * @param payload.viewOption View option.
+   * @param payload.graphView Graph view.
    */
   async buildElementCoverages(
     context,
     payload: {
-      testResultIds: string[];
-      viewOption: TestResultViewOption;
+      graphView: GraphView;
     }
   ) {
-    let graphView: GraphView;
-
-    if (Vue.prototype.$graphView) {
-      graphView = Vue.prototype.$graphView;
-    } else {
-      const result =
-        await context.rootState.repositoryService.testResultRepository.generateGraphView(
-          payload.testResultIds,
-          payload.viewOption
-        );
-
-      if (result.isFailure()) {
-        return;
-      }
-
-      graphView = result.data;
-    }
-
     const inclusionTags =
       context.rootState.projectSettings.config.coverage?.include?.tags ?? [];
 
-    const coverages = Coverage.getCoverages(graphView, inclusionTags);
+    const coverages = Coverage.getCoverages(payload.graphView, inclusionTags);
 
     context.commit("setElementCoverages", { coverages });
   },
@@ -941,9 +901,30 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.commit("selectOperation", { sequence });
       };
 
+      const graphView = await (async () => {
+        if (Vue.prototype.$graphView) {
+          return Vue.prototype.$graphView as GraphView;
+        }
+
+        const result =
+          await context.rootState.repositoryService.testResultRepository.generateGraphView(
+            payload.testResultIds,
+            viewOption
+          );
+
+        if (result.isFailure()) {
+          return;
+        }
+
+        return result.data;
+      })();
+
+      if (!graphView) {
+        return;
+      }
+
       await context.dispatch("buildScreenTransitionDiagramGraph", {
-        testResultIds: payload.testResultIds,
-        viewOption,
+        graphView,
         callback: {
           onClickEdge: (sequence: number, inputValueTable: InputValueTable) => {
             selectOperation(sequence);
@@ -959,10 +940,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       });
 
-      await context.dispatch("buildElementCoverages", {
-        testResultIds: payload.testResultIds,
-        viewOption,
-      });
+      await context.dispatch("buildElementCoverages", { graphView });
     } finally {
       context.commit("setTestResultViewModelUpdating", {
         isTestResultViewModelUpdating: false,
