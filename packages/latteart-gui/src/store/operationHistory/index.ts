@@ -141,6 +141,11 @@ export interface OperationHistoryState {
        * Whether the element is operated or not.
        */
       operated: boolean;
+
+      /**
+       * Screenshot URL.
+       */
+      imageFileUrl?: string;
     }>;
   }>;
 

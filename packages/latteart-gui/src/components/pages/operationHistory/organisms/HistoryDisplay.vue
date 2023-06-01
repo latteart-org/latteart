@@ -69,7 +69,7 @@
               <v-col cols="12" class="pt-0 fill-height">
                 <element-coverage
                   v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
-                  :onSelectElement="selectOperation"
+                  :onSelectElement="setImageFileUrl"
                   :message="message"
                 ></element-coverage>
                 <history-summary-diagram
@@ -198,6 +198,8 @@ export default class HistoryDisplay extends Vue {
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
+  private displayedImageUrl = "";
+
   private get dispCoverage() {
     return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
   }
@@ -207,6 +209,9 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get imageInfo(): { decode: string } {
+    if (this.displayedImageUrl !== "") {
+      return { decode: this.displayedImageUrl };
+    }
     const history = this.history.find((val) => {
       return val.operation.sequence === Number(this.selectedOperationSequence);
     });
@@ -327,9 +332,14 @@ export default class HistoryDisplay extends Vue {
   }
 
   private selectOperation(selectedOperationSequence: number) {
+    this.displayedImageUrl = "";
     this.$store.commit("operationHistory/selectOperation", {
       sequence: selectedOperationSequence,
     });
+  }
+
+  private setImageFileUrl(imageFileUrl: string) {
+    this.displayedImageUrl = `${this.$store.state.repositoryService.serviceUrl}/${imageFileUrl}`;
   }
 
   private resetOperationFilter() {
