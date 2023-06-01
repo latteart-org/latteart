@@ -188,6 +188,10 @@ describe("TestResultImportService", () => {
       expect(testStepEntity.pageUrl).toEqual(
         historyItem1.testStep.pageInfo.url
       );
+      expect(testStepEntity.scrollPositionX).toEqual(null);
+      expect(testStepEntity.scrollPositionY).toEqual(null);
+      expect(testStepEntity.clientSizeWidth).toEqual(null);
+      expect(testStepEntity.clientSizeHeight).toEqual(null);
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
@@ -420,6 +424,10 @@ describe("TestResultImportService", () => {
       expect(testStepEntity.pageUrl).toEqual(
         historyItem1.testStep.pageInfo.url
       );
+      expect(testStepEntity.scrollPositionX).toEqual(null);
+      expect(testStepEntity.scrollPositionY).toEqual(null);
+      expect(testStepEntity.clientSizeWidth).toEqual(null);
+      expect(testStepEntity.clientSizeHeight).toEqual(null);
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
@@ -584,6 +592,8 @@ describe("TestResultImportService", () => {
             type: "type",
             elementInfo: element1,
             isAutomatic: false,
+            scrollPosition: { x: 0, y: 0 },
+            clientSize: { width: 945, height: 1020 },
           },
           inputElements: [element1],
         },
@@ -653,6 +663,18 @@ describe("TestResultImportService", () => {
       );
       expect(testStepEntity.pageUrl).toEqual(
         historyItem1.testStep.pageInfo.url
+      );
+      expect(testStepEntity.scrollPositionX).toEqual(
+        historyItem1.testStep.operation.scrollPosition.x
+      );
+      expect(testStepEntity.scrollPositionY).toEqual(
+        historyItem1.testStep.operation.scrollPosition.y
+      );
+      expect(testStepEntity.clientSizeWidth).toEqual(
+        historyItem1.testStep.operation.clientSize.width
+      );
+      expect(testStepEntity.clientSizeHeight).toEqual(
+        historyItem1.testStep.operation.clientSize.height
       );
 
       // TestStepのスクリーンショットの確認
