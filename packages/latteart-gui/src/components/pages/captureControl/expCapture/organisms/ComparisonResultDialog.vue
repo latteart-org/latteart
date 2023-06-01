@@ -192,7 +192,8 @@ export default class ComparisonResultDialog extends Vue {
                   "history-view.compare-remarks-invalid-screenshot"
                 ),
               ];
-            } else if (error === "image_sizes_do_not_match") {
+            }
+            if (error === "image_sizes_do_not_match") {
               return [
                 this.$store.getters.message(
                   "history-view.compare-remarks-image-sizes-do-not-match"
