@@ -401,67 +401,69 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param payload.testResultId Test result ID.
    */
   async loadTestResult(context, payload: { testResultId: string }) {
-    context.commit(
-      "captureControl/setIsResuming",
-      { isResuming: true },
-      { root: true }
-    );
+    try {
+      context.commit(
+        "captureControl/setIsResuming",
+        { isResuming: true },
+        { root: true }
+      );
 
-    const result = await new LoadHistoryAction(
-      context.rootState.repositoryService
-    ).loadHistory(payload.testResultId);
+      const result = await new LoadHistoryAction(
+        context.rootState.repositoryService
+      ).loadHistory(payload.testResultId);
 
-    if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
+      if (result.isFailure()) {
+        throw new Error(
+          context.rootGetters.message(
+            result.error.messageKey,
+            result.error.variables
+          )
+        );
+      }
+
+      await context.dispatch("clearTestResult");
+
+      result.data.testStepIds.forEach((testStepId) => {
+        context.commit("addTestStepId", { testStepId });
+      });
+
+      context.commit("resetHistory", {
+        historyItems: result.data.historyItems,
+      });
+      context.commit(
+        "captureControl/setUrl",
+        { url: result.data.url },
+        { root: true }
+      );
+      context.commit("setTestResultInfo", {
+        repositoryUrl: context.rootState.repositoryService.serviceUrl,
+        id: result.data.testResultInfo.id,
+        name: result.data.testResultInfo.name,
+        parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
+      });
+      context.commit(
+        "operationHistory/setWindows",
+        {
+          windowHandles: extractWindowHandles(context.state.history),
+        },
+        { root: true }
+      );
+      await context.dispatch(
+        "captureControl/resetTimer",
+        { millis: result.data.testingTime },
+        { root: true }
+      );
+
+      await context.dispatch("updateModelsFromSequenceView", {
+        testResultId: payload.testResultId,
+      });
+    } finally {
+      context.commit(
+        "captureControl/setIsResuming",
+        { isResuming: false },
+        { root: true }
       );
     }
-
-    await context.dispatch("clearTestResult");
-
-    result.data.testStepIds.forEach((testStepId) => {
-      context.commit("addTestStepId", { testStepId });
-    });
-
-    context.commit("resetHistory", {
-      historyItems: result.data.historyItems,
-    });
-    context.commit(
-      "captureControl/setUrl",
-      { url: result.data.url },
-      { root: true }
-    );
-    context.commit("setTestResultInfo", {
-      repositoryUrl: context.rootState.repositoryService.serviceUrl,
-      id: result.data.testResultInfo.id,
-      name: result.data.testResultInfo.name,
-      parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
-    });
-    context.commit(
-      "operationHistory/setWindows",
-      {
-        windowHandles: extractWindowHandles(context.state.history),
-      },
-      { root: true }
-    );
-    context.dispatch(
-      "captureControl/resetTimer",
-      { millis: result.data.testingTime },
-      { root: true }
-    );
-
-    await context.dispatch("updateModelsFromSequenceView", {
-      testResultId: payload.testResultId,
-    });
-
-    context.commit(
-      "captureControl/setIsResuming",
-      { isResuming: false },
-      { root: true }
-    );
   },
 
   /**
@@ -579,29 +581,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async buildSequenceDiagramGraph(
     context,
     payload: {
-      testResultId: string;
-      viewOption: TestResultViewOption;
+      sequenceView: SequenceView;
       callback: SequenceDiagramGraphCallback;
     }
   ) {
-    const sequenceView = Vue.prototype.$sequenceView
-      ? (Vue.prototype.$sequenceView as SequenceView)
-      : await (async () => {
-          const testResult =
-            context.rootState.repositoryService.createTestResultAccessor(
-              payload.testResultId
-            );
-
-          const generateSequenceViewResult =
-            await testResult.generateSequenceView(payload.viewOption);
-
-          if (generateSequenceViewResult.isFailure()) {
-            throw new Error();
-          }
-
-          return generateSequenceViewResult.data;
-        })();
-
     const createSequenceDiagramGraphExtender = (
       args: SequenceDiagramGraphExtenderSource
     ) => {
@@ -642,7 +625,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const graphs = (
       await convertToSequenceDiagramGraphs(
-        sequenceView,
+        payload.sequenceView,
         createSequenceDiagramGraphExtender
       )
     ).map(({ sequence, testPurpose, graph }) => {
@@ -655,7 +638,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         return element.firstElementChild!;
       })();
 
-      const disabledList = sequenceView.scenarios
+      const disabledList = payload.sequenceView.scenarios
         .flatMap(({ nodes }) => nodes)
         .map((node, index) => {
           return {
@@ -811,9 +794,36 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         context.commit("selectOperation", { sequence });
       };
 
+      const sequenceView = await (async () => {
+        if (Vue.prototype.$sequenceView) {
+          return Vue.prototype.$sequenceView as SequenceView;
+        }
+
+        const testResult =
+          context.rootState.repositoryService.createTestResultAccessor(
+            payload.testResultId
+          );
+
+        const generateSequenceViewResult =
+          await testResult.generateSequenceView(viewOption);
+
+        if (generateSequenceViewResult.isFailure()) {
+          return;
+        }
+
+        return generateSequenceViewResult.data;
+      })();
+
+      if (!sequenceView) {
+        throw new Error(
+          context.rootGetters.message(
+            "error.operation_history.generate_sequence_view_failed"
+          )
+        );
+      }
+
       await context.dispatch("buildSequenceDiagramGraph", {
-        testResultId: payload.testResultId,
-        viewOption,
+        sequenceView,
         callback: {
           onClickActivationBox: (sequences: number[]) => {
             const firstSequence = sequences.at(0);
@@ -906,21 +916,25 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           return Vue.prototype.$graphView as GraphView;
         }
 
-        const result =
+        const generateGraphViewResult =
           await context.rootState.repositoryService.testResultRepository.generateGraphView(
             payload.testResultIds,
             viewOption
           );
 
-        if (result.isFailure()) {
+        if (generateGraphViewResult.isFailure()) {
           return;
         }
 
-        return result.data;
+        return generateGraphViewResult.data;
       })();
 
       if (!graphView) {
-        return;
+        throw new Error(
+          context.rootGetters.message(
+            "error.operation_history.generate_graph_view_failed"
+          )
+        );
       }
 
       await context.dispatch("buildScreenTransitionDiagramGraph", {

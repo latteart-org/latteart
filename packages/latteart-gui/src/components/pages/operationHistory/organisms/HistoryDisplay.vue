@@ -126,6 +126,12 @@
         :message="message"
       ></decision-table>
     </pane>
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
   </splitpanes>
 </template>
 
@@ -145,6 +151,7 @@ import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
@@ -155,6 +162,7 @@ import { OperationHistoryState } from "@/store/operationHistory";
     "decision-table": DecisionTable,
     Splitpanes,
     Pane,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class HistoryDisplay extends Vue {
@@ -191,6 +199,9 @@ export default class HistoryDisplay extends Vue {
   })
   public readonly changeWindowTitle!: (windowTitle: string) => void;
   @Prop({ type: String, default: "" }) public readonly testResultId!: string;
+
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
 
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
@@ -264,8 +275,8 @@ export default class HistoryDisplay extends Vue {
     return this.$store.state.operationHistory.canUpdateModels;
   }
 
-  private updateTestResultViewModel() {
-    (async () => {
+  private async updateTestResultViewModel() {
+    try {
       const testResultId = (
         this.$store.state.operationHistory as OperationHistoryState
       ).testResultInfo.id;
@@ -281,7 +292,15 @@ export default class HistoryDisplay extends Vue {
       this.$store.commit("operationHistory/setCanUpdateModels", {
         setCanUpdateModels: false,
       });
-    })();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 
   private updateWindowTitle() {
