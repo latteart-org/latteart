@@ -54,7 +54,7 @@ import path from "path";
       }
 
       let retryCount = 0;
-      const retryLimit = 10;
+      const retryLimit = 20;
       do {
         await sleep(1000);
         if (await serverIsReady(url, serverConfig.name)) {
