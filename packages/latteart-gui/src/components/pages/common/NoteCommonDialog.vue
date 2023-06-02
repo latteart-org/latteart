@@ -168,7 +168,10 @@ export default class NoteCommonDialog extends Vue {
     const noteEditInfo = {
       oldSequence: this.oldSequence,
       oldIndex: this.oldIndex,
-      newSequence: this.newTargetSequence,
+      newSequence:
+        this.oldSequence !== this.newTargetSequence
+          ? this.newTargetSequence
+          : undefined,
       note: this.newNote,
       noteDetails: this.newNoteDetails,
       shouldTakeScreenshot: this.shouldTakeScreenshot,
