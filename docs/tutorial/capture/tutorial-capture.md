@@ -121,16 +121,16 @@ manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&reposito
 
 - 「モデル・カバレッジの更新」下部のラジオボタンで「シーケンス図モデル」を選択します。
 
-実施したテストの大まかな流れと、残したメモの情報がシーケンス図で表示されます。
+テスト目的ごとに実施したテストの大まかな流れと、残したメモの情報がシーケンス図で表示されます。
 
 <div align="center">
 <img src="./images/sequence-diagram-model.png" width="620"/>
 </div><br>
 
-メモで記録した「テスト目的」はシーケンス図上に枠で表示されます。テキストにカーソルを合わせることで詳細を確認できます。
+シーケンス図で表示する「テスト目的」はシーケンス図の上のプルダウンリストから切り替えることができます。
 
 <div align="center">
-<img src="./images/sequence-intention.png" width="200"/> 
+<img src="./images/sequence-intention.png" width="620"/> 
 </div><br>
 
 メモで記録した「テスト中の気づき」はシーケンス図上に紫色の吹き出しで表示されます。カーソルを合わせることで詳細を確認できます。
