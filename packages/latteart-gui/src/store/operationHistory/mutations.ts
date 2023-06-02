@@ -329,6 +329,23 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
+   * Set displayed screenshot url to the State.
+   * @param state  State.
+   * @param payload Image file url.
+   */
+  setDisplayedScreenshotUrl(state, payload: { imageFileUrl: string }) {
+    state.displayedScreenshotUrl = payload.imageFileUrl;
+  },
+
+  /**
+   * Clear displayed screenshot url
+   * @param state State.
+   */
+  clearDisplayedScreenshotUrl(state) {
+    state.displayedScreenshotUrl = "";
+  },
+
+  /**
    * Set note information being edited to the State.
    * @param state State.
    * @param payload.tmpNoteInfoForEdit Note information being edited to the State.

@@ -687,9 +687,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             }
 
             const inputValueTable = new InputValueTable(edge.details);
-            const sequence = edge.trigger?.sequence ?? 0;
+            const imageFileUrl = edge.trigger?.imageFileUrl ?? "";
 
-            payload.callback.onClickEdge(sequence, inputValueTable);
+            payload.callback.onClickEdge(imageFileUrl, inputValueTable);
           },
           onClickScreenRect: (index: number) => {
             const inputValueTable = new InputValueTable(
@@ -699,9 +699,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
                 })
                 .flatMap(({ details }) => details)
             );
-            const sequence = source.screens[index].sequence;
+            const imageFileUrl = source.screens[index].imageFileUrl;
 
-            payload.callback.onClickScreenRect(sequence, inputValueTable);
+            payload.callback.onClickScreenRect(imageFileUrl, inputValueTable);
           },
         },
         nameMap: new Map(
@@ -791,7 +791,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       const selectOperation = (sequence: number) => {
-        context.commit("selectOperation", { sequence });
+        context.dispatch("selectOperation", { sequence });
       };
 
       const sequenceView = await (async () => {
@@ -907,8 +907,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       };
 
-      const selectOperation = (sequence: number) => {
-        context.commit("selectOperation", { sequence });
+      const setScreenshotUrl = (imageFileUrl: string) => {
+        context.dispatch("changeScreenshot", { imageFileUrl });
       };
 
       const graphView = await (async () => {
@@ -940,15 +940,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       await context.dispatch("buildScreenTransitionDiagramGraph", {
         graphView,
         callback: {
-          onClickEdge: (sequence: number, inputValueTable: InputValueTable) => {
-            selectOperation(sequence);
+          onClickEdge: (
+            imageFileUrl: string,
+            inputValueTable: InputValueTable
+          ) => {
+            setScreenshotUrl(imageFileUrl);
             context.commit("setInputValueTable", { inputValueTable });
           },
           onClickScreenRect: (
-            sequence: number,
+            imageFileUrl: string,
             inputValueTable: InputValueTable
           ) => {
-            selectOperation(sequence);
+            setScreenshotUrl(imageFileUrl);
             context.commit("setInputValueTable", { inputValueTable });
           },
         },
@@ -1237,6 +1240,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data;
+  },
+
+  selectOperation(context, payload: { sequence: number }) {
+    context.commit("selectOperation", { sequence: payload.sequence });
+    context.commit("clearDisplayedScreenshotUrl");
+  },
+
+  changeScreenshot(context, payload: { imageFileUrl: string }) {
+    context.commit("selectOperation", { sequence: 0 });
+    context.commit("setDisplayedScreenshotUrl", {
+      imageFileUrl: `${context.rootState.repositoryService.serviceUrl}/${payload.imageFileUrl}`,
+    });
   },
 };
 
