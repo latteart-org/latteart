@@ -292,7 +292,8 @@ export default class HistoryDisplay extends Vue {
         this.$store.state.operationHistory as OperationHistoryState
       ).storingTestResultInfos.map(({ id }) => id);
       await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
-        testResultIds,
+        testResultIds:
+          testResultIds.length === 0 ? [testResultId] : testResultIds,
       });
 
       this.$store.commit("operationHistory/setCanUpdateModels", {
