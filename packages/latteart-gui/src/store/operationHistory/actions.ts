@@ -791,7 +791,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       const selectOperation = (sequence: number) => {
-        context.dispatch("changeScreenshot", { sequence });
+        context.dispatch("selectOperation", { sequence });
       };
 
       const sequenceView = await (async () => {
@@ -1242,20 +1242,16 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return result.data;
   },
 
-  changeScreenshot(
-    context,
-    payload: { sequence: number } | { imageFileUrl: string }
-  ) {
-    if ("sequence" in payload) {
-      context.commit("selectOperation", { sequence: payload.sequence });
-      context.commit("clearDisplayedScreenshotUrl");
-    }
-    if ("imageFileUrl" in payload) {
-      context.commit("selectOperation", { sequence: 0 });
-      context.commit("setDisplayedScreenshotUrl", {
-        imageFileUrl: `${context.rootState.repositoryService.serviceUrl}/${payload.imageFileUrl}`,
-      });
-    }
+  selectOperation(context, payload: { sequence: number }) {
+    context.commit("selectOperation", { sequence: payload.sequence });
+    context.commit("clearDisplayedScreenshotUrl");
+  },
+
+  changeScreenshot(context, payload: { imageFileUrl: string }) {
+    context.commit("selectOperation", { sequence: 0 });
+    context.commit("setDisplayedScreenshotUrl", {
+      imageFileUrl: `${context.rootState.repositoryService.serviceUrl}/${payload.imageFileUrl}`,
+    });
   },
 };
 

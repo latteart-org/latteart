@@ -353,7 +353,7 @@ export default class HistoryDisplay extends Vue {
   }
 
   private selectOperation(selectedOperationSequence: number) {
-    this.$store.dispatch("operationHistory/changeScreenshot", {
+    this.$store.dispatch("operationHistory/selectOperation", {
       sequence: selectedOperationSequence,
     });
   }

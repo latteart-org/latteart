@@ -61,7 +61,7 @@ export default class NoteRegisterButton extends Vue {
 
   private open() {
     const sequence = this.$store.state.operationHistory.history.length;
-    this.$store.dispatch("operationHistory/changeScreenshot", { sequence });
+    this.$store.dispatch("operationHistory/selectOperation", { sequence });
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence, index: null },
     });
