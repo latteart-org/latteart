@@ -144,9 +144,7 @@ export default class SequenceDiagram extends Vue {
       this.$store.commit("operationHistory/setCanUpdateModels", {
         setCanUpdateModels: false,
       });
-      this.$store.commit("operationHistory/selectOperation", {
-        sequence: 1,
-      });
+      this.$store.dispatch("changeScreenshot", { sequence: 1 });
 
       this.selectedTestPurposeIndex = 0;
     } catch (error) {

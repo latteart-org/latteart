@@ -180,6 +180,11 @@ export interface OperationHistoryState {
   displayedOperations: number[];
 
   /**
+   * Displayed screenshot url.
+   */
+  displayedScreenshotUrl: string;
+
+  /**
    * Note information being edited.
    */
   tmpNoteInfoForEdit: {
@@ -251,6 +256,7 @@ const state: OperationHistoryState = {
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
+  displayedScreenshotUrl: "",
   tmpNoteInfoForEdit: null,
   checkedOperations: [],
   openNoteEditDialog: () => {

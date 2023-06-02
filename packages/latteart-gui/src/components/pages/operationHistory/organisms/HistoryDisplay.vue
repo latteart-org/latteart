@@ -209,8 +209,6 @@ export default class HistoryDisplay extends Vue {
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
-  private displayedImageUrl = "";
-
   private get dispCoverage() {
     return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
   }
@@ -220,8 +218,8 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get imageInfo(): { decode: string } {
-    if (this.displayedImageUrl !== "") {
-      return { decode: this.displayedImageUrl };
+    if (this.displayedScreenshotUrl !== "") {
+      return { decode: this.displayedScreenshotUrl };
     }
     const history = this.history.find((val) => {
       return val.operation.sequence === Number(this.selectedOperationSequence);
@@ -237,6 +235,10 @@ export default class HistoryDisplay extends Vue {
 
   private get selectedOperationSequence(): number {
     return this.$store.state.operationHistory.selectedOperationSequence;
+  }
+
+  private get displayedScreenshotUrl(): string {
+    return this.$store.state.operationHistory.displayedScreenshotUrl;
   }
 
   private get displayedOperations(): number[] {
@@ -351,14 +353,15 @@ export default class HistoryDisplay extends Vue {
   }
 
   private selectOperation(selectedOperationSequence: number) {
-    this.displayedImageUrl = "";
-    this.$store.commit("operationHistory/selectOperation", {
+    this.$store.dispatch("operationHistory/changeScreenshot", {
       sequence: selectedOperationSequence,
     });
   }
 
   private setImageFileUrl(imageFileUrl: string) {
-    this.displayedImageUrl = `${this.$store.state.repositoryService.serviceUrl}/${imageFileUrl}`;
+    this.$store.dispatch("operationHistory/changeScreenshot", {
+      imageFileUrl,
+    });
   }
 
   private resetOperationFilter() {
