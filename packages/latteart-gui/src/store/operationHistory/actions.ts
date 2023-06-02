@@ -1244,18 +1244,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   changeScreenshot(
     context,
-    payload: { sequence?: number; imageFileUrl?: string }
+    payload: { sequence: number } | { imageFileUrl: string }
   ) {
-    if (
-      (payload.sequence === undefined && !payload.imageFileUrl) ||
-      (payload.sequence !== undefined && !!payload.imageFileUrl)
-    ) {
-      return;
-    }
-    if (payload.sequence !== undefined) {
+    if ("sequence" in payload) {
       context.commit("selectOperation", { sequence: payload.sequence });
       context.commit("clearDisplayedScreenshotUrl");
-    } else {
+    }
+    if ("imageFileUrl" in payload) {
       context.commit("selectOperation", { sequence: 0 });
       context.commit("setDisplayedScreenshotUrl", {
         imageFileUrl: `${context.rootState.repositoryService.serviceUrl}/${payload.imageFileUrl}`,
