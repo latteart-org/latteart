@@ -175,8 +175,6 @@ io.on("connection", (socket) => {
         return;
       }
 
-      const parsedUrl = JSON.parse(url);
-
       try {
         client = await new WebDriverClientFactory().create({
           platformName: captureConfig.platformName,
@@ -318,7 +316,7 @@ io.on("connection", (socket) => {
 
           const targetOperation: Pick<
             Operation,
-            "input" | "type" | "elementInfo"
+            "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
           > = JSON.parse(operation);
           try {
             await capturer.runOperation(targetOperation);
@@ -362,7 +360,7 @@ io.on("connection", (socket) => {
           }
         );
 
-        await capturer.start(parsedUrl, () => {
+        await capturer.start(url, () => {
           socket.emit(
             ServerToClientSocketIOEvent.CAPTURE_STARTED,
             new TimestampImpl().epochMilliseconds().toString()
@@ -374,7 +372,7 @@ io.on("connection", (socket) => {
         }
 
         if (error.name === "InvalidArgumentError") {
-          LoggingService.error(`Invalid url.: ${parsedUrl}`);
+          LoggingService.error(`Invalid url.: ${url}`);
 
           const serverError: ServerError = {
             code: "invalid_url",

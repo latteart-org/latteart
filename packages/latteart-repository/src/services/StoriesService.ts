@@ -52,6 +52,7 @@ export class StoriesService {
         "sessions.testResult.notes.testSteps",
         "sessions.testResult.notes.testSteps.screenshot",
         "sessions.testResult.notes.tags",
+        "sessions.testResult.notes.screenshot",
       ],
     });
     if (!story) {

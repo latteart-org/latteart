@@ -78,16 +78,7 @@ describe("ConfigsService", () => {
 
       const result = await service.updateConfig(projectId, requestBody);
 
-      expect(result).toEqual({
-        ...requestBody,
-        config: {
-          ...requestBody.config,
-          imageCompression: {
-            ...requestBody.config.imageCompression,
-            command: "",
-          },
-        },
-      });
+      expect(result).toEqual(requestBody);
     });
   });
 });

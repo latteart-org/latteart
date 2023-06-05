@@ -136,6 +136,18 @@ async function compareScreenshots(screenshots: {
       diff: diffImageData,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "Image sizes do not match."
+    ) {
+      return {
+        isOk: false,
+        actual: screenshots.actual,
+        expected: screenshots.expected,
+        error: "image_sizes_do_not_match" as const,
+      };
+    }
+
     return {
       isOk: false,
       actual: screenshots.actual,

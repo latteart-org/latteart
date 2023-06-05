@@ -224,12 +224,15 @@ export class TestResultRepository {
   }
 
   public async generateGraphView(
-    testResultId: string,
+    testResultIds: string[],
     option?: TestResultViewOptionForRepository
   ): Promise<RepositoryAccessResult<GraphViewForRepository>> {
     try {
-      const url = `api/v1/test-results/${testResultId}/graph-views`;
-      const response = await this.restClient.httpPost(url, option);
+      const url = `api/v1/graph-views`;
+      const response = await this.restClient.httpPost(url, {
+        testResultIds,
+        node: option?.node,
+      });
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);

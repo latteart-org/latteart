@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 
-import { convertToSequenceDiagramGraph } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
+import { convertToSequenceDiagramGraphs } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 
 describe("SequenceDiagramGraphConverter", () => {
   it("先頭のシナリオに目的がなく、2つ目以降のシナリオに目的がある場合", async () => {
@@ -42,20 +42,29 @@ describe("SequenceDiagramGraphConverter", () => {
       ],
     };
 
-    expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+    const scenarios = await convertToSequenceDiagramGraphs(view);
+
+    expect(scenarios[0].sequence).toEqual(1);
+    expect(scenarios[0].testPurpose).toEqual(undefined);
+    expect(scenarios[0].graph.graphText).toEqual(
       `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
 activate s0;
-s0 --x s0: ;
+Note right of s0: DUMMY_COMMENT;
 deactivate s0;
 end;
-alt (2)intention1;
+`
+    );
+    expect(scenarios[1].sequence).toEqual(2);
+    expect(scenarios[1].testPurpose).toEqual({ value: "intention1" });
+    expect(scenarios[1].graph.graphText).toEqual(
+      `sequenceDiagram;
+participant s0 as screenDef1;
 opt (2)window1-text;
 activate s0;
 Note right of s0: DUMMY_COMMENT;
 deactivate s0;
-end;
 end;
 `
     );
@@ -81,7 +90,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -122,7 +135,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -183,10 +200,13 @@ end;
       ],
     };
 
-    expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+    const scenarios = await convertToSequenceDiagramGraphs(view);
+
+    expect(scenarios[0].sequence).toEqual(1);
+    expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+    expect(scenarios[0].graph.graphText).toEqual(
       `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 s0 --x s0: ;
@@ -196,7 +216,6 @@ opt (2)window2-text;
 activate s0;
 Note right of s0: DUMMY_COMMENT;
 deactivate s0;
-end;
 end;
 `
     );
@@ -227,7 +246,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -263,15 +286,17 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: DUMMY_COMMENT;
 deactivate s0;
-end;
 end;
 `
         );
@@ -300,7 +325,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -335,7 +364,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -372,7 +405,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -408,15 +445,17 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
 deactivate s0;
-end;
 end;
 `
         );
@@ -446,15 +485,17 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: (1-0)<br/>-<br/>notice1;
 deactivate s0;
-end;
 end;
 `
         );
@@ -486,7 +527,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -526,16 +571,18 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
 Note right of s0: (1-1)<br/>-<br/>notice1;
 deactivate s0;
-end;
 end;
 `
         );
@@ -589,25 +636,31 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
 Note right of s0: (1-1)<br/>-<br/>notice1;
-s0 --x s0: ;
 deactivate s0;
 end;
-end;
-alt (2)intention2;
+`
+        );
+        expect(scenarios[1].sequence).toEqual(2);
+        expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
+        expect(scenarios[1].graph.graphText).toEqual(
+          `sequenceDiagram;
+participant s0 as screenDef1;
 opt (2)window1-text;
 activate s0;
 Note right of s0: (2-0)[bug]<br/>-<br/>bug2;
 Note right of s0: (2-1)<br/>-<br/>notice2;
 deactivate s0;
-end;
 end;
 `
         );
@@ -656,23 +709,30 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
-s0 --x s0: ;
+Note right of s0: DUMMY_COMMENT;
 deactivate s0;
 end;
-end;
-alt (2)intention2;
+`
+        );
+        expect(scenarios[1].sequence).toEqual(2);
+        expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
+        expect(scenarios[1].graph.graphText).toEqual(
+          `sequenceDiagram;
+participant s0 as screenDef1;
 opt (2)window1-text;
 activate s0;
 Note right of s0: (2-0)[bug]<br/>-<br/>bug2;
 Note right of s0: (2-1)<br/>-<br/>notice2;
 deactivate s0;
-end;
 end;
 `
         );
@@ -763,35 +823,44 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
-participant s1 as screenDef2;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: (1-0)[bug]<br/>-<br/>bug1;
 Note right of s0: (1-1)<br/>-<br/>notice1;
-s0 --x s0: ;
 deactivate s0;
 end;
-end;
-alt (2)intention2;
+`
+        );
+        expect(scenarios[1].sequence).toEqual(2);
+        expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
+        expect(scenarios[1].graph.graphText).toEqual(
+          `sequenceDiagram;
+participant s1 as screenDef2;
 opt (2)window1-text;
 activate s1;
 Note right of s1: (2-0)[bug]<br/>-<br/>bug2;
 Note right of s1: (2-1)<br/>-<br/>notice2;
-s1 --x s1: ;
 deactivate s1;
 end;
-end;
-alt (3)intention3;
+`
+        );
+        expect(scenarios[2].sequence).toEqual(3);
+        expect(scenarios[2].testPurpose).toEqual({ value: "intention3" });
+        expect(scenarios[2].graph.graphText).toEqual(
+          `sequenceDiagram;
+participant s0 as screenDef1;
 opt (3)window1-text;
 activate s0;
 Note right of s0: (3-0)[bug]<br/>-<br/>bug3;
 Note right of s0: (3-1)<br/>-<br/>notice3;
 deactivate s0;
-end;
 end;
 `
         );
@@ -838,7 +907,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -892,7 +965,11 @@ end;
           ],
         };
 
-        expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+        const scenarios = await convertToSequenceDiagramGraphs(view);
+
+        expect(scenarios[0].sequence).toEqual(1);
+        expect(scenarios[0].testPurpose).toEqual(undefined);
+        expect(scenarios[0].graph.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -940,15 +1017,17 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as hogehogehugahug<br/>apiyopiyofoobar<br/>hogehogehugahug<br/>...;
-alt (1)intention1;
 opt (1)window1-text;
 activate s0;
 Note right of s0: DUMMY_COMMENT;
 deactivate s0;
-end;
 end;
 `
       );
@@ -986,7 +1065,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -1043,7 +1126,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1101,7 +1188,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1159,7 +1250,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1238,7 +1333,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1321,7 +1420,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1409,7 +1512,11 @@ end;
         ],
       };
 
-      expect((await convertToSequenceDiagramGraph(view)).graphText).toEqual(
+      const scenarios = await convertToSequenceDiagramGraphs(view);
+
+      expect(scenarios[0].sequence).toEqual(1);
+      expect(scenarios[0].testPurpose).toEqual(undefined);
+      expect(scenarios[0].graph.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1418,15 +1525,21 @@ activate s0;
 s0 ->> s1: (1)type1: elementValue1;
 deactivate s0;
 activate s1;
-s1 --x s1: ;
+Note left of s1: DUMMY_COMMENT;
 deactivate s1;
 end;
-alt (3)intention1;
+`
+      );
+
+      expect(scenarios[1].sequence).toEqual(3);
+      expect(scenarios[1].testPurpose).toEqual({ value: "intention1" });
+      expect(scenarios[1].graph.graphText).toEqual(
+        `sequenceDiagram;
+participant s0 as screenDef1;
 opt (3)window2-text;
 activate s0;
 Note right of s0: DUMMY_COMMENT;
 deactivate s0;
-end;
 end;
 `
       );

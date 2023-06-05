@@ -20,6 +20,7 @@ import {
   CapturedOperation,
   CapturedScreenTransition,
   ElementInfo,
+  RunnableOperation,
 } from "../types";
 import {
   ServiceResult,
@@ -454,13 +455,13 @@ class CaptureSessionImpl implements CaptureSession {
     this.pendingTestPurposes.push({ ...testPurpose });
   }
 
-  async runOperation(
-    operation: Pick<Operation, "type" | "input" | "elementInfo">
-  ) {
+  async runOperation(operation: RunnableOperation) {
     const result = await this.captureCl.runOperation({
       input: operation.input,
       type: operation.type,
       elementInfo: operation.elementInfo,
+      clientSize: operation.clientSize,
+      scrollPosition: operation.scrollPosition,
     });
 
     if (result.error) {
@@ -475,13 +476,13 @@ class CaptureSessionImpl implements CaptureSession {
     return new ServiceSuccess(undefined);
   }
 
-  async runOperationAndWait(
-    operation: Pick<Operation, "type" | "input" | "elementInfo">
-  ) {
+  async runOperationAndWait(operation: RunnableOperation) {
     const result = await this.captureCl.runOperationAndScreenTransition({
       input: operation.input,
       type: operation.type,
       elementInfo: operation.elementInfo,
+      clientSize: operation.clientSize,
+      scrollPosition: operation.scrollPosition,
     });
 
     if (result.error) {
@@ -499,10 +500,7 @@ class CaptureSessionImpl implements CaptureSession {
   automate(
     option: {
       preScript?: (
-        operation: Pick<
-          Operation,
-          "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
-        >,
+        operation: RunnableOperation,
         index: number
       ) => Promise<void>;
       interval?: number;
@@ -526,12 +524,7 @@ class CaptureSessionImpl implements CaptureSession {
       return result;
     };
 
-    const runOperations = (
-      ...operations: Pick<
-        Operation,
-        "type" | "input" | "elementInfo" | "windowHandle" | "timestamp"
-      >[]
-    ) => {
+    const runOperations = (...operations: RunnableOperation[]) => {
       return executeAction(async () => {
         const targetTestSteps = collectRunTargets(
           ...operations.map((operation) => {
@@ -560,12 +553,19 @@ class CaptureSessionImpl implements CaptureSession {
               }, 1000);
             });
           } else {
-            const previous = parseInt(
-              targetTestSteps[index - 1].operation.timestamp,
-              10
-            );
-            const current = parseInt(testStep.operation.timestamp, 10);
-            const intervalTime = option.interval ?? current - previous;
+            const intervalTime = (() => {
+              const previous = targetTestSteps[index - 1].operation.timestamp;
+              const current = testStep.operation.timestamp;
+
+              if (!previous || !current) {
+                return 0;
+              }
+
+              return (
+                option.interval ??
+                parseInt(current, 10) - parseInt(previous, 10)
+              );
+            })();
 
             await new Promise<void>((resolve) => {
               setTimeout(() => {

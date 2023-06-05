@@ -42,8 +42,6 @@ import {
   CreateTestResultDto,
   GetSequenceViewDto,
   GetSequenceViewResponse,
-  GetGraphViewDto,
-  GetGraphViewResponse,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
@@ -350,54 +348,6 @@ export class TestResultsController extends Controller {
         createLogger().error("Generate sequence view failed.", error);
         throw new ServerError(500, {
           code: "generate_sequence_view_failed",
-        });
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Generate graph view model of test result.
-   * @param testResultId Target test result id.
-   * @param requestBody Test result view option.
-   * @returns Generated graph view model.
-   */
-  @Response<ServerErrorData<"generate_graph_view_failed">>(
-    500,
-    "Generate graph view failed"
-  )
-  @SuccessResponse(200, "Success")
-  @Post("{testResultId}/graph-views")
-  public async generateGraphView(
-    @Path() testResultId: string,
-    @Body() requestBody?: GetGraphViewDto
-  ): Promise<GetGraphViewResponse> {
-    const timestampService = new TimestampServiceImpl();
-    const fileRepositoryManager = await createFileRepositoryManager();
-    const screenshotFileRepository =
-      fileRepositoryManager.getRepository("screenshot");
-    const workingFileRepository = fileRepositoryManager.getRepository("work");
-    const compareReportRepository = fileRepositoryManager.getRepository("temp");
-
-    const service = new TestResultServiceImpl({
-      timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
-        screenshotFileRepository,
-        timestamp: timestampService,
-        config: new ConfigsService(),
-      }),
-      screenshotFileRepository,
-      workingFileRepository,
-      compareReportRepository,
-    });
-
-    try {
-      return await service.generateGraphView(testResultId, requestBody);
-    } catch (error) {
-      if (error instanceof Error) {
-        createLogger().error("Generate graph view failed.", error);
-        throw new ServerError(500, {
-          code: "generate_graph_view_failed",
         });
       }
       throw error;

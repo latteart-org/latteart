@@ -17,7 +17,6 @@
 import { OperationForGUI } from "./OperationForGUI";
 import { NoteForGUI } from "./NoteForGUI";
 import {
-  CoverageSource,
   Operation,
   ElementInfo,
   TestResultForRepository,
@@ -151,7 +150,10 @@ interface ApiNote {
   tags: string[];
 }
 
-export type TestResult = Omit<TestResultForRepository, "testSteps"> & {
+export type TestResult = Omit<
+  TestResultForRepository,
+  "testSteps" | "coverageSources"
+> & {
   testSteps: {
     id: string;
     operation: Operation;
@@ -159,7 +161,6 @@ export type TestResult = Omit<TestResultForRepository, "testSteps"> & {
     bugs: ApiNote[];
     notices: ApiNote[];
   }[];
-  coverageSources: CoverageSource[];
 };
 
 export type TestResultSummary = Pick<

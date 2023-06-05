@@ -22,7 +22,6 @@ import mutations from "./mutations";
 import actions from "./actions";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { CoverageSource } from "latteart-client";
 
 /**
  * State for operation history.
@@ -54,6 +53,14 @@ export interface OperationHistoryState {
   };
 
   /**
+   * Retention of test result information
+   */
+  storingTestResultInfos: {
+    id: string;
+    name: string;
+  }[];
+
+  /**
    * Test step ids.
    */
   testStepIds: string[];
@@ -69,21 +76,18 @@ export interface OperationHistoryState {
   windows: WindowInfo[];
 
   /**
-   * Element informations for calculating screen element coverage.
-   */
-  coverageSources: CoverageSource[];
-
-  /**
    * Sequence diagram.
    */
-  sequenceDiagramGraph: Element | null;
+  sequenceDiagramGraphs: {
+    sequence: number;
+    testPurpose?: { value: string; details?: string };
+    element: Element;
+  }[];
 
   /**
    * Window handle to screen transition diagram.
    */
-  windowHandleToScreenTransitionDiagramGraph: {
-    [windowHandle: string]: Element;
-  };
+  screenTransitionDiagramGraph: Element | null;
 
   /**
    * Screen element coverages.
@@ -137,6 +141,11 @@ export interface OperationHistoryState {
        * Whether the element is operated or not.
        */
       operated: boolean;
+
+      /**
+       * Screenshot URL.
+       */
+      imageFileUrl?: string;
     }>;
   }>;
 
@@ -156,11 +165,6 @@ export interface OperationHistoryState {
   isTestResultViewModelUpdating: boolean;
 
   /**
-   * Selected window handle.
-   */
-  selectedWindowHandle: string;
-
-  /**
    * Sequence number of selected operation.
    */
   selectedOperationSequence: number;
@@ -174,6 +178,11 @@ export interface OperationHistoryState {
    * Displayed operations.
    */
   displayedOperations: number[];
+
+  /**
+   * Displayed screenshot url.
+   */
+  displayedScreenshotUrl: string;
 
   /**
    * Note information being edited.
@@ -192,7 +201,7 @@ export interface OperationHistoryState {
   openNoteEditDialog: (
     noteType: string,
     sequence: number,
-    index: number
+    index?: number
   ) => void;
 
   /**
@@ -202,13 +211,13 @@ export interface OperationHistoryState {
     noteType: string,
     title: string,
     sequence: number,
-    index: number
+    index?: number
   ) => void;
 
   /**
    * The function to delete a note.
    */
-  deleteNote: (noteType: string, sequence: number, index: number) => void;
+  deleteNote: (noteType: string, sequence: number, index?: number) => void;
 
   /**
    * The function to open the menu for note.
@@ -234,20 +243,20 @@ const state: OperationHistoryState = {
     name: "",
     parentTestResultId: "",
   },
+  storingTestResultInfos: [],
   testStepIds: [],
   history: [],
   windows: [],
-  coverageSources: [],
-  sequenceDiagramGraph: null,
-  windowHandleToScreenTransitionDiagramGraph: {},
+  sequenceDiagramGraphs: [],
+  screenTransitionDiagramGraph: null,
   elementCoverages: [],
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
   isTestResultViewModelUpdating: false,
-  selectedWindowHandle: "",
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
+  displayedScreenshotUrl: "",
   tmpNoteInfoForEdit: null,
   checkedOperations: [],
   openNoteEditDialog: () => {

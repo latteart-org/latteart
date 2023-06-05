@@ -61,6 +61,7 @@ import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
+import { createLogger } from "@/logger/logger";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -365,7 +366,7 @@ export class TestResultServiceImpl implements TestResultService {
     const testResult = await this.getTestResult(testResultId);
 
     if (!testResult) {
-      return { windows: [], screens: [], scenarios: [] };
+      return { testResultId: "", windows: [], screens: [], scenarios: [] };
     }
 
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
@@ -386,11 +387,11 @@ export class TestResultServiceImpl implements TestResultService {
       };
     });
 
-    return generateSequenceView(testStepWithScreenDefs);
+    return generateSequenceView(testResultId, testStepWithScreenDefs);
   }
 
   public async generateGraphView(
-    testResultId: string,
+    testResultIds: string | string[],
     option: TestResultViewOption = { node: { unit: "title", definitions: [] } }
   ): Promise<GetGraphViewResponse> {
     const screenDefinitionConfig: ScreenDefinitionConfig = {
@@ -411,9 +412,19 @@ export class TestResultServiceImpl implements TestResultService {
       }),
     };
 
-    const testResult = await this.getTestResult(testResultId);
+    const testResults = Array.isArray(testResultIds)
+      ? await Promise.all(
+          testResultIds.map(async (testResultId) => {
+            return await this.getTestResult(testResultId);
+          })
+        )
+      : await this.getTestResult(testResultIds);
 
-    if (!testResult) {
+    if (
+      (Array.isArray(testResults) &&
+        testResults.some((testResult) => !testResult)) ||
+      !testResults
+    ) {
       return {
         nodes: [],
         store: {
@@ -426,8 +437,14 @@ export class TestResultServiceImpl implements TestResultService {
       };
     }
 
+    const testSteps = Array.isArray(testResults)
+      ? testResults
+          .map((testResult) => (testResult as GetTestResultResponse).testSteps)
+          .flat()
+      : testResults.testSteps;
+
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
-    const testStepWithScreenDefs = testResult.testSteps.map((testStep) => {
+    const testStepWithScreenDefs = testSteps.map((testStep) => {
       return {
         ...testStep,
         screenDef: screenDefFactory.create({
@@ -449,7 +466,16 @@ export class TestResultServiceImpl implements TestResultService {
       generateElementId: () => uuidv4(),
     };
 
-    const coverageSourceGroupedByScreenDef = testResult.coverageSources
+    const coverageSources = Array.isArray(testResults)
+      ? testResults
+          .map(
+            (testResult) =>
+              (testResult as GetTestResultResponse).coverageSources
+          )
+          .flat()
+      : testResults.coverageSources;
+
+    const coverageSourceGroupedByScreenDef = coverageSources
       .map(({ url, title, screenElements }) => {
         const keywordTexts = screenElements
           .map((screenElement) => {
@@ -590,6 +616,18 @@ export class TestResultServiceImpl implements TestResultService {
     const expectedActions = createTestActions(...expectedOperations);
 
     if (!isSameProcedure(actualActions, expectedActions)) {
+      createLogger().error("Comparison targets not same procedures.");
+      createLogger().error(
+        `expected: ${JSON.stringify(
+          expectedActions.map(({ operation }) => operation)
+        )}`
+      );
+      createLogger().error(
+        `actual: ${JSON.stringify(
+          actualActions.map(({ operation }) => operation)
+        )}`
+      );
+
       throw new ServerError(500, {
         code: "comparison_targets_not_same_procedures",
       });

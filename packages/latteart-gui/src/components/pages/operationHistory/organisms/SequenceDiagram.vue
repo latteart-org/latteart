@@ -15,15 +15,56 @@
 -->
 
 <template>
-  <v-row justify="end" id="sequence-diagram-container">
-    <v-col cols="12">
+  <v-container fluid class="ma-0 fill-height align-start">
+    <v-row no-gutters align="center" :style="{ height: '70px' }">
+      <v-select
+        v-if="testResults.length > 1"
+        class="mr-3"
+        :label="message('history-view.test-result-name')"
+        :items="testResults"
+        item-text="name"
+        item-value="id"
+        :value="currentTestResultId"
+        @change="changeCurrentTestResultId"
+        hide-details
+        dense
+      />
+      <v-select
+        class="mr-3"
+        :label="message('history-view.test-purpose')"
+        :items="testPurposes"
+        item-text="text"
+        item-value="value"
+        v-model="selectedTestPurposeIndex"
+        hide-details
+        dense
+      />
+      <v-btn
+        v-if="!isViewerMode"
+        class="mr-1"
+        :disabled="!this.graph"
+        @click="editTestPurpose"
+        >{{ message("history-view.edit-test-purpose") }}</v-btn
+      >
+    </v-row>
+    <v-row
+      no-gutters
+      id="sequence-diagram-container"
+      :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
+    >
       <mermaid-graph-renderer
-        v-if="graph"
-        :graph="graph"
+        v-if="graphElement"
+        :graph="graphElement"
         graphType="sequence"
       ></mermaid-graph-renderer>
-    </v-col>
-  </v-row>
+    </v-row>
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -32,24 +73,100 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
     "mermaid-graph-renderer": MermaidGraphRenderer,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class SequenceDiagram extends Vue {
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
+  private selectedTestPurposeIndex = 0;
+
+  private get isViewerMode() {
+    return (this as any).$isViewerMode ?? false;
+  }
+
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
+
+  private get currentTestResultId() {
+    return this.operationHistoryState.testResultInfo.id;
+  }
+
+  private get testResults() {
+    return this.operationHistoryState.storingTestResultInfos;
+  }
+
+  private get testPurposes() {
+    return this.operationHistoryState.sequenceDiagramGraphs.map(
+      ({ testPurpose }, index) => {
+        return {
+          text:
+            testPurpose?.value ?? this.message("history-view.no-test-purpose"),
+          value: index,
+        };
+      }
+    );
+  }
+
   private get graph() {
-    return this.$store.state.operationHistory.sequenceDiagramGraph;
+    const graphs = this.operationHistoryState.sequenceDiagramGraphs;
+
+    return graphs.at(this.selectedTestPurposeIndex);
+  }
+
+  private get graphElement() {
+    return this.graph?.element ?? null;
   }
 
   private mounted() {
+    this.selectedTestPurposeIndex = 0;
     const sequenceDiagram = document.getElementById(
       "sequence-diagram-container"
     ) as any;
     sequenceDiagram.oncontextmenu = () => false;
+  }
+
+  private async changeCurrentTestResultId(testResultId: string) {
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId,
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+      this.$store.dispatch("selectOperation", { sequence: 1 });
+
+      this.selectedTestPurposeIndex = 0;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  private editTestPurpose() {
+    if (!this.graph) {
+      return;
+    }
+
+    this.operationHistoryState.openNoteEditDialog(
+      "intention",
+      this.graph.sequence
+    );
   }
 }
 </script>

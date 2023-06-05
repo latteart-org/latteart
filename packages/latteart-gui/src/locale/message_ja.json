@@ -104,9 +104,14 @@
     "compare-test-result-download": "詳細はダウンロードファイルをご確認ください。",
     "compare-test-result-not-exist": "比較するテスト結果がありません。",
     "compare-diffs-sequence": "操作の通番",
-    "compare-diffs-items": "差異のあった操作内情報",
+    "compare-diffs-items": "差異のあった項目",
     "compare-diffs-remarks": "備考",
-    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。"
+    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。",
+    "compare-remarks-image-sizes-do-not-match": "スクリーンショットの画像サイズが異なります。",
+    "test-result-name": "テスト結果名",
+    "test-purpose": "テスト目的",
+    "no-test-purpose": "目的なし",
+    "edit-test-purpose": "テスト目的の編集"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
@@ -156,8 +161,8 @@
     "image-compression-delete-source-image": "元画像を削除する",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-test-result-comparison": "テスト結果比較の設定",
-    "comparison-exclude-items-enabled": "指定した操作内情報の差分を検出しない",
-    "comparison-exclude-items-value": "除外する操作内情報",
+    "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
+    "comparison-exclude-items-value": "除外する項目",
     "comparison-exclude-elements-enabled": "指定した画面要素の差分を検出しない",
     "comparison-exclude-elements-tagname": "除外するタグ",
     "setting-device": "デバイスの詳細設定",
@@ -575,7 +580,9 @@
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
       "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
-      "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。"
+      "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。",
+      "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
+      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

@@ -148,8 +148,8 @@ import { testDataSet1, testDataSet2 } from './test_data/TestData';
  * testSuiteComment1
  */
 describe('testSuite1', () => {
-  beforeEach('open top page', () => {
-    browser.url('topPageUrl1');
+  beforeEach('open top page', async () => {
+    await browser.url('topPageUrl1');
   });
 
   /**
@@ -157,12 +157,12 @@ describe('testSuite1', () => {
    */
   describe('testCase1', () => {
     testDataSet1.forEach((data) => {
-      it(\`test data: \${JSON.stringify(data)}\`, () => {
-        new name_of_pageObjectId1()
+      it(\`test data: \${JSON.stringify(data)}\`, async () => {
+        await new name_of_pageObjectId1()
           // methodComment1
           .name_of_methodId1-1(data.name_of_pageObjectId1_name_of_methodId1-1)
           // methodComment2
-          .name_of_methodId1-2();
+          .then((page) => page.name_of_methodId1-2());
       });
     });
   });
@@ -172,10 +172,10 @@ describe('testSuite1', () => {
    */
   describe('testCase2', () => {
     testDataSet2.forEach((data) => {
-      it(\`test data: \${JSON.stringify(data)}\`, () => {
-        new name_of_pageObjectId2()
+      it(\`test data: \${JSON.stringify(data)}\`, async () => {
+        await new name_of_pageObjectId2()
           .name_of_methodId2-1(data.name_of_pageObjectId2_name_of_methodId2-1)
-          .name_of_methodId2-2();
+          .then((page) => page.name_of_methodId2-2());
       });
     });
   });
@@ -185,8 +185,8 @@ describe('testSuite1', () => {
  * testSuiteComment2
  */
 describe('testSuite2', () => {
-  beforeEach('open top page', () => {
-    browser.url('topPageUrl2');
+  beforeEach('open top page', async () => {
+    await browser.url('topPageUrl2');
   });
 
   /**
@@ -194,12 +194,12 @@ describe('testSuite2', () => {
    */
   describe('testCase1', () => {
     testDataSet1.forEach((data) => {
-      it(\`test data: \${JSON.stringify(data)}\`, () => {
-        new name_of_pageObjectId1()
+      it(\`test data: \${JSON.stringify(data)}\`, async () => {
+        await new name_of_pageObjectId1()
           // methodComment1
           .name_of_methodId1-1(data.name_of_pageObjectId1_name_of_methodId1-1)
           // methodComment2
-          .name_of_methodId1-2();
+          .then((page) => page.name_of_methodId1-2());
       });
     });
   });
@@ -209,10 +209,10 @@ describe('testSuite2', () => {
    */
   describe('testCase2', () => {
     testDataSet2.forEach((data) => {
-      it(\`test data: \${JSON.stringify(data)}\`, () => {
-        new name_of_pageObjectId2()
+      it(\`test data: \${JSON.stringify(data)}\`, async () => {
+        await new name_of_pageObjectId2()
           .name_of_methodId2-1(data.name_of_pageObjectId2_name_of_methodId2-1)
-          .name_of_methodId2-2();
+          .then((page) => page.name_of_methodId2-2());
       });
     });
   });

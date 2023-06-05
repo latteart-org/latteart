@@ -439,8 +439,25 @@ export default class BrowserOperationCapturer {
    * @param operation Operation.
    */
   public async runOperation(
-    operation: Pick<Operation, "input" | "type" | "elementInfo">
+    operation: Pick<
+      Operation,
+      "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
+    >
   ): Promise<void> {
+    if (operation.clientSize) {
+      await this.client.setClientSize(
+        operation.clientSize.width,
+        operation.clientSize.height
+      );
+    }
+    if (operation.scrollPosition) {
+      await this.client.setScrollPosition(
+        operation.scrollPosition.x,
+        operation.scrollPosition.y
+      );
+      await this.client.sleep(500);
+    }
+
     if (
       ![
         SpecialOperationType.ACCEPT_ALERT,

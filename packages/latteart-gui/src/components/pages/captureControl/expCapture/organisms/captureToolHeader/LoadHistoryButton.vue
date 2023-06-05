@@ -136,9 +136,7 @@ export default class LoadHistoryButton extends Vue {
           message: this.$store.getters.message("remote-access.load"),
         });
 
-        await this.$store.dispatch("operationHistory/loadHistory", {
-          testResultId,
-        });
+        await this.loadTestResults(testResultId);
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -150,6 +148,30 @@ export default class LoadHistoryButton extends Vue {
         this.$store.dispatch("closeProgressDialog");
       }
     }, 300);
+  }
+
+  private async loadTestResults(...testResultIds: string[]) {
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds,
+      });
+
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: testResultIds[0],
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 }
 </script>

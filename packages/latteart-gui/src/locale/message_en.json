@@ -100,9 +100,14 @@
     "compare-test-result-download": "Please check the download file for details.",
     "compare-test-result-not-exist": "There are no test results to compare.",
     "compare-diffs-sequence": "Operation number",
-    "compare-diffs-items": "Operation information",
+    "compare-diffs-items": "Items with differences",
     "compare-diffs-remarks": "Remarks",
-    "compare-remarks-invalid-screenshot": "Invalid format screenshot."
+    "compare-remarks-invalid-screenshot": "Invalid format screenshot.",
+    "compare-remarks-image-sizes-do-not-match": "Screenshot image size is different.",
+    "test-result-name": "Test Result Name",
+    "test-purpose": "Test Purpose",
+    "no-test-purpose": "No Test Purpose",
+    "edit-test-purpose": "Edit Test Purpose"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
@@ -152,8 +157,8 @@
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",
     "setting-test-result-comparison": "Compare Test Results Settings",
-    "comparison-exclude-items-enabled": "Do not detect differences in specified operation information",
-    "comparison-exclude-items-value": "Operation information to exclude",
+    "comparison-exclude-items-enabled": "Do not detect differences in specified items",
+    "comparison-exclude-items-value": "Items to exclude",
     "comparison-exclude-elements-enabled": "Do not detect differences for specified screen elements",
     "comparison-exclude-elements-tagname": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
@@ -571,7 +576,9 @@
       "get_session_ids_failed": "Failed to get session ids.",
       "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}",
       "compare_test_results_failed": "Failed to compare test results.",
-      "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared."
+      "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared.",
+      "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
+      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

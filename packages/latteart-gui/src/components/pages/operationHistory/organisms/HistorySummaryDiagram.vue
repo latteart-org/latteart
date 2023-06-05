@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-row>
+  <v-container fluid class="pa-0 ma-0 fill-height">
     <sequence-diagram
       v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
       :message="message"
@@ -26,7 +26,7 @@
       :windows="windows"
       :message="message"
     ></screen-transition-diagram>
-  </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">

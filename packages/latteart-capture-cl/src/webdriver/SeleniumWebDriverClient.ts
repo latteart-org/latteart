@@ -436,4 +436,12 @@ export class SeleniumWebDriverClient implements WebDriverClient {
 
     return { width: rect.width, height: rect.height };
   }
+
+  public async setClientSize(width: number, height: number): Promise<void> {
+    await this.driver.manage().window().setRect({ width, height });
+  }
+
+  public async setScrollPosition(x: number, y: number): Promise<void> {
+    return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+  }
 }

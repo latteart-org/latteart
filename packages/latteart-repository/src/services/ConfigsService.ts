@@ -14,41 +14,31 @@
  * limitations under the License.
  */
 
-import { BackendConfig, PutConfigDto } from "../interfaces/Configs";
+import { ProjectConfig, PutConfigDto } from "../interfaces/Configs";
 import { getRepository } from "typeorm";
 import { ConfigEntity } from "../entities/ConfigEntity";
 import { SettingsUtility } from "../gateways/settings/SettingsUtility";
-import { convertToConfigText } from "./helper/configHelper";
+import { parseProjectConfig } from "./helper/configHelper";
 
 export class ConfigsService {
-  private static imageCompressionCommand = "";
-
-  public async getConfig(projectId: string): Promise<BackendConfig> {
+  public async getProjectConfig(projectId: string): Promise<ProjectConfig> {
     const configEntity = await this.getConfigSource(projectId);
-    const config = JSON.parse(configEntity.text) as BackendConfig;
-    return config;
+    return parseProjectConfig(configEntity.text);
   }
 
   public async updateConfig(
     projectId: string,
     requestBody: PutConfigDto
-  ): Promise<BackendConfig> {
+  ): Promise<ProjectConfig> {
     const configEntity = await this.getConfigSource(projectId);
-    const settings = convertToConfigText(
-      configEntity.text,
-      requestBody,
-      ConfigsService.imageCompressionCommand
-    );
 
-    configEntity.text = settings;
+    configEntity.text = JSON.stringify(requestBody);
 
     const savedConfigEntity = await getRepository(ConfigEntity).save(
       configEntity
     );
 
-    const savedConfig = JSON.parse(savedConfigEntity.text) as BackendConfig;
-
-    return savedConfig;
+    return parseProjectConfig(savedConfigEntity.text);
   }
 
   private async getConfigSource(projectId: string): Promise<ConfigEntity> {
@@ -56,8 +46,6 @@ export class ConfigsService {
     let config = await configRepository.find();
     if (!config[0]) {
       const settings = SettingsUtility.settingsProvider.settings;
-      ConfigsService.imageCompressionCommand =
-        settings.config.imageCompression.command;
       console.log(settings);
       const deviceSettings = {
         config: {

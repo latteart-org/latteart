@@ -61,7 +61,9 @@ export type PageAssertionResult = {
   errors?: PageAssertionError[];
 };
 
-export type PageAssertionError = "invalid_screenshot";
+export type PageAssertionError =
+  | "invalid_screenshot"
+  | "image_sizes_do_not_match";
 
 export type PageOperation = Pick<
   Operation,

@@ -111,7 +111,10 @@ export default class RemoteAccessField extends Vue {
     await this.$store.dispatch("loadLocaleFromSettings");
     await this.$store.dispatch("readSettings");
     await this.$store.dispatch("readViewSettings");
-    await this.$store.dispatch("operationHistory/resetHistory");
+    await this.$store.dispatch("operationHistory/clearTestResult");
+    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+    this.$store.commit("operationHistory/clearElementCoverages");
+    this.$store.commit("operationHistory/clearInputValueTable");
     await this.$store.dispatch("captureControl/resetTimer");
     await this.$store.dispatch("testManagement/readProject");
   }

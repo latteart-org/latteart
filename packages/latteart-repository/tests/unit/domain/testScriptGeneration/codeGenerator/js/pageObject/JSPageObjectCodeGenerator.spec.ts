@@ -89,23 +89,23 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
 class name_of_PageObject1 {
   get param1() { return $('#param1'); }
 
-  name_of_method1() {
+  async name_of_method1() {
     // no operation
 
     return new name_of_PageObject1();
   }
 
-  name_of_method2({
+  async name_of_method2({
     param1
   }) {
-    this.param1.setValue(param1);
+    await this.param1.setValue(param1);
 
     return new name_of_PageObject2();
   }
 
-  name_of_method3() {
-    this.param1.click();
-    browser.switchWindow("targetUrl");
+  async name_of_method3() {
+    await this.param1.click();
+    await browser.switchWindow("targetUrl");
 
     return new name_of_PageObject2();
   }
@@ -198,23 +198,23 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
 class name_of_PageObject1 {
   get param1() { return $('#param1'); }
 
-  name_of_method1() {
+  async name_of_method1() {
     // no operation
 
     return new name_of_PageObject1();
   }
 
-  name_of_method2({
+  async name_of_method2({
     param1
   }) {
-    this.param1.setValue(param1);
+    await this.param1.setValue(param1);
 
     return new name_of_PageObject2();
   }
 
-  name_of_method3() {
+  async name_of_method3() {
     // Please insert code for operations while pausing here.
-    browser.switchWindow("targetUrl");
+    await browser.switchWindow("targetUrl");
 
     return new name_of_PageObject2();
   }

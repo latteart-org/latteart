@@ -280,7 +280,7 @@ export class SnapshotFileRepositoryServiceImpl
       testResultId
     );
 
-    const { config } = await this.service.config.getConfig("");
+    const { config } = await this.service.config.getProjectConfig("");
     const viewOption = {
       node: {
         unit: config.screenDefinition.screenDefType,
@@ -452,7 +452,7 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async outputConfigFile(outputDirPath: string, locale: string) {
-    const tempConfig = await this.service.config.getConfig("");
+    const tempConfig = await this.service.config.getProjectConfig("");
     const config = convertToExportableConfig(tempConfig);
     const configWithLocale = {
       ...config,

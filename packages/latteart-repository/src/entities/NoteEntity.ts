@@ -66,7 +66,7 @@ export class NoteEntity {
   })
   testSteps?: TestStepEntity[];
 
-  @OneToOne(() => ScreenshotEntity, {
+  @OneToOne(() => ScreenshotEntity, (screenshot) => screenshot.note, {
     cascade: true,
   })
   @JoinColumn({ name: "screenshot_id" })

@@ -211,10 +211,11 @@ export default class WebBrowserWindow {
   public async captureOperations(): Promise<void> {
     // Get and notice operations.
     const capturedDatas = await this.pullCapturedDatas();
-    const clientSize = await this.client.getClientSize();
     if (capturedDatas.length === 0) {
       return;
     }
+
+    const clientSize = await this.client.getClientSize();
     for (const capturedData of capturedDatas) {
       if (await this.client.alertIsVisible()) {
         break;

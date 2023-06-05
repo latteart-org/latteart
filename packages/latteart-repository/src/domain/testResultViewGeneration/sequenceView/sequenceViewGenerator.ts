@@ -21,6 +21,7 @@ import {
 } from "./types";
 
 export function generateSequenceView(
+  testResultId: string,
   testSteps: TestStepForSequenceView[]
 ): SequenceView {
   const screenDefToScreenId = new Map(
@@ -50,7 +51,7 @@ export function generateSequenceView(
 
   const scenarios = createScenarios(testSteps, screenDefToScreenId);
 
-  return { windows, screens, scenarios };
+  return { testResultId, windows, screens, scenarios };
 }
 
 function createScenarios(

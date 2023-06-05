@@ -37,9 +37,9 @@
       </div>
       <splitpanes style="height: calc(100% - 46px)">
         <pane>
-          <v-container fluid fill-height class="pt-0">
-            <v-row class="mb-0 pb-0 px-2">
-              <v-col cols="12" class="pa-0">
+          <v-container fluid fill-height class="pa-0 ma-0">
+            <v-row no-gutters>
+              <v-col cols="12">
                 <v-radio-group
                   v-model="diagramType"
                   row
@@ -62,14 +62,14 @@
               </v-col>
             </v-row>
             <v-row
-              class="mt-0"
+              no-gutters
               :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
               ref="mermaidGraphDisplay"
             >
-              <v-col cols="12" class="pt-0">
+              <v-col cols="12" class="pt-0 fill-height">
                 <element-coverage
                   v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
-                  :onSelectElement="selectOperation"
+                  :onSelectElement="setImageFileUrl"
                   :message="message"
                 ></element-coverage>
                 <history-summary-diagram
@@ -126,6 +126,12 @@
         :message="message"
       ></decision-table>
     </pane>
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
   </splitpanes>
 </template>
 
@@ -144,6 +150,8 @@ import OperationList from "@/components/pages/operationHistory/organisms/Operati
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 
 @Component({
   components: {
@@ -154,6 +162,7 @@ import DecisionTable from "./DecisionTable.vue";
     "decision-table": DecisionTable,
     Splitpanes,
     Pane,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class HistoryDisplay extends Vue {
@@ -191,6 +200,9 @@ export default class HistoryDisplay extends Vue {
   public readonly changeWindowTitle!: (windowTitle: string) => void;
   @Prop({ type: String, default: "" }) public readonly testResultId!: string;
 
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
+
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
   private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
@@ -206,6 +218,9 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get imageInfo(): { decode: string } {
+    if (this.displayedScreenshotUrl !== "") {
+      return { decode: this.displayedScreenshotUrl };
+    }
     const history = this.history.find((val) => {
       return val.operation.sequence === Number(this.selectedOperationSequence);
     });
@@ -220,6 +235,10 @@ export default class HistoryDisplay extends Vue {
 
   private get selectedOperationSequence(): number {
     return this.$store.state.operationHistory.selectedOperationSequence;
+  }
+
+  private get displayedScreenshotUrl(): string {
+    return this.$store.state.operationHistory.displayedScreenshotUrl;
   }
 
   private get displayedOperations(): number[] {
@@ -258,10 +277,37 @@ export default class HistoryDisplay extends Vue {
     return this.$store.state.operationHistory.canUpdateModels;
   }
 
-  private updateTestResultViewModel() {
-    (async () => {
-      await this.$store.dispatch("operationHistory/updateTestResultViewModel");
-    })();
+  private async updateTestResultViewModel() {
+    try {
+      const testResultId = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo.id;
+
+      await this.$store.dispatch(
+        "operationHistory/updateModelsFromSequenceView",
+        { testResultId }
+      );
+
+      const testResultIds = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).storingTestResultInfos.map(({ id }) => id);
+      await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
+        testResultIds:
+          testResultIds.length === 0 ? [testResultId] : testResultIds,
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 
   private updateWindowTitle() {
@@ -312,8 +358,14 @@ export default class HistoryDisplay extends Vue {
   }
 
   private selectOperation(selectedOperationSequence: number) {
-    this.$store.commit("operationHistory/selectOperation", {
+    this.$store.dispatch("operationHistory/selectOperation", {
       sequence: selectedOperationSequence,
+    });
+  }
+
+  private setImageFileUrl(imageFileUrl: string) {
+    this.$store.dispatch("operationHistory/changeScreenshot", {
+      imageFileUrl,
     });
   }
 

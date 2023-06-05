@@ -82,19 +82,20 @@
           ></v-text-field>
         </v-col>
         <v-col cols="3">
+          <review-button
+            :disabled="!canReviewSession"
+            :story="story"
+            :sessionIds="reviewTargetSessionIds"
+          ></review-button>
+
           <v-select
             :items="reviewableSessions"
             :label="this.$store.getters.message('story-view.review-target')"
             item-text="displayName"
             item-value="id"
-            v-model="reviewTargetSessionId"
+            :multiple="!isViewerMode"
+            v-model="reviewTargetSessionIds"
           ></v-select>
-
-          <review-button
-            :disabled="!canReviewSession"
-            :story="story"
-            :sessionId="reviewTargetSessionId"
-          ></review-button>
         </v-col>
       </v-row>
       <v-row>
@@ -209,7 +210,7 @@ export default class StoryView extends Vue {
     /* Do nothing */
   }
 
-  private reviewTargetSessionId = "";
+  private reviewTargetSessionIds = [];
 
   private sessionPanelExpantionStates: boolean[] = [];
 
@@ -267,11 +268,13 @@ export default class StoryView extends Vue {
       const sessionNameSuffix =
         this.story?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
 
+      const testResultName = session.testResultFiles.at(0)?.name;
+
       return {
         id: session.id,
         displayName: `${this.$store.getters.message("story-view.session")}${
           sessionNameSuffix + 1
-        }`,
+        }${testResultName ? ` (${testResultName})` : ""}`,
       };
     });
   }
@@ -351,9 +354,9 @@ export default class StoryView extends Vue {
           return bugNum;
         }
 
-        bugNum += currentSession.notes.filter((note) => {
-          (note.tags ?? []).includes("reported");
-        }).length;
+        bugNum += currentSession.notes.filter((note) =>
+          (note.tags ?? []).includes("reported")
+        ).length;
 
         return bugNum;
       }, 0) ?? 0
@@ -405,7 +408,7 @@ export default class StoryView extends Vue {
   }
 
   private get canReviewSession(): boolean {
-    return this.reviewTargetSessionId !== "";
+    return this.reviewTargetSessionIds.length >= 1;
   }
 
   private toIndex(): void {

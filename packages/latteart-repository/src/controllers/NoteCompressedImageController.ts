@@ -80,9 +80,9 @@ export class NoteCompressedImageController extends Controller {
         commandExecutor: new CommandExecutorImpl(),
         logger,
       }).compressImageForNote(noteId, {
-        shouldDeleteOriginalFile: SettingsUtility.getSetting(
-          "config.imageCompression.isDeleteSrcImage"
-        ),
+        shouldDeleteOriginalFile: (
+          await new ConfigsService().getProjectConfig("")
+        ).config.imageCompression.isDeleteSrcImage,
       });
     } catch (error) {
       if (error instanceof Error) {
