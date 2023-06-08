@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 
 @Component({
@@ -69,6 +69,15 @@ export default class ExportOptionDialog extends Vue {
       !this.exporOption.selectedOptionTestresult &&
       !this.exporOption.selectedOptionConfig
     );
+  }
+
+  @Watch("opened")
+  private initialize() {
+    if (this.opened) {
+      this.exporOption.selectedOptionProject = true;
+      this.exporOption.selectedOptionTestresult = true;
+      this.exporOption.selectedOptionConfig = true;
+    }
   }
 
   private execute(): void {

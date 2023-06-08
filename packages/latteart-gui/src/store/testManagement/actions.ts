@@ -691,6 +691,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * @param payload.source.testResultFileUrl Source import file url.
    * @param payload.option.selectedOptionProject Whether to import project management data.
    * @param payload.option.selectedOptionTestresult Whether to import project test result data.
+   * @param payload.option.selectedOptionConfig Whether to import project config data.
    * @returns id ,name
    */
   async importData(
@@ -700,12 +701,14 @@ const actions: ActionTree<TestManagementState, RootState> = {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionConfig: boolean;
       };
     }
   ) {
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
+      includeConfig: payload.option.selectedOptionConfig,
     };
 
     const result = await new ImportProjectAction(

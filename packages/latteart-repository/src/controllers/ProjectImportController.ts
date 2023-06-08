@@ -37,6 +37,7 @@ import { createLogger } from "@/logger/logger";
 import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
 import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { CreateProjectImportDto } from "@/interfaces/importFileRepository";
+import { PutConfigResponse } from "@/interfaces/Configs";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -46,6 +47,10 @@ export class ProjectImportController extends Controller {
    * @param requestBody Project information and test result information to import.
    * @returns Imported project id.
    */
+  @Response<ServerErrorData<"import_config_not_exist">>(
+    500,
+    "Config information does not exist"
+  )
   @Response<ServerErrorData<"import_test_result_not_exist">>(
     500,
     "Test result information does not exist"
@@ -62,7 +67,7 @@ export class ProjectImportController extends Controller {
   @Post()
   public async importProject(
     @Body() requestBody: CreateProjectImportDto
-  ): Promise<{ projectId: string }> {
+  ): Promise<{ projectId: string; config: PutConfigResponse | undefined }> {
     try {
       const timestampService = new TimestampServiceImpl();
       const fileRepositoryManager = await createFileRepositoryManager();
@@ -107,9 +112,11 @@ export class ProjectImportController extends Controller {
         requestBody.source.projectFile,
         requestBody.includeProject,
         requestBody.includeTestResults,
+        requestBody.includeConfig,
         {
           timestampService,
           testResultService,
+          configService,
           testStepService,
           screenshotFileRepository,
           attachedFileRepository,
@@ -125,6 +132,11 @@ export class ProjectImportController extends Controller {
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Import project failed.", error);
+        if (error.message === "Config information does not exist.") {
+          throw new ServerError(500, {
+            code: "import_config_not_exist",
+          });
+        }
         if (error.message === "Test result information does not exist.") {
           throw new ServerError(500, {
             code: "import_test_result_not_exist",

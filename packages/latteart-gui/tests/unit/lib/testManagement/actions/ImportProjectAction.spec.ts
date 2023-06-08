@@ -29,6 +29,7 @@ describe("ImportProjectAction", () => {
       const selectOption = {
         includeProject: true,
         includeTestResults: false,
+        includeConfig: false,
       };
 
       it("インポートに成功した場合は、インポートされたプロジェクトの識別情報を返す", async () => {
@@ -46,6 +47,7 @@ describe("ImportProjectAction", () => {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
+          includeConfig: selectOption.includeConfig,
         });
         if (result.isSuccess()) {
           expect(result.data).toEqual({ projectId: expectedData.projectId });
@@ -69,6 +71,7 @@ describe("ImportProjectAction", () => {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
+          includeConfig: selectOption.includeConfig,
         });
         if (result.isSuccess()) {
           throw new Error("failed");
