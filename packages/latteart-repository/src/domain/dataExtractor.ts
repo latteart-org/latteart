@@ -136,8 +136,8 @@ export function extractConfigData(
     const fileName = path.basename(file.filePath);
 
     if (fileName === "config.json") {
-      (configData.fileName = "config.json"),
-        (configData.data = file.data as string);
+      configData.fileName = "config.json";
+      configData.data = file.data as string;
       continue;
     }
   }
