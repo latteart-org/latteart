@@ -6,6 +6,7 @@ import { TestResultService } from "@/services/TestResultService";
 import { ExportFileRepositoryService } from "@/services/ExportFileRepositoryService";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestProgressService } from "@/services/TestProgressService";
+import { ConfigsService } from "@/services/ConfigsService";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -68,6 +69,22 @@ describe("ProjectExportService", () => {
       },
     ];
 
+    const settings = {
+      config: {
+        autofillSetting: { conditionGroups: [] },
+        autoOperationSetting: { conditionGroups: [] },
+        screenDefinition: { screenDefType: "url", conditionGroups: [] },
+        coverage: { include: { tags: [] } },
+        imageCompression: { isEnabled: false, isDeleteSrcImage: false },
+        testResultComparison: {
+          excludeItems: { isEnabled: false, values: [] },
+          excludeElements: { isEnabled: false, values: [] },
+        },
+      },
+      defaultTagList: [],
+      viewPointsPreset: [],
+    };
+
     const projectService: ProjectsService = {
       getProjectIdentifiers: jest.fn(),
       createProject: jest.fn(),
@@ -105,7 +122,9 @@ describe("ProjectExportService", () => {
       collectProjectDailyTestProgresses: jest.fn(),
     };
 
-    it("includeProject: true, includeTestResults: trueの場合、ProjectとTestResultのexport処理が実行される", async () => {
+    const configService = new ConfigsService();
+
+    it("includeProject: true, includeTestResults: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllTestStepScreenshots = jest
@@ -116,12 +135,14 @@ describe("ProjectExportService", () => {
             fileUrl: "fileUrl",
           },
         ]);
+      configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
 
-      const result = await service.export("1", true, true, {
+      const result = await service.export("1", true, true, true, {
         projectService,
         testResultService,
+        configService,
         exportFileRepositoryService,
         testProgressService,
       });
@@ -131,17 +152,20 @@ describe("ProjectExportService", () => {
       expect(testResultService.collectAllTestStepScreenshots).toBeCalledTimes(
         1
       );
+      expect(configService.getProjectConfig).toBeCalledTimes(1);
     });
 
-    it("includeProject: false, includeTestResults: falseの場合、ProjectとTestResultのexport処理が共に実行しない", async () => {
+    it("includeProject: false, includeTestResults: false, includeConfig: falseの場合、Project・TestResult・Configのexport処理が共に実行しない", async () => {
       projectService.getProject = jest.fn();
       testResultService.collectAllTestStepScreenshots = jest.fn();
+      configService.getProjectConfig = jest.fn();
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
 
-      await new ProjectExportService().export("1", false, false, {
+      await new ProjectExportService().export("1", false, false, false, {
         projectService,
         testResultService,
+        configService,
         exportFileRepositoryService,
         testProgressService,
       });
@@ -150,6 +174,7 @@ describe("ProjectExportService", () => {
       expect(testResultService.collectAllTestStepScreenshots).toBeCalledTimes(
         0
       );
+      expect(configService.getProjectConfig).toBeCalledTimes(0);
     });
 
     it("extractProjectExportDataで、ProjectのexportDataを返す", async () => {
@@ -234,6 +259,20 @@ describe("ProjectExportService", () => {
           screenshots: [{ id: "id", fileUrl: "fileUrl" }],
         },
       ]);
+    });
+
+    it("extractConfigExportDataで、ConfigのexportDataを返す", async () => {
+      const service = new ProjectExportService();
+      configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
+
+      const config = await service["extractConfigExportData"](projectData.id, {
+        configService,
+      });
+
+      expect(config).toEqual({
+        fileName: "config.json",
+        data: JSON.stringify(settings, null, 2),
+      });
     });
   });
 });

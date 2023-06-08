@@ -29,15 +29,17 @@
         <v-checkbox
           :label="$store.getters.message('import-export-dialog.project-data')"
           v-model="exporOption.selectedOptionProject"
-        >
-        </v-checkbox>
+        />
         <v-checkbox
           :label="
             $store.getters.message('import-export-dialog.testresult-data')
           "
           v-model="exporOption.selectedOptionTestresult"
-        >
-        </v-checkbox>
+        />
+        <v-checkbox
+          :label="$store.getters.message('import-export-dialog.config-data')"
+          v-model="exporOption.selectedOptionConfig"
+        />
       </v-container>
     </template>
   </execute-dialog>
@@ -56,14 +58,16 @@ export default class ExportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private exporOption = {
-    selectedOptionProject: false,
-    selectedOptionTestresult: false,
+    selectedOptionProject: true,
+    selectedOptionTestresult: true,
+    selectedOptionConfig: true,
   };
 
   private get okButtonIsDisabled() {
     return (
       !this.exporOption.selectedOptionProject &&
-      !this.exporOption.selectedOptionTestresult
+      !this.exporOption.selectedOptionTestresult &&
+      !this.exporOption.selectedOptionConfig
     );
   }
 

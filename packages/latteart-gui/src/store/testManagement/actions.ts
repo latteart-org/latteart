@@ -736,6 +736,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionConfig: boolean;
       };
     }
   ) {
@@ -743,6 +744,7 @@ const actions: ActionTree<TestManagementState, RootState> = {
     const selectOption = {
       includeProject: payload.option.selectedOptionProject,
       includeTestResults: payload.option.selectedOptionTestresult,
+      includeConfig: payload.option.selectedOptionConfig,
     };
 
     const result = await new ExportProjectAction(
