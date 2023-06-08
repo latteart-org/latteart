@@ -125,6 +125,26 @@ export function extractTestResultsData(
   return result;
 }
 
+export function extractConfigData(
+  files: {
+    filePath: string;
+    data: string | Buffer;
+  }[]
+): ConfigData {
+  const configData: ConfigData = { fileName: "", data: "" };
+  for (const file of files) {
+    const fileName = path.basename(file.filePath);
+
+    if (fileName === "config.json") {
+      configData.fileName = "config.json";
+      configData.data = file.data as string;
+      continue;
+    }
+  }
+
+  return configData;
+}
+
 export type TestResultData = {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
@@ -146,3 +166,5 @@ export type ProjectData = {
   }[];
   progressesFile?: { fileName: string; data: string };
 };
+
+export type ConfigData = { fileName: string; data: string };

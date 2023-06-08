@@ -55,15 +55,19 @@
                 $store.getters.message('import-export-dialog.project-data')
               "
               v-model="importOption.selectedOptionProject"
-            >
-            </v-checkbox>
+            />
             <v-checkbox
               :label="
                 $store.getters.message('import-export-dialog.testresult-data')
               "
               v-model="importOption.selectedOptionTestresult"
-            >
-            </v-checkbox>
+            />
+            <v-checkbox
+              :label="
+                $store.getters.message('import-export-dialog.config-data')
+              "
+              v-model="importOption.selectedOptionConfig"
+            />
           </v-col>
         </v-row>
       </v-container>
@@ -87,8 +91,9 @@ export default class ImportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private importOption = {
-    selectedOptionProject: false,
-    selectedOptionTestresult: false,
+    selectedOptionProject: true,
+    selectedOptionTestresult: true,
+    selectedOptionConfig: true,
   };
 
   private targetFile: File | null = null;
@@ -100,7 +105,8 @@ export default class ImportOptionDialog extends Vue {
 
     if (
       !this.importOption.selectedOptionProject &&
-      !this.importOption.selectedOptionTestresult
+      !this.importOption.selectedOptionTestresult &&
+      !this.importOption.selectedOptionConfig
     ) {
       return true;
     }
@@ -112,6 +118,9 @@ export default class ImportOptionDialog extends Vue {
   private initialize() {
     if (this.opened) {
       this.targetFile = null;
+      this.importOption.selectedOptionProject = true;
+      this.importOption.selectedOptionTestresult = true;
+      this.importOption.selectedOptionConfig = true;
     }
   }
 

@@ -29,6 +29,7 @@ describe("ExportProjectAction", () => {
       const selectOption = {
         includeProject: true,
         includeTestResults: false,
+        includeConfig: false,
       };
 
       it("エクスポートに成功した場合は、エクスポートされたファイルのダウンロードURLを返す", async () => {

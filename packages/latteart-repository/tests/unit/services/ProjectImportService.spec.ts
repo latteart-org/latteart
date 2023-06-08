@@ -21,6 +21,7 @@ import { ProjectEntity } from "@/entities/ProjectEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
 import { ImportFileRepository } from "@/interfaces/importFileRepository";
+import { ConfigsService } from "@/services/ConfigsService";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -42,6 +43,7 @@ describe("ProjectImportService", () => {
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
     let importFileRepository: ImportFileRepository;
+    let configService: ConfigsService;
 
     beforeEach(() => {
       timestampService = createTimestampServiceMock();
@@ -54,9 +56,26 @@ describe("ProjectImportService", () => {
       importFileRepository = createImportFileRepositoryMock();
     });
 
-    it("includeProject: true, includeTestResults: true", async () => {
+    const settings = {
+      config: {
+        autofillSetting: { conditionGroups: [] },
+        autoOperationSetting: { conditionGroups: [] },
+        screenDefinition: { screenDefType: "url", conditionGroups: [] },
+        coverage: { include: { tags: [] } },
+        imageCompression: { isEnabled: false, isDeleteSrcImage: false },
+        testResultComparison: {
+          excludeItems: { isEnabled: false, values: [] },
+          excludeElements: { isEnabled: false, values: [] },
+        },
+      },
+      defaultTagList: [],
+      viewPointsPreset: [],
+    };
+
+    it("includeProject: true, includeTestResults: true, includeConfig: true", async () => {
       const service = new ProjectImportService();
       service["readImportFile"] = jest.fn().mockResolvedValue({
+        configFiles: [{ filePath: "config/config.json", data: "{}" }],
         testResultFiles: [
           { filePath: "test-results/testResultId/log.json", data: "{}" },
         ],
@@ -64,6 +83,7 @@ describe("ProjectImportService", () => {
           { filePath: "projects/projectId/project.json", data: "{}" },
         ],
       });
+      service["importConfig"] = jest.fn().mockResolvedValue(settings);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
@@ -74,14 +94,20 @@ describe("ProjectImportService", () => {
       });
 
       const importFile = { data: "data", name: "importFileName" };
-      const option = { includeProject: true, includeTestResults: true };
+      const option = {
+        includeProject: true,
+        includeTestResults: true,
+        includeConfig: true,
+      };
       await service.import(
         importFile,
         option.includeProject,
         option.includeTestResults,
+        option.includeConfig,
         {
           timestampService,
           testResultService,
+          configService,
           testStepService,
           screenshotFileRepository: screenshotFileRepository,
           attachedFileRepository: attachedFileRepository,
@@ -98,13 +124,15 @@ describe("ProjectImportService", () => {
         importFile.data,
         option
       );
+      expect(service["importConfig"]).toBeCalledTimes(1);
       expect(service["importTestResults"]).toBeCalledTimes(1);
       expect(service["importProject"]).toBeCalledTimes(1);
     });
 
-    it("includeProject: false, includeTestResults: false", async () => {
+    it("includeProject: false, includeTestResults: false, includeConfig: false", async () => {
       const service = new ProjectImportService();
       service["readImportFile"] = jest.fn().mockResolvedValue({
+        configFiles: [{ filePath: "config/config.json", data: "{}" }],
         testResultFiles: [
           { filePath: "test-results/testResultId/log.json", data: "{}" },
         ],
@@ -112,6 +140,7 @@ describe("ProjectImportService", () => {
           { filePath: "projects/projectId/project.json", data: "{}" },
         ],
       });
+      service["importConfig"] = jest.fn().mockResolvedValue(settings);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
@@ -122,14 +151,20 @@ describe("ProjectImportService", () => {
       });
 
       const importFile = { data: "data", name: "importFileName" };
-      const option = { includeProject: false, includeTestResults: false };
+      const option = {
+        includeProject: false,
+        includeTestResults: false,
+        includeConfig: false,
+      };
       await service.import(
         importFile,
         option.includeProject,
         option.includeTestResults,
+        option.includeConfig,
         {
           timestampService,
           testResultService,
+          configService,
           testStepService,
           screenshotFileRepository: screenshotFileRepository,
           attachedFileRepository: attachedFileRepository,
@@ -146,6 +181,7 @@ describe("ProjectImportService", () => {
         importFile.data,
         option
       );
+      expect(service["importConfig"]).toBeCalledTimes(0);
       expect(service["importTestResults"]).toBeCalledTimes(0);
       expect(service["importProject"]).toBeCalledTimes(0);
     });

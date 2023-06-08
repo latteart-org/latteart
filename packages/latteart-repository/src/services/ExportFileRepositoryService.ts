@@ -18,7 +18,7 @@ import path from "path";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
 
-interface exportProjectData {
+type exportProjectData = {
   projectId: string;
   projectFile: { fileName: string; data: string };
   stories: {
@@ -31,16 +31,19 @@ interface exportProjectData {
     }[];
   }[];
   progressesFile: { fileName: string; data: string };
-}
-interface exportTestResultData {
+};
+type exportTestResultData = {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
   screenshots: { id: string; fileUrl: string }[];
-}
+};
+type exportConfigData = { fileName: string; data: string };
+
 export interface ExportFileRepositoryService {
   exportProject(
     project: exportProjectData | null,
-    testResults: exportTestResultData[]
+    testResults: exportTestResultData[],
+    config: exportConfigData | null
   ): Promise<string>;
 
   exportTestResult(testResult: {
@@ -63,7 +66,8 @@ export class ExportFileRepositoryServiceImpl
 
   public async exportProject(
     project: exportProjectData | null,
-    testResults: exportTestResultData[]
+    testResults: exportTestResultData[],
+    config: exportConfigData | null
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
     const outputDirName = `project_${timestamp}`;
@@ -82,6 +86,10 @@ export class ExportFileRepositoryServiceImpl
           await this.outputTestResultFiles(testResultsDirPath, testResult);
         })
       );
+    }
+
+    if (config) {
+      await this.outputConfigFile(path.join(outputDirName, "config"), config);
     }
 
     const zipFilePath = await this.service.workingFileRepository.outputZip(
@@ -180,6 +188,16 @@ export class ExportFileRepositoryServiceImpl
       console.log(e);
       throw e;
     });
+  }
+
+  public async outputConfigFile(
+    configDirPath: string,
+    config: exportConfigData
+  ): Promise<void> {
+    await this.service.workingFileRepository.outputFile(
+      path.join(configDirPath, config.fileName),
+      config.data
+    );
   }
 
   public async exportTestResult(testResult: {

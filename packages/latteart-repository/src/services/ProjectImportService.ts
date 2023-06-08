@@ -37,20 +37,27 @@ import { TestResultImportService } from "./TestResultImportService";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import {
+  ConfigData,
+  extractConfigData,
   extractProjectData,
   extractTestResultsData,
   ProjectData,
   TestResultData,
 } from "@/domain/dataExtractor";
+import { ProjectConfig } from "@/interfaces/Configs";
+import { ConfigsService } from "./ConfigsService";
+import { convertToExportableConfig } from "./helper/configHelper";
 
 export class ProjectImportService {
   public async import(
     importFile: { data: string; name: string },
     includeProject: boolean,
     includeTestResults: boolean,
+    includeConfig: boolean,
     service: {
       timestampService: TimestampService;
       testResultService: TestResultService;
+      configService: ConfigsService;
       testStepService: TestStepService;
       screenshotFileRepository: FileRepository;
       attachedFileRepository: FileRepository;
@@ -60,18 +67,24 @@ export class ProjectImportService {
       testResultImportService: TestResultImportService;
       importFileRepository: ImportFileRepository;
     }
-  ): Promise<{ projectId: string }> {
-    const { testResultFiles, projectFiles } = await this.readImportFile(
-      service.importFileRepository,
-      importFile.data,
-      {
+  ): Promise<{ projectId: string; config: ProjectConfig | undefined }> {
+    const { configFiles, testResultFiles, projectFiles } =
+      await this.readImportFile(service.importFileRepository, importFile.data, {
         includeProject,
         includeTestResults,
-      }
-    );
+        includeConfig,
+      });
 
     let testResultIdMap: Map<string, string> = new Map();
     let projectId = "";
+    let config;
+    if (includeConfig) {
+      const configData = extractConfigData(configFiles);
+      config = await this.importConfig(configData, {
+        configService: service.configService,
+      });
+    }
+
     if (includeTestResults) {
       const testResultDatas = extractTestResultsData(testResultFiles);
       testResultIdMap = await this.importTestResults(testResultDatas, {
@@ -88,7 +101,7 @@ export class ProjectImportService {
       });
     }
 
-    return { projectId };
+    return { projectId, config };
   }
 
   private async importProject(
@@ -407,16 +420,34 @@ export class ProjectImportService {
     );
   }
 
+  private async importConfig(
+    configData: ConfigData,
+    service: { configService: ConfigsService }
+  ): Promise<ProjectConfig> {
+    const configJson = JSON.parse(configData.data) as ProjectConfig;
+    const projectId = "1";
+
+    const config = await service.configService.updateConfig(
+      projectId,
+      configJson
+    );
+    return convertToExportableConfig(config);
+  }
+
   private async readImportFile(
     importFileRepository: ImportFileRepository,
     base64FileData: string,
     option: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeConfig: boolean;
     }
   ) {
     const files = await importFileRepository.read(base64FileData);
 
+    const configFiles = files.filter((file) => {
+      return file.filePath.includes("config");
+    });
     const testResultFiles = files.filter((file) => {
       return file.filePath.includes("test-results");
     });
@@ -424,8 +455,16 @@ export class ProjectImportService {
       return file.filePath.includes("projects");
     });
 
-    if (testResultFiles.length === 0 && projectFiles.length === 0) {
+    if (
+      testResultFiles.length === 0 &&
+      projectFiles.length === 0 &&
+      configFiles.length === 0
+    ) {
       throw Error("Invalid project data file.");
+    }
+
+    if (option.includeConfig && configFiles.length === 0) {
+      throw new Error("Config information does not exist.");
     }
 
     if (option.includeTestResults && testResultFiles.length === 0) {
@@ -437,6 +476,7 @@ export class ProjectImportService {
     }
 
     return {
+      configFiles,
       testResultFiles,
       projectFiles,
     };

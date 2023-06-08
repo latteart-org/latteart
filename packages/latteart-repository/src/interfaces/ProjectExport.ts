@@ -20,4 +20,5 @@
 export interface CreateProjectExportDto {
   includeTestResults: boolean;
   includeProject: boolean;
+  includeConfig: boolean;
 }

@@ -115,11 +115,12 @@
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
-    "project-import-title": "プロジェクトのインポート",
+    "project-import-title": "設定・プロジェクトのインポート",
     "test-result-export-title": "テスト結果のエクスポート",
-    "project-export-title": "プロジェクトのエクスポート",
+    "project-export-title": "設定・プロジェクトのエクスポート",
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
+    "config-data": "設定情報",
     "select-test-result-file-label": "テスト結果ファイル",
     "select-test-result-file-button": "選択",
     "select-project-file-label": "プロジェクトファイル",
@@ -334,8 +335,8 @@
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "import-option": "プロジェクトのインポート",
-    "export-option": "プロジェクトのエクスポート",
+    "import-option": "設定・プロジェクトのインポート",
+    "export-option": "設定・プロジェクトのエクスポート",
     "optional-function": "オプション機能",
     "locale": "言語"
   },
@@ -598,6 +599,7 @@
       "import-data-error": "データインポートに失敗しました。",
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
+      "import-config-not-exist": "インポートデータに設定情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
     }
   }

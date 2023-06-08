@@ -28,7 +28,11 @@ export class ExportProjectAction {
 
   public async export(
     projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
   ): Promise<ActionResult<string>> {
     const postProjectForExportResult =
       await this.repositoryService.projectRepository.postProjectForExport(

@@ -33,6 +33,7 @@ export type CreateProjectImportDto = {
   source: { projectFile: { data: string; name: string } };
   includeTestResults: boolean;
   includeProject: boolean;
+  includeConfig: boolean;
 };
 
 /**

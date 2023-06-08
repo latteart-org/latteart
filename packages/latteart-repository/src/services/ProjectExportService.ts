@@ -16,7 +16,9 @@
 
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
+import { ConfigsService } from "./ConfigsService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
+import { convertToExportableConfig } from "./helper/configHelper";
 import { serializeTestResult } from "./helper/testResultExportHelper";
 import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
@@ -27,9 +29,11 @@ export class ProjectExportService {
     projectId: string,
     includeProject: boolean,
     includeTestResults: boolean,
+    includeConfig: boolean,
     service: {
       projectService: ProjectsService;
       testResultService: TestResultService;
+      configService: ConfigsService;
       exportFileRepositoryService: ExportFileRepositoryService;
       testProgressService: TestProgressService;
     }
@@ -46,9 +50,16 @@ export class ProjectExportService {
           testResultService: service.testResultService,
         })
       : [];
+
+    const configExportData = includeConfig
+      ? await this.extractConfigExportData(projectId, {
+          configService: service.configService,
+        })
+      : null;
     return await service.exportFileRepositoryService.exportProject(
       exportProjectData,
-      testResultsExportData
+      testResultsExportData,
+      configExportData
     );
   }
 
@@ -114,6 +125,22 @@ export class ProjectExportService {
         fileName: "progress.json",
         data: JSON.stringify(dailyProgresses),
       },
+    };
+  }
+
+  private async extractConfigExportData(
+    projectId: string,
+    service: {
+      configService: ConfigsService;
+    }
+  ) {
+    const tempConfig = await service.configService.getProjectConfig(projectId);
+
+    const config = convertToExportableConfig(tempConfig);
+
+    return {
+      fileName: "config.json",
+      data: JSON.stringify(config, null, 2),
     };
   }
 }
