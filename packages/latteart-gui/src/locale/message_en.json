@@ -124,7 +124,8 @@
     "creating-export-data": "Creating export data",
     "importing-data": "Importing data",
     "create-export-data-succeeded": "Data export is complete.",
-    "import-data-succeeded": "{returnName} import is complete."
+    "import-data-succeeded": "{returnName} import is complete.",
+    "export-download": "Download"
   },
   "config-io": {
     "import-config": "Import config.",
