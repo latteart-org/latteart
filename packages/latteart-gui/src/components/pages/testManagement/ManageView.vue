@@ -115,6 +115,9 @@
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       :downloadFileName="downloadFileName"
+      :downloadMessage="
+        $store.getters.message('import-export-dialog.export-download')
+      "
       @close="downloadLinkDialogOpened = false"
     />
     <script-generation-option-dialog

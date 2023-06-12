@@ -25,14 +25,16 @@
     <template v-slot:content>
       <span class="pre-wrap break-word">{{ message }}</span>
       <a :href="linkUrl" class="px-2" :download="downloadFileName">{{
-        $store.getters.message("common.download-link")
+        downloadLinkMessage
       }}</a>
-      <p class="pre-wrap break-word alert-message">{{ alertMessage }}</p>
+      <p v-if="alertMessage" class="pre-wrap break-word alert-message">
+        {{ alertMessage }}
+      </p>
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
       <v-btn color="blue" dark @click="close()">{{
-        $store.getters.message("common.ok")
+        $store.getters.message("common.close")
       }}</v-btn>
     </template>
   </scrollable-dialog>
@@ -59,14 +61,25 @@ export default class DownloadLinkDialog extends Vue {
     text: string;
     color?: string;
   } | null;
+  @Prop({ type: String, default: "" }) public readonly downloadMessage?: string;
 
   private iconText = "";
   private iconColor = "";
+  private downloadLinkMessage = "";
+  private buttonMessage = "";
 
   @Watch("opened")
   private initialize() {
     if (!this.opened) {
       return;
+    }
+
+    if (this.downloadMessage) {
+      this.downloadLinkMessage = this.downloadMessage;
+    } else {
+      this.downloadLinkMessage = this.$store.getters.message(
+        "common.download-link"
+      );
     }
 
     if (this.iconOpts) {

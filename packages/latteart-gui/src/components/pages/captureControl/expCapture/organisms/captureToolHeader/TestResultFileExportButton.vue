@@ -31,6 +31,9 @@
       :message="downloadLinkDialogMessage"
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
+      :downloadMessage="
+        $store.getters.message('import-export-dialog.export-download')
+      "
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-item>
