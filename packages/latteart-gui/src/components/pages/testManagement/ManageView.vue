@@ -118,7 +118,6 @@
       :downloadMessage="
         $store.getters.message('import-export-dialog.export-download')
       "
-      :closeButtonMessage="$store.getters.message('common.close')"
       @close="downloadLinkDialogOpened = false"
     />
     <script-generation-option-dialog

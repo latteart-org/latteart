@@ -31,7 +31,9 @@
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{ buttonMessage }}</v-btn>
+      <v-btn color="blue" dark @click="close()">{{
+        $store.getters.message("common.close")
+      }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
@@ -58,8 +60,6 @@ export default class DownloadLinkDialog extends Vue {
     color?: string;
   } | null;
   @Prop({ type: String, default: "" }) public readonly downloadMessage?: string;
-  @Prop({ type: String, default: "" })
-  public readonly closeButtonMessage?: string;
 
   private iconText = "";
   private iconColor = "";
@@ -78,12 +78,6 @@ export default class DownloadLinkDialog extends Vue {
       this.downloadLinkMessage = this.$store.getters.message(
         "common.download-link"
       );
-    }
-
-    if (this.closeButtonMessage) {
-      this.buttonMessage = this.closeButtonMessage;
-    } else {
-      this.buttonMessage = this.$store.getters.message("common.ok");
     }
 
     if (this.iconOpts) {
