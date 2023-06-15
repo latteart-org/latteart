@@ -38,6 +38,7 @@ import {
 } from "latteart-client";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
+import { convertInputValue } from "@/lib/common/util";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -193,8 +194,31 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         .runOperations(...operations);
 
       if (runOperationsResult.isFailure()) {
+        const elementInfo = runOperationsResult.error.variables
+          ? JSON.parse(runOperationsResult.error.variables.elementInfo)
+          : null;
+        const operation = {
+          title:
+            runOperationsResult.error.variables?.title.substring(0, 60) ?? "",
+          tag: elementInfo?.tagname ?? "",
+          tagname: elementInfo?.attributes?.name ?? "",
+          text: elementInfo?.text ? elementInfo.text.substring(0, 60) : "",
+          type: runOperationsResult.error.variables?.type ?? "",
+          input: convertInputValue(
+            elementInfo,
+            runOperationsResult.error.variables?.input ?? ""
+          ).substring(0, 60),
+        };
         const errorMessage = context.rootGetters.message(
-          `error.capture_control.run_operations_failed`
+          `error.capture_control.run_operations_failed_details`,
+          {
+            title: operation.title,
+            tag: operation.tag,
+            tagname: operation.tagname,
+            text: operation.text,
+            type: operation.type,
+            input: operation.input,
+          }
         );
         throw new Error(errorMessage);
       }
@@ -219,8 +243,30 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       .runOperations(...operations);
 
     if (result.isFailure()) {
+      const elementInfo = result.error.variables
+        ? JSON.parse(result.error.variables.elementInfo)
+        : null;
+      const operation = {
+        title: result.error.variables?.title.substring(0, 60) ?? "",
+        tag: elementInfo?.tagname ?? "",
+        tagname: elementInfo?.attributes?.name ?? "",
+        text: elementInfo?.text ? elementInfo.text.substring(0, 60) : "",
+        type: result.error.variables?.type ?? "",
+        input: convertInputValue(
+          elementInfo,
+          result.error.variables?.input ?? ""
+        ).substring(0, 60),
+      };
       const errorMessage = context.rootGetters.message(
-        `error.capture_control.run_auto_operations_failed`
+        `error.capture_control.run_operations_failed_details`,
+        {
+          title: operation.title,
+          tag: operation.tag,
+          tagname: operation.tagname,
+          text: operation.text,
+          type: operation.type,
+          input: operation.input,
+        }
       );
       throw new Error(errorMessage);
     }
