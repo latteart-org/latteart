@@ -550,7 +550,7 @@
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
-      "run_operations_failed_details": "以下の操作の実行に失敗しました。\nページタイトル:{title}\n要素タグ:{tag}\n要素名:{tagname}\nテキスト:{text}\nイベント種別:{type}\n入力値:{input}",
+      "run_operations_failed_details": "以下の操作の実行に失敗しました。\n\n ・[ページタイトル]:{title}\n ・[要素タグ]:{tag}\n ・[要素名]:{tagname}\n ・[テキスト]:{text}\n ・[イベント種別]:{type}\n ・[入力値]:{input}",
       "capture_failed": "操作の記録中にエラーが発生しました。",
       "invalid_operation": "無効な操作が含まれているため、リプレイを中止しました。",
       "element_not_found": "画面要素が見つからないため、リプレイを中止しました。",

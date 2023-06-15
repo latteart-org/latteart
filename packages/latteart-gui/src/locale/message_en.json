@@ -546,7 +546,7 @@
       "get_device_settings_failed": "Failed to get device settings",
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
-      "run_operations_failed_details": "Failed to execute the following operation.\nTitle:{title}\nTag:{tag}\nName:{tagname}\nText:{text}\nEvent Type:{type}\nInput Value:{input}",
+      "run_operations_failed_details": "Failed to execute the following operation.\n\n - [Title]:{title}\n - [Tag]:{tag}\n - [Name]:{tagname}\n - [Text]:{text}\n - [Event Type]:{type}\n - [Input Value]:{input}",
       "capture_failed": "An error has occurred during capturing operation.",
       "invalid_operation": "Replay aborted because the test contains some invalid operations.",
       "element_not_found": "Replay aborted due to missing screen element.",
