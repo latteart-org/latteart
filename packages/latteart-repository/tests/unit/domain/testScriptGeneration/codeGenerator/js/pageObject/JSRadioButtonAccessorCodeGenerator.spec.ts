@@ -35,7 +35,7 @@ static get id() {
 }
 
 async set_id(value) {
-  return await (await driver.findElementMulti({ xpath: "//input[@name='name' and @value='" + value + "']"})).click()
+  await (await driver.findElementMulti({ xpath: "//input[@name='name' and @value='" + value + "']"})).click()
 }`);
     });
   });
