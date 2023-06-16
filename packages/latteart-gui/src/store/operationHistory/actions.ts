@@ -978,7 +978,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: {
       option: {
-        testScript: { isSimple: boolean };
+        testScript: { isSimple: boolean; useMultiLocator: boolean };
         testData: { useDataDriven: boolean; maxGeneration: number };
         buttonDefinitions: {
           tagname: string;

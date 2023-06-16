@@ -1,5 +1,6 @@
 import { JSPageObjectMethodNameGenerator } from "@/domain/testScriptGeneration/codeGenerator/js/pageObject/JSPageObjectMethodNameGenerator";
 import { NameGenerator } from "@/domain/testScriptGeneration/codeGenerator/types";
+import { PageObject } from "@/domain/testScriptGeneration/model";
 
 describe("JSPageObjectMethodNameGenerator", () => {
   describe("#generate", () => {
@@ -12,7 +13,7 @@ describe("JSPageObjectMethodNameGenerator", () => {
         includes: jest.fn(),
       };
 
-      const linkMethod = {
+      const linkMethod: any = {
         id: "linkMethod",
         pageObjectId: "pageObject1",
         returnPageObjectId: "pageObject2",
@@ -21,7 +22,7 @@ describe("JSPageObjectMethodNameGenerator", () => {
             target: {
               identifier: "linkOperation",
               type: "Button",
-              locator: "",
+              locators: [],
             },
             type: "other",
             input: "",
@@ -39,7 +40,7 @@ describe("JSPageObjectMethodNameGenerator", () => {
             target: {
               identifier: "otherOperation",
               type: "Other",
-              locator: "",
+              locators: [],
             },
             type: "other",
             input: "",
@@ -48,7 +49,9 @@ describe("JSPageObjectMethodNameGenerator", () => {
         includes: jest.fn(),
       };
 
-      const pageObjects = [{ methods: [emptyMethod, linkMethod, otherMethod] }];
+      const pageObjects: Pick<PageObject, "methods">[] = [
+        { methods: [emptyMethod, linkMethod, otherMethod] },
+      ];
       const pageObjectNameGenerator: NameGenerator = {
         generate: jest.fn().mockImplementation((id) => `name_of_${id}`),
       };

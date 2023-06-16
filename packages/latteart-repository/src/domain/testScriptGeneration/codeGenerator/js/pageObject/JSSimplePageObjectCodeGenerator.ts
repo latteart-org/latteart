@@ -23,6 +23,10 @@ import {
 import { JSRadioButtonAccessorCodeGenerator } from "./JSRadioButtonAccessorCodeGenerator";
 import { CodeFormatter } from "../../CodeFormatter";
 import { PageObjectCodeGenerator, NameGenerator } from "../../types";
+import {
+  generateAccessorString,
+  generateFindElementMultiAccessorString,
+} from "./util";
 
 export class JSSimplePageObjectCodeGenerator
   implements PageObjectCodeGenerator
@@ -33,7 +37,10 @@ export class JSSimplePageObjectCodeGenerator
       method: NameGenerator;
     }
   ) {}
-  public generateFrom(pageObject: PageObject): string {
+  public generateFrom(
+    pageObject: PageObject,
+    useMultiLocator: boolean
+  ): string {
     const pageObjectImportString =
       JSSimplePageObjectCodeGenerator.generatePageObjectImportString(
         ...pageObject.methods
@@ -63,10 +70,14 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
 
     const fieldAccessorStrings =
       JSSimplePageObjectCodeGenerator.generateFieldAccessorStrings(
-        pageObject.methods
+        pageObject.methods,
+        useMultiLocator
       );
 
-    const methodStrings = this.generateMethodStrings(pageObject.methods);
+    const methodStrings = this.generateMethodStrings(
+      pageObject.methods,
+      useMultiLocator
+    );
 
     const pageObjectName = this.nameGenerator.pageObject.generate(
       pageObject.id
@@ -83,7 +94,10 @@ export default ${pageObjectName};
 `;
   }
 
-  private static generateFieldAccessorStrings(methods: PageObjectMethod[]) {
+  private static generateFieldAccessorStrings(
+    methods: PageObjectMethod[],
+    useMultiLocator: boolean
+  ) {
     const elements = methods.flatMap(({ operations }) =>
       operations
         .map((operation) => {
@@ -131,30 +145,16 @@ export default ${pageObjectName};
 
           return radioButtonGenerator.generateRadioButtonString(
             identifier,
-            elem.name
+            elem.name,
+            useMultiLocator
           );
         }
 
-        if (elem.type === "CheckBox") {
-          return JSSimplePageObjectCodeGenerator.generateCheckBoxAccessorString(
-            identifier,
-            elem.locator
-          );
-        }
-
-        return `get ${identifier}() { return $('${elem.locator}'); }`;
+        return useMultiLocator
+          ? generateFindElementMultiAccessorString(identifier, elem.locators)
+          : generateAccessorString(identifier, elem.locators);
       }
     );
-  }
-
-  private static generateCheckBoxAccessorString(
-    identifier: string,
-    locator: string
-  ): string {
-    return `\
-get ${identifier}() { return $('${locator}'); }
-
-`;
   }
 
   private static generatePageObjectImportString(...pageObjectNames: string[]) {
@@ -165,14 +165,18 @@ get ${identifier}() { return $('${locator}'); }
       .join("\n");
   }
 
-  private generateMethodStrings(methods: PageObjectMethod[]) {
+  private generateMethodStrings(
+    methods: PageObjectMethod[],
+    useMultiLocator: boolean
+  ) {
     return methods.map((method) => {
       const operationsString = method.operations
         .flatMap((operation) => {
           if (operation.type === "click") {
             const clickEventOperationString =
               JSSimplePageObjectCodeGenerator.generateClickEventOperationString(
-                operation
+                operation,
+                useMultiLocator
               );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
@@ -181,7 +185,8 @@ get ${identifier}() { return $('${locator}'); }
           if (operation.type === "change") {
             const changeEventOperationString =
               JSSimplePageObjectCodeGenerator.generateChangeEventOperationString(
-                operation
+                operation,
+                useMultiLocator
               );
 
             return [changeEventOperationString];
@@ -238,7 +243,8 @@ ${CodeFormatter.indentToAllLines(
     });
   }
   private static generateClickEventOperationString(
-    operation: PageObjectOperation
+    operation: PageObjectOperation,
+    useMultiLocator: boolean
   ) {
     const element = operation.target;
     const identifier = element.identifier;
@@ -248,20 +254,27 @@ ${CodeFormatter.indentToAllLines(
     }
 
     if (identifier) {
-      return `await this.${identifier}.click();`;
+      return useMultiLocator
+        ? `await (await this.${identifier}).click();`
+        : `await this.${identifier}.click();`;
     }
   }
 
   private static generateChangeEventOperationString(
-    operation: PageObjectOperation
+    operation: PageObjectOperation,
+    useMultiLocator: boolean
   ) {
     const element = operation.target;
     const identifier = element.identifier;
 
     if (element.type === "SelectBox") {
-      return `await this.${identifier}.selectByAttribute('value', '${operation.input}');`;
+      return useMultiLocator
+        ? `await (await this.${identifier}).selectByAttribute('value', '${operation.input}');`
+        : `await this.${identifier}.selectByAttribute('value', '${operation.input}');`;
     }
 
-    return `await this.${identifier}.setValue('${operation.input}');`;
+    return useMultiLocator
+      ? `await (await this.${identifier}).setValue('${operation.input}');`
+      : `await this.${identifier}.setValue('${operation.input}');`;
   }
 }

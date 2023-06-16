@@ -40,7 +40,7 @@ export class GenerateTestScriptsAction {
       "testScriptRepository" | "settingRepository"
     >,
     private option: {
-      testScript: { isSimple: boolean };
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
       testData: {
         useDataDriven: boolean;
         maxGeneration: number;
@@ -177,6 +177,7 @@ export class GenerateTestScriptsAction {
 
     const testScriptOption = {
       optimized: !this.option.testScript.isSimple,
+      useMultiLocator: this.option.testScript.useMultiLocator,
       testData: this.option.testData,
       view: viewOption,
       buttonDefinitions: this.option.buttonDefinitions,

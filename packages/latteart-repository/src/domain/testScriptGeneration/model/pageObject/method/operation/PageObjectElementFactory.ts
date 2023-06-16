@@ -42,7 +42,7 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
         type: "Other",
         value: "",
         name: "",
-        locator: "",
+        locators: [],
         imageUrl,
       };
     }
@@ -54,7 +54,7 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
       type: this.createElementType(element.tagname, element.attributes),
       value: element.attributes.value ?? "",
       name: element.attributes.name ?? "",
-      locator: element.locator,
+      locators: element.locators,
       imageUrl,
     };
   }

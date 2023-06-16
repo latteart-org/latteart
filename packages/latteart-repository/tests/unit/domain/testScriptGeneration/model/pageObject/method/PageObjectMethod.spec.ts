@@ -10,7 +10,7 @@ describe("PageObjectMethodImpl", () => {
         target: {
           identifier: "id1",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "other",
         input: "",
@@ -19,7 +19,7 @@ describe("PageObjectMethodImpl", () => {
         target: {
           identifier: "id2",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "other",
         input: "",
@@ -28,7 +28,7 @@ describe("PageObjectMethodImpl", () => {
         target: {
           identifier: "id3",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "other",
         input: "",

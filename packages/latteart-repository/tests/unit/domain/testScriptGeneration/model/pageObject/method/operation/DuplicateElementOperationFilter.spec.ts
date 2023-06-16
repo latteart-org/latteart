@@ -10,7 +10,7 @@ describe("DuplicateElementOperationFilter", () => {
         target: {
           identifier: "",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "switch_window",
         input: "",
@@ -28,7 +28,7 @@ describe("DuplicateElementOperationFilter", () => {
         target: {
           identifier: "",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "change",
         input: "",
@@ -45,7 +45,7 @@ describe("DuplicateElementOperationFilter", () => {
       const element = {
         identifier: "id",
         type: "Other",
-        locator: "",
+        locators: [] as any,
       } as const;
 
       const operation1: PageObjectOperation = {

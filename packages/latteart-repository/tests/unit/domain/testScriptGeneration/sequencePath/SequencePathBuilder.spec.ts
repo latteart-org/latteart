@@ -23,7 +23,7 @@ describe("SequencePathBuilder", () => {
           attributes: {
             id: "id1",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url1",
         imageFilePath: "imageFilePath1",
@@ -39,7 +39,7 @@ describe("SequencePathBuilder", () => {
           attributes: {
             id: "id2",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url2",
         imageFilePath: "imageFilePath2",
@@ -104,7 +104,7 @@ describe("SequencePathBuilder", () => {
           attributes: {
             id: "id1",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url1",
         input: "",
@@ -120,7 +120,7 @@ describe("SequencePathBuilder", () => {
           attributes: {
             id: "id2",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url2",
         input: "",

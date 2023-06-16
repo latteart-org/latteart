@@ -80,6 +80,8 @@
     "template-only": "Template Only",
     "method": "Method",
     "method-data-driven": "Use Data Driven Testing",
+    "use-multi-locator1": "Generate robust test script using ",
+    "use-multi-locator2": " (experimental)",
     "generate-simple-testscript": "Generate test script that reproduces the entire test (maybe redundant)",
     "generate-only-template": "*If the maximum number is 0, only the template is generated.",
     "custom-button-definition": "Custom Button Definition",

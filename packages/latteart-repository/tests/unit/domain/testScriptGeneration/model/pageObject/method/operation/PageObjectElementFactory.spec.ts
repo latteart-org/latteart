@@ -11,7 +11,7 @@ describe("PageObjectElementFactoryImpl", () => {
           tagname: "INPUT",
           xpath: "",
           attributes: { value: "", name: "", type: "radio" },
-          locator: "locator",
+          locators: [],
         };
 
         const factory = new PageObjectElementFactoryImpl();
@@ -21,7 +21,7 @@ describe("PageObjectElementFactoryImpl", () => {
         ).toEqual({
           identifier: expect.any(String),
           type: "RadioButton",
-          locator: "locator",
+          locators: [],
           value: targetElement.attributes.value,
           name: targetElement.attributes.name,
           imageUrl,
@@ -33,7 +33,7 @@ describe("PageObjectElementFactoryImpl", () => {
           tagname: "INPUT",
           xpath: "",
           attributes: { value: "", name: "", type: "checkbox" },
-          locator: "locator",
+          locators: [],
         };
 
         const factory = new PageObjectElementFactoryImpl();
@@ -43,7 +43,7 @@ describe("PageObjectElementFactoryImpl", () => {
         ).toEqual({
           identifier: expect.any(String),
           type: "CheckBox",
-          locator: "locator",
+          locators: [],
           value: targetElement.attributes.value,
           name: targetElement.attributes.name,
           imageUrl,
@@ -55,7 +55,7 @@ describe("PageObjectElementFactoryImpl", () => {
           tagname: "SELECT",
           xpath: "",
           attributes: { value: "", name: "", type: "" },
-          locator: "locator",
+          locators: [],
         };
 
         const factory = new PageObjectElementFactoryImpl();
@@ -65,7 +65,7 @@ describe("PageObjectElementFactoryImpl", () => {
         ).toEqual({
           identifier: expect.any(String),
           type: "SelectBox",
-          locator: "locator",
+          locators: [],
           value: targetElement.attributes.value,
           name: targetElement.attributes.name,
           imageUrl,
@@ -90,7 +90,7 @@ describe("PageObjectElementFactoryImpl", () => {
                 tagname,
                 xpath: "",
                 attributes: { value: "", name: "", type: elementType },
-                locator: "locator",
+                locators: [],
               };
 
               const factory = new PageObjectElementFactoryImpl(option);
@@ -104,7 +104,7 @@ describe("PageObjectElementFactoryImpl", () => {
               ).toEqual({
                 identifier: expect.any(String),
                 type: expectedType,
-                locator: "locator",
+                locators: [],
                 value: targetElement.attributes.value,
                 name: targetElement.attributes.name,
                 imageUrl,
@@ -134,7 +134,7 @@ describe("PageObjectElementFactoryImpl", () => {
                 tagname,
                 xpath: "",
                 attributes: { value: "", name: "", type: elementType },
-                locator: "locator",
+                locators: [],
               };
 
               const factory = new PageObjectElementFactoryImpl(option);
@@ -148,7 +148,7 @@ describe("PageObjectElementFactoryImpl", () => {
               ).toEqual({
                 identifier: expect.any(String),
                 type: expectedType,
-                locator: "locator",
+                locators: [],
                 value: targetElement.attributes.value,
                 name: targetElement.attributes.name,
                 imageUrl,
@@ -182,7 +182,7 @@ describe("PageObjectElementFactoryImpl", () => {
                 tagname,
                 xpath: "",
                 attributes: { value: "", name: "", type: elementType },
-                locator: "locator",
+                locators: [],
               };
 
               const factory = new PageObjectElementFactoryImpl(option);
@@ -196,7 +196,7 @@ describe("PageObjectElementFactoryImpl", () => {
               ).toEqual({
                 identifier: expect.any(String),
                 type: expectedType,
-                locator: "locator",
+                locators: [],
                 value: targetElement.attributes.value,
                 name: targetElement.attributes.name,
                 imageUrl,
@@ -226,7 +226,7 @@ describe("PageObjectElementFactoryImpl", () => {
                 tagname,
                 xpath: "",
                 attributes: { value: "", name: "", type: elementType },
-                locator: "locator",
+                locators: [],
               };
 
               const factory = new PageObjectElementFactoryImpl(option);
@@ -240,7 +240,7 @@ describe("PageObjectElementFactoryImpl", () => {
               ).toEqual({
                 identifier: expect.any(String),
                 type: expectedType,
-                locator: "locator",
+                locators: [],
                 value: targetElement.attributes.value,
                 name: targetElement.attributes.name,
                 imageUrl,
@@ -275,7 +275,7 @@ describe("PageObjectElementFactoryImpl", () => {
                 tagname,
                 xpath: "",
                 attributes: { value: "", name: "", type: elementType },
-                locator: "locator",
+                locators: [],
               };
 
               const factory = new PageObjectElementFactoryImpl(option);
@@ -289,7 +289,7 @@ describe("PageObjectElementFactoryImpl", () => {
               ).toEqual({
                 identifier: expect.any(String),
                 type: expectedType,
-                locator: "locator",
+                locators: [],
                 value: targetElement.attributes.value,
                 name: targetElement.attributes.name,
                 imageUrl,
@@ -304,7 +304,7 @@ describe("PageObjectElementFactoryImpl", () => {
           tagname: "hogehoge",
           xpath: "",
           attributes: { value: "", name: "", type: "" },
-          locator: "locator",
+          locators: [],
         };
 
         const factory = new PageObjectElementFactoryImpl();
@@ -314,7 +314,7 @@ describe("PageObjectElementFactoryImpl", () => {
         ).toEqual({
           identifier: expect.any(String),
           type: "Other",
-          locator: "locator",
+          locators: [],
           value: targetElement.attributes.value,
           name: targetElement.attributes.name,
           imageUrl,

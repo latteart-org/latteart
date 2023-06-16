@@ -49,7 +49,10 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
     private pageObjectIdToDataSets: Map<string, TestDataSet[]>
   ) {}
 
-  public generateFrom(model: TestScriptModel): TestScript {
+  public generateFrom(
+    model: TestScriptModel,
+    useMultiLocator: boolean
+  ): TestScript {
     const pageObjectFileExtension = ".page.js";
 
     const testSuites = model.testSuites.map((testSuite) => {
@@ -77,7 +80,8 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
             pageObject.id
           )}${pageObjectFileExtension}`,
           script: this.codeGenerator.pageObject.generateFrom(
-            pageObjectAttachedComments
+            pageObjectAttachedComments,
+            useMultiLocator
           ),
         };
       }),
@@ -88,7 +92,10 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
         testSuites.flatMap((testSuite) => testSuite.testCases).length !== 0
           ? {
               name: "test.spec.js",
-              spec: this.codeGenerator.testSuite.generateFrom(...testSuites),
+              spec: this.codeGenerator.testSuite.generateFrom(
+                useMultiLocator,
+                ...testSuites
+              ),
             }
           : null,
       others: [

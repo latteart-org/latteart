@@ -31,10 +31,14 @@ export class JSDataDrivenTestSuiteCodeGenerator
     private testCaseIdToDataSet: Map<string, TestDataSet>
   ) {}
 
-  public generateFrom(...testSuites: TestSuite[]): string {
+  public generateFrom(
+    useMultiLocator: boolean,
+    ...testSuites: TestSuite[]
+  ): string {
     const testCases = testSuites.flatMap((testSuite) => testSuite.testCases);
 
     const pageObjectImportString = this.generatePageObjectImportString(
+      useMultiLocator,
       ...testCases
         .map((testCase) => {
           const topPageObjectName = this.nameGenerator.pageObject.generate(
@@ -50,7 +54,10 @@ export class JSDataDrivenTestSuiteCodeGenerator
 
     const testDataImportString = this.generateTestDataImportString(testCases);
 
-    const testSuitesString = this.generateTestSuitesString(testSuites);
+    const testSuitesString = this.generateTestSuitesString(
+      useMultiLocator,
+      testSuites
+    );
 
     return `\
 ${pageObjectImportString}
@@ -60,15 +67,26 @@ ${testSuitesString}
 `;
   }
 
-  private generatePageObjectImportString(...topPageObjectNames: string[]) {
-    return topPageObjectNames
+  private generatePageObjectImportString(
+    useMultiLocator: boolean,
+    ...topPageObjectNames: string[]
+  ) {
+    const importText = topPageObjectNames
       .map((topPageObjectName) => {
         return `import ${topPageObjectName} from './page_objects/${topPageObjectName}.page';`;
       })
       .join("\n");
+
+    return useMultiLocator
+      ? 'import { enableMultiLocator, recordFix } from "./multi-locator/src/Api";\n' +
+          importText
+      : importText;
   }
 
-  private generateTestSuitesString(testSuites: TestSuite[]) {
+  private generateTestSuitesString(
+    useMultiLocator: boolean,
+    testSuites: TestSuite[]
+  ) {
     return testSuites
       .map((testSuite) => {
         const testCasesString = this.generateTestCasesString(
@@ -84,7 +102,20 @@ ${CodeFormatter.prependTextToAllLines(testSuite.comment, " * ")}
 
         return `\
 ${testSuiteComment}describe('${testSuite.name}', () => {
-  beforeEach('open top page', async () => {
+${
+  useMultiLocator
+    ? `  before(async () => {
+    driver.setTimeout({ script: 600000 });
+    driver = enableMultiLocator(driver);
+  });
+
+  after(async () => {
+    await recordFix();
+  });
+
+`
+    : ""
+}  beforeEach('open top page', async () => {
     await browser.url('${testSuite.topPageUrl}');
   });
 

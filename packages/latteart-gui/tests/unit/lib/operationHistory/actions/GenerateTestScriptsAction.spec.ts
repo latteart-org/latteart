@@ -16,13 +16,13 @@ describe("GenerateTestScriptsAction", () => {
     describe("指定の操作履歴を元にテストスクリプトを生成する", () => {
       it.each([
         {
-          testScriptOption: { isSimple: false },
+          testScriptOption: { isSimple: false, useMultiLocator: false },
           repositoryErrorCode: "no_test_cases_generated",
           expectedMessageKey:
             "error.operation_history.save_test_scripts_no_section_error",
         },
         {
-          testScriptOption: { isSimple: true },
+          testScriptOption: { isSimple: true, useMultiLocator: false },
           repositoryErrorCode: "no_test_cases_generated",
           expectedMessageKey:
             "error.operation_history.save_test_scripts_no_operation_error",
@@ -84,7 +84,7 @@ describe("GenerateTestScriptsAction", () => {
         "テストスクリプト生成に失敗した場合、エラーを返却する",
         async ({ repositoryErrorCode, expectedMessageKey }) => {
           const option = {
-            testScript: { isSimple: false },
+            testScript: { isSimple: false, useMultiLocator: false },
             testData: {
               useDataDriven: false,
               maxGeneration: 0,

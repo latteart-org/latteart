@@ -1362,6 +1362,7 @@ const models: TsoaRoute.Models = {
           },
           required: true,
         },
+        useMultiLocator: { dataType: "boolean", required: true },
         optimized: { dataType: "boolean", required: true },
       },
       validators: {},

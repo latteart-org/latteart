@@ -11,7 +11,7 @@ describe("FormalArgumentsCollector", () => {
         target: {
           identifier: "id1",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -22,7 +22,7 @@ describe("FormalArgumentsCollector", () => {
           identifier: "id4",
           type: "RadioButton",
           name: "name4",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -32,7 +32,7 @@ describe("FormalArgumentsCollector", () => {
         target: {
           identifier: "id5",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "change",
         input: "",
@@ -42,7 +42,7 @@ describe("FormalArgumentsCollector", () => {
         target: {
           identifier: "id6",
           type: "CheckBox",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",

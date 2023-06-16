@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Locator } from "@/domain/elementLocator";
 import { IdentifierGenerator } from "@/domain/testScriptGeneration/IdentifierGenerator";
 import {
   TestScriptSourceElement,
@@ -66,7 +67,7 @@ export type OperationType =
 export type PageObjectElement = {
   readonly identifier: string;
   readonly type: ElementType;
-  readonly locator: string;
+  readonly locators: Locator[];
   readonly value?: string;
   readonly name?: string;
   readonly imageUrl?: string;

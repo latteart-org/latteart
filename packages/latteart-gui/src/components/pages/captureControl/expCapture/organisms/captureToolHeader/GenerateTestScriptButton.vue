@@ -110,6 +110,7 @@ export default class GenerateTestScriptButton extends Vue {
   private generateTestScript(option: {
     testScript: {
       isSimple: boolean;
+      useMultiLocator: boolean;
     };
     testData: {
       useDataDriven: boolean;
