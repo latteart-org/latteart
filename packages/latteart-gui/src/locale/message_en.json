@@ -43,6 +43,10 @@
     "done-run-operations": "Replay is finished.",
     "run-operations-canceled": "Replay is canceled."
   },
+  "auto-operation": {
+    "done-title": "Auto operation is done",
+    "done-auto-operations": "Auto operation is finished."
+  },
   "navigate": {
     "back": "Trigger browser back",
     "forward": "Trigger browser forward"
@@ -542,6 +546,7 @@
       "get_device_settings_failed": "Failed to get device settings",
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
+      "run_operations_failed_details": "Failed to execute the following operation.\n\n - [Title]:{title}\n - [Tag]:{tag}\n - [Name]:{tagname}\n - [Text]:{text}\n - [Event Type]:{type}\n - [Input Value]:{input}",
       "capture_failed": "An error has occurred during capturing operation.",
       "invalid_operation": "Replay aborted because the test contains some invalid operations.",
       "element_not_found": "Replay aborted due to missing screen element.",
@@ -551,7 +556,6 @@
       "create_test_result_directory_failed": "Failed to make test result directory . Please check if a correct path to the directory is set.",
       "test_result_directory_already_exists": "A directory with the same name as the test result directory has already exists. Please specify a different directory.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
-      "run_auto_operations_failed": "An error occurred during automatic operation execution.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."

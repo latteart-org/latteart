@@ -468,6 +468,14 @@ class CaptureSessionImpl implements CaptureSession {
       const error: ServiceError = {
         errorCode: "run_operation_failed",
         message: "Run Operation failed.",
+        variables: {
+          title: operation.title ?? "",
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo
+            ? JSON.stringify(operation.elementInfo)
+            : "",
+        },
       };
       console.error(error.message);
       return new ServiceFailure(error);

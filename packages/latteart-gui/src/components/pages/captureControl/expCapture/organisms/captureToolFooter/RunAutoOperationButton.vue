@@ -36,6 +36,13 @@
       @close="autoOperationSelectDialogOpened = false"
     />
 
+    <information-message-dialog
+      :opened="informationMessageDialogOpened"
+      :title="$store.getters.message('auto-operation.done-title')"
+      :message="$store.getters.message('auto-operation.done-auto-operations')"
+      @close="informationMessageDialogOpened = false"
+    />
+
     <error-message-dialog
       :opened="errorDialogOpened"
       :message="errorDialogMessage"
@@ -49,17 +56,21 @@ import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationSelectDialog from "@/components/pages/common/AutoOperationSelectDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
+import InformationMessageDialog from "@/components/pages/common/InformationMessageDialog.vue";
 
 @Component({
   components: {
     "auto-operation-select-dialog": AutoOperationSelectDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "information-message-dialog": InformationMessageDialog,
   },
 })
 export default class RunAutoOperationButton extends Vue {
   private autoOperationSelectDialogOpened = false;
   private errorDialogOpened = false;
   private errorDialogMessage = "";
+
+  private informationMessageDialogOpened = false;
 
   private get autoOperationConditionGroups() {
     const conditionGroups: AutoOperationConditionGroup[] =
@@ -95,6 +106,7 @@ export default class RunAutoOperationButton extends Vue {
       await this.$store.dispatch("captureControl/runAutoOperations", {
         operations: tempOperations,
       });
+      this.informationMessageDialogOpened = true;
     } catch (error) {
       if (error instanceof Error) {
         this.errorDialogOpened = true;

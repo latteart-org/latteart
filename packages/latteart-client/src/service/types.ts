@@ -93,7 +93,7 @@ export type RunnableOperation = Pick<
   Operation,
   "type" | "input" | "elementInfo" | "clientSize" | "scrollPosition"
 > &
-  Partial<Pick<Operation, "timestamp" | "windowHandle">>;
+  Partial<Pick<Operation, "timestamp" | "windowHandle" | "title">>;
 
 export type TestStep = {
   id: string;
