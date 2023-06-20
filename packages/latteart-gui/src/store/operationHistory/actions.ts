@@ -683,7 +683,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const createFlowChartGraphExtender = ({
       edges,
-      source,
+      screens,
     }: FlowChartGraphExtenderSource) => {
       return new FlowChartGraphExtender({
         callback: {
@@ -700,19 +700,21 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             payload.callback.onClickEdge(imageFileUrl, inputValueTable);
           },
           onClickScreenRect: (index: number) => {
+            const screenId = screens.at(index)?.id;
+
+            if (!screenId) {
+              return;
+            }
+
             const inputValueTable = new InputValueTable(
-              edges
-                .filter(({ sourceScreenId }) => {
-                  return sourceScreenId === source.screens.at(index)?.id;
-                })
-                .flatMap(({ details }) => details)
+              screens.find(({ id }) => id === screenId)?.details ?? []
             );
-            const imageFileUrl = source.screens[index].imageFileUrl;
+            const imageFileUrl = screens[index].imageFileUrl;
 
             payload.callback.onClickScreenRect(imageFileUrl, inputValueTable);
           },
         },
-        nameMap: new Map(source.screens.map(({ name, id }) => [id, name])),
+        nameMap: new Map(screens.map(({ name, id }) => [id, name])),
       });
     };
 
