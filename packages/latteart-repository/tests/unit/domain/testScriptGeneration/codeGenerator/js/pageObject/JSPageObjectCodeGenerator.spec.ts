@@ -10,7 +10,7 @@ describe("JSPageObjectCodeGenerator", () => {
     it("渡されたページオブジェクトからJavaScriptのコードを生成する", () => {
       const element: PageObjectElement = {
         identifier: "param1",
-        locator: "#param1",
+        locators: [{ other: "#param1" }],
         type: "Other",
       };
 
@@ -78,7 +78,7 @@ describe("JSPageObjectCodeGenerator", () => {
 
       const testSuiteCode = new JSPageObjectCodeGenerator(
         nameGenerator
-      ).generateFrom(pageObject);
+      ).generateFrom(pageObject, false);
 
       const expected = `\
 import name_of_PageObject2 from './name_of_PageObject2.page';
@@ -119,7 +119,7 @@ export default name_of_PageObject1;
     it("skipped_operationsがページオブジェクトに含まれる場合は手動で記載させる旨をコメントで出力する", () => {
       const element: PageObjectElement = {
         identifier: "param1",
-        locator: "#param1",
+        locators: [{ other: "#param1" }],
         type: "Other",
       };
 
@@ -187,7 +187,7 @@ export default name_of_PageObject1;
 
       const testSuiteCode = new JSPageObjectCodeGenerator(
         nameGenerator
-      ).generateFrom(pageObject);
+      ).generateFrom(pageObject, false);
 
       const expected = `\
 import name_of_PageObject2 from './name_of_PageObject2.page';

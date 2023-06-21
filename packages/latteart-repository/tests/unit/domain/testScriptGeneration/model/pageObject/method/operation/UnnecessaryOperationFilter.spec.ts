@@ -10,7 +10,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "switch_window",
         input: "",
@@ -26,7 +26,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "change",
         input: "",
@@ -42,7 +42,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "change",
         input: "",
@@ -52,7 +52,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "Button",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -62,7 +62,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "RadioButton",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -72,7 +72,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "CheckBox",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -83,7 +83,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "SelectBox",
-          locator: "",
+          locators: [],
         },
         type: "click",
         input: "",
@@ -94,7 +94,7 @@ describe("UnnecessaryOperationFilter", () => {
         target: {
           identifier: "id",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "other",
         input: "",

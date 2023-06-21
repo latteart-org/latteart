@@ -23,12 +23,20 @@ export class JSRadioButtonAccessorCodeGenerator {
     this._radioNameToValues = radioNameToValues;
   }
 
-  public generateRadioButtonString(identifier: string, name: string): string {
+  public generateRadioButtonString(
+    identifier: string,
+    name: string,
+    useMultiLocator: boolean
+  ): string {
     const valuesString =
       JSRadioButtonAccessorCodeGenerator.generateRadioValuesString(
         identifier,
         this._radioNameToValues
       );
+
+    const click = useMultiLocator
+      ? `await (await driver.findElementMulti({ xpath: "//input[@name='${name}' and @value='" + value + "']"})).click()`
+      : `await $("//input[@name='${name}' and @value='" + value + "']").click();`;
 
     return `\
 static get ${identifier}() {
@@ -38,7 +46,7 @@ ${CodeFormatter.indentToAllLines(valuesString, 4)}
 }
 
 async set_${identifier}(value) {
-  await $("//input[@name='${name}' and @value='" + value + "']").click();
+  ${click}
 }`;
   }
 

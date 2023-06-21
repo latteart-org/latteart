@@ -23,6 +23,11 @@ import {
 import { JSRadioButtonAccessorCodeGenerator } from "./JSRadioButtonAccessorCodeGenerator";
 import { CodeFormatter } from "../../CodeFormatter";
 import { PageObjectCodeGenerator, NameGenerator } from "../../types";
+import { Locator } from "@/domain/elementLocator";
+import {
+  generateAccessorString,
+  generateFindElementMultiAccessorString,
+} from "./util";
 
 export class JSPageObjectCodeGenerator implements PageObjectCodeGenerator {
   constructor(
@@ -31,7 +36,10 @@ export class JSPageObjectCodeGenerator implements PageObjectCodeGenerator {
       method: NameGenerator;
     }
   ) {}
-  public generateFrom(pageObject: PageObject): string {
+  public generateFrom(
+    pageObject: PageObject,
+    useMultiLocator: boolean
+  ): string {
     const pageObjectImportString =
       JSPageObjectCodeGenerator.generatePageObjectImportString(
         ...pageObject.methods
@@ -61,10 +69,14 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
 
     const fieldAccessorStrings =
       JSPageObjectCodeGenerator.generateFieldAccessorStrings(
-        pageObject.methods
+        pageObject.methods,
+        useMultiLocator
       );
 
-    const methodStrings = this.generateMethodStrings(pageObject.methods);
+    const methodStrings = this.generateMethodStrings(
+      pageObject.methods,
+      useMultiLocator
+    );
 
     const pageObjectName = this.nameGenerator.pageObject.generate(
       pageObject.id
@@ -81,7 +93,10 @@ export default ${pageObjectName};
 `;
   }
 
-  private static generateFieldAccessorStrings(methods: PageObjectMethod[]) {
+  private static generateFieldAccessorStrings(
+    methods: PageObjectMethod[],
+    useMultiLocator: boolean
+  ) {
     const elements = methods.flatMap(({ operations }) =>
       operations
         .map((operation) => {
@@ -129,31 +144,40 @@ export default ${pageObjectName};
 
           return radioButtonGenerator.generateRadioButtonString(
             identifier,
-            elem.name
+            elem.name,
+            useMultiLocator
           );
         }
 
         if (elem.type === "CheckBox") {
           return JSPageObjectCodeGenerator.generateCheckBoxAccessorString(
             identifier,
-            elem.locator
+            elem.locators,
+            useMultiLocator
           );
         }
 
-        return `get ${identifier}() { return $('${elem.locator}'); }`;
+        return useMultiLocator
+          ? generateFindElementMultiAccessorString(identifier, elem.locators)
+          : generateAccessorString(identifier, elem.locators);
       }
     );
   }
 
   private static generateCheckBoxAccessorString(
     identifier: string,
-    locator: string
+    locators: Locator[],
+    useMultiLocator: boolean
   ): string {
     return `\
-get ${identifier}() { return $('${locator}'); }
+${
+  useMultiLocator
+    ? generateFindElementMultiAccessorString(identifier, locators)
+    : generateAccessorString(identifier, locators)
+}
 
 async set_${identifier}(isClick) {
-  const locator = this.${identifier};
+  const locator = ${useMultiLocator ? "await " : ""}this.${identifier};
   if (await locator.isSelected() !== (isClick === "true")) {
     await locator.click();
   }
@@ -168,7 +192,10 @@ async set_${identifier}(isClick) {
       .join("\n");
   }
 
-  private generateMethodStrings(methods: PageObjectMethod[]) {
+  private generateMethodStrings(
+    methods: PageObjectMethod[],
+    useMultiLocator: boolean
+  ) {
     return methods.map((method) => {
       const argsString = JSPageObjectCodeGenerator.generateArgsString(method);
 
@@ -180,7 +207,8 @@ async set_${identifier}(isClick) {
             const clickEventOperationString =
               JSPageObjectCodeGenerator.generateClickEventOperationString(
                 operation.target,
-                radioButtons
+                radioButtons,
+                useMultiLocator
               );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
@@ -189,7 +217,8 @@ async set_${identifier}(isClick) {
           if (operation.type === "change") {
             const changeEventOperationString =
               JSPageObjectCodeGenerator.generateChangeEventOperationString(
-                operation.target
+                operation.target,
+                useMultiLocator
               );
 
             return [changeEventOperationString];
@@ -265,7 +294,8 @@ ${Array.from(args)
 
   private static generateClickEventOperationString(
     element: PageObjectElement,
-    radioButtons: Set<string>
+    radioButtons: Set<string>,
+    useMultiLocator: boolean
   ) {
     if (element.type === "RadioButton" && element.identifier) {
       if (radioButtons.has(element.identifier)) {
@@ -283,18 +313,25 @@ ${Array.from(args)
       return `await this.set_${identifier}(${identifier});`;
     }
 
-    return `await this.${identifier}.click();`;
+    return useMultiLocator
+      ? `await (await this.${identifier}).click();`
+      : `await this.${identifier}.click();`;
   }
 
   private static generateChangeEventOperationString(
-    element: PageObjectElement
+    element: PageObjectElement,
+    useMultiLocator: boolean
   ) {
     const identifier = element.identifier;
 
     if (element.type === "SelectBox") {
-      return `await this.${identifier}.selectByAttribute('value', ${identifier});`;
+      return useMultiLocator
+        ? `await (await this.${identifier}).selectByAttribute('value', ${identifier});`
+        : `await this.${identifier}.selectByAttribute('value', ${identifier});`;
     }
 
-    return `await this.${identifier}.setValue(${identifier});`;
+    return useMultiLocator
+      ? `await (await this.${identifier}).setValue(${identifier});`
+      : `await this.${identifier}.setValue(${identifier});`;
   }
 }

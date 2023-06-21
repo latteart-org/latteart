@@ -11,7 +11,7 @@ describe("IncludedMethodFilter", () => {
         target: {
           identifier: "",
           type: "Other",
-          locator: "",
+          locators: [],
         },
         type: "other",
         input: "",

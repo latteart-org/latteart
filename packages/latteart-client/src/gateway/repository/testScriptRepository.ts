@@ -25,7 +25,11 @@ import { TestResultViewOptionForRepository } from "./types";
 
 export type TestScriptOption = {
   optimized: boolean;
-  testData: { useDataDriven: boolean; maxGeneration: number };
+  useMultiLocator: boolean;
+  testData: {
+    useDataDriven: boolean;
+    maxGeneration: number;
+  };
   view: TestResultViewOptionForRepository;
   buttonDefinitions?: {
     tagname: string;

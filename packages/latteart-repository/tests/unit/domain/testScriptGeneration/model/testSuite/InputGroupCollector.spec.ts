@@ -10,20 +10,20 @@ describe("InputGroupCollector", () => {
         const radio = {
           identifier: "radio",
           type: "RadioButton",
-          locator: "",
+          locators: [] as any,
           name: "radioName",
         } as const;
 
         const checkbox = {
           identifier: "checkbox",
           type: "CheckBox",
-          locator: "",
+          locators: [] as any,
         } as const;
 
         const other = {
           identifier: "other",
           type: "Other",
-          locator: "",
+          locators: [] as any,
         } as const;
 
         // type: changeの操作

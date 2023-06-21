@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import { Locator } from "../elementLocator";
+
 /**
  * Element for test script generation.
  */
 export type TestScriptSourceElement = {
-  locator: string;
+  locators: Locator[];
   tagname: string;
   text?: string;
   xpath: string;
@@ -76,6 +78,7 @@ export type TestScript = {
 
 export type TestScriptGenerationOption = {
   optimized: boolean;
+  useMultiLocator: boolean;
   testData: { useDataDriven: boolean; maxGeneration: number };
   buttonDefinitions: {
     tagname: string;

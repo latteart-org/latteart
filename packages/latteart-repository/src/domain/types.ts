@@ -123,6 +123,7 @@ export type TestResultViewOption = {
  */
 export type TestScriptOption = {
   optimized: boolean;
+  useMultiLocator: boolean;
   testData: { useDataDriven: boolean; maxGeneration: number };
   view: TestResultViewOption;
   buttonDefinitions: {

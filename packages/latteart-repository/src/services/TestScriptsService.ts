@@ -250,7 +250,8 @@ export class TestScriptsService {
                 locatorGeneratorMap.get(screenDef) ??
                 new ScreenElementLocatorGenerator(
                   createWDIOLocatorFormatter(),
-                  elementInfoListMapByScreenDef.get(screenDef) ?? []
+                  elementInfoListMapByScreenDef.get(screenDef) ?? [],
+                  params.option.useMultiLocator
                 );
 
               const elementInfo = operation.elementInfo
@@ -261,7 +262,7 @@ export class TestScriptsService {
                     };
                     return {
                       ...element,
-                      locator: locatorGenerator.generateFrom(element),
+                      locators: locatorGenerator.generateFrom(element),
                     };
                   })()
                 : null;
@@ -332,6 +333,7 @@ export class TestScriptsService {
 
     const testScriptGenerationOption = {
       optimized: params.option.optimized,
+      useMultiLocator: params.option.useMultiLocator,
       testData: {
         useDataDriven: params.option.testData.useDataDriven,
         maxGeneration: params.option.testData.maxGeneration,

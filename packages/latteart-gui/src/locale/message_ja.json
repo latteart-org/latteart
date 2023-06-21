@@ -84,6 +84,8 @@
     "template-only": "雛形のみ",
     "method": "方式",
     "method-data-driven": "データ駆動方式を使用する",
+    "use-multi-locator1": "",
+    "use-multi-locator2": "を利用した頑健なテストスクリプトを生成（実験的）",
     "generate-simple-testscript": "記録された操作を再現するテストスクリプトを生成（冗長なスクリプトが出力される場合があります）",
     "generate-only-template": "※最大数が0の場合は雛形のみを生成します。",
     "custom-button-definition": "カスタムボタン定義",

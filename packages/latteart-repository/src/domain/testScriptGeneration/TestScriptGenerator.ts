@@ -74,7 +74,7 @@ export class TestScriptGenerator {
       model.pageObjects
     ).create(TestScriptCodeLanguage.JavaScript);
 
-    return codeGenerator.generateFrom(model);
+    return codeGenerator.generateFrom(model, this.option.useMultiLocator);
   }
 
   private buildTestCaseIdToDataSet(
