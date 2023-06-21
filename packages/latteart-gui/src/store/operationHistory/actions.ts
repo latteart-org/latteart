@@ -562,6 +562,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearCheckedOperations");
     context.commit("clearWindows");
     context.commit("clearSequenceDiagramGraphs");
+    context.commit("clearStoringTestResultInfos", {
+      testResultInfos: [
+        {
+          id: context.state.testResultInfo.id,
+          name: context.state.testResultInfo.name,
+        },
+      ],
+    });
     context.commit("setTestResultInfo", {
       repositoryUrl: "",
       id: "",
