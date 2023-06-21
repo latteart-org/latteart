@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { GetNoteResponse } from "./Notes";
+import { GetNoteResponse, GetTestPurposeResponse } from "./Notes";
 
 /**
  * Registered session data.
@@ -71,7 +71,7 @@ export type Session = {
     id: string;
   }[];
   initialUrl: string;
-  testPurposes: GetNoteResponse[];
+  testPurposes: GetTestPurposeResponse[];
   notes: GetNoteResponse[];
   testingTime: number;
 };

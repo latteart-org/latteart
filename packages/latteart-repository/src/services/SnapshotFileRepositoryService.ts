@@ -33,7 +33,6 @@ import { Story } from "@/interfaces/Stories";
 import {
   createAttachedFiles,
   createNotes,
-  createTestPurposes,
   createTestResultFiles,
 } from "./helper/snapshotHelper";
 
@@ -383,15 +382,12 @@ export class SnapshotFileRepositoryServiceImpl
 
             const notes = createNotes(story.id, sessionIdAlias, session.notes);
 
-            const testResultFile = testResultFiles.at(0);
-
-            const testResultId = testResultFile ? testResultFile.id : "";
-
-            const testResult = await this.service.testResult.getTestResult(
-              testResultId
-            );
-
-            const testPurposes = await createTestPurposes(testResult);
+            const testPurposes = session.testPurposes.map((testPurpose) => {
+              return {
+                ...testPurpose,
+                notes: createNotes(story.id, sessionIdAlias, testPurpose.notes),
+              };
+            });
 
             return {
               index: session.index,

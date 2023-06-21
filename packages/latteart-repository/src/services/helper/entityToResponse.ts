@@ -30,7 +30,11 @@ import {
   TestStepOperation,
 } from "@/interfaces/TestSteps";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
-import { GetNoteResponse } from "@/interfaces/Notes";
+import {
+  GetNoteResponse,
+  GetTestPurposeResponse,
+  NoteWithTimeResponse,
+} from "@/interfaces/Notes";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ElementInfo } from "@/domain/types";
 
@@ -64,6 +68,94 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
   };
 };
 
+const mergeTestpurposeAndNotes = (
+  notes?: NoteEntity[],
+  testPurposes?: TestPurposeEntity[]
+): NoteWithTimeResponse[] => {
+  const tmpTestPurposes =
+    testPurposes?.map((testPurpose) => {
+      return {
+        id: testPurpose.id,
+        type: "intention",
+        value: testPurpose.title,
+        details: testPurpose.details,
+        imageFileUrl: "",
+        tags: [],
+        timestamp: testPurpose.testSteps
+          ? testPurpose.testSteps[0].timestamp
+          : 0,
+      };
+    }) ?? [];
+
+  const tmpNotes =
+    notes?.map((note) => {
+      const testStep = note.testSteps ? note.testSteps[0] : undefined;
+      const tags = note.tags?.map((tag) => tag.name) ?? [];
+      return {
+        id: note.id,
+        type: "notice",
+        value: note.value,
+        details: note.details,
+        imageFileUrl:
+          note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
+        tags,
+        timestamp: testStep?.timestamp ?? 0,
+      };
+    }) ?? [];
+
+  return [...tmpTestPurposes, ...tmpNotes].sort((a, b) => {
+    return a.timestamp - b.timestamp;
+  });
+};
+
+const convertToTestPurposes = (
+  notes: NoteWithTimeResponse[]
+): GetTestPurposeResponse[] => {
+  return notes.reduce((acc, note, index) => {
+    if (index === 0 && note.type !== "intention") {
+      acc.push({
+        id: "empty",
+        type: "intention",
+        value: "",
+        details: "",
+        imageFileUrl: "",
+        tags: [],
+        notes: [
+          {
+            id: note.id,
+            type: note.type,
+            value: note.value,
+            details: note.details,
+            imageFileUrl: note.imageFileUrl,
+            tags: note.tags,
+          },
+        ],
+      });
+    } else if (note.type === "intention") {
+      acc.push({
+        id: note.id,
+        type: note.type,
+        value: note.value,
+        details: note.details,
+        imageFileUrl: note.imageFileUrl,
+        tags: note.tags,
+        notes: [],
+      });
+    } else if (note.type === "notice") {
+      acc[acc.length - 1].notes.push({
+        id: note.id,
+        type: note.type,
+        value: note.value,
+        details: note.details,
+        imageFileUrl: note.imageFileUrl,
+        tags: note.tags,
+      });
+    }
+
+    return acc;
+  }, new Array<GetTestPurposeResponse>());
+};
+
 export const testPurposeEntityToResponse = (
   testPurpose: TestPurposeEntity
 ): GetNoteResponse => {
@@ -78,6 +170,13 @@ export const testPurposeEntityToResponse = (
 };
 
 export const sessionEntityToResponse = (session: SessionEntity): Session => {
+  const mergedNotes = mergeTestpurposeAndNotes(
+    session.testResult?.notes,
+    session.testResult?.testPurposes
+  );
+
+  const testPurposes = convertToTestPurposes(mergedNotes);
+
   const sortedNotes =
     session.testResult?.notes?.slice().sort((a, b) => {
       const stepA = a.testSteps ? a.testSteps[0] : undefined;
@@ -124,10 +223,7 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
         ]
       : [],
     initialUrl: session.testResult?.initialUrl ?? "",
-    testPurposes:
-      session.testResult?.testPurposes?.map((testPurpose) => {
-        return testPurposeEntityToResponse(testPurpose);
-      }) ?? [],
+    testPurposes,
     notes: sortedNotes.map((note) => {
       return noteEntityToResponse(note);
     }),

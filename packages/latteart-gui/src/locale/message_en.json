@@ -446,18 +446,6 @@
     "import": "Import Session Log",
     "file": "Attachments",
     "add-file": "Add Attachments",
-    "test": "Test Purposes",
-    "bug": "Bugs",
-    "bug-status": "Issue Status",
-    "bug-unreported": "Not Reported",
-    "notice": "Findings",
-    "bug-details": "Details",
-    "bug-reported": "Reported",
-    "content": "Content",
-    "summary": "Summary",
-    "details": "Details",
-    "tags": "Tags",
-    "none": "None",
     "delete-test-result-confirm": "Are you sure you want to delete the test result?",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
     "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
@@ -468,6 +456,23 @@
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool"
+  },
+  "test-purpose-bug-list": {
+    "title": "Test Purposes/Bugs",
+    "open": "Open All Test Purposes",
+    "close": "Close All Test Purposes",
+    "details": "Details",
+    "no-test-purpose": "No Test Purpose",
+    "bug-status": "Issue Status：{status}",
+    "bug-reported": "Reported",
+    "bug-unreported": "Not Reported",
+    "none": "None"
+  },
+  "note-ditails-dialog": {
+    "details": "Details",
+    "status": "Issue Status",
+    "summary": "Summary",
+    "tags": "Tags"
   },
   "session-list": {
     "complete": "Check as Complete",

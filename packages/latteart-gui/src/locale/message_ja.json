@@ -450,18 +450,6 @@
     "import": "実行結果の取り込み",
     "file": "添付ファイル",
     "add-file": "添付ファイルの追加",
-    "test": "実施されたテスト",
-    "bug": "見つけたバグ",
-    "bug-status": "起票状態",
-    "bug-unreported": "起票なし",
-    "notice": "テスト中の気付き",
-    "bug-details": "詳細",
-    "bug-reported": "起票済み",
-    "content": "内容",
-    "summary": "概要",
-    "details": "詳細",
-    "tags": "タグ",
-    "none": "なし",
     "delete-test-result-confirm": "テスト結果を削除してもよろしいですか？",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
     "test-result-import-error": "テスト実行モデルファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
@@ -472,6 +460,23 @@
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動"
+  },
+  "test-purpose-bug-list": {
+    "title": "テスト目的・気づき",
+    "open": "テスト目的をすべて開く",
+    "close": "テスト目的をすべて閉じる",
+    "details": "詳細",
+    "no-test-purpose": "目的なし",
+    "bug-status": "起票状態：{status}",
+    "bug-reported": "起票済み",
+    "bug-unreported": "起票なし",
+    "none": "なし"
+  },
+  "note-ditails-dialog": {
+    "details": "詳細",
+    "status": "起票状態",
+    "summary": "概要",
+    "tags": "タグ"
   },
   "session-list": {
     "complete": "セッションを完了にする",
