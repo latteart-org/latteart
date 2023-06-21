@@ -357,7 +357,7 @@ describe('testSuite2', () => {
         testCaseIdToDataSet
       ).generateFrom(true, ...testSuites);
 
-      const expected = `import { enableMultiLocator, recordFix } from "./multi-locator/src/Api";
+      const expected = `import { enableMultiLocator, recordFix } from "multi-locator";
 import name_of_pageObjectId1 from './page_objects/name_of_pageObjectId1.page';
 import name_of_pageObjectId2 from './page_objects/name_of_pageObjectId2.page';
 import { testDataSet1, testDataSet2 } from './test_data/TestData';

@@ -362,7 +362,7 @@ describe('testSuite2', () => {
       ).generateFrom(true, ...testSuites);
 
       const expected = `\
-import { enableMultiLocator, recordFix } from "./multi-locator/src/Api";
+import { enableMultiLocator, recordFix } from "multi-locator";
 import name_of_pageObjectId1 from './page_objects/name_of_pageObjectId1.page';
 import name_of_pageObjectId2 from './page_objects/name_of_pageObjectId2.page';
 

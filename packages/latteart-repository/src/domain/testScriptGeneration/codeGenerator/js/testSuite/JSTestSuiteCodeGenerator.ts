@@ -76,7 +76,7 @@ ${testSuitesString}
       .join("\n");
 
     return useMultiLocator
-      ? 'import { enableMultiLocator, recordFix } from "./multi-locator/src/Api";\n' +
+      ? 'import { enableMultiLocator, recordFix } from "multi-locator";\n' +
           importText
       : importText;
   }
