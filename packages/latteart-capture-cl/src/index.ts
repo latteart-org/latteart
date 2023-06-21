@@ -202,7 +202,9 @@ io.on("connection", (socket) => {
             );
           },
           onBrowserClosed: () => {
-            capturer.resumeCapturing();
+            capturer.resumeCapturing().catch((e) => {
+              LoggingService.debug(e);
+            });
 
             LoggingService.info("Browser closed.");
           },
