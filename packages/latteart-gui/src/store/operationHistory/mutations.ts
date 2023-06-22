@@ -505,13 +505,13 @@ const mutations: MutationTree<OperationHistoryState> = {
     state.storingTestResultInfos = [...payload.testResultInfos];
   },
 
-  clearStoringTestResultInfos(
+  removeStoringTestResultInfos(
     state,
     payload: {
       testResultInfos: { id: string; name: string }[];
     }
   ) {
-    payload.testResultInfos.map((testResultInfo) => {
+    for (const testResultInfo of payload.testResultInfos) {
       const index = state.storingTestResultInfos.findIndex(
         (storingTestResultInfo) => {
           return storingTestResultInfo.id === testResultInfo.id;
@@ -520,7 +520,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       if (index > -1) {
         state.storingTestResultInfos.splice(index, 1);
       }
-    });
+    }
   },
 
   /**
