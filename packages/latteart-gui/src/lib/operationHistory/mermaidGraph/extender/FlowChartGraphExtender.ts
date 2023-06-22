@@ -75,6 +75,8 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
     // Omitted if the display name of the element is long.
     svg.selectAll("g.node").each((_, i, nodes) => {
       const id = (nodes[i] as HTMLElement).getAttribute("id");
+      // In SVG the id is set as flowchart-{screenId}-xx(flowchart-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx-xx)
+      // so extract the screenId as a substring.
       const fullText = this.nameMap.get(id!.substring(10, 46));
       const g = d3.select(nodes[i] as Node as d3.BaseType);
       g.append("svg:title").text(fullText ? fullText : "");
