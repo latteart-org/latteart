@@ -224,7 +224,7 @@ export default name_of_PageObject1;
     it("multi-locatorを使用する", () => {
       const element: PageObjectElement = {
         identifier: "param1",
-        locators: [{ id: "param1" }],
+        locators: [{ id: "param1" }, { xpath: "xpath/xpath" }],
         type: "Other",
       };
 
@@ -303,7 +303,8 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
 class name_of_PageObject1 {
   get param1() {
     return driver.findElementMulti(
-      {"id":"param1"}
+      {"id":"param1"},
+      {"xpath":"xpath/xpath"}
     )
   }
 
