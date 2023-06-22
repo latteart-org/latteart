@@ -6,7 +6,7 @@ export const generateFindElementMultiAccessorString = (
 ): string => {
   return `get ${identifier}() {
   return driver.findElementMulti(
-    ${locators.map((locator) => JSON.stringify(locator)).join(",\n      ")}
+    ${locators.map((locator) => JSON.stringify(locator)).join(",\n    ")}
   )
 }`;
 };
