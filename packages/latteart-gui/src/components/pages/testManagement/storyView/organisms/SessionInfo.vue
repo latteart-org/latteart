@@ -161,7 +161,7 @@
 
         <v-row>
           <v-col cols="12">
-            <test-purpose-bug-list :testPurposes="session.testPurposes" />
+            <test-purpose-note-list :testPurposes="session.testPurposes" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -234,14 +234,14 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
-import TestPurposeBugList from "./TestPurposeBugList.vue";
+import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
-    "test-purpose-bug-list": TestPurposeBugList,
+    "test-purpose-note-list": TestPurposeNoteList,
   },
 })
 export default class SessionInfo extends Vue {

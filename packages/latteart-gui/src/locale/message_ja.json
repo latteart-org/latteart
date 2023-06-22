@@ -461,7 +461,7 @@
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動"
   },
-  "test-purpose-bug-list": {
+  "test-purpose-note-list": {
     "title": "テスト目的・気づき",
     "open": "テスト目的をすべて開く",
     "close": "テスト目的をすべて閉じる",
@@ -472,7 +472,7 @@
     "bug-unreported": "起票なし",
     "none": "なし"
   },
-  "note-ditails-dialog": {
+  "note-details-dialog": {
     "details": "詳細",
     "status": "起票状態",
     "summary": "概要",

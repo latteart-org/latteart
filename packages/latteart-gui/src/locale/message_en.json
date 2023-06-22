@@ -457,7 +457,7 @@
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool"
   },
-  "test-purpose-bug-list": {
+  "test-purpose-note-list": {
     "title": "Test Purposes/Bugs",
     "open": "Open All Test Purposes",
     "close": "Close All Test Purposes",
@@ -468,7 +468,7 @@
     "bug-unreported": "Not Reported",
     "none": "None"
   },
-  "note-ditails-dialog": {
+  "note-details-dialog": {
     "details": "Details",
     "status": "Issue Status",
     "summary": "Summary",

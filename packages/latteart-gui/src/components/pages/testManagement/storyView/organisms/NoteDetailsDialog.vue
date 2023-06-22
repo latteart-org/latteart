@@ -17,14 +17,14 @@
 <template>
   <scrollable-dialog :opened="opened">
     <template v-slot:title>{{
-      $store.getters.message("note-ditails-dialog.details")
+      $store.getters.message("note-details-dialog.details")
     }}</template>
     <template v-slot:content>
       <v-list class="note-details-dialog">
         <v-list-item v-if="isNote">
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-ditails-dialog.status")
+              $store.getters.message("note-details-dialog.status")
             }}</v-list-item-title>
             <p class="break-all">{{ status }}</p>
           </v-list-item-content>
@@ -33,7 +33,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-ditails-dialog.summary")
+              $store.getters.message("note-details-dialog.summary")
             }}</v-list-item-title>
             <p class="break-all">{{ summary }}</p>
           </v-list-item-content>
@@ -42,7 +42,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-ditails-dialog.details")
+              $store.getters.message("note-details-dialog.details")
             }}</v-list-item-title>
             <p class="break-all pre-wrap">{{ details }}</p>
           </v-list-item-content>
@@ -51,7 +51,7 @@
         <v-list-item v-if="tags.length > 0 && isNote" class="mb-2">
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-ditails-dialog.tags")
+              $store.getters.message("note-details-dialog.tags")
             }}</v-list-item-title>
             <note-tag-chip-group :tags="tags"></note-tag-chip-group>
           </v-list-item-content>

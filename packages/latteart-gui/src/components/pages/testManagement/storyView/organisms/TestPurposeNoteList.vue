@@ -18,12 +18,12 @@
   <div class="mt-0 pt-0">
     <v-card class="ma-2">
       <v-card-title>{{
-        $store.getters.message("test-purpose-bug-list.title")
+        $store.getters.message("test-purpose-note-list.title")
       }}</v-card-title>
       <v-btn class="ml-10" small @click="openAllTestPurposes()">{{
         isAllSelect
-          ? $store.getters.message("test-purpose-bug-list.close")
-          : $store.getters.message("test-purpose-bug-list.open")
+          ? $store.getters.message("test-purpose-note-list.close")
+          : $store.getters.message("test-purpose-note-list.open")
       }}</v-btn>
       <v-card-text class="py-0">
         <v-list>
@@ -50,7 +50,7 @@
               </v-list-item-content>
               <v-list-item-action>
                 <v-btn
-                  @click="
+                  @click.stop="
                     openTestPurposeDetails(
                       testPurpose.type,
                       testPurpose.value,
@@ -58,7 +58,7 @@
                     )
                   "
                   >{{
-                    $store.getters.message("test-purpose-bug-list.details")
+                    $store.getters.message("test-purpose-note-list.details")
                   }}</v-btn
                 >
               </v-list-item-action>
@@ -76,7 +76,7 @@
                   }}</span></v-list-item-title
                 >
                 <v-list-item-subtitle>{{
-                  $store.getters.message("test-purpose-bug-list.bug-status", {
+                  $store.getters.message("test-purpose-note-list.bug-status", {
                     status: note.status,
                   })
                 }}</v-list-item-subtitle>
@@ -94,7 +94,7 @@
                     )
                   "
                   >{{
-                    $store.getters.message("test-purpose-bug-list.details")
+                    $store.getters.message("test-purpose-note-list.details")
                   }}</v-btn
                 >
               </v-list-item-action>
@@ -128,7 +128,7 @@ import NoteDetailsDialog from "./NoteDetailsDialog.vue";
     "note-details-dialog": NoteDetailsDialog,
   },
 })
-export default class TestPurposeBugList extends Vue {
+export default class TestPurposeNoteList extends Vue {
   @Prop({ type: Array, default: [] })
   public readonly testPurposes?: Session["testPurposes"];
 
@@ -161,7 +161,7 @@ export default class TestPurposeBugList extends Vue {
       return;
     }
     const none = this.$store.getters.message(
-      "test-purpose-bug-list.none"
+      "test-purpose-note-list.none"
     ) as string;
     const tmpTestPurposes = this.testPurposes.map((testPurpose) => {
       return {
@@ -170,7 +170,7 @@ export default class TestPurposeBugList extends Vue {
           testPurpose.value !== ""
             ? testPurpose.value
             : (this.$store.getters.message(
-                "test-purpose-bug-list.no-test-purpose"
+                "test-purpose-note-list.no-test-purpose"
               ) as string),
         notes: testPurpose.notes.map((note) => {
           const status = (() => {
@@ -180,13 +180,13 @@ export default class TestPurposeBugList extends Vue {
 
             if (note.tags.includes("reported")) {
               return this.$store.getters.message(
-                "test-purpose-bug-list.bug-reported"
+                "test-purpose-note-list.bug-reported"
               ) as string;
             }
 
             if (note.tags.includes("invalid")) {
               return this.$store.getters.message(
-                "test-purpose-bug-list.bug-unreported"
+                "test-purpose-note-list.bug-unreported"
               ) as string;
             }
 
