@@ -1117,6 +1117,27 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  GetTestPurposeResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "CreateNoteResponse" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            notes: {
+              dataType: "array",
+              array: { dataType: "refAlias", ref: "CreateNoteResponse" },
+              required: true,
+            },
+          },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   Session: {
     dataType: "refAlias",
     type: {
@@ -1130,7 +1151,7 @@ const models: TsoaRoute.Models = {
         },
         testPurposes: {
           dataType: "array",
-          array: { dataType: "refAlias", ref: "GetNoteResponse" },
+          array: { dataType: "refAlias", ref: "GetTestPurposeResponse" },
           required: true,
         },
         initialUrl: { dataType: "string", required: true },

@@ -103,6 +103,7 @@ export class ProjectsServiceImpl implements ProjectsService {
               "stories.sessions.attachedFiles",
               "stories.sessions.testResult",
               "stories.sessions.testResult.testPurposes",
+              "stories.sessions.testResult.testPurposes.testSteps",
               "stories.sessions.testResult.notes",
               "stories.sessions.testResult.notes.testSteps",
               "stories.sessions.testResult.notes.testSteps.screenshot",
