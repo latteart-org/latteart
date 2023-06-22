@@ -505,6 +505,24 @@ const mutations: MutationTree<OperationHistoryState> = {
     state.storingTestResultInfos = [...payload.testResultInfos];
   },
 
+  removeStoringTestResultInfos(
+    state,
+    payload: {
+      testResultInfos: { id: string; name: string }[];
+    }
+  ) {
+    for (const testResultInfo of payload.testResultInfos) {
+      const index = state.storingTestResultInfos.findIndex(
+        (storingTestResultInfo) => {
+          return storingTestResultInfo.id === testResultInfo.id;
+        }
+      );
+      if (index > -1) {
+        state.storingTestResultInfos.splice(index, 1);
+      }
+    }
+  },
+
   /**
    * Set test result name to the State.
    * @param state State.
