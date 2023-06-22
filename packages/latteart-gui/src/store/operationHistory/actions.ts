@@ -712,9 +712,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             payload.callback.onClickScreenRect(imageFileUrl, inputValueTable);
           },
         },
-        nameMap: new Map(
-          source.screens.map(({ name }, index) => [index, name])
-        ),
+        nameMap: new Map(source.screens.map(({ name, id }) => [id, name])),
       });
     };
 

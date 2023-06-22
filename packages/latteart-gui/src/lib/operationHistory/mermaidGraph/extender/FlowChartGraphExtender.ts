@@ -25,7 +25,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
     onClickEdge: (edgeIndex: number) => void;
     onClickScreenRect: (screenRectIndex: number) => void;
   };
-  private nameMap: Map<number, string>;
+  private nameMap: Map<string, string>;
   private registeredEventElementList: Array<{
     eventName: string;
     element: d3.Selection<d3.BaseType, unknown, null, undefined>;
@@ -41,7 +41,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
       onClickEdge: (edgeIndex: number) => void;
       onClickScreenRect: (screenRectIndex: number) => void;
     };
-    nameMap: Map<number, string>;
+    nameMap: Map<string, string>;
   }) {
     this.callback = args.callback;
     this.nameMap = args.nameMap;
@@ -75,9 +75,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
     // Omitted if the display name of the element is long.
     svg.selectAll("g.node").each((_, i, nodes) => {
       const id = (nodes[i] as HTMLElement).getAttribute("id");
-      const fullText = this.nameMap.get(
-        Number(id!.split("mermaid-dom-id-")[1])
-      );
+      const fullText = this.nameMap.get(id!.substring(10, 46));
       const g = d3.select(nodes[i] as Node as d3.BaseType);
       g.append("svg:title").text(fullText ? fullText : "");
     });
