@@ -276,7 +276,8 @@
     "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
     "hide-hidden-elements": "Don't Display Hidden Elements",
-    "autofill-dialog-message": "Please select an input value set name."
+    "autofill-dialog-message": "Please select an input value set name.",
+    "end-of-test": "End of test"
   },
   "note-list-dialog": {
     "note-list": "Note List",

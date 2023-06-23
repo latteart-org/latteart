@@ -95,19 +95,23 @@
           <tr>
             <th
               :style="{ borderBottom: '1px solid rgba(0,0,0,0.12)' }"
-              :class="{ 'column-width': index <= 2 }"
               v-for="(header, index) in headers
                 .flatMap((item) => item.values)
                 .filter((_, i) => i > 2)"
               :key="index"
             >
-              <p>
+              <p v-if="header.targetScreenDef">
                 <b>[{{ header.sourceScreenDef }}]</b><br />
                 ↓<br />
                 {{ header.trigger.eventType }}: {{ header.trigger.elementText
                 }}<br />
                 ↓<br />
                 <b>[{{ header.targetScreenDef }}]</b><br />
+              </p>
+              <p v-else>
+                <b>[{{ header.sourceScreenDef }}]</b><br />
+                ↓<br />
+                {{ message("input-value.end-of-test") }}<br />
               </p>
             </th>
           </tr>

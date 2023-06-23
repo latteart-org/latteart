@@ -30,15 +30,12 @@ export interface FlowChartGraphCallback {
 
 export type FlowChartGraphExtenderSource = {
   edges: Edge[];
-  source: {
-    screens: {
-      id: string;
-      name: string;
-      sequence: number;
-      imageFileUrl: string;
-    }[];
-    nodes: Omit<GraphViewNode, "windowId">[];
-  };
+  screens: {
+    id: string;
+    name: string;
+    imageFileUrl: string;
+    details: ScreenTransition[];
+  }[];
 };
 
 type Edge = {
@@ -57,8 +54,8 @@ type GraphSource = {
   screens: {
     id: string;
     name: string;
-    sequence: number;
     imageFileUrl: string;
+    details: ScreenTransition[];
   }[];
   edges: Edge[];
 };
@@ -89,10 +86,7 @@ export async function convertToScreenTransitionDiagramGraph(
   );
 
   const graphExtender = createFlowChartGraphExtender
-    ? createFlowChartGraphExtender({
-        edges,
-        source: { screens, nodes: view.nodes },
-      })
+    ? createFlowChartGraphExtender({ edges, screens })
     : {
         extendGraph: () => {
           /* nothing */
@@ -148,16 +142,18 @@ function extractGraphSources(view: GraphView): GraphSource {
 
   const edgeDetails = view.nodes.flatMap((node, index, array) => {
     const nextNode = array.at(index + 1);
-    if (!nextNode || node.windowId !== nextNode.windowId) {
+
+    if (nextNode && node.windowId !== nextNode.windowId) {
       return [];
     }
 
     const sourceScreen = screens.find(({ id }) => id === node.screenId);
-    const destScreen = screens.find(({ id }) => id === nextNode.screenId);
 
-    if (!sourceScreen || !destScreen) {
+    if (!sourceScreen) {
       return [];
     }
+
+    const destScreen = screens.find(({ id }) => id === nextNode?.screenId);
 
     const lastTestStep = node.testSteps.at(-1);
 
@@ -248,7 +244,7 @@ function extractGraphSources(view: GraphView): GraphSource {
     const foundEdge = acc.find((edge) => {
       return (
         edge.sourceScreenId === detail.sourceScreen.id &&
-        edge.destScreenId === detail.destScreen.id &&
+        edge.destScreenId === detail.destScreen?.id &&
         edge.trigger?.type === detail.trigger?.type &&
         edge.trigger?.target?.xpath === detail.trigger?.target?.xpath
       );
@@ -256,7 +252,8 @@ function extractGraphSources(view: GraphView): GraphSource {
 
     if (foundEdge) {
       foundEdge.details.push(detail);
-    } else {
+      return acc;
+    } else if (detail.destScreen) {
       acc.push({
         sourceScreenId: detail.sourceScreen.id,
         destScreenId: detail.destScreen.id,
@@ -268,7 +265,15 @@ function extractGraphSources(view: GraphView): GraphSource {
     return acc;
   }, []);
 
-  return { screens, edges };
+  return {
+    screens: screens.map((screen) => {
+      const details = edgeDetails.filter(
+        ({ sourceScreen }) => sourceScreen.id === screen.id
+      );
+      return { ...screen, details };
+    }),
+    edges,
+  };
 }
 
 function createGraphTextLines(edges: Edge[]) {

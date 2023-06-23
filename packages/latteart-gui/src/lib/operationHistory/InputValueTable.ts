@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { normalizeXPath } from "../common/util";
+
 export type InputValueTableHeaderColumn = {
   index: number;
   sourceScreenDef: string;
@@ -50,7 +52,7 @@ export type InputValueTableRow = {
 
 export type ScreenTransition = {
   sourceScreen: { id: string; name: string };
-  destScreen: { id: string; name: string };
+  destScreen?: { id: string; name: string };
   trigger?: {
     sequence: number;
     type: string;
@@ -94,26 +96,30 @@ export default class InputValueTable {
    * Get column size.
    */
   public get columnSize(): number {
-    return this.screenTransitions.length;
+    return this.screenTransitions.filter(
+      ({ inputElements }) => inputElements.length > 0
+    ).length;
   }
 
   /**
    * Get column header.
    */
   public get headerColumns(): InputValueTableHeaderColumn[] {
-    return this.screenTransitions.map((transition, index) => {
-      return {
-        index,
-        sourceScreenDef: transition.sourceScreen.name,
-        targetScreenDef: transition.destScreen.name,
-        trigger: {
-          elementText: transition.trigger?.target?.text ?? "",
-          eventType: transition.trigger?.type ?? "",
-        },
-        notes: transition.notes,
-        testPurposes: transition.testPurposes,
-      };
-    });
+    return this.screenTransitions
+      .filter(({ inputElements }) => inputElements.length > 0)
+      .map((transition, index) => {
+        return {
+          index,
+          sourceScreenDef: transition.sourceScreen.name,
+          targetScreenDef: transition.destScreen?.name ?? "",
+          trigger: {
+            elementText: transition.trigger?.target?.text ?? "",
+            eventType: transition.trigger?.type ?? "",
+          },
+          notes: transition.notes,
+          testPurposes: transition.testPurposes,
+        };
+      });
   }
 
   /**
@@ -154,7 +160,10 @@ export default class InputValueTable {
     return elementWithSequences
       .filter(({ element: e1 }, index, array) => {
         return (
-          array.findIndex(({ element: e2 }) => e2.xpath === e1.xpath) === index
+          array.findIndex(
+            ({ element: e2 }) =>
+              normalizeXPath(e2.xpath) === normalizeXPath(e1.xpath)
+          ) === index
         );
       })
       .map(({ element }) => {
@@ -166,10 +175,14 @@ export default class InputValueTable {
           sequence:
             elementWithSequences.find(
               ({ element: { xpath }, sequence }) =>
-                xpath === element.xpath && sequence > 0
+                normalizeXPath(xpath) === normalizeXPath(element.xpath) &&
+                sequence > 0
             )?.sequence ?? 0,
           inputs: inputs
-            .filter(({ xpath }) => xpath === element.xpath)
+            .filter(
+              ({ xpath }) =>
+                normalizeXPath(xpath) === normalizeXPath(element.xpath)
+            )
             .map(({ value, isDefaultValue }) => {
               return { value, isDefaultValue };
             }),

@@ -280,7 +280,8 @@
     "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
     "hide-hidden-elements": "hidden要素は表示しない",
-    "autofill-dialog-message": "入力値セット名を入力してください。"
+    "autofill-dialog-message": "入力値セット名を入力してください。",
+    "end-of-test": "テスト終了"
   },
   "note-list-dialog": {
     "note-list": "メモ一覧",
