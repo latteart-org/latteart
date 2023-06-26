@@ -126,7 +126,7 @@
 
 <script lang="ts">
 import { Session } from "@/lib/testManagement/types";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 
 @Component({
@@ -166,52 +166,17 @@ export default class TestPurposeNoteList extends Vue {
     if (!this.testPurposes) {
       return;
     }
-    const none = this.$store.getters.message(
-      "test-purpose-note-list.none"
-    ) as string;
-    const tmpTestPurposes = this.testPurposes.map((testPurpose) => {
-      return {
-        ...testPurpose,
-        value:
-          testPurpose.value !== ""
-            ? testPurpose.value
-            : (this.$store.getters.message(
-                "test-purpose-note-list.no-test-purpose"
-              ) as string),
-        notes: testPurpose.notes.map((note) => {
-          const status = (() => {
-            if (!note.tags) {
-              return none;
-            }
 
-            if (note.tags.includes("reported")) {
-              return this.$store.getters.message(
-                "test-purpose-note-list.bug-reported"
-              ) as string;
-            }
+    this.createViewTestPurposes(this.testPurposes);
+  }
 
-            if (note.tags.includes("invalid")) {
-              return this.$store.getters.message(
-                "test-purpose-note-list.bug-unreported"
-              ) as string;
-            }
-
-            return none;
-          })();
-
-          return {
-            status,
-            value: note.value,
-            details: note.details,
-            tags: note.tags ?? [],
-            imageFileUrl: note.imageFileUrl ?? "",
-          };
-        }),
-        active: true,
-      };
-    });
-
-    this.viewTestPurposes = tmpTestPurposes;
+  @Watch("testPurposes")
+  private changeTestPurposes() {
+    if (this.testPurposes) {
+      this.createViewTestPurposes(this.testPurposes);
+    } else {
+      this.viewTestPurposes = [];
+    }
   }
 
   private get isAllSelect() {
@@ -256,6 +221,55 @@ export default class TestPurposeNoteList extends Vue {
         this.viewTestPurposes[index].active = true;
       }
     }
+  }
+
+  private createViewTestPurposes(testPurposes: Session["testPurposes"]) {
+    const none = this.$store.getters.message(
+      "test-purpose-note-list.none"
+    ) as string;
+    const tmpTestPurposes = testPurposes.map((testPurpose) => {
+      return {
+        ...testPurpose,
+        value:
+          testPurpose.value !== ""
+            ? testPurpose.value
+            : (this.$store.getters.message(
+                "test-purpose-note-list.no-test-purpose"
+              ) as string),
+        notes: testPurpose.notes.map((note) => {
+          const status = (() => {
+            if (!note.tags) {
+              return none;
+            }
+
+            if (note.tags.includes("reported")) {
+              return this.$store.getters.message(
+                "test-purpose-note-list.bug-reported"
+              ) as string;
+            }
+
+            if (note.tags.includes("invalid")) {
+              return this.$store.getters.message(
+                "test-purpose-note-list.bug-unreported"
+              ) as string;
+            }
+
+            return none;
+          })();
+
+          return {
+            status,
+            value: note.value,
+            details: note.details,
+            tags: note.tags ?? [],
+            imageFileUrl: note.imageFileUrl ?? "",
+          };
+        }),
+        active: true,
+      };
+    });
+
+    this.viewTestPurposes = tmpTestPurposes;
   }
 }
 </script>
