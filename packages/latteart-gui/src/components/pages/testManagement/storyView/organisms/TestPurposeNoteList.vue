@@ -20,11 +20,17 @@
       <v-card-title>{{
         $store.getters.message("test-purpose-note-list.title")
       }}</v-card-title>
-      <v-btn class="ml-10" small @click="openAllTestPurposes()">{{
-        isAllSelect
-          ? $store.getters.message("test-purpose-note-list.close")
-          : $store.getters.message("test-purpose-note-list.open")
-      }}</v-btn>
+      <v-btn
+        v-if="viewTestPurposes.length > 0"
+        class="ml-10"
+        small
+        @click="openAllTestPurposes()"
+        >{{
+          isAllSelect
+            ? $store.getters.message("test-purpose-note-list.close")
+            : $store.getters.message("test-purpose-note-list.open")
+        }}</v-btn
+      >
       <v-card-text class="py-0">
         <v-list>
           <v-list-group
