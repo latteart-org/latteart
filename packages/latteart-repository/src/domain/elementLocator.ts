@@ -90,11 +90,11 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
   }
 
   private hasSameIdElement(xpath: string, id: string): boolean {
-    const x = xpath.replace(/\[1\]/g, "");
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
       (element) =>
         element.attributes.id === id &&
-        element.xpath.replace(/\[1\]/g, "") !== x
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
@@ -103,21 +103,21 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
     name: string,
     value: string
   ): boolean {
-    const x = xpath.replace(/\[1\]/g, "");
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
       (element) =>
         element.attributes.name === name &&
         element.value === value &&
-        element.xpath.replace(/\[1\]/g, "") !== x
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
   private hasSameNameElement(xpath: string, name: string): boolean {
-    const x = xpath.replace(/\[1\]/g, "");
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
       (element) =>
         element.attributes.name === name &&
-        element.xpath.replace(/\[1\]/g, "") !== x
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
@@ -127,11 +127,11 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
     tagname: string
   ): boolean {
     return this.screenElements.some((element) => {
-      const x = xpath.replace(/\[1\]/g, "");
+      const normalizedXPath = this.normalizeXPath(xpath);
       return (
         text === this.toPartialText(element.text ?? "") &&
         tagname === element.tagname &&
-        element.xpath.replace(/\[1\]/g, "") !== x
+        this.normalizeXPath(element.xpath) !== normalizedXPath
       );
     });
   }
@@ -222,5 +222,9 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
 
   private toPartialText(text: string): string {
     return text.slice(0, this.maxTextLength).trim();
+  }
+
+  private normalizeXPath(before: string): string {
+    return before.replace(/\[1\]/g, "");
   }
 }
