@@ -21,7 +21,7 @@
         $store.getters.message("test-purpose-note-list.title")
       }}</v-card-title>
       <v-btn
-        v-if="viewTestPurposes.length > 0"
+        v-if="displayedItems.length > 0"
         class="ml-10"
         small
         @click="openAllTestPurposes()"
@@ -34,9 +34,9 @@
       <v-card-text class="py-0">
         <v-list>
           <v-list-group
-            v-for="(testPurpose, index) in viewTestPurposes"
-            v-model="testPurpose.active"
-            :key="testPurpose.title"
+            v-for="(item, index) in displayedItems"
+            v-model="item.active"
+            :key="item.testPurpose.title"
             value="true"
             no-action
             sub-group
@@ -46,21 +46,21 @@
             <template v-slot:activator>
               <v-list-item-content>
                 <v-list-item-title
-                  ><span :title="testPurpose.value">{{
-                    testPurpose.value
+                  ><span :title="item.testPurpose.value">{{
+                    item.testPurpose.value
                   }}</span></v-list-item-title
                 >
                 <v-list-item-subtitle>{{
-                  testPurpose.details
+                  item.testPurpose.details
                 }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
                 <v-btn
                   @click.stop="
                     openTestPurposeDetails(
-                      testPurpose.type,
-                      testPurpose.value,
-                      testPurpose.details
+                      item.testPurpose.type,
+                      item.testPurpose.value,
+                      item.testPurpose.details
                     )
                   "
                   >{{
@@ -72,7 +72,7 @@
             <v-list-item
               two-line
               link
-              v-for="(note, i) in testPurpose.notes"
+              v-for="(note, i) in item.testPurpose.notes"
               :key="i"
             >
               <v-list-item-content>
@@ -126,7 +126,7 @@
 
 <script lang="ts">
 import { Session } from "@/lib/testManagement/types";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 
 @Component({
@@ -145,77 +145,44 @@ export default class TestPurposeNoteList extends Vue {
   private details = "";
   private imagePath = "";
   private tags: string[] = [];
-  private viewTestPurposes: {
-    value: string;
-    notes: {
-      status: string;
-      value: string;
+  private displayedItems: {
+    testPurpose: {
+      id: string;
+      type: string;
       details: string;
-      tags: string[];
       imageFileUrl: string;
-    }[];
+      tags: string[];
+      value: string;
+      notes: {
+        status: string;
+        value: string;
+        details: string;
+        tags: string[];
+        imageFileUrl: string;
+      }[];
+    };
     active: boolean;
-    id: string;
-    type: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
   }[] = [];
 
   private mounted() {
     if (!this.testPurposes) {
       return;
     }
-    const none = this.$store.getters.message(
-      "test-purpose-note-list.none"
-    ) as string;
-    const tmpTestPurposes = this.testPurposes.map((testPurpose) => {
-      return {
-        ...testPurpose,
-        value:
-          testPurpose.value !== ""
-            ? testPurpose.value
-            : (this.$store.getters.message(
-                "test-purpose-note-list.no-test-purpose"
-              ) as string),
-        notes: testPurpose.notes.map((note) => {
-          const status = (() => {
-            if (!note.tags) {
-              return none;
-            }
 
-            if (note.tags.includes("reported")) {
-              return this.$store.getters.message(
-                "test-purpose-note-list.bug-reported"
-              ) as string;
-            }
+    this.createDisplayedTestPurposes(this.testPurposes);
+  }
 
-            if (note.tags.includes("invalid")) {
-              return this.$store.getters.message(
-                "test-purpose-note-list.bug-unreported"
-              ) as string;
-            }
-
-            return none;
-          })();
-
-          return {
-            status,
-            value: note.value,
-            details: note.details,
-            tags: note.tags ?? [],
-            imageFileUrl: note.imageFileUrl ?? "",
-          };
-        }),
-        active: true,
-      };
-    });
-
-    this.viewTestPurposes = tmpTestPurposes;
+  @Watch("testPurposes")
+  private changeTestPurposes() {
+    if (this.testPurposes) {
+      this.createDisplayedTestPurposes(this.testPurposes);
+    } else {
+      this.displayedItems = [];
+    }
   }
 
   private get isAllSelect() {
-    const activeList = this.viewTestPurposes.map((testPurpose) => {
+    const activeList = this.displayedItems.map((testPurpose) => {
       return testPurpose.active;
     });
 
@@ -248,14 +215,51 @@ export default class TestPurposeNoteList extends Vue {
 
   private openAllTestPurposes() {
     if (this.isAllSelect) {
-      for (const [index] of this.viewTestPurposes.entries()) {
-        this.viewTestPurposes[index].active = false;
+      for (const [index] of this.displayedItems.entries()) {
+        this.displayedItems[index].active = false;
       }
     } else {
-      for (const [index] of this.viewTestPurposes.entries()) {
-        this.viewTestPurposes[index].active = true;
+      for (const [index] of this.displayedItems.entries()) {
+        this.displayedItems[index].active = true;
       }
     }
+  }
+
+  private createDisplayedTestPurposes(testPurposes: Session["testPurposes"]) {
+    this.displayedItems = testPurposes.map((testPurpose) => {
+      const value =
+        testPurpose.value !== ""
+          ? testPurpose.value
+          : (this.$store.getters.message(
+              "test-purpose-note-list.no-test-purpose"
+            ) as string);
+      const notes = testPurpose.notes.map((note) => {
+        const status = (() => {
+          if (note.tags.includes("reported")) {
+            return this.$store.getters.message(
+              "test-purpose-note-list.bug-reported"
+            ) as string;
+          }
+
+          if (note.tags.includes("invalid")) {
+            return this.$store.getters.message(
+              "test-purpose-note-list.bug-unreported"
+            ) as string;
+          }
+
+          return this.$store.getters.message(
+            "test-purpose-note-list.none"
+          ) as string;
+        })();
+
+        return { status, ...note };
+      });
+
+      return {
+        testPurpose: { ...testPurpose, value, notes },
+        active: true,
+      };
+    });
   }
 }
 </script>
