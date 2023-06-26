@@ -96,30 +96,26 @@ export default class InputValueTable {
    * Get column size.
    */
   public get columnSize(): number {
-    return this.screenTransitions.filter(
-      ({ inputElements }) => inputElements.length > 0
-    ).length;
+    return this.screenTransitions.length;
   }
 
   /**
    * Get column header.
    */
   public get headerColumns(): InputValueTableHeaderColumn[] {
-    return this.screenTransitions
-      .filter(({ inputElements }) => inputElements.length > 0)
-      .map((transition, index) => {
-        return {
-          index,
-          sourceScreenDef: transition.sourceScreen.name,
-          targetScreenDef: transition.destScreen?.name ?? "",
-          trigger: {
-            elementText: transition.trigger?.target?.text ?? "",
-            eventType: transition.trigger?.type ?? "",
-          },
-          notes: transition.notes,
-          testPurposes: transition.testPurposes,
-        };
-      });
+    return this.screenTransitions.map((transition, index) => {
+      return {
+        index,
+        sourceScreenDef: transition.sourceScreen.name,
+        targetScreenDef: transition.destScreen?.name ?? "",
+        trigger: {
+          elementText: transition.trigger?.target?.text ?? "",
+          eventType: transition.trigger?.type ?? "",
+        },
+        notes: transition.notes,
+        testPurposes: transition.testPurposes,
+      };
+    });
   }
 
   /**
