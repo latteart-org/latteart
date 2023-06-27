@@ -39,9 +39,10 @@
             :key="item.testPurpose.title"
             value="true"
             no-action
-            sub-group
             two-line
             :id="`testPurposeArea${index}`"
+            :prepend-icon="item.active ? 'arrow_drop_up' : 'arrow_drop_down'"
+            :append-icon="null"
           >
             <template v-slot:activator>
               <v-list-item-content>
