@@ -227,7 +227,6 @@ export default class ReviewView extends Vue {
 
       await this.$store.dispatch("operationHistory/loadTestResult", {
         testResultId: testResultIds[0],
-        isReviewing: true,
       });
 
       this.$store.commit("operationHistory/setCanUpdateModels", {

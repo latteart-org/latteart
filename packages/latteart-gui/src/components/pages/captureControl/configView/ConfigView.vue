@@ -364,7 +364,6 @@ export default class ConfigView extends Vue {
 
       await this.$store.dispatch("operationHistory/loadTestResult", {
         testResultId: testResultIds[0],
-        isReviewing: false,
       });
 
       this.$store.commit("operationHistory/setCanUpdateModels", {

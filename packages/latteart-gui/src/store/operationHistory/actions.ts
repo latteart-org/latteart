@@ -400,10 +400,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async loadTestResult(
-    context,
-    payload: { testResultId: string; isReviewing: boolean }
-  ) {
+  async loadTestResult(context, payload: { testResultId: string }) {
     try {
       context.commit(
         "captureControl/setIsResuming",
@@ -425,10 +422,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
 
       await context.dispatch("clearTestResult");
-
-      if (!payload.isReviewing) {
-        context.commit("clearStoringTestResultInfos");
-      }
 
       result.data.testStepIds.forEach((testStepId) => {
         context.commit("addTestStepId", { testStepId });
