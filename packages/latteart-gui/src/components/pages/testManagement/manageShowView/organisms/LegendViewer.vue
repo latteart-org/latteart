@@ -85,6 +85,8 @@ export default class LegendViewer extends Vue {
 <style lang="sass" scoped>
 .card-center
   margin: auto
+  text-align: center
+  font-size: medium
 
 .manage-show-legend
   margin: 0px 10px

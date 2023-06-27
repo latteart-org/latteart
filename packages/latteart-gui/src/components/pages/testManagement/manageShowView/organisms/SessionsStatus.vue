@@ -16,7 +16,7 @@
 
 <template>
   <v-card class="py-0 my-3" @click="toStory">
-    <v-card-title primary-title class="py-2 my-0" v-bind:class="cardStyle">
+    <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
       <p class="card-center">
         {{ $store.getters.message(`manage-show.status-${status}`) }}
       </p>
@@ -91,6 +91,8 @@ export default class SessionsStatus extends Vue {
 <style lang="sass" scoped>
 .card-center
   margin: auto
+  text-align: center
+  font-size: medium
 
 .status-base
   font-weight: bold
