@@ -571,17 +571,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearTestStepIds");
   },
 
-  removeTestResults(
-    context,
-    payload: {
-      testResultInfos: { id: string; name: string }[];
-    }
-  ) {
-    context.commit("removeStoringTestResultInfos", {
-      testResultInfos: payload.testResultInfos,
-    });
-  },
-
   /**
    * Build a sequence diagram from passed informations.
    * @param context Action context.
