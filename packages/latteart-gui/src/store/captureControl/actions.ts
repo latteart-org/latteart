@@ -115,6 +115,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 root: true,
               });
               context.commit(
+                "operationHistory/clearStoringTestResultInfos",
+                null,
+                { root: true }
+              );
+              context.commit(
                 "operationHistory/clearScreenTransitionDiagramGraph",
                 null,
                 { root: true }

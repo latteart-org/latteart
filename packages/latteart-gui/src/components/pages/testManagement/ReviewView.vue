@@ -291,6 +291,7 @@ export default class ReviewView extends Vue {
 
   private toBack(): void {
     this.$store.dispatch("operationHistory/clearTestResult");
+    this.$store.commit("operationHistory/clearStoringTestResultInfos");
     this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");
