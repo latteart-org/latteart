@@ -227,6 +227,7 @@ export default class ReviewView extends Vue {
 
       await this.$store.dispatch("operationHistory/loadTestResult", {
         testResultId: testResultIds[0],
+        isReviewing: true,
       });
 
       this.$store.commit("operationHistory/setCanUpdateModels", {
@@ -291,6 +292,7 @@ export default class ReviewView extends Vue {
 
   private toBack(): void {
     this.$store.dispatch("operationHistory/clearTestResult");
+    this.$store.commit("operationHistory/clearStoringTestResultInfos");
     this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");

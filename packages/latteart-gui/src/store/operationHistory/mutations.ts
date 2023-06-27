@@ -523,6 +523,10 @@ const mutations: MutationTree<OperationHistoryState> = {
     }
   },
 
+  clearStoringTestResultInfos(state) {
+    Vue.set(state, "storingTestResultInfos", []);
+  },
+
   /**
    * Set test result name to the State.
    * @param state State.

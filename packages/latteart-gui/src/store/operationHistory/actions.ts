@@ -400,7 +400,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.testResultId Test result ID.
    */
-  async loadTestResult(context, payload: { testResultId: string }) {
+  async loadTestResult(
+    context,
+    payload: { testResultId: string; isReviewing: boolean }
+  ) {
     try {
       context.commit(
         "captureControl/setIsResuming",
@@ -422,6 +425,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       }
 
       await context.dispatch("clearTestResult");
+
+      if (!payload.isReviewing) {
+        context.commit("clearStoringTestResultInfos");
+      }
 
       result.data.testStepIds.forEach((testStepId) => {
         context.commit("addTestStepId", { testStepId });
@@ -562,14 +569,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearCheckedOperations");
     context.commit("clearWindows");
     context.commit("clearSequenceDiagramGraphs");
-    context.commit("removeStoringTestResultInfos", {
-      testResultInfos: [
-        {
-          id: context.state.testResultInfo.id,
-          name: context.state.testResultInfo.name,
-        },
-      ],
-    });
     context.commit("setTestResultInfo", {
       repositoryUrl: "",
       id: "",
@@ -577,6 +576,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       parentTestResultId: "",
     });
     context.commit("clearTestStepIds");
+  },
+
+  removeTestResults(
+    context,
+    payload: {
+      testResultInfos: { id: string; name: string }[];
+    }
+  ) {
+    context.commit("removeStoringTestResultInfos", {
+      testResultInfos: payload.testResultInfos,
+    });
   },
 
   /**
