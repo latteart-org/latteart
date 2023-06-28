@@ -423,6 +423,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("clearTestResult");
 
+      context.commit("clearDisplayedScreenshotUrl");
+
       result.data.testStepIds.forEach((testStepId) => {
         context.commit("addTestStepId", { testStepId });
       });

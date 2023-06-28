@@ -130,6 +130,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               context.commit("operationHistory/clearInputValueTable", null, {
                 root: true,
               });
+              context.commit(
+                "operationHistory/clearDisplayedScreenshotUrl",
+                null,
+                {
+                  root: true,
+                }
+              );
 
               await context.dispatch(
                 "operationHistory/createTestResult",

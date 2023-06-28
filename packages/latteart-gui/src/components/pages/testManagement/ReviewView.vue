@@ -295,6 +295,7 @@ export default class ReviewView extends Vue {
     this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");
+    this.$store.commit("operationHistory/clearDisplayedScreenshotUrl");
 
     this.$router.push({
       name: "storyView",
