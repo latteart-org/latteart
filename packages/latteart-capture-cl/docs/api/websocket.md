@@ -314,6 +314,10 @@ Enter values for screen elements.
 
 Capturing has started.
 
+- arguments
+  - startTimestamp
+    - type: number
+
 ### `operation_captured`
 
 An operation has been captured.

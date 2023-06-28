@@ -141,9 +141,13 @@ function extractGraphSources(view: GraphView): GraphSource {
     });
 
   const edgeDetails = view.nodes.flatMap((node, index, array) => {
+    if (!node.windowId || !node.screenId) {
+      return [];
+    }
+
     const nextNode = array.at(index + 1);
 
-    if (nextNode && node.windowId !== nextNode.windowId) {
+    if (nextNode?.windowId && node.windowId !== nextNode.windowId) {
       return [];
     }
 

@@ -155,17 +155,21 @@ export class TestStepServiceImpl implements TestStepService {
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
     });
-    const fileName = `${newTestStepEntity.id}.png`;
-    await this.service.screenshotFileRepository.outputFile(
-      fileName,
-      requestBody.imageData,
-      "base64"
-    );
-    const screenshot = new ScreenshotEntity({
-      fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
-      testResult: savedTestResultEntity,
-    });
-    newTestStepEntity.screenshot = screenshot;
+
+    if (requestBody.imageData) {
+      const fileName = `${newTestStepEntity.id}.png`;
+      await this.service.screenshotFileRepository.outputFile(
+        fileName,
+        requestBody.imageData,
+        "base64"
+      );
+      const screenshot = new ScreenshotEntity({
+        fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
+        testResult: savedTestResultEntity,
+      });
+      newTestStepEntity.screenshot = screenshot;
+    }
+
     const savedTestStepEntity = await getRepository(TestStepEntity).save(
       newTestStepEntity
     );

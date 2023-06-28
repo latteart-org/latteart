@@ -149,7 +149,7 @@ function createGraphBuilder(
         testStepIdToSequence,
       });
 
-      const notes = nodes
+      const notes = sourceNodes
         .flatMap(({ testSteps }) => testSteps)
         .flatMap((testStep) => {
           if (!testStep.notes) {
@@ -166,8 +166,8 @@ function createGraphBuilder(
           });
         });
 
-      const edges = nodes.map((node, index, nodes) => {
-        const nextNode = nodes.at(index + 1);
+      const edges = sourceNodes.map((node, index, array) => {
+        const nextNode = array.at(index + 1);
 
         return {
           source: { title: "", url: "", screenDef: node.screenId },
@@ -227,33 +227,37 @@ function createSourceNodes(
     return [];
   }
 
-  const nodeChunks = nodes.reduce(
-    (acc, node, index, nodes) => {
-      const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
+  const nodeChunks = nodes
+    .filter((node) => {
+      return node.windowId && node.screenId;
+    })
+    .reduce(
+      (acc, node, index, nodes) => {
+        const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
 
-      if (beforeNode?.windowId !== node.windowId) {
-        const windowName = windowIdToName.get(node.windowId);
-        const sequence = testStepIdToSequence.get(
-          node.testSteps.at(0)?.id ?? ""
-        );
+        if (beforeNode?.windowId !== node.windowId) {
+          const windowName = windowIdToName.get(node.windowId);
+          const sequence = testStepIdToSequence.get(
+            node.testSteps.at(0)?.id ?? ""
+          );
 
-        if (windowName !== undefined && sequence !== undefined) {
-          acc.push({
-            window: { sequence, text: windowName },
-            nodes: [],
-          });
+          if (windowName !== undefined && sequence !== undefined) {
+            acc.push({
+              window: { sequence, text: windowName },
+              nodes: [],
+            });
+          }
         }
-      }
 
-      acc.at(-1)?.nodes.push(node);
+        acc.at(-1)?.nodes.push(node);
 
-      return acc;
-    },
-    new Array<{
-      window: { sequence: number; text: string };
-      nodes: Omit<SequenceViewNode, "windowId">[];
-    }>()
-  );
+        return acc;
+      },
+      new Array<{
+        window: { sequence: number; text: string };
+        nodes: Omit<SequenceViewNode, "windowId">[];
+      }>()
+    );
 
   return nodeChunks.flatMap(({ window, nodes }) =>
     nodes.map(({ screenId, testSteps, disabled }) => {

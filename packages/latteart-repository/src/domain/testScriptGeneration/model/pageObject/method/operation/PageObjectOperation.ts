@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export function invalidOperationTypeExists(type: string): boolean {
+export function isInvalidOperationType(type: string): boolean {
   return [
     "accept_alert",
     "dismiss_alert",
