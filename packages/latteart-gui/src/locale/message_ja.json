@@ -134,8 +134,7 @@
     "creating-export-data": "エクスポートデータ作成中",
     "importing-data": "データインポート中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",
-    "import-data-succeeded": "{returnName}のインポートが完了しました。",
-    "export-download": "ダウンロードする"
+    "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
   "config-io": {
     "import-config": "設定のインポート",
