@@ -365,7 +365,7 @@ io.on("connection", (socket) => {
         await capturer.start(url, () => {
           socket.emit(
             ServerToClientSocketIOEvent.CAPTURE_STARTED,
-            new TimestampImpl().epochMilliseconds().toString()
+            new TimestampImpl().epochMilliseconds()
           );
         });
       } catch (error) {

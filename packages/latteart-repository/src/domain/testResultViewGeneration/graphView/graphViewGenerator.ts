@@ -41,6 +41,7 @@ export function generateGraphView(
     testSteps
       .filter(({ screenDef }, index, testSteps) => {
         return (
+          screenDef &&
           testSteps.findIndex(
             (testStep) => testStep.screenDef === screenDef
           ) === index
@@ -62,7 +63,7 @@ export function generateGraphView(
   const windows = testSteps
     .map(({ operation }) => operation.windowHandle)
     .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
+      return windowHandle && array.indexOf(windowHandle) === index;
     })
     .map((windowHandle, index) => {
       return { id: windowHandle, name: `window${index + 1}` };
@@ -277,17 +278,14 @@ function groupTestSteps(
   return testStepForNodes.reduce(
     (acc: TestStepGroup[], testStep, index, array) => {
       const windowId = testStep.operation.windowHandle;
-      const screenId = screenDefToScreen.get(testStep.screenDef)?.id;
-
-      if (!screenId) {
-        return acc;
-      }
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
 
       const prevOperation =
         index > 0 ? array.at(index - 1)?.operation : undefined;
 
       if (
         !prevOperation ||
+        testStep.operation.type === "start_capturing" ||
         testStep.operation.type === "screen_transition" ||
         triggerElementIds.includes(prevOperation.targetElementId ?? "")
       ) {
@@ -310,11 +308,7 @@ function extractTriggerElementIds(
 ) {
   return testStepForNodes
     .reduce((acc: TestStepGroup[], testStep, index, array) => {
-      const screenId = screenDefToScreen.get(testStep.screenDef)?.id;
-
-      if (!screenId) {
-        return acc;
-      }
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
 
       const windowId = testStep.operation.windowHandle;
       const isWindowChanged =
@@ -335,7 +329,10 @@ function extractTriggerElementIds(
 
       return acc;
     }, [])
-    .slice(0, -1)
+    .filter((_, index, array) => {
+      const nextGroup = array.at(index + 1);
+      return nextGroup?.windowId && nextGroup.screenId;
+    })
     .flatMap((testStepGroup) => {
       const lastTestStepElementId =
         testStepGroup.testSteps.at(-1)?.operation.targetElementId;

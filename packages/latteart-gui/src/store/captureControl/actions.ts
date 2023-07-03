@@ -20,7 +20,6 @@ import { RootState } from "..";
 import {
   AutofillConditionGroup,
   AutoOperation,
-  OperationForReplay,
 } from "@/lib/operationHistory/types";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
@@ -206,7 +205,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         .runOperations(...operations);
 
       if (runOperationsResult.isFailure()) {
-        const elementInfo = runOperationsResult.error.variables
+        const elementInfo = runOperationsResult.error.variables?.elementInfo
           ? JSON.parse(runOperationsResult.error.variables.elementInfo)
           : null;
         const operation = {
@@ -248,14 +247,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       return;
     }
 
-    const operations = convertOperationsForReplay(payload.operations);
-
     const result = await context.state.captureSession
       .automate({ interval: 1000 })
-      .runOperations(...operations);
+      .runOperations(...payload.operations);
 
     if (result.isFailure()) {
-      const elementInfo = result.error.variables
+      const elementInfo = result.error.variables?.elementInfo
         ? JSON.parse(result.error.variables.elementInfo)
         : null;
       const operation = {
@@ -753,23 +750,3 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 };
 
 export default actions;
-
-function convertOperationsForReplay(operations: OperationForReplay[]) {
-  const pauseCapturingIndex = operations.findIndex((operation) => {
-    return operation.type === "pause_capturing";
-  });
-
-  const tempOperations =
-    pauseCapturingIndex > 0
-      ? operations.slice(0, pauseCapturingIndex)
-      : operations;
-
-  const a = tempOperations.filter((tempOperation) => {
-    return !(
-      tempOperation.type === "click" &&
-      tempOperation.elementInfo?.attributes.type === "date"
-    );
-  });
-
-  return a;
-}
