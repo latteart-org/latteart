@@ -32,83 +32,84 @@
         }}</v-btn
       >
       <v-card-text class="py-0">
-        <v-list-group
-          v-for="(item, index) in displayedItems"
-          v-model="selectedItems[index]"
-          :key="item.testPurpose.title"
-          value="true"
-          no-action
-          two-line
-          multiple
-          :id="`testPurposeArea${index}`"
-          :prepend-icon="
-            selectedItems[index] ? 'arrow_drop_up' : 'arrow_drop_down'
-          "
-          :append-icon="null"
-        >
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title
-                ><span :title="item.testPurpose.value">{{
-                  item.testPurpose.value
-                }}</span></v-list-item-title
-              >
-              <v-list-item-subtitle>{{
-                item.testPurpose.details
-              }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn
-                @click.stop="
-                  openTestPurposeDetails(
-                    item.testPurpose.type,
-                    item.testPurpose.value,
-                    item.testPurpose.details
-                  )
-                "
-                >{{
-                  $store.getters.message("test-purpose-note-list.details")
-                }}</v-btn
-              >
-            </v-list-item-action>
-          </template>
-          <v-list-item
+        <v-list expand>
+          <v-list-group
+            v-for="(item, index) in displayedItems"
+            v-model="selectedItems[index]"
+            :key="item.testPurpose.title"
+            value="true"
+            no-action
             two-line
-            link
-            v-for="(note, i) in item.testPurpose.notes"
-            :key="i"
+            :id="`testPurposeArea${index}`"
+            :prepend-icon="
+              selectedItems[index] ? 'arrow_drop_up' : 'arrow_drop_down'
+            "
+            :append-icon="null"
           >
-            <v-list-item-content>
-              <v-list-item-title
-                ><span :title="note.value">{{
-                  note.value
-                }}</span></v-list-item-title
-              >
-              <v-list-item-subtitle>{{
-                $store.getters.message("test-purpose-note-list.bug-status", {
-                  status: note.status,
-                })
-              }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn
-                @click="
-                  openNoteDetails(
-                    note.type,
-                    note.status,
-                    note.value,
-                    note.details,
-                    note.imageFileUrl,
-                    note.tags
-                  )
-                "
-                >{{
-                  $store.getters.message("test-purpose-note-list.details")
-                }}</v-btn
-              >
-            </v-list-item-action>
-          </v-list-item>
-        </v-list-group>
+            <template v-slot:activator>
+              <v-list-item-content>
+                <v-list-item-title
+                  ><span :title="item.testPurpose.value">{{
+                    item.testPurpose.value
+                  }}</span></v-list-item-title
+                >
+                <v-list-item-subtitle>{{
+                  item.testPurpose.details
+                }}</v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  @click.stop="
+                    openTestPurposeDetails(
+                      item.testPurpose.type,
+                      item.testPurpose.value,
+                      item.testPurpose.details
+                    )
+                  "
+                  >{{
+                    $store.getters.message("test-purpose-note-list.details")
+                  }}</v-btn
+                >
+              </v-list-item-action>
+            </template>
+            <v-list-item
+              two-line
+              link
+              v-for="(note, i) in item.testPurpose.notes"
+              :key="i"
+            >
+              <v-list-item-content>
+                <v-list-item-title
+                  ><span :title="note.value">{{
+                    note.value
+                  }}</span></v-list-item-title
+                >
+                <v-list-item-subtitle>{{
+                  $store.getters.message("test-purpose-note-list.bug-status", {
+                    status: note.status,
+                  })
+                }}</v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  @click="
+                    openNoteDetails(
+                      note.type,
+                      note.status,
+                      note.value,
+                      note.details,
+                      note.imageFileUrl,
+                      note.tags
+                    )
+                  "
+                  >{{
+                    $store.getters.message("test-purpose-note-list.details")
+                  }}</v-btn
+                >
+              </v-list-item-action>
+            </v-list-item>
+          </v-list-group>
+        </v-list>
       </v-card-text>
 
       <v-card-actions></v-card-actions>
