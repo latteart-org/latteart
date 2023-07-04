@@ -32,16 +32,18 @@
         }}</v-btn
       >
       <v-card-text class="py-0">
-        <v-list>
+        <v-list expand>
           <v-list-group
             v-for="(item, index) in displayedItems"
-            v-model="item.active"
+            v-model="selectedItems[index]"
             :key="item.testPurpose.title"
             value="true"
             no-action
             two-line
             :id="`testPurposeArea${index}`"
-            :prepend-icon="item.active ? 'arrow_drop_up' : 'arrow_drop_down'"
+            :prepend-icon="
+              selectedItems[index] ? 'arrow_drop_up' : 'arrow_drop_down'
+            "
             :append-icon="null"
           >
             <template v-slot:activator>
@@ -146,6 +148,7 @@ export default class TestPurposeNoteList extends Vue {
   private details = "";
   private imagePath = "";
   private tags: string[] = [];
+  private selectedItems: boolean[] = [];
   private displayedItems: {
     testPurpose: {
       id: string;
@@ -162,7 +165,6 @@ export default class TestPurposeNoteList extends Vue {
         imageFileUrl: string;
       }[];
     };
-    active: boolean;
   }[] = [];
 
   private mounted() {
@@ -183,11 +185,9 @@ export default class TestPurposeNoteList extends Vue {
   }
 
   private get isAllSelect() {
-    const activeList = this.displayedItems.map((testPurpose) => {
-      return testPurpose.active;
+    return this.selectedItems.every((opened) => {
+      return opened === true;
     });
-
-    return !activeList.includes(false);
   }
 
   private openTestPurposeDetails(type: string, value: string, details: string) {
@@ -215,15 +215,7 @@ export default class TestPurposeNoteList extends Vue {
   }
 
   private openAllTestPurposes() {
-    if (this.isAllSelect) {
-      for (const [index] of this.displayedItems.entries()) {
-        this.displayedItems[index].active = false;
-      }
-    } else {
-      for (const [index] of this.displayedItems.entries()) {
-        this.displayedItems[index].active = true;
-      }
-    }
+    this.selectedItems = this.displayedItems.map(() => !this.isAllSelect);
   }
 
   private createDisplayedTestPurposes(testPurposes: Session["testPurposes"]) {
@@ -252,15 +244,14 @@ export default class TestPurposeNoteList extends Vue {
             "test-purpose-note-list.none"
           ) as string;
         })();
-
         return { status, ...note };
       });
 
       return {
         testPurpose: { ...testPurpose, value, notes },
-        active: true,
       };
     });
+    this.selectedItems = this.displayedItems.map(() => false);
   }
 }
 </script>
