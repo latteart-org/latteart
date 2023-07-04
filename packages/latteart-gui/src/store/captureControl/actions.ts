@@ -635,10 +635,22 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         }),
       });
 
-      const result = await client.startCapture(payload.url, {
-        compressScreenshots:
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
-      });
+      const testOption = (context.rootState as any).captureControl.testOption;
+      const firstTestPurpose = testOption.shouldRecordTestPurpose
+        ? {
+            value: testOption.firstTestPurpose,
+            details: testOption.firstTestPurposeDetails,
+          }
+        : undefined;
+
+      const result = await client.startCapture(
+        payload.url,
+        {
+          compressScreenshots:
+            context.rootState.projectSettings.config.imageCompression.isEnabled,
+        },
+        firstTestPurpose
+      );
 
       if (result.isFailure()) {
         const errorMessage = context.rootGetters.message(
@@ -649,20 +661,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }
 
       const session = result.data;
-      const testOption = (context.rootState as any).captureControl.testOption;
-
-      if (testOption.firstTestPurpose) {
-        context.commit(
-          "operationHistory/selectOperationNote",
-          { selectedOperationNote: { sequence: null, index: null } },
-          { root: true }
-        );
-
-        session.setNextTestPurpose({
-          value: testOption.firstTestPurpose,
-          details: testOption.firstTestPurposeDetails,
-        });
-      }
 
       context.dispatch("stopTimer");
       context.dispatch("startTimer");
