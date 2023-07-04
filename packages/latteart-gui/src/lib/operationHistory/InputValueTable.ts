@@ -122,38 +122,15 @@ export default class InputValueTable {
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const elementWithSequences = this.screenTransitions.flatMap(
-      (screenTransition) => {
+    const elementWithSequences = this.screenTransitions
+      .flatMap((screenTransition) => {
         return screenTransition.inputElements.map((inputElement) => {
           const { xpath, tagname, text, attributes } = inputElement;
           const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
           const element = { xpath, tagname, text, attributes };
           return { element, sequence };
         });
-      }
-    );
-
-    const inputs = this.screenTransitions.flatMap((screenTransition) => {
-      return screenTransition.inputElements.map((element) => {
-        const input = element.inputs.at(-1);
-
-        if (input === undefined) {
-          return {
-            xpath: element.xpath,
-            value: element.defaultValue ?? "",
-            isDefaultValue: true,
-          };
-        }
-
-        return {
-          xpath: element.xpath,
-          value: input.value,
-          isDefaultValue: false,
-        };
-      });
-    });
-
-    return elementWithSequences
+      })
       .filter(({ element: e1 }, index, array) => {
         return (
           array.findIndex(
@@ -161,29 +138,45 @@ export default class InputValueTable {
               normalizeXPath(e2.xpath) === normalizeXPath(e1.xpath)
           ) === index
         );
-      })
-      .map(({ element }) => {
-        const attributes = element.attributes;
+      });
+
+    return elementWithSequences.map(({ element }, _, array) => {
+      const attributes = element.attributes;
+
+      const sequence =
+        array.find(
+          ({ element: { xpath }, sequence }) =>
+            normalizeXPath(xpath) === normalizeXPath(element.xpath) &&
+            sequence > 0
+        )?.sequence ?? 0;
+
+      const inputs = this.screenTransitions.map((screenTransition) => {
+        const inputElement = screenTransition.inputElements.find(
+          ({ xpath }) => normalizeXPath(xpath) === normalizeXPath(element.xpath)
+        );
+        const input = inputElement?.inputs.at(-1);
+
+        if (input === undefined) {
+          return {
+            value: inputElement?.defaultValue ?? "",
+            isDefaultValue: true,
+          };
+        }
+
         return {
-          elementId: attributes["id"] ?? "",
-          elementName: attributes["name"] ?? "",
-          elementType: attributes["type"] ?? "",
-          sequence:
-            elementWithSequences.find(
-              ({ element: { xpath }, sequence }) =>
-                normalizeXPath(xpath) === normalizeXPath(element.xpath) &&
-                sequence > 0
-            )?.sequence ?? 0,
-          inputs: inputs
-            .filter(
-              ({ xpath }) =>
-                normalizeXPath(xpath) === normalizeXPath(element.xpath)
-            )
-            .map(({ value, isDefaultValue }) => {
-              return { value, isDefaultValue };
-            }),
+          value: input.value,
+          isDefaultValue: false,
         };
       });
+
+      return {
+        elementId: attributes["id"] ?? "",
+        elementName: attributes["name"] ?? "",
+        elementType: attributes["type"] ?? "",
+        sequence,
+        inputs,
+      };
+    });
   }
 
   /**

@@ -316,10 +316,7 @@ function extractTriggerElementIds(
           ? windowId !== array.at(index - 1)?.operation.windowHandle
           : true;
       const isScreenChanged =
-        index > 0
-          ? screenId !==
-            screenDefToScreen.get(array.at(index - 1)?.screenDef ?? "")?.id
-          : true;
+        index > 0 ? testStep.operation.type === "screen_transition" : true;
 
       if (isWindowChanged || isScreenChanged) {
         acc.push({ windowId, screenId, testSteps: [] });
