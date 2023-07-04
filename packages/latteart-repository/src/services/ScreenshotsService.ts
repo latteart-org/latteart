@@ -50,6 +50,9 @@ export class ScreenshotsService {
 
     await Promise.all(
       screenshotFileNames.map(async (fileName, index) => {
+        if (fileName === "") {
+          return;
+        }
         return await workingFileRepository.copyFile(
           fileName,
           path.join(dirName, `${index + 1}${path.extname(fileName)}`),
