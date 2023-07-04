@@ -201,6 +201,12 @@ class CaptureSessionImpl implements CaptureSession {
           message: "Element not found.",
         };
       }
+      if (serverError.code === "element_not_interactable") {
+        return {
+          errorCode: serverError.code,
+          message: "Element not interactable.",
+        };
+      }
       if (serverError.code === "client_side_capture_service_not_found") {
         return {
           errorCode: serverError.code,
@@ -558,6 +564,14 @@ class CaptureSessionImpl implements CaptureSession {
       const error: ServiceError = {
         errorCode: "run_operation_failed",
         message: "Run Operation failed.",
+        variables: {
+          title: operation.title ?? "",
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo
+            ? JSON.stringify(operation.elementInfo)
+            : "",
+        },
       };
       console.error(error.message);
       return new ServiceFailure(error);
@@ -670,12 +684,10 @@ class CaptureSessionImpl implements CaptureSession {
             continue;
           }
 
-          const nextOperation = runTargets.at(index + 1) as
-            | Operation
-            | undefined;
+          const nextOperation = runTargets.at(index + 1);
 
           const result =
-            nextOperation?.type === "screen_transition"
+            nextOperation?.operation.type === "screen_transition"
               ? await this.runOperationAndWait(runTargetOperation)
               : await this.runOperation(runTargetOperation);
 

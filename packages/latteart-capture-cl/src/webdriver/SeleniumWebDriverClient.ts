@@ -284,34 +284,45 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async clickElement(xpath: string): Promise<void> {
-    const elementForClick = this.driver.findElement(By.xpath(xpath));
+    LoggingService.debug(`click: xpath = ${xpath}`);
 
-    return elementForClick.click();
+    return this.retryAction(() => {
+      const elementForClick = this.driver.findElement(By.xpath(xpath));
+
+      return elementForClick.click();
+    });
   }
 
   /**
    * @inheritdoc
    */
-  public async clearAndSendKeysToElement(
-    xpath: string,
-    value: string
-  ): Promise<void> {
-    const elementForInput = this.driver.findElement(By.xpath(xpath));
+  public async clearAndSendKeys(xpath: string, value: string): Promise<void> {
+    LoggingService.debug(
+      `clearAndSendKeys: xpath = ${xpath}, value = ${value}`
+    );
 
-    const v = await elementForInput.getAttribute("value");
-    for (let i = 0; v.length > i; i++) {
-      await elementForInput.sendKeys(Key.BACK_SPACE);
-    }
+    return this.retryAction(async () => {
+      const elementForInput = this.driver.findElement(By.xpath(xpath));
 
-    return elementForInput.sendKeys(value);
+      const v = await elementForInput.getAttribute("value");
+      for (let i = 0; v.length > i; i++) {
+        await elementForInput.sendKeys(Key.BACK_SPACE);
+      }
+
+      return elementForInput.sendKeys(value);
+    });
   }
 
   /**
    * @inheritdoc
    */
   public async sendKeys(xpath: string, value: string): Promise<void> {
-    const elementForInput = this.driver.findElement(By.xpath(xpath));
-    return elementForInput.sendKeys(value);
+    LoggingService.debug(`sendKeys: xpath = ${xpath}, value = ${value}`);
+
+    return this.retryAction(async () => {
+      const elementForInput = this.driver.findElement(By.xpath(xpath));
+      return elementForInput.sendKeys(value);
+    });
   }
 
   /**
@@ -358,10 +369,16 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     selectElementXpath: string,
     optionValue: string
   ): Promise<void> {
-    const elementForInput = await this.driver.findElement(
-      By.xpath(selectElementXpath)
+    LoggingService.debug(
+      `selectOption: xpath = ${selectElementXpath}, value = ${optionValue}`
     );
-    await this.selectOptionUsingWebElement(elementForInput, optionValue);
+
+    return this.retryAction(async () => {
+      const elementForInput = await this.driver.findElement(
+        By.xpath(selectElementXpath)
+      );
+      await this.selectOptionUsingWebElement(elementForInput, optionValue);
+    });
   }
 
   public async selectOptionUsingWebElement(
@@ -443,5 +460,20 @@ export class SeleniumWebDriverClient implements WebDriverClient {
 
   public async setScrollPosition(x: number, y: number): Promise<void> {
     return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+  }
+
+  private async retryAction(action: () => Promise<void>, limit = 10) {
+    for (let i = 0; i < limit; i++) {
+      try {
+        await action();
+        break;
+      } catch (error) {
+        if (i === limit - 1) {
+          throw error;
+        }
+        LoggingService.warn(`${error}`);
+        LoggingService.warn(`Retry.`);
+      }
+    }
   }
 }
