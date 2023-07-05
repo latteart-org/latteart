@@ -62,6 +62,7 @@ export type ScreenTransition = {
     pageTitle: string;
   };
   inputElements: {
+    id: string;
     xpath: string;
     tagname: string;
     text: string;
@@ -125,19 +126,14 @@ export default class InputValueTable {
     const elementWithSequences = this.screenTransitions
       .flatMap((screenTransition) => {
         return screenTransition.inputElements.map((inputElement) => {
-          const { xpath, tagname, text, attributes } = inputElement;
+          const { id, xpath, tagname, text, attributes } = inputElement;
           const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
-          const element = { xpath, tagname, text, attributes };
+          const element = { id, xpath, tagname, text, attributes };
           return { element, sequence };
         });
       })
       .filter(({ element: e1 }, index, array) => {
-        return (
-          array.findIndex(
-            ({ element: e2 }) =>
-              normalizeXPath(e2.xpath) === normalizeXPath(e1.xpath)
-          ) === index
-        );
+        return array.findIndex(({ element: e2 }) => e2.id === e1.id) === index;
       });
 
     return elementWithSequences.map(({ element }, _, array) => {
@@ -145,14 +141,12 @@ export default class InputValueTable {
 
       const sequence =
         array.find(
-          ({ element: { xpath }, sequence }) =>
-            normalizeXPath(xpath) === normalizeXPath(element.xpath) &&
-            sequence > 0
+          ({ element: { id }, sequence }) => id === element.id && sequence > 0
         )?.sequence ?? 0;
 
       const inputs = this.screenTransitions.map((screenTransition) => {
         const inputElement = screenTransition.inputElements.find(
-          ({ xpath }) => normalizeXPath(xpath) === normalizeXPath(element.xpath)
+          ({ id }) => id === element.id
         );
         const input = inputElement?.inputs.at(-1);
 

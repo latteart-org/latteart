@@ -23,6 +23,7 @@ describe("InputValueTable", () => {
       const inputElementBase = {
         tagname: "",
         text: "",
+        xpath: "",
       };
 
       it("画面遷移が1つの場合", () => {
@@ -32,14 +33,14 @@ describe("InputValueTable", () => {
             inputElements: [
               {
                 ...inputElementBase,
-                xpath: "xpath1",
+                id: "element1",
                 attributes: { id: "id1", name: "name1", type: "type1" },
                 defaultValue: "defaultValue",
                 inputs: [],
               },
               {
                 ...inputElementBase,
-                xpath: "xpath2",
+                id: "element2",
                 attributes: { id: "id2", name: "name2", type: "type2" },
                 defaultValue: "",
                 inputs: [{ sequence: 2, value: "inputValue" }],
@@ -76,14 +77,14 @@ describe("InputValueTable", () => {
               inputElements: [
                 {
                   ...inputElementBase,
-                  xpath: "xpath1",
+                  id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
                   inputs: [],
                 },
                 {
                   ...inputElementBase,
-                  xpath: "xpath2",
+                  id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
                   inputs: [{ sequence: 2, value: "inputValue" }],
@@ -95,14 +96,14 @@ describe("InputValueTable", () => {
               inputElements: [
                 {
                   ...inputElementBase,
-                  xpath: "xpath1",
+                  id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
                   inputs: [],
                 },
                 {
                   ...inputElementBase,
-                  xpath: "xpath2",
+                  id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
                   inputs: [{ sequence: 2, value: "inputValue" }],
@@ -114,14 +115,14 @@ describe("InputValueTable", () => {
               inputElements: [
                 {
                   ...inputElementBase,
-                  xpath: "xpath1",
+                  id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
                   inputs: [],
                 },
                 {
                   ...inputElementBase,
-                  xpath: "xpath2",
+                  id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
                   inputs: [{ sequence: 2, value: "inputValue" }],
@@ -169,7 +170,7 @@ describe("InputValueTable", () => {
               inputElements: [
                 {
                   ...inputElementBase,
-                  xpath: "xpath1",
+                  id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
                   inputs: [],
@@ -181,7 +182,7 @@ describe("InputValueTable", () => {
               inputElements: [
                 {
                   ...inputElementBase,
-                  xpath: "xpath2",
+                  id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
                   inputs: [{ sequence: 2, value: "inputValue" }],

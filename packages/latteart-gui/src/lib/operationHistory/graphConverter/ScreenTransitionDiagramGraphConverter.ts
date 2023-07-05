@@ -17,7 +17,7 @@
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
 import TextUtil from "./TextUtil";
 import FlowChartGraphExtender from "../mermaidGraph/extender/FlowChartGraphExtender";
-import { GraphView, GraphViewNode } from "latteart-client";
+import { GraphView } from "latteart-client";
 import InputValueTable, { ScreenTransition } from "../InputValueTable";
 
 export interface FlowChartGraphCallback {
