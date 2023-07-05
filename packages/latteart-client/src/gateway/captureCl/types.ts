@@ -34,7 +34,8 @@ type CaptureCLServerErrorCode =
   | "appium_not_started"
   | "device_not_connected"
   | "invalid_operation"
-  | "element_not_found";
+  | "element_not_found"
+  | "element_not_interactable";
 
 type CaptureCLConnectionErrorCode =
   | "capture_socket_disconnected"

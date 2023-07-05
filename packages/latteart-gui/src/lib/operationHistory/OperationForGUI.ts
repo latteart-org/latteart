@@ -294,15 +294,6 @@ export class OperationForGUI {
     this.keywordSet = keywordSet;
   }
 
-  public applyAlias(aliasList: string[]): void {
-    const matchAlias = aliasList.find((alias: string) => {
-      return this.screenDef === alias;
-    });
-    if (matchAlias) {
-      this.screenDef = matchAlias;
-    }
-  }
-
   /**
    * Get the input value.
    * If the target is a checkbox, on / off is returned.
@@ -312,31 +303,5 @@ export class OperationForGUI {
     // stop building the input field on the backend and aggregate it here, and name this getter input.
 
     return convertInputValue(this.elementInfo, this.input);
-  }
-
-  /**
-   * Get the text.
-   */
-  public get textValue(): string {
-    if (!this.elementInfo) {
-      return "";
-    }
-
-    if (this.elementInfo.text) {
-      return this.elementInfo.text;
-    }
-
-    return `${this.elementInfo.attributes.value ?? ""}`;
-  }
-
-  /**
-   * Determine if the operation is users' or not
-   */
-  public isUsers(): boolean {
-    return this.type !== "screen_transition" && this.type !== "switch_window";
-  }
-
-  public isScreenTransition(): boolean {
-    return this.type === "screen_transition";
   }
 }

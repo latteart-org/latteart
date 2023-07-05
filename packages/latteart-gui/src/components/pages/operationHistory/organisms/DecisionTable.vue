@@ -139,14 +139,18 @@
               :style="{
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
-                  props.item[`set${index}`].isDefaultValue
+                  (props.item[`set${index}`]
+                    ? props.item[`set${index}`].isDefaultValue
+                    : true)
                     ? 'rgba(0,0,0,0.12)'
                     : 'rgba(0,0,0,0)',
               }"
               v-for="(_, index) in screenTransitions"
               :key="index"
             >
-              {{ props.item[`set${index}`].value }}
+              {{
+                props.item[`set${index}`] ? props.item[`set${index}`].value : ""
+              }}
             </td>
           </tr>
         </template>

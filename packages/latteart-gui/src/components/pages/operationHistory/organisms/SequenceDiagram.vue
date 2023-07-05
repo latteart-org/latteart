@@ -69,7 +69,7 @@
 <script lang="ts">
 /* tslint:disable:max-line-length */
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
@@ -132,6 +132,11 @@ export default class SequenceDiagram extends Vue {
       "sequence-diagram-container"
     ) as any;
     sequenceDiagram.oncontextmenu = () => false;
+  }
+
+  @Watch("currentTestResultId")
+  private resetTestPurposeIndex() {
+    this.selectedTestPurposeIndex = 0;
   }
 
   private async changeCurrentTestResultId(testResultId: string) {

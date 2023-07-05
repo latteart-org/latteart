@@ -130,8 +130,7 @@
     "creating-export-data": "Creating export data",
     "importing-data": "Importing data",
     "create-export-data-succeeded": "Data export is complete.",
-    "import-data-succeeded": "{returnName} import is complete.",
-    "export-download": "Download"
+    "import-data-succeeded": "{returnName} import is complete."
   },
   "config-io": {
     "import-config": "Import config.",
@@ -262,7 +261,7 @@
     "replay-capture": "Save replay result",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
-    "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
+    "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {
     "start-testing": "Start Session",

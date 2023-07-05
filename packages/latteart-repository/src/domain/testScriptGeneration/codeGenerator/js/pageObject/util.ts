@@ -13,7 +13,7 @@ export const generateFindElementMultiAccessorString = (
 
 export const generateAccessorString = (
   identifier: string,
-  locator: Locator[]
+  locators: Locator[]
 ): string => {
-  return `get ${identifier}() { return $('${locator[0].other}'); }`;
+  return `get ${identifier}() { return $('${locators[0].other}'); }`;
 };

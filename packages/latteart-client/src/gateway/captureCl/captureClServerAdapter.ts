@@ -105,7 +105,7 @@ export class CaptureClServerAdapter {
       onEnd: () => Promise<void>;
     }
   ): Promise<{
-    data: unknown;
+    data?: { startTimestamp: number };
     error?: CaptureCLServerError | undefined;
   }> {
     try {
@@ -226,9 +226,11 @@ export class CaptureClServerAdapter {
         JSON.stringify(target)
       );
 
-      console.info(`onStart: ${JSON.stringify(result.data)}`);
+      const startTimestamp = result.data as number;
 
-      return { data: undefined };
+      console.info(`onStart: ${startTimestamp}`);
+
+      return { data: { startTimestamp } };
     } catch (error) {
       console.error(error);
 

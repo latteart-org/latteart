@@ -20,7 +20,6 @@ import { RootState } from "..";
 import {
   AutofillConditionGroup,
   AutoOperation,
-  OperationForReplay,
 } from "@/lib/operationHistory/types";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
@@ -115,6 +114,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 root: true,
               });
               context.commit(
+                "operationHistory/clearStoringTestResultInfos",
+                null,
+                { root: true }
+              );
+              context.commit(
                 "operationHistory/clearScreenTransitionDiagramGraph",
                 null,
                 { root: true }
@@ -125,6 +129,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               context.commit("operationHistory/clearInputValueTable", null, {
                 root: true,
               });
+              context.commit(
+                "operationHistory/clearDisplayedScreenshotUrl",
+                null,
+                {
+                  root: true,
+                }
+              );
 
               await context.dispatch(
                 "operationHistory/createTestResult",
@@ -194,7 +205,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         .runOperations(...operations);
 
       if (runOperationsResult.isFailure()) {
-        const elementInfo = runOperationsResult.error.variables
+        const elementInfo = runOperationsResult.error.variables?.elementInfo
           ? JSON.parse(runOperationsResult.error.variables.elementInfo)
           : null;
         const operation = {
@@ -236,14 +247,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       return;
     }
 
-    const operations = convertOperationsForReplay(payload.operations);
-
     const result = await context.state.captureSession
       .automate({ interval: 1000 })
-      .runOperations(...operations);
+      .runOperations(...payload.operations);
 
     if (result.isFailure()) {
-      const elementInfo = result.error.variables
+      const elementInfo = result.error.variables?.elementInfo
         ? JSON.parse(result.error.variables.elementInfo)
         : null;
       const operation = {
@@ -626,9 +635,18 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         }),
       });
 
+      const testOption = (context.rootState as any).captureControl.testOption;
+      const firstTestPurpose = testOption.shouldRecordTestPurpose
+        ? {
+            value: testOption.firstTestPurpose,
+            details: testOption.firstTestPurposeDetails,
+          }
+        : undefined;
+
       const result = await client.startCapture(payload.url, {
         compressScreenshots:
           context.rootState.projectSettings.config.imageCompression.isEnabled,
+        firstTestPurpose,
       });
 
       if (result.isFailure()) {
@@ -640,20 +658,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }
 
       const session = result.data;
-      const testOption = (context.rootState as any).captureControl.testOption;
-
-      if (testOption.firstTestPurpose) {
-        context.commit(
-          "operationHistory/selectOperationNote",
-          { selectedOperationNote: { sequence: null, index: null } },
-          { root: true }
-        );
-
-        session.setNextTestPurpose({
-          value: testOption.firstTestPurpose,
-          details: testOption.firstTestPurposeDetails,
-        });
-      }
 
       context.dispatch("stopTimer");
       context.dispatch("startTimer");
@@ -741,23 +745,3 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 };
 
 export default actions;
-
-function convertOperationsForReplay(operations: OperationForReplay[]) {
-  const pauseCapturingIndex = operations.findIndex((operation) => {
-    return operation.type === "pause_capturing";
-  });
-
-  const tempOperations =
-    pauseCapturingIndex > 0
-      ? operations.slice(0, pauseCapturingIndex)
-      : operations;
-
-  const a = tempOperations.filter((tempOperation) => {
-    return !(
-      tempOperation.type === "click" &&
-      tempOperation.elementInfo?.attributes.type === "date"
-    );
-  });
-
-  return a;
-}

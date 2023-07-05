@@ -423,6 +423,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("clearTestResult");
 
+      context.commit("clearDisplayedScreenshotUrl");
+
       result.data.testStepIds.forEach((testStepId) => {
         context.commit("addTestStepId", { testStepId });
       });
@@ -562,14 +564,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearCheckedOperations");
     context.commit("clearWindows");
     context.commit("clearSequenceDiagramGraphs");
-    context.commit("removeStoringTestResultInfos", {
-      testResultInfos: [
-        {
-          id: context.state.testResultInfo.id,
-          name: context.state.testResultInfo.name,
-        },
-      ],
-    });
     context.commit("setTestResultInfo", {
       repositoryUrl: "",
       id: "",
@@ -636,7 +630,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         payload.sequenceView,
         createSequenceDiagramGraphExtender
       )
-    ).map(({ sequence, testPurpose, graph }) => {
+    ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(
@@ -646,23 +640,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         return element.firstElementChild!;
       })();
 
-      const disabledList = payload.sequenceView.scenarios
-        .flatMap(({ nodes }) => nodes)
-        .map((node, index) => {
-          return {
-            index,
-            disabled: node.disabled ?? false,
-          };
-        })
-        .filter((item) => item.disabled);
+      graph.graphExtender.extendGraph(svgElement, disabledNodeIndexes);
 
-      graph.graphExtender.extendGraph(svgElement, disabledList);
-
-      return {
-        sequence,
-        testPurpose,
-        element: svgElement,
-      };
+      return { sequence, testPurpose, element: svgElement };
     });
 
     context.commit("setSequenceDiagramGraphs", { graphs: graphs.flat() });

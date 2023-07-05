@@ -18,7 +18,7 @@ import {
   TestSuite,
   TestScriptModel,
   ScreenTransitionGraphImpl,
-  invalidOperationTypeExists,
+  isInvalidOperationType,
 } from "../../model";
 import {
   TestScriptCodeGenerator,
@@ -110,7 +110,7 @@ export class JSTestScriptCodeGenerator implements TestScriptCodeGenerator {
             model.pageObjects.map(({ id, methods }) => {
               const invalidTypeExists = methods.some((method) => {
                 return method.operations.some((operation) => {
-                  return invalidOperationTypeExists(operation.type);
+                  return isInvalidOperationType(operation.type);
                 });
               });
               return {

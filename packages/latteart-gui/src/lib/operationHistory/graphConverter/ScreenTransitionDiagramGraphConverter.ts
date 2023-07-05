@@ -17,7 +17,7 @@
 import MermaidGraph from "../mermaidGraph/MermaidGraph";
 import TextUtil from "./TextUtil";
 import FlowChartGraphExtender from "../mermaidGraph/extender/FlowChartGraphExtender";
-import { GraphView, GraphViewNode } from "latteart-client";
+import { GraphView } from "latteart-client";
 import InputValueTable, { ScreenTransition } from "../InputValueTable";
 
 export interface FlowChartGraphCallback {
@@ -141,9 +141,13 @@ function extractGraphSources(view: GraphView): GraphSource {
     });
 
   const edgeDetails = view.nodes.flatMap((node, index, array) => {
+    if (!node.windowId || !node.screenId) {
+      return [];
+    }
+
     const nextNode = array.at(index + 1);
 
-    if (nextNode && node.windowId !== nextNode.windowId) {
+    if (nextNode?.windowId && node.windowId !== nextNode.windowId) {
       return [];
     }
 

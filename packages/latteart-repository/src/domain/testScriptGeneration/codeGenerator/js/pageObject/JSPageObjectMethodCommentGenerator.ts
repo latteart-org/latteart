@@ -18,7 +18,7 @@ import { PageObjectMethodCommentGenerator } from "../../types";
 import {
   OperationType,
   PageObjectOperation,
-  invalidOperationTypeExists,
+  isInvalidOperationType,
 } from "../../../model";
 
 export class JSPageObjectMethodCommentGenerator
@@ -41,7 +41,7 @@ export class JSPageObjectMethodCommentGenerator
           ? `<a href="${target.imageUrl}">${name}</a>`
           : name;
 
-      const invalidTypeExists = invalidOperationTypeExists(type);
+      const invalidTypeExists = isInvalidOperationType(type);
       const operationTypeStr = this.getOperationTypeString(type);
       const operationStr = invalidTypeExists
         ? `<span style="color:red">Do '${operationTypeStr}'</span><span style="color:gray"># Please implement it manually</span>`

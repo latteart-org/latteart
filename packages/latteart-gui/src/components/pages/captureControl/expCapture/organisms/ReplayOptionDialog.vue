@@ -108,15 +108,21 @@ export default class ReplayOptionDialog extends Vue {
     return false;
   }
 
-  private get hasPauseCapturingOperation(): boolean {
+  private get hasIgnoredOperations(): boolean {
     const operations: OperationForGUI[] =
       this.$store.getters["operationHistory/getOperations"]();
 
-    return (
-      operations.find((operation) => {
-        return operation.type === "pause_capturing";
-      }) !== undefined
-    );
+    return operations.some(({ type }, index) => {
+      if (index > 0 && type === "start_capturing") {
+        return true;
+      }
+
+      if (type === "pause_capturing") {
+        return true;
+      }
+
+      return false;
+    });
   }
 
   private get sourceTestResultName() {
@@ -133,8 +139,8 @@ export default class ReplayOptionDialog extends Vue {
     this.testResultName = `${this.sourceTestResultName}_re`;
     this.isResultSavingEnabled = false;
     this.isComparisonEnabled = false;
-    this.alertMessage = this.hasPauseCapturingOperation
-      ? this.$store.getters.message("replay-option.alert-pause-capturing")
+    this.alertMessage = this.hasIgnoredOperations
+      ? this.$store.getters.message("replay-option.ignored-operations-alert")
       : "";
   }
 

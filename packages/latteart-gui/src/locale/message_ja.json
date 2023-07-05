@@ -9,7 +9,7 @@
     "confirm": "確認",
     "error": "エラー",
     "error-dialog-title": "エラーが発生しました",
-    "download-link": "ダウンロード"
+    "download-link": "ダウンロードする"
   },
   "app": {
     "start": "テスト開始",
@@ -134,8 +134,7 @@
     "creating-export-data": "エクスポートデータ作成中",
     "importing-data": "データインポート中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",
-    "import-data-succeeded": "{returnName}のインポートが完了しました。",
-    "export-download": "ダウンロードする"
+    "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
   "config-io": {
     "import-config": "設定のインポート",
@@ -266,7 +265,7 @@
     "replay-capture": "リプレイ結果を保存する",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
-    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
+    "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
   },
   "test-option": {
     "start-testing": "テストを始める",

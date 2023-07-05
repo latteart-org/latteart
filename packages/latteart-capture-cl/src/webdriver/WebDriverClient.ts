@@ -139,7 +139,7 @@ export default interface WebDriverClient extends ScriptExecutor {
    * @param xpath Target element XPath.
    * @param value Input value.
    */
-  clearAndSendKeysToElement(xpath: string, value: string): Promise<void>;
+  clearAndSendKeys(xpath: string, value: string): Promise<void>;
 
   /**
    * Keyboard input.

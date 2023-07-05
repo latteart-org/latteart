@@ -115,9 +115,7 @@
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       :downloadFileName="downloadFileName"
-      :downloadMessage="
-        $store.getters.message('import-export-dialog.export-download')
-      "
+      :downloadMessage="$store.getters.message('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
     <script-generation-option-dialog
@@ -302,40 +300,45 @@ export default class ManageView extends Vue {
           "manage-header.generating-test-script"
         ),
       });
-
-      const testScriptInfo = await this.$store
-        .dispatch("testManagement/generateAllSessionTestScripts", {
-          option,
-        })
-        .catch((error) => {
-          console.error(error);
-          this.errorMessage = error.message;
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
-
-      if (testScriptInfo.outputUrl) {
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "manage-header.generate-script-succeeded"
+      try {
+        const testScriptInfo = await this.$store.dispatch(
+          "testManagement/generateAllSessionTestScripts",
+          {
+            option,
+          }
         );
-        if (testScriptInfo.invalidOperationTypeExists) {
-          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
+        this.$store.dispatch("closeProgressDialog");
+
+        if (testScriptInfo.outputUrl) {
+          this.downloadLinkDialogTitle =
+            this.$store.getters.message("common.confirm");
+          this.downloadLinkDialogMessage = this.$store.getters.message(
+            "manage-header.generate-script-succeeded"
           );
+          if (testScriptInfo.invalidOperationTypeExists) {
+            this.downloadLinkDialogAlertMessage = this.$store.getters.message(
+              "history-view.generate-alert-info"
+            );
+          } else {
+            this.downloadLinkDialogAlertMessage = "";
+          }
+          this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
+          this.scriptGenerationOptionDialogIsOpened = false;
+          this.downloadLinkDialogOpened = true;
         } else {
-          this.downloadLinkDialogAlertMessage = "";
+          this.scriptGenerationOptionDialogIsOpened = false;
+          this.errorMessageDialogOpened = true;
         }
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.downloadLinkDialogOpened = true;
-      } else {
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.errorMessageDialogOpened = true;
+        this.isGeneratingTestScripts = false;
+      } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       }
-      this.isGeneratingTestScripts = false;
     })();
   }
 

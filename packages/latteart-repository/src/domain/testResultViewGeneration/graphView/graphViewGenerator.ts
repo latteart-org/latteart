@@ -41,6 +41,7 @@ export function generateGraphView(
     testSteps
       .filter(({ screenDef }, index, testSteps) => {
         return (
+          screenDef &&
           testSteps.findIndex(
             (testStep) => testStep.screenDef === screenDef
           ) === index
@@ -62,7 +63,7 @@ export function generateGraphView(
   const windows = testSteps
     .map(({ operation }) => operation.windowHandle)
     .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
+      return windowHandle && array.indexOf(windowHandle) === index;
     })
     .map((windowHandle, index) => {
       return { id: windowHandle, name: `window${index + 1}` };
@@ -231,68 +232,7 @@ function createNodes(
     };
   });
 
-  const triggerElementIds = testStepForNodes
-    .reduce((acc: TestStepGroup[], testStep, index) => {
-      const screenId = screenDefToScreen.get(testStep.screenDef)?.id;
-
-      if (!screenId) {
-        return acc;
-      }
-
-      const windowId = testStep.operation.windowHandle;
-      const isWindowChanged =
-        index > 0
-          ? windowId !== testSteps.at(index - 1)?.operation.windowHandle
-          : true;
-      const isScreenChanged =
-        index > 0
-          ? screenId !==
-            screenDefToScreen.get(testSteps.at(index - 1)?.screenDef ?? "")?.id
-          : true;
-
-      if (isWindowChanged || isScreenChanged) {
-        acc.push({ windowId, screenId, testSteps: [] });
-      }
-
-      acc.at(-1)?.testSteps.push(testStep);
-
-      return acc;
-    }, [])
-    .slice(0, -1)
-    .flatMap((testStepGroup) => {
-      const lastTestStepElementId =
-        testStepGroup.testSteps.at(-1)?.operation.targetElementId;
-
-      return lastTestStepElementId ? [lastTestStepElementId] : [];
-    })
-    .filter((elementId, index, array) => {
-      return array.indexOf(elementId) === index;
-    });
-
-  const testStepGroups = testStepForNodes.reduce(
-    (acc: TestStepGroup[], testStep, index, array) => {
-      const windowId = testStep.operation.windowHandle;
-      const screenId = screenDefToScreen.get(testStep.screenDef)?.id;
-
-      if (!screenId) {
-        return acc;
-      }
-
-      if (
-        index === 0 ||
-        triggerElementIds.includes(
-          array.at(index - 1)?.operation.targetElementId ?? ""
-        )
-      ) {
-        acc.push({ windowId, screenId, testSteps: [] });
-      }
-
-      acc.at(-1)?.testSteps.push(testStep);
-
-      return acc;
-    },
-    []
-  );
+  const testStepGroups = groupTestSteps(testStepForNodes, screenDefToScreen);
 
   return testStepGroups.map((testStepGroup) => {
     const nodeTestSteps = testStepGroup.testSteps.map((testStep) => {
@@ -322,6 +262,83 @@ function createNodes(
       defaultValues: nodeDefaultValues,
     };
   });
+}
+
+function groupTestSteps(
+  testStepForNodes: (Omit<TestStepForGraphView, "operation"> & {
+    operation: TestStepForGraphView["operation"] & { targetElementId?: string };
+  })[],
+  screenDefToScreen: Map<string, { id: string; name: string }>
+) {
+  const triggerElementIds = extractTriggerElementIds(
+    testStepForNodes,
+    screenDefToScreen
+  );
+
+  return testStepForNodes.reduce(
+    (acc: TestStepGroup[], testStep, index, array) => {
+      const windowId = testStep.operation.windowHandle;
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
+
+      const prevOperation =
+        index > 0 ? array.at(index - 1)?.operation : undefined;
+
+      if (
+        !prevOperation ||
+        testStep.operation.type === "start_capturing" ||
+        testStep.operation.type === "screen_transition" ||
+        triggerElementIds.includes(prevOperation.targetElementId ?? "")
+      ) {
+        acc.push({ windowId, screenId, testSteps: [] });
+      }
+
+      acc.at(-1)?.testSteps.push(testStep);
+
+      return acc;
+    },
+    []
+  );
+}
+
+function extractTriggerElementIds(
+  testStepForNodes: (Omit<TestStepForGraphView, "operation"> & {
+    operation: TestStepForGraphView["operation"] & { targetElementId?: string };
+  })[],
+  screenDefToScreen: Map<string, { id: string; name: string }>
+) {
+  return testStepForNodes
+    .reduce((acc: TestStepGroup[], testStep, index, array) => {
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
+
+      const windowId = testStep.operation.windowHandle;
+      const isWindowChanged =
+        index > 0
+          ? windowId !== array.at(index - 1)?.operation.windowHandle
+          : true;
+      const isScreenChanged =
+        index > 0 ? testStep.operation.type === "screen_transition" : true;
+
+      if (isWindowChanged || isScreenChanged) {
+        acc.push({ windowId, screenId, testSteps: [] });
+      }
+
+      acc.at(-1)?.testSteps.push(testStep);
+
+      return acc;
+    }, [])
+    .filter((_, index, array) => {
+      const nextGroup = array.at(index + 1);
+      return nextGroup?.windowId && nextGroup.screenId;
+    })
+    .flatMap((testStepGroup) => {
+      const lastTestStepElementId =
+        testStepGroup.testSteps.at(-1)?.operation.targetElementId;
+
+      return lastTestStepElementId ? [lastTestStepElementId] : [];
+    })
+    .filter((elementId, index, array) => {
+      return array.indexOf(elementId) === index;
+    });
 }
 
 function collectDefaultValues(
