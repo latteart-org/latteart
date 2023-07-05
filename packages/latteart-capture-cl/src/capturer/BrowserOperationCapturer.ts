@@ -469,7 +469,9 @@ export default class BrowserOperationCapturer {
         "change",
       ].includes(operation.type)
     ) {
-      throw new Error("InvalidOperationError");
+      const error = new Error("Invalid operation error.");
+      error.name = "InvalidOperationError";
+      throw error;
     }
 
     if (!this.webBrowser?.currentWindow) {
@@ -523,11 +525,6 @@ export default class BrowserOperationCapturer {
 
       const xpath = operation.elementInfo.xpath.toLowerCase();
 
-      const elements = await this.client.getElementsByXpath(xpath);
-      if (elements.length === 0) {
-        throw new Error("ElementNotFound");
-      }
-
       switch (operation.type) {
         case "click":
           await this.client.clickElement(xpath);
@@ -550,7 +547,7 @@ export default class BrowserOperationCapturer {
                 ? "00" + operation.input
                 : operation.input;
 
-            await this.client.clearAndSendKeysToElement(xpath, inputValue);
+            await this.client.clearAndSendKeys(xpath, inputValue);
           }
 
           return;
