@@ -48,8 +48,10 @@ export class CaptureClClientImpl implements CaptureClClient {
 
   async startCapture(
     url: string,
-    option: { compressScreenshots?: boolean } = {},
-    firstTestPurpose?: { value: string; details?: string }
+    option: {
+      compressScreenshots?: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    } = {}
   ): Promise<ServiceResult<CaptureSession>> {
     const compressScreenshots = option?.compressScreenshots ?? false;
 
@@ -57,8 +59,10 @@ export class CaptureClClientImpl implements CaptureClClient {
       {
         url,
         config: this.option.config,
-        option: { compressScreenshots },
-        firstTestPurpose,
+        option: {
+          compressScreenshots,
+          firstTestPurpose: option.firstTestPurpose,
+        },
       },
       this.option.testResult
     );
@@ -68,8 +72,10 @@ export class CaptureClClientImpl implements CaptureClClient {
     payload: {
       url: string;
       config: CaptureConfig;
-      option: { compressScreenshots: boolean };
-      firstTestPurpose?: { value: string; details?: string };
+      option: {
+        compressScreenshots: boolean;
+        firstTestPurpose?: { value: string; details?: string };
+      };
     },
     destTestResultAccessor?: TestResultAccessor
   ) {
@@ -139,8 +145,10 @@ class CaptureSessionImpl implements CaptureSession {
   async startCapture(payload: {
     url: string;
     config: CaptureConfig;
-    option: { compressScreenshots: boolean };
-    firstTestPurpose?: { value: string; details?: string };
+    option: {
+      compressScreenshots: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    };
   }) {
     const captureClErrors: ServiceError[] = [];
 
@@ -411,13 +419,13 @@ class CaptureSessionImpl implements CaptureSession {
         this.eventListeners.onAddTestStep(addOperationResult.data);
       }
 
-      if (!payload.firstTestPurpose) {
+      if (!payload.option.firstTestPurpose) {
         return new ServiceSuccess(undefined);
       }
 
       const addTestPurposeResult =
         await this.testResult.addTestPurposeToTestStep(
-          payload.firstTestPurpose,
+          payload.option.firstTestPurpose,
           addOperationResult.data.id
         );
 

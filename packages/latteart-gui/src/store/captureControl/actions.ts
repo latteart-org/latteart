@@ -643,14 +643,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           }
         : undefined;
 
-      const result = await client.startCapture(
-        payload.url,
-        {
-          compressScreenshots:
-            context.rootState.projectSettings.config.imageCompression.isEnabled,
-        },
-        firstTestPurpose
-      );
+      const result = await client.startCapture(payload.url, {
+        compressScreenshots:
+          context.rootState.projectSettings.config.imageCompression.isEnabled,
+        firstTestPurpose,
+      });
 
       if (result.isFailure()) {
         const errorMessage = context.rootGetters.message(
