@@ -18,7 +18,6 @@ import { TestResultAccessor } from "../repositoryService";
 import {
   CaptureConfig,
   Operation,
-  CoverageSource,
   TestStepNote,
   RunnableOperation,
 } from "../types";
@@ -74,11 +73,15 @@ export type CaptureClClient = {
   /**
    * start Capture
    * @param url target page url
+   * @param option.firstTestPurpose first test purpose
    * @param option.compressScreenshots whether to compress screenshots
    */
   startCapture(
     url: string,
-    option?: { compressScreenshots?: boolean }
+    option?: {
+      compressScreenshots?: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    }
   ): Promise<ServiceResult<CaptureSession>>;
 };
 

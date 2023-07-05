@@ -19,7 +19,6 @@ import {
   CaptureConfig,
   CapturedOperation,
   CapturedScreenTransition,
-  ElementInfo,
   RunnableOperation,
 } from "../types";
 import {
@@ -49,7 +48,10 @@ export class CaptureClClientImpl implements CaptureClClient {
 
   async startCapture(
     url: string,
-    option: { compressScreenshots?: boolean } = {}
+    option: {
+      compressScreenshots?: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    } = {}
   ): Promise<ServiceResult<CaptureSession>> {
     const compressScreenshots = option?.compressScreenshots ?? false;
 
@@ -57,7 +59,10 @@ export class CaptureClClientImpl implements CaptureClClient {
       {
         url,
         config: this.option.config,
-        option: { compressScreenshots },
+        option: {
+          compressScreenshots,
+          firstTestPurpose: option.firstTestPurpose,
+        },
       },
       this.option.testResult
     );
@@ -67,7 +72,10 @@ export class CaptureClClientImpl implements CaptureClClient {
     payload: {
       url: string;
       config: CaptureConfig;
-      option: { compressScreenshots: boolean };
+      option: {
+        compressScreenshots: boolean;
+        firstTestPurpose?: { value: string; details?: string };
+      };
     },
     destTestResultAccessor?: TestResultAccessor
   ) {
@@ -137,7 +145,10 @@ class CaptureSessionImpl implements CaptureSession {
   async startCapture(payload: {
     url: string;
     config: CaptureConfig;
-    option: { compressScreenshots: boolean };
+    option: {
+      compressScreenshots: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    };
   }) {
     const captureClErrors: ServiceError[] = [];
 
@@ -406,6 +417,26 @@ class CaptureSessionImpl implements CaptureSession {
 
       if (this.eventListeners.onAddTestStep) {
         this.eventListeners.onAddTestStep(addOperationResult.data);
+      }
+
+      if (!payload.option.firstTestPurpose) {
+        return new ServiceSuccess(undefined);
+      }
+
+      const addTestPurposeResult =
+        await this.testResult.addTestPurposeToTestStep(
+          payload.option.firstTestPurpose,
+          addOperationResult.data.id
+        );
+
+      if (addTestPurposeResult.isFailure()) {
+        captureClErrors.push(addTestPurposeResult.error);
+        this.endCapture();
+        return new ServiceFailure(addTestPurposeResult.error);
+      }
+
+      if (this.eventListeners.onAddTestPurpose) {
+        this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
       }
     }
 
