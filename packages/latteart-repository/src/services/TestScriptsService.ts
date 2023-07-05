@@ -139,12 +139,9 @@ export class TestScriptsService {
       )
     ).flat();
 
-    const testResults = await Promise.all(
-      testResultEntities.map((testResultEntity) =>
-        convertEntityToTestResult(testResultEntity)
-      )
+    const testResults = testResultEntities.map((testResultEntity) =>
+      convertEntityToTestResult(testResultEntity)
     );
-
     const screenDefinitionConfig = createScreenDefinitionConfig(params.option);
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
 
