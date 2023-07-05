@@ -69,11 +69,14 @@ export type PageObjectCommentGenerator = {
 };
 
 export type TestSuiteCodeGenerator = {
-  generateFrom(...testSuites: TestSuite[]): string;
+  generateFrom(useMultiLocator: boolean, ...testSuites: TestSuite[]): string;
 };
 
 export type TestScriptCodeGenerator = {
-  generateFrom(testScriptModel: TestScriptModel): TestScript;
+  generateFrom(
+    testScriptModel: TestScriptModel,
+    useMultiLocator: boolean
+  ): TestScript;
 };
 
 export type TestDataCodeGenerator = {
@@ -81,7 +84,7 @@ export type TestDataCodeGenerator = {
 };
 
 export type PageObjectCodeGenerator = {
-  generateFrom(pageObject: PageObject): string;
+  generateFrom(pageObject: PageObject, useMultiLocator: boolean): string;
 };
 
 export type NameGenerator = {

@@ -423,6 +423,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
       await context.dispatch("clearTestResult");
 
+      context.commit("clearDisplayedScreenshotUrl");
+
       result.data.testStepIds.forEach((testStepId) => {
         context.commit("addTestStepId", { testStepId });
       });
@@ -628,7 +630,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         payload.sequenceView,
         createSequenceDiagramGraphExtender
       )
-    ).map(({ sequence, testPurpose, graph }) => {
+    ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(
@@ -638,23 +640,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         return element.firstElementChild!;
       })();
 
-      const disabledList = payload.sequenceView.scenarios
-        .flatMap(({ nodes }) => nodes)
-        .map((node, index) => {
-          return {
-            index,
-            disabled: node.disabled ?? false,
-          };
-        })
-        .filter((item) => item.disabled);
+      graph.graphExtender.extendGraph(svgElement, disabledNodeIndexes);
 
-      graph.graphExtender.extendGraph(svgElement, disabledList);
-
-      return {
-        sequence,
-        testPurpose,
-        element: svgElement,
-      };
+      return { sequence, testPurpose, element: svgElement };
     });
 
     context.commit("setSequenceDiagramGraphs", { graphs: graphs.flat() });
@@ -675,7 +663,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   ) {
     const createFlowChartGraphExtender = ({
       edges,
-      source,
+      screens,
     }: FlowChartGraphExtenderSource) => {
       return new FlowChartGraphExtender({
         callback: {
@@ -692,21 +680,21 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             payload.callback.onClickEdge(imageFileUrl, inputValueTable);
           },
           onClickScreenRect: (index: number) => {
+            const screenId = screens.at(index)?.id;
+
+            if (!screenId) {
+              return;
+            }
+
             const inputValueTable = new InputValueTable(
-              edges
-                .filter(({ sourceScreenId }) => {
-                  return sourceScreenId === source.screens.at(index)?.id;
-                })
-                .flatMap(({ details }) => details)
+              screens.find(({ id }) => id === screenId)?.details ?? []
             );
-            const imageFileUrl = source.screens[index].imageFileUrl;
+            const imageFileUrl = screens[index].imageFileUrl;
 
             payload.callback.onClickScreenRect(imageFileUrl, inputValueTable);
           },
         },
-        nameMap: new Map(
-          source.screens.map(({ name }, index) => [index, name])
-        ),
+        nameMap: new Map(screens.map(({ name, id }) => [id, name])),
       });
     };
 
@@ -978,7 +966,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context,
     payload: {
       option: {
-        testScript: { isSimple: boolean };
+        testScript: { isSimple: boolean; useMultiLocator: boolean };
         testData: { useDataDriven: boolean; maxGeneration: number };
         buttonDefinitions: {
           tagname: string;

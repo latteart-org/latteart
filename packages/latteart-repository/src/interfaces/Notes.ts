@@ -46,3 +46,15 @@ export type GetNoteResponse = CreateNoteResponse;
  * Updated note data.
  */
 export type UpdateNoteResponse = CreateNoteResponse;
+
+/**
+ * Test purposes.
+ */
+export type GetTestPurposeResponse = CreateNoteResponse & {
+  notes: CreateNoteResponse[];
+};
+
+/**
+ * Note data with timestamp.
+ */
+export type NoteWithTimeResponse = CreateNoteResponse & { timestamp: number };

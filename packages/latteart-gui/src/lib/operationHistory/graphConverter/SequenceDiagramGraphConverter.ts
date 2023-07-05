@@ -88,6 +88,7 @@ export async function convertToSequenceDiagramGraphs(
     sequence: number;
     testPurpose?: { value: string; details?: string };
     graph: MermaidGraph;
+    disabledNodeIndexes: number[];
   }[]
 > {
   const testStepIdToSequence = new Map(
@@ -111,7 +112,10 @@ export async function convertToSequenceDiagramGraphs(
     const nodeScreenIds = scenario.nodes.map(({ screenId }) => screenId);
     const screens = view.screens.filter(({ id }) => nodeScreenIds.includes(id));
 
-    const graph = graphBuilder.build(screens, scenario.nodes);
+    const { graph, disabledNodeIndexes } = graphBuilder.build(
+      screens,
+      scenario.nodes
+    );
 
     const firstTestStepId = scenario.nodes.at(0)?.testSteps.at(0)?.id ?? "";
     const firstSequence = testStepIdToSequence.get(firstTestStepId) ?? 0;
@@ -124,6 +128,7 @@ export async function convertToSequenceDiagramGraphs(
         ? { value: testPurpose.value, details: testPurpose.details }
         : undefined,
       graph,
+      disabledNodeIndexes,
     };
   });
 }
@@ -149,7 +154,7 @@ function createGraphBuilder(
         testStepIdToSequence,
       });
 
-      const notes = nodes
+      const notes = sourceNodes
         .flatMap(({ testSteps }) => testSteps)
         .flatMap((testStep) => {
           if (!testStep.notes) {
@@ -166,8 +171,8 @@ function createGraphBuilder(
           });
         });
 
-      const edges = nodes.map((node, index, nodes) => {
-        const nextNode = nodes.at(index + 1);
+      const edges = sourceNodes.map((node, index, array) => {
+        const nextNode = array.at(index + 1);
 
         return {
           source: { title: "", url: "", screenDef: node.screenId },
@@ -205,12 +210,16 @@ function createGraphBuilder(
             },
           };
 
+      const disabledNodeIndexes = sourceNodes
+        .map((node, index) => {
+          return { index, disabled: node.disabled ?? false };
+        })
+        .filter(({ disabled }) => disabled)
+        .map(({ index }) => index);
+
       console.debug(graphText);
 
-      return {
-        graphText,
-        graphExtender,
-      };
+      return { graph: { graphText, graphExtender }, disabledNodeIndexes };
     },
   };
 }
@@ -227,33 +236,37 @@ function createSourceNodes(
     return [];
   }
 
-  const nodeChunks = nodes.reduce(
-    (acc, node, index, nodes) => {
-      const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
+  const nodeChunks = nodes
+    .filter((node) => {
+      return node.windowId && node.screenId;
+    })
+    .reduce(
+      (acc, node, index, nodes) => {
+        const beforeNode = index > 0 ? nodes.at(index - 1) : undefined;
 
-      if (beforeNode?.windowId !== node.windowId) {
-        const windowName = windowIdToName.get(node.windowId);
-        const sequence = testStepIdToSequence.get(
-          node.testSteps.at(0)?.id ?? ""
-        );
+        if (beforeNode?.windowId !== node.windowId) {
+          const windowName = windowIdToName.get(node.windowId);
+          const sequence = testStepIdToSequence.get(
+            node.testSteps.at(0)?.id ?? ""
+          );
 
-        if (windowName !== undefined && sequence !== undefined) {
-          acc.push({
-            window: { sequence, text: windowName },
-            nodes: [],
-          });
+          if (windowName !== undefined && sequence !== undefined) {
+            acc.push({
+              window: { sequence, text: windowName },
+              nodes: [],
+            });
+          }
         }
-      }
 
-      acc.at(-1)?.nodes.push(node);
+        acc.at(-1)?.nodes.push(node);
 
-      return acc;
-    },
-    new Array<{
-      window: { sequence: number; text: string };
-      nodes: Omit<SequenceViewNode, "windowId">[];
-    }>()
-  );
+        return acc;
+      },
+      new Array<{
+        window: { sequence: number; text: string };
+        nodes: Omit<SequenceViewNode, "windowId">[];
+      }>()
+    );
 
   return nodeChunks.flatMap(({ window, nodes }) =>
     nodes.map(({ screenId, testSteps, disabled }) => {

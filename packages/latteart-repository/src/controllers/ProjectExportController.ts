@@ -58,6 +58,7 @@ export class ProjectExportController extends Controller {
     @Body() requestBody: CreateProjectExportDto
   ): Promise<{ url: string }> {
     try {
+      const configService = new ConfigsService();
       const timestampService = new TimestampServiceImpl();
       const fileRepositoryManager = await createFileRepositoryManager();
       const screenshotFileRepository =
@@ -77,7 +78,7 @@ export class ProjectExportController extends Controller {
         testStep: new TestStepServiceImpl({
           screenshotFileRepository,
           timestamp: timestampService,
-          config: new ConfigsService(),
+          config: configService,
         }),
         screenshotFileRepository,
         workingFileRepository,
@@ -92,9 +93,11 @@ export class ProjectExportController extends Controller {
         projectId,
         requestBody.includeProject,
         requestBody.includeTestResults,
+        requestBody.includeConfig,
         {
           projectService,
           testResultService,
+          configService,
           exportFileRepositoryService,
           testProgressService,
         }

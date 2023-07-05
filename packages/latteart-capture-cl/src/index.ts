@@ -202,7 +202,9 @@ io.on("connection", (socket) => {
             );
           },
           onBrowserClosed: () => {
-            capturer.resumeCapturing();
+            capturer.resumeCapturing().catch((e) => {
+              LoggingService.debug(e);
+            });
 
             LoggingService.info("Browser closed.");
           },
@@ -328,20 +330,29 @@ io.on("connection", (socket) => {
               throw error;
             }
 
+            LoggingService.error(error.message, error);
+
             const channel = shouldWaitScreenTransition
               ? ServerToClientSocketIOEvent.RUN_OPERATION_AND_SCREEN_TRANSITION_FAILED
               : ServerToClientSocketIOEvent.RUN_OPERATION_FAILED;
-            if (error.message === "InvalidOperationError") {
+            if (error.name === "InvalidOperationError") {
               const serverError: ServerError = {
                 code: "invalid_operation",
                 message: "Invalid operation.",
               };
               socket.emit(channel, JSON.stringify(serverError));
             }
-            if (error.message === "ElementNotFound") {
+            if (error.name === "NoSuchElementError") {
               const serverError: ServerError = {
                 code: "element_not_found",
                 message: "Element not found.",
+              };
+              socket.emit(channel, JSON.stringify(serverError));
+            }
+            if (error.name === "ElementNotInteractableError") {
+              const serverError: ServerError = {
+                code: "element_not_interactable",
+                message: "Element not interactable.",
               };
               socket.emit(channel, JSON.stringify(serverError));
             }
@@ -363,7 +374,7 @@ io.on("connection", (socket) => {
         await capturer.start(url, () => {
           socket.emit(
             ServerToClientSocketIOEvent.CAPTURE_STARTED,
-            new TimestampImpl().epochMilliseconds().toString()
+            new TimestampImpl().epochMilliseconds()
           );
         });
       } catch (error) {

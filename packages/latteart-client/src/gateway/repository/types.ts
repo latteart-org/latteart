@@ -275,7 +275,7 @@ export type SessionForRepository = {
   attachedFiles: { name: string; fileUrl: string }[];
   testResultFiles: TestResultFileForRepository[];
   initialUrl: string;
-  testPurposes: ApiNoteForRepository[];
+  testPurposes: TestPurposeForRepository[];
   notes: ApiNoteForRepository[];
   testingTime: number;
 };
@@ -392,6 +392,10 @@ type ApiNoteForRepository = {
   details: string;
   imageFileUrl: string;
   tags: string[];
+};
+
+type TestPurposeForRepository = ApiNoteForRepository & {
+  notes: ApiNoteForRepository[];
 };
 
 export type SnapshotConfigForRepository = { locale: string };

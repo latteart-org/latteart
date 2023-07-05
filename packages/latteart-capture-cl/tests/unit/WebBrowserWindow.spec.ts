@@ -26,7 +26,7 @@ describe("WebBrowserWindow", () => {
       getCurrentPageSource: jest.fn(),
       getCurrentPageText: jest.fn(),
       clickElement: jest.fn(),
-      clearAndSendKeysToElement: jest.fn(),
+      clearAndSendKeys: jest.fn(),
       sendKeys: jest.fn(),
       acceptAlert: jest.fn(),
       dismissAlert: jest.fn(),

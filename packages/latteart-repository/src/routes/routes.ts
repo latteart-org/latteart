@@ -956,6 +956,7 @@ const models: TsoaRoute.Models = {
     properties: {
       includeTestResults: { dataType: "boolean", required: true },
       includeProject: { dataType: "boolean", required: true },
+      includeConfig: { dataType: "boolean", required: true },
     },
     additionalProperties: false,
   },
@@ -1116,6 +1117,27 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  GetTestPurposeResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "CreateNoteResponse" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            notes: {
+              dataType: "array",
+              array: { dataType: "refAlias", ref: "CreateNoteResponse" },
+              required: true,
+            },
+          },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   Session: {
     dataType: "refAlias",
     type: {
@@ -1129,7 +1151,7 @@ const models: TsoaRoute.Models = {
         },
         testPurposes: {
           dataType: "array",
-          array: { dataType: "refAlias", ref: "GetNoteResponse" },
+          array: { dataType: "refAlias", ref: "GetTestPurposeResponse" },
           required: true,
         },
         initialUrl: { dataType: "string", required: true },
@@ -1361,6 +1383,7 @@ const models: TsoaRoute.Models = {
           },
           required: true,
         },
+        useMultiLocator: { dataType: "boolean", required: true },
         optimized: { dataType: "boolean", required: true },
       },
       validators: {},
@@ -3110,6 +3133,33 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_import_config_not_exist_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["import_config_not_exist"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_import_test_result_not_exist_: {
     dataType: "refAlias",
     type: {
@@ -3196,6 +3246,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        includeConfig: { dataType: "boolean", required: true },
         includeProject: { dataType: "boolean", required: true },
         includeTestResults: { dataType: "boolean", required: true },
         source: {

@@ -35,12 +35,14 @@ import {
 import { MethodCall, TestSuite } from "./model";
 import { TestScriptSourceOperation } from "./types";
 
+export type TestscriptGenerationWarning = "invalid_operation_type_exists";
+
 export class TestScriptGenerator {
   constructor(private option: TestScriptGenerationOption) {}
 
   public generate(
     sources: { initialUrl: string; history: TestScriptSourceOperation[] }[]
-  ): TestScript {
+  ): { testScript: TestScript; warnings: TestscriptGenerationWarning[] } {
     const modelGeneratorType = this.option.optimized
       ? TestScriptModelGeneratorType.Optimized
       : TestScriptModelGeneratorType.Simple;
@@ -49,7 +51,8 @@ export class TestScriptGenerator {
       this.option
     ).create(modelGeneratorType);
 
-    const model = modelGenerator.generate(sources);
+    const { model, invalidOperationTypeExists } =
+      modelGenerator.generate(sources);
 
     const testDataMaxGenerationNum = this.option.testData.useDataDriven
       ? this.option.testData.maxGeneration
@@ -74,7 +77,15 @@ export class TestScriptGenerator {
       model.pageObjects
     ).create(TestScriptCodeLanguage.JavaScript);
 
-    return codeGenerator.generateFrom(model);
+    return {
+      testScript: codeGenerator.generateFrom(
+        model,
+        this.option.useMultiLocator
+      ),
+      warnings: invalidOperationTypeExists
+        ? ["invalid_operation_type_exists"]
+        : [],
+    };
   }
 
   private buildTestCaseIdToDataSet(

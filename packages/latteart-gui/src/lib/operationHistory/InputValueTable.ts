@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { normalizeXPath } from "../common/util";
+
 export type InputValueTableHeaderColumn = {
   index: number;
   sourceScreenDef: string;
@@ -50,7 +52,7 @@ export type InputValueTableRow = {
 
 export type ScreenTransition = {
   sourceScreen: { id: string; name: string };
-  destScreen: { id: string; name: string };
+  destScreen?: { id: string; name: string };
   trigger?: {
     sequence: number;
     type: string;
@@ -60,6 +62,7 @@ export type ScreenTransition = {
     pageTitle: string;
   };
   inputElements: {
+    id: string;
     xpath: string;
     tagname: string;
     text: string;
@@ -105,7 +108,7 @@ export default class InputValueTable {
       return {
         index,
         sourceScreenDef: transition.sourceScreen.name,
-        targetScreenDef: transition.destScreen.name,
+        targetScreenDef: transition.destScreen?.name ?? "",
         trigger: {
           elementText: transition.trigger?.target?.text ?? "",
           eventType: transition.trigger?.type ?? "",
@@ -120,61 +123,54 @@ export default class InputValueTable {
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const elementWithSequences = this.screenTransitions.flatMap(
-      (screenTransition) => {
+    const elementWithSequences = this.screenTransitions
+      .flatMap((screenTransition) => {
         return screenTransition.inputElements.map((inputElement) => {
-          const { xpath, tagname, text, attributes } = inputElement;
+          const { id, xpath, tagname, text, attributes } = inputElement;
           const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
-          const element = { xpath, tagname, text, attributes };
+          const element = { id, xpath, tagname, text, attributes };
           return { element, sequence };
         });
-      }
-    );
+      })
+      .filter(({ element: e1 }, index, array) => {
+        return array.findIndex(({ element: e2 }) => e2.id === e1.id) === index;
+      });
 
-    const inputs = this.screenTransitions.flatMap((screenTransition) => {
-      return screenTransition.inputElements.map((element) => {
-        const input = element.inputs.at(-1);
+    return elementWithSequences.map(({ element }, _, array) => {
+      const attributes = element.attributes;
+
+      const sequence =
+        array.find(
+          ({ element: { id }, sequence }) => id === element.id && sequence > 0
+        )?.sequence ?? 0;
+
+      const inputs = this.screenTransitions.map((screenTransition) => {
+        const inputElement = screenTransition.inputElements.find(
+          ({ id }) => id === element.id
+        );
+        const input = inputElement?.inputs.at(-1);
 
         if (input === undefined) {
           return {
-            xpath: element.xpath,
-            value: element.defaultValue ?? "",
+            value: inputElement?.defaultValue ?? "",
             isDefaultValue: true,
           };
         }
 
         return {
-          xpath: element.xpath,
           value: input.value,
           isDefaultValue: false,
         };
       });
-    });
 
-    return elementWithSequences
-      .filter(({ element: e1 }, index, array) => {
-        return (
-          array.findIndex(({ element: e2 }) => e2.xpath === e1.xpath) === index
-        );
-      })
-      .map(({ element }) => {
-        const attributes = element.attributes;
-        return {
-          elementId: attributes["id"] ?? "",
-          elementName: attributes["name"] ?? "",
-          elementType: attributes["type"] ?? "",
-          sequence:
-            elementWithSequences.find(
-              ({ element: { xpath }, sequence }) =>
-                xpath === element.xpath && sequence > 0
-            )?.sequence ?? 0,
-          inputs: inputs
-            .filter(({ xpath }) => xpath === element.xpath)
-            .map(({ value, isDefaultValue }) => {
-              return { value, isDefaultValue };
-            }),
-        };
-      });
+      return {
+        elementId: attributes["id"] ?? "",
+        elementName: attributes["name"] ?? "",
+        elementType: attributes["type"] ?? "",
+        sequence,
+        inputs,
+      };
+    });
   }
 
   /**

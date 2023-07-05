@@ -19,6 +19,7 @@ import {
   ActionFailure,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
+import { ProjectSettings } from "@/lib/common/settings/Settings";
 import { RepositoryService } from "latteart-client";
 
 export class ImportProjectAction {
@@ -36,8 +37,12 @@ export class ImportProjectAction {
    */
   public async import(
     source: { projectFile: { data: string; name: string } },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<ActionResult<{ projectId: string }>> {
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
+  ): Promise<ActionResult<{ projectId: string; config?: ProjectSettings }>> {
     const postProjectsResult =
       await this.repositoryService.importProjectRepository.postProjects(
         source,
@@ -45,6 +50,11 @@ export class ImportProjectAction {
       );
 
     if (postProjectsResult.isFailure()) {
+      if (postProjectsResult.error.code === "import_config_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-config-not-exist",
+        });
+      }
       if (postProjectsResult.error.code === "import_test_result_not_exist") {
         return new ActionFailure({
           messageKey: "error.import_export.import-test-result-not-exist",

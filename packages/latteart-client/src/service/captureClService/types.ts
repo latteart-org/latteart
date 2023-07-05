@@ -18,7 +18,6 @@ import { TestResultAccessor } from "../repositoryService";
 import {
   CaptureConfig,
   Operation,
-  CoverageSource,
   TestStepNote,
   RunnableOperation,
 } from "../types";
@@ -74,11 +73,15 @@ export type CaptureClClient = {
   /**
    * start Capture
    * @param url target page url
+   * @param option.firstTestPurpose first test purpose
    * @param option.compressScreenshots whether to compress screenshots
    */
   startCapture(
     url: string,
-    option?: { compressScreenshots?: boolean }
+    option?: {
+      compressScreenshots?: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    }
   ): Promise<ServiceResult<CaptureSession>>;
 };
 
@@ -196,5 +199,6 @@ export type CaptureCLServiceErrorCode =
   | "device_not_connected"
   | "invalid_operation"
   | "element_not_found"
+  | "element_not_interactable"
   | "capture_failed"
   | "client_side_capture_service_not_found";

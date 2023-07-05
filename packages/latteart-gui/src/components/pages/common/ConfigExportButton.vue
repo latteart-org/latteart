@@ -32,6 +32,7 @@
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       :downloadFileName="downloadFileName"
+      :downloadMessage="$store.getters.message('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-item>

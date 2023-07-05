@@ -19,7 +19,6 @@ import {
   CaptureConfig,
   CapturedOperation,
   CapturedScreenTransition,
-  ElementInfo,
   RunnableOperation,
 } from "../types";
 import {
@@ -49,7 +48,10 @@ export class CaptureClClientImpl implements CaptureClClient {
 
   async startCapture(
     url: string,
-    option: { compressScreenshots?: boolean } = {}
+    option: {
+      compressScreenshots?: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    } = {}
   ): Promise<ServiceResult<CaptureSession>> {
     const compressScreenshots = option?.compressScreenshots ?? false;
 
@@ -57,7 +59,10 @@ export class CaptureClClientImpl implements CaptureClClient {
       {
         url,
         config: this.option.config,
-        option: { compressScreenshots },
+        option: {
+          compressScreenshots,
+          firstTestPurpose: option.firstTestPurpose,
+        },
       },
       this.option.testResult
     );
@@ -67,7 +72,10 @@ export class CaptureClClientImpl implements CaptureClClient {
     payload: {
       url: string;
       config: CaptureConfig;
-      option: { compressScreenshots: boolean };
+      option: {
+        compressScreenshots: boolean;
+        firstTestPurpose?: { value: string; details?: string };
+      };
     },
     destTestResultAccessor?: TestResultAccessor
   ) {
@@ -137,7 +145,10 @@ class CaptureSessionImpl implements CaptureSession {
   async startCapture(payload: {
     url: string;
     config: CaptureConfig;
-    option: { compressScreenshots: boolean };
+    option: {
+      compressScreenshots: boolean;
+      firstTestPurpose?: { value: string; details?: string };
+    };
   }) {
     const captureClErrors: ServiceError[] = [];
 
@@ -188,6 +199,12 @@ class CaptureSessionImpl implements CaptureSession {
         return {
           errorCode: serverError.code,
           message: "Element not found.",
+        };
+      }
+      if (serverError.code === "element_not_interactable") {
+        return {
+          errorCode: serverError.code,
+          message: "Element not interactable.",
         };
       }
       if (serverError.code === "client_side_capture_service_not_found") {
@@ -379,6 +396,56 @@ class CaptureSessionImpl implements CaptureSession {
       return new ServiceFailure(error);
     }
 
+    if (result.data && this.testResult) {
+      const addOperationResult = await this.testResult.addOperation(
+        {
+          type: "start_capturing",
+          url: payload.url,
+          timestamp: `${result.data.startTimestamp}`,
+          isAutomatic: this.isAutomated,
+          title: "",
+          imageData: "",
+          windowHandle: "",
+          screenElements: [],
+          pageSource: "",
+          scrollPosition: { x: 0, y: 0 },
+          clientSize: { width: 0, height: 0 },
+          input: "",
+          elementInfo: null,
+          inputElements: [],
+        },
+        { compressScreenshot: false }
+      );
+
+      if (addOperationResult.isFailure()) {
+        return new ServiceFailure(addOperationResult.error);
+      }
+
+      if (this.eventListeners.onAddTestStep) {
+        this.eventListeners.onAddTestStep(addOperationResult.data);
+      }
+
+      if (!payload.option.firstTestPurpose) {
+        return new ServiceSuccess(undefined);
+      }
+
+      const addTestPurposeResult =
+        await this.testResult.addTestPurposeToTestStep(
+          payload.option.firstTestPurpose,
+          addOperationResult.data.id
+        );
+
+      if (addTestPurposeResult.isFailure()) {
+        captureClErrors.push(addTestPurposeResult.error);
+        this.endCapture();
+        return new ServiceFailure(addTestPurposeResult.error);
+      }
+
+      if (this.eventListeners.onAddTestPurpose) {
+        this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
+      }
+    }
+
     return new ServiceSuccess(undefined);
   }
 
@@ -468,6 +535,14 @@ class CaptureSessionImpl implements CaptureSession {
       const error: ServiceError = {
         errorCode: "run_operation_failed",
         message: "Run Operation failed.",
+        variables: {
+          title: operation.title ?? "",
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo
+            ? JSON.stringify(operation.elementInfo)
+            : "",
+        },
       };
       console.error(error.message);
       return new ServiceFailure(error);
@@ -489,6 +564,14 @@ class CaptureSessionImpl implements CaptureSession {
       const error: ServiceError = {
         errorCode: "run_operation_failed",
         message: "Run Operation failed.",
+        variables: {
+          title: operation.title ?? "",
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo
+            ? JSON.stringify(operation.elementInfo)
+            : "",
+        },
       };
       console.error(error.message);
       return new ServiceFailure(error);
@@ -526,13 +609,9 @@ class CaptureSessionImpl implements CaptureSession {
 
     const runOperations = (...operations: RunnableOperation[]) => {
       return executeAction(async () => {
-        const targetTestSteps = collectRunTargets(
-          ...operations.map((operation) => {
-            return { operation };
-          })
-        );
+        const runTargets = collectRunTargets(...operations);
 
-        const recordedWindowHandles = targetTestSteps
+        const recordedWindowHandles = runTargets
           .map(({ operation }) => {
             return operation.windowHandle;
           })
@@ -541,9 +620,9 @@ class CaptureSessionImpl implements CaptureSession {
           });
         const replayWindowHandles: string[] = [];
 
-        for (const [index, testStep] of targetTestSteps.entries()) {
+        for (const [index, runTarget] of runTargets.entries()) {
           if (option.preScript) {
-            await option.preScript(testStep.operation, index);
+            await option.preScript(runTarget.operation, runTarget.index);
           }
 
           if (index === 0) {
@@ -554,8 +633,8 @@ class CaptureSessionImpl implements CaptureSession {
             });
           } else {
             const intervalTime = (() => {
-              const previous = targetTestSteps[index - 1].operation.timestamp;
-              const current = testStep.operation.timestamp;
+              const previous = runTargets.at(index - 1)?.operation.timestamp;
+              const current = runTarget.operation.timestamp;
 
               if (!previous || !current) {
                 return 0;
@@ -581,38 +660,36 @@ class CaptureSessionImpl implements CaptureSession {
             }
           }
 
-          const replayTargetOperation = (() => {
-            if (testStep.operation.type !== "switch_window") {
-              return testStep.operation;
+          const runTargetOperation = (() => {
+            if (runTarget.operation.type !== "switch_window") {
+              return runTarget.operation;
             }
 
             const handleKey = recordedWindowHandles.indexOf(
-              testStep.operation.input
+              runTarget.operation.input
             );
 
             if (handleKey === -1) {
-              return testStep.operation;
+              return runTarget.operation;
             }
 
             const switchHandleId = replayWindowHandles[handleKey];
             return {
-              ...testStep.operation,
+              ...runTarget.operation,
               input: switchHandleId,
             };
           })();
 
-          if (replayTargetOperation.type === "screen_transition") {
+          if (runTargetOperation.type === "screen_transition") {
             continue;
           }
 
-          const nextOperation = targetTestSteps[index + 1]?.operation as
-            | Operation
-            | undefined;
+          const nextOperation = runTargets.at(index + 1);
 
           const result =
-            nextOperation?.type === "screen_transition"
-              ? await this.runOperationAndWait(replayTargetOperation)
-              : await this.runOperation(replayTargetOperation);
+            nextOperation?.operation.type === "screen_transition"
+              ? await this.runOperationAndWait(runTargetOperation)
+              : await this.runOperation(runTargetOperation);
 
           if (result.isFailure()) {
             return result;
@@ -689,64 +766,76 @@ class CaptureSessionImpl implements CaptureSession {
   }
 }
 
-function collectRunTargets<
-  T extends {
-    operation: { type: string; input: string; elementInfo: ElementInfo | null };
-  }
->(...from: T[]) {
-  return from.filter((testStep, index, array) => {
-    const isDateInputOperation = (
-      target: Pick<Operation, "type" | "elementInfo">,
-      type: "click" | "change"
-    ) => {
-      return (
-        target.type === type &&
-        target.elementInfo?.tagname.toLowerCase() === "input" &&
-        target.elementInfo.attributes.type === "date"
-      );
-    };
+function collectRunTargets(...operations: RunnableOperation[]) {
+  const isDateInputOperation = (
+    target: Pick<Operation, "type" | "elementInfo">,
+    type: "click" | "change"
+  ) => {
+    return (
+      target.type === type &&
+      target.elementInfo?.tagname.toLowerCase() === "input" &&
+      target.elementInfo.attributes.type === "date"
+    );
+  };
 
-    const isNumberInputOperation = (
-      target: Pick<Operation, "type" | "elementInfo">,
-      type: "click" | "change"
-    ) => {
-      return (
-        target.type === type &&
-        target.elementInfo?.tagname.toLowerCase() === "input" &&
-        target.elementInfo.attributes.type === "number"
-      );
-    };
+  const isNumberInputOperation = (
+    target: Pick<Operation, "type" | "elementInfo">,
+    type: "click" | "change"
+  ) => {
+    return (
+      target.type === type &&
+      target.elementInfo?.tagname.toLowerCase() === "input" &&
+      target.elementInfo.attributes.type === "number"
+    );
+  };
 
-    if (isDateInputOperation(testStep.operation, "change")) {
-      const nextOperation:
-        | Pick<Operation, "type" | "input" | "elementInfo">
-        | undefined = array[index + 1]?.operation;
-
+  return operations
+    .map((operation, index) => {
+      return { operation, index };
+    })
+    .filter((runTarget, index, array) => {
       if (
-        nextOperation &&
-        isDateInputOperation(nextOperation, "change") &&
-        testStep.operation.elementInfo?.xpath ===
-          nextOperation.elementInfo?.xpath
+        ["start_capturing", "pause_capturing", "resume_capturing"].includes(
+          runTarget.operation.type
+        )
       ) {
         return false;
       }
-    }
 
-    if (isNumberInputOperation(testStep.operation, "click")) {
-      const preOperation:
-        | Pick<Operation, "type" | "input" | "elementInfo">
-        | undefined = array[index - 1]?.operation;
-
-      if (
-        preOperation &&
-        isNumberInputOperation(preOperation, "change") &&
-        testStep.operation.elementInfo?.xpath ===
-          preOperation.elementInfo?.xpath
-      ) {
+      if (isDateInputOperation(runTarget.operation, "click")) {
         return false;
       }
-    }
 
-    return true;
-  });
+      if (isDateInputOperation(runTarget.operation, "change")) {
+        const nextOperation:
+          | Pick<Operation, "type" | "input" | "elementInfo">
+          | undefined = array.at(index + 1)?.operation;
+
+        if (
+          nextOperation &&
+          isDateInputOperation(nextOperation, "change") &&
+          runTarget.operation.elementInfo?.xpath ===
+            nextOperation.elementInfo?.xpath
+        ) {
+          return false;
+        }
+      }
+
+      if (isNumberInputOperation(runTarget.operation, "click")) {
+        const preOperation:
+          | Pick<Operation, "type" | "input" | "elementInfo">
+          | undefined = array.at(index - 1)?.operation;
+
+        if (
+          preOperation &&
+          isNumberInputOperation(preOperation, "change") &&
+          runTarget.operation.elementInfo?.xpath ===
+            preOperation.elementInfo?.xpath
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 }

@@ -28,6 +28,7 @@ export function generateSequenceView(
     testSteps
       .filter(({ screenDef }, index, testSteps) => {
         return (
+          screenDef &&
           testSteps.findIndex(
             (testStep) => testStep.screenDef === screenDef
           ) === index
@@ -41,7 +42,7 @@ export function generateSequenceView(
   const windows = testSteps
     .map(({ operation }) => operation.windowHandle)
     .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
+      return windowHandle && array.indexOf(windowHandle) === index;
     })
     .map((windowHandle, index) => {
       return { id: windowHandle, name: `window${index + 1}` };
@@ -79,19 +80,17 @@ function createScenarios(
       });
     }
 
-    const screenId = screenDefToScreenId.get(testStep.screenDef)?.id;
+    const screenId = screenDefToScreenId.get(testStep.screenDef)?.id ?? "";
 
-    if (screenId) {
-      const lastNode = acc.at(-1)?.nodes.at(-1);
-      const newNodes = createNodes(
-        screenId,
-        testStep.operation.windowHandle,
-        testStep.operation.type,
-        lastNode
-      );
+    const lastNode = acc.at(-1)?.nodes.at(-1);
+    const newNodes = createNodes(
+      screenId,
+      testStep.operation.windowHandle,
+      testStep.operation.type,
+      lastNode
+    );
 
-      acc.at(-1)?.nodes.push(...newNodes);
-    }
+    acc.at(-1)?.nodes.push(...newNodes);
 
     acc
       .at(-1)

@@ -41,6 +41,7 @@ export function generateGraphView(
     testSteps
       .filter(({ screenDef }, index, testSteps) => {
         return (
+          screenDef &&
           testSteps.findIndex(
             (testStep) => testStep.screenDef === screenDef
           ) === index
@@ -62,7 +63,7 @@ export function generateGraphView(
   const windows = testSteps
     .map(({ operation }) => operation.windowHandle)
     .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
+      return windowHandle && array.indexOf(windowHandle) === index;
     })
     .map((windowHandle, index) => {
       return { id: windowHandle, name: `window${index + 1}` };
@@ -201,63 +202,147 @@ export class ElementMapperFactory {
   }
 }
 
+type TestStepGroup = {
+  windowId: string;
+  screenId: string;
+  testSteps: (Omit<TestStepForGraphView, "operation"> & {
+    operation: Omit<TestStepForGraphView["operation"], "elementInfo"> & {
+      targetElementId?: string;
+    };
+  })[];
+};
+
 function createNodes(
   testSteps: TestStepForGraphView[],
   screenDefToScreen: Map<string, { id: string; name: string }>,
   elementMapper: ElementMapper
-) {
-  return testSteps.reduce((acc: GraphView["nodes"], testStep, index) => {
-    const screenId = screenDefToScreen.get(testStep.screenDef)?.id;
-
-    if (!screenId) {
-      return acc;
-    }
-
-    const windowId = testStep.operation.windowHandle;
-    const isWindowChanged =
-      index > 0
-        ? windowId !== testSteps.at(index - 1)?.operation.windowHandle
-        : true;
-    const isScreenChanged =
-      index > 0
-        ? screenId !==
-          screenDefToScreen.get(testSteps.at(index - 1)?.screenDef ?? "")?.id
-        : true;
-
-    if (isWindowChanged || isScreenChanged) {
-      acc.push({ windowId, screenId, testSteps: [], defaultValues: [] });
-    }
-
-    const { url, title, elementInfo } = testStep.operation;
-    const targetElementId = elementInfo
-      ? elementMapper.findElement(url, title, elementInfo.xpath)?.id
+): GraphView["nodes"] {
+  const testStepForNodes = testSteps.map((testStep) => {
+    const targetElementId = testStep.operation.elementInfo
+      ? elementMapper.findElement(
+          testStep.operation.url,
+          testStep.operation.title,
+          testStep.operation.elementInfo.xpath
+        )?.id
       : undefined;
 
-    acc.at(-1)?.testSteps.push({
-      id: testStep.id,
-      type: testStep.operation.type,
-      input: testStep.operation.input,
-      targetElementId,
-      noteIds: [...testStep.bugs, ...testStep.notices].map(({ id }) => id),
-      testPurposeId: testStep.intention?.id,
-      pageUrl: testStep.operation.url,
-      pageTitle: testStep.operation.title,
+    return {
+      ...testStep,
+      operation: { ...testStep.operation, targetElementId },
+    };
+  });
+
+  const testStepGroups = groupTestSteps(testStepForNodes, screenDefToScreen);
+
+  return testStepGroups.map((testStepGroup) => {
+    const nodeTestSteps = testStepGroup.testSteps.map((testStep) => {
+      const { targetElementId } = testStep.operation;
+
+      return {
+        id: testStep.id,
+        type: testStep.operation.type,
+        input: testStep.operation.input,
+        targetElementId,
+        noteIds: [...testStep.bugs, ...testStep.notices].map(({ id }) => id),
+        testPurposeId: testStep.intention?.id,
+        pageUrl: testStep.operation.url,
+        pageTitle: testStep.operation.title,
+      };
     });
 
-    const defaultValues = collectDefaultValues(
-      testStep.operation,
-      elementMapper
-    );
+    const lastTestStep = testStepGroup.testSteps.at(-1);
+    const nodeDefaultValues = lastTestStep
+      ? collectDefaultValues(lastTestStep.operation, elementMapper)
+      : [];
 
-    const prevValuesLength = acc.at(-1)?.defaultValues.length ?? 0;
-    acc.at(-1)?.defaultValues.splice(0, prevValuesLength, ...defaultValues);
+    return {
+      windowId: testStepGroup.windowId,
+      screenId: testStepGroup.screenId,
+      testSteps: nodeTestSteps,
+      defaultValues: nodeDefaultValues,
+    };
+  });
+}
 
-    return acc;
-  }, []);
+function groupTestSteps(
+  testStepForNodes: (Omit<TestStepForGraphView, "operation"> & {
+    operation: TestStepForGraphView["operation"] & { targetElementId?: string };
+  })[],
+  screenDefToScreen: Map<string, { id: string; name: string }>
+) {
+  const triggerElementIds = extractTriggerElementIds(
+    testStepForNodes,
+    screenDefToScreen
+  );
+
+  return testStepForNodes.reduce(
+    (acc: TestStepGroup[], testStep, index, array) => {
+      const windowId = testStep.operation.windowHandle;
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
+
+      const prevOperation =
+        index > 0 ? array.at(index - 1)?.operation : undefined;
+
+      if (
+        !prevOperation ||
+        testStep.operation.type === "start_capturing" ||
+        testStep.operation.type === "screen_transition" ||
+        triggerElementIds.includes(prevOperation.targetElementId ?? "")
+      ) {
+        acc.push({ windowId, screenId, testSteps: [] });
+      }
+
+      acc.at(-1)?.testSteps.push(testStep);
+
+      return acc;
+    },
+    []
+  );
+}
+
+function extractTriggerElementIds(
+  testStepForNodes: (Omit<TestStepForGraphView, "operation"> & {
+    operation: TestStepForGraphView["operation"] & { targetElementId?: string };
+  })[],
+  screenDefToScreen: Map<string, { id: string; name: string }>
+) {
+  return testStepForNodes
+    .reduce((acc: TestStepGroup[], testStep, index, array) => {
+      const screenId = screenDefToScreen.get(testStep.screenDef)?.id ?? "";
+
+      const windowId = testStep.operation.windowHandle;
+      const isWindowChanged =
+        index > 0
+          ? windowId !== array.at(index - 1)?.operation.windowHandle
+          : true;
+      const isScreenChanged =
+        index > 0 ? testStep.operation.type === "screen_transition" : true;
+
+      if (isWindowChanged || isScreenChanged) {
+        acc.push({ windowId, screenId, testSteps: [] });
+      }
+
+      acc.at(-1)?.testSteps.push(testStep);
+
+      return acc;
+    }, [])
+    .filter((_, index, array) => {
+      const nextGroup = array.at(index + 1);
+      return nextGroup?.windowId && nextGroup.screenId;
+    })
+    .flatMap((testStepGroup) => {
+      const lastTestStepElementId =
+        testStepGroup.testSteps.at(-1)?.operation.targetElementId;
+
+      return lastTestStepElementId ? [lastTestStepElementId] : [];
+    })
+    .filter((elementId, index, array) => {
+      return array.indexOf(elementId) === index;
+    });
 }
 
 function collectDefaultValues(
-  operation: TestStepForGraphView["operation"],
+  operation: TestStepGroup["testSteps"][0]["operation"],
   elementMapper: ElementMapper
 ) {
   return operation.inputElements

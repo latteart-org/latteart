@@ -21,6 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
+import { SettingsForRepository } from "./types";
 
 export class ImportProjectRepository {
   constructor(private restClient: RESTClient) {}
@@ -32,8 +33,17 @@ export class ImportProjectRepository {
    */
   public async postProjects(
     source: { projectFile: { data: string; name: string } },
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
-  ): Promise<RepositoryAccessResult<{ projectId: string }>> {
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
+  ): Promise<
+    RepositoryAccessResult<{
+      projectId: string;
+      config?: SettingsForRepository;
+    }>
+  > {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/imports/projects`,
@@ -41,6 +51,7 @@ export class ImportProjectRepository {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
+          includeConfig: selectOption.includeConfig,
         }
       );
 
@@ -49,7 +60,10 @@ export class ImportProjectRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as { projectId: string },
+        data: response.data as {
+          projectId: string;
+          config?: SettingsForRepository;
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

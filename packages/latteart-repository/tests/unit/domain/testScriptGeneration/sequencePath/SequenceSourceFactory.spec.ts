@@ -23,7 +23,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id1",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url1",
         imageFilePath: "imageFilePath1",
@@ -39,7 +39,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id2",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url1",
         imageFilePath: "imageFilePath1",
@@ -55,7 +55,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id3",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url2",
         imageFilePath: "imageFilePath2",
@@ -71,7 +71,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id4",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url2",
         imageFilePath: "imageFilePath2",
@@ -87,7 +87,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id5",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url3",
         imageFilePath: "imageFilePath3",
@@ -103,7 +103,7 @@ describe("SequenceSourceFactory", () => {
           attributes: {
             id: "id6",
           },
-          locator: "locator",
+          locators: [],
         },
         url: "url3",
         imageFilePath: "imageFilePath3",

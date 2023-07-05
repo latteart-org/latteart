@@ -49,7 +49,7 @@ describe("IdentifierUtilクラスの", () => {
           value: "value1",
           type: "radio",
         },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -62,7 +62,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", id: "id1", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -75,7 +75,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", value: "" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -88,7 +88,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -101,7 +101,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -114,7 +114,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "",
         xpath: "xpath1",
         attributes: { value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -127,7 +127,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", id: "test  id!{> \t1  ", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -140,7 +140,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", id: "01", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const identifier =
         new IdentifierGenerator().generateIdentifierFromElement(element);
@@ -153,7 +153,7 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", id: "id", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
 
       const generator = new IdentifierGenerator();
@@ -169,14 +169,14 @@ describe("IdentifierUtilクラスの", () => {
         text: "text1",
         xpath: "xpath1",
         attributes: { name: "name1", id: "id", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
       const element2: TestScriptSourceElement = {
         tagname: "input",
         text: "text1",
         xpath: "xpath2",
         attributes: { name: "name1", id: "id", value: "value1" },
-        locator: "locator",
+        locators: [{ other: "locator" }],
       };
 
       const generator = new IdentifierGenerator();

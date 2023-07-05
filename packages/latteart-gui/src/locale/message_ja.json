@@ -9,7 +9,7 @@
     "confirm": "確認",
     "error": "エラー",
     "error-dialog-title": "エラーが発生しました",
-    "download-link": "ダウンロード"
+    "download-link": "ダウンロードする"
   },
   "app": {
     "start": "テスト開始",
@@ -47,6 +47,10 @@
     "done-run-operations": "リプレイが終了しました。",
     "run-operations-canceled": "リプレイを中止しました。"
   },
+  "auto-operation": {
+    "done-title": "自動操作終了",
+    "done-auto-operations": "自動操作が終了しました。"
+  },
   "navigate": {
     "back": "ブラウザバックを行う",
     "forward": "ブラウザフォワードを行う"
@@ -80,6 +84,8 @@
     "template-only": "雛形のみ",
     "method": "方式",
     "method-data-driven": "データ駆動方式を使用する",
+    "use-multi-locator1": "",
+    "use-multi-locator2": "を利用した頑健なテストスクリプトを生成（実験的）",
     "generate-simple-testscript": "記録された操作を再現するテストスクリプトを生成（冗長なスクリプトが出力される場合があります）",
     "generate-only-template": "※最大数が0の場合は雛形のみを生成します。",
     "custom-button-definition": "カスタムボタン定義",
@@ -115,11 +121,12 @@
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
-    "project-import-title": "プロジェクトのインポート",
+    "project-import-title": "設定・プロジェクトのインポート",
     "test-result-export-title": "テスト結果のエクスポート",
-    "project-export-title": "プロジェクトのエクスポート",
+    "project-export-title": "設定・プロジェクトのエクスポート",
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
+    "config-data": "設定情報",
     "select-test-result-file-label": "テスト結果ファイル",
     "select-test-result-file-button": "選択",
     "select-project-file-label": "プロジェクトファイル",
@@ -258,7 +265,7 @@
     "replay-capture": "リプレイ結果を保存する",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
-    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
+    "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
   },
   "test-option": {
     "start-testing": "テストを始める",
@@ -272,7 +279,8 @@
     "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
     "hide-hidden-elements": "hidden要素は表示しない",
-    "autofill-dialog-message": "入力値セット名を入力してください。"
+    "autofill-dialog-message": "入力値セット名を入力してください。",
+    "end-of-test": "テスト終了"
   },
   "note-list-dialog": {
     "note-list": "メモ一覧",
@@ -334,8 +342,8 @@
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "import-option": "プロジェクトのインポート",
-    "export-option": "プロジェクトのエクスポート",
+    "import-option": "設定・プロジェクトのインポート",
+    "export-option": "設定・プロジェクトのエクスポート",
     "optional-function": "オプション機能",
     "locale": "言語"
   },
@@ -442,18 +450,6 @@
     "import": "実行結果の取り込み",
     "file": "添付ファイル",
     "add-file": "添付ファイルの追加",
-    "test": "実施されたテスト",
-    "bug": "見つけたバグ",
-    "bug-status": "起票状態",
-    "bug-unreported": "起票なし",
-    "notice": "テスト中の気付き",
-    "bug-details": "詳細",
-    "bug-reported": "起票済み",
-    "content": "内容",
-    "summary": "概要",
-    "details": "詳細",
-    "tags": "タグ",
-    "none": "なし",
     "delete-test-result-confirm": "テスト結果を削除してもよろしいですか？",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
     "test-result-import-error": "テスト実行モデルファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
@@ -464,6 +460,23 @@
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動"
+  },
+  "test-purpose-note-list": {
+    "title": "テスト目的・気づき",
+    "open": "テスト目的をすべて開く",
+    "close": "テスト目的をすべて閉じる",
+    "details": "詳細",
+    "no-test-purpose": "目的なし",
+    "bug-status": "起票状態：{status}",
+    "bug-reported": "起票済み",
+    "bug-unreported": "起票なし",
+    "none": "なし"
+  },
+  "note-details-dialog": {
+    "details": "詳細",
+    "status": "起票状態",
+    "summary": "概要",
+    "tags": "タグ"
   },
   "session-list": {
     "complete": "セッションを完了にする",
@@ -544,6 +557,7 @@
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
+      "run_operations_failed_details": "以下の操作の実行に失敗しました。\n\n ・[ページタイトル]:{title}\n ・[要素タグ]:{tag}\n ・[要素名]:{tagname}\n ・[テキスト]:{text}\n ・[イベント種別]:{type}\n ・[入力値]:{input}",
       "capture_failed": "操作の記録中にエラーが発生しました。",
       "invalid_operation": "無効な操作が含まれているため、リプレイを中止しました。",
       "element_not_found": "画面要素が見つからないため、リプレイを中止しました。",
@@ -553,7 +567,6 @@
       "create_test_result_directory_failed": "テスト結果ディレクトリの作成に失敗しました。保存先ディレクトリパスが有効かご確認ください。",
       "test_result_directory_already_exists": "保存先ディレクトリと同名のディレクトリが既に存在します。ご指定の保存先ディレクトリを変更してください。",
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
-      "run_auto_operations_failed": "自動操作実行中にエラーが発生しました。",
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。"
@@ -598,6 +611,7 @@
       "import-data-error": "データインポートに失敗しました。",
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
+      "import-config-not-exist": "インポートデータに設定情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
     }
   }

@@ -32,7 +32,11 @@ export interface ProjectRepository {
    */
   postProjectForExport(
     projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
   ): Promise<RepositoryAccessResult<{ url: string }>>;
 
   getProjects(): Promise<
@@ -70,7 +74,11 @@ export class ProjectRESTRepository implements ProjectRepository {
    */
   public async postProjectForExport(
     projectId: string,
-    selectOption: { includeProject: boolean; includeTestResults: boolean }
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
   ): Promise<RepositoryAccessResult<{ url: string }>> {
     try {
       const response = await this.restClient.httpPost(

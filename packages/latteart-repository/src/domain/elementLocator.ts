@@ -16,6 +16,12 @@
 
 import { ElementInfo } from "./types";
 
+export type Locator = {
+  [key in LocatorType]?: string;
+};
+
+type LocatorType = "id" | "name" | "linkText" | "innerText" | "xpath" | "other";
+
 export type ElementLocatorFormatter = {
   formatIdLocator: (id: string) => string;
   formatNameAndValueLocator: (name: string, value: string) => string;
@@ -52,26 +58,43 @@ export type ElementLocatorSource = {
 };
 
 export interface ElementLocatorGenerator {
-  generateFrom(source: ElementLocatorSource): string;
+  generateFrom(source: ElementLocatorSource): Locator[];
 }
 
 export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
   constructor(
     private formatter: ElementLocatorFormatter,
     private screenElements: ElementInfo[],
+    private useMultiLocator: boolean,
     private maxTextLength = 100
   ) {}
 
-  public generateFrom(source: ElementLocatorSource): string {
-    const locator = this.generateLocator(source);
-    return locator !== ""
-      ? locator
-      : this.formatter.formatXPathLocator(source.xpath);
+  public generateFrom(source: ElementLocatorSource): Locator[] {
+    let locators: Locator[];
+
+    if (this.useMultiLocator) {
+      locators = this.generateLocatorForMultiLocator(source);
+      locators.push({ xpath: this.formatter.formatXPathLocator(source.xpath) });
+    } else {
+      const locator = this.generateLocator(source);
+      locators = [
+        {
+          other:
+            locator !== ""
+              ? locator
+              : this.formatter.formatXPathLocator(source.xpath),
+        },
+      ];
+    }
+    return locators;
   }
 
   private hasSameIdElement(xpath: string, id: string): boolean {
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
-      (element) => element.attributes.id === id && element.xpath !== xpath
+      (element) =>
+        element.attributes.id === id &&
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
@@ -80,17 +103,21 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
     name: string,
     value: string
   ): boolean {
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
       (element) =>
         element.attributes.name === name &&
         element.value === value &&
-        element.xpath !== xpath
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
   private hasSameNameElement(xpath: string, name: string): boolean {
+    const normalizedXPath = this.normalizeXPath(xpath);
     return this.screenElements.some(
-      (element) => element.attributes.name === name && element.xpath !== xpath
+      (element) =>
+        element.attributes.name === name &&
+        this.normalizeXPath(element.xpath) !== normalizedXPath
     );
   }
 
@@ -100,15 +127,60 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
     tagname: string
   ): boolean {
     return this.screenElements.some((element) => {
+      const normalizedXPath = this.normalizeXPath(xpath);
       return (
         text === this.toPartialText(element.text ?? "") &&
         tagname === element.tagname &&
-        xpath !== element.xpath
+        this.normalizeXPath(element.xpath) !== normalizedXPath
       );
     });
   }
 
-  private generateLocator(source: ElementLocatorSource) {
+  private generateLocatorForMultiLocator(
+    source: ElementLocatorSource
+  ): Locator[] {
+    const locators: Locator[] = [];
+
+    const { id, name } = source.attributes;
+    const xpath = source.xpath;
+
+    if (id && !this.hasSameIdElement(xpath, id)) {
+      locators.push({ id });
+    }
+
+    if (name && !this.hasSameNameElement(xpath, name)) {
+      locators.push({ name });
+    }
+
+    if (!source.text) {
+      return locators;
+    }
+
+    const partialText = this.toPartialText(source.text);
+    if (source.tagname.toUpperCase() === "A") {
+      if (
+        !this.hasSameTextAndTagnameElement(xpath, partialText, "A") &&
+        !partialText.includes("\n")
+      ) {
+        locators.push({ linkText: partialText });
+      }
+    } else {
+      if (
+        !this.hasSameTextAndTagnameElement(
+          xpath,
+          partialText,
+          source.tagname
+        ) &&
+        !partialText.includes("\n")
+      ) {
+        locators.push({ innerText: partialText });
+      }
+    }
+
+    return locators;
+  }
+
+  private generateLocator(source: ElementLocatorSource): string {
     const { id, name, value } = source.attributes;
     const xpath = source.xpath;
 
@@ -150,5 +222,9 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
 
   private toPartialText(text: string): string {
     return text.slice(0, this.maxTextLength).trim();
+  }
+
+  private normalizeXPath(before: string): string {
+    return before.replace(/\[1\]/g, "");
   }
 }

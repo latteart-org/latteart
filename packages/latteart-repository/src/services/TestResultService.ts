@@ -56,7 +56,7 @@ import {
   createReport,
   outputReport,
   extractOperation,
-} from "./helper/testResultCompareHelper";
+} from "./helper/testResultComparisonHelper";
 import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
@@ -373,17 +373,20 @@ export class TestResultServiceImpl implements TestResultService {
     const testStepWithScreenDefs = testResult.testSteps.map((testStep) => {
       return {
         ...testStep,
-        screenDef: screenDefFactory.create({
-          url: testStep.operation.url,
-          title: testStep.operation.title,
-          keywordSet: new Set(
-            testStep.operation.keywordTexts?.map((keywordText) => {
-              return typeof keywordText === "string"
-                ? keywordText
-                : keywordText.value;
-            }) ?? []
-          ),
-        }),
+        screenDef:
+          testStep.operation.type !== "start_capturing"
+            ? screenDefFactory.create({
+                url: testStep.operation.url,
+                title: testStep.operation.title,
+                keywordSet: new Set(
+                  testStep.operation.keywordTexts?.map((keywordText) => {
+                    return typeof keywordText === "string"
+                      ? keywordText
+                      : keywordText.value;
+                  }) ?? []
+                ),
+              })
+            : "",
       };
     });
 
@@ -412,19 +415,18 @@ export class TestResultServiceImpl implements TestResultService {
       }),
     };
 
-    const testResults = Array.isArray(testResultIds)
-      ? await Promise.all(
-          testResultIds.map(async (testResultId) => {
-            return await this.getTestResult(testResultId);
-          })
+    const testResults = (
+      await Promise.all(
+        (Array.isArray(testResultIds) ? testResultIds : [testResultIds]).map(
+          async (testResultId) => {
+            const testResult = await this.getTestResult(testResultId);
+            return testResult ? [testResult] : [];
+          }
         )
-      : await this.getTestResult(testResultIds);
+      )
+    ).flat();
 
-    if (
-      (Array.isArray(testResults) &&
-        testResults.some((testResult) => !testResult)) ||
-      !testResults
-    ) {
+    if (testResults.length === 0) {
       return {
         nodes: [],
         store: {
@@ -437,43 +439,37 @@ export class TestResultServiceImpl implements TestResultService {
       };
     }
 
-    const testSteps = Array.isArray(testResults)
-      ? testResults
-          .map((testResult) => (testResult as GetTestResultResponse).testSteps)
-          .flat()
-      : testResults.testSteps;
-
     const screenDefFactory = new ScreenDefFactory(screenDefinitionConfig);
-    const testStepWithScreenDefs = testSteps.map((testStep) => {
-      return {
-        ...testStep,
-        screenDef: screenDefFactory.create({
-          url: testStep.operation.url,
-          title: testStep.operation.title,
-          keywordSet: new Set(
-            testStep.operation.keywordTexts?.map((keywordText) => {
-              return typeof keywordText === "string"
-                ? keywordText
-                : keywordText.value;
-            }) ?? []
-          ),
-        }),
-      };
-    });
+    const testStepForGraphViews = testResults
+      .flatMap((testResult) => testResult.testSteps)
+      .map((testStep) => {
+        return {
+          ...testStep,
+          screenDef:
+            testStep.operation.type !== "start_capturing"
+              ? screenDefFactory.create({
+                  url: testStep.operation.url,
+                  title: testStep.operation.title,
+                  keywordSet: new Set(
+                    testStep.operation.keywordTexts?.map((keywordText) => {
+                      return typeof keywordText === "string"
+                        ? keywordText
+                        : keywordText.value;
+                    }) ?? []
+                  ),
+                })
+              : "",
+        };
+      });
 
     const idGenerator = {
       generateScreenId: () => uuidv4(),
       generateElementId: () => uuidv4(),
     };
 
-    const coverageSources = Array.isArray(testResults)
-      ? testResults
-          .map(
-            (testResult) =>
-              (testResult as GetTestResultResponse).coverageSources
-          )
-          .flat()
-      : testResults.coverageSources;
+    const coverageSources = testResults.flatMap(
+      (testResult) => testResult.coverageSources
+    );
 
     const coverageSourceGroupedByScreenDef = coverageSources
       .map(({ url, title, screenElements }) => {
@@ -532,7 +528,7 @@ export class TestResultServiceImpl implements TestResultService {
       );
 
     const graphView = generateGraphView(
-      testStepWithScreenDefs,
+      testStepForGraphViews,
       coverageSourceGroupedByScreenDef,
       idGenerator
     );

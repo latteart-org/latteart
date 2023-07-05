@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import { PageObjectFactory } from "./pageObject";
+import { isInvalidOperationType, PageObjectFactory } from "./pageObject";
 import { TestSuiteFactory } from "./testSuite";
 import { SequencePathBuilder } from "./sequencePath";
 import { Sequence, SequencePath } from "./sequencePath";
 import { TestScriptSourceOperation } from "../types";
 import { TestScriptModel } from "./types";
+import { markSkippedOperations } from "./testScriptSourceConverter";
 
 export type TestScriptModelGenerator = {
   generate(
     sources: { initialUrl: string; history: TestScriptSourceOperation[] }[]
-  ): TestScriptModel;
+  ): { model: TestScriptModel; invalidOperationTypeExists: boolean };
 };
 
 export class TestScriptModelGeneratorImpl implements TestScriptModelGenerator {
@@ -36,9 +37,21 @@ export class TestScriptModelGeneratorImpl implements TestScriptModelGenerator {
 
   public generate(
     sources: { initialUrl: string; history: TestScriptSourceOperation[] }[]
-  ): TestScriptModel {
+  ): { model: TestScriptModel; invalidOperationTypeExists: boolean } {
+    const convertedSources = sources.map(({ initialUrl, history }) => {
+      return {
+        initialUrl,
+        history: markSkippedOperations(history),
+      };
+    });
+    const invalidOperationTypeExists = convertedSources.some((source) => {
+      return source.history.some((operation) => {
+        return isInvalidOperationType(operation.type);
+      });
+    });
+
     const initialUrlToHistories = Array.from(
-      sources
+      convertedSources
         .reduce((acc, { initialUrl, history }) => {
           if (!acc.has(initialUrl)) {
             acc.set(initialUrl, []);
@@ -76,8 +89,8 @@ export class TestScriptModelGeneratorImpl implements TestScriptModelGenerator {
     );
 
     return {
-      pageObjects,
-      testSuites,
+      model: { pageObjects, testSuites },
+      invalidOperationTypeExists,
     };
   }
 

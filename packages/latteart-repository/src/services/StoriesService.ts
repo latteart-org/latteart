@@ -48,6 +48,7 @@ export class StoriesService {
         "sessions.attachedFiles",
         "sessions.testResult",
         "sessions.testResult.testPurposes",
+        "sessions.testResult.testPurposes.testSteps",
         "sessions.testResult.notes",
         "sessions.testResult.notes.testSteps",
         "sessions.testResult.notes.testSteps.screenshot",

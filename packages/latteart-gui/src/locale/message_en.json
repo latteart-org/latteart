@@ -43,6 +43,10 @@
     "done-run-operations": "Replay is finished.",
     "run-operations-canceled": "Replay is canceled."
   },
+  "auto-operation": {
+    "done-title": "Auto operation is done",
+    "done-auto-operations": "Auto operation is finished."
+  },
   "navigate": {
     "back": "Trigger browser back",
     "forward": "Trigger browser forward"
@@ -76,6 +80,8 @@
     "template-only": "Template Only",
     "method": "Method",
     "method-data-driven": "Use Data Driven Testing",
+    "use-multi-locator1": "Generate robust test script using ",
+    "use-multi-locator2": " (experimental)",
     "generate-simple-testscript": "Generate test script that reproduces the entire test (maybe redundant)",
     "generate-only-template": "*If the maximum number is 0, only the template is generated.",
     "custom-button-definition": "Custom Button Definition",
@@ -111,11 +117,12 @@
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
-    "project-import-title": "Import Project",
+    "project-import-title": "Import Config/Project",
     "test-result-export-title": "Export Test Result",
-    "project-export-title": "Export Project",
+    "project-export-title": "Export Config/Project",
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
+    "config-data": "Config Information",
     "select-test-result-file-label": "Test result file",
     "select-test-result-file-button": "Select",
     "select-project-file-label": "Project file",
@@ -254,7 +261,7 @@
     "replay-capture": "Save replay result",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
-    "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
+    "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {
     "start-testing": "Start Session",
@@ -268,7 +275,8 @@
     "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
     "hide-hidden-elements": "Don't Display Hidden Elements",
-    "autofill-dialog-message": "Please select an input value set name."
+    "autofill-dialog-message": "Please select an input value set name.",
+    "end-of-test": "End of test"
   },
   "note-list-dialog": {
     "note-list": "Note List",
@@ -330,8 +338,8 @@
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
     "generate-script-succeeded": "Test script generation has finished.",
-    "import-option": "Import Project",
-    "export-option": "Export Project",
+    "import-option": "Import Config/Project",
+    "export-option": "Export Config/Project",
     "optional-function": "Optional function",
     "locale": "locale"
   },
@@ -438,18 +446,6 @@
     "import": "Import Session Log",
     "file": "Attachments",
     "add-file": "Add Attachments",
-    "test": "Test Purposes",
-    "bug": "Bugs",
-    "bug-status": "Issue Status",
-    "bug-unreported": "Not Reported",
-    "notice": "Findings",
-    "bug-details": "Details",
-    "bug-reported": "Reported",
-    "content": "Content",
-    "summary": "Summary",
-    "details": "Details",
-    "tags": "Tags",
-    "none": "None",
     "delete-test-result-confirm": "Are you sure you want to delete the test result?",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
     "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
@@ -460,6 +456,23 @@
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool"
+  },
+  "test-purpose-note-list": {
+    "title": "Test Purposes/Bugs",
+    "open": "Open All Test Purposes",
+    "close": "Close All Test Purposes",
+    "details": "Details",
+    "no-test-purpose": "No Test Purpose",
+    "bug-status": "Issue Status：{status}",
+    "bug-reported": "Reported",
+    "bug-unreported": "Not Reported",
+    "none": "None"
+  },
+  "note-details-dialog": {
+    "details": "Details",
+    "status": "Issue Status",
+    "summary": "Summary",
+    "tags": "Tags"
   },
   "session-list": {
     "complete": "Check as Complete",
@@ -540,6 +553,7 @@
       "get_device_settings_failed": "Failed to get device settings",
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
+      "run_operations_failed_details": "Failed to execute the following operation.\n\n - [Title]:{title}\n - [Tag]:{tag}\n - [Name]:{tagname}\n - [Text]:{text}\n - [Event Type]:{type}\n - [Input Value]:{input}",
       "capture_failed": "An error has occurred during capturing operation.",
       "invalid_operation": "Replay aborted because the test contains some invalid operations.",
       "element_not_found": "Replay aborted due to missing screen element.",
@@ -549,7 +563,6 @@
       "create_test_result_directory_failed": "Failed to make test result directory . Please check if a correct path to the directory is set.",
       "test_result_directory_already_exists": "A directory with the same name as the test result directory has already exists. Please specify a different directory.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
-      "run_auto_operations_failed": "An error occurred during automatic operation execution.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."

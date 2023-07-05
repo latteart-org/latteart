@@ -29,22 +29,24 @@
         <v-checkbox
           :label="$store.getters.message('import-export-dialog.project-data')"
           v-model="exporOption.selectedOptionProject"
-        >
-        </v-checkbox>
+        />
         <v-checkbox
           :label="
             $store.getters.message('import-export-dialog.testresult-data')
           "
           v-model="exporOption.selectedOptionTestresult"
-        >
-        </v-checkbox>
+        />
+        <v-checkbox
+          :label="$store.getters.message('import-export-dialog.config-data')"
+          v-model="exporOption.selectedOptionConfig"
+        />
       </v-container>
     </template>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 
 @Component({
@@ -56,15 +58,26 @@ export default class ExportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private exporOption = {
-    selectedOptionProject: false,
-    selectedOptionTestresult: false,
+    selectedOptionProject: true,
+    selectedOptionTestresult: true,
+    selectedOptionConfig: true,
   };
 
   private get okButtonIsDisabled() {
     return (
       !this.exporOption.selectedOptionProject &&
-      !this.exporOption.selectedOptionTestresult
+      !this.exporOption.selectedOptionTestresult &&
+      !this.exporOption.selectedOptionConfig
     );
+  }
+
+  @Watch("opened")
+  private initialize() {
+    if (this.opened) {
+      this.exporOption.selectedOptionProject = true;
+      this.exporOption.selectedOptionTestresult = true;
+      this.exporOption.selectedOptionConfig = true;
+    }
   }
 
   private execute(): void {

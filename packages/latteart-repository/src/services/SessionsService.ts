@@ -213,6 +213,7 @@ export class SessionsService {
         "attachedFiles",
         "testResult",
         "testResult.testPurposes",
+        "testResult.testPurposes.testSteps",
         "testResult.notes",
         "testResult.notes.testSteps",
         "testResult.notes.testSteps.screenshot",

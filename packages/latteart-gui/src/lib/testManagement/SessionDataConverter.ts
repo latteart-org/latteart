@@ -33,7 +33,22 @@ export default class SessionDataConverter {
       attachedFiles: target.attachedFiles ?? [],
       testResultFiles: target.testResultFiles ?? [],
       initialUrl: target.initialUrl ?? "",
-      testPurposes: target.testPurposes ?? [],
+      testPurposes: target.testPurposes
+        ? target.testPurposes.map((testPurpose) => {
+            return {
+              ...testPurpose,
+              notes: testPurpose.notes.map((note) => {
+                const noteImageFileUrl = note.imageFileUrl
+                  ? new URL(note.imageFileUrl, serviceUrl).toString()
+                  : "";
+                return {
+                  ...note,
+                  imageFileUrl: noteImageFileUrl,
+                };
+              }),
+            };
+          })
+        : [],
       notes: target.notes
         ? target.notes.map((note) => {
             const noteImageFileUrl = note.imageFileUrl

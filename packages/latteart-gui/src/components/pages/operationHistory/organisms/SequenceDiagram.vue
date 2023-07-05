@@ -17,34 +17,33 @@
 <template>
   <v-container fluid class="ma-0 fill-height align-start">
     <v-row no-gutters align="center" :style="{ height: '70px' }">
-      <v-select
-        v-if="testResults.length > 1"
-        class="mr-3"
-        :label="message('history-view.test-result-name')"
-        :items="testResults"
-        item-text="name"
-        item-value="id"
-        :value="currentTestResultId"
-        @change="changeCurrentTestResultId"
-        hide-details
-        dense
-      />
-      <v-select
-        class="mr-3"
-        :label="message('history-view.test-purpose')"
-        :items="testPurposes"
-        item-text="text"
-        item-value="value"
-        v-model="selectedTestPurposeIndex"
-        hide-details
-        dense
-      />
-      <v-btn
-        v-if="!isViewerMode"
-        class="mr-1"
-        :disabled="!this.graph"
-        @click="editTestPurpose"
-        >{{ message("history-view.edit-test-purpose") }}</v-btn
+      <v-col v-if="testResults.length > 1">
+        <v-select
+          class="mr-3"
+          :label="message('history-view.test-result-name')"
+          :items="testResults"
+          item-text="name"
+          item-value="id"
+          :value="currentTestResultId"
+          @change="changeCurrentTestResultId"
+          hide-details
+          dense
+      /></v-col>
+      <v-col>
+        <v-select
+          class="mr-3"
+          :label="message('history-view.test-purpose')"
+          :items="testPurposes"
+          item-text="text"
+          item-value="value"
+          v-model="selectedTestPurposeIndex"
+          hide-details
+          dense
+      /></v-col>
+      <v-col cols="auto" v-if="!isViewerMode">
+        <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
+          message("history-view.edit-test-purpose")
+        }}</v-btn></v-col
       >
     </v-row>
     <v-row
@@ -70,7 +69,7 @@
 <script lang="ts">
 /* tslint:disable:max-line-length */
 
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
@@ -133,6 +132,11 @@ export default class SequenceDiagram extends Vue {
       "sequence-diagram-container"
     ) as any;
     sequenceDiagram.oncontextmenu = () => false;
+  }
+
+  @Watch("currentTestResultId")
+  private resetTestPurposeIndex() {
+    this.selectedTestPurposeIndex = 0;
   }
 
   private async changeCurrentTestResultId(testResultId: string) {

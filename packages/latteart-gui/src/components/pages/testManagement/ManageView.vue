@@ -115,20 +115,19 @@
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       :downloadFileName="downloadFileName"
+      :downloadMessage="$store.getters.message('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
       @close="scriptGenerationOptionDialogIsOpened = false"
-    >
-    </script-generation-option-dialog>
+    />
     <import-option-dialog
       :opened="importOptionDialogIsOpened"
       @execute="importData"
       @close="importOptionDialogIsOpened = false"
-    >
-    </import-option-dialog>
+    />
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="informationTitle"
@@ -139,13 +138,7 @@
       :opened="exportOptionDialogIsOpened"
       @execute="exportData"
       @close="exportOptionDialogIsOpened = false"
-    >
-    </export-option-dialog>
-    <config-import-dialog
-      :opened="configImportDialogIsOpened"
-      @execute="closeConfigImportDialog"
-      @close="configImportDialogIsOpened = false"
-    ></config-import-dialog>
+    />
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -161,7 +154,6 @@ import ScriptGenerationOptionDialog from "@/components/pages/common/ScriptGenera
 import DownloadLinkDialog from "../common/DownloadLinkDialog.vue";
 import ImportOptionDialog from "../common/ImportOptionDialog.vue";
 import ExportOptionDialog from "../common/ExportOptionDialog.vue";
-import ConfigImportDialog from "../common/ConfigImportDialog.vue";
 import InformationMessageDialog from "../common/InformationMessageDialog.vue";
 import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessField.vue";
 
@@ -172,7 +164,6 @@ import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessF
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "import-option-dialog": ImportOptionDialog,
     "export-option-dialog": ExportOptionDialog,
-    "config-import-dialog": ConfigImportDialog,
     "information-message-dialog": InformationMessageDialog,
     "remote-access-field": RemoteAccessField,
   },
@@ -187,7 +178,6 @@ export default class ManageView extends Vue {
   public outputHtmlProcessing = false;
   public exportDataProcessing = false;
   public importDataProcessing = false;
-  public exportConfigProcessing = false;
   public tabNum = 0;
   public locales: string[] = ["ja", "en"];
 
@@ -195,7 +185,6 @@ export default class ManageView extends Vue {
   private scriptGenerationOptionDialogIsOpened = false;
   private importOptionDialogIsOpened = false;
   private exportOptionDialogIsOpened = false;
-  private configImportDialogIsOpened = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -246,57 +235,6 @@ export default class ManageView extends Vue {
           throw err;
         }
       });
-  }
-
-  private closeConfigImportDialog() {
-    this.configImportDialogIsOpened = false;
-    this.informationTitle = this.$store.getters.message(
-      "config-io.import-config"
-    );
-    this.informationMessage = this.$store.getters.message(
-      "config-io.completed-import"
-    );
-    this.informationMessageDialogOpened = true;
-  }
-
-  private exportProjectSettings() {
-    (async () => {
-      this.exportConfigProcessing = true;
-
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message("config-io.export-config"),
-        });
-        const result = await this.$store
-          .dispatch("exportProjectSettings")
-          .catch((error) => {
-            console.error(error);
-          });
-        const blob = await (
-          await fetch(`${this.currentRepositoryUrl}/${result.url}`)
-        ).blob();
-        this.$store.dispatch("closeProgressDialog");
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "config-io.completed-export"
-        );
-        this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = window.URL.createObjectURL(blob);
-        this.downloadFileName = result.url.split("/").pop();
-        this.downloadLinkDialogOpened = true;
-      } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.exportConfigProcessing = false;
-      }
-    })();
   }
 
   private outputHtml() {
@@ -362,40 +300,45 @@ export default class ManageView extends Vue {
           "manage-header.generating-test-script"
         ),
       });
-
-      const testScriptInfo = await this.$store
-        .dispatch("testManagement/generateAllSessionTestScripts", {
-          option,
-        })
-        .catch((error) => {
-          console.error(error);
-          this.errorMessage = error.message;
-        })
-        .finally(() => {
-          this.$store.dispatch("closeProgressDialog");
-        });
-
-      if (testScriptInfo.outputUrl) {
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "manage-header.generate-script-succeeded"
+      try {
+        const testScriptInfo = await this.$store.dispatch(
+          "testManagement/generateAllSessionTestScripts",
+          {
+            option,
+          }
         );
-        if (testScriptInfo.invalidOperationTypeExists) {
-          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
+        this.$store.dispatch("closeProgressDialog");
+
+        if (testScriptInfo.outputUrl) {
+          this.downloadLinkDialogTitle =
+            this.$store.getters.message("common.confirm");
+          this.downloadLinkDialogMessage = this.$store.getters.message(
+            "manage-header.generate-script-succeeded"
           );
+          if (testScriptInfo.invalidOperationTypeExists) {
+            this.downloadLinkDialogAlertMessage = this.$store.getters.message(
+              "history-view.generate-alert-info"
+            );
+          } else {
+            this.downloadLinkDialogAlertMessage = "";
+          }
+          this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
+          this.scriptGenerationOptionDialogIsOpened = false;
+          this.downloadLinkDialogOpened = true;
         } else {
-          this.downloadLinkDialogAlertMessage = "";
+          this.scriptGenerationOptionDialogIsOpened = false;
+          this.errorMessageDialogOpened = true;
         }
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.downloadLinkDialogOpened = true;
-      } else {
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.errorMessageDialogOpened = true;
+        this.isGeneratingTestScripts = false;
+      } catch (error) {
+        this.$store.dispatch("closeProgressDialog");
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorMessageDialogOpened = true;
+        } else {
+          throw error;
+        }
       }
-      this.isGeneratingTestScripts = false;
     })();
   }
 
@@ -404,6 +347,7 @@ export default class ManageView extends Vue {
     option: {
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
+      selectedOptionConfig: boolean;
     }
   ): void {
     this.importDataProcessing = true;
@@ -416,13 +360,20 @@ export default class ManageView extends Vue {
     setTimeout(async () => {
       try {
         const source = { projectFile: projectImportFile };
-        const { projectId } = await this.$store.dispatch(
+        const { projectId, config } = await this.$store.dispatch(
           "testManagement/importData",
           { source, option }
         );
 
         if (projectId) {
           await this.$store.dispatch("testManagement/readProject");
+        }
+        if (config) {
+          this.$store.commit(
+            "setProjectSettings",
+            { settings: config },
+            { root: true }
+          );
         }
 
         this.informationMessageDialogOpened = true;
@@ -452,6 +403,7 @@ export default class ManageView extends Vue {
   private exportData(option: {
     selectedOptionProject: boolean;
     selectedOptionTestresult: boolean;
+    selectedOptionConfig: boolean;
   }) {
     (async () => {
       this.exportDataProcessing = true;
@@ -511,12 +463,6 @@ export default class ManageView extends Vue {
     if (method === "export") {
       this.exportOptionDialogIsOpened = true;
     }
-    if (method === "importProjectSettings") {
-      this.configImportDialogIsOpened = true;
-    }
-    if (method === "exportProjectSettings") {
-      this.exportProjectSettings();
-    }
   }
 
   private getOptionMenuList() {
@@ -539,16 +485,6 @@ export default class ManageView extends Vue {
       {
         title: this.$store.getters.message("manage-header.export-option"),
         method: "export",
-        isEnabled: true,
-      },
-      {
-        title: this.$store.getters.message("config-io.import-config"),
-        method: "importProjectSettings",
-        isEnabled: true,
-      },
-      {
-        title: this.$store.getters.message("config-io.export-config"),
-        method: "exportProjectSettings",
         isEnabled: true,
       },
     ];

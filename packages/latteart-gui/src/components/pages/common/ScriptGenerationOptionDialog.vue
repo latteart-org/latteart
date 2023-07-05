@@ -31,7 +31,23 @@
         v-model="testGenerationOption.testScript.isSimple"
       >
       </v-checkbox>
-
+      <v-checkbox
+        v-model="testGenerationOption.testScript.useMultiLocator"
+        class="mt-0"
+      >
+        <template v-slot:label>
+          <div>
+            {{ $store.getters.message("history-view.use-multi-locator1") }}
+            <a
+              href="https://github.com/latteart-org/multi-locator"
+              target="_blank"
+              @click.stop
+              v-on="on"
+              >multi-locator</a
+            >{{ $store.getters.message("history-view.use-multi-locator2") }}
+          </div>
+        </template>
+      </v-checkbox>
       <v-container fluid pa-1 fill-height id="simple-test-script-generation">
         <v-row>
           <v-col cols="12" class="pb-2">
@@ -235,6 +251,7 @@ export default class ScriptGenerationOptionDialog extends Vue {
     return {
       testScript: {
         isSimple: false,
+        useMultiLocator: false,
       },
       testData: {
         useDataDriven: false,
@@ -265,7 +282,7 @@ export default class ScriptGenerationOptionDialog extends Vue {
       this.convertTagToButtonDefinition
     );
     const option = {
-      testScript: this.testGenerationOption.testScript,
+      testScript: { ...this.testGenerationOption.testScript },
       testData: this.testGenerationOption.testData,
       buttonDefinitions: [
         ...customButtonTagsDefinition,

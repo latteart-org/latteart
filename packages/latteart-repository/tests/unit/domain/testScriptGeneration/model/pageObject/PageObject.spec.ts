@@ -9,13 +9,13 @@ describe("PageObjectImpl", () => {
       const element1 = {
         identifier: "element1",
         type: "Other",
-        locator: "",
+        locators: [] as any,
       } as const;
 
       const element2 = {
         identifier: "element2",
         type: "Other",
-        locator: "",
+        locators: [] as any,
       } as const;
 
       let method1: PageObjectMethod;

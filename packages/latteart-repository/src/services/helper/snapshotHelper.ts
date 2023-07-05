@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import { GetNoteResponse } from "@/interfaces/Notes";
 import { Session } from "@/interfaces/Sessions";
-import { GetTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
 
 export function createAttachedFiles(
@@ -44,8 +44,8 @@ export function createTestResultFiles(
 export function createNotes(
   storyId: string,
   sessionIdAlias: string,
-  notes: Session["notes"]
-): Session["notes"] {
+  notes: GetNoteResponse[]
+): GetNoteResponse[] {
   return notes.map((note) => {
     return {
       id: note.id,
@@ -58,29 +58,4 @@ export function createNotes(
       tags: note.tags,
     };
   });
-}
-
-export async function createTestPurposes(
-  testResult?: GetTestResultResponse
-): Promise<Session["testPurposes"]> {
-  return (
-    await Promise.all(
-      testResult
-        ? testResult.testSteps.map(async ({ intention }) => {
-            if (!intention) {
-              return [];
-            }
-
-            return {
-              id: intention.id,
-              type: intention.type,
-              value: intention.value,
-              details: intention.details,
-              imageFileUrl: "",
-              tags: [],
-            };
-          })
-        : []
-    )
-  ).flat() as Session["testPurposes"];
 }

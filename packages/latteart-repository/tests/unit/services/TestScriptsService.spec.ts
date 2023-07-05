@@ -91,6 +91,7 @@ describe("TestScriptsService", () => {
 
           const option: TestScriptOption = {
             optimized: false,
+            useMultiLocator: false,
             testData: { useDataDriven: false, maxGeneration: 0 },
             view: {
               node: {
@@ -236,6 +237,7 @@ describe('TestSuite1', () => {
 
           const option: TestScriptOption = {
             optimized: false,
+            useMultiLocator: false,
             testData: { useDataDriven: false, maxGeneration: 0 },
             view: {
               node: {
@@ -357,6 +359,7 @@ describe('TestSuite1', () => {
 
         const result = service.createTestScriptByTestResult("testResultId", {
           optimized: false,
+          useMultiLocator: false,
           testData: { useDataDriven: false, maxGeneration: 0 },
           view: {
             node: {
