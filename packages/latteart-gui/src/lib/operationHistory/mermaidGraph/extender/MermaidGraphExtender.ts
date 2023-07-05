@@ -15,9 +15,6 @@
  */
 
 export default interface MermaidGraphExtender {
-  extendGraph(
-    element: Element,
-    disabledList?: { index: number; disabled: boolean }[]
-  ): void;
+  extendGraph(element: Element, disabledNodeIndexes?: number[]): void;
   clearEvent(): void;
 }

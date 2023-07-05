@@ -630,7 +630,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         payload.sequenceView,
         createSequenceDiagramGraphExtender
       )
-    ).map(({ sequence, testPurpose, graph }) => {
+    ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(
@@ -640,23 +640,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         return element.firstElementChild!;
       })();
 
-      const disabledList = payload.sequenceView.scenarios
-        .flatMap(({ nodes }) => nodes)
-        .map((node, index) => {
-          return {
-            index,
-            disabled: node.disabled ?? false,
-          };
-        })
-        .filter((item) => item.disabled);
+      graph.graphExtender.extendGraph(svgElement, disabledNodeIndexes);
 
-      graph.graphExtender.extendGraph(svgElement, disabledList);
-
-      return {
-        sequence,
-        testPurpose,
-        element: svgElement,
-      };
+      return { sequence, testPurpose, element: svgElement };
     });
 
     context.commit("setSequenceDiagramGraphs", { graphs: graphs.flat() });

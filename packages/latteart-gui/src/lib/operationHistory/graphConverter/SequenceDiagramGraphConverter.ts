@@ -88,6 +88,7 @@ export async function convertToSequenceDiagramGraphs(
     sequence: number;
     testPurpose?: { value: string; details?: string };
     graph: MermaidGraph;
+    disabledNodeIndexes: number[];
   }[]
 > {
   const testStepIdToSequence = new Map(
@@ -111,7 +112,10 @@ export async function convertToSequenceDiagramGraphs(
     const nodeScreenIds = scenario.nodes.map(({ screenId }) => screenId);
     const screens = view.screens.filter(({ id }) => nodeScreenIds.includes(id));
 
-    const graph = graphBuilder.build(screens, scenario.nodes);
+    const { graph, disabledNodeIndexes } = graphBuilder.build(
+      screens,
+      scenario.nodes
+    );
 
     const firstTestStepId = scenario.nodes.at(0)?.testSteps.at(0)?.id ?? "";
     const firstSequence = testStepIdToSequence.get(firstTestStepId) ?? 0;
@@ -124,6 +128,7 @@ export async function convertToSequenceDiagramGraphs(
         ? { value: testPurpose.value, details: testPurpose.details }
         : undefined,
       graph,
+      disabledNodeIndexes,
     };
   });
 }
@@ -205,12 +210,16 @@ function createGraphBuilder(
             },
           };
 
+      const disabledNodeIndexes = sourceNodes
+        .map((node, index) => {
+          return { index, disabled: node.disabled ?? false };
+        })
+        .filter(({ disabled }) => disabled)
+        .map(({ index }) => index);
+
       console.debug(graphText);
 
-      return {
-        graphText,
-        graphExtender,
-      };
+      return { graph: { graphText, graphExtender }, disabledNodeIndexes };
     },
   };
 }
