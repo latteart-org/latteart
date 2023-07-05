@@ -251,7 +251,7 @@ export default class TestPurposeNoteList extends Vue {
         testPurpose: { ...testPurpose, value, notes },
       };
     });
-    this.selectedItems = this.displayedItems.map(() => false);
+    this.selectedItems = this.displayedItems.map(() => true);
   }
 }
 </script>
