@@ -43,7 +43,7 @@ export default class WebBrowser {
       canGoForward: boolean;
     }) => void;
     onWindowsChanged: (
-      windowHandles: string[],
+      windows: { windowHandle: string; url: string }[],
       currentWindowHandle: string
     ) => void;
     onAlertVisibilityChanged: (isVisible: boolean) => void;
@@ -69,7 +69,7 @@ export default class WebBrowser {
         canGoForward: boolean;
       }) => void;
       onWindowsChanged?: (
-        windowHandles: string[],
+        windows: { windowHandle: string; url: string }[],
         currentWindowHandle: string
       ) => void;
       onAlertVisibilityChanged?: (isVisible: boolean) => void;
@@ -160,6 +160,7 @@ export default class WebBrowser {
    */
   public async updateState(): Promise<void> {
     const beforeContainerLength = this.windowContainer.length;
+    const beforeWindow = this.windowContainer.currentWindow;
 
     // Update the container to be the same as actual windows.
     await this.windowContainer.update(await this.client.getAllWindowHandles());
@@ -181,8 +182,26 @@ export default class WebBrowser {
         await this.protectAllWindow();
       }
       this.option.onWindowsChanged(
-        this.windowContainer.windowHandles,
+        this.windowContainer.windows,
         this.windowContainer.currentWindowHandle
+      );
+    }
+
+    // If current window is changed, create switch_window operation.
+    if (
+      beforeWindow &&
+      beforeWindow.windowHandle !== this.windowContainer.currentWindowHandle
+    ) {
+      this.option.onGetOperation(
+        beforeWindow.createCapturedOperation({
+          type: SpecialOperationType.SWITCH_WINDOW,
+          windowHandle: beforeWindow?.windowHandle ?? "",
+          input: this.windowContainer.currentWindowHandle,
+          pageSource: await this.client.getCurrentPageText(),
+          screenElements:
+            (await this.client.execute(captureScript.collectScreenElements)) ??
+            [],
+        })
       );
     }
 
@@ -284,18 +303,6 @@ export default class WebBrowser {
   private async switchWindow(to: WebBrowserWindow, from?: WebBrowserWindow) {
     if (from) {
       from.lockScreenTransitionHistory();
-
-      this.option.onGetOperation(
-        from.createCapturedOperation({
-          type: SpecialOperationType.SWITCH_WINDOW,
-          windowHandle: from?.windowHandle ?? "",
-          input: to.windowHandle,
-          pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
-        })
-      );
     }
 
     await this.client.switchWindowTo(to.windowHandle);

@@ -219,19 +219,20 @@ io.on("connection", (socket) => {
             );
           },
           onBrowserWindowsChanged: (
-            windowHandles: string[],
+            windows: { windowHandle: string; url: string }[],
             currentWindowHandle: string
           ) => {
             LoggingService.info("Browser windows changed.");
 
-            const windowsInfo = JSON.stringify({
-              windowHandles,
+            const updateInfo = JSON.stringify({
+              windows,
               currentWindowHandle,
+              timestamp: new TimestampImpl().epochMilliseconds(),
             });
-            LoggingService.debug(windowsInfo);
+            LoggingService.debug(updateInfo);
             socket.emit(
               ServerToClientSocketIOEvent.BROWSER_WINDOWS_CHANGED,
-              windowsInfo
+              updateInfo
             );
           },
           onAlertVisibilityChanged: (isVisible: boolean) => {

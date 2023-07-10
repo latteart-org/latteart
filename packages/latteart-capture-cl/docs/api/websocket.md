@@ -514,20 +514,31 @@ Browser history(whether it can go back/forward or not) has been changed.
 The number of opened windows has been changed.
 
 - arguments
-  - windowInformation
+  - updateInformation
     - type: string(json)
       ```jsonc
       {
         "type": "object",
         "properties": {
-          "windowHandles": {
+          "windows": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "windowHandle": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
             }
           },
           "currentWindowHandle": {
             "type": "string"
+          },
+          "timestamp": {
+            "type": "number"
           }
         }
       }

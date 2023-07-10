@@ -118,7 +118,29 @@ function extractGraphSources(view: GraphView): GraphSource {
       ])
   );
 
-  const screens = view.nodes
+  const filteredNodes = view.nodes.map((node) => {
+    const filteredTestSteps = node.testSteps.filter(
+      (testStep, index, array) => {
+        if (testStep.type === "open_window") {
+          return false;
+        }
+
+        if (
+          testStep.type === "switch_window" &&
+          index > 0 &&
+          array.at(index - 1)?.type === "open_window"
+        ) {
+          return false;
+        }
+
+        return true;
+      }
+    );
+
+    return { ...node, testSteps: filteredTestSteps };
+  });
+
+  const screens = filteredNodes
     .map(({ screenId, testSteps }) => {
       const sequenceAndImageFileUrl = testStepIdToSequenceAndImageFileUrl.get(
         testSteps.at(0)?.id ?? ""
@@ -140,14 +162,14 @@ function extractGraphSources(view: GraphView): GraphSource {
       return [{ id, name, sequence, imageFileUrl }];
     });
 
-  const edgeDetails = view.nodes.flatMap((node, index, array) => {
+  const edgeDetails = filteredNodes.flatMap((node, index, array) => {
     if (!node.windowId || !node.screenId) {
       return [];
     }
 
     const nextNode = array.at(index + 1);
 
-    if (nextNode?.windowId && node.windowId !== nextNode.windowId) {
+    if (nextNode?.windowId && node.testSteps.at(-1)?.type === "switch_window") {
       return [];
     }
 

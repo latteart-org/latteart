@@ -46,7 +46,7 @@ export default class BrowserOperationCapturer {
     canGoForward: boolean;
   }) => void;
   private onBrowserWindowsChanged: (
-    windowHandles: string[],
+    windows: { windowHandle: string; url: string }[],
     currentWindowHandle: string
   ) => void;
   private onAlertVisibilityChanged: (isVisible: boolean) => void;
@@ -75,7 +75,7 @@ export default class BrowserOperationCapturer {
         canGoForward: boolean;
       }) => void;
       onBrowserWindowsChanged: (
-        windowHandles: string[],
+        windows: { windowHandle: string; url: string }[],
         currentWindowHandle: string
       ) => void;
       onAlertVisibilityChanged: (isVisible: boolean) => void;

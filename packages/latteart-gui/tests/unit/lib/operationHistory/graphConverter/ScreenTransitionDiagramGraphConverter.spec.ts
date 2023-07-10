@@ -851,7 +851,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
     });
   });
 
-  describe("タブを切り替えたとき", () => {
+  describe("既存の別のウィンドウに切り替わった場合は画面遷移のエッジを表示しない", () => {
     it("ウィンドウ1 -> ウィンドウ2 -> ウィンドウ1 -> ウィンドウ3", async () => {
       const view = {
         nodes: [
@@ -867,6 +867,14 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 pageUrl: "",
                 pageTitle: "",
               },
+              {
+                id: "ts2",
+                type: "switch_window",
+                targetElementId: "",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
             ],
             defaultValues: [],
           },
@@ -875,9 +883,17 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
             screenId: "s2",
             testSteps: [
               {
-                id: "ts2",
+                id: "ts3",
                 type: "type2",
                 targetElementId: "e2",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts4",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -890,9 +906,17 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
             screenId: "s1",
             testSteps: [
               {
-                id: "ts3",
+                id: "ts5",
                 type: "type3",
                 targetElementId: "e3",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts6",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -905,7 +929,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
             screenId: "s3",
             testSteps: [
               {
-                id: "ts4",
+                id: "ts7",
                 type: "type4",
                 targetElementId: "e4",
                 noteIds: [],
@@ -995,6 +1019,14 @@ s3["画面C"];
                 pageUrl: "",
                 pageTitle: "",
               },
+              {
+                id: "ts2",
+                type: "switch_window",
+                targetElementId: "",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
             ],
             defaultValues: [],
           },
@@ -1003,9 +1035,17 @@ s3["画面C"];
             screenId: "s2",
             testSteps: [
               {
-                id: "ts2",
+                id: "ts3",
                 type: "type2",
                 targetElementId: "e2",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts4",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -1018,9 +1058,17 @@ s3["画面C"];
             screenId: "s3",
             testSteps: [
               {
-                id: "ts3",
+                id: "ts5",
                 type: "type3",
                 targetElementId: "e3",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts6",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -1033,9 +1081,17 @@ s3["画面C"];
             screenId: "s4",
             testSteps: [
               {
-                id: "ts4",
+                id: "ts7",
                 type: "type4",
                 targetElementId: "e4",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts8",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -1048,9 +1104,17 @@ s3["画面C"];
             screenId: "s5",
             testSteps: [
               {
-                id: "ts5",
+                id: "ts9",
                 type: "type5",
                 targetElementId: "e5",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts10",
+                type: "switch_window",
+                targetElementId: "",
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
@@ -1138,9 +1202,102 @@ s2["画面B"];
 s3["画面C"];
 s4["画面D"];
 s5["画面E"];
+`);
+    });
+  });
+
+  describe("新規ウィンドウを開いた後にタブが切り替わった場合は画面遷移のエッジを表示する", () => {
+    it("ウィンドウ1 -> ウィンドウ2", async () => {
+      const view = {
+        nodes: [
+          {
+            windowId: "w1",
+            screenId: "s1",
+            testSteps: [
+              {
+                id: "ts1",
+                type: "type1",
+                targetElementId: "e1",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts2",
+                type: "open_window",
+                targetElementId: "",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+              {
+                id: "ts3",
+                type: "switch_window",
+                targetElementId: "",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+          {
+            windowId: "w2",
+            screenId: "s2",
+            testSteps: [
+              {
+                id: "ts4",
+                type: "type2",
+                targetElementId: "e2",
+                noteIds: [],
+                pageUrl: "",
+                pageTitle: "",
+              },
+            ],
+            defaultValues: [],
+          },
+        ],
+        store: {
+          windows: [
+            { id: "w1", name: "ウィンドウ1" },
+            { id: "w2", name: "ウィンドウ2" },
+          ],
+          screens: [
+            { id: "s1", name: "画面A", elementIds: [] },
+            { id: "s2", name: "画面B", elementIds: [] },
+          ],
+          elements: [
+            {
+              id: "e1",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素1",
+              attributes: {},
+            },
+            {
+              id: "e2",
+              pageUrl: "",
+              pageTitle: "",
+              xpath: "",
+              tagname: "",
+              text: "要素2",
+              attributes: {},
+            },
+          ],
+          testPurposes: [],
+          notes: [],
+        },
+      };
+
+      const graphs = await convertToScreenTransitionDiagramGraph(view);
+
+      expect(graphs.graph.graphText).toEqual(`\
+graph TD;
+s1["画面A"];
+s2["画面B"];
 s1 --> |"type1: 要素1"|s2;
-s3 --> |"type3: 要素3"|s4;
-s5 --> |"type5: 要素5"|s5;
 `);
     });
   });
