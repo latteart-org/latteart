@@ -67,6 +67,7 @@ describe("ProjectImportService", () => {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },
         },
+        misoperationPrevention: { isRemoveShield: false },
       },
       defaultTagList: [],
       viewPointsPreset: [],

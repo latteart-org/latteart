@@ -42,6 +42,7 @@ export default class Settings {
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
+    misoperationPrevention: MisoperationPrevention;
   };
   public captureSettings: {
     ignoreTags: string[];
@@ -84,6 +85,9 @@ export default class Settings {
         isEnabled: true,
         isDeleteSrcImage: true,
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+      },
+      misoperationPrevention: {
+        isRemoveShield: false,
       },
     };
     this.captureSettings = {
@@ -175,4 +179,11 @@ export interface ScreenDefinitionConditionGroup {
     definitionType: "url" | "title" | "keyword";
     word: string;
   }>;
+}
+
+/**
+ * Misoperation prevention settings.
+ */
+export interface MisoperationPrevention {
+  isRemoveShield: boolean;
 }
