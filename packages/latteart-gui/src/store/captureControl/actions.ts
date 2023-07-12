@@ -662,9 +662,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const session = result.data;
 
-      session.changeShieldSetting(
+      session.setShieldEnabled(
         context.rootState.projectSettings.config.misoperationPrevention
-          .isRemoveShield
+          .isShieldEnabled
       );
 
       context.dispatch("stopTimer");
@@ -754,10 +754,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   /**
    * Change shield setting.
    * @param context Action context.
-   * @param payload.isRemoveShield Shield setting.
+   * @param payload.isShieldEnabled Shield setting.
    */
-  changeShieldSetting(context, payload: { isRemoveShield: boolean }) {
-    context.state.captureSession?.changeShieldSetting(payload.isRemoveShield);
+  setShieldEnabled(context, payload: { isShieldEnabled: boolean }) {
+    context.state.captureSession?.setShieldEnabled(payload.isShieldEnabled);
   },
 };
 

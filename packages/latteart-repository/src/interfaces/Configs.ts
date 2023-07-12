@@ -89,6 +89,6 @@ export type ProjectConfig = {
         values: { tagname: string }[];
       };
     };
-    misoperationPrevention: { isRemoveShield: boolean };
+    misoperationPrevention: { isShieldEnabled: boolean };
   };
 };

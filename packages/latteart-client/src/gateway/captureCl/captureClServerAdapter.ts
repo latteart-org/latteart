@@ -335,9 +335,9 @@ export class CaptureClServerAdapter {
     }
   }
 
-  public changeShieldSetting(isRemoveShield: boolean): void {
+  public setShieldEnabled(isShieldEnabled: boolean): void {
     try {
-      this.socketIOClient.emit("change_shield", isRemoveShield);
+      this.socketIOClient.emit("change_shield", isShieldEnabled);
     } catch (error) {
       console.error(error);
     }

@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-checkbox
-      v-model="tempConfig.isRemoveShield"
+      v-model="tempConfig.isShieldEnabled"
       :label="$store.getters.message('config-view.remove-shield')"
       @change="saveConfig"
     >
@@ -36,7 +36,7 @@ export default class MisoperationPreventionConfig extends Vue {
   @Prop({ type: Object, default: null })
   public readonly misoperationPrevention!: MisoperationPreventionSetting;
 
-  private tempConfig: { isRemoveShield: boolean } = {
+  private tempConfig: { isShieldEnabled: boolean } = {
     ...this.misoperationPrevention,
   };
 

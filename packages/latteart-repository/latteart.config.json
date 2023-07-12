@@ -180,7 +180,7 @@
       }
     },
     "misoperationPrevention": {
-      "isRemoveShield": false
+      "isShieldEnabled": false
     }
   },
   "captureSettings": {

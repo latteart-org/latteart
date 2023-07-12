@@ -87,7 +87,7 @@ export default class Settings {
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       },
       misoperationPrevention: {
-        isRemoveShield: false,
+        isShieldEnabled: false,
       },
     };
     this.captureSettings = {
@@ -185,5 +185,5 @@ export interface ScreenDefinitionConditionGroup {
  * Misoperation prevention settings.
  */
 export interface MisoperationPrevention {
-  isRemoveShield: boolean;
+  isShieldEnabled: boolean;
 }

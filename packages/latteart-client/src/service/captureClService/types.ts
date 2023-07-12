@@ -191,7 +191,7 @@ export type CaptureSession = {
   /**
    * change shield setting
    */
-  changeShieldSetting(isRemoveShield: boolean): void;
+  setShieldEnabled(isShieldEnabled: boolean): void;
 };
 
 export type CaptureCLServiceErrorCode =

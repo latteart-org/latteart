@@ -339,7 +339,7 @@ export default class ConfigView extends Vue {
   private get misoperationPrevention(): MisoperationPreventionSetting {
     return (
       this.config?.misoperationPrevention ?? {
-        isRemoveShield: false,
+        isShieldEnabled: false,
       }
     );
   }
@@ -604,8 +604,8 @@ export default class ConfigView extends Vue {
     }
 
     if (config.misoperationPrevention && this.isCapturing) {
-      this.$store.dispatch("captureControl/changeShieldSetting", {
-        isRemoveShield: config.misoperationPrevention.isRemoveShield,
+      this.$store.dispatch("captureControl/setShieldEnabled", {
+        isShieldEnabled: config.misoperationPrevention.isShieldEnabled,
       });
     }
   }

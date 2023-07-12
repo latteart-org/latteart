@@ -296,8 +296,8 @@ io.on("connection", (socket) => {
         });
         socket.on(
           ClientToServerSocketIOEvent.CHANGE_SHIELD,
-          async (isRemoveShield: boolean) => {
-            await capturer.changeShieldSetting(isRemoveShield);
+          async (isShieldEnabled: boolean) => {
+            await capturer.setShieldEnabled(isShieldEnabled);
 
             socket.emit(ServerToClientSocketIOEvent.SHIELD_CHANGED);
           }

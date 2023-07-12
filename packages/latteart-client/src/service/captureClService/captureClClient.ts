@@ -813,8 +813,8 @@ class CaptureSessionImpl implements CaptureSession {
     this.captureCl.resumeCapture();
   }
 
-  changeShieldSetting(isRemoveShield: boolean) {
-    this.captureCl.changeShieldSetting(isRemoveShield);
+  setShieldEnabled(isShieldEnabled: boolean) {
+    this.captureCl.setShieldEnabled(isShieldEnabled);
   }
 }
 

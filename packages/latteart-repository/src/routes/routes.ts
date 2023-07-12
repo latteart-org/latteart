@@ -289,7 +289,7 @@ const models: TsoaRoute.Models = {
             misoperationPrevention: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {
-                isRemoveShield: { dataType: "boolean", required: true },
+                isShieldEnabled: { dataType: "boolean", required: true },
               },
               required: true,
             },

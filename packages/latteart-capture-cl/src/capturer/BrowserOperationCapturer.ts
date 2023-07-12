@@ -420,8 +420,8 @@ export default class BrowserOperationCapturer {
   /**
    * Change shield setting.
    */
-  public async changeShieldSetting(isRemoveShield: boolean): Promise<void> {
-    await this.webBrowser?.changeShield(isRemoveShield);
+  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
+    await this.webBrowser?.setShieldEnabled(isShieldEnabled);
   }
 
   public async autofill(
