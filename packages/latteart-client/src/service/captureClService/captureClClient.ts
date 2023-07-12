@@ -412,6 +412,11 @@ class CaptureSessionImpl implements CaptureSession {
             this.eventListeners.onResume();
           }
         },
+        onChangeShield: () => {
+          if (this.eventListeners.onChangeShield) {
+            this.eventListeners.onChangeShield();
+          }
+        },
         onError: (serverError: CaptureCLServerError) => {
           const error: ServiceError = convertToServiceError(serverError);
 
@@ -806,6 +811,10 @@ class CaptureSessionImpl implements CaptureSession {
 
   resumeCapture() {
     this.captureCl.resumeCapture();
+  }
+
+  changeShieldSetting(isRemoveShield: boolean) {
+    this.captureCl.changeShieldSetting(isRemoveShield);
   }
 }
 

@@ -183,6 +183,7 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
+  changeShield: (isRemoveShield: boolean) => void;
 };
 
 /**
@@ -215,6 +216,7 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
+  changeShield,
 };
 
 type CapturedElementInfo = {
@@ -853,6 +855,17 @@ function setFunctionToDetectWindowSwitch({
           return;
         }
 
+        const isRemoveShield =
+          localStorage !== undefined &&
+          localStorage !== null &&
+          localStorage.isRemoveShield !== undefined
+            ? JSON.parse(localStorage.isRemoveShield.toLowerCase())
+            : false;
+
+        if (isRemoveShield) {
+          return;
+        }
+
         const shield = document.createElement("div");
         shield.id = shieldId;
         shield.style.position = "absolute";
@@ -1119,4 +1132,20 @@ function collectScreenElements() {
     "/HTML/BODY"
   );
   return elements;
+}
+
+function changeShield(isRemoveShield: boolean) {
+  const localStorageIsEnabled = (() => {
+    try {
+      return localStorage !== undefined && localStorage !== null;
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  if (!localStorageIsEnabled) {
+    return;
+  }
+
+  localStorage.isRemoveShield = isRemoveShield;
 }

@@ -417,6 +417,13 @@ export default class BrowserOperationCapturer {
     }
   }
 
+  /**
+   * Change shield setting.
+   */
+  public async changeShieldSetting(isRemoveShield: boolean): Promise<void> {
+    await this.webBrowser?.changeShield(isRemoveShield);
+  }
+
   public async autofill(
     inputValueSets: {
       locatorType: "id" | "xpath";

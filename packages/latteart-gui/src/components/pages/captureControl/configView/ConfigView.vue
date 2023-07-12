@@ -277,6 +277,10 @@ export default class ConfigView extends Vue {
     return (this.$store.state as RootState).deviceSettings;
   }
 
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
   private get locale() {
     return this.$store.getters.getLocale();
   }
@@ -596,6 +600,12 @@ export default class ConfigView extends Vue {
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {
         canUpdateModels: true,
+      });
+    }
+
+    if (config.misoperationPrevention && this.isCapturing) {
+      this.$store.dispatch("captureControl/changeShieldSetting", {
+        isRemoveShield: config.misoperationPrevention.isRemoveShield,
       });
     }
   }
