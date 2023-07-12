@@ -94,10 +94,11 @@ export class CaptureClServerAdapter {
         canGoBack: boolean;
         canGoForward: boolean;
       }) => void;
-      onUpdateWindows: (updatedWindowsInfo: {
-        windowHandles: string[];
+      onUpdateWindows: (updateInfo: {
+        windows: { windowHandle: string; url: string }[];
         currentWindowHandle: string;
-      }) => void;
+        timestamp: number;
+      }) => Promise<void>;
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
       onPause: () => void;
       onResume: () => void;
@@ -154,12 +155,13 @@ export class CaptureClServerAdapter {
         console.info(`onUpdateWindows: ${JSON.stringify(data)}`);
 
         // TODO: Type check
-        const updateWindowsInfo = data as {
-          windowHandles: string[];
+        const updateInfo = data as {
+          windows: { windowHandle: string; url: string }[];
           currentWindowHandle: string;
+          timestamp: number;
         };
 
-        eventListeners.onUpdateWindows(updateWindowsInfo);
+        await eventListeners.onUpdateWindows(updateInfo);
       };
 
       const onChangeAlertVisibility = async (data?: unknown) => {

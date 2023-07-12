@@ -338,19 +338,62 @@ class CaptureSessionImpl implements CaptureSession {
             },
           };
         },
-        onUpdateWindows: (updatedWindowsInfo: {
-          windowHandles: string[];
+        onUpdateWindows: async (updateInfo: {
+          windows: { windowHandle: string; url: string }[];
           currentWindowHandle: string;
+          timestamp: number;
         }) => {
-          const newWindowHandle = updatedWindowsInfo.windowHandles.find(
-            (windowHandle) =>
+          const newWindow = updateInfo.windows.find(
+            ({ windowHandle }) =>
               !this.browserState.windowHandles.includes(windowHandle)
           );
 
-          this.browserState = { ...this.browserState, ...updatedWindowsInfo };
+          this.browserState = {
+            ...this.browserState,
+            windowHandles: updateInfo.windows.map(
+              ({ windowHandle }) => windowHandle
+            ),
+            currentWindowHandle: updateInfo.currentWindowHandle,
+          };
 
-          if (this.eventListeners.onAddWindow && newWindowHandle) {
-            this.eventListeners.onAddWindow(newWindowHandle);
+          if (!newWindow) {
+            return;
+          }
+
+          if (this.eventListeners.onAddWindow) {
+            this.eventListeners.onAddWindow(newWindow.windowHandle);
+          }
+
+          if (this.testResult) {
+            const result = await this.testResult.addOperation(
+              {
+                type: "open_window",
+                url: newWindow.url,
+                timestamp: `${updateInfo.timestamp}`,
+                isAutomatic: this.isAutomated,
+                title: "",
+                imageData: "",
+                windowHandle: "",
+                screenElements: [],
+                pageSource: "",
+                scrollPosition: { x: 0, y: 0 },
+                clientSize: { width: 0, height: 0 },
+                input: "",
+                elementInfo: null,
+                inputElements: [],
+              },
+              { compressScreenshot: false }
+            );
+
+            if (result.isFailure()) {
+              captureClErrors.push(result.error);
+              this.endCapture();
+              return;
+            }
+
+            if (this.eventListeners.onAddTestStep) {
+              this.eventListeners.onAddTestStep(result.data);
+            }
           }
         },
         onChangeAlertVisibility: (data: { isVisible: boolean }) => {

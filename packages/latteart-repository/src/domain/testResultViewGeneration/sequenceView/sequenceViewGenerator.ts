@@ -24,35 +24,48 @@ export function generateSequenceView(
   testResultId: string,
   testSteps: TestStepForSequenceView[]
 ): SequenceView {
-  const screenDefToScreenId = new Map(
+  const filteredTestSteps = testSteps.filter(({ operation }) => {
+    return !["start_capturing", "open_window"].includes(operation.type);
+  });
+
+  const screenDefToScreenId = createScreenDefToScreenMap(filteredTestSteps);
+
+  const windows = collectWindows(filteredTestSteps);
+  const screens = [...screenDefToScreenId.values()];
+
+  const scenarios = createScenarios(testSteps, screenDefToScreenId);
+
+  return { testResultId, windows, screens, scenarios };
+}
+
+function createScreenDefToScreenMap(testSteps: TestStepForSequenceView[]) {
+  return new Map(
     testSteps
-      .filter(({ screenDef }, index, testSteps) => {
+      .filter(({ screenDef }, index, array) => {
         return (
-          screenDef &&
-          testSteps.findIndex(
-            (testStep) => testStep.screenDef === screenDef
-          ) === index
+          array.findIndex((testStep) => testStep.screenDef === screenDef) ===
+          index
         );
       })
       .map(({ screenDef }, index) => {
         return [screenDef, { id: `s${index}`, name: screenDef }];
       })
   );
+}
 
-  const windows = testSteps
-    .map(({ operation }) => operation.windowHandle)
-    .filter((windowHandle, index, array) => {
-      return windowHandle && array.indexOf(windowHandle) === index;
+function collectWindows(testSteps: TestStepForSequenceView[]) {
+  return testSteps
+    .filter(({ operation }, index, array) => {
+      return (
+        array.findIndex(
+          (testStep) =>
+            testStep.operation.windowHandle === operation.windowHandle
+        ) === index
+      );
     })
-    .map((windowHandle, index) => {
-      return { id: windowHandle, name: `window${index + 1}` };
+    .map(({ operation }, index) => {
+      return { id: operation.windowHandle, name: `window${index + 1}` };
     });
-
-  const screens = [...screenDefToScreenId.values()];
-
-  const scenarios = createScenarios(testSteps, screenDefToScreenId);
-
-  return { testResultId, windows, screens, scenarios };
 }
 
 function createScenarios(
