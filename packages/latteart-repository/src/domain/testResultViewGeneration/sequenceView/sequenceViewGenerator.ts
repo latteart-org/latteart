@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  SequenceView,
-  SequenceViewNode,
-  TestStepForSequenceView,
-} from "./types";
+import { SequenceView, TestStepForSequenceView } from "./types";
 
 export function generateSequenceView(
   testResultId: string,
@@ -28,12 +24,12 @@ export function generateSequenceView(
     return !["start_capturing", "open_window"].includes(operation.type);
   });
 
-  const screenDefToScreenId = createScreenDefToScreenMap(filteredTestSteps);
+  const screenDefToScreen = createScreenDefToScreenMap(filteredTestSteps);
 
   const windows = collectWindows(filteredTestSteps);
-  const screens = [...screenDefToScreenId.values()];
+  const screens = [...screenDefToScreen.values()];
 
-  const scenarios = createScenarios(testSteps, screenDefToScreenId);
+  const scenarios = createScenarios(testSteps, screenDefToScreen);
 
   return { testResultId, windows, screens, scenarios };
 }
@@ -70,13 +66,7 @@ function collectWindows(testSteps: TestStepForSequenceView[]) {
 
 function createScenarios(
   testSteps: TestStepForSequenceView[],
-  screenDefToScreenId: Map<
-    string,
-    {
-      id: string;
-      name: string;
-    }
-  >
+  screenDefToScreen: Map<string, { id: string; name: string }>
 ) {
   return testSteps.reduce((acc: SequenceView["scenarios"], testStep) => {
     const lastScenario = acc.at(-1);
@@ -93,91 +83,63 @@ function createScenarios(
       });
     }
 
-    const screenId = screenDefToScreenId.get(testStep.screenDef)?.id ?? "";
+    const createNewNode = () => {
+      return {
+        windowId: testStep.operation.windowHandle,
+        screenId: screenDefToScreen.get(testStep.screenDef)?.id ?? "",
+        testSteps: [],
+      };
+    };
 
     const lastNode = acc.at(-1)?.nodes.at(-1);
-    const newNodes = createNodes(
-      screenId,
-      testStep.operation.windowHandle,
-      testStep.operation.type,
-      lastNode
-    );
 
-    acc.at(-1)?.nodes.push(...newNodes);
+    if (
+      !lastNode ||
+      ["resume_capturing", "start_capturing"].includes(testStep.operation.type)
+    ) {
+      acc.at(-1)?.nodes.push({ ...createNewNode() });
+    }
 
-    acc
-      .at(-1)
-      ?.nodes.at(-1)
-      ?.testSteps.push({
-        id: testStep.id,
-        type: testStep.operation.type,
-        input: testStep.operation.input,
-        element: testStep.operation.elementInfo
-          ? {
-              xpath: testStep.operation.elementInfo.xpath,
-              tagname: testStep.operation.elementInfo.tagname,
-              text: (({ elementInfo }) => {
-                if (!elementInfo) {
-                  return "";
-                }
-                if (elementInfo.text) {
-                  return elementInfo.text;
-                }
-                return `${elementInfo.attributes.value ?? ""}`;
-              })(testStep.operation),
-            }
-          : undefined,
-        notes: [...(testStep.bugs ?? []), ...(testStep.notices ?? [])].map(
-          (note) => {
-            return { ...note, id: note.id ?? "" };
-          }
-        ),
-      });
+    if (lastNode && testStep.operation.type === "screen_transition") {
+      acc
+        .at(-1)
+        ?.nodes.push({ ...createNewNode(), disabled: lastNode.disabled });
+    }
+
+    acc.at(-1)?.nodes.at(-1)?.testSteps.push(convertTestStepForNode(testStep));
+
+    if (testStep.operation.type === "pause_capturing") {
+      acc.at(-1)?.nodes.push({ ...createNewNode(), disabled: true });
+    }
 
     return acc;
   }, []);
 }
 
-function createNodes(
-  screenId: string,
-  windowId: string,
-  type: string,
-  beforeNode?: SequenceViewNode
-): SequenceViewNode[] {
-  const newNode = { windowId, screenId, testSteps: [] };
-
-  const lastOperationType = beforeNode?.testSteps.at(-1)?.type;
-  const isScreenChanged = type === "screen_transition";
-  const isWindowChanged =
-    beforeNode === undefined || beforeNode.windowId !== windowId;
-
-  if (type === "resume_capturing") {
-    if (beforeNode?.disabled) {
-      return [newNode];
-    }
-
-    return [{ ...newNode, testSteps: [], disabled: true }, newNode];
-  } else {
-    if (lastOperationType === "pause_capturing") {
-      return [
-        {
-          windowId: beforeNode?.windowId ?? "",
-          screenId: beforeNode?.screenId ?? "",
-          testSteps: [],
-          disabled: true,
-        },
-        { ...newNode, testSteps: [], disabled: true },
-      ];
-    }
-  }
-
-  if (beforeNode?.disabled && (isWindowChanged || isScreenChanged)) {
-    return [{ ...newNode, disabled: true }];
-  }
-
-  if (isWindowChanged || isScreenChanged) {
-    return [newNode];
-  }
-
-  return [];
+function convertTestStepForNode(testStep: TestStepForSequenceView) {
+  return {
+    id: testStep.id,
+    type: testStep.operation.type,
+    input: testStep.operation.input,
+    element: testStep.operation.elementInfo
+      ? {
+          xpath: testStep.operation.elementInfo.xpath,
+          tagname: testStep.operation.elementInfo.tagname,
+          text: (({ elementInfo }) => {
+            if (!elementInfo) {
+              return "";
+            }
+            if (elementInfo.text) {
+              return elementInfo.text;
+            }
+            return `${elementInfo.attributes.value ?? ""}`;
+          })(testStep.operation),
+        }
+      : undefined,
+    notes: [...(testStep.bugs ?? []), ...(testStep.notices ?? [])].map(
+      (note) => {
+        return { ...note, id: note.id ?? "" };
+      }
+    ),
+  };
 }

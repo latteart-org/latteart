@@ -440,7 +440,7 @@ export default class OperationList extends Vue {
         continue;
       }
 
-      if (operation.type === "resume_capturing") {
+      if (["resume_capturing", "start_capturing"].includes(operation.type)) {
         isCounting = false;
         continue;
       }
