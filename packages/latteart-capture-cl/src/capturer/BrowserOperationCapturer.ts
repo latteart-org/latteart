@@ -337,6 +337,13 @@ export default class BrowserOperationCapturer {
     await this.webBrowser.protectAllWindow();
   }
 
+  public async switchCapturingFrame(iframeIndex: string): Promise<void> {
+    if (!this.isCapturing) {
+      return;
+    }
+    await this.webBrowser?.switchFrameTo(iframeIndex);
+  }
+
   /**
    * Go back to previous page on capturing browser.
    */

@@ -20,6 +20,7 @@ import {
   Operation,
   TestStepNote,
   RunnableOperation,
+  ElementInfo,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -58,10 +59,13 @@ export type CaptureClService = {
 
 export type CaptureEventListeners = {
   onEnd: (result: ServiceResult<void>) => Promise<void>;
-  onAddTestStep?: (testStep: {
-    id: string;
-    operation: Operation;
-  }) => Promise<void>;
+  onAddTestStep?: (
+    testStep: {
+      id: string;
+      operation: Operation;
+    },
+    screenElements: ElementInfo[]
+  ) => Promise<void>;
   onAddNote?: (testStepNote: TestStepNote) => Promise<void>;
   onAddTestPurpose?: (testStepNote: TestStepNote) => Promise<void>;
   onAddWindow?: (windowHandle: string) => Promise<void>;
@@ -167,6 +171,8 @@ export type CaptureSession = {
    * @param destWindowHandle dest Window Handle
    */
   switchWindow(destWindowHandle: string): void;
+
+  switchFrame(iframeIndex: string): Promise<void>;
 
   /**
    * protect windows from user operations

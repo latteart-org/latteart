@@ -28,7 +28,11 @@ import {
   convertTestStepOperation,
   convertNote,
 } from "@/lib/common/replyDataConverter";
-import { ServiceResult, CaptureEventListeners } from "latteart-client";
+import {
+  ServiceResult,
+  CaptureEventListeners,
+  ElementInfo,
+} from "latteart-client";
 import {
   TestStep,
   TestStepNote,
@@ -498,7 +502,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     };
 
     const captureEventListeners: CaptureEventListeners = {
-      onAddTestStep: async (testStep: { id: string; operation: Operation }) => {
+      onAddTestStep: async (
+        testStep: { id: string; operation: Operation },
+        screenElements: ElementInfo[]
+      ) => {
         const operationHistoryState: OperationHistoryState = (
           context.rootState as any
         ).operationHistory;
@@ -520,6 +527,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             beforeOperation,
           });
         }
+        context.commit("setIframeElements", {
+          iframeElements: screenElements.filter(
+            (element) => element.tagname.toUpperCase() === "IFRAME"
+          ),
+        });
       },
       onAddNote: async (testStepNote: TestStepNote) => {
         const operationHistoryState: OperationHistoryState = (
@@ -758,6 +770,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   setShieldEnabled(context, payload: { isShieldEnabled: boolean }) {
     context.state.captureSession?.setShieldEnabled(payload.isShieldEnabled);
+  },
+
+  async switchCapturingFrame(
+    context,
+    payload: { label: string; iframeIndex: string }
+  ) {
+    await context.state.captureSession?.switchFrame(payload.iframeIndex);
+
+    context.commit("setCurrentFrame", {
+      label: payload.label,
+    });
   },
 };
 

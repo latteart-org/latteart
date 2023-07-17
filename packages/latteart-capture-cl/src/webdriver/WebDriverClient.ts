@@ -77,6 +77,17 @@ export default interface WebDriverClient extends ScriptExecutor {
   switchWindowTo(windowHandle: string): Promise<void>;
 
   /**
+   * Switch a iframe
+   * @param iframeIndex Destination iframe index.
+   */
+  switchFrameTo(iframeIndex: number): Promise<void>;
+
+  /**
+   * Switch default frame.
+   */
+  defaultContent(): Promise<void>;
+
+  /**
    * Whether alert dialog is visible or not.
    * @returns 'true': Alert dialog is visible, 'false': Alert dialog is not visible.
    */

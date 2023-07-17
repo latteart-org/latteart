@@ -138,6 +138,20 @@ const mutations: MutationTree<CaptureControlState> = {
   ) {
     state.autofillRegisterDialogData = payload;
   },
+
+  setCurrentFrame(state, payload: { label: string; locator: "" }) {
+    state.currentFrame = {
+      ...payload,
+    };
+  },
+
+  setIframeElements(state, payload: { iframeElements: ElementInfo[] }) {
+    state.iframeElements = payload.iframeElements;
+  },
+
+  clearIframeElements(state) {
+    state.iframeElements = [];
+  },
 };
 
 export default mutations;

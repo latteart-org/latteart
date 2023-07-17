@@ -100,6 +100,9 @@ export interface CaptureControlState {
     }[];
     callback: () => void;
   } | null;
+
+  iframeElements: ElementInfo[];
+  currentFrame: { label: string; locator: string };
 }
 
 const state: CaptureControlState = {
@@ -122,6 +125,8 @@ const state: CaptureControlState = {
   autofillRegisterDialogData: null,
   timer: new Timer(),
   captureSession: null,
+  currentFrame: { label: "", locator: "" },
+  iframeElements: [],
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

@@ -115,6 +115,20 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
+  public async switchFrameTo(iframeIndex: number): Promise<void> {
+    return await this.driver.switchTo().frame(iframeIndex);
+  }
+
+  public async defaultContent(): Promise<void> {
+    try {
+      return await this.driver.switchTo().defaultContent();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+      }
+    }
+  }
+
   /**
    * @inheritdoc
    */

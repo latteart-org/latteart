@@ -16,6 +16,8 @@ describe("WebBrowserWindow", () => {
       close: jest.fn(),
       getAllWindowHandles: jest.fn(),
       switchWindowTo: jest.fn(),
+      switchFrameTo: jest.fn(),
+      defaultContent: jest.fn(),
       alertIsVisible: jest.fn(),
       getCurrentUrl: jest.fn(),
       getCurrentWindowHandle: jest.fn(),

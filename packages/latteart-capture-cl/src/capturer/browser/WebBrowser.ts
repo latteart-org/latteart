@@ -255,6 +255,30 @@ export default class WebBrowser {
     this._isWindowSelecting = false;
   }
 
+  public async switchFrameTo(iframeIndex: string): Promise<void> {
+    console.log(`-> switchFrameTo: ${iframeIndex}`);
+    await (iframeIndex !== ""
+      ? this.client.switchFrameTo(Number(iframeIndex))
+      : this.client.defaultContent());
+
+    if (!this.currentWindow) {
+      throw new Error("Not found currentWindow");
+    }
+
+    this.option.onGetOperation(
+      this.currentWindow.createCapturedOperation({
+        type: SpecialOperationType.SWITCH_IFRAME,
+        windowHandle: this.currentWindow.windowHandle,
+        input: iframeIndex,
+        pageSource: await this.client.getCurrentPageText(),
+        screenElements:
+          (await this.client.execute(captureScript.collectScreenElements)) ??
+          [],
+      })
+    );
+    return;
+  }
+
   /**
    * Create windows which with specified window handles.
    * @param newWindowHandles New window handles.

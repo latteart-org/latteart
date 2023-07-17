@@ -28,6 +28,7 @@
     "record-notice": "テスト中の気付き",
     "record-note": "メモを残す",
     "target-tab-window": "対象タブ/ウィンドウ",
+    "target-iframe": "対象フレーム",
     "minimize": "最小化",
     "display-restore": "画面を元に戻す",
     "test-result-name": "テスト結果名（省略可）",

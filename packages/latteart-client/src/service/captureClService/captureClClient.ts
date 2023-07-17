@@ -248,7 +248,10 @@ class CaptureSessionImpl implements CaptureSession {
           this.lastTestStepId = result.data.id;
 
           if (this.eventListeners.onAddTestStep) {
-            this.eventListeners.onAddTestStep(result.data);
+            this.eventListeners.onAddTestStep(
+              result.data,
+              capturedOperation.screenElements
+            );
           }
 
           const testPurpose = this.pendingTestPurposes.pop();
@@ -301,7 +304,10 @@ class CaptureSessionImpl implements CaptureSession {
           this.lastTestStepId = result.data.id;
 
           if (this.eventListeners.onAddTestStep) {
-            this.eventListeners.onAddTestStep(result.data);
+            this.eventListeners.onAddTestStep(
+              result.data,
+              capturedScreenTransition.screenElements
+            );
           }
 
           const testPurpose = this.pendingTestPurposes.pop();
@@ -392,7 +398,7 @@ class CaptureSessionImpl implements CaptureSession {
             }
 
             if (this.eventListeners.onAddTestStep) {
-              this.eventListeners.onAddTestStep(result.data);
+              this.eventListeners.onAddTestStep(result.data, []);
             }
           }
         },
@@ -470,7 +476,7 @@ class CaptureSessionImpl implements CaptureSession {
       }
 
       if (this.eventListeners.onAddTestStep) {
-        this.eventListeners.onAddTestStep(addOperationResult.data);
+        this.eventListeners.onAddTestStep(addOperationResult.data, []);
       }
 
       if (!payload.option.firstTestPurpose) {
@@ -795,6 +801,10 @@ class CaptureSessionImpl implements CaptureSession {
 
   switchWindow(destWindowHandle: string) {
     this.captureCl.switchWindow(destWindowHandle);
+  }
+
+  async switchFrame(iframeIndex: string) {
+    await this.captureCl.switchFrame(iframeIndex);
   }
 
   protectWindows() {

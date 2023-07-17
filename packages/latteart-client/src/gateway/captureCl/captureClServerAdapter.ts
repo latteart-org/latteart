@@ -303,6 +303,18 @@ export class CaptureClServerAdapter {
     }
   }
 
+  public async switchFrame(iframeIndex: string): Promise<void> {
+    const result = await this.socketIOClient.invoke(
+      "switch_capturing_frame",
+      "switched_capturing_frame",
+      iframeIndex
+    );
+    if (result.data) {
+      throw new Error(`${result.data} (${result.data})`);
+    }
+    return;
+  }
+
   public protectWindows(): void {
     try {
       this.socketIOClient.emit("protect_windows");

@@ -27,6 +27,12 @@
 
     <v-divider vertical class="mx-3" />
 
+    <current-frame-info />
+    <v-spacer />
+    <select-iframe-button />
+
+    <v-divider vertical class="mx-3" />
+
     <run-auto-operation-button />
 
     <autofill-button />
@@ -47,11 +53,13 @@ import { Component, Vue } from "vue-property-decorator";
 import BrowserBackButton from "./BrowserBackButton.vue";
 import BrowserForwardButton from "./BrowserForwardButton.vue";
 import CurrentWindowInfo from "./CurrentWindowInfo.vue";
+import CurrentFrameInfo from "./CurrentFrameInfo.vue";
 import GoConfigViewButton from "./GoConfigViewButton.vue";
 import GoHistoryViewButton from "./GoHistoryViewButton.vue";
 import NoteRegisterButton from "./NoteRegisterButton.vue";
 import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
+import SelectIframeButton from "./SelectIframeButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 
@@ -60,7 +68,9 @@ import RunAutoOperationButton from "./RunAutoOperationButton.vue";
     "browser-back-button": BrowserBackButton,
     "browser-forward-button": BrowserForwardButton,
     "current-window-info": CurrentWindowInfo,
+    "current-frame-info": CurrentFrameInfo,
     "select-window-button": SelectWindowButton,
+    "select-iframe-button": SelectIframeButton,
     "note-register-button": NoteRegisterButton,
     "go-config-view-button": GoConfigViewButton,
     "go-history-view-button": GoHistoryViewButton,

@@ -174,6 +174,7 @@ export default class WebBrowserWindow {
     await this.client.execute(captureScript.observeCurrentScreen);
 
     const currentUrl = await this.client.getCurrentUrl();
+    console.log(currentUrl);
     if (currentUrl === "") {
       return;
     }

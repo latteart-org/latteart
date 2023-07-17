@@ -66,6 +66,7 @@ enum ClientToServerSocketIOEvent {
   BROWSER_BACK = "browser_back",
   BROWSER_FORWARD = "browser_forward",
   SWITCH_CAPTURING_WINDOW = "switch_capturing_window",
+  SWITCH_CAPTURING_FRAME = "switch_capturing_frame",
   UNPROTECT_WINDOWS = "unprotect_windows",
   PROTECT_WINDOWS = "protect_windows",
   PAUSE_CAPTURE = "pause_capture",
@@ -90,6 +91,7 @@ enum ServerToClientSocketIOEvent {
   CAPTURE_PAUSED = "capture_paused",
   CAPTURE_RESUMED = "capture_resumed",
   SHIELD_ENABLED_SET = "shield_enabled_set",
+  SWITCHED_CAPTURING_FRAME = "switched_capturing_frame",
   RUN_OPERATION_COMPLETED = "run_operation_completed",
   RUN_OPERATION_FAILED = "run_operation_failed",
   ENTER_VALUES_COMPLETED = "enter_values_completed",
@@ -276,6 +278,24 @@ io.on("connection", (socket) => {
           ClientToServerSocketIOEvent.SWITCH_CAPTURING_WINDOW,
           async (destWindowHandle: string) => {
             capturer.switchCapturingWindow(JSON.parse(destWindowHandle));
+          }
+        );
+        socket.on(
+          ClientToServerSocketIOEvent.SWITCH_CAPTURING_FRAME,
+          async (iframeIndex: string) => {
+            const args = iframeIndex.replaceAll(/"/g, "");
+            try {
+              await capturer.switchCapturingFrame(args);
+              socket.emit(ServerToClientSocketIOEvent.SWITCHED_CAPTURING_FRAME);
+            } catch (error) {
+              if (error instanceof Error) {
+                LoggingService.error(`failed switch frame.(${args})`, error);
+                socket.emit(
+                  ServerToClientSocketIOEvent.SWITCHED_CAPTURING_FRAME,
+                  error.name
+                );
+              }
+            }
           }
         );
         socket.on(ClientToServerSocketIOEvent.UNPROTECT_WINDOWS, async () => {

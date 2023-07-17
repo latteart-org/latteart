@@ -23,6 +23,7 @@ export enum SpecialOperationType {
   BROWSER_BACK = "browser_back",
   BROWSER_FORWARD = "browser_forward",
   SWITCH_WINDOW = "switch_window",
+  SWITCH_IFRAME = "switch_iframe",
   PAUSE_CAPTURING = "pause_capturing",
   RESUME_CAPTURING = "resume_capturing",
 }
