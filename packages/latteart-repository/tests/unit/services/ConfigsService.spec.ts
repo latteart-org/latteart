@@ -34,7 +34,7 @@ describe("ConfigsService", () => {
             isEnabled: false,
             isDeleteSrcImage: false,
           },
-          misoperationPrevention: { isShieldEnabled: false },
+          misoperationPrevention: { isShieldEnabled: true },
         },
       };
 
@@ -74,7 +74,7 @@ describe("ConfigsService", () => {
               values: [],
             },
           },
-          misoperationPrevention: { isShieldEnabled: false },
+          misoperationPrevention: { isShieldEnabled: true },
         },
       };
 

@@ -156,7 +156,7 @@ export default class RecordButton extends Vue {
 
         const targetConfig = {
           misoperationPrevention: {
-            isShieldEnabled: false,
+            isShieldEnabled: true,
           },
         };
         await this.$store.dispatch("writeConfig", {

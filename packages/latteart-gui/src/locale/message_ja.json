@@ -177,7 +177,7 @@
     "setting-autofill": "自動入力設定",
     "setting-auto-operation": "自動操作設定",
     "setting-misoperation-prevention": "誤操作防止設定",
-    "remove-shield": "暗幕を外す",
+    "set-shield": "暗幕を設定する",
     "no-data": "操作セットが登録されていません",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",

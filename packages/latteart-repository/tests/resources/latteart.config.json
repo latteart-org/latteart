@@ -159,6 +159,6 @@
       "isDeleteSrcImage": true,
       "isEnabled": true
     },
-    "misoperationPrevention": { "isShieldEnabled": false }
+    "misoperationPrevention": { "isShieldEnabled": true }
   }
 }

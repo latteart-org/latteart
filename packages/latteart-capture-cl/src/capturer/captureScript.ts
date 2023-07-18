@@ -858,9 +858,9 @@ function setFunctionToDetectWindowSwitch({
         const isShieldEnabled =
           localStorage != null && localStorage.isShieldEnabled !== undefined
             ? JSON.parse(localStorage.isShieldEnabled.toLowerCase())
-            : false;
+            : true;
 
-        if (isShieldEnabled) {
+        if (!isShieldEnabled) {
           return;
         }
 

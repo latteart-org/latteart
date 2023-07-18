@@ -339,7 +339,7 @@ export default class ConfigView extends Vue {
   private get misoperationPrevention(): MisoperationPreventionSetting {
     return (
       this.config?.misoperationPrevention ?? {
-        isShieldEnabled: false,
+        isShieldEnabled: true,
       }
     );
   }

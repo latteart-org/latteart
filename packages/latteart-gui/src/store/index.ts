@@ -638,7 +638,7 @@ const store: StoreOptions<RootState> = {
           },
         },
         misoperationPrevention: {
-          isShieldEnabled: false,
+          isShieldEnabled: true,
         },
       },
     },

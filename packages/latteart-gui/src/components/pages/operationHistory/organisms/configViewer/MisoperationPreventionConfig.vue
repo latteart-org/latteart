@@ -18,7 +18,7 @@
   <v-container class="mt-0 pt-0">
     <v-checkbox
       v-model="tempConfig.isShieldEnabled"
-      :label="$store.getters.message('config-view.remove-shield')"
+      :label="$store.getters.message('config-view.set-shield')"
       @change="saveConfig"
     >
     </v-checkbox>

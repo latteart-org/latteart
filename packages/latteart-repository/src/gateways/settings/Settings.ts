@@ -87,7 +87,7 @@ export default class Settings {
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       },
       misoperationPrevention: {
-        isShieldEnabled: false,
+        isShieldEnabled: true,
       },
     };
     this.captureSettings = {
