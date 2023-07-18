@@ -418,7 +418,7 @@ export default class BrowserOperationCapturer {
   }
 
   /**
-   * Change shield setting.
+   * Set shield enabled.
    */
   public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
     await this.webBrowser?.setShieldEnabled(isShieldEnabled);

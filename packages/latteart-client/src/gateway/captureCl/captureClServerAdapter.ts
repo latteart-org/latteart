@@ -222,7 +222,7 @@ export class CaptureClServerAdapter {
           },
           { eventName: "capture_paused", eventHandler: onPause },
           { eventName: "capture_resumed", eventHandler: onResume },
-          { eventName: "shield_changed", eventHandler: onChangeShield },
+          { eventName: "shield_enabled_set", eventHandler: onChangeShield },
           { eventName: "error_occurred", eventHandler: onError },
         ]
       );
@@ -337,7 +337,7 @@ export class CaptureClServerAdapter {
 
   public setShieldEnabled(isShieldEnabled: boolean): void {
     try {
-      this.socketIOClient.emit("change_shield", isShieldEnabled);
+      this.socketIOClient.emit("set_shield_enabled", isShieldEnabled);
     } catch (error) {
       console.error(error);
     }

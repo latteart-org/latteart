@@ -752,7 +752,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   },
 
   /**
-   * Change shield setting.
+   * Set shield enabled.
    * @param context Action context.
    * @param payload.isShieldEnabled Shield setting.
    */

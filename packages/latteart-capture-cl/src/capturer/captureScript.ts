@@ -818,7 +818,7 @@ function setFunctionToDetectWindowSwitch({
 
   if (!extendedWindow.setWindowHandleToLocalStorage) {
     extendedWindow.setWindowHandleToLocalStorage = () => {
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -826,7 +826,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -876,7 +876,7 @@ function setFunctionToDetectWindowSwitch({
         document.body.insertAdjacentElement("afterbegin", shield);
       })();
 
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -884,7 +884,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -1012,7 +1012,7 @@ function unblockUserOperations({
 }
 
 function getBrowsingWindowHandle() {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1020,7 +1020,7 @@ function getBrowsingWindowHandle() {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return "";
   }
 
@@ -1104,7 +1104,7 @@ function observeCurrentScreen() {
 }
 
 function focusWindow(windowHandle: string) {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1112,7 +1112,7 @@ function focusWindow(windowHandle: string) {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return;
   }
 
@@ -1133,7 +1133,7 @@ function collectScreenElements() {
 }
 
 function setShieldEnabled(isShieldEnabled: boolean) {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1141,7 +1141,7 @@ function setShieldEnabled(isShieldEnabled: boolean) {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return;
   }
 

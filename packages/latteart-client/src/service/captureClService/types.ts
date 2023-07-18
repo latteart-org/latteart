@@ -189,7 +189,7 @@ export type CaptureSession = {
   resumeCapture(): void;
 
   /**
-   * change shield setting
+   * set shield enabled
    */
   setShieldEnabled(isShieldEnabled: boolean): void;
 };
