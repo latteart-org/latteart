@@ -67,6 +67,7 @@ export type CaptureEventListeners = {
   onAddWindow?: (windowHandle: string) => Promise<void>;
   onPause?: () => void;
   onResume?: () => void;
+  onChangeShield?: () => void;
 };
 
 export type CaptureClClient = {
@@ -186,6 +187,11 @@ export type CaptureSession = {
    * resume capture
    */
   resumeCapture(): void;
+
+  /**
+   * set shield enabled
+   */
+  setShieldEnabled(isShieldEnabled: boolean): void;
 };
 
 export type CaptureCLServiceErrorCode =

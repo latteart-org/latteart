@@ -577,6 +577,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       onResume: async () => {
         context.commit("setPaused", { isPaused: false });
       },
+      onChangeShield: async () => {
+        /**Do nothing */
+      },
       onEnd: async (result: ServiceResult<void>) => {
         context.dispatch("postEndCapture");
 
@@ -658,6 +661,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }
 
       const session = result.data;
+
+      session.setShieldEnabled(
+        context.rootState.projectSettings.config.misoperationPrevention
+          .isShieldEnabled
+      );
 
       context.dispatch("stopTimer");
       context.dispatch("startTimer");
@@ -741,6 +749,15 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   resetTimer(context, payload?: { millis: number }) {
     context.state.timer.reset(payload?.millis);
+  },
+
+  /**
+   * Set shield enabled.
+   * @param context Action context.
+   * @param payload.isShieldEnabled Shield setting.
+   */
+  setShieldEnabled(context, payload: { isShieldEnabled: boolean }) {
+    context.state.captureSession?.setShieldEnabled(payload.isShieldEnabled);
   },
 };
 

@@ -80,6 +80,7 @@ describe("ProjectExportService", () => {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },
         },
+        misoperationPrevention: { isShieldEnabled: true },
       },
       defaultTagList: [],
       viewPointsPreset: [],

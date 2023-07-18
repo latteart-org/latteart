@@ -158,6 +158,7 @@
       "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       "isDeleteSrcImage": true,
       "isEnabled": true
-    }
+    },
+    "misoperationPrevention": { "isShieldEnabled": true }
   }
 }

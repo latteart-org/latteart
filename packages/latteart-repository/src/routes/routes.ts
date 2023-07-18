@@ -286,6 +286,13 @@ const models: TsoaRoute.Models = {
         config: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            misoperationPrevention: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                isShieldEnabled: { dataType: "boolean", required: true },
+              },
+              required: true,
+            },
             testResultComparison: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {

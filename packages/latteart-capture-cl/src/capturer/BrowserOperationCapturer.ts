@@ -417,6 +417,13 @@ export default class BrowserOperationCapturer {
     }
   }
 
+  /**
+   * Set shield enabled.
+   */
+  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
+    await this.webBrowser?.setShieldEnabled(isShieldEnabled);
+  }
+
   public async autofill(
     inputValueSets: {
       locatorType: "id" | "xpath";

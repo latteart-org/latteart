@@ -155,6 +155,10 @@ export default class WebBrowser {
     this._isOpened = false;
   }
 
+  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
+    await this.client.execute(captureScript.setShieldEnabled, isShieldEnabled);
+  }
+
   /**
    * Update browser state.
    */

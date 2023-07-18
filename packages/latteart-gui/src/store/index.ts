@@ -410,6 +410,9 @@ const actions: ActionTree<RootState, RootState> = {
         testResultComparison:
           payload.config.testResultComparison ??
           context.rootState.projectSettings.config.testResultComparison,
+        misoperationPrevention:
+          payload.config.misoperationPrevention ??
+          context.rootState.projectSettings.config.misoperationPrevention,
       },
     };
 
@@ -633,6 +636,9 @@ const store: StoreOptions<RootState> = {
             isEnabled: false,
             values: [],
           },
+        },
+        misoperationPrevention: {
+          isShieldEnabled: true,
         },
       },
     },

@@ -154,6 +154,15 @@ export default class RecordButton extends Vue {
           );
         }
 
+        const targetConfig = {
+          misoperationPrevention: {
+            isShieldEnabled: true,
+          },
+        };
+        await this.$store.dispatch("writeConfig", {
+          config: targetConfig,
+        });
+
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           config: this.config,

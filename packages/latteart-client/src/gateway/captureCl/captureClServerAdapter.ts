@@ -102,6 +102,7 @@ export class CaptureClServerAdapter {
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
       onPause: () => void;
       onResume: () => void;
+      onChangeShield: () => void;
       onError: (error: CaptureCLServerError) => void;
       onEnd: () => Promise<void>;
     }
@@ -176,6 +177,10 @@ export class CaptureClServerAdapter {
         eventListeners.onResume();
       };
 
+      const onChangeShield = async () => {
+        eventListeners.onChangeShield();
+      };
+
       const onError = async (data?: unknown) => {
         console.info(`onError: ${JSON.stringify(data)}`);
 
@@ -217,6 +222,7 @@ export class CaptureClServerAdapter {
           },
           { eventName: "capture_paused", eventHandler: onPause },
           { eventName: "capture_resumed", eventHandler: onResume },
+          { eventName: "shield_enabled_set", eventHandler: onChangeShield },
           { eventName: "error_occurred", eventHandler: onError },
         ]
       );
@@ -324,6 +330,14 @@ export class CaptureClServerAdapter {
   public resumeCapture(): void {
     try {
       this.socketIOClient.emit("resume_capture");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public setShieldEnabled(isShieldEnabled: boolean): void {
+    try {
+      this.socketIOClient.emit("set_shield_enabled", isShieldEnabled);
     } catch (error) {
       console.error(error);
     }

@@ -178,6 +178,21 @@
                 </compare-setting>
               </v-expansion-panel-content>
             </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-header>{{
+                $store.getters.message(
+                  "config-view.setting-misoperation-prevention"
+                )
+              }}</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <misoperation-prevention-config
+                  :misoperationPrevention="misoperationPrevention"
+                  :opened="misoperationPreventionSettingOpened"
+                  @save-config="saveConfig"
+                ></misoperation-prevention-config>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
           </v-expansion-panels>
         </v-col>
       </v-row>
@@ -206,6 +221,7 @@ import {
   ProjectSettings,
   ViewSettings,
   TestResultComparisonSetting,
+  MisoperationPreventionSetting,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import {
@@ -215,6 +231,7 @@ import {
 import { default as AutoOperationSettingComponent } from "../../operationHistory/organisms/configViewer/AutoOperationSetting.vue";
 import { RootState } from "@/store";
 import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
+import MisoperationPreventionConfig from "../../operationHistory/organisms/configViewer/MisoperationPreventionConfig.vue";
 
 @Component({
   components: {
@@ -226,6 +243,7 @@ import CompareSetting from "../../operationHistory/organisms/configViewer/Compar
     "compare-setting": CompareSetting,
     "auto-operation-setting": AutoOperationSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
+    "misoperation-prevention-config": MisoperationPreventionConfig,
   },
 })
 export default class ConfigView extends Vue {
@@ -257,6 +275,10 @@ export default class ConfigView extends Vue {
 
   private get deviceSettings(): DeviceSettings | undefined {
     return (this.$store.state as RootState).deviceSettings;
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
   }
 
   private get locale() {
@@ -312,6 +334,14 @@ export default class ConfigView extends Vue {
   private get testResultComparisonSetting(): TestResultComparisonSetting {
     return (this.$store.state as RootState).projectSettings.config
       .testResultComparison;
+  }
+
+  private get misoperationPrevention(): MisoperationPreventionSetting {
+    return (
+      this.config?.misoperationPrevention ?? {
+        isShieldEnabled: true,
+      }
+    );
   }
 
   @Watch("locale")
@@ -398,6 +428,10 @@ export default class ConfigView extends Vue {
 
   private get autoOperationSettingOpened() {
     return this.panel === 5;
+  }
+
+  private get misoperationPreventionSettingOpened() {
+    return this.panel === 7;
   }
 
   private get otherThanWindows() {
@@ -536,6 +570,7 @@ export default class ConfigView extends Vue {
     coverage?: CoverageSetting;
     imageCompression?: ImageCompressionSetting;
     testResultComparison?: TestResultComparisonSetting;
+    misoperationPrevention?: MisoperationPreventionSetting;
   }) {
     const projectConfig = {
       ...config,
@@ -565,6 +600,12 @@ export default class ConfigView extends Vue {
     if (config.screenDefinition || config.coverage) {
       this.$store.commit("operationHistory/setCanUpdateModels", {
         canUpdateModels: true,
+      });
+    }
+
+    if (config.misoperationPrevention && this.isCapturing) {
+      this.$store.dispatch("captureControl/setShieldEnabled", {
+        isShieldEnabled: config.misoperationPrevention.isShieldEnabled,
       });
     }
   }

@@ -50,6 +50,7 @@ describe("SettingsProvider", () => {
           isDeleteSrcImage: true,
           isEnabled: true,
         },
+        misoperationPrevention: { isShieldEnabled: true },
       },
       captureSettings: {
         ignoreTags: [],
@@ -208,6 +209,7 @@ describe("SettingsProvider", () => {
             isDeleteSrcImage: true,
             isEnabled: true,
           },
+          misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
           ignoreTags: [
@@ -290,6 +292,7 @@ describe("SettingsProvider", () => {
             isDeleteSrcImage: true,
             isEnabled: true,
           },
+          misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
           ignoreTags: [],

@@ -221,6 +221,13 @@ export class SettingsProvider {
       );
     }
 
+    if (source.config && source.config.misoperationPrevention) {
+      Object.assign(
+        target.config.misoperationPrevention,
+        source.config.misoperationPrevention
+      );
+    }
+
     if (source.captureSettings && source.captureSettings.ignoreTags) {
       target.captureSettings.ignoreTags = source.captureSettings.ignoreTags;
     }

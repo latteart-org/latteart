@@ -183,6 +183,7 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
+  setShieldEnabled: (isShieldEnabled: boolean) => void;
 };
 
 /**
@@ -215,6 +216,7 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
+  setShieldEnabled,
 };
 
 type CapturedElementInfo = {
@@ -816,7 +818,7 @@ function setFunctionToDetectWindowSwitch({
 
   if (!extendedWindow.setWindowHandleToLocalStorage) {
     extendedWindow.setWindowHandleToLocalStorage = () => {
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -824,7 +826,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -853,6 +855,15 @@ function setFunctionToDetectWindowSwitch({
           return;
         }
 
+        const isShieldEnabled =
+          localStorage != null && localStorage.isShieldEnabled !== undefined
+            ? JSON.parse(localStorage.isShieldEnabled.toLowerCase())
+            : true;
+
+        if (!isShieldEnabled) {
+          return;
+        }
+
         const shield = document.createElement("div");
         shield.id = shieldId;
         shield.style.position = "absolute";
@@ -865,7 +876,7 @@ function setFunctionToDetectWindowSwitch({
         document.body.insertAdjacentElement("afterbegin", shield);
       })();
 
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -873,7 +884,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -1001,7 +1012,7 @@ function unblockUserOperations({
 }
 
 function getBrowsingWindowHandle() {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1009,7 +1020,7 @@ function getBrowsingWindowHandle() {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return "";
   }
 
@@ -1093,7 +1104,7 @@ function observeCurrentScreen() {
 }
 
 function focusWindow(windowHandle: string) {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1101,7 +1112,7 @@ function focusWindow(windowHandle: string) {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return;
   }
 
@@ -1119,4 +1130,20 @@ function collectScreenElements() {
     "/HTML/BODY"
   );
   return elements;
+}
+
+function setShieldEnabled(isShieldEnabled: boolean) {
+  const isLocalStorageEnabled = (() => {
+    try {
+      return localStorage !== undefined && localStorage !== null;
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  if (!isLocalStorageEnabled) {
+    return;
+  }
+
+  localStorage.isShieldEnabled = isShieldEnabled;
 }

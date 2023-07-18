@@ -45,6 +45,7 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       coverage: config.config.coverage,
       imageCompression: config.config.imageCompression,
       testResultComparison: config.config.testResultComparison,
+      misoperationPrevention: config.config.misoperationPrevention,
     },
   };
 }
