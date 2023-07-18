@@ -165,8 +165,7 @@
       }
     },
     "imageCompression": {
-      "isEnabled": true,
-      "isDeleteSrcImage": true,
+      "type": "png",
       "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp"
     },
     "testResultComparison": {

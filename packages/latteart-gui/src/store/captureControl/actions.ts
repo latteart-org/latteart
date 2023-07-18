@@ -172,13 +172,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
 
+      const isEnabled =
+        context.rootState.projectSettings.config.imageCompression.type ===
+        "webp"
+          ? true
+          : false;
+
       const session = await (async () => {
         const startCaptureResult = await client.startCapture(
           payload.initialUrl,
           {
-            compressScreenshots:
-              context.rootState.projectSettings.config.imageCompression
-                .isEnabled,
+            compressScreenshots: isEnabled,
           }
         );
         if (startCaptureResult.isFailure()) {
@@ -646,9 +650,14 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           }
         : undefined;
 
+      const isEnabled =
+        context.rootState.projectSettings.config.imageCompression.type ===
+        "webp"
+          ? true
+          : false;
+
       const result = await client.startCapture(payload.url, {
-        compressScreenshots:
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
+        compressScreenshots: isEnabled,
         firstTestPurpose,
       });
 
@@ -711,7 +720,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       screenshot: payload.noteEditInfo.shouldTakeScreenshot,
       compressScreenshot:
         payload.noteEditInfo.shouldTakeScreenshot &&
-        context.rootState.projectSettings.config.imageCompression.isEnabled,
+        context.rootState.projectSettings.config.imageCompression.type ===
+          "webp",
     };
 
     context.state.captureSession?.takeNote(note, option);

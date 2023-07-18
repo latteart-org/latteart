@@ -82,8 +82,7 @@ export default class Settings {
         },
       },
       imageCompression: {
-        isEnabled: true,
-        isDeleteSrcImage: true,
+        type: "png",
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
       },
       misoperationPrevention: {
@@ -131,8 +130,7 @@ export interface Coverage {
  * Image compression settings.
  */
 export interface ImageCompression {
-  isEnabled: boolean;
-  isDeleteSrcImage: boolean;
+  type: "png" | "webp";
   command: string;
 }
 

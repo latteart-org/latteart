@@ -228,7 +228,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
+          context.rootState.projectSettings.config.imageCompression.type ===
+            "webp",
       };
 
       const testResult =

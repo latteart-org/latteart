@@ -22,10 +22,7 @@ export function convertToExportableConfig(
   return {
     config: {
       ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
-      },
+      imageCompression: { type: settings.config.imageCompression.type },
     },
     defaultTagList: settings.defaultTagList,
     viewPointsPreset: settings.viewPointsPreset,

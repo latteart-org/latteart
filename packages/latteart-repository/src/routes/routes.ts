@@ -339,8 +339,14 @@ const models: TsoaRoute.Models = {
             imageCompression: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {
-                isDeleteSrcImage: { dataType: "boolean", required: true },
-                isEnabled: { dataType: "boolean", required: true },
+                type: {
+                  dataType: "union",
+                  subSchemas: [
+                    { dataType: "enum", enums: ["png"] },
+                    { dataType: "enum", enums: ["webp"] },
+                  ],
+                  required: true,
+                },
               },
               required: true,
             },

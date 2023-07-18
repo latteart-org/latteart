@@ -75,10 +75,7 @@ export type ProjectConfig = {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
-    imageCompression: {
-      isEnabled: boolean;
-      isDeleteSrcImage: boolean;
-    };
+    imageCompression: { type: "png" | "webp" };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;

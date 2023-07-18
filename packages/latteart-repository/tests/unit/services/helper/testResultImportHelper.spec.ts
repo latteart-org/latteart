@@ -11,7 +11,7 @@ describe("testResultImportHelper", () => {
     it("V2のtestResultDataをimport用の型に変換する(deserializeTestResultV2)", async () => {
       const testStep1 = {
         timestamp: "0",
-        imageFileUrl: "test_compressed.webp",
+        imageFileUrl: "test.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -31,7 +31,7 @@ describe("testResultImportHelper", () => {
 
       const testStep2 = {
         timestamp: "0",
-        imageFileUrl: "test1_compressed.webp",
+        imageFileUrl: "test1.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -136,7 +136,7 @@ describe("testResultImportHelper", () => {
     it("V1のtestResultDataをimport用の型に変換する(deserializeTestResultV1)", async () => {
       const testStep1 = {
         timestamp: "1667536529193",
-        imageFileUrl: "test_compressed.webp",
+        imageFileUrl: "test.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -155,7 +155,7 @@ describe("testResultImportHelper", () => {
 
       const testStep2 = {
         timestamp: "1667536531659",
-        imageFileUrl: "test1_compressed.webp",
+        imageFileUrl: "test1.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -258,7 +258,7 @@ describe("testResultImportHelper", () => {
     it("V0のtestResultDataをimport用の型に変換する(deserializeTestResultV0)", async () => {
       const testStep1 = {
         timestamp: "1667536529",
-        imageFileUrl: "test_compressed.webp",
+        imageFileUrl: "test.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -277,7 +277,7 @@ describe("testResultImportHelper", () => {
 
       const testStep2 = {
         timestamp: "1667536531",
-        imageFileUrl: "test1_compressed.webp",
+        imageFileUrl: "test1.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -381,7 +381,7 @@ describe("testResultImportHelper", () => {
     it("不正なImportDataの場合はエラーをスローする", async () => {
       const testStep1 = {
         timestamp: "0",
-        imageFileUrl: "test_compressed.webp",
+        imageFileUrl: "test.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },
@@ -401,7 +401,7 @@ describe("testResultImportHelper", () => {
 
       const testStep2 = {
         timestamp: "0",
-        imageFileUrl: "test1_compressed.webp",
+        imageFileUrl: "test1.webp",
         windowInfo: {
           windowHandle: "CDwindow-test",
         },

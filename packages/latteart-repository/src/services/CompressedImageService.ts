@@ -102,7 +102,7 @@ export class CompressedImageService {
     const compressedImageFileName = `${path.basename(
       originalFileName,
       path.extname(originalFileName)
-    )}_compressed.webp`;
+    )}.webp`;
 
     const command = `cwebp ${originalFilePath} -o ${path.dirname(
       originalFilePath

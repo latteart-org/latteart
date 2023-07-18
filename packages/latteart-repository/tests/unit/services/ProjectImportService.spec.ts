@@ -62,7 +62,7 @@ describe("ProjectImportService", () => {
         autoOperationSetting: { conditionGroups: [] },
         screenDefinition: { screenDefType: "url", conditionGroups: [] },
         coverage: { include: { tags: [] } },
-        imageCompression: { isEnabled: false, isDeleteSrcImage: false },
+        imageCompression: { type: "png" },
         testResultComparison: {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },

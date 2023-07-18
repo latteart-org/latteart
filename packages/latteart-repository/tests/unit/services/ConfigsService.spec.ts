@@ -31,8 +31,7 @@ describe("ConfigsService", () => {
             },
           },
           imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
+            type: "webp",
           },
           misoperationPrevention: { isShieldEnabled: true },
         },
@@ -61,8 +60,7 @@ describe("ConfigsService", () => {
             },
           },
           imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
+            type: "png",
           },
           testResultComparison: {
             excludeItems: {

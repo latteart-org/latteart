@@ -47,8 +47,7 @@ describe("SettingsProvider", () => {
         },
         imageCompression: {
           command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-          isDeleteSrcImage: true,
-          isEnabled: true,
+          type: "png",
         },
         misoperationPrevention: { isShieldEnabled: true },
       },
@@ -206,8 +205,7 @@ describe("SettingsProvider", () => {
           },
           imageCompression: {
             command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+            type: "png",
           },
           misoperationPrevention: { isShieldEnabled: true },
         },
@@ -289,8 +287,7 @@ describe("SettingsProvider", () => {
           },
           imageCompression: {
             command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+            type: "png",
           },
           misoperationPrevention: { isShieldEnabled: true },
         },
@@ -309,8 +306,7 @@ describe("SettingsProvider", () => {
 
       expect(settingsProvider.getSetting("config.imageCompression")).toEqual({
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-        isDeleteSrcImage: true,
-        isEnabled: true,
+        type: "png",
       });
     });
   });
