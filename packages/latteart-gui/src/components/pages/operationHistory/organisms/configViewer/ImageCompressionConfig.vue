@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-radio-group
-      :value="tempConfig.type"
+      :value="tempConfig.format"
       class="py-0 my-0"
       @change="saveConfig"
     >
@@ -54,9 +54,9 @@ export default class ImageCompressionConfig extends Vue {
   }
 
   @Watch("tempConfig")
-  private saveConfig(type: "png" | "webp") {
+  private saveConfig(format: "png" | "webp") {
     if (this.opened) {
-      this.$emit("save-config", { imageCompression: { type } });
+      this.$emit("save-config", { imageCompression: { format } });
     }
   }
 }

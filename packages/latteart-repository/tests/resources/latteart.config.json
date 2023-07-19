@@ -154,10 +154,7 @@
         "tags": []
       }
     },
-    "imageCompression": {
-      "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-      "type": "png"
-    },
+    "imageCompression": { "format": "png" },
     "misoperationPrevention": { "isShieldEnabled": true }
   }
 }

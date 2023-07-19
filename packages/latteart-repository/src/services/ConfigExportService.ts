@@ -16,7 +16,6 @@
 
 import { TimestampService } from "./TimestampService";
 import { ConfigsService } from "./ConfigsService";
-import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ConfigExportService {
@@ -28,9 +27,7 @@ export class ConfigExportService {
       exportFileRepository: FileRepository;
     }
   ): Promise<string> {
-    const tempConfig = await service.configService.getProjectConfig(projectId);
-
-    const config = convertToExportableConfig(tempConfig);
+    const config = await service.configService.getProjectConfig(projectId);
 
     const fileName = `config_${service.timestampService.format(
       "YYYYMMDD_HHmmss"

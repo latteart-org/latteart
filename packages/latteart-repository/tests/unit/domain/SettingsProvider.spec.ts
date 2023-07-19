@@ -45,10 +45,7 @@ describe("SettingsProvider", () => {
             tags: [],
           },
         },
-        imageCompression: {
-          command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-          type: "png",
-        },
+        imageCompression: { format: "png" },
         misoperationPrevention: { isShieldEnabled: true },
       },
       captureSettings: {
@@ -203,10 +200,7 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            type: "png",
-          },
+          imageCompression: { format: "png" },
           misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
@@ -285,10 +279,7 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            type: "png",
-          },
+          imageCompression: { format: "png" },
           misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
@@ -305,8 +296,7 @@ describe("SettingsProvider", () => {
       settingsProvider.loadFile(filePath);
 
       expect(settingsProvider.getSetting("config.imageCompression")).toEqual({
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-        type: "png",
+        format: "png",
       });
     });
   });

@@ -81,10 +81,7 @@ export default class Settings {
           tags: [],
         },
       },
-      imageCompression: {
-        type: "png",
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-      },
+      imageCompression: { format: "png" },
       misoperationPrevention: {
         isShieldEnabled: true,
       },
@@ -130,8 +127,7 @@ export interface Coverage {
  * Image compression settings.
  */
 export interface ImageCompression {
-  type: "png" | "webp";
-  command: string;
+  format: "png" | "webp";
 }
 
 /**

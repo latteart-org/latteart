@@ -46,7 +46,6 @@ import {
 } from "@/domain/dataExtractor";
 import { ProjectConfig } from "@/interfaces/Configs";
 import { ConfigsService } from "./ConfigsService";
-import { convertToExportableConfig } from "./helper/configHelper";
 
 export class ProjectImportService {
   public async import(
@@ -427,11 +426,7 @@ export class ProjectImportService {
     const configJson = JSON.parse(configData.data) as ProjectConfig;
     const projectId = "1";
 
-    const config = await service.configService.updateConfig(
-      projectId,
-      configJson
-    );
-    return convertToExportableConfig(config);
+    return await service.configService.updateConfig(projectId, configJson);
   }
 
   private async readImportFile(

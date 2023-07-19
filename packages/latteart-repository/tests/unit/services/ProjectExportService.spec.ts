@@ -75,7 +75,7 @@ describe("ProjectExportService", () => {
         autoOperationSetting: { conditionGroups: [] },
         screenDefinition: { screenDefType: "url", conditionGroups: [] },
         coverage: { include: { tags: [] } },
-        imageCompression: { type: "png" },
+        imageCompression: { format: "png" },
         testResultComparison: {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },

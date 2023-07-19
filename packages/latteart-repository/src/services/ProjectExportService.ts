@@ -18,7 +18,6 @@ import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
 import { ConfigsService } from "./ConfigsService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
-import { convertToExportableConfig } from "./helper/configHelper";
 import { serializeTestResult } from "./helper/testResultExportHelper";
 import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
@@ -134,9 +133,7 @@ export class ProjectExportService {
       configService: ConfigsService;
     }
   ) {
-    const tempConfig = await service.configService.getProjectConfig(projectId);
-
-    const config = convertToExportableConfig(tempConfig);
+    const config = await service.configService.getProjectConfig(projectId);
 
     return {
       fileName: "config.json",

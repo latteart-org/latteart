@@ -286,7 +286,7 @@ export default class ConfigView extends Vue {
   }
 
   private get imageCompression(): ImageCompressionSetting {
-    return this.config?.imageCompression ?? { type: "png" };
+    return this.config?.imageCompression ?? { format: "png" };
   }
 
   private get includeTags(): string[] {

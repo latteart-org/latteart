@@ -278,6 +278,21 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ImageCompression: {
+    dataType: "refObject",
+    properties: {
+      format: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["png"] },
+          { dataType: "enum", enums: ["webp"] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectConfig: {
     dataType: "refAlias",
     type: {
@@ -336,20 +351,7 @@ const models: TsoaRoute.Models = {
               },
               required: true,
             },
-            imageCompression: {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                type: {
-                  dataType: "union",
-                  subSchemas: [
-                    { dataType: "enum", enums: ["png"] },
-                    { dataType: "enum", enums: ["webp"] },
-                  ],
-                  required: true,
-                },
-              },
-              required: true,
-            },
+            imageCompression: { ref: "ImageCompression", required: true },
             coverage: { ref: "Coverage", required: true },
             screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
             autoOperationSetting: {

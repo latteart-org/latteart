@@ -226,7 +226,7 @@ export type SettingsForRepository = {
       }[];
     };
     coverage: { include: { tags: string[] } };
-    imageCompression: { type: "png" | "webp" };
+    imageCompression: { format: "png" | "webp" };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
