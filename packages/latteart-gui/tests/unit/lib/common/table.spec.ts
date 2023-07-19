@@ -3,9 +3,9 @@ import { filterTableRows, sortTableRows } from "@/lib/common/table";
 describe("filterTableRows", () => {
   it("テーブル行群を指定の条件でフィルタして返す", () => {
     const rows = [
-      { index: 0, columns: { a: "hoge", b: "huga" } },
-      { index: 1, columns: { a: "hoge", b: "piyo" } },
-      { index: 2, columns: { a: "foo", b: "bar" } },
+      { a: "hoge", b: "huga" },
+      { a: "hoge", b: "piyo" },
+      { a: "foo", b: "bar" },
     ];
     const predicate1 = (item: { a: string; b: string }) => item.a === "hoge";
     const predicate2 = (item: { a: string; b: string }) => item.b === "huga";
@@ -24,9 +24,9 @@ describe("filterTableRows", () => {
 describe("sortTableRows", () => {
   it("テーブル行群を指定のパスが示す要素でソートして返す", () => {
     const rows = [
-      { index: 0, columns: { a: "ccc", b: 3, c: { d: "ccc" }, e: "bbb" } },
-      { index: 1, columns: { a: "bbb", b: 2, c: { d: "bbb" }, e: "aaa" } },
-      { index: 2, columns: { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" } },
+      { a: "ccc", b: 3, c: { d: "ccc" }, e: "bbb" },
+      { a: "bbb", b: 2, c: { d: "bbb" }, e: "aaa" },
+      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" },
     ];
 
     // 文字列型の列
@@ -45,12 +45,14 @@ describe("sortTableRows", () => {
     expect(sortTableRows(rows, "")).toEqual(rows);
 
     const rows2: {
-      index: number;
-      columns: { a: string; b: number; c: { d: string } | null; e: string };
+      a: string;
+      b: number;
+      c: { d: string } | null;
+      e: string;
     }[] = [
-      { index: 0, columns: { a: "ccc", b: 3, c: { d: "ccc" }, e: "aaa" } },
-      { index: 1, columns: { a: "bbb", b: 2, c: null, e: "aaa" } },
-      { index: 2, columns: { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" } },
+      { a: "ccc", b: 3, c: { d: "ccc" }, e: "aaa" },
+      { a: "bbb", b: 2, c: null, e: "aaa" },
+      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" },
     ];
 
     // ネストしたキーを持つ列(一部の親要素がnull)
