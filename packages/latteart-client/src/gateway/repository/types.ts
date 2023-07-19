@@ -226,7 +226,7 @@ export type SettingsForRepository = {
       }[];
     };
     coverage: { include: { tags: string[] } };
-    imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    imageCompression: { format: "png" | "webp" };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;

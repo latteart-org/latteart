@@ -16,31 +16,20 @@
 
 <template>
   <v-container class="mt-0 pt-0">
-    <v-row>
-      <v-col cols="12">
-        <v-checkbox
-          v-model="tempConfig.isEnabled"
-          :label="
-            $store.getters.message('config-view.image-compression-enabled')
-          "
-          @change="saveConfig"
-        >
-        </v-checkbox>
-      </v-col>
-      <v-col cols="12">
-        <v-checkbox
-          v-model="tempConfig.isDeleteSrcImage"
-          :label="
-            $store.getters.message(
-              'config-view.image-compression-delete-source-image'
-            )
-          "
-          :disabled="!tempConfig.isEnabled"
-          @change="saveConfig"
-        >
-        </v-checkbox>
-      </v-col>
-    </v-row>
+    <v-radio-group
+      :value="tempConfig.format"
+      class="py-0 my-0"
+      @change="saveConfig"
+    >
+      <v-radio
+        :label="$store.getters.message('config-view.png')"
+        value="png"
+      ></v-radio>
+      <v-radio
+        :label="$store.getters.message('config-view.webp')"
+        value="webp"
+      ></v-radio>
+    </v-radio-group>
   </v-container>
 </template>
 
@@ -55,9 +44,7 @@ export default class ImageCompressionConfig extends Vue {
   @Prop({ type: Object, default: null })
   public readonly imageCompression!: ImageCompressionSetting;
 
-  private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
-    ...this.imageCompression,
-  };
+  private tempConfig: ImageCompressionSetting = { ...this.imageCompression };
 
   @Watch("imageCompression")
   private updateTempConfig() {
@@ -66,11 +53,10 @@ export default class ImageCompressionConfig extends Vue {
     }
   }
 
-  private saveConfig() {
+  @Watch("tempConfig")
+  private saveConfig(format: "png" | "webp") {
     if (this.opened) {
-      this.$emit("save-config", {
-        imageCompression: this.tempConfig,
-      });
+      this.$emit("save-config", { imageCompression: { format } });
     }
   }
 }

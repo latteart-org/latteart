@@ -14,23 +14,7 @@
  * limitations under the License.
  */
 
-import { ExportableConfig, ProjectConfig } from "@/interfaces/Configs";
-
-export function convertToExportableConfig(
-  settings: ProjectConfig
-): ExportableConfig {
-  return {
-    config: {
-      ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
-      },
-    },
-    defaultTagList: settings.defaultTagList,
-    viewPointsPreset: settings.viewPointsPreset,
-  };
-}
+import { ProjectConfig } from "@/interfaces/Configs";
 
 export function parseProjectConfig(configText: string): ProjectConfig {
   const config = JSON.parse(configText) as ProjectConfig;

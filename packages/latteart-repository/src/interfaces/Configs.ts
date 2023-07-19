@@ -19,6 +19,7 @@ import {
   AutofillSetting,
   AutoOperationSetting,
   Coverage,
+  ImageCompression,
 } from "../gateways/settings/Settings";
 
 /**
@@ -50,11 +51,6 @@ export type SnapshotConfig = { locale: string };
  * Settings for the server.
  */
 export type ServerConfig = {
-  config: {
-    imageCompression: {
-      command: string;
-    };
-  };
   captureSettings: {
     ignoreTags: string[];
   };
@@ -75,10 +71,7 @@ export type ProjectConfig = {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
-    imageCompression: {
-      isEnabled: boolean;
-      isDeleteSrcImage: boolean;
-    };
+    imageCompression: ImageCompression;
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;

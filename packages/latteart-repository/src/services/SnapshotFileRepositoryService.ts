@@ -25,7 +25,6 @@ import { TestPurposeServiceImpl } from "./TestPurposeService";
 import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
-import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 import { Session } from "@/interfaces/Sessions";
@@ -448,8 +447,7 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async outputConfigFile(outputDirPath: string, locale: string) {
-    const tempConfig = await this.service.config.getProjectConfig("");
-    const config = convertToExportableConfig(tempConfig);
+    const config = await this.service.config.getProjectConfig("");
     const configWithLocale = {
       ...config,
       locale,

@@ -30,10 +30,7 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
-          },
+          imageCompression: { format: "webp" },
           misoperationPrevention: { isShieldEnabled: true },
         },
       };
@@ -60,10 +57,7 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
-          },
+          imageCompression: { format: "png" },
           testResultComparison: {
             excludeItems: {
               isEnabled: false,

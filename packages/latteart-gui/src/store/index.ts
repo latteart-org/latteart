@@ -623,10 +623,7 @@ const store: StoreOptions<RootState> = {
             tags: [],
           },
         },
-        imageCompression: {
-          isEnabled: true,
-          isDeleteSrcImage: true,
-        },
+        imageCompression: { format: "png" },
         testResultComparison: {
           excludeItems: {
             isEnabled: false,
