@@ -260,6 +260,7 @@ export default class WebBrowser {
     await (iframeIndex !== ""
       ? this.client.switchFrameTo(Number(iframeIndex))
       : this.client.defaultContent());
+    await this.client.execute(captureScript.observeCurrentScreen);
 
     if (!this.currentWindow) {
       throw new Error("Not found currentWindow");
