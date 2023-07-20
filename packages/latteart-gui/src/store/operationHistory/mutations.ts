@@ -320,15 +320,6 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set displayed operations to the State.
-   * @param state State.
-   * @param payload.sequences Sequence numbers of displayed operations.
-   */
-  setDisplayedOperations(state, payload: { sequences: number[] }) {
-    state.displayedOperations = payload.sequences;
-  },
-
-  /**
    * Set displayed screenshot url to the State.
    * @param state  State.
    * @param payload Image file url.

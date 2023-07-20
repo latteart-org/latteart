@@ -111,7 +111,6 @@
     <pane v-if="!dispCoverage">
       <operation-list
         v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
-        :onResetFilter="resetOperationFilter"
         :displayedOperations="displayedOperations"
         :onSelectOperation="selectOperation"
         :history="history"
@@ -366,12 +365,6 @@ export default class HistoryDisplay extends Vue {
   private setImageFileUrl(imageFileUrl: string) {
     this.$store.dispatch("operationHistory/changeScreenshot", {
       imageFileUrl,
-    });
-  }
-
-  private resetOperationFilter() {
-    this.$store.commit("operationHistory/setDisplayedOperations", {
-      sequences: [],
     });
   }
 
