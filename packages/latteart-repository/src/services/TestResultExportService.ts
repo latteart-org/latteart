@@ -36,7 +36,7 @@ export class TestResultExportServiceImpl implements TestResultExportService {
     const screenshots =
       await this.service.testResult.collectAllTestStepScreenshots(testResultId);
 
-    const testResult = await this.service.testResult.getTestResult(
+    const testResult = await this.service.testResult.getTestResultForExport(
       testResultId
     );
 

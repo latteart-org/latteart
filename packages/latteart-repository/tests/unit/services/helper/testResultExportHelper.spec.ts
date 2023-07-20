@@ -1,5 +1,5 @@
-import { TestResultExportDataV2 } from "@/interfaces/exportData";
-import { GetTestResultResponse } from "@/interfaces/TestResults";
+import { TestResultExportDataV3 } from "@/interfaces/exportData";
+import { ExportTestResultResponse } from "@/interfaces/TestResults";
 import { serializeTestResult } from "@/services/helper/testResultExportHelper";
 
 describe("testResultExportHelper", () => {
@@ -25,7 +25,7 @@ describe("testResultExportHelper", () => {
         tags: [],
         imageFileUrl: "",
       };
-      const testResult: GetTestResultResponse = {
+      const testResult: ExportTestResultResponse = {
         id: "testResultId",
         name: "testResultName",
         startTimeStamp: 0,
@@ -37,6 +37,7 @@ describe("testResultExportHelper", () => {
           { id: "id2", operation, intention: null, bugs: [], notices: [] },
         ],
         coverageSources: [],
+        timestamp: 10,
       };
 
       const testStep = {
@@ -59,8 +60,8 @@ describe("testResultExportHelper", () => {
         inputElements: [],
       };
 
-      const resultData: TestResultExportDataV2 = {
-        version: 2,
+      const resultData: TestResultExportDataV3 = {
+        version: 3,
         name: "testResultName",
         sessionId: "testResultId",
         startTimeStamp: 0,
@@ -81,6 +82,7 @@ describe("testResultExportHelper", () => {
         },
         notes: [intention],
         coverageSources: [],
+        timestamp: 10,
       };
 
       const result = serializeTestResult(testResult);

@@ -49,6 +49,7 @@ describe("ProjectExportService", () => {
       testingTime: 0,
       testSteps: [],
       coverageSources: [],
+      timestamp: 10,
     };
 
     const dailyTestProgress = [
@@ -94,7 +95,8 @@ describe("ProjectExportService", () => {
 
     const testResultService: TestResultService = {
       getTestResultIdentifiers: jest.fn(),
-      getTestResult: jest.fn().mockResolvedValue(testResultData),
+      getTestResult: jest.fn(),
+      getTestResultForExport: jest.fn().mockResolvedValue(testResultData),
       createTestResult: jest.fn(),
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
@@ -245,7 +247,7 @@ describe("ProjectExportService", () => {
           testResultFile: {
             fileName: "log.json",
             data: JSON.stringify({
-              version: 2,
+              version: 3,
               name: "testResultName",
               sessionId: "testResultId",
               startTimeStamp: 0,
@@ -255,6 +257,7 @@ describe("ProjectExportService", () => {
               history: {},
               notes: [],
               coverageSources: [],
+              timestamp: 10,
             }),
           },
           screenshots: [{ id: "id", fileUrl: "fileUrl" }],

@@ -28,6 +28,7 @@ import {
   GetTestResultResponse,
   PatchTestResultResponse,
   GetGraphViewResponse,
+  ExportTestResultResponse,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository, In } from "typeorm";
@@ -67,6 +68,10 @@ export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
 
   getTestResult(id: string): Promise<GetTestResultResponse | undefined>;
+
+  getTestResultForExport(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined>;
 
   createTestResult(
     body: CreateTestResultDto,
@@ -119,44 +124,37 @@ export class TestResultServiceImpl implements TestResultService {
   public async getTestResultIdentifiers(): Promise<ListTestResultResponse[]> {
     const testResultEntities = await getRepository(TestResultEntity).find();
 
-    return testResultEntities.map((testResult) => {
-      return {
-        id: testResult.id,
-        name: testResult.name,
-        parentTestResultId: testResult.parentTestResultId,
-      };
-    });
+    return testResultEntities
+      .sort((a, b) => {
+        const first = a.timestamp === 0 ? a.startTimestamp : a.timestamp;
+        const second = b.timestamp === 0 ? b.startTimestamp : b.timestamp;
+
+        return first - second;
+      })
+      .map((testResult) => {
+        return {
+          id: testResult.id,
+          name: testResult.name,
+          parentTestResultId: testResult.parentTestResultId,
+        };
+      });
   }
 
   public async getTestResult(
     id: string
   ): Promise<GetTestResultResponse | undefined> {
-    try {
-      const testResultEntity = await getRepository(
-        TestResultEntity
-      ).findOneOrFail(id, {
-        relations: [
-          "testSteps",
-          "testSteps.screenshot",
-          "testSteps.notes",
-          "testSteps.notes.tags",
-          "testSteps.notes.screenshot",
-          "testSteps.testPurpose",
-        ],
-      });
-      const { coverageSources } = await getRepository(
-        TestResultEntity
-      ).findOneOrFail(id, {
-        relations: ["coverageSources"],
-      });
+    const testResult = await this.getTestResultData(id);
 
-      return await this.convertTestResultEntityToTestResult({
-        coverageSources,
-        ...testResultEntity,
-      });
-    } catch (error) {
-      return undefined;
+    if (testResult) {
+      return this.convertToTestResult(testResult);
     }
+    return testResult;
+  }
+
+  public async getTestResultForExport(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined> {
+    return await this.getTestResultData(id);
   }
 
   public async createTestResult(
@@ -188,6 +186,7 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
+      timestamp: this.service.timestamp.epochMilliseconds(),
     });
 
     if (testResultId) {
@@ -285,10 +284,12 @@ export class TestResultServiceImpl implements TestResultService {
       testResultEntity
     );
 
-    return this.convertTestResultEntityToTestResult({
+    const testResult = await this.convertTestResultEntityToTestResult({
       coverageSources,
       ...updatedTestResultEntity,
     });
+
+    return this.convertToTestResult(testResult);
   }
 
   public async collectAllTestStepIds(testResultId: string): Promise<string[]> {
@@ -662,6 +663,37 @@ export class TestResultServiceImpl implements TestResultService {
     return { url: reportUrl, targetNames, summary };
   }
 
+  private async getTestResultData(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined> {
+    try {
+      const testResultEntity = await getRepository(
+        TestResultEntity
+      ).findOneOrFail(id, {
+        relations: [
+          "testSteps",
+          "testSteps.screenshot",
+          "testSteps.notes",
+          "testSteps.notes.tags",
+          "testSteps.notes.screenshot",
+          "testSteps.testPurpose",
+        ],
+      });
+      const { coverageSources } = await getRepository(
+        TestResultEntity
+      ).findOneOrFail(id, {
+        relations: ["coverageSources"],
+      });
+
+      return await this.convertTestResultEntityToTestResult({
+        coverageSources,
+        ...testResultEntity,
+      });
+    } catch (error) {
+      return undefined;
+    }
+  }
+
   private async convertTestResultEntityToTestResult(
     testResultEntity: TestResultEntity
   ) {
@@ -728,6 +760,21 @@ export class TestResultServiceImpl implements TestResultService {
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,
+      timestamp: testResultEntity.timestamp,
+    };
+  }
+
+  private convertToTestResult(testResult: ExportTestResultResponse) {
+    return {
+      id: testResult.id,
+      name: testResult.name,
+      startTimeStamp: testResult.startTimeStamp,
+      lastUpdateTimeStamp: testResult.lastUpdateTimeStamp,
+      initialUrl: testResult.initialUrl,
+      testingTime: testResult.testingTime,
+      testSteps: testResult.testSteps,
+      coverageSources: testResult.coverageSources,
+      parentTestResultId: testResult.parentTestResultId,
     };
   }
 }
