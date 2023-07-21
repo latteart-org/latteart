@@ -31,6 +31,7 @@ export type DeserializedTestResult = Omit<
   coverageSources: (Pick<CoverageSource, "title" | "url"> & {
     screenElements: DeserializedElementInfo[];
   })[];
+  creationTimestamp: number;
 };
 export type DeserializedTestStep = Pick<TestStep, "id"> & {
   operation: Omit<
@@ -171,4 +172,9 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
     height: number;
   };
   textWithoutChildren?: string;
+};
+
+// V3 Format
+export type TestResultExportDataV3 = TestResultExportDataV2 & {
+  creationTimestamp: number;
 };

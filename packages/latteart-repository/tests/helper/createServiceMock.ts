@@ -34,6 +34,7 @@ export const createTestResultServiceMock = (): TestResultService => {
   return {
     getTestResultIdentifiers: jest.fn(),
     getTestResult: jest.fn(),
+    getTestResultForExport: jest.fn(),
     createTestResult: jest.fn(),
     patchTestResult: jest.fn(),
     collectAllTestStepIds: jest.fn(),

@@ -3,11 +3,139 @@ import {
   TestResultExportDataV0,
   TestResultExportDataV1,
   TestResultExportDataV2,
+  TestResultExportDataV3,
 } from "@/interfaces/exportData";
 import { deserializeTestResult } from "@/services/helper/testResultImportHelper";
 
 describe("testResultImportHelper", () => {
   describe("#deserializeTestResult", () => {
+    it("V3のtestResultDataをimport用の型に変換する(deserializeTestResultV3)", async () => {
+      const testStep1 = {
+        timestamp: "0",
+        imageFileUrl: "test.webp",
+        windowInfo: {
+          windowHandle: "CDwindow-test",
+        },
+        pageInfo: {
+          title: "テストサイト",
+          url: "test",
+          keywordTexts: ["TEST", "このサイトはテスト用のサイトです。"],
+        },
+        operation: {
+          input: "",
+          type: "screen_transition",
+          elementInfo: null,
+          isAutomatic: false,
+        },
+        inputElements: [],
+      };
+
+      const testStep2 = {
+        timestamp: "0",
+        imageFileUrl: "test1.webp",
+        windowInfo: {
+          windowHandle: "CDwindow-test",
+        },
+        pageInfo: {
+          title: "テストサイト",
+          url: "test",
+          keywordTexts: ["TEST", "このサイトはテスト用のサイトです。"],
+        },
+        operation: {
+          input: "",
+          type: "click",
+          elementInfo: {
+            tagname: "SPAN",
+            text: "",
+            value: "",
+            xpath: "/HTML/BODY/NAV/BUTTON/SPAN",
+            checked: false,
+            attributes: { class: "navbar-toggler-icon" },
+          },
+          isAutomatic: false,
+        },
+        inputElements: [],
+      };
+
+      const data: TestResultExportDataV3 = {
+        version: 3,
+        name: "V3_session",
+        sessionId: "V3_sessionId",
+        startTimeStamp: 0,
+        lastUpdateTimeStamp: 0,
+        initialUrl: "test",
+        testingTime: 0,
+        history: {
+          "1": {
+            testStep: testStep1,
+            testPurpose: null,
+            notes: [],
+          },
+          "2": {
+            testStep: testStep2,
+            testPurpose: null,
+            notes: [],
+          },
+        },
+        notes: [],
+        coverageSources: [],
+        creationTimestamp: 10,
+      };
+
+      const resultTestStep1 = {
+        id: "",
+        operation: {
+          input: testStep1.operation.input,
+          type: testStep1.operation.type,
+          elementInfo: testStep1.operation.elementInfo,
+          title: testStep1.pageInfo.title,
+          url: testStep1.pageInfo.url,
+          imageFileUrl: testStep1.imageFileUrl,
+          timestamp: testStep1.timestamp,
+          windowHandle: testStep1.windowInfo.windowHandle,
+          inputElements: testStep1.inputElements,
+          keywordTexts: testStep1.pageInfo.keywordTexts,
+          isAutomatic: testStep1.operation.isAutomatic,
+        },
+        testPurpose: null,
+        notes: [],
+      };
+
+      const resultTestStep2 = {
+        id: "",
+        operation: {
+          input: testStep2.operation.input,
+          type: testStep2.operation.type,
+          elementInfo: testStep2.operation.elementInfo,
+          title: testStep2.pageInfo.title,
+          url: testStep2.pageInfo.url,
+          imageFileUrl: testStep2.imageFileUrl,
+          timestamp: testStep2.timestamp,
+          windowHandle: testStep2.windowInfo.windowHandle,
+          inputElements: testStep2.inputElements,
+          keywordTexts: testStep2.pageInfo.keywordTexts,
+          isAutomatic: testStep2.operation.isAutomatic,
+        },
+        testPurpose: null,
+        notes: [],
+      };
+
+      const resultData: DeserializedTestResult = {
+        id: data.sessionId,
+        name: data.name,
+        startTimeStamp: data.startTimeStamp,
+        lastUpdateTimeStamp: data.lastUpdateTimeStamp,
+        initialUrl: data.initialUrl,
+        testingTime: data.testingTime,
+        testSteps: [resultTestStep1, resultTestStep2],
+        coverageSources: data.coverageSources,
+        creationTimestamp: 10,
+      };
+
+      const result = deserializeTestResult(JSON.stringify(data));
+      expect(result).toEqual(resultData);
+    });
+
     it("V2のtestResultDataをimport用の型に変換する(deserializeTestResultV2)", async () => {
       const testStep1 = {
         timestamp: "0",
@@ -127,6 +255,7 @@ describe("testResultImportHelper", () => {
         testingTime: data.testingTime,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -249,6 +378,7 @@ describe("testResultImportHelper", () => {
         testingTime: 2466,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -372,6 +502,7 @@ describe("testResultImportHelper", () => {
         testingTime: 2000,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));

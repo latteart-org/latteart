@@ -16,13 +16,15 @@
 
 import {
   SerializeElementInfo,
-  TestResultExportDataV2,
   HistoryItemExportDataV2,
+  TestResultExportDataV3,
 } from "@/interfaces/exportData";
-import { GetTestResultResponse } from "@/interfaces/TestResults";
+import { ExportTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
 
-export function serializeTestResult(testResult: GetTestResultResponse): string {
+export function serializeTestResult(
+  testResult: ExportTestResultResponse
+): string {
   const { historyEntries, notes } = testResult.testSteps.reduce(
     (acc, testStep, index) => {
       const testStepEntry: [number, HistoryItemExportDataV2] = [
@@ -80,14 +82,14 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
     },
     {
       historyEntries: Array<[number, HistoryItemExportDataV2]>(),
-      notes: [] as TestResultExportDataV2["notes"],
+      notes: [] as TestResultExportDataV3["notes"],
     }
   );
 
   const history = Object.fromEntries(historyEntries);
 
-  const data: TestResultExportDataV2 = {
-    version: 2,
+  const data: TestResultExportDataV3 = {
+    version: 3,
     name: testResult.name,
     sessionId: testResult.id,
     startTimeStamp: testResult.startTimeStamp,
@@ -105,6 +107,7 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
         ),
       };
     }),
+    creationTimestamp: testResult.creationTimestamp,
   };
 
   return JSON.stringify(data);

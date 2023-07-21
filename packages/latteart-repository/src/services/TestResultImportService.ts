@@ -245,6 +245,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       lastUpdateTimestamp: testResult.lastUpdateTimeStamp,
       initialUrl: testResult.initialUrl ?? "",
       testingTime: testResult.testingTime,
+      creationTimestamp: testResult.creationTimestamp,
       screenshots: Array.from(screenshotFilePathToEntity.values()),
       testSteps: testStepEntities,
       coverageSources: coverageSourceEntities,

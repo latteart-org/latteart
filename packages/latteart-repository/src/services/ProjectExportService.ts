@@ -72,9 +72,10 @@ export class ProjectExportService {
           await service.testResultService.collectAllTestStepScreenshots(
             testResultEntity.id
           );
-        const testResult = await service.testResultService.getTestResult(
-          testResultEntity.id
-        );
+        const testResult =
+          await service.testResultService.getTestResultForExport(
+            testResultEntity.id
+          );
         if (!testResult) {
           throw new Error();
         }
