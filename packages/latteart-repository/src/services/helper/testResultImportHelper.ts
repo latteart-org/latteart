@@ -152,7 +152,7 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    timestamp: 0,
+    creationTimestamp: 0,
   };
   return testResult;
 };
@@ -212,7 +212,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    timestamp: 0,
+    creationTimestamp: 0,
   };
   return testResult;
 };
@@ -267,7 +267,7 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     testingTime: formattedData.testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    timestamp: 0,
+    creationTimestamp: 0,
   };
   return testResult;
 };
@@ -322,7 +322,7 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     testingTime: formattedData.testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    timestamp: formattedData.timestamp,
+    creationTimestamp: formattedData.creationTimestamp,
   };
   return testResult;
 };

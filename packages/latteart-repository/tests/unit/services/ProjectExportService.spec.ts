@@ -49,7 +49,7 @@ describe("ProjectExportService", () => {
       testingTime: 0,
       testSteps: [],
       coverageSources: [],
-      timestamp: 10,
+      creationTimestamp: 10,
     };
 
     const dailyTestProgress = [
@@ -257,7 +257,7 @@ describe("ProjectExportService", () => {
               history: {},
               notes: [],
               coverageSources: [],
-              timestamp: 10,
+              creationTimestamp: 10,
             }),
           },
           screenshots: [{ id: "id", fileUrl: "fileUrl" }],

@@ -60,7 +60,7 @@ export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
  * Test result data for export.
  */
 export type ExportTestResultResponse = GetTestResultResponse & {
-  timestamp: number;
+  creationTimestamp: number;
 };
 
 /**

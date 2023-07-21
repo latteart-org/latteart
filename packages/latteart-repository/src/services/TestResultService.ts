@@ -126,8 +126,10 @@ export class TestResultServiceImpl implements TestResultService {
 
     return testResultEntities
       .sort((a, b) => {
-        const first = a.timestamp === 0 ? a.startTimestamp : a.timestamp;
-        const second = b.timestamp === 0 ? b.startTimestamp : b.timestamp;
+        const first =
+          a.creationTimestamp === 0 ? a.startTimestamp : a.creationTimestamp;
+        const second =
+          b.creationTimestamp === 0 ? b.startTimestamp : b.creationTimestamp;
 
         return first - second;
       })
@@ -186,7 +188,7 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
-      timestamp: this.service.timestamp.epochMilliseconds(),
+      creationTimestamp: this.service.timestamp.epochMilliseconds(),
     });
 
     if (testResultId) {
@@ -760,7 +762,7 @@ export class TestResultServiceImpl implements TestResultService {
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,
-      timestamp: testResultEntity.timestamp,
+      creationTimestamp: testResultEntity.creationTimestamp,
     };
   }
 

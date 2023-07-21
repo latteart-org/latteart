@@ -251,7 +251,7 @@ describe("TestResultImportService", () => {
       );
       expect(testResultEntity.testingTime).toEqual(0);
 
-      expect(testResultEntity.timestamp).toEqual(0);
+      expect(testResultEntity.creationTimestamp).toEqual(0);
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.screenshotIds).toContain(
@@ -491,7 +491,7 @@ describe("TestResultImportService", () => {
       );
       expect(testResultEntity.testingTime).toEqual(0);
 
-      expect(testResultEntity.timestamp).toEqual(0);
+      expect(testResultEntity.creationTimestamp).toEqual(0);
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.screenshotIds).toContain(
@@ -741,7 +741,7 @@ describe("TestResultImportService", () => {
       );
       expect(testResultEntity.testingTime).toEqual(0);
 
-      expect(testResultEntity.timestamp).toEqual(0);
+      expect(testResultEntity.creationTimestamp).toEqual(0);
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.screenshotIds).toContain(
@@ -868,7 +868,7 @@ describe("TestResultImportService", () => {
         coverageSources: [
           { title: "title", url: "url", screenElements: [element1] },
         ],
-        timestamp: 10,
+        creationTimestamp: 10,
       };
 
       const result = await service.saveImportFileData(
@@ -992,8 +992,8 @@ describe("TestResultImportService", () => {
       );
       expect(testResultEntity.testingTime).toEqual(0);
 
-      expect(testResultEntity.timestamp).toEqual(
-        testResultExportData.timestamp
+      expect(testResultEntity.creationTimestamp).toEqual(
+        testResultExportData.creationTimestamp
       );
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);

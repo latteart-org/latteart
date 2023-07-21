@@ -107,7 +107,7 @@ export function serializeTestResult(
         ),
       };
     }),
-    timestamp: testResult.timestamp,
+    creationTimestamp: testResult.creationTimestamp,
   };
 
   return JSON.stringify(data);

@@ -37,7 +37,7 @@ describe("testResultExportHelper", () => {
           { id: "id2", operation, intention: null, bugs: [], notices: [] },
         ],
         coverageSources: [],
-        timestamp: 10,
+        creationTimestamp: 10,
       };
 
       const testStep = {
@@ -82,7 +82,7 @@ describe("testResultExportHelper", () => {
         },
         notes: [intention],
         coverageSources: [],
-        timestamp: 10,
+        creationTimestamp: 10,
       };
 
       const result = serializeTestResult(testResult);

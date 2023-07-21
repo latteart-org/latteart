@@ -58,8 +58,8 @@ export class TestResultEntity {
   testingTime: number = 0;
 
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-  @Column({ name: "timestamp", nullable: true, default: 0 })
-  timestamp: number = 0;
+  @Column({ name: "creation_timestamp", nullable: true, default: 0 })
+  creationTimestamp: number = 0;
 
   @OneToMany(() => SessionEntity, (session) => session.testResult)
   sessions?: SessionEntity[];

@@ -79,7 +79,7 @@ describe("testResultImportHelper", () => {
         },
         notes: [],
         coverageSources: [],
-        timestamp: 10,
+        creationTimestamp: 10,
       };
 
       const resultTestStep1 = {
@@ -129,7 +129,7 @@ describe("testResultImportHelper", () => {
         testingTime: data.testingTime,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
-        timestamp: 10,
+        creationTimestamp: 10,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -255,7 +255,7 @@ describe("testResultImportHelper", () => {
         testingTime: data.testingTime,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
-        timestamp: 0,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -378,7 +378,7 @@ describe("testResultImportHelper", () => {
         testingTime: 2466,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
-        timestamp: 0,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -502,7 +502,7 @@ describe("testResultImportHelper", () => {
         testingTime: 2000,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
-        timestamp: 0,
+        creationTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
