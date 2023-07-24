@@ -42,7 +42,7 @@ describe("動作確認用", () => {
       console.log(`Browser history changed.: ${JSON.stringify(browserStatus)}`);
     },
     onBrowserWindowsChanged: (
-      windows: { windowHandle: string; url: string }[],
+      windows: { windowHandle: string; url: string; title: string }[],
       currentWindowHandle: string
     ) => {
       console.log(

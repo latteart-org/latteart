@@ -49,7 +49,7 @@ describe("WebBrowserWindow", () => {
     it("WebDriver経由でスクリーンショットを取得する", async () => {
       clientMock.takeScreenshot = jest.fn().mockResolvedValue("screenshot");
 
-      const window = new WebBrowserWindow("", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "");
 
       expect(await window.getScreenshot()).toEqual("screenshot");
     });
@@ -79,7 +79,7 @@ describe("WebBrowserWindow", () => {
       (captureScript.resetEventListeners as jest.Mock).mockReturnValue(true);
       (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([]);
 
-      const window = new WebBrowserWindow("", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "");
 
       await window.getReadyToCapture();
 
@@ -163,7 +163,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -249,7 +255,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -345,7 +357,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -411,7 +429,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -483,7 +507,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -534,7 +558,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -586,7 +610,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -622,6 +646,7 @@ describe("WebBrowserWindow", () => {
           onHistoryChanged: jest.fn(),
         };
         const window = new WebBrowserWindow(
+          "",
           "",
           clientMock,
           "windowHandle",
@@ -676,6 +701,7 @@ describe("WebBrowserWindow", () => {
           onHistoryChanged: jest.fn(),
         };
         const window = new WebBrowserWindow(
+          "",
           "",
           clientMock,
           "windowHandle",
@@ -749,6 +775,7 @@ describe("WebBrowserWindow", () => {
         };
         const window = new WebBrowserWindow(
           "",
+          "",
           clientMock,
           "windowHandle",
           option
@@ -778,6 +805,7 @@ describe("WebBrowserWindow", () => {
         onHistoryChanged: jest.fn(),
       };
       const window = new WebBrowserWindow(
+        "",
         "",
         clientMock,
         "windowHandle",

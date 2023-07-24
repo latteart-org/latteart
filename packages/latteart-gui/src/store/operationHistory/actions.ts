@@ -447,7 +447,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit(
         "operationHistory/setWindows",
         {
-          windowHandles: extractWindowHandles(context.state.history),
+          windows: extractWindowHandles(context.state.history),
         },
         { root: true }
       );

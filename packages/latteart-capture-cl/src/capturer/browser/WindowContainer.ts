@@ -71,12 +71,16 @@ export default class WindowContainer {
   }
 
   /**
-   * Window handle and current url of holding windows.
+   * Window handle and current url and current title of holding windows.
    */
-  public get windows(): { windowHandle: string; url: string }[] {
+  public get windows(): { windowHandle: string; url: string; title: string }[] {
     return Array.from(this.windowHandleToManagedWindow.entries()).map(
       ([windowHandle, window]) => {
-        return { windowHandle, url: window.currentUrl };
+        return {
+          windowHandle,
+          url: window.currentUrl,
+          title: window.currentTitle,
+        };
       }
     );
   }

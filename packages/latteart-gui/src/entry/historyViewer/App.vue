@@ -70,7 +70,7 @@ export default class App extends Vue {
       this.$store.commit(
         "operationHistory/setWindows",
         {
-          windowHandles: extractWindowHandles(history),
+          windows: extractWindowHandles(history),
         },
         { root: true }
       );

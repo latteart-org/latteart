@@ -95,7 +95,7 @@ export class CaptureClServerAdapter {
         canGoForward: boolean;
       }) => void;
       onUpdateWindows: (updateInfo: {
-        windows: { windowHandle: string; url: string }[];
+        windows: { windowHandle: string; url: string; title: string }[];
         currentWindowHandle: string;
         timestamp: number;
       }) => Promise<void>;
@@ -157,7 +157,7 @@ export class CaptureClServerAdapter {
 
         // TODO: Type check
         const updateInfo = data as {
-          windows: { windowHandle: string; url: string }[];
+          windows: { windowHandle: string; url: string; title: string }[];
           currentWindowHandle: string;
           timestamp: number;
         };

@@ -564,10 +564,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           { root: true }
         );
       },
-      onAddWindow: async (windowHandle: string) => {
+      onAddWindow: async (windowHandle: string, title: string) => {
         context.commit(
           "operationHistory/addWindow",
-          { windowHandle },
+          { windowHandle, title },
           { root: true }
         );
       },
@@ -579,6 +579,13 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       },
       onChangeShield: async () => {
         /**Do nothing */
+      },
+      onUpdateWindowTitle: async (windowHandle: string, title: string) => {
+        context.commit(
+          "operationHistory/updateWindowTitle",
+          { windowHandle, title },
+          { root: true }
+        );
       },
       onEnd: async (result: ServiceResult<void>) => {
         context.dispatch("postEndCapture");

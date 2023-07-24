@@ -15,13 +15,19 @@
  */
 
 export function extractWindowHandles(
-  history: { operation: { windowHandle: string } }[]
-): string[] {
+  history: { operation: { windowHandle: string; title: string } }[]
+): { windowHandle: string; title: string }[] {
   return history
     .map((operationWithNotes) => {
-      return operationWithNotes.operation.windowHandle;
+      return {
+        windowHandle: operationWithNotes.operation.windowHandle,
+        title: operationWithNotes.operation.title,
+      };
     })
-    .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
+    .filter((window, index, array) => {
+      const windowIndex = array.findIndex(
+        ({ windowHandle }) => windowHandle === window.windowHandle
+      );
+      return windowIndex === index;
     });
 }

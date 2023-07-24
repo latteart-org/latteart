@@ -64,10 +64,11 @@ export type CaptureEventListeners = {
   }) => Promise<void>;
   onAddNote?: (testStepNote: TestStepNote) => Promise<void>;
   onAddTestPurpose?: (testStepNote: TestStepNote) => Promise<void>;
-  onAddWindow?: (windowHandle: string) => Promise<void>;
+  onAddWindow?: (windowHandle: string, title: string) => Promise<void>;
   onPause?: () => void;
   onResume?: () => void;
   onChangeShield?: () => void;
+  onUpdateWindowTitle?: (windowHandle: string, title: string) => Promise<void>;
 };
 
 export type CaptureClClient = {

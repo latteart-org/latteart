@@ -543,31 +543,61 @@ const mutations: MutationTree<OperationHistoryState> = {
   /**
    * Set window handles to the State.
    * @param state State.
-   * @param payload.windowHandles Window handles.
+   * @param payload.windows Window handle and title.
    */
-  setWindows(state, payload: { windowHandles: string[] }) {
-    state.windows = payload.windowHandles.map((windowHandle, index) => {
-      const text = `window${index + 1}`;
+  setWindows(
+    state,
+    payload: { windows: { windowHandle: string; title: string }[] }
+  ) {
+    state.windows = payload.windows.map((window, index) => {
+      const text = `window${index + 1}:${window.title}`;
 
       return {
         text,
-        value: windowHandle,
+        value: window.windowHandle,
+        title: window.title,
       };
     });
   },
 
   /**
-   * Add window handles to the State.
+   * Add window handles and title to the State.
    * @param state State.
-   * @param payload.windowHandles Window handles.
+   * @param payload.windowHandle Window handle.
+   * @param payload.title Title.
    */
-  addWindow(state, payload: { windowHandle: string }) {
-    const text = `window${state.windows.length + 1}`;
+  addWindow(state, payload: { windowHandle: string; title: string }) {
+    const text = `window${state.windows.length + 1}:${payload.title}`;
 
     state.windows.push({
       text,
       value: payload.windowHandle,
+      title: payload.title,
     });
+  },
+
+  /**
+   * Update window title to the State.
+   * @param state State.
+   * @param payload.windowHandle Window handle.
+   * @param payload.title Title.
+   */
+  updateWindowTitle(state, payload: { windowHandle: string; title: string }) {
+    const windowIndex = state.windows.findIndex(
+      ({ value }) => value === payload.windowHandle
+    );
+
+    if (state.windows[windowIndex].title !== payload.title) {
+      const indexOfFirst = state.windows[windowIndex].text.indexOf(":");
+      const strHead = state.windows[windowIndex].text.slice(0, indexOfFirst);
+      const text = `${strHead}:${payload.title}`;
+
+      state.windows.splice(windowIndex, 1, {
+        text,
+        value: payload.windowHandle,
+        title: payload.title,
+      });
+    }
   },
 
   /**

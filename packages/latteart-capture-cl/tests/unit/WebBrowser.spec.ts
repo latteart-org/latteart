@@ -58,6 +58,7 @@ describe("WebBrowserは", () => {
       clientMock = {
         getAllWindowHandles: jest.fn(),
         getCurrentUrl: jest.fn().mockResolvedValue("http://127.0.0.1/dummy"),
+        getCurrentTitle: jest.fn().mockResolvedValue("dummy"),
         getTitle: jest.fn().mockResolvedValue("dummy"),
         takeScreenshot: jest.fn().mockResolvedValue("dummy"),
         switchTo: jest.fn().mockReturnValue({

@@ -221,7 +221,7 @@ io.on("connection", (socket) => {
             );
           },
           onBrowserWindowsChanged: (
-            windows: { windowHandle: string; url: string }[],
+            windows: { windowHandle: string; url: string; title: string }[],
             currentWindowHandle: string
           ) => {
             LoggingService.info("Browser windows changed.");

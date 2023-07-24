@@ -63,6 +63,7 @@ export default class WebBrowserWindow {
   private screenTransitionHistory: ScreenTransitionHistory =
     new ScreenTransitionHistory();
   private firstUrl: string;
+  private firstTitle: string;
 
   /**
    * Constructor.
@@ -75,6 +76,7 @@ export default class WebBrowserWindow {
    */
   constructor(
     firstUrl: string,
+    firstTitle: string,
     client: WebDriverClient,
     windowHandle: string,
     option?: {
@@ -87,6 +89,7 @@ export default class WebBrowserWindow {
     }
   ) {
     this.firstUrl = firstUrl;
+    this.firstTitle = firstTitle;
     this.client = client;
     this.onGetOperation =
       option?.onGetOperation ??
@@ -121,6 +124,16 @@ export default class WebBrowserWindow {
       return this.firstUrl;
     }
     return this.currentScreenSummary.url;
+  }
+
+  /**
+   * Current title.
+   */
+  public get currentTitle(): string {
+    if (this.currentScreenSummary.title === "") {
+      return this.firstTitle;
+    }
+    return this.currentScreenSummary.title;
   }
 
   /**
