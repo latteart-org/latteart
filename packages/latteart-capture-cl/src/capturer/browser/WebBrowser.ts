@@ -191,6 +191,9 @@ export default class WebBrowser {
       );
     }
 
+    // Wait time for window switching.
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // If current window is changed, create switch_window operation.
     if (
       beforeWindow &&
