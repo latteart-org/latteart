@@ -46,13 +46,8 @@ import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { convertNote } from "@/lib/common/replyDataConverter";
-import {
-  ServiceSuccess,
-  TestResultViewOption,
-  SequenceView,
-  GraphView,
-} from "latteart-client";
-import { extractWindowHandles } from "@/lib/common/windowHandle";
+import { ServiceSuccess, SequenceView, GraphView } from "latteart-client";
+import { extractWindowInfo } from "@/lib/common/windowInfo";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
@@ -447,7 +442,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit(
         "operationHistory/setWindows",
         {
-          windows: extractWindowHandles(context.state.history),
+          windows: extractWindowInfo(context.state.history),
         },
         { root: true }
       );

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export function extractWindowHandles(
+export function extractWindowInfo(
   history: { operation: { windowHandle: string; title: string } }[]
 ): { windowHandle: string; title: string }[] {
   return history

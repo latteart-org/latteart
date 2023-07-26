@@ -1,8 +1,8 @@
-import { extractWindowHandles } from "@/lib/common/windowHandle";
+import { extractWindowInfo } from "@/lib/common/windowInfo";
 
-describe("windowHandle", () => {
-  describe("#extractWindowHandles", () => {
-    it("操作履歴から重複を省いたウィンドウハンドルを抽出して返す", () => {
+describe("window", () => {
+  describe("#extractWindowInfo", () => {
+    it("操作履歴から重複を省いたウィンドウ情報を抽出して返す", () => {
       const history = [
         { operation: { windowHandle: "aaa", title: "test1" } },
         { operation: { windowHandle: "bbb", title: "test2" } },
@@ -10,9 +10,9 @@ describe("windowHandle", () => {
         { operation: { windowHandle: "ccc", title: "test3" } },
       ];
 
-      const windowHandles = extractWindowHandles(history);
+      const windows = extractWindowInfo(history);
 
-      expect(windowHandles).toEqual([
+      expect(windows).toEqual([
         { windowHandle: "aaa", title: "test1" },
         { windowHandle: "bbb", title: "test2" },
         { windowHandle: "ccc", title: "test3" },

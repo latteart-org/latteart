@@ -45,7 +45,7 @@ import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { extractWindowHandles } from "@/lib/common/windowHandle";
+import { extractWindowInfo } from "@/lib/common/windowInfo";
 
 @Component({
   components: {
@@ -70,7 +70,7 @@ export default class App extends Vue {
       this.$store.commit(
         "operationHistory/setWindows",
         {
-          windows: extractWindowHandles(history),
+          windows: extractWindowInfo(history),
         },
         { root: true }
       );
