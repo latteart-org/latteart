@@ -22,6 +22,11 @@
       @change="saveConfig"
     >
     </v-checkbox>
+    <span class="notice">{{
+      $store.getters.message(
+        "config-view.setting-misoperation-prevention-notice"
+      )
+    }}</span>
   </v-container>
 </template>
 
@@ -56,3 +61,9 @@ export default class MisoperationPreventionConfig extends Vue {
   }
 }
 </script>
+<style lang="sass" scoped>
+.notice
+  font-size: small
+  margin-top: -16px
+  display: block
+</style>
