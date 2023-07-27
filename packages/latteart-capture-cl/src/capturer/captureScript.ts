@@ -495,7 +495,8 @@ function setFunctionToExtractElements() {
       !extendedDocument.defaultView ||
       !extendedDocument.collectVisibleElements ||
       !extendedDocument.getAttributesFromElement ||
-      !extendedDocument.extractElements
+      !extendedDocument.extractElements ||
+      extendedDocument.__capturingIsPaused
     ) {
       return elementsWithTargetXPath;
     }
@@ -794,6 +795,11 @@ function setFunctionToDetectWindowSwitch({
   const extendedWindow: ExtendedWindowForWindowSwitch = window;
 
   const extendedDocument: ExtendedDocument = document;
+
+  if (extendedDocument.__capturingIsPaused) {
+    return;
+  }
+
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
   if (extendedDocument.readyState !== "complete" && !initGuard) {
@@ -847,6 +853,9 @@ function setFunctionToDetectWindowSwitch({
 
   if (!extendedWindow.removeWindowHandleToLocalStorage) {
     extendedWindow.removeWindowHandleToLocalStorage = () => {
+      if (extendedDocument.__capturingIsPaused) {
+        return;
+      }
       // Block user operations.
       (() => {
         const target = document.getElementById(shieldId);
