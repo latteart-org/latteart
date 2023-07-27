@@ -21,7 +21,6 @@
         <v-row class="fill-height">
           <history-display
             :rawHistory="testResult.history"
-            :windows="windows"
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
           ></history-display>
@@ -44,8 +43,6 @@ import HistoryDisplay from "@/components/pages/operationHistory/organisms/Histor
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { extractWindowInfo } from "@/lib/common/windowInfo";
 
 @Component({
   components: {
@@ -67,13 +64,6 @@ export default class App extends Vue {
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
       });
-      this.$store.commit(
-        "operationHistory/setWindows",
-        {
-          windows: extractWindowInfo(history),
-        },
-        { root: true }
-      );
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
@@ -87,11 +77,6 @@ export default class App extends Vue {
         setCanUpdateModels: false,
       });
     })();
-  }
-
-  private get windows() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .windows;
   }
 
   private get testResult(): {

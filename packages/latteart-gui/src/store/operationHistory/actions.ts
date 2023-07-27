@@ -47,7 +47,6 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResu
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { convertNote } from "@/lib/common/replyDataConverter";
 import { ServiceSuccess, SequenceView, GraphView } from "latteart-client";
-import { extractWindowInfo } from "@/lib/common/windowInfo";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
@@ -439,11 +438,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         name: result.data.testResultInfo.name,
         parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
       });
+
+      const windows = context.state.history
+        .map((operationWithNotes) => {
+          return {
+            windowHandle: operationWithNotes.operation.windowHandle,
+            title: operationWithNotes.operation.title,
+          };
+        })
+        .filter((window, index, array) => {
+          const windowIndex = array.findIndex(
+            ({ windowHandle }) => windowHandle === window.windowHandle
+          );
+          return windowIndex === index && window.windowHandle !== "";
+        });
+
       context.commit(
         "operationHistory/setWindows",
-        {
-          windows: extractWindowInfo(context.state.history),
-        },
+        { windows },
         { root: true }
       );
       await context.dispatch(

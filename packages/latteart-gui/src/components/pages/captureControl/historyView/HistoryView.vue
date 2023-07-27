@@ -20,7 +20,6 @@
       :locale="$store.state.i18n.locale"
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="history"
-      :windows="windows"
       :message="messageProvider"
       :screenDefinitionConfig="screenDefinitionConfig"
       scriptGenerationEnabled
@@ -50,11 +49,6 @@ export default class HistoryView extends Vue {
 
   private get messageProvider(): MessageProvider {
     return this.$store.getters.message;
-  }
-
-  private get windows() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .windows;
   }
 
   private get history(): OperationHistory {
