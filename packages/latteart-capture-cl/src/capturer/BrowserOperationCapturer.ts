@@ -155,6 +155,8 @@ export default class BrowserOperationCapturer {
           100
         );
 
+        const beforeWindow = this.webBrowser.currentWindow;
+
         // Delete actions after executing all registered actions.
         await Promise.all(
           this.actionQueue.map(async (action) => {
@@ -201,7 +203,7 @@ export default class BrowserOperationCapturer {
         }
 
         // Updates browser state.
-        await this.webBrowser.updateState();
+        await this.webBrowser.updateState(beforeWindow);
 
         if (this.webBrowser.isWindowSelecting) {
           continue;
@@ -315,12 +317,13 @@ export default class BrowserOperationCapturer {
    * @param destWindowHandle Destination window handle.
    */
   public async switchCapturingWindow(destWindowHandle: string): Promise<void> {
-    if (!this.isCapturing) {
-      return;
-    }
-
-    await this.webBrowser?.unprotectAllWindow();
-    await this.webBrowser?.switchWindowTo(destWindowHandle);
+    this.actionQueue.push(async (browser) => {
+      if (!this.isCapturing) {
+        return;
+      }
+      await browser.unprotectAllWindow();
+      await browser.switchWindowTo(destWindowHandle);
+    });
   }
 
   public async switchCancel(): Promise<void> {
