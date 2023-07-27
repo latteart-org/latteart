@@ -80,6 +80,7 @@ export interface ScreenDef {
 export interface WindowInfo {
   text: string;
   value: string;
+  title: string;
 }
 
 export interface RouterPushValueByName {

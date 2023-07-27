@@ -58,6 +58,7 @@ describe("WebBrowserは", () => {
       clientMock = {
         getAllWindowHandles: jest.fn(),
         getCurrentUrl: jest.fn().mockResolvedValue("http://127.0.0.1/dummy"),
+        getCurrentTitle: jest.fn().mockResolvedValue("dummy"),
         getTitle: jest.fn().mockResolvedValue("dummy"),
         takeScreenshot: jest.fn().mockResolvedValue("dummy"),
         switchTo: jest.fn().mockReturnValue({
@@ -104,12 +105,12 @@ describe("WebBrowserは", () => {
       expect(browser.countWindows()).toEqual(0);
       expect(browser.currentWindow).toBeUndefined();
 
-      await browser.updateState(); // 増加
+      await browser.updateState(browser.currentWindow); // 増加
 
       expect(browser.countWindows()).toEqual(2);
       expect(browser.currentWindow?.windowHandle).toEqual("windowHandle1");
 
-      await browser.updateState(); // 減少
+      await browser.updateState(browser.currentWindow); // 減少
 
       expect(browser.countWindows()).toEqual(1);
       expect(browser.currentWindow?.windowHandle).toEqual("windowHandle2");

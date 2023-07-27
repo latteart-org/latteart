@@ -43,7 +43,7 @@ export default class WebBrowser {
       canGoForward: boolean;
     }) => void;
     onWindowsChanged: (
-      windows: { windowHandle: string; url: string }[],
+      windows: { windowHandle: string; url: string; title: string }[],
       currentWindowHandle: string
     ) => void;
     onAlertVisibilityChanged: (isVisible: boolean) => void;
@@ -69,7 +69,7 @@ export default class WebBrowser {
         canGoForward: boolean;
       }) => void;
       onWindowsChanged?: (
-        windows: { windowHandle: string; url: string }[],
+        windows: { windowHandle: string; url: string; title: string }[],
         currentWindowHandle: string
       ) => void;
       onAlertVisibilityChanged?: (isVisible: boolean) => void;
@@ -162,9 +162,10 @@ export default class WebBrowser {
   /**
    * Update browser state.
    */
-  public async updateState(): Promise<void> {
+  public async updateState(
+    beforeWindow: WebBrowserWindow | undefined
+  ): Promise<void> {
     const beforeContainerLength = this.windowContainer.length;
-    const beforeWindow = this.windowContainer.currentWindow;
 
     // Update the container to be the same as actual windows.
     await this.windowContainer.update(await this.client.getAllWindowHandles());
@@ -277,9 +278,11 @@ export default class WebBrowser {
         const window = await (async () => {
           await this.injectFunctionToDetectWindowSwitch(windowHandle);
           const firstUrl = await this.client.getCurrentUrl();
+          const firstTitle = await this.client.getCurrentTitle();
 
           return new WebBrowserWindow(
             firstUrl,
+            firstTitle,
             this.client,
             windowHandle,
             this.option

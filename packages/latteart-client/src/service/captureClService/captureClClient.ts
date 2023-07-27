@@ -298,6 +298,13 @@ class CaptureSessionImpl implements CaptureSession {
             return;
           }
 
+          if (this.eventListeners.onUpdateWindowTitle) {
+            this.eventListeners.onUpdateWindowTitle(
+              capturedScreenTransition.windowHandle,
+              capturedScreenTransition.title
+            );
+          }
+
           this.lastTestStepId = result.data.id;
 
           if (this.eventListeners.onAddTestStep) {
@@ -339,7 +346,7 @@ class CaptureSessionImpl implements CaptureSession {
           };
         },
         onUpdateWindows: async (updateInfo: {
-          windows: { windowHandle: string; url: string }[];
+          windows: { windowHandle: string; url: string; title: string }[];
           currentWindowHandle: string;
           timestamp: number;
         }) => {
@@ -361,7 +368,10 @@ class CaptureSessionImpl implements CaptureSession {
           }
 
           if (this.eventListeners.onAddWindow) {
-            this.eventListeners.onAddWindow(newWindow.windowHandle);
+            this.eventListeners.onAddWindow(
+              newWindow.windowHandle,
+              newWindow.title
+            );
           }
 
           if (this.testResult) {

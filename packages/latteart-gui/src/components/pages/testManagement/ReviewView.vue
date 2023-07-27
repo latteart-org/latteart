@@ -56,7 +56,6 @@
     <history-display
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="testResult.history"
-      :windows="windows"
       :message="messageProvider"
       :screenDefinitionConfig="screenDefinitionConfig"
       :scriptGenerationEnabled="!$isViewerMode"
@@ -266,11 +265,6 @@ export default class ReviewView extends Vue {
 
   private get messageProvider(): MessageProvider {
     return this.$store.getters.message;
-  }
-
-  private get windows() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .windows;
   }
 
   private get tempStory() {

@@ -75,7 +75,6 @@
                 <history-summary-diagram
                   v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
                   :diagramType="diagramType"
-                  :windows="windows"
                   :message="message"
                 ></history-summary-diagram>
               </v-col>
@@ -140,7 +139,6 @@ import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 import {
   OperationHistory,
-  WindowInfo,
   ScreenDef,
   MessageProvider,
 } from "@/lib/operationHistory/types";
@@ -170,8 +168,6 @@ export default class HistoryDisplay extends Vue {
   @Prop({ type: String, default: "ja" }) public readonly locale!: string;
   @Prop({ type: Array, default: [] })
   public readonly rawHistory!: OperationHistory;
-  @Prop({ type: Array, default: () => [] })
-  public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;

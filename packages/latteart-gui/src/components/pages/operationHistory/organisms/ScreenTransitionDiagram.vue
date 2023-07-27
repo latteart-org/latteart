@@ -31,15 +31,10 @@
 <script lang="ts">
 /* tslint:disable:max-line-length */
 
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
-import {
-  Edge,
-  WindowInfo,
-  MessageProvider,
-} from "@/lib/operationHistory/types";
+import { Component, Vue, Prop } from "vue-property-decorator";
+import { Edge, MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "./MermaidGraphRenderer.vue";
 import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
-import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -47,8 +42,6 @@ import { OperationHistoryState } from "@/store/operationHistory";
   },
 })
 export default class ScreenTransitionDiagram extends Vue {
-  @Prop({ type: Array, default: [] })
-  public readonly windows!: WindowInfo[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private edges: Edge[] = [];
