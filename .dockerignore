@@ -1,5 +1,0 @@
-.git
-docker/data
-node_modules
-coverage
-dist
