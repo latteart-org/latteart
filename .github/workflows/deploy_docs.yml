@@ -1,0 +1,74 @@
+name: Deploy documents to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-dependencies
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ matrix.node-version }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install
+
+      - name: Build API documents
+        run: |
+          npm run generate:apidoc -w latteart-repository
+          wget https://github.com/swagger-api/swagger-ui/archive/refs/tags/v4.15.5.tar.gz
+          tar -xvf v4.15.5.tar.gz swagger-ui-4.15.5/dist
+          sed -i "s#https://petstore\.swagger\.io/v2/swagger\.json#api\.yaml#g" ./swagger-ui-4.15.5/dist/swagger-initializer.js
+          mkdir -p ./artifact/docs/api/latteart-repository/rest
+          cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-repository/rest
+          cp packages/latteart-repository/docs/api/api.yaml ./artifact/docs/api/latteart-repository/rest
+          mkdir -p ./artifact/docs/api/latteart-capture-cl/rest
+          cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-capture-cl/rest
+          cp packages/latteart-capture-cl/docs/api/api.yaml ./artifact/docs/api/latteart-capture-cl/rest
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: artifact
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
