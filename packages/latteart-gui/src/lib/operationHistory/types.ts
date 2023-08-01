@@ -167,7 +167,7 @@ export type TestResult = Omit<
 export type TestResultSummary = Pick<
   TestResult,
   "id" | "name" | "parentTestResultId" | "initialUrl" | "testingTime"
-> & { testPurposes: { value: string }[] };
+> & { testPurposes: { value: string }[]; creationTimestamp: number };
 
 export type AutoOperation = {
   input: string;

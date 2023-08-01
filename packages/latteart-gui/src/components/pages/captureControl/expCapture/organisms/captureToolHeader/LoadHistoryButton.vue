@@ -121,6 +121,7 @@ export default class LoadHistoryButton extends Vue {
           initialUrl: "",
           testingTime: 0,
           testPurposes: [],
+          creationTimestamp: 0,
         });
       }
 
