@@ -153,6 +153,7 @@ export class TestResultServiceImpl implements TestResultService {
           testingTime: testResult.testingTime,
           initialUrl: testResult.initialUrl,
           testPurposes,
+          creationTimestamp: testResult.creationTimestamp,
         };
       });
   }

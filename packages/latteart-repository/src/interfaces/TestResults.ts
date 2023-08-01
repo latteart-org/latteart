@@ -37,6 +37,7 @@ export type ListTestResultResponse = Pick<
 > & {
   parentTestResultId?: string;
   testPurposes: { value: string }[];
+  creationTimestamp: number;
 };
 
 /**

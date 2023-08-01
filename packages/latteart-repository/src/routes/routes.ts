@@ -1709,6 +1709,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            creationTimestamp: { dataType: "double", required: true },
             testPurposes: {
               dataType: "array",
               array: {
