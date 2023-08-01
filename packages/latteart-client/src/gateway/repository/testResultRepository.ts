@@ -125,10 +125,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Array<{
-          id: string;
-          name: string;
-        }>,
+        data: response.data as TestResultSummaryForRepository[],
       });
     } catch (error) {
       return createConnectionRefusedFailure();

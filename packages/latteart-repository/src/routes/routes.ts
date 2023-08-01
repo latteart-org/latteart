@@ -1686,13 +1686,15 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  "Pick_TestResult.id-or-name_": {
+  "Pick_TestResult.id-or-name-or-initialUrl-or-testingTime_": {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
+        initialUrl: { dataType: "string", required: true },
+        testingTime: { dataType: "double", required: true },
       },
       validators: {},
     },
@@ -1703,10 +1705,22 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "intersection",
       subSchemas: [
-        { ref: "Pick_TestResult.id-or-name_" },
+        { ref: "Pick_TestResult.id-or-name-or-initialUrl-or-testingTime_" },
         {
           dataType: "nestedObjectLiteral",
-          nestedProperties: { parentTestResultId: { dataType: "string" } },
+          nestedProperties: {
+            testPurposes: {
+              dataType: "array",
+              array: {
+                dataType: "nestedObjectLiteral",
+                nestedProperties: {
+                  value: { dataType: "string", required: true },
+                },
+              },
+              required: true,
+            },
+            parentTestResultId: { dataType: "string" },
+          },
         },
       ],
       validators: {},
@@ -1751,10 +1765,10 @@ const models: TsoaRoute.Models = {
       nestedProperties: {
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
-        startTimeStamp: { dataType: "double", required: true },
-        lastUpdateTimeStamp: { dataType: "double", required: true },
         initialUrl: { dataType: "string", required: true },
         testingTime: { dataType: "double", required: true },
+        startTimeStamp: { dataType: "double", required: true },
+        lastUpdateTimeStamp: { dataType: "double", required: true },
         coverageSources: {
           dataType: "array",
           array: {

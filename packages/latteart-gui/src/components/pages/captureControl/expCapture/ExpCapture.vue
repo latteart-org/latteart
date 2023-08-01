@@ -16,6 +16,30 @@
 
 <template>
   <v-app>
+    <v-card>
+      <v-navigation-drawer app :mini-variant.sync="mini">
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>folder_open</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
+
+          <v-btn icon @click.stop="mini = !mini">
+            <v-icon>chevron_left</v-icon>
+          </v-btn>
+        </v-list-item>
+
+        <v-divider></v-divider>
+
+        <test-result-explorer />
+
+        <template v-slot:append>
+          <div class="pa-2">
+            <v-btn block>削除</v-btn>
+          </div>
+        </template>
+      </v-navigation-drawer>
+    </v-card>
     <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
       <capture-tool-header />
     </v-app-bar>
@@ -89,6 +113,7 @@ import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
 import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
+import TestResultExplorer from "../../common/organisms/TestResultExplorer.vue";
 
 @Component({
   components: {
@@ -101,6 +126,7 @@ import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
     "autofill-select-dialog": AutofillSelectDialog,
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
+    "test-result-explorer": TestResultExplorer,
   },
 })
 export default class ExpCapture extends Vue {
@@ -122,6 +148,7 @@ export default class ExpCapture extends Vue {
 
   private errorDialogOpened = false;
   private errorDialogMessage = "";
+  private mini = true;
 
   private mounted() {
     this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
