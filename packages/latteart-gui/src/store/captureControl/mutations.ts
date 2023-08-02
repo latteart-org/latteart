@@ -138,6 +138,10 @@ const mutations: MutationTree<CaptureControlState> = {
   ) {
     state.autofillRegisterDialogData = payload;
   },
+
+  setTestResultExplorerOpened(state, payload: { isOpened: boolean }) {
+    state.isTestResultExplorerOpened = payload.isOpened;
+  },
 };
 
 export default mutations;

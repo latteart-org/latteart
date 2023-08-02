@@ -179,7 +179,7 @@
       }}</template>
 
       <template v-slot:content>
-        <v-row
+        <!-- <v-row
           class="mt-0"
           wrap
           v-for="testResult in testResults"
@@ -191,7 +191,16 @@
               $store.getters.message("session-info.result-import")
             }}</v-btn></v-col
           >
-        </v-row>
+        </v-row> -->
+        <test-result-list>
+          <template v-slot:item-actions="{ item }">
+            <v-btn
+              text
+              @click="addTestResultToSession({ id: item.id, name: item.name })"
+              >{{ $store.getters.message("session-info.result-import") }}</v-btn
+            >
+          </template>
+        </test-result-list>
       </template>
 
       <template v-slot:footer>
@@ -235,6 +244,7 @@ import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
+import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
 
 @Component({
   components: {
@@ -242,6 +252,7 @@ import TestPurposeNoteList from "./TestPurposeNoteList.vue";
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "test-purpose-note-list": TestPurposeNoteList,
+    "test-result-list": TestResultList,
   },
 })
 export default class SessionInfo extends Vue {

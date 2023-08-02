@@ -22,7 +22,6 @@ import mutations from "./mutations";
 import actions from "./actions";
 import Timer from "@/lib/common/Timer";
 import { CaptureSession } from "latteart-client";
-import { ElementInfo } from "latteart-client";
 
 /**
  * Store for capture control.
@@ -100,6 +99,11 @@ export interface CaptureControlState {
     }[];
     callback: () => void;
   } | null;
+
+  /**
+   * Whether test result explorer is opened or not.
+   */
+  isTestResultExplorerOpened: boolean;
 }
 
 const state: CaptureControlState = {
@@ -122,6 +126,7 @@ const state: CaptureControlState = {
   autofillRegisterDialogData: null,
   timer: new Timer(),
   captureSession: null,
+  isTestResultExplorerOpened: false,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

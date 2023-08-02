@@ -687,9 +687,6 @@ td
 .seq-col
   padding-right: 8px !important
 
-td
-  height: 30px !important
-
 .marked
   color: #44A
   background-color: #F3F3FF
