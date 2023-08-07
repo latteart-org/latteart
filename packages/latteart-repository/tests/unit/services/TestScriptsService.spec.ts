@@ -128,7 +128,11 @@ describe("TestScriptsService", () => {
  *   Page1 ==> |dotextfield1|Page1;
  */
 class Page1 {
-  get textfield1() { return $('#textField1'); }
+  get textfield1() {
+    return driver
+      .switchToFrame(null)
+      .then(async () => $('#textField1'));
+  }
 
   /**
    * <ol><li>Change [ <a href="imageFileUrl1">textfield1</a> ]</li>

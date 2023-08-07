@@ -59,6 +59,7 @@ export type Operation = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   screenshot?: { read: () => Promise<Image> };
+  iframeIndex?: number;
 };
 
 /**
@@ -99,6 +100,7 @@ export type ElementInfo = {
     height: number;
   };
   textWithoutChildren?: string;
+  iframeIndex?: number;
 };
 
 /**

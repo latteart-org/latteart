@@ -674,7 +674,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             if (!edge) {
               return;
             }
-
+            console.log(edges);
             const inputValueTable = new InputValueTable(edge.details);
             const imageFileUrl = edge.trigger?.imageFileUrl ?? "";
 
@@ -736,7 +736,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.rootState.projectSettings.config.coverage?.include?.tags ?? [];
 
     const coverages = Coverage.getCoverages(payload.graphView, inclusionTags);
-
+    console.log({ coverages });
     context.commit("setElementCoverages", { coverages });
   },
 

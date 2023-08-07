@@ -117,6 +117,7 @@ export type AutofillCondition = {
   locator: string;
   locatorMatchType: LocatorMatchType;
   inputValue: string;
+  iframeIndex?: number;
 };
 
 export interface AutoOperationSetting {

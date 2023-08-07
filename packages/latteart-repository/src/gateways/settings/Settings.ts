@@ -150,6 +150,7 @@ export type AutofillCondition = {
   locator: string;
   locatorMatchType: "equals" | "contains";
   inputValue: string;
+  iframeIndex?: number;
 };
 
 /**

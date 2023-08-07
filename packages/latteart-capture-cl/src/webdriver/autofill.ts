@@ -28,6 +28,7 @@ export type InputValueSet = {
   locator: string;
   locatorMatchType: "equals" | "contains";
   inputValue: string;
+  iframeIndex?: number;
 };
 
 export default class Autofill {
@@ -38,12 +39,22 @@ export default class Autofill {
   ) {}
 
   public async execute(): Promise<void> {
+    const lockId = "autoFill";
     for (const inputValueSet of this.inputValueSets) {
+      await this.currentWindow.sleep(100);
+      await this.client.waitUntilFrameUnlock();
+
+      this.client.lockFrame(lockId);
+      await this.client.switchDefaultContent(lockId);
+      if (inputValueSet.iframeIndex !== undefined) {
+        await this.client.switchFrameTo(inputValueSet.iframeIndex, lockId);
+      }
       const targetWebElements = await this.getWebElements(
         inputValueSet.locatorType,
         inputValueSet.locator,
         inputValueSet.locatorMatchType
       );
+      console.log(targetWebElements);
 
       for (const webElement of targetWebElements) {
         await this.currentWindow.sleep(250);
@@ -53,11 +64,15 @@ export default class Autofill {
         const tagName = await webElement.getTagName();
         if (tagName === "select") {
           await this.setValueToSelectbox(webElement, inputValueSet.inputValue);
+          await this.client.switchDefaultContent(lockId);
+          this.client.unLockFrame();
           continue;
         }
 
         if (tagName === "textarea") {
           await this.setValueToText(webElement, inputValueSet.inputValue);
+          await this.client.switchDefaultContent(lockId);
+          this.client.unLockFrame();
           continue;
         }
 
@@ -81,6 +96,8 @@ export default class Autofill {
             break;
         }
       }
+      await this.client.switchDefaultContent(lockId);
+      this.client.unLockFrame();
     }
   }
 

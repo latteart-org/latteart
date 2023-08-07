@@ -256,7 +256,7 @@ ${CodeFormatter.indentToAllLines(
     if (identifier) {
       return useMultiLocator
         ? `await (await this.${identifier}).click();`
-        : `await this.${identifier}.click();`;
+        : `await (await this.${identifier}).click();`;
     }
   }
 

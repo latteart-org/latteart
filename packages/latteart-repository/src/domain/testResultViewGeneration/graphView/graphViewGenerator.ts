@@ -62,7 +62,8 @@ export type ElementMapper = {
   findElement: (
     pageUrl: string,
     pageTitle: string,
-    xpath: string
+    xpath: string,
+    iframeIndex?: number
   ) => GraphView["store"]["elements"][0] | undefined;
   collectElements: (filter?: {
     screenDef?: string;
@@ -82,7 +83,9 @@ export class ElementMapperFactory {
       coverageSources.flatMap(({ screenDef, screenElements }) => {
         return screenElements.map((screenElement) => {
           return [
-            `${screenElement.pageUrl}_${screenElement.pageTitle}_${screenElement.xpath}`,
+            `${screenElement.pageUrl}_${screenElement.pageTitle}_${
+              screenElement.xpath
+            }_${screenElement.iframeIndex ?? ""}`,
             {
               screenDef,
               element: {
@@ -95,10 +98,22 @@ export class ElementMapperFactory {
       })
     );
 
+    console.log("START keyToScreenElement =====>");
+    keyToScreenElement.forEach((v, k) =>
+      console.log("  ", k, v.element.id, v.screenDef)
+    );
+    console.log("END keyToScreenElement =====>");
+
     return {
-      findElement: (pageUrl: string, pageTitle: string, xpath: string) => {
+      findElement: (
+        pageUrl: string,
+        pageTitle: string,
+        xpath: string,
+        iframeIndex?: number
+      ) => {
+        console.log(`${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`);
         const element = keyToScreenElement.get(
-          `${pageUrl}_${pageTitle}_${xpath}`
+          `${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`
         )?.element;
 
         if (!element) {
@@ -113,6 +128,7 @@ export class ElementMapperFactory {
           tagname,
           text,
           attributes,
+          iframeIndex: idx,
         } = element;
 
         return {
@@ -123,6 +139,7 @@ export class ElementMapperFactory {
           tagname,
           text: text ?? "",
           attributes,
+          iframeIndex: idx,
         };
       },
       collectElements: (filter?: { screenDef?: string }) => {
@@ -149,9 +166,10 @@ export class ElementMapperFactory {
             text,
             value,
             attributes,
+            iframeIndex,
           } = element;
           return {
-            id,
+            id: id,
             pageUrl: url,
             pageTitle: title,
             xpath,
@@ -159,6 +177,7 @@ export class ElementMapperFactory {
             text: text ?? "",
             value,
             attributes,
+            iframeIndex,
           };
         });
       },
@@ -247,18 +266,45 @@ function createNodes(
   elementMapper: ElementMapper
 ): GraphView["nodes"] {
   const testStepForNodes = testSteps.map((testStep) => {
+    console.log("== inputElements ==");
+    console.log(
+      " type: " +
+        testStep.operation.type +
+        ", input: " +
+        testStep.operation.input +
+        ", xpath: " +
+        testStep.operation.elementInfo?.xpath +
+        ", iframe: " +
+        testStep.operation.iframeIndex +
+        ", inputElements.length: " +
+        testStep.operation.inputElements.length
+    );
     const targetElementId = testStep.operation.elementInfo
       ? elementMapper.findElement(
           testStep.operation.url,
           testStep.operation.title,
-          testStep.operation.elementInfo.xpath
+          testStep.operation.elementInfo.xpath,
+          testStep.operation.iframeIndex
         )?.id
       : undefined;
-
+    console.log({ targetElementId });
     return {
       ...testStep,
       operation: { ...testStep.operation, targetElementId },
     };
+  });
+  console.log("=== testStepForNodes ===");
+  testStepForNodes.forEach((t) => {
+    console.log(
+      " type: " +
+        t.operation.type +
+        ", input: " +
+        t.operation.input +
+        ", xpath: " +
+        t.operation.elementInfo?.xpath +
+        ", iframe: " +
+        t.operation.iframeIndex
+    );
   });
 
   const testStepGroups = groupTestSteps(testStepForNodes, screenDefToScreen);
@@ -276,18 +322,34 @@ function createNodes(
         testPurposeId: testStep.intention?.id,
         pageUrl: testStep.operation.url,
         pageTitle: testStep.operation.title,
+        iframeIndex: testStep.operation.iframeIndex,
       };
     });
 
+    // console.log(testStepGroup.testSteps);
     const targetTestStep = testStepGroup.testSteps
       .filter(
         ({ operation }) =>
           !["open_window", "switch_window"].includes(operation.type)
       )
       .at(-1);
+
+    console.log("=== targetTestStep ===");
+
+    console.log(
+      " type: " +
+        targetTestStep?.operation.type +
+        ", input: " +
+        targetTestStep?.operation.input
+    );
+    targetTestStep?.operation.inputElements.forEach((e) => {
+      console.log("  -> " + e.xpath);
+    });
+
     const nodeDefaultValues = targetTestStep
       ? collectDefaultValues(targetTestStep.operation, elementMapper)
       : [];
+    console.log({ nodeDefaultValues });
 
     return {
       windowId: testStepGroup.windowId,
@@ -374,12 +436,16 @@ function collectDefaultValues(
   operation: TestStepGroup["testSteps"][0]["operation"],
   elementMapper: ElementMapper
 ) {
+  console.log("== collectDefaultValues ==");
+  //console.log(operation.inputElements);
   return operation.inputElements
     .flatMap((element) => {
+      console.log(" xpath: " + element.xpath + ", value: " + element.value);
       const elementId = elementMapper.findElement(
         operation.url,
         operation.title,
-        element.xpath
+        element.xpath,
+        element.iframeIndex
       )?.id;
 
       if (!elementId) {
@@ -387,6 +453,7 @@ function collectDefaultValues(
       }
 
       const value = getDefaultValueOfElement(element);
+      // console.log({ elementId }, { value });
       return { elementId, value };
     })
     .reverse()

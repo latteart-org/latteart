@@ -37,6 +37,7 @@ export class OperationForGUI {
    * @param args.compressedImageFilePath  Compressed image file path.
    * @param args.inputElements  Input information.
    * @param args.isAutomatic  Automatic or not.
+   * @param args.iframeIndex Iframe index.
    */
   public static createOperation(args: {
     sequence?: number;
@@ -53,6 +54,7 @@ export class OperationForGUI {
     inputElements?: ElementInfo[];
     keywordSet?: Set<string>;
     isAutomatic: boolean;
+    iframeIndex?: number;
   }): OperationForGUI {
     const operation = new OperationForGUI(
       args.sequence ?? 1,
@@ -65,7 +67,8 @@ export class OperationForGUI {
       args.imageFilePath ?? "",
       args.isAutomatic,
       args.windowHandle,
-      args.keywordSet
+      args.keywordSet,
+      args.iframeIndex ?? undefined
     );
 
     if (args.timestamp !== undefined) {
@@ -117,6 +120,7 @@ export class OperationForGUI {
       inputElements?: ElementInfo[];
       keywordSet?: Set<string>;
       isAutomatic?: boolean;
+      iframeIndex?: number;
     };
   }): OperationForGUI {
     if (args.overrideParams === undefined) {
@@ -131,7 +135,8 @@ export class OperationForGUI {
         args.other.imageFilePath,
         args.other.isAutomatic,
         args.other.windowHandle,
-        args.other.keywordSet
+        args.other.keywordSet,
+        args.other.iframeIndex
       );
       newOperation.timestamp = args.other.timestamp;
       newOperation.compressedImageFilePath = args.other.compressedImageFilePath;
@@ -256,6 +261,11 @@ export class OperationForGUI {
   public isAutomatic: boolean;
 
   /**
+   * Iframe index.
+   */
+  public iframeIndex?: number;
+
+  /**
    * Constructor.
    * @param sequence Sequence number.
    * @param input  Input value.
@@ -278,7 +288,8 @@ export class OperationForGUI {
     imageFilePath: string,
     isAutomatic: boolean,
     windowHandle?: string,
-    keywordSet?: Set<string>
+    keywordSet?: Set<string>,
+    iframeIndex?: number
   ) {
     this.sequence = sequence;
     this.input = input;
@@ -292,6 +303,7 @@ export class OperationForGUI {
     this.timestamp = new TimestampImpl().unix().toString();
     this.windowHandle = windowHandle === undefined ? "" : windowHandle;
     this.keywordSet = keywordSet;
+    this.iframeIndex = iframeIndex;
   }
 
   /**

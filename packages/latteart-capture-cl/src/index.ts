@@ -329,7 +329,12 @@ io.on("connection", (socket) => {
 
           const targetOperation: Pick<
             Operation,
-            "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
+            | "input"
+            | "type"
+            | "elementInfo"
+            | "clientSize"
+            | "scrollPosition"
+            | "iframeIndex"
           > = JSON.parse(operation);
           try {
             await capturer.runOperation(targetOperation);

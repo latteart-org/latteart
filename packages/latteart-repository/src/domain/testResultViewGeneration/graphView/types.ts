@@ -32,6 +32,7 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      iframeIndex?: number;
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
@@ -61,7 +62,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   screenDef: string;
   operation: Pick<
     TestStep["operation"],
-    "input" | "type" | "windowHandle" | "url" | "title"
+    "input" | "type" | "windowHandle" | "url" | "title" | "iframeIndex"
   > & {
     elementInfo: Pick<
       ElementInfo,
@@ -69,7 +70,13 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
     > | null;
     inputElements: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes" | "checked" | "value"
+      | "xpath"
+      | "tagname"
+      | "text"
+      | "attributes"
+      | "checked"
+      | "value"
+      | "iframeIndex"
     >[];
   };
   intention: Pick<

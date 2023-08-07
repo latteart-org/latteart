@@ -97,6 +97,7 @@ export interface CaptureControlState {
       xpath: string;
       attributes: { [key: string]: string };
       inputValue: string;
+      iframeIndex?: number;
     }[];
     callback: () => void;
   } | null;

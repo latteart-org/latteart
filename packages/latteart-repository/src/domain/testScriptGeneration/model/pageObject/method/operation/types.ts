@@ -33,7 +33,8 @@ export type PageObjectElementFactory = {
   createFrom(
     element: TestScriptSourceElement | null,
     imageUrl: string,
-    identifierGenerator: IdentifierGenerator
+    identifierGenerator: IdentifierGenerator,
+    iframeIndex?: number
   ): PageObjectElement;
 };
 
@@ -71,6 +72,7 @@ export type PageObjectElement = {
   readonly value?: string;
   readonly name?: string;
   readonly imageUrl?: string;
+  readonly iframeIndex?: number;
 };
 
 /**

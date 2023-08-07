@@ -133,6 +133,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         inputValue: { dataType: "string", required: true },
         locatorMatchType: {
           dataType: "union",
@@ -574,6 +575,7 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
+                    iframeIndex: { dataType: "double" },
                     imageFileUrl: { dataType: "string" },
                     pageTitle: { dataType: "string", required: true },
                     pageUrl: { dataType: "string", required: true },
@@ -1718,6 +1720,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         textWithoutChildren: { dataType: "string" },
         boundingRect: {
           dataType: "nestedObjectLiteral",
@@ -1848,6 +1851,7 @@ const models: TsoaRoute.Models = {
             width: { dataType: "double", required: true },
           },
         },
+        iframeIndex: { dataType: "double" },
       },
       validators: {},
     },
@@ -2281,11 +2285,25 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ScreenElementsPerIframe: {
+    dataType: "refObject",
+    properties: {
+      iframeIndex: { dataType: "double" },
+      screenElements: {
+        dataType: "array",
+        array: { dataType: "refAlias", ref: "ElementInfo" },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTestStepDto: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         clientSize: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -2310,7 +2328,7 @@ const models: TsoaRoute.Models = {
         },
         screenElements: {
           dataType: "array",
-          array: { dataType: "refAlias", ref: "ElementInfo" },
+          array: { dataType: "refObject", ref: "ScreenElementsPerIframe" },
           required: true,
         },
         windowHandle: { dataType: "string", required: true },

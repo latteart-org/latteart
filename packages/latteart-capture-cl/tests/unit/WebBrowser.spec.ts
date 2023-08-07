@@ -15,6 +15,7 @@ describe("WebBrowserは", () => {
         getCurrentWindowHandle: jest
           .fn()
           .mockResolvedValue("firstWindowHandle"),
+        waitUntilFrameUnlock: jest.fn(),
       };
 
       config = new CaptureConfig();
@@ -66,6 +67,9 @@ describe("WebBrowserは", () => {
         execute: jest.fn(),
         switchWindowTo: jest.fn(),
         getCurrentPageText: jest.fn(),
+        waitUntilFrameUnlock: jest.fn(),
+        lockFrame: jest.fn(),
+        unLockFrame: jest.fn(),
       };
       config = new CaptureConfig();
     });

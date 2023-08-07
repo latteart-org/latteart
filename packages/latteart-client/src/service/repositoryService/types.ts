@@ -221,6 +221,7 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      iframeIndex?: number;
     }[];
     testPurposes: { id: string; value: string; details: string }[];
     notes: {
@@ -246,6 +247,7 @@ export type GraphViewNode = {
     pageUrl: string;
     pageTitle: string;
     imageFileUrl?: string;
+    iframeIndex?: number;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };

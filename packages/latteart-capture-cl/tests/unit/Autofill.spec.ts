@@ -7,8 +7,15 @@ describe("Autofill", () => {
   };
 
   describe("#execute", () => {
+    const client: any = {
+      waitUntilFrameUnlock: jest.fn(),
+      switchDefaultContent: jest.fn(),
+      switchFrameTo: jest.fn(),
+      lockFrame: jest.fn(),
+      unLockFrame: jest.fn(),
+    };
+
     it("selectboxに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -36,7 +43,6 @@ describe("Autofill", () => {
     });
 
     it("textareaに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -64,7 +70,6 @@ describe("Autofill", () => {
     });
 
     it("checkboxに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -93,7 +98,6 @@ describe("Autofill", () => {
     });
 
     it("radioに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -122,7 +126,6 @@ describe("Autofill", () => {
     });
 
     it("dateに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -151,7 +154,6 @@ describe("Autofill", () => {
     });
 
     it("textに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",

@@ -44,6 +44,7 @@ export type TestResultForTestScriptGeneration = {
     title: string;
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFilePath: string;
+    iframeIndex?: number;
   }[];
 };
 
@@ -167,6 +168,10 @@ function convertEntityToOperation(testStepEntity: TestStepEntity) {
     title: testStepEntity.pageTitle,
     keywordTexts,
     imageFilePath: testStepEntity.screenshot?.fileUrl ?? "",
+    iframeIndex:
+      testStepEntity.iframeIndex === null
+        ? undefined
+        : testStepEntity.iframeIndex,
   };
 }
 
