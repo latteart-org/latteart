@@ -179,20 +179,7 @@
       }}</template>
 
       <template v-slot:content>
-        <!-- <v-row
-          class="mt-0"
-          wrap
-          v-for="testResult in testResults"
-          :key="testResult.id"
-        >
-          <v-col cols="9">{{ testResult.name }}</v-col>
-          <v-col cols="3"
-            ><v-btn @click="addTestResultToSession(testResult)">{{
-              $store.getters.message("session-info.result-import")
-            }}</v-btn></v-col
-          >
-        </v-row> -->
-        <test-result-list>
+        <test-result-list :actions="true" :items="testResults">
           <template v-slot:item-actions="{ item }">
             <v-btn
               text
@@ -262,10 +249,7 @@ export default class SessionInfo extends Vue {
   private reportSectionDisplayed = false;
 
   private testResultSelectionDialogOpened = false;
-  private testResults: {
-    name: string;
-    id: string;
-  }[] = [];
+  private testResults: TestResultSummary[] = [];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -300,11 +284,15 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      const testResultSummaries: TestResultSummary[] =
-        await this.$store.dispatch("testManagement/getTestResults");
+      const testResults: TestResultSummary[] = await this.$store.dispatch(
+        "testManagement/getTestResults"
+      );
 
-      this.testResults = testResultSummaries.map(({ id, name }) => {
-        return { id, name };
+      this.testResults = testResults.map((testResult) => {
+        return {
+          ...testResult,
+          testPurposes: testResult.testPurposes.slice(0, 5),
+        };
       });
     } finally {
       this.$store.dispatch("closeProgressDialog");

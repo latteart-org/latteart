@@ -24,31 +24,91 @@
   >
     <template v-slot:prepend>
       <v-list-item>
-        <v-list-item-title class="text-h6"> テスト結果一覧 </v-list-item-title>
+        <v-list-item-title class="text-h6">
+          {{ $store.getters.message("test-result-explorer.title") }}
+        </v-list-item-title>
       </v-list-item>
     </template>
 
-    <test-result-list />
+    <test-result-list
+      :showSelect="true"
+      :opened="isTestResultExplorerOpened"
+      :items="items"
+    />
 
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn block>テスト結果の削除</v-btn>
+        <v-btn
+          block
+          :disabled="isDisabled"
+          @click="confirmDialogOpened = true"
+          >{{
+            $store.getters.message("test-result-explorer.delete-test-results")
+          }}</v-btn
+        >
       </div>
     </template>
+
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="
+        $store.getters.message('test-result-explorer.delete-test-results')
+      "
+      :message="
+        $store.getters.message(
+          'test-result-explorer.delete-test-result-message'
+        )
+      "
+      :onAccept="deleteTestResults"
+      @close="confirmDialogOpened = false"
+    />
+
+    <information-message-dialog
+      :opened="informationDialogOpened"
+      :title="$store.getters.message('common.confirm')"
+      :message="
+        $store.getters.message(
+          'test-result-explorer.delete-test-result-succeeded'
+        )
+      "
+      @close="informationDialogOpened = false"
+    />
+
+    <error-message-dialog
+      :opened="errorDialogOpened"
+      :message="errorMessage"
+      @close="errorDialogOpened = false"
+    />
   </v-navigation-drawer>
 </template>
 
 <script lang="ts">
+import { TestResultSummary } from "@/lib/operationHistory/types";
 import { CaptureControlState } from "@/store/captureControl";
-import { Component, Vue } from "vue-property-decorator";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import ConfirmDialog from "../ConfirmDialog.vue";
+import ErrorMessageDialog from "../ErrorMessageDialog.vue";
+import InformationMessageDialog from "../InformationMessageDialog.vue";
 import TestResultList from "./TestResultList.vue";
 
 @Component({
   components: {
     "test-result-list": TestResultList,
+    "confirm-dialog": ConfirmDialog,
+    "information-message-dialog": InformationMessageDialog,
+    "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class TestResultExplorer extends Vue {
+  private confirmDialogOpened = false;
+  private informationDialogOpened = false;
+
+  private errorDialogOpened = false;
+  private errorMessage = "";
+
+  private items: TestResultSummary[] = [];
+
   private get isTestResultExplorerOpened() {
     return (this.$store.state.captureControl as CaptureControlState)
       .isTestResultExplorerOpened;
@@ -58,6 +118,83 @@ export default class TestResultExplorer extends Vue {
     this.$store.commit("captureControl/setTestResultExplorerOpened", {
       isOpened,
     });
+  }
+
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
+
+  @Watch("isTestResultExplorerOpened")
+  private async initialize() {
+    if (!this.isTestResultExplorerOpened) {
+      this.$store.commit("operationHistory/clearCheckedTestResults");
+    } else {
+      const testResults: TestResultSummary[] = await this.$store
+        .dispatch("operationHistory/getTestResults")
+        .catch(() => []);
+
+      this.items = testResults.map((testResult) => {
+        return {
+          ...testResult,
+          testPurposes: testResult.testPurposes.slice(0, 5),
+        };
+      });
+    }
+  }
+
+  private get isDisabled() {
+    return this.operationHistoryState.checkedTestResults.length === 0;
+  }
+
+  private async deleteTestResults() {
+    await this.$store.dispatch("openProgressDialog", {
+      message: this.$store.getters.message(
+        "test-result-explorer.deleting-test-results"
+      ),
+    });
+    try {
+      // Delete selected test results.
+      await this.$store.dispatch("operationHistory/deleteTestResults", {
+        testResultIds: this.operationHistoryState.checkedTestResults,
+      });
+
+      // Clear display information if it contains test results you are viewing.
+      if (
+        this.operationHistoryState.checkedTestResults.includes(
+          this.operationHistoryState.testResultInfo.id
+        )
+      ) {
+        this.$store.commit("operationHistory/removeStoringTestResultInfos", {
+          testResultInfos: [
+            {
+              id: this.operationHistoryState.testResultInfo.id,
+              name: this.operationHistoryState.testResultInfo.name,
+            },
+          ],
+        });
+        await this.$store.dispatch("operationHistory/clearTestResult");
+        this.$store.commit(
+          "operationHistory/clearScreenTransitionDiagramGraph"
+        );
+        this.$store.commit("operationHistory/clearElementCoverages");
+        this.$store.commit("operationHistory/clearInputValueTable");
+        this.$store.commit("operationHistory/clearDisplayedScreenshotUrl");
+        await this.$store.dispatch("captureControl/resetTimer");
+      }
+      this.informationDialogOpened = true;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.errorDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    } finally {
+      this.$store.commit("captureControl/setTestResultExplorerOpened", {
+        isOpened: false,
+      });
+      await this.$store.dispatch("closeProgressDialog");
+    }
   }
 }
 </script>

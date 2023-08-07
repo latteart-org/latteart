@@ -115,6 +115,20 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose"
   },
+  "test-result-explorer": {
+    "title": "Test Result List",
+    "delete-test-results": "Delete Test Result",
+    "delete-test-result-message": "Delete selected test results?",
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "deleting-test-results": "Deleting test results."
+  },
+  "test-result-list": {
+    "name": "Test Result Name",
+    "url": "Test Target Url",
+    "testing-time": "Test Time",
+    "test-purpose": "Test Purpose",
+    "creation-timestamp": "Creation Date"
+  },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
     "project-import-title": "Import Config/Project",

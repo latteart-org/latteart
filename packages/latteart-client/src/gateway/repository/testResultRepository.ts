@@ -33,23 +33,31 @@ export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Delete test result.
-   * @param testResultId  Test result id.
+   * Delete test results.
+   * @param testResultIds  Test result ids.
    */
-  public async deleteTestResult(
-    testResultId: string
+  public async deleteTestResults(
+    testResultIds: string[]
   ): Promise<RepositoryAccessResult<void>> {
     try {
-      const response = await this.restClient.httpDelete(
-        `api/v1/test-results/${testResultId}`
+      const responses = await Promise.all(
+        testResultIds.map(async (testResultId) => {
+          return await this.restClient.httpDelete(
+            `api/v1/test-results/${testResultId}`
+          );
+        })
       );
 
-      if (response.status !== 204) {
-        return createRepositoryAccessFailure(response);
+      const errorIndex = responses.findIndex(
+        (response) => response.status !== 204
+      );
+
+      if (errorIndex > -1) {
+        return createRepositoryAccessFailure(responses[errorIndex]);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as void,
+        data: responses[0].data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

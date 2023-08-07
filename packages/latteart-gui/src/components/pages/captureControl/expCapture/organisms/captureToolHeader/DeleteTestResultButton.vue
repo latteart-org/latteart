@@ -126,7 +126,9 @@ export default class DeleteTestResultButton extends Vue {
     });
 
     try {
-      await this.$store.dispatch("operationHistory/deleteCurrentTestResult");
+      await this.$store.dispatch("operationHistory/deleteTestResults", {
+        testResultIds: [this.$store.state.operationHistory.testResultInfo.id],
+      });
       this.$store.commit("operationHistory/removeStoringTestResultInfos", {
         testResultInfos: [
           {

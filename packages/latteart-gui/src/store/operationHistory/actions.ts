@@ -373,12 +373,15 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
-  async deleteCurrentTestResult(context) {
-    const testResultId = context.state.testResultInfo.id;
-
+  /**
+   * Delete test results.
+   * @param context Action context.
+   * @param payload.testResultIds Test result IDs.
+   */
+  async deleteTestResults(context, payload: { testResultIds: string[] }) {
     const result = await new DeleteTestResultAction(
       context.rootState.repositoryService
-    ).deleteTestResult(testResultId);
+    ).deleteTestResults(payload.testResultIds);
 
     if (result.isFailure()) {
       throw new Error(
@@ -1098,6 +1101,30 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
     const changedName = result.data;
     context.commit("setTestResultName", { name: changedName });
+  },
+
+  /**
+   * Change test result name.
+   * @param context Action context.
+   * @param payload.testResultId Test result Id.
+   * @param payload.testResultName Test result name.
+   */
+  async changeTestResultName(
+    context,
+    payload: { testResultId: string; testResultName: string }
+  ) {
+    const result = await new ChangeTestResultAction(
+      context.rootState.repositoryService
+    ).changeTestResult(payload.testResultId, payload.testResultName);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
   },
 
   async getScreenshots(context, payload: { testResultId: string }) {

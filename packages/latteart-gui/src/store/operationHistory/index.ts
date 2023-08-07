@@ -193,7 +193,15 @@ export interface OperationHistoryState {
     index: number;
   } | null;
 
+  /**
+   * Checked operations.
+   */
   checkedOperations: { index: number; operation: OperationForGUI }[];
+
+  /**
+   * Checked test result ids.
+   */
+  checkedTestResults: string[];
 
   /**
    * The function to open the dialog for editing a note.
@@ -259,6 +267,7 @@ const state: OperationHistoryState = {
   displayedScreenshotUrl: "",
   tmpNoteInfoForEdit: null,
   checkedOperations: [],
+  checkedTestResults: [],
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

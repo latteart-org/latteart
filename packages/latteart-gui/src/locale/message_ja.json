@@ -119,6 +119,20 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集"
   },
+  "test-result-explorer": {
+    "title": "テスト結果一覧",
+    "delete-test-results": "テスト結果の削除",
+    "delete-test-result-message": "選択したテスト結果を削除しますか？",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "deleting-test-results": "テスト結果削除中"
+  },
+  "test-result-list": {
+    "name": "テスト結果名",
+    "url": "テスト対象URL",
+    "testing-time": "テスト時間",
+    "test-purpose": "テスト目的",
+    "creation-timestamp": "作成日時"
+  },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
     "project-import-title": "設定・プロジェクトのインポート",

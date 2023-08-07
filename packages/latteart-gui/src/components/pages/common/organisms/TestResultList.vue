@@ -26,10 +26,11 @@
     </v-card-title>
 
     <v-data-table
+      v-model="selectedTestResults"
       :headers="headers"
       :items="items"
       item-key="id"
-      show-select
+      :show-select="showSelect"
       hide-default-footer
       :items-per-page="-1"
       :search="search"
@@ -72,17 +73,20 @@
                       item.name
                     }}</v-list-item-title>
                     <v-list-item-title v-else
-                      ><v-text-field :value="item.name" @click.stop
+                      ><v-text-field v-model="item.name" @click.stop
                     /></v-list-item-title>
                   </v-list-item-content>
-                  <v-list-item-action>
+                  <v-list-item-action v-if="showSelect">
                     <v-btn
                       v-if="!isEditing"
                       icon
-                      @click.stop="editTestResultName()"
+                      @click.stop="editTestResultName(item.id, item.name)"
                       ><v-icon>edit</v-icon></v-btn
                     >
-                    <v-btn v-else icon @click.stop="editTestResultName()"
+                    <v-btn
+                      v-else
+                      icon
+                      @click.stop="editTestResultName(item.id, item.name)"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>
@@ -94,7 +98,9 @@
               <v-list>
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-title> テスト対象URL </v-list-item-title>
+                    <v-list-item-title>{{
+                      $store.getters.message("test-result-list.url")
+                    }}</v-list-item-title>
                     <v-list-item-subtitle>
                       {{ item.initialUrl }}
                     </v-list-item-subtitle>
@@ -103,7 +109,9 @@
 
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-title> テスト時間 </v-list-item-title>
+                    <v-list-item-title>{{
+                      $store.getters.message("test-result-list.testing-time")
+                    }}</v-list-item-title>
                     <v-list-item-subtitle>
                       {{ millisecondsToHHmmss(item.testingTime) }}
                     </v-list-item-subtitle>
@@ -112,7 +120,9 @@
 
                 <v-list-item v-if="hasTestPurpose(item.testPurposes)">
                   <v-list-item-content>
-                    <v-list-item-title> テスト目的 </v-list-item-title>
+                    <v-list-item-title>{{
+                      $store.getters.message("test-result-list.test-purpose")
+                    }}</v-list-item-title>
                     <v-list-item-subtitle
                       v-for="(testPurpose, i) in item.testPurposes"
                       :key="i"
@@ -124,7 +134,11 @@
 
                 <v-list-item v-if="item.creationTimestamp > 0">
                   <v-list-item-content>
-                    <v-list-item-title> 作成日時 </v-list-item-title>
+                    <v-list-item-title>{{
+                      $store.getters.message(
+                        "test-result-list.creation-timestamp"
+                      )
+                    }}</v-list-item-title>
                     <v-list-item-subtitle>
                       {{ millisecondsToDateFormat(item.creationTimestamp) }}
                     </v-list-item-subtitle>
@@ -154,7 +168,7 @@
 <script lang="ts">
 import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "../ErrorMessageDialog.vue";
 
 @Component({
@@ -164,32 +178,40 @@ import ErrorMessageDialog from "../ErrorMessageDialog.vue";
 })
 export default class TestResultList extends Vue {
   @Prop({ type: Boolean, default: false }) actions!: boolean;
+  @Prop({ type: Boolean, default: false }) showSelect!: boolean;
+  @Prop({ type: Boolean, default: false }) opened!: boolean;
+  @Prop({ type: Array, default: [] }) items!: TestResultSummary[];
 
-  private openedItemKeys: TestResultSummary["id"][] = [];
   private selectedTestResults: TestResultSummary[] = [];
-
-  private headers = [{ text: "テスト結果名", value: "name" }];
-  private items: TestResultSummary[] = [];
   private search = "";
-
   private isEditing = false;
+  private beforTestResultName = "";
 
   private errorDialogOpened = false;
   private errorDialogMessage = "";
 
-  private async mounted() {
-    const testResults: TestResultSummary[] = await this.$store
-      .dispatch("operationHistory/getTestResults")
-      .catch(() => []);
+  private get headers() {
+    return [
+      {
+        text: this.$store.getters.message("test-result-list.name"),
+        value: "name",
+      },
+    ];
+  }
 
-    const children = testResults.map((testResult) => {
-      return {
-        ...testResult,
-        testPurposes: testResult.testPurposes.slice(0, 5),
-      };
+  @Watch("opened")
+  private async initialize() {
+    if (!this.opened) {
+      this.selectedTestResults = [];
+    }
+  }
+
+  @Watch("selectedTestResults")
+  private updateCheckedTestResults(): void {
+    const checkedTestResults = this.selectedTestResults.map(({ id }) => id);
+    this.$store.commit("operationHistory/setCheckedTestResults", {
+      checkedTestResults,
     });
-
-    this.items = children;
   }
 
   private hasTestPurpose(testPurposes: { value: string }[]) {
@@ -199,10 +221,20 @@ export default class TestResultList extends Vue {
     return testPurposes.length > 0;
   }
 
-  private editTestResultName() {
+  private async editTestResultName(
+    testResultId: string,
+    testResultName: string
+  ) {
     if (this.isEditing) {
+      if (this.beforTestResultName !== testResultName) {
+        await this.$store.dispatch("operationHistory/changeTestResultName", {
+          testResultId,
+          testResultName,
+        });
+      }
       this.isEditing = false;
     } else {
+      this.beforTestResultName = testResultName;
       this.isEditing = true;
     }
   }
@@ -213,22 +245,6 @@ export default class TestResultList extends Vue {
 
   private millisecondsToDateFormat(millisecondsTime: number) {
     return new TimestampImpl(millisecondsTime).format("YYYY/MM/DD HH:mm:ss");
-  }
-
-  private async fetchItems(parentItem: TestResultSummary) {
-    if (!("children" in parentItem)) {
-      return;
-    }
-
-    const fetchedTestResults: TestResultSummary[] = await this.$store
-      .dispatch("operationHistory/getTestResults")
-      .catch(() => []);
-
-    if (fetchedTestResults.length === 0) {
-      return;
-    }
-
-    parentItem.children = [...fetchedTestResults];
   }
 
   private async loadHistory(testResultId: string) {
