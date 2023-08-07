@@ -166,11 +166,7 @@
 </template>
 
 <script lang="ts">
-import {
-  formatDateTime,
-  formatTime,
-  TimestampImpl,
-} from "@/lib/common/Timestamp";
+import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "../ErrorMessageDialog.vue";
