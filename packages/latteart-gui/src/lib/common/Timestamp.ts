@@ -149,3 +149,7 @@ export class TimestampImpl implements Timestamp {
 export function formatTime(milliseconds: number): string {
   return dayjs(milliseconds, "x").utc().format("HH:mm:ss");
 }
+
+export function formatDateTime(milliseconds: number): string {
+  return dayjs(milliseconds, "x").format("YYYY/MM/DD HH:mm:ss");
+}

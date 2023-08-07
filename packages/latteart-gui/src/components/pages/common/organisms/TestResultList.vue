@@ -166,7 +166,11 @@
 </template>
 
 <script lang="ts">
-import { formatTime, TimestampImpl } from "@/lib/common/Timestamp";
+import {
+  formatDateTime,
+  formatTime,
+  TimestampImpl,
+} from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "../ErrorMessageDialog.vue";
@@ -244,7 +248,7 @@ export default class TestResultList extends Vue {
   }
 
   private millisecondsToDateFormat(millisecondsTime: number) {
-    return new TimestampImpl(millisecondsTime).format("YYYY/MM/DD HH:mm:ss");
+    return formatDateTime(millisecondsTime);
   }
 
   private async loadHistory(testResultId: string) {
