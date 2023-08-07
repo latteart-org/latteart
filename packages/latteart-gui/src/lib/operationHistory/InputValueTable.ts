@@ -56,7 +56,7 @@ export type ScreenTransition = {
   trigger?: {
     sequence: number;
     type: string;
-    target?: { xpath: string; text: string };
+    target?: { xpath: string; text: string; iframeIndex?: number };
     input?: string;
     pageUrl: string;
     pageTitle: string;
@@ -71,6 +71,7 @@ export type ScreenTransition = {
     };
     defaultValue?: string;
     inputs: { sequence: number; value: string }[];
+    iframeIndex?: number;
   }[];
   notes: {
     sequence: number;

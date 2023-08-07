@@ -16,6 +16,12 @@
 
 import { TimestampImpl } from "./Timestamp";
 
+export interface ScreenElementsPerIframe {
+  iframeIndex?: number;
+
+  screenElements: ElementInfo[];
+}
+
 /**
  * Screen element information.
  */
@@ -116,6 +122,11 @@ export class Operation {
   public windowHandle = "";
 
   /**
+   * Iframe index.
+   */
+  public iframeIndex: number | undefined;
+
+  /**
    * Timestamp.
    */
   public timestamp: string = new TimestampImpl().epochMilliseconds().toString();
@@ -123,7 +134,7 @@ export class Operation {
   /**
    * The screen elements in the screen that has been operated.
    */
-  public screenElements: ElementInfo[] = [];
+  public screenElementsPerIframe: ScreenElementsPerIframe[] = [];
 
   /**
    * The page source of the screen that has been operated.

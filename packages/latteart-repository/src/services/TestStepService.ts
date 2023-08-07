@@ -24,6 +24,7 @@ import {
   CreateTestStepDto,
   CreateTestStepResponse,
   PatchTestStepResponse,
+  ScreenElementsPerIframe,
 } from "@/interfaces/TestSteps";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
@@ -91,6 +92,17 @@ export class TestStepServiceImpl implements TestStepService {
       relations: ["coverageSources"],
     });
 
+    const screenElements = requestBody.screenElementsPerIframe
+      .map((e) => {
+        return e.screenElements.map((e2) => {
+          e2.iframeIndex = e.iframeIndex;
+          return e2;
+        });
+      })
+      .flat();
+
+    const inputElements = this.createInputElements(requestBody);
+
     const targetCoverageSource = testResultEntity.coverageSources?.find(
       (coverageSource) => {
         return (
@@ -102,13 +114,16 @@ export class TestStepServiceImpl implements TestStepService {
     if (targetCoverageSource) {
       const newElements: ElementInfo[] = [
         ...JSON.parse(targetCoverageSource.screenElements),
-        ...(await this.removeIgnoreTagsFrom(requestBody.screenElements)),
+        ...(await this.removeIgnoreTagsFrom(screenElements)),
       ];
       targetCoverageSource.screenElements = JSON.stringify(
         newElements.filter((newElement, index) => {
           return (
-            newElements.findIndex((elem) => elem.xpath === newElement.xpath) ===
-            index
+            newElements.findIndex(
+              (elem) =>
+                elem.xpath + elem.iframeIndex ===
+                newElement.xpath + newElement.iframeIndex
+            ) === index
           );
         })
       );
@@ -117,7 +132,7 @@ export class TestStepServiceImpl implements TestStepService {
         new CoverageSourceEntity({
           title: requestBody.title,
           url: requestBody.url,
-          screenElements: JSON.stringify(requestBody.screenElements),
+          screenElements: JSON.stringify(screenElements),
           testResult: testResultEntity,
         })
       );
@@ -130,7 +145,7 @@ export class TestStepServiceImpl implements TestStepService {
     );
 
     // add test step.
-    const keywordTexts = requestBody.screenElements
+    const keywordTexts = screenElements
       .map((screenElement) => {
         return {
           tagname: screenElement.tagname,
@@ -144,7 +159,7 @@ export class TestStepServiceImpl implements TestStepService {
       operationType: requestBody.type,
       operationInput: requestBody.input,
       operationElement: JSON.stringify(requestBody.elementInfo),
-      inputElements: JSON.stringify(requestBody.inputElements),
+      inputElements: JSON.stringify(inputElements),
       windowHandle: requestBody.windowHandle,
       keywordTexts: JSON.stringify(keywordTexts),
       timestamp: requestBody.timestamp,
@@ -154,6 +169,7 @@ export class TestStepServiceImpl implements TestStepService {
       scrollPositionY: requestBody.scrollPosition?.y,
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
+      iframeIndex: requestBody.iframeIndex,
     });
 
     if (requestBody.imageData) {
@@ -303,5 +319,51 @@ export class TestStepServiceImpl implements TestStepService {
     return await getRepository(TestResultEntity).save({
       ...testResultEntity,
     });
+  }
+
+  private createInputElements(requestBody: CreateTestStepDto) {
+    const inputElementsFilter = (elmInfo: ElementInfo) => {
+      let expected = false;
+      switch (elmInfo.tagname.toLowerCase()) {
+        case "input":
+          if (
+            !!elmInfo.attributes.type &&
+            elmInfo.attributes.type !== "button" &&
+            elmInfo.attributes.type !== "submit"
+          ) {
+            expected = true;
+          }
+          break;
+        case "select":
+        case "textarea":
+          expected = true;
+          break;
+        default:
+          break;
+      }
+      return expected;
+    };
+    return [
+      ...requestBody.inputElements
+        .filter(inputElementsFilter)
+        .map((elmInfo) => {
+          return {
+            ...elmInfo,
+            iframeIndex: requestBody.iframeIndex,
+          };
+        }),
+      ...requestBody.screenElementsPerIframe
+        .map((elemsWithIframeIndex) => {
+          return elemsWithIframeIndex.screenElements
+            .filter(inputElementsFilter)
+            .map((elem) => {
+              return {
+                ...elem,
+                iframeIndex: elemsWithIframeIndex.iframeIndex,
+              };
+            });
+        })
+        .flat(),
+    ];
   }
 }

@@ -86,6 +86,9 @@ export class TestStepEntity {
   @Column({ name: "is_automatic", nullable: true, default: false })
   isAutomatic: boolean = false;
 
+  @Column({ name: "iframe_index", nullable: true, default: null })
+  iframeIndex?: number;
+
   @ManyToOne(() => TestResultEntity, (testResult) => testResult.testSteps)
   @JoinColumn({ name: "test_result_id" })
   testResult?: TestResultEntity;

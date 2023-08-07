@@ -149,6 +149,7 @@ export type CaptureSession = {
           locatorType: "id" | "xpath";
           locator: string;
           locatorMatchType: "equals" | "regex";
+          iframeIndex?: number;
         };
         value: string;
       }[]

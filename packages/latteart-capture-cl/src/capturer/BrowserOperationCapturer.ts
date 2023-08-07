@@ -185,7 +185,10 @@ export default class BrowserOperationCapturer {
             type: SpecialOperationType.ACCEPT_ALERT,
             windowHandle: currentWindow.windowHandle,
             pageSource,
-            screenElements,
+            screenElementsPerIframe:
+              await currentWindow.collectScreenElementsPerIframe(
+                await currentWindow.getNumberOfIframes()
+              ),
           });
 
           continue;
@@ -219,15 +222,16 @@ export default class BrowserOperationCapturer {
         const currentWindow = this.webBrowser.currentWindow;
 
         if (currentWindow) {
+          const iframeCnt = await currentWindow.getNumberOfIframes();
           if (this.capturingIsPaused) {
             await currentWindow.pauseCapturing();
           } else {
             await currentWindow.resumeCapturing();
           }
 
-          await currentWindow.getReadyToCapture();
-          await currentWindow.captureScreenTransition();
-          await currentWindow.captureOperations();
+          await currentWindow.getReadyToCapture(iframeCnt);
+          await currentWindow.captureScreenTransition(iframeCnt);
+          await currentWindow.captureOperations(iframeCnt);
         }
       } catch (error) {
         if (!(error instanceof Error)) {
@@ -390,9 +394,10 @@ export default class BrowserOperationCapturer {
           type: SpecialOperationType.PAUSE_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
+          screenElementsPerIframe:
+            await currentWindow.collectScreenElementsPerIframe(
+              await currentWindow.getNumberOfIframes()
+            ),
         })
       );
     }
@@ -412,9 +417,10 @@ export default class BrowserOperationCapturer {
           type: SpecialOperationType.RESUME_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
+          screenElementsPerIframe:
+            await currentWindow.collectScreenElementsPerIframe(
+              await currentWindow.getNumberOfIframes()
+            ),
         })
       );
     }
@@ -433,6 +439,7 @@ export default class BrowserOperationCapturer {
       locator: string;
       locatorMatchType: "equals" | "contains";
       inputValue: string;
+      iframeIndex?: number;
     }[]
   ): Promise<void> {
     if (this.webBrowser?.currentWindow) {
@@ -451,7 +458,12 @@ export default class BrowserOperationCapturer {
   public async runOperation(
     operation: Pick<
       Operation,
-      "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
+      | "input"
+      | "type"
+      | "elementInfo"
+      | "clientSize"
+      | "scrollPosition"
+      | "iframeIndex"
     >
   ): Promise<void> {
     if (operation.clientSize) {
@@ -497,6 +509,8 @@ export default class BrowserOperationCapturer {
       await this.webBrowser.currentWindow.removeScreenLock();
     }
 
+    const runOperationLock = "runOperationLock";
+
     try {
       switch (operation.type as SpecialOperationType) {
         case SpecialOperationType.ACCEPT_ALERT:
@@ -535,11 +549,21 @@ export default class BrowserOperationCapturer {
 
       const xpath = operation.elementInfo.xpath.toLowerCase();
 
+      await this.client.waitUntilFrameUnlock();
+      this.client.lockFrame(runOperationLock);
+
+      await this.client.switchDefaultContent(runOperationLock);
+      if (operation.iframeIndex !== undefined) {
+        await this.client.switchFrameTo(
+          operation.iframeIndex,
+          runOperationLock
+        );
+      }
+
       switch (operation.type) {
         case "click":
           await this.client.clickElement(xpath);
-
-          return;
+          break;
 
         case "change":
           if (operation.elementInfo.tagname.toLowerCase() === "select") {
@@ -559,13 +583,17 @@ export default class BrowserOperationCapturer {
 
             await this.client.clearAndSendKeys(xpath, inputValue);
           }
-
-          return;
+          break;
 
         default:
-          return;
+          break;
       }
+      await this.client.switchDefaultContent(runOperationLock);
+      this.client.unLockFrame();
+      return;
     } catch (error) {
+      await this.client.switchDefaultContent(runOperationLock);
+      this.client.unLockFrame();
       if (
         error instanceof Error &&
         (error.name === "WebDriverError" || error.name === "NoSuchWindowError")

@@ -55,6 +55,10 @@ export type TestScriptSourceOperation = {
    * Screen image path.
    */
   imageFilePath: string;
+  /**
+   * Iframe index.
+   */
+  iframeIndex?: number;
 };
 
 export type TestScript = {

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { Operation, ElementInfo } from "../../../Operation";
+import {
+  Operation,
+  ElementInfo,
+  ScreenElementsPerIframe,
+} from "../../../Operation";
 import ScreenTransitionHistory from "./ScreenTransitionHistory";
 import LoggingService from "../../../logger/LoggingService";
 import WebDriverClient from "@/webdriver/WebDriverClient";
@@ -152,29 +156,42 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
-  public async getReadyToCapture(): Promise<void> {
-    const isReadyToCapture =
-      (await this.client.execute(captureScript.isReadyToCapture)) ?? false;
+  public async getReadyToCapture(iframeCnt: number): Promise<void> {
+    const execute = async () => {
+      const isReadyToCapture =
+        (await this.client.execute(captureScript.isReadyToCapture)) ?? false;
 
-    if (isReadyToCapture) {
-      return;
+      if (isReadyToCapture) {
+        return;
+      }
+
+      (await this.injectFunctionToGetAttributesFromElement()) &&
+        (await this.injectFunctionToCollectVisibleElements()) &&
+        (await this.injectFunctionToExtractElements()) &&
+        (await this.injectFunctionToEnqueueEventForReFire()) &&
+        (await this.injectFunctionToBuildOperationInfo()) &&
+        (await this.injectFunctionToHandleCapturedEvent([
+          WebBrowser.SHIELD_ID,
+        ])) &&
+        (await this.resetEventListeners());
+    };
+
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "injectScript";
+    this.client.lockFrame(lockId);
+    for (let i = 0; i < iframeCnt; i++) {
+      await this.client.switchFrameTo(i, lockId);
+      await execute();
+      await this.client.switchDefaultContent(lockId);
     }
-
-    (await this.injectFunctionToGetAttributesFromElement()) &&
-      (await this.injectFunctionToCollectVisibleElements()) &&
-      (await this.injectFunctionToExtractElements()) &&
-      (await this.injectFunctionToEnqueueEventForReFire()) &&
-      (await this.injectFunctionToBuildOperationInfo()) &&
-      (await this.injectFunctionToHandleCapturedEvent([
-        WebBrowser.SHIELD_ID,
-      ])) &&
-      (await this.resetEventListeners());
+    await execute();
+    this.client.unLockFrame();
   }
 
   /**
    * Check if a screen transition is captured and if so, call the callback function.
    */
-  public async captureScreenTransition(): Promise<void> {
+  public async captureScreenTransition(iframeCnt: number): Promise<void> {
     const currentDocumentLoadingIsCompleted =
       (await this.client.getDocumentReadyState()) === "complete";
     if (!currentDocumentLoadingIsCompleted) {
@@ -197,7 +214,7 @@ export default class WebBrowserWindow {
       return;
     }
 
-    const screenTransition = await this.createScreenTransition();
+    const screenTransition = await this.createScreenTransition(iframeCnt);
     if (!screenTransition) {
       return;
     }
@@ -221,44 +238,95 @@ export default class WebBrowserWindow {
   /**
    * Check if operations are captured and if so, call the callback function.
    */
-  public async captureOperations(): Promise<void> {
-    // Get and notice operations.
-    const capturedDatas = await this.pullCapturedDatas();
-    if (capturedDatas.length === 0) {
+  public async captureOperations(frameCnt: number): Promise<void> {
+    const execute = async (
+      capturedDatas: SuspendedCapturedData[],
+      screenElementsPerIframe: ScreenElementsPerIframe[],
+      iframeIndex?: number
+    ) => {
+      const clientSize = await this.client.getClientSize();
+      for (const capturedData of capturedDatas) {
+        if (await this.client.alertIsVisible()) {
+          break;
+        }
+
+        const capturedOperations = await this.convertToCapturedOperations(
+          [capturedData],
+          clientSize,
+          screenElementsPerIframe,
+          iframeIndex
+        );
+
+        if (
+          capturedOperations[0] &&
+          this.shouldRegisterOperation(
+            capturedOperations[0],
+            this.beforeOperation
+          )
+        ) {
+          this.noticeCapturedOperations(...capturedOperations);
+        }
+        this.beforeOperation = capturedOperations[0] ?? null;
+
+        if (capturedData.suspendedEvent.refireType === "inputDate") {
+          await this.client.sendKeys(
+            capturedData.operation.elementInfo.xpath,
+            Key.SPACE
+          );
+        } else {
+          await capturedData.suspendedEvent.refire();
+        }
+      }
+    };
+    const resultCapturedDatas = [];
+
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "captureOperation";
+    this.client.lockFrame(lockId);
+    for (let i = 0; i < frameCnt; i++) {
+      await this.client.switchFrameTo(i, lockId);
+      resultCapturedDatas.push({
+        iframeIndex: i,
+        data: await this.pullCapturedDatas(),
+      });
+      await this.client.switchDefaultContent(lockId);
+    }
+    resultCapturedDatas.push({
+      iframeIndex: undefined,
+      data: await this.pullCapturedDatas(),
+    });
+
+    if (!resultCapturedDatas.find((result) => result.data.length !== 0)) {
+      this.client.unLockFrame();
       return;
     }
 
-    const clientSize = await this.client.getClientSize();
-    for (const capturedData of capturedDatas) {
-      if (await this.client.alertIsVisible()) {
-        break;
-      }
-
-      const capturedOperations = await this.convertToCapturedOperations(
-        [capturedData],
-        clientSize
-      );
-
-      if (
-        capturedOperations[0] &&
-        this.shouldRegisterOperation(
-          capturedOperations[0],
-          this.beforeOperation
-        )
-      ) {
-        this.noticeCapturedOperations(...capturedOperations);
-      }
-      this.beforeOperation = capturedOperations[0] ?? null;
-
-      if (capturedData.suspendedEvent.refireType === "inputDate") {
-        await this.client.sendKeys(
-          capturedData.operation.elementInfo.xpath,
-          Key.SPACE
-        );
+    const screenElementsPerIframe: ScreenElementsPerIframe[] = [];
+    for (const result of resultCapturedDatas.sort(
+      (f, s) => f.data.length - s.data.length
+    )) {
+      if (result.iframeIndex === undefined) {
+        await this.client.switchDefaultContent(lockId);
       } else {
-        await capturedData.suspendedEvent.refire();
+        await this.client.switchFrameTo(result.iframeIndex, lockId);
+      }
+
+      if (result.data.length === 0) {
+        const screenElements =
+          (await this.client.execute(captureScript.collectScreenElements)) ??
+          [];
+        screenElementsPerIframe.push({
+          iframeIndex: result.iframeIndex,
+          screenElements,
+        });
+      } else {
+        await execute(result.data, screenElementsPerIframe, result.iframeIndex);
+      }
+      if (result.iframeIndex !== undefined) {
+        await this.client.switchDefaultContent(lockId);
       }
     }
+    this.client.unLockFrame();
   }
 
   public async deleteCapturedDatas(): Promise<void> {
@@ -277,9 +345,10 @@ export default class WebBrowserWindow {
     scrollPosition?: { x: number; y: number };
     clientSize?: { width: number; height: number };
     elementInfo?: ElementInfo;
-    screenElements?: ElementInfo[];
+    screenElementsPerIframe?: ScreenElementsPerIframe[];
     inputElements?: ElementInfo[];
     pageSource?: string;
+    iframeIndex?: number;
   }): Operation {
     return new Operation({
       type: args.type,
@@ -287,13 +356,14 @@ export default class WebBrowserWindow {
       scrollPosition: args.scrollPosition,
       clientSize: args.clientSize,
       elementInfo: args.elementInfo ?? null,
-      screenElements: args.screenElements ?? [],
+      screenElementsPerIframe: args.screenElementsPerIframe ?? [],
       windowHandle: args.windowHandle,
       title: this.currentScreenSummary.title,
       url: this.currentScreenSummary.url,
       imageData: this.currentOperationSummary.screenshotBase64,
       inputElements: args.inputElements ?? [],
       pageSource: args.pageSource ?? "",
+      iframeIndex: args.iframeIndex,
     });
   }
 
@@ -306,8 +376,9 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_BACK,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
-      screenElements:
-        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
+      screenElementsPerIframe: await this.collectScreenElementsPerIframe(
+        await this.getNumberOfIframes()
+      ),
     });
     await this.client.browserBack();
 
@@ -326,8 +397,9 @@ export default class WebBrowserWindow {
       type: SpecialOperationType.BROWSER_FORWARD,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
-      screenElements:
-        (await this.client.execute(captureScript.collectScreenElements)) ?? [],
+      screenElementsPerIframe: await this.collectScreenElementsPerIframe(
+        await this.getNumberOfIframes()
+      ),
     });
     await this.client.browserForward();
 
@@ -413,6 +485,13 @@ export default class WebBrowserWindow {
     );
   }
 
+  public async getNumberOfIframes(): Promise<number> {
+    const numberOfIframes = await this.client.execute(
+      captureScript.getNumberOfIframes
+    );
+    return numberOfIframes === null ? 0 : numberOfIframes;
+  }
+
   private noticeCapturedOperations(...operations: Operation[]) {
     for (const operation of operations) {
       this.onGetOperation(operation);
@@ -442,7 +521,9 @@ export default class WebBrowserWindow {
     };
   }
 
-  private async createScreenTransition(): Promise<ScreenTransition | null> {
+  private async createScreenTransition(
+    iframeCnt: number
+  ): Promise<ScreenTransition | null> {
     await this.updateScreenAndOperationSummary();
 
     const pageText = await this.client.getCurrentPageText();
@@ -451,9 +532,6 @@ export default class WebBrowserWindow {
       return null;
     }
 
-    const screenElements =
-      (await this.client.execute(captureScript.collectScreenElements)) ?? [];
-
     return new ScreenTransition({
       windowHandle: this._windowHandle,
       title: this.currentScreenSummary.title,
@@ -461,8 +539,36 @@ export default class WebBrowserWindow {
       imageData: this.currentOperationSummary.screenshotBase64,
       pageSource: pageText,
       clientSize: await this.client.getClientSize(),
-      screenElements,
+      screenElementsPerIframe: await this.collectScreenElementsPerIframe(
+        iframeCnt
+      ),
     });
+  }
+
+  public async collectScreenElementsPerIframe(
+    iframeCnt: number
+  ): Promise<ScreenElementsPerIframe[]> {
+    const screenElementsPerIframe: ScreenElementsPerIframe[] = [];
+    LoggingService.debug(`START createScreenTransition`);
+
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "collectScreenElements";
+    this.client.lockFrame(lockId);
+    for (let i = 0; i < iframeCnt; i++) {
+      await this.client.switchFrameTo(i, lockId);
+      const screenElements =
+        (await this.client.execute(captureScript.collectScreenElements)) ?? [];
+      screenElementsPerIframe.push({ iframeIndex: i, screenElements });
+      await this.client.switchDefaultContent(lockId);
+      LoggingService.debug(` -> collectScScreenElements(${i})`);
+    }
+    const screenElements =
+      (await this.client.execute(captureScript.collectScreenElements)) ?? [];
+    this.client.unLockFrame();
+    screenElementsPerIframe.push({ screenElements });
+    LoggingService.debug(`END createScreenTransition`);
+
+    return screenElementsPerIframe;
   }
 
   private capturedDataHasChangeEventFiredByMouseClick(
@@ -508,7 +614,9 @@ export default class WebBrowserWindow {
 
   private async convertToCapturedOperations(
     capturedDatas: SuspendedCapturedData[],
-    clientSize: { width: number; height: number }
+    clientSize: { width: number; height: number },
+    screenElementsPerIframe: ScreenElementsPerIframe[],
+    iframeIndex?: number
   ) {
     const filteredDatas = capturedDatas.filter((data) => {
       // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
@@ -568,38 +676,22 @@ export default class WebBrowserWindow {
         }
 
         let inputElements: ElementInfo[] = [];
-        inputElements = data.elements.filter((elmInfo) => {
-          let expected = false;
-          switch (elmInfo.tagname.toLowerCase()) {
-            case "input":
-              if (
-                !!elmInfo.attributes.type &&
-                elmInfo.attributes.type !== "button" &&
-                elmInfo.attributes.type !== "submit"
-              ) {
-                expected = true;
-              }
-              break;
-            case "select":
-            case "textarea":
-              expected = true;
-              break;
-            default:
-              break;
-          }
-          return expected;
+        inputElements = data.elements;
+        screenElementsPerIframe.push({
+          iframeIndex,
+          screenElements: data.elements,
         });
-
         return this.createCapturedOperation({
           input: data.operation.input,
           type: data.operation.type,
           scrollPosition: data.operation.scrollPosition,
           clientSize,
           elementInfo,
-          screenElements: data.elements,
+          screenElementsPerIframe: screenElementsPerIframe,
           windowHandle: this._windowHandle,
           inputElements,
           pageSource: await this.client.getCurrentPageText(),
+          iframeIndex,
         });
       })
     );

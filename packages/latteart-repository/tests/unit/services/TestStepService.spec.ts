@@ -73,6 +73,7 @@ describe("TestStepService", () => {
         windowHandle: testStepEntity.windowHandle,
         keywordTexts: JSON.parse(testStepEntity.keywordTexts),
         isAutomatic: testStepEntity.isAutomatic,
+        iframeIndex: null,
       };
 
       const result = await service.getTestStep(testStepEntity.id);
@@ -136,7 +137,7 @@ describe("TestStepService", () => {
         url: "url",
         imageData: "imageData",
         windowHandle: "windowHandle",
-        screenElements: [element2],
+        screenElementsPerIframe: [{ screenElements: [element2] }] as any,
         inputElements: [element2],
         timestamp: 100,
         pageSource: "pageSource",
@@ -151,7 +152,7 @@ describe("TestStepService", () => {
         url: requestBody.url,
         imageFileUrl: "testStep.png",
         timestamp: `${requestBody.timestamp}`,
-        inputElements: requestBody.inputElements,
+        inputElements: [],
         windowHandle: requestBody.windowHandle,
         keywordTexts: [
           {
@@ -160,6 +161,7 @@ describe("TestStepService", () => {
           },
         ],
         isAutomatic: requestBody.isAutomatic,
+        iframeIndex: null,
       };
 
       const result = await service.createTestStep(
@@ -184,7 +186,14 @@ describe("TestStepService", () => {
           url: requestBody.url,
           screenElements: [
             ...defaultScreenElements,
-            ...requestBody.screenElements,
+            ...requestBody.screenElementsPerIframe
+              .map((e) => {
+                return e.screenElements.map((e2) => {
+                  e2.iframeIndex = e.iframeIndex;
+                  return e2;
+                });
+              })
+              .flat(),
           ],
         },
       });
@@ -241,6 +250,7 @@ describe("TestStepService", () => {
           type: "",
           url: "",
           windowHandle: "",
+          iframeIndex: null,
         },
         intention: null,
         bugs: [],

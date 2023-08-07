@@ -392,6 +392,7 @@ export const convertToTestStepOperation = (
             height: testStepEntity.clientSizeHeight,
           }
         : undefined,
+    iframeIndex: testStepEntity.iframeIndex,
   };
 };
 

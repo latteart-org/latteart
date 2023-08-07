@@ -29,6 +29,7 @@ export class IdentifierGenerator {
    */
   public generateIdentifierFromElement(
     elem: TestScriptSourceElement,
+    iframeIndex: undefined | number,
     isUpper = false
   ): string {
     const attr = elem.attributes;
@@ -62,7 +63,12 @@ export class IdentifierGenerator {
       tempIdentifier = "noName";
     }
 
+    tempIdentifier =
+      iframeIndex !== undefined
+        ? `iframe${iframeIndex}_${tempIdentifier}`
+        : tempIdentifier;
     let identifier = "";
+
     const xpath = this.identifierToXPath.get(tempIdentifier);
     if (xpath && xpath !== elem.xpath) {
       identifier = `${tempIdentifier}${createHash("md5")
@@ -92,21 +98,14 @@ export class IdentifierGenerator {
     const normalized = this.normalizeIdentifier(identifier);
     const splitStr = normalized.split("$");
     const camelCase = splitStr
-      .map(
-        (word: string) =>
-          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      .map((word: string, index: number) =>
+        !isUpper && index === 0
+          ? word.toLowerCase()
+          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       )
       .join("");
 
-    if (camelCase === "") {
-      return "_";
-    }
-
-    if (isUpper) {
-      return camelCase;
-    } else {
-      return camelCase.charAt(0).toLowerCase() + camelCase.slice(1);
-    }
+    return camelCase === "" ? "_" : camelCase;
   }
 
   private normalizeIdentifier(identifier: string) {

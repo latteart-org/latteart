@@ -52,7 +52,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("name1");
     });
 
@@ -65,7 +68,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("id1");
     });
 
@@ -78,7 +84,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("name1");
     });
 
@@ -91,7 +100,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("name1value1");
     });
 
@@ -104,7 +116,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("text1");
     });
 
@@ -117,7 +132,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("value1");
     });
 
@@ -130,7 +148,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("testId1");
     });
 
@@ -143,7 +164,10 @@ describe("IdentifierUtilクラスの", () => {
         locators: [{ other: "locator" }],
       };
       const identifier =
-        new IdentifierGenerator().generateIdentifierFromElement(element);
+        new IdentifierGenerator().generateIdentifierFromElement(
+          element,
+          undefined
+        );
       expect(identifier).toBe("_01");
     });
 
@@ -158,8 +182,11 @@ describe("IdentifierUtilクラスの", () => {
 
       const generator = new IdentifierGenerator();
 
-      generator.generateIdentifierFromElement(element);
-      const identifier = generator.generateIdentifierFromElement(element);
+      generator.generateIdentifierFromElement(element, undefined);
+      const identifier = generator.generateIdentifierFromElement(
+        element,
+        undefined
+      );
       expect(identifier).toBe("id");
     });
 
@@ -181,8 +208,11 @@ describe("IdentifierUtilクラスの", () => {
 
       const generator = new IdentifierGenerator();
 
-      generator.generateIdentifierFromElement(element1);
-      const identifier = generator.generateIdentifierFromElement(element2);
+      generator.generateIdentifierFromElement(element1, undefined);
+      const identifier = generator.generateIdentifierFromElement(
+        element2,
+        undefined
+      );
       expect(identifier).toBe(
         `id${createHash("md5").update(element2.xpath).digest("hex")}`
       );

@@ -27,15 +27,20 @@ export type CreateTestStepDto = {
   url: string;
   imageData: string;
   windowHandle: string;
-  screenElements: ElementInfo[];
+  screenElementsPerIframe: ScreenElementsPerIframe[];
   inputElements: ElementInfo[];
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
+  iframeIndex?: number;
 };
+export interface ScreenElementsPerIframe {
+  iframeIndex?: number;
 
+  screenElements: ElementInfo[];
+}
 /**
  * Test step data for the specified ID.
  */

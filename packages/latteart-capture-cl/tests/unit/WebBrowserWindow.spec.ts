@@ -16,6 +16,8 @@ describe("WebBrowserWindow", () => {
       close: jest.fn(),
       getAllWindowHandles: jest.fn(),
       switchWindowTo: jest.fn(),
+      switchFrameTo: jest.fn(),
+      switchDefaultContent: jest.fn(),
       alertIsVisible: jest.fn(),
       getCurrentUrl: jest.fn(),
       getCurrentWindowHandle: jest.fn(),
@@ -42,6 +44,10 @@ describe("WebBrowserWindow", () => {
       getClientSize: jest.fn(),
       setClientSize: jest.fn(),
       setScrollPosition: jest.fn(),
+      lockFrame: jest.fn(),
+      unLockFrame: jest.fn(),
+      isLockedFrame: jest.fn(),
+      waitUntilFrameUnlock: jest.fn(),
     };
   });
 
@@ -81,7 +87,7 @@ describe("WebBrowserWindow", () => {
 
       const window = new WebBrowserWindow("", "", clientMock, "");
 
-      await window.getReadyToCapture();
+      await window.getReadyToCapture(0);
 
       expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
       expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
@@ -171,7 +177,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations();
+              await window.captureOperations(0);
 
               expect(option.onGetOperation).toBeCalledTimes(1);
               expect(option.onGetOperation).toBeCalledWith({
@@ -189,7 +195,7 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElements: expect.any(Array),
+                screenElementsPerIframe: expect.any(Array),
                 pageSource: expect.any(String),
                 inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
@@ -263,7 +269,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations();
+              await window.captureOperations(0);
 
               expect(option.onGetOperation).toBeCalledTimes(2);
               expect(option.onGetOperation).toBeCalledWith({
@@ -281,7 +287,7 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElements: expect.any(Array),
+                screenElementsPerIframe: expect.any(Array),
                 pageSource: expect.any(String),
                 inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
@@ -302,7 +308,7 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElements: expect.any(Array),
+                screenElementsPerIframe: expect.any(Array),
                 pageSource: expect.any(String),
                 inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
@@ -365,7 +371,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations();
+              await window.captureOperations(0);
 
               expect(option.onGetOperation).not.toBeCalled();
             }
@@ -437,7 +443,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations();
+              await window.captureOperations(0);
 
               expect(option.onGetOperation).toBeCalledTimes(1);
               expect(option.onGetOperation).toBeCalledWith({
@@ -455,7 +461,7 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElements: expect.any(Array),
+                screenElementsPerIframe: expect.any(Array),
                 pageSource: expect.any(String),
                 inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
@@ -509,7 +515,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations();
+            await window.captureOperations(0);
 
             expect(option.onGetOperation).not.toBeCalled();
           }
@@ -560,7 +566,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations();
+            await window.captureOperations(0);
 
             expect(clientMock.sendKeys).toBeCalledTimes(1);
             expect(clientMock.sendKeys).toBeCalledWith("xpath", keyCode);
@@ -612,7 +618,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations();
+            await window.captureOperations(0);
 
             expect(captureScript.refireEvent).not.toBeCalled();
             expect(clientMock.sendKeys).not.toBeCalled();
@@ -653,7 +659,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition();
+        await window.captureScreenTransition(0);
 
         expect(option.onGetScreenTransition).toBeCalledTimes(1);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -665,7 +671,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElementsPerIframe: [{ screenElements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -708,7 +714,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition();
+        await window.captureScreenTransition(0);
 
         expect(option.onGetScreenTransition).toBeCalledTimes(1);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -720,7 +726,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElementsPerIframe: [{ screenElements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -728,7 +734,7 @@ describe("WebBrowserWindow", () => {
           canGoForward: false,
         });
 
-        await window.captureScreenTransition();
+        await window.captureScreenTransition(0);
 
         expect(option.onGetScreenTransition).toBeCalledTimes(2);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -740,7 +746,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElementsPerIframe: [{ screenElements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(2);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -781,7 +787,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition();
+        await window.captureScreenTransition(0);
 
         expect(option.onGetScreenTransition).not.toBeCalled();
         expect(option.onHistoryChanged).not.toBeCalled();
@@ -812,7 +818,7 @@ describe("WebBrowserWindow", () => {
         option
       );
 
-      await window.captureScreenTransition();
+      await window.captureScreenTransition(0);
 
       expect(option.onGetScreenTransition).not.toBeCalled();
       expect(option.onHistoryChanged).not.toBeCalled();

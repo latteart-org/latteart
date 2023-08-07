@@ -587,6 +587,7 @@ class CaptureSessionImpl implements CaptureSession {
       elementInfo: operation.elementInfo,
       clientSize: operation.clientSize,
       scrollPosition: operation.scrollPosition,
+      iframeIndex: operation.iframeIndex,
     });
 
     if (result.error) {
@@ -764,6 +765,7 @@ class CaptureSessionImpl implements CaptureSession {
           locatorType: "id" | "xpath";
           locator: string;
           locatorMatchType: "equals" | "regex";
+          iframeIndex?: number;
         };
         value: string;
       }[]
@@ -857,9 +859,12 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     })
     .filter((runTarget, index, array) => {
       if (
-        ["start_capturing", "pause_capturing", "resume_capturing"].includes(
-          runTarget.operation.type
-        )
+        [
+          "start_capturing",
+          "open_window",
+          "pause_capturing",
+          "resume_capturing",
+        ].includes(runTarget.operation.type)
       ) {
         return false;
       }

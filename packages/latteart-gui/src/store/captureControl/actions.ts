@@ -105,6 +105,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           .filter(payload.filterPredicate ?? (() => true))
           .map(({ operation }) => operation);
       })();
+      operations.forEach((o) => console.log("IFRAME_INDEX: " + o.iframeIndex));
 
       const replayOption = context.state.replayOption;
       const destTestResult = replayOption.resultSavingEnabled
@@ -200,9 +201,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       };
 
+      session.setShieldEnabled(false);
       const runOperationsResult = await session
         .automate({ preScript })
         .runOperations(...operations);
+      session.setShieldEnabled(true);
 
       if (runOperationsResult.isFailure()) {
         const elementInfo = runOperationsResult.error.variables?.elementInfo
@@ -351,6 +354,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             locatorType: condition.locatorType,
             locator: condition.locator,
             locatorMatchType: condition.locatorMatchType,
+            iframeIndex: condition.iframeIndex,
           },
           value: condition.inputValue,
         };
@@ -426,6 +430,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               return {
                 ...element,
                 xpath: element.xpath.toLowerCase(),
+                iframeIndex: element.iframeIndex,
                 attributes: element.attributes,
                 inputValue:
                   element.tagname === "INPUT" &&
@@ -514,7 +519,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
         if (testStep.operation.type === "screen_transition") {
           const { title, url } = testStep.operation;
-
+          console.log(beforeOperation);
           context.dispatch("openAutofillDialog", {
             targetPage: { title, url },
             beforeOperation,

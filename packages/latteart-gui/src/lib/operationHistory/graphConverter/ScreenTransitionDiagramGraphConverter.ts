@@ -43,7 +43,7 @@ type Edge = {
   destScreenId: string;
   trigger?: {
     type: string;
-    target?: { xpath: string; text: string };
+    target?: { xpath: string; iframeIndex?: number; text: string };
     sequence: number;
     imageFileUrl: string;
   };
@@ -74,6 +74,7 @@ export async function convertToScreenTransitionDiagramGraph(
 
   const screens = graphModel.screens;
   const edges = graphModel.edges;
+  console.log({ edges });
   const screenTexts = graphModel.screens.map(({ id, name }) => {
     const lineLength = 30;
     return `${id}["${TextUtil.escapeSpecialCharacters(
@@ -191,7 +192,11 @@ function extractGraphSources(view: GraphView): GraphSource {
       ? {
           type: lastTestStep.type,
           target: targetElement
-            ? { xpath: targetElement.xpath, text: targetElement.text }
+            ? {
+                xpath: targetElement.xpath,
+                text: targetElement.text,
+                iframeIndex: targetElement.iframeIndex,
+              }
             : undefined,
           sequence:
             testStepIdToSequenceAndImageFileUrl.get(lastTestStep.id)
@@ -202,10 +207,13 @@ function extractGraphSources(view: GraphView): GraphSource {
           input: lastTestStep.input,
           pageUrl: lastTestStep.pageUrl,
           pageTitle: lastTestStep.pageTitle,
+          iframeIndex: lastTestStep.iframeIndex,
         }
       : undefined;
 
+    console.log({ node });
     const inputElements = node.defaultValues.flatMap(({ elementId, value }) => {
+      console.log(elementId, value);
       const element = view.store.elements.find(({ id }) => id === elementId);
 
       if (!element) {
@@ -272,7 +280,9 @@ function extractGraphSources(view: GraphView): GraphSource {
         edge.sourceScreenId === detail.sourceScreen.id &&
         edge.destScreenId === detail.destScreen?.id &&
         edge.trigger?.type === detail.trigger?.type &&
-        edge.trigger?.target?.xpath === detail.trigger?.target?.xpath
+        edge.trigger?.target?.xpath === detail.trigger?.target?.xpath &&
+        (edge.trigger?.target?.iframeIndex ?? "") ===
+          (detail.trigger?.target?.iframeIndex ?? "")
       );
     });
 
