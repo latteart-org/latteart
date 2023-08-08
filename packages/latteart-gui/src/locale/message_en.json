@@ -115,7 +115,7 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose"
   },
-  "test-result-explorer": {
+  "test-result-navigation-drawer": {
     "title": "Test Result List",
     "delete-test-results": "Delete Test Result",
     "delete-test-result-message": "Delete selected test results?",

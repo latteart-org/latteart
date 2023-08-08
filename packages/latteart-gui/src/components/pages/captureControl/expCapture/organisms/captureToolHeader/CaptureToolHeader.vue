@@ -41,7 +41,7 @@
             <clear-history-button />
           </v-col>
           <v-col cols="2">
-            <open-test-result-explorer-button />
+            <open-test-result-navigation-drawer-button />
           </v-col>
           <v-col cols="2">
             <menu-button />
@@ -71,7 +71,7 @@ import RecordButton from "./RecordButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
 import URLTextField from "./URLTextField.vue";
 import MenuButton from "./MenuButton.vue";
-import OpenTestResultExplorerButton from "./OpenTestResultExplorerButton.vue";
+import OpenTestResultNavigationDrawerButton from "./OpenTestResultNavigationDrawerButton.vue";
 
 @Component({
   components: {
@@ -84,7 +84,8 @@ import OpenTestResultExplorerButton from "./OpenTestResultExplorerButton.vue";
     "locale-select-box": LocaleSelectBox,
     "remote-access-field": RemoteAccessField,
     "menu-button": MenuButton,
-    "open-test-result-explorer-button": OpenTestResultExplorerButton,
+    "open-test-result-navigation-drawer-button":
+      OpenTestResultNavigationDrawerButton,
   },
 })
 export default class CaptureToolHeader extends Vue {

@@ -16,7 +16,7 @@
 
 <template>
   <v-app>
-    <test-result-explorer />
+    <test-result-navigation-drawer />
 
     <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
       <capture-tool-header />
@@ -91,7 +91,7 @@ import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
 import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
-import TestResultExplorer from "../../common/organisms/TestResultExplorer.vue";
+import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigationDrawer.vue";
 
 @Component({
   components: {
@@ -104,7 +104,7 @@ import TestResultExplorer from "../../common/organisms/TestResultExplorer.vue";
     "autofill-select-dialog": AutofillSelectDialog,
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
-    "test-result-explorer": TestResultExplorer,
+    "test-result-navigation-drawer": TestResultNavigationDrawer,
   },
 })
 export default class ExpCapture extends Vue {

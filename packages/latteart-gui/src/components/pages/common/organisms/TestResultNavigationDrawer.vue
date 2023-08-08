@@ -20,18 +20,18 @@
     absolute
     temporary
     width="360"
-    v-model="isTestResultExplorerOpened"
+    v-model="isTestResultNavigationDrawerOpened"
   >
     <template v-slot:prepend>
       <v-list-item>
         <v-list-item-title class="text-h6">
-          {{ $store.getters.message("test-result-explorer.title") }}
+          {{ $store.getters.message("test-result-navigation-drawer.title") }}
         </v-list-item-title>
       </v-list-item>
     </template>
 
     <test-result-list
-      v-if="isTestResultExplorerOpened"
+      v-if="isTestResultNavigationDrawerOpened"
       deletable
       editable
       :items="items"
@@ -45,7 +45,9 @@
           :disabled="isDisabled"
           @click="confirmDialogOpened = true"
           >{{
-            $store.getters.message("test-result-explorer.delete-test-results")
+            $store.getters.message(
+              "test-result-navigation-drawer.delete-test-results"
+            )
           }}</v-btn
         >
       </div>
@@ -54,11 +56,13 @@
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="
-        $store.getters.message('test-result-explorer.delete-test-results')
+        $store.getters.message(
+          'test-result-navigation-drawer.delete-test-results'
+        )
       "
       :message="
         $store.getters.message(
-          'test-result-explorer.delete-test-result-message'
+          'test-result-navigation-drawer.delete-test-result-message'
         )
       "
       :onAccept="deleteTestResults"
@@ -70,7 +74,7 @@
       :title="$store.getters.message('common.confirm')"
       :message="
         $store.getters.message(
-          'test-result-explorer.delete-test-result-succeeded'
+          'test-result-navigation-drawer.delete-test-result-succeeded'
         )
       "
       @close="informationDialogOpened = false"
@@ -102,7 +106,7 @@ import TestResultList from "./TestResultList.vue";
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class TestResultExplorer extends Vue {
+export default class TestResultNavigationDrawer extends Vue {
   private confirmDialogOpened = false;
   private informationDialogOpened = false;
 
@@ -111,13 +115,13 @@ export default class TestResultExplorer extends Vue {
 
   private items: TestResultSummary[] = [];
 
-  private get isTestResultExplorerOpened() {
+  private get isTestResultNavigationDrawerOpened() {
     return (this.$store.state.captureControl as CaptureControlState)
-      .isTestResultExplorerOpened;
+      .isTestResultNavigationDrawerOpened;
   }
 
-  private set isTestResultExplorerOpened(isOpened: boolean) {
-    this.$store.commit("captureControl/setTestResultExplorerOpened", {
+  private set isTestResultNavigationDrawerOpened(isOpened: boolean) {
+    this.$store.commit("captureControl/setTestResultNavigationDrawerOpened", {
       isOpened,
     });
   }
@@ -126,9 +130,9 @@ export default class TestResultExplorer extends Vue {
     return this.$store.state.operationHistory as OperationHistoryState;
   }
 
-  @Watch("isTestResultExplorerOpened")
+  @Watch("isTestResultNavigationDrawerOpened")
   private async initialize() {
-    if (!this.isTestResultExplorerOpened) {
+    if (!this.isTestResultNavigationDrawerOpened) {
       this.$store.commit("operationHistory/clearCheckedTestResults");
     } else {
       this.items = await this.$store
@@ -148,12 +152,17 @@ export default class TestResultExplorer extends Vue {
 
     setTimeout(async () => {
       try {
-        this.$store.commit("captureControl/setTestResultExplorerOpened", {
-          isOpened: false,
-        });
+        this.$store.commit(
+          "captureControl/setTestResultNavigationDrawerOpened",
+          {
+            isOpened: false,
+          }
+        );
 
         this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message("test-result-explorer.load"),
+          message: this.$store.getters.message(
+            "test-result-navigation-drawer.load"
+          ),
         });
 
         await this.loadTestResults(testResult.id);
@@ -197,7 +206,7 @@ export default class TestResultExplorer extends Vue {
   private async deleteTestResults() {
     await this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message(
-        "test-result-explorer.deleting-test-results"
+        "test-result-navigation-drawer.deleting-test-results"
       ),
     });
     try {
@@ -238,7 +247,7 @@ export default class TestResultExplorer extends Vue {
         throw error;
       }
     } finally {
-      this.$store.commit("captureControl/setTestResultExplorerOpened", {
+      this.$store.commit("captureControl/setTestResultNavigationDrawerOpened", {
         isOpened: false,
       });
       await this.$store.dispatch("closeProgressDialog");

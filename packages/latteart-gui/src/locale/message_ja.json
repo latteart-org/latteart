@@ -119,7 +119,7 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集"
   },
-  "test-result-explorer": {
+  "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
     "delete-test-results": "テスト結果の削除",
     "delete-test-result-message": "選択したテスト結果を削除しますか？",

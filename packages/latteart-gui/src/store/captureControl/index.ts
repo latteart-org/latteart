@@ -101,9 +101,9 @@ export interface CaptureControlState {
   } | null;
 
   /**
-   * Whether test result explorer is opened or not.
+   * Whether test result navigation drawer is opened or not.
    */
-  isTestResultExplorerOpened: boolean;
+  isTestResultNavigationDrawerOpened: boolean;
 }
 
 const state: CaptureControlState = {
@@ -126,7 +126,7 @@ const state: CaptureControlState = {
   autofillRegisterDialogData: null,
   timer: new Timer(),
   captureSession: null,
-  isTestResultExplorerOpened: false,
+  isTestResultNavigationDrawerOpened: false,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {
