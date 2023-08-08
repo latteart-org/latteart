@@ -30,7 +30,7 @@
       :headers="headers"
       :items="items"
       item-key="id"
-      :show-select="showSelect"
+      :show-select="deletable"
       hide-default-footer
       :items-per-page="-1"
       :search="search"
@@ -76,7 +76,7 @@
                       ><v-text-field v-model="item.name" @click.stop
                     /></v-list-item-title>
                   </v-list-item-content>
-                  <v-list-item-action v-if="isEditable">
+                  <v-list-item-action v-if="editable">
                     <v-btn
                       v-if="!isEditing"
                       icon
@@ -170,8 +170,8 @@ import ErrorMessageDialog from "../ErrorMessageDialog.vue";
   },
 })
 export default class TestResultList extends Vue {
-  @Prop({ type: Boolean, default: false }) showSelect!: boolean;
-  @Prop({ type: Boolean, default: false }) isEditable!: boolean;
+  @Prop({ type: Boolean, default: false }) deletable!: boolean;
+  @Prop({ type: Boolean, default: false }) editable!: boolean;
   @Prop({ type: Boolean, default: false }) opened!: boolean;
   @Prop({ type: Array, default: [] }) items!: TestResultSummary[];
 
@@ -231,7 +231,7 @@ export default class TestResultList extends Vue {
   }
 
   private clickRowItem(id: string, name: string): void {
-    this.$emit("execute", { id, name });
+    this.$emit("click-item", { id, name });
   }
 }
 </script>

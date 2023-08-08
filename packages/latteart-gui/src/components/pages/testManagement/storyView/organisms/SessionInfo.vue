@@ -181,7 +181,7 @@
       <template v-slot:content>
         <test-result-list
           :items="testResults"
-          @execute="addTestResultToSession"
+          @click-item="addTestResultToSession"
         />
       </template>
 

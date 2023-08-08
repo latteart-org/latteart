@@ -31,11 +31,11 @@
     </template>
 
     <test-result-list
-      :showSelect="true"
-      :isEditable="true"
+      :deletable="true"
+      :editable="true"
       :opened="isTestResultExplorerOpened"
       :items="items"
-      @execute="loadHistory"
+      @click-item="loadHistory"
     />
 
     <template v-slot:append>
