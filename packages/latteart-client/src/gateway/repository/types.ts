@@ -356,8 +356,8 @@ export type TestResultForRepository = {
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId"
->;
+  "id" | "name" | "parentTestResultId" | "initialUrl" | "testingTime"
+> & { testPurposes: { value: string }[]; creationTimestamp: number };
 
 export type TestResultComparisonResultForRepository = {
   url: string;

@@ -31,8 +31,13 @@ export interface CreateTestResultDto {
 /**
  * Test result list record.
  */
-export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
+export type ListTestResultResponse = Pick<
+  TestResult,
+  "id" | "name" | "initialUrl" | "testingTime"
+> & {
   parentTestResultId?: string;
+  testPurposes: { value: string }[];
+  creationTimestamp: number;
 };
 
 /**

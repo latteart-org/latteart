@@ -179,19 +179,10 @@
       }}</template>
 
       <template v-slot:content>
-        <v-row
-          class="mt-0"
-          wrap
-          v-for="testResult in testResults"
-          :key="testResult.id"
-        >
-          <v-col cols="9">{{ testResult.name }}</v-col>
-          <v-col cols="3"
-            ><v-btn @click="addTestResultToSession(testResult)">{{
-              $store.getters.message("session-info.result-import")
-            }}</v-btn></v-col
-          >
-        </v-row>
+        <test-result-list
+          :items="testResults"
+          @click-item="addTestResultToSession"
+        />
       </template>
 
       <template v-slot:footer>
@@ -235,6 +226,7 @@ import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
+import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
 
 @Component({
   components: {
@@ -242,6 +234,7 @@ import TestPurposeNoteList from "./TestPurposeNoteList.vue";
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "test-purpose-note-list": TestPurposeNoteList,
+    "test-result-list": TestResultList,
   },
 })
 export default class SessionInfo extends Vue {
@@ -251,10 +244,7 @@ export default class SessionInfo extends Vue {
   private reportSectionDisplayed = false;
 
   private testResultSelectionDialogOpened = false;
-  private testResults: {
-    name: string;
-    id: string;
-  }[] = [];
+  private testResults: TestResultSummary[] = [];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -289,12 +279,9 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      const testResultSummaries: TestResultSummary[] =
-        await this.$store.dispatch("testManagement/getTestResults");
-
-      this.testResults = testResultSummaries.map(({ id, name }) => {
-        return { id, name };
-      });
+      this.testResults = await this.$store.dispatch(
+        "testManagement/getTestResults"
+      );
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }

@@ -41,7 +41,7 @@
             <clear-history-button />
           </v-col>
           <v-col cols="2">
-            <load-history-button />
+            <open-test-result-navigation-drawer-button />
           </v-col>
           <v-col cols="2">
             <menu-button />
@@ -65,13 +65,13 @@ import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessF
 import { Component, Vue } from "vue-property-decorator";
 import ClearHistoryButton from "./ClearHistoryButton.vue";
 import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
-import LoadHistoryButton from "./LoadHistoryButton.vue";
 import LocaleSelectBox from "./LocaleSelectBox.vue";
 import PauseButton from "./PauseButton.vue";
 import RecordButton from "./RecordButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
 import URLTextField from "./URLTextField.vue";
 import MenuButton from "./MenuButton.vue";
+import OpenTestResultNavigationDrawerButton from "./OpenTestResultNavigationDrawerButton.vue";
 
 @Component({
   components: {
@@ -80,11 +80,12 @@ import MenuButton from "./MenuButton.vue";
     "record-button": RecordButton,
     "pause-button": PauseButton,
     "clear-history-button": ClearHistoryButton,
-    "load-history-button": LoadHistoryButton,
     "generate-test-script-button": GenerateTestScriptButton,
     "locale-select-box": LocaleSelectBox,
     "remote-access-field": RemoteAccessField,
     "menu-button": MenuButton,
+    "open-test-result-navigation-drawer-button":
+      OpenTestResultNavigationDrawerButton,
   },
 })
 export default class CaptureToolHeader extends Vue {

@@ -115,6 +115,21 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose"
   },
+  "test-result-navigation-drawer": {
+    "title": "Test Result List",
+    "delete-test-results": "Delete Test Result",
+    "delete-test-result-message": "Delete selected test results?",
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "deleting-test-results": "Deleting test results.",
+    "load": "Loading"
+  },
+  "test-result-list": {
+    "name": "Test Result Name",
+    "url": "Test Target Url",
+    "testing-time": "Test Time",
+    "test-purpose": "Test Purpose",
+    "creation-timestamp": "Creation Date"
+  },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
     "project-import-title": "Import Config/Project",
@@ -455,7 +470,6 @@
     "file-open-read-error": "Failed to read the attached file.",
     "file-open-copy-error": "Failed to save the attached file.",
     "result-list": "Import Test Result",
-    "result-import": "Import",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool"
@@ -538,8 +552,7 @@
     "connecting-remote-url": "Connecting to a repository.",
     "connect-remote-url-succeeded": "Connected to {url}.",
     "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
-    "delete-testresults": "Deleting test results.",
-    "load": "Loading"
+    "delete-testresults": "Deleting test results."
   },
   "error": {
     "common": {

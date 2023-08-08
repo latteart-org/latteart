@@ -540,6 +540,14 @@ const mutations: MutationTree<OperationHistoryState> = {
     Vue.set(state, "checkedOperations", []);
   },
 
+  setCheckedTestResults(state, payload: { checkedTestResults: string[] }) {
+    state.checkedTestResults = payload.checkedTestResults;
+  },
+
+  clearCheckedTestResults(state) {
+    Vue.set(state, "checkedTestResults", []);
+  },
+
   /**
    * Set window handles to the State.
    * @param state State.

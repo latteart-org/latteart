@@ -33,23 +33,31 @@ export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Delete test result.
-   * @param testResultId  Test result id.
+   * Delete test results.
+   * @param testResultIds  Test result ids.
    */
-  public async deleteTestResult(
-    testResultId: string
+  public async deleteTestResults(
+    testResultIds: string[]
   ): Promise<RepositoryAccessResult<void>> {
     try {
-      const response = await this.restClient.httpDelete(
-        `api/v1/test-results/${testResultId}`
+      const responses = await Promise.all(
+        testResultIds.map(async (testResultId) => {
+          return await this.restClient.httpDelete(
+            `api/v1/test-results/${testResultId}`
+          );
+        })
       );
 
-      if (response.status !== 204) {
-        return createRepositoryAccessFailure(response);
+      const errorIndex = responses.findIndex(
+        (response) => response.status !== 204
+      );
+
+      if (errorIndex > -1) {
+        return createRepositoryAccessFailure(responses[errorIndex]);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as void,
+        data: responses[0].data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -93,7 +101,7 @@ export class TestResultRepository {
       name?: string;
       parentTestResultId?: string;
     } = {}
-  ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
+  ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
     try {
       const url = `api/v1/test-results`;
       const response = await this.restClient.httpPost(url, option);
@@ -103,7 +111,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestResultSummaryForRepository,
+        data: response.data as { id: string; name: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -125,10 +133,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Array<{
-          id: string;
-          name: string;
-        }>,
+        data: response.data as TestResultSummaryForRepository[],
       });
     } catch (error) {
       return createConnectionRefusedFailure();

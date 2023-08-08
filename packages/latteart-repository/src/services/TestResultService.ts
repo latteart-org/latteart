@@ -122,7 +122,9 @@ export class TestResultServiceImpl implements TestResultService {
   ) {}
 
   public async getTestResultIdentifiers(): Promise<ListTestResultResponse[]> {
-    const testResultEntities = await getRepository(TestResultEntity).find();
+    const testResultEntities = await getRepository(TestResultEntity).find({
+      relations: ["testPurposes", "testPurposes.testSteps"],
+    });
 
     return testResultEntities
       .sort((a, b) => {
@@ -134,10 +136,24 @@ export class TestResultServiceImpl implements TestResultService {
         return first - second;
       })
       .map((testResult) => {
+        const testPurposes =
+          testResult.testPurposes
+            ?.sort((a, b) => {
+              const first = a.testSteps?.at(0)?.timestamp ?? 0;
+              const second = b.testSteps?.at(0)?.timestamp ?? 0;
+              return first - second;
+            })
+            .map((testPurpose) => {
+              return { value: testPurpose.title };
+            }) ?? [];
         return {
           id: testResult.id,
           name: testResult.name,
           parentTestResultId: testResult.parentTestResultId,
+          testingTime: testResult.testingTime,
+          initialUrl: testResult.initialUrl,
+          testPurposes,
+          creationTimestamp: testResult.creationTimestamp,
         };
       });
   }

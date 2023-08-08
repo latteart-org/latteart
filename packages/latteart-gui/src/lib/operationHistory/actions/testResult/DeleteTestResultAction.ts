@@ -29,20 +29,20 @@ export class DeleteTestResultAction {
     private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
-  public async deleteTestResult(
-    testResultId: string
-  ): Promise<ActionResult<string>> {
-    const deleteTestResultResult =
-      await this.repositoryService.testResultRepository.deleteTestResult(
-        testResultId
+  public async deleteTestResults(
+    testResultIds: string[]
+  ): Promise<ActionResult<string[]>> {
+    const result =
+      await this.repositoryService.testResultRepository.deleteTestResults(
+        testResultIds
       );
 
-    if (deleteTestResultResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
         messageKey: DELETE_TEST_RESULT_FAILED_MESSAGE_KEY,
       });
     }
 
-    return new ActionSuccess(testResultId);
+    return new ActionSuccess(testResultIds);
   }
 }

@@ -30,9 +30,7 @@ export class GetTestResultListAction {
     private repositoryService: Pick<RepositoryService, "testResultRepository">
   ) {}
 
-  public async getTestResults(): Promise<
-    ActionResult<Array<TestResultSummary>>
-  > {
+  public async getTestResults(): Promise<ActionResult<TestResultSummary[]>> {
     const getTestResultsResult =
       await this.repositoryService.testResultRepository.getTestResults();
 

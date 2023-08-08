@@ -119,6 +119,21 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集"
   },
+  "test-result-navigation-drawer": {
+    "title": "テスト結果一覧",
+    "delete-test-results": "テスト結果の削除",
+    "delete-test-result-message": "選択したテスト結果を削除しますか？",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "deleting-test-results": "テスト結果削除中",
+    "load": "読み込み中"
+  },
+  "test-result-list": {
+    "name": "テスト結果名",
+    "url": "テスト対象URL",
+    "testing-time": "テスト時間",
+    "test-purpose": "テスト目的",
+    "creation-timestamp": "作成日時"
+  },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
     "project-import-title": "設定・プロジェクトのインポート",
@@ -459,7 +474,6 @@
     "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
     "file-open-copy-error": "添付ファイルの保存に失敗しました。",
     "result-list": "実行結果取り込み",
-    "result-import": "取り込む",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動"
@@ -542,8 +556,7 @@
     "connecting-remote-url": "リポジトリに接続中",
     "connect-remote-url-succeeded": "{url}に接続しました。",
     "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
-    "delete-testresults": "テスト結果削除中",
-    "load": "読み込み中"
+    "delete-testresults": "テスト結果削除中"
   },
   "error": {
     "common": {
