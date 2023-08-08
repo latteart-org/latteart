@@ -32,8 +32,10 @@
 
     <test-result-list
       :showSelect="true"
+      :isEditable="true"
       :opened="isTestResultExplorerOpened"
       :items="items"
+      @execute="loadHistory"
     />
 
     <template v-slot:append>
@@ -129,21 +131,67 @@ export default class TestResultExplorer extends Vue {
     if (!this.isTestResultExplorerOpened) {
       this.$store.commit("operationHistory/clearCheckedTestResults");
     } else {
-      const testResults: TestResultSummary[] = await this.$store
+      this.items = await this.$store
         .dispatch("operationHistory/getTestResults")
         .catch(() => []);
-
-      this.items = testResults.map((testResult) => {
-        return {
-          ...testResult,
-          testPurposes: testResult.testPurposes.slice(0, 5),
-        };
-      });
     }
   }
 
   private get isDisabled() {
     return this.operationHistoryState.checkedTestResults.length === 0;
+  }
+
+  private async loadHistory(testResult: { id: string; name: string }) {
+    if (!testResult) {
+      return;
+    }
+
+    setTimeout(async () => {
+      try {
+        this.$store.commit("captureControl/setTestResultExplorerOpened", {
+          isOpened: false,
+        });
+
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message("test-result-explorer.load"),
+        });
+
+        await this.loadTestResults(testResult.id);
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessage = error.message;
+          this.errorDialogOpened = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        this.$store.dispatch("closeProgressDialog");
+      }
+    }, 300);
+  }
+
+  private async loadTestResults(...testResultIds: string[]) {
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds,
+      });
+
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: testResultIds[0],
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 
   private async deleteTestResults() {

@@ -179,15 +179,10 @@
       }}</template>
 
       <template v-slot:content>
-        <test-result-list :actions="true" :items="testResults">
-          <template v-slot:item-actions="{ item }">
-            <v-btn
-              text
-              @click="addTestResultToSession({ id: item.id, name: item.name })"
-              >{{ $store.getters.message("session-info.result-import") }}</v-btn
-            >
-          </template>
-        </test-result-list>
+        <test-result-list
+          :items="testResults"
+          @execute="addTestResultToSession"
+        />
       </template>
 
       <template v-slot:footer>
@@ -284,16 +279,9 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      const testResults: TestResultSummary[] = await this.$store.dispatch(
+      this.testResults = await this.$store.dispatch(
         "testManagement/getTestResults"
       );
-
-      this.testResults = testResults.map((testResult) => {
-        return {
-          ...testResult,
-          testPurposes: testResult.testPurposes.slice(0, 5),
-        };
-      });
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }

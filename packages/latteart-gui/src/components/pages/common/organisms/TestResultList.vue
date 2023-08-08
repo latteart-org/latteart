@@ -42,7 +42,7 @@
         <td
           :class="{ ellipsis: true }"
           :style="{ 'max-width': 0 }"
-          @click="loadHistory(item.id)"
+          @click="clickRowItem(item.id, item.name)"
           v-ripple
         >
           <v-menu rounded="lg" offset-x open-on-hover>
@@ -76,7 +76,7 @@
                       ><v-text-field v-model="item.name" @click.stop
                     /></v-list-item-title>
                   </v-list-item-content>
-                  <v-list-item-action v-if="showSelect">
+                  <v-list-item-action v-if="isEditable">
                     <v-btn
                       v-if="!isEditing"
                       icon
@@ -118,17 +118,22 @@
                   </v-list-item-content>
                 </v-list-item>
 
-                <v-list-item v-if="hasTestPurpose(item.testPurposes)">
+                <v-list-item v-if="item.testPurposes.length > 0">
                   <v-list-item-content>
                     <v-list-item-title>{{
                       $store.getters.message("test-result-list.test-purpose")
                     }}</v-list-item-title>
                     <v-list-item-subtitle
-                      v-for="(testPurpose, i) in item.testPurposes"
+                      v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
                       :key="i"
                     >
-                      {{ "・" + testPurpose.value }}
+                      <li>{{ testPurpose.value }}</li>
                     </v-list-item-subtitle>
+                    <v-list-item-subtitle
+                      class="pl-5"
+                      v-if="item.testPurposes.length > 5"
+                      >… and more</v-list-item-subtitle
+                    >
                   </v-list-item-content>
                 </v-list-item>
 
@@ -145,23 +150,11 @@
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
-
-              <v-divider></v-divider>
-
-              <v-card-actions v-if="actions">
-                <slot name="item-actions" v-bind:item="item"></slot>
-              </v-card-actions>
             </v-card>
           </v-menu>
         </td>
       </template>
     </v-data-table>
-
-    <error-message-dialog
-      :opened="errorDialogOpened"
-      :message="errorDialogMessage"
-      @close="errorDialogOpened = false"
-    />
   </v-card>
 </template>
 
@@ -177,8 +170,8 @@ import ErrorMessageDialog from "../ErrorMessageDialog.vue";
   },
 })
 export default class TestResultList extends Vue {
-  @Prop({ type: Boolean, default: false }) actions!: boolean;
   @Prop({ type: Boolean, default: false }) showSelect!: boolean;
+  @Prop({ type: Boolean, default: false }) isEditable!: boolean;
   @Prop({ type: Boolean, default: false }) opened!: boolean;
   @Prop({ type: Array, default: [] }) items!: TestResultSummary[];
 
@@ -186,9 +179,6 @@ export default class TestResultList extends Vue {
   private search = "";
   private isEditing = false;
   private beforTestResultName = "";
-
-  private errorDialogOpened = false;
-  private errorDialogMessage = "";
 
   private get headers() {
     return [
@@ -212,13 +202,6 @@ export default class TestResultList extends Vue {
     this.$store.commit("operationHistory/setCheckedTestResults", {
       checkedTestResults,
     });
-  }
-
-  private hasTestPurpose(testPurposes: { value: string }[]) {
-    if (!testPurposes) {
-      return false;
-    }
-    return testPurposes.length > 0;
   }
 
   private async editTestResultName(
@@ -247,61 +230,8 @@ export default class TestResultList extends Vue {
     return formatDateTime(millisecondsTime);
   }
 
-  private async loadHistory(testResultId: string) {
-    if (this.actions) {
-      return;
-    }
-
-    if (!testResultId) {
-      return;
-    }
-
-    setTimeout(async () => {
-      try {
-        this.$store.commit("captureControl/setTestResultExplorerOpened", {
-          isOpened: false,
-        });
-
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message("remote-access.load"),
-        });
-
-        await this.loadTestResults(testResultId);
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorDialogMessage = error.message;
-          this.errorDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    }, 300);
-  }
-
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorDialogOpened = true;
-        this.errorDialogMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
+  private clickRowItem(id: string, name: string): void {
+    this.$emit("execute", { id, name });
   }
 }
 </script>
