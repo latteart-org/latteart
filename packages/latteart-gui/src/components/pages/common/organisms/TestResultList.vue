@@ -172,7 +172,6 @@ import ErrorMessageDialog from "../ErrorMessageDialog.vue";
 export default class TestResultList extends Vue {
   @Prop({ type: Boolean, default: false }) deletable!: boolean;
   @Prop({ type: Boolean, default: false }) editable!: boolean;
-  @Prop({ type: Boolean, default: false }) opened!: boolean;
   @Prop({ type: Array, default: [] }) items!: TestResultSummary[];
 
   private selectedTestResults: TestResultSummary[] = [];
@@ -187,13 +186,6 @@ export default class TestResultList extends Vue {
         value: "name",
       },
     ];
-  }
-
-  @Watch("opened")
-  private async initialize() {
-    if (!this.opened) {
-      this.selectedTestResults = [];
-    }
   }
 
   @Watch("selectedTestResults")

@@ -31,9 +31,9 @@
     </template>
 
     <test-result-list
-      :deletable="true"
-      :editable="true"
-      :opened="isTestResultExplorerOpened"
+      v-if="isTestResultExplorerOpened"
+      deletable
+      editable
       :items="items"
       @click-item="loadHistory"
     />
