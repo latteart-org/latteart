@@ -42,6 +42,7 @@ import {
   CreateTestResultDto,
   GetSequenceViewDto,
   GetSequenceViewResponse,
+  PatchTestResultDto,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
@@ -176,7 +177,7 @@ export class TestResultsController extends Controller {
         screenshotFileRepository,
         workingFileRepository,
         compareReportRepository,
-      }).createTestResult(requestBody, null);
+      }).createTestResult(requestBody);
 
       return result;
     } catch (error) {
@@ -206,7 +207,7 @@ export class TestResultsController extends Controller {
   public async updateTestResult(
     @Path() testResultId: string,
     @Body()
-    requestBody: { name?: string; startTime?: number; initialUrl?: string }
+    requestBody: PatchTestResultDto
   ): Promise<PatchTestResultResponse> {
     console.log("TestResultsController - updateTestResult");
 
@@ -259,6 +260,7 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const videoFileRepository = fileRepositoryManager.getRepository("video");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
@@ -278,7 +280,8 @@ export class TestResultsController extends Controller {
       return await service.deleteTestResult(
         testResultId,
         transactionRunner,
-        screenshotFileRepository
+        screenshotFileRepository,
+        videoFileRepository
       );
     } catch (error) {
       if (error instanceof Error) {

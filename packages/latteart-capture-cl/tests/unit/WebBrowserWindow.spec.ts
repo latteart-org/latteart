@@ -87,7 +87,7 @@ describe("WebBrowserWindow", () => {
 
       const window = new WebBrowserWindow("", "", clientMock, "");
 
-      await window.getReadyToCapture(0);
+      await window.getReadyToCapture("pull");
 
       expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
       expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
@@ -142,6 +142,9 @@ describe("WebBrowserWindow", () => {
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+                null
+              );
 
               const elements: CapturedData["operation"]["elementInfo"][] = [
                 {
@@ -150,6 +153,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -177,7 +184,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations(0);
+              await window.captureOperations();
 
               expect(option.onGetOperation).toBeCalledTimes(1);
               expect(option.onGetOperation).toBeCalledWith({
@@ -188,6 +195,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -195,9 +206,8 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElementsPerIframe: expect.any(Array),
+                screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -231,12 +241,20 @@ describe("WebBrowserWindow", () => {
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+                null
+              );
+
               const e1 = {
                 tagname: targetTagname1,
                 text: "text",
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -244,6 +262,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -269,7 +291,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations(0);
+              await window.captureOperations();
 
               expect(option.onGetOperation).toBeCalledTimes(2);
               expect(option.onGetOperation).toBeCalledWith({
@@ -280,6 +302,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -287,9 +313,8 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElementsPerIframe: expect.any(Array),
+                screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -301,6 +326,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath2,
                   attributes: targetAttributes2,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -308,9 +337,8 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElementsPerIframe: expect.any(Array),
+                screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -337,6 +365,10 @@ describe("WebBrowserWindow", () => {
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+                null
+              );
+
               const elements: CapturedData["operation"]["elementInfo"][] = [
                 {
                   tagname: targetTagname,
@@ -344,6 +376,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -371,7 +407,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations(0);
+              await window.captureOperations();
 
               expect(option.onGetOperation).not.toBeCalled();
             }
@@ -405,12 +441,20 @@ describe("WebBrowserWindow", () => {
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+                null
+              );
+
               const e1 = {
                 tagname: targetTagname1,
                 text: "text",
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -418,6 +462,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -443,7 +491,7 @@ describe("WebBrowserWindow", () => {
                 option
               );
 
-              await window.captureOperations(0);
+              await window.captureOperations();
 
               expect(option.onGetOperation).toBeCalledTimes(1);
               expect(option.onGetOperation).toBeCalledWith({
@@ -454,6 +502,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -461,9 +513,8 @@ describe("WebBrowserWindow", () => {
                 imageData: expect.any(String),
                 windowHandle: expect.any(String),
                 timestamp: expect.any(String),
-                screenElementsPerIframe: expect.any(Array),
+                screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -487,6 +538,10 @@ describe("WebBrowserWindow", () => {
               .mockResolvedValue({ width: 0, height: 0 });
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+              null
+            );
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -494,6 +549,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -515,7 +574,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations(0);
+            await window.captureOperations();
 
             expect(option.onGetOperation).not.toBeCalled();
           }
@@ -538,6 +597,10 @@ describe("WebBrowserWindow", () => {
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+              null
+            );
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -545,6 +608,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -566,7 +633,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations(0);
+            await window.captureOperations();
 
             expect(clientMock.sendKeys).toBeCalledTimes(1);
             expect(clientMock.sendKeys).toBeCalledWith("xpath", keyCode);
@@ -590,6 +657,10 @@ describe("WebBrowserWindow", () => {
               .mockResolvedValue({ width: 0, height: 0 });
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
+              null
+            );
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -597,6 +668,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -618,7 +693,7 @@ describe("WebBrowserWindow", () => {
             const option = { onGetOperation: jest.fn() };
             const window = new WebBrowserWindow("", "", clientMock, "", option);
 
-            await window.captureOperations(0);
+            await window.captureOperations();
 
             expect(captureScript.refireEvent).not.toBeCalled();
             expect(clientMock.sendKeys).not.toBeCalled();
@@ -659,7 +734,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition(0);
+        await window.captureScreenTransition();
 
         expect(option.onGetScreenTransition).toBeCalledTimes(1);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -671,7 +746,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElementsPerIframe: [{ screenElements: [] }],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -714,7 +789,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition(0);
+        await window.captureScreenTransition();
 
         expect(option.onGetScreenTransition).toBeCalledTimes(1);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -726,7 +801,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElementsPerIframe: [{ screenElements: [] }],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -734,7 +809,7 @@ describe("WebBrowserWindow", () => {
           canGoForward: false,
         });
 
-        await window.captureScreenTransition(0);
+        await window.captureScreenTransition();
 
         expect(option.onGetScreenTransition).toBeCalledTimes(2);
         expect(option.onGetScreenTransition).toBeCalledWith({
@@ -746,7 +821,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElementsPerIframe: [{ screenElements: [] }],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(2);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -787,7 +862,7 @@ describe("WebBrowserWindow", () => {
           option
         );
 
-        await window.captureScreenTransition(0);
+        await window.captureScreenTransition();
 
         expect(option.onGetScreenTransition).not.toBeCalled();
         expect(option.onHistoryChanged).not.toBeCalled();
@@ -818,7 +893,7 @@ describe("WebBrowserWindow", () => {
         option
       );
 
-      await window.captureScreenTransition(0);
+      await window.captureScreenTransition();
 
       expect(option.onGetScreenTransition).not.toBeCalled();
       expect(option.onHistoryChanged).not.toBeCalled();

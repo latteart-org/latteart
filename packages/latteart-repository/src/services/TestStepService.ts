@@ -37,6 +37,7 @@ import {
   convertToTestStepOperation,
 } from "./helper/entityToResponse";
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -91,9 +92,9 @@ export class TestStepServiceImpl implements TestStepService {
       relations: ["coverageSources"],
     });
 
-    const screenElements = requestBody.screenElementsPerIframe
+    const screenElements = requestBody.screenElements
       .map((e) => {
-        return e.screenElements.map((e2) => {
+        return e.elements.map((e2) => {
           e2.iframeIndex = e.iframeIndex;
           return e2;
         });
@@ -179,9 +180,16 @@ export class TestStepServiceImpl implements TestStepService {
       );
       const screenshot = new ScreenshotEntity({
         fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
-        testResult: savedTestResultEntity,
       });
       newTestStepEntity.screenshot = screenshot;
+    }
+
+    if (requestBody.videoId) {
+      const video = await getRepository(VideoEntity).findOneOrFail(
+        requestBody.videoId
+      );
+      newTestStepEntity.video = video;
+      newTestStepEntity.videoTime = requestBody.videoTime ?? 0;
     }
 
     const savedTestStepEntity = await getRepository(TestStepEntity).save(
@@ -258,7 +266,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -271,7 +279,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOne(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -283,7 +291,7 @@ export class TestStepServiceImpl implements TestStepService {
 
   private async getTestStepEntity(testStepId: string) {
     return getRepository(TestStepEntity).findOneOrFail(testStepId, {
-      relations: ["notes", "testPurpose", "screenshot"],
+      relations: ["notes", "testPurpose", "screenshot", "video"],
     });
   }
 
@@ -342,16 +350,9 @@ export class TestStepServiceImpl implements TestStepService {
       return expected;
     };
     return [
-      ...requestBody.inputElements
-        .filter(inputElementsFilter)
-        .map((elmInfo) => {
-          return {
-            ...elmInfo,
-          };
-        }),
-      ...requestBody.screenElementsPerIframe
+      ...requestBody.screenElements
         .map((elemsWithIframeIndex) => {
-          return elemsWithIframeIndex.screenElements
+          return elemsWithIframeIndex.elements
             .filter(inputElementsFilter)
             .map((elem) => {
               return {

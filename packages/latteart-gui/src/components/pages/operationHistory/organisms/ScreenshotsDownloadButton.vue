@@ -31,6 +31,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -56,7 +57,8 @@ export default class ScreenshotsDownloadButton extends Vue {
       this.isReplaying ||
       this.isResuming ||
       this.$store.getters["operationHistory/getOperations"]().length === 0 ||
-      this.processing
+      this.processing ||
+      this.isMediaTypeVideo
     );
   }
 
@@ -74,6 +76,13 @@ export default class ScreenshotsDownloadButton extends Vue {
 
   private get testResultId(): string {
     return this.$store.state.operationHistory.testResultInfo.id;
+  }
+
+  private get isMediaTypeVideo(): boolean {
+    return (
+      (this.$store.state as RootState).projectSettings.config
+        .captureMediaSetting.mediaType === "video"
+    );
   }
 
   private async execute() {

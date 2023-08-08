@@ -38,6 +38,10 @@ import {
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { convertInputValue } from "@/lib/common/util";
+import {
+  VideoRecorder,
+  createVideoRecorder,
+} from "@/lib/captureControl/videoRecording";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -129,13 +133,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               context.commit("operationHistory/clearInputValueTable", null, {
                 root: true,
               });
-              context.commit(
-                "operationHistory/clearDisplayedScreenshotUrl",
-                null,
-                {
-                  root: true,
-                }
-              );
 
               await context.dispatch(
                 "operationHistory/createTestResult",
@@ -168,7 +165,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const captureCl = context.rootState.captureClService;
       const client = captureCl.createCaptureClient({
         testResult: destTestResult,
-        config: context.rootState.deviceSettings,
+        config: {
+          ...context.rootState.deviceSettings,
+          mediaType:
+            context.rootState.projectSettings.config.captureMediaSetting
+              .mediaType,
+        },
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
 
@@ -177,8 +179,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           payload.initialUrl,
           {
             compressScreenshots:
-              context.rootState.projectSettings.config.imageCompression
-                .format === "webp",
+              context.rootState.projectSettings.config.captureMediaSetting
+                .imageCompression.format === "webp",
+            mediaType:
+              context.rootState.projectSettings.config.captureMediaSetting
+                .mediaType,
           }
         );
         if (startCaptureResult.isFailure()) {
@@ -459,6 +464,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       callbacks?: {
         onEnd?: (error?: Error) => void;
       };
+      videoRecorder?: VideoRecorder;
     } = {}
   ) {
     const postRegisterOperation = async (data: {
@@ -494,6 +500,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         },
         { root: true }
       );
+
+      payload.videoRecorder?.requestData();
     };
 
     const callbacks = {
@@ -619,16 +627,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: {
       url: string;
+      mediaType: "image" | "video";
       config: DeviceSettings;
       callbacks: {
         onEnd: (error?: Error) => void;
       };
     }
   ) {
-    const config: CaptureConfig = Object.assign(
-      payload.config,
-      context.rootState.deviceSettings
-    );
+    const config: CaptureConfig = Object.assign(payload.config, {
+      ...context.rootState.deviceSettings,
+      mediaType: payload.mediaType,
+    });
 
     try {
       const operationHistoryState: OperationHistoryState = (
@@ -640,11 +649,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState.repositoryService.createTestResultAccessor(
           operationHistoryState.testResultInfo.id
         );
+
+      const videoRecorder =
+        context.rootState.projectSettings.config.captureMediaSetting
+          .mediaType === "video"
+          ? createVideoRecorder(testResult)
+          : undefined;
+
       const client = captureCl.createCaptureClient({
         testResult,
         config,
         eventListeners: await context.dispatch("createCaptureEventListeners", {
           callbacks: payload.callbacks,
+          videoRecorder,
         }),
       });
 
@@ -658,8 +675,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const result = await client.startCapture(payload.url, {
         compressScreenshots:
-          context.rootState.projectSettings.config.imageCompression.format ===
-          "webp",
+          context.rootState.projectSettings.config.captureMediaSetting
+            .imageCompression.format === "webp",
+        mediaType: payload.mediaType,
         firstTestPurpose,
       });
 
@@ -677,6 +695,24 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState.projectSettings.config.misoperationPrevention
           .isShieldEnabled
       );
+
+      if (videoRecorder) {
+        const startRecordingResult = await videoRecorder.startRecording();
+
+        if (startRecordingResult.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.${startRecordingResult.error.errorCode}`
+          );
+          payload.callbacks.onEnd(new Error(errorMessage));
+          return;
+        }
+
+        const recordingVideo = videoRecorder.recordingVideo;
+
+        if (recordingVideo) {
+          session.setRecordingVideo(recordingVideo);
+        }
+      }
 
       context.dispatch("stopTimer");
       context.dispatch("startTimer");
@@ -722,8 +758,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       screenshot: payload.noteEditInfo.shouldTakeScreenshot,
       compressScreenshot:
         payload.noteEditInfo.shouldTakeScreenshot &&
-        context.rootState.projectSettings.config.imageCompression.format ===
-          "webp",
+        context.rootState.projectSettings.config.captureMediaSetting
+          .imageCompression.format === "webp",
     };
 
     context.state.captureSession?.takeNote(note, option);

@@ -67,7 +67,6 @@ describe("getCoverages", () => {
         percentage: 50,
         elements: [
           {
-            sequence: 2,
             tagname: "tagname1",
             text: "text1",
             type: "",
@@ -77,7 +76,6 @@ describe("getCoverages", () => {
             operated: true,
           },
           {
-            sequence: undefined,
             tagname: "tagname2",
             text: "text2",
             type: "",

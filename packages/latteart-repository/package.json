@@ -33,6 +33,7 @@
     "adm-zip": "^0.5.9",
     "archiver": "^5.0.2",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.3",
     "encoding-japanese": "^1.0.30",
     "express": "^4.17.1",

@@ -67,6 +67,8 @@ describe("WebBrowserは", () => {
         }),
         execute: jest.fn(),
         switchWindowTo: jest.fn(),
+        switchFrameTo: jest.fn(),
+        switchDefaultContent: jest.fn(),
         getCurrentPageText: jest.fn(),
         waitUntilFrameUnlock: jest.fn(),
         lockFrame: jest.fn(),

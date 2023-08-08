@@ -27,6 +27,8 @@ import {
   ProjectForRepository,
   DailyTestProgressForRepository,
   PatchSessionDto,
+  NoteForRepository,
+  VideoFrame,
 } from "latteart-client";
 
 export type TestMatrix = TestMatrixForRepository;
@@ -45,9 +47,17 @@ export type TestTarget = TestTargetForRepository;
 
 export type Plan = PlanForRepository;
 
-export type Story = StoryForRepository;
+export type Story = Omit<StoryForRepository, "sessions"> & {
+  sessions: Session[];
+};
 
-export type Session = SessionForRepository;
+export type Session = Omit<
+  SessionForRepository,
+  "testResultFiles" | "notes"
+> & {
+  testResultFiles: TestResultFile[];
+  notes: NoteForRepository[];
+};
 
 export type AttachedFile = AttachedFileForRepository;
 
@@ -79,4 +89,6 @@ export type Project = ProjectForRepository;
 
 export type DailyTestProgress = DailyTestProgressForRepository;
 
-export type PatchSession = PatchSessionDto;
+export type PatchSession = Omit<PatchSessionDto, "testResultFiles"> & {
+  testResultFiles: TestResultFile[];
+};

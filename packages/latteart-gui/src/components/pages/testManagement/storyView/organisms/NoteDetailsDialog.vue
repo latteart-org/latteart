@@ -70,7 +70,12 @@
             </v-combobox>
           </v-list-item-content>
         </v-list-item>
-        <popup-image :imageFileUrl="imageFilePath" />
+
+        <video-display v-if="isNote && videoUrl" :videoUrl="videoUrl" />
+        <popup-image
+          v-if="isNote && imageFilePath"
+          :imageFileUrl="imageFilePath"
+        />
       </v-list>
     </template>
     <error-message-dialog
@@ -87,12 +92,14 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
     "popup-image": PopupImage,
     "error-message-dialog": ErrorMessageDialog,
+    "video-display": VideoDisplay,
   },
 })
 export default class NoteDetailsDialog extends Vue {
@@ -103,6 +110,7 @@ export default class NoteDetailsDialog extends Vue {
   @Prop({ type: String, default: "" }) details!: string;
   @Prop({ type: Array, default: [] }) tags!: string[];
   @Prop({ type: String, default: "" }) imageFilePath!: string;
+  @Prop({ type: String, default: "" }) videoUrl!: string;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";

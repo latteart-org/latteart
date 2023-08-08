@@ -37,7 +37,10 @@ export function createTestResultFiles(
   testResultFiles: Session["testResultFiles"]
 ): Session["testResultFiles"] {
   return testResultFiles.map((testResultFile) => {
-    return { name: testResultFile.name, id: testResultFile.id };
+    return {
+      name: testResultFile.name,
+      id: testResultFile.id,
+    };
   });
 }
 
@@ -52,10 +55,14 @@ export function createNotes(
       type: note.type,
       value: note.value,
       details: note.details,
-      imageFileUrl: `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
-        note.imageFileUrl ?? ""
-      )}`,
+      imageFileUrl: note.videoFrame
+        ? ""
+        : `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
+            note.imageFileUrl ?? ""
+          )}`,
       tags: note.tags,
+      timestamp: note.timestamp,
+      videoFrame: note.videoFrame,
     };
   });
 }

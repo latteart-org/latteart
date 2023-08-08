@@ -74,7 +74,6 @@ describe("ScreenshotsService", () => {
       await getRepository(ScreenshotEntity).save(
         new ScreenshotEntity({
           fileUrl: "/test.png",
-          testResult: testResultEntity,
           testStep: testStepEntity,
         })
       );

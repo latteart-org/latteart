@@ -94,6 +94,7 @@
                       note.value,
                       note.details,
                       note.imageFileUrl,
+                      note.videoUrl,
                       note.tags
                     )
                   "
@@ -118,6 +119,7 @@
       :tags="tags"
       :imageFilePath="imagePath"
       @execute="reload()"
+      :videoUrl="videoUrl"
       @close="opened = false"
     />
 
@@ -162,6 +164,7 @@
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
 import { Session } from "@/lib/testManagement/types";
+import { VideoFrame } from "latteart-client";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 
@@ -186,6 +189,7 @@ export default class TestPurposeNoteList extends Vue {
   private summary = "";
   private details = "";
   private imagePath = "";
+  private videoUrl = "";
   private tags: string[] = [];
   private selectedItems: boolean[] = [];
   private displayedItems: {
@@ -193,8 +197,6 @@ export default class TestPurposeNoteList extends Vue {
       id: string;
       type: string;
       details: string;
-      imageFileUrl: string;
-      tags: string[];
       value: string;
       notes: {
         id: string;
@@ -203,6 +205,7 @@ export default class TestPurposeNoteList extends Vue {
         details: string;
         tags: string[];
         imageFileUrl: string;
+        videoUrl: string;
       }[];
     };
   }[] = [];
@@ -241,6 +244,7 @@ export default class TestPurposeNoteList extends Vue {
     summary: string,
     text: string,
     imageFilePath: string,
+    videoUrl: string,
     tags: string[]
   ) {
     this.testResultId = this.testResult?.at(0)?.id ?? "";
@@ -248,6 +252,7 @@ export default class TestPurposeNoteList extends Vue {
     this.summary = summary;
     this.details = text;
     this.imagePath = imageFilePath;
+    this.videoUrl = videoUrl;
     this.tags = tags ?? [];
     this.opened = true;
   }
@@ -264,9 +269,24 @@ export default class TestPurposeNoteList extends Vue {
           : (this.$store.getters.message(
               "test-purpose-note-list.no-test-purpose"
             ) as string);
+      const notes = testPurpose.notes.map((note) => {
+        const { id, type, value, details, tags, imageFileUrl } = note;
+
+        return {
+          id,
+          type,
+          value,
+          details,
+          tags,
+          imageFileUrl,
+          videoUrl: note.videoFrame
+            ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
+            : "",
+        };
+      });
 
       return {
-        testPurpose: { ...testPurpose, value },
+        testPurpose: { ...testPurpose, value, notes },
       };
     });
     this.selectedItems = this.displayedItems.map(() => true);

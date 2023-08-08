@@ -23,7 +23,7 @@
       <v-card
         flat
         class="pre-wrap break-word"
-        v-for="(note, index) in notes"
+        v-for="(note, index) in noteWithTime"
         :key="index"
       >
         <v-card-title primary-title class="pb-0">
@@ -46,9 +46,16 @@
             readonly
           >
           </v-textarea>
-          <v-img :src="note.imageFileUrl" />
+          <video-display
+            v-if="note.image.videoFrame"
+            :videoUrl="note.videoUrl"
+          />
+          <v-img
+            v-else-if="note.image.imageFileUrl"
+            :src="note.image.imageFileUrl"
+          />
         </v-card-text>
-        <v-divider v-if="index + 1 !== notes.length"></v-divider>
+        <v-divider v-if="index + 1 !== noteWithTime.length"></v-divider>
       </v-card>
     </template>
     <template v-slot:footer>
@@ -65,21 +72,46 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
-import { InputValueTableHeaderColumn } from "@/lib/operationHistory/InputValueTable";
+import { OperationHistoryState } from "@/store/operationHistory";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import { VideoFrame } from "latteart-client";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
+    "video-display": VideoDisplay,
   },
 })
 export default class NoteListDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened?: boolean;
-  @Prop({ type: Array, default: [] }) notes?: Pick<
-    InputValueTableHeaderColumn,
-    "notes"
-  >;
+  @Prop({ type: Array, default: [] }) notes?: {
+    sequence: number;
+    id: string;
+    imageFileUrl: string;
+    tags: string[];
+    value: string;
+    details: string;
+    timestamp: number;
+    image: { imageFileUrl?: string; videoFrame?: VideoFrame };
+  }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
+
+  private get noteWithTime() {
+    return this.notes
+      ? this.notes.map((note) => {
+          const time = note.image.videoFrame?.time ?? 0;
+          const videoUrl = note.image.videoFrame?.url
+            ? `${note.image.videoFrame.url}#t=${time}`
+            : "";
+          return { ...note, videoUrl };
+        })
+      : [];
+  }
+
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
 
   private close() {
     this.$emit("close");

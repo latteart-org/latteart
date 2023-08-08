@@ -15,7 +15,7 @@
  */
 
 import { ServiceError, ServiceFailure, ServiceSuccess } from "../result";
-import { CaptureConfig } from "../types";
+import { CaptureConfig, Video } from "../types";
 import { TestResultAccessor } from "../repositoryService";
 import { CaptureClServerAdapter } from "../../gateway/captureCl/captureClServerAdapter";
 import { CaptureClClientImpl } from "./captureClClient";
@@ -32,6 +32,7 @@ export function createCaptureClService(serviceUrl: string): CaptureClService {
     serviceUrl,
     createCaptureClient(option: {
       testResult?: TestResultAccessor;
+      videoRecorder?: { getCapturingVideo(): Promise<Video> };
       config: CaptureConfig;
       eventListeners: CaptureEventListeners;
     }) {

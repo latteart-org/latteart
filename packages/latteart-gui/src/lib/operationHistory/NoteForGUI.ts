@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { VideoFrame } from "latteart-client";
 import { TimestampImpl } from "../common/Timestamp";
 
 /**
@@ -29,6 +30,8 @@ export class NoteForGUI {
    * @param args.overrideParams.details
    * @param args.overrideParams.imageFilePath  Image file path.
    * @param args.overrideParams.compressedImageFilePath  Compressed image file path.
+   * @param args.overrideParams.tags  Tags.
+   * @param args.overrideParams.videoFrame  VideoFrame.
    * @returns Newly created Note.
    */
   public static createFromOtherNote(args: {
@@ -41,6 +44,7 @@ export class NoteForGUI {
       imageFilePath?: string;
       compressedImageFilePath?: string;
       tags?: string[];
+      videoFrame?: VideoFrame;
     };
   }): NoteForGUI {
     return new NoteForGUI({
@@ -54,6 +58,7 @@ export class NoteForGUI {
         args.overrideParams?.compressedImageFilePath ??
         args.other.compressedImageFilePath,
       tags: args.overrideParams?.tags ?? args.other.tags,
+      videoFrame: args.overrideParams?.videoFrame ?? args.other.videoFrame,
     });
   }
 
@@ -98,6 +103,11 @@ export class NoteForGUI {
   public tags: string[];
 
   /**
+   * VideoFrame.
+   */
+  public videoFrame?: VideoFrame;
+
+  /**
    * Constructor.
    * @param args.id  Note id.
    * @param args.sequence  Sequence number of the associated test step.
@@ -106,6 +116,8 @@ export class NoteForGUI {
    * @param args.imageFilePath  Image file path.
    * @param args.timestamp  Creation time.
    * @param args.compressedImageFilePath  Compressed image file path.
+   * @param args.tags  Tags.
+   * @param args.videoFrame  VideoFrame.
    */
   constructor(args: {
     id?: string;
@@ -116,6 +128,7 @@ export class NoteForGUI {
     timestamp?: string;
     compressedImageFilePath?: string;
     tags?: string[];
+    videoFrame?: VideoFrame;
   }) {
     this.id = args.id ?? "";
     this.sequence = args.sequence ?? 0;
@@ -124,6 +137,7 @@ export class NoteForGUI {
     this.imageFilePath = args.imageFilePath ?? "";
     this.timestamp = args.timestamp ?? new TimestampImpl().unix().toString();
     this.tags = args.tags ?? [];
+    this.videoFrame = args.videoFrame;
 
     if (args !== undefined && args.compressedImageFilePath !== undefined) {
       this.compressedImageFilePath = args.compressedImageFilePath;

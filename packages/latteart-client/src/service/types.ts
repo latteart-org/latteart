@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+import {
+  CapturedOperationForCaptureCl,
+  CapturedScreenTransitionForCaptureCl,
+  ElementInfoForCaptureCl,
+  ScreenElementsForCaptureCl,
+} from "@/gateway/captureCl";
+
 export type TestResultViewOption = {
   node: {
     unit: "title" | "url";
@@ -28,56 +35,23 @@ export type TestResultViewOption = {
   };
 };
 
-export type CapturedScreenTransition = {
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
-  screenElementsPerIframe: ScreenElementsPerIframe[];
-  pageSource: string;
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
+export type CapturedScreenTransition = CapturedScreenTransitionForCaptureCl & {
+  videoId?: string;
+  videoTime?: number;
 };
 
-export type CapturedOperation = {
-  input: string;
-  type: string;
-  elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
-  screenElementsPerIframe: ScreenElementsPerIframe[];
-  pageSource: string;
-  inputElements: ElementInfo[];
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
-  isAutomatic?: boolean;
+export type CapturedOperation = CapturedOperationForCaptureCl & {
+  videoId?: string;
+  videoTime?: number;
 };
 
-export type ScreenElementsPerIframe = {
-  iframeIndex?: number;
-  screenElements: ElementInfo[];
-};
+export type ScreenElements = ScreenElementsForCaptureCl;
 
-export type ElementInfo = {
-  tagname: string;
-  text?: string;
-  xpath: string;
-  value?: string;
-  checked?: boolean;
-  attributes: { [key: string]: string };
-  boundingRect?: {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
-  textWithoutChildren?: string;
-  iframeIndex?: number;
-};
+export type ElementInfo = ElementInfoForCaptureCl;
+
+export type Video = { id: string; url: string };
+
+export type VideoFrame = { url: string; time: number };
 
 export type Operation = {
   input: string;
@@ -87,12 +61,12 @@ export type Operation = {
   url: string;
   imageFileUrl: string;
   timestamp: string;
-  inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: (string | { tagname: string; value: string })[];
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  videoFrame?: VideoFrame;
 };
 
 export type RunnableOperation = Pick<
@@ -114,8 +88,10 @@ export type Note = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
+  videoFrame?: VideoFrame;
 };
 
 export type TestStepNote = {
@@ -129,12 +105,6 @@ export type CoverageSource = {
   screenElements: ElementInfo[];
 };
 
-export type InputElementInfo = {
-  title: string;
-  url: string;
-  inputElements: ElementInfo[];
-};
-
 export type CaptureConfig = {
   platformName: "PC" | "Android" | "iOS";
   browser: "Chrome" | "Edge" | "Safari";
@@ -145,6 +115,7 @@ export type CaptureConfig = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
+  mediaType: "image" | "video";
 };
 
 export type VisualizeConfig = {

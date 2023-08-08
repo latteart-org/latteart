@@ -58,7 +58,6 @@ export default class ClearHistoryButton extends Vue {
     this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");
-    this.$store.commit("operationHistory/clearDisplayedScreenshotUrl");
     this.$store.dispatch("captureControl/resetTimer");
   }
 }

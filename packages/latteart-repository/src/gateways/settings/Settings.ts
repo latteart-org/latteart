@@ -41,7 +41,7 @@ export default class Settings {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
-    imageCompression: ImageCompression;
+    captureMediaSetting: CaptureMediaSetting;
     misoperationPrevention: MisoperationPrevention;
   };
   public captureSettings: {
@@ -81,7 +81,10 @@ export default class Settings {
           tags: [],
         },
       },
-      imageCompression: { format: "png" },
+      captureMediaSetting: {
+        mediaType: "image",
+        imageCompression: { format: "png" },
+      },
       misoperationPrevention: {
         isShieldEnabled: true,
       },
@@ -121,6 +124,14 @@ export interface Coverage {
   include: {
     tags: string[];
   };
+}
+
+/**
+ * Capture media settings.
+ */
+export interface CaptureMediaSetting {
+  mediaType: "image" | "video";
+  imageCompression: ImageCompression;
 }
 
 /**

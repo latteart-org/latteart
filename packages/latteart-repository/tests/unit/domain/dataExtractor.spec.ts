@@ -23,11 +23,19 @@ describe("dataExtractor", () => {
           filePath: "test-results/testResultId2/bbbb.webp",
           data: Buffer.from(""),
         },
+        {
+          filePath: "test-results/testResultId3/log.json",
+          data: "{3}",
+        },
+        {
+          filePath: "test-results/testResultId3/ccc.webm",
+          data: Buffer.from(""),
+        },
       ];
       const result = extractTestResultsData(testResultFiles);
       expect(result).toEqual([
         {
-          screenshots: [{ data: Buffer.from(""), filePath: "aaaa.webp" }],
+          fileData: [{ data: Buffer.from(""), filePath: "aaaa.webp" }],
           testResultFile: {
             data: "{1}",
             fileName: "test-results/testResultId1/log.json",
@@ -35,12 +43,20 @@ describe("dataExtractor", () => {
           testResultId: "testResultId1",
         },
         {
-          screenshots: [{ data: Buffer.from(""), filePath: "bbbb.webp" }],
+          fileData: [{ data: Buffer.from(""), filePath: "bbbb.webp" }],
           testResultFile: {
             data: "{2}",
             fileName: "test-results/testResultId2/log.json",
           },
           testResultId: "testResultId2",
+        },
+        {
+          fileData: [{ data: Buffer.from(""), filePath: "ccc.webm" }],
+          testResultFile: {
+            data: "{3}",
+            fileName: "test-results/testResultId3/log.json",
+          },
+          testResultId: "testResultId3",
         },
       ]);
     });

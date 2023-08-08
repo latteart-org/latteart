@@ -102,10 +102,7 @@ export class ReadProjectAction {
       return {
         ...story,
         sessions: story.sessions.map((session) => {
-          return new SessionDataConverter().convertToSession(
-            session,
-            this.repositoryService.serviceUrl
-          );
+          return new SessionDataConverter().convertToSession(session);
         }),
       };
     });

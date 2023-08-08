@@ -35,6 +35,7 @@ import {
   ViewPointRepository,
   StoryRepository,
   TestResultComparisonRepository,
+  VideoRepository,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -75,6 +76,7 @@ export function createRepositoryService(
     testResultComparisonRepository: new TestResultComparisonRepository(
       restClient
     ),
+    videoRepository: new VideoRepository(restClient),
   };
 
   return {
@@ -99,11 +101,7 @@ export function createRepositoryService(
       return new ServiceSuccess(result.data);
     },
     createTestResultAccessor(testResultId: string) {
-      return new TestResultAccessorImpl(
-        restClient.serverUrl,
-        repositories,
-        testResultId
-      );
+      return new TestResultAccessorImpl(repositories, testResultId);
     },
     ...repositories,
   };

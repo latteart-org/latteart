@@ -43,6 +43,8 @@ export const createTestResultServiceMock = (): TestResultService => {
     generateSequenceView: jest.fn(),
     generateGraphView: jest.fn(),
     compareTestResults: jest.fn(),
+    collectAllScreenshots: jest.fn(),
+    collectAllVideos: jest.fn(),
   };
 };
 
@@ -68,6 +70,7 @@ export const createStaticDirectoryServiceMock = (): FileRepository => {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
 };
 

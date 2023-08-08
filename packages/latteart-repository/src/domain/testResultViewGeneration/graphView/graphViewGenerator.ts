@@ -122,6 +122,11 @@ export class ElementMapperFactory {
           text,
           attributes,
           iframeIndex: idx,
+          boundingRect,
+          innerHeight,
+          innerWidth,
+          outerHeight,
+          outerWidth,
         } = element;
 
         return {
@@ -133,6 +138,11 @@ export class ElementMapperFactory {
           text: text ?? "",
           attributes,
           iframeIndex: idx,
+          boundingRect,
+          innerHeight,
+          innerWidth,
+          outerHeight,
+          outerWidth,
         };
       },
       collectElements: (filter?: { screenDef?: string }) => {
@@ -160,6 +170,11 @@ export class ElementMapperFactory {
             value,
             attributes,
             iframeIndex,
+            boundingRect,
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
           } = element;
           return {
             id: id,
@@ -171,6 +186,11 @@ export class ElementMapperFactory {
             value,
             attributes,
             iframeIndex,
+            boundingRect,
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
           };
         });
       },

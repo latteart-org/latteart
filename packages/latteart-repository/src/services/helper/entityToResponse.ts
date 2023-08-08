@@ -65,6 +65,10 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
     imageFileUrl:
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
+    timestamp: note.timestamp ?? 0,
+    videoFrame: note.video
+      ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+      : undefined,
   };
 };
 
@@ -128,8 +132,11 @@ const convertToTestPurposes = (
             details: note.details,
             imageFileUrl: note.imageFileUrl,
             tags: note.tags,
+            timestamp: note.timestamp,
+            videoFrame: note.videoFrame,
           },
         ],
+        timestamp: 0,
       });
     } else if (note.type === "intention") {
       acc.push({
@@ -140,6 +147,7 @@ const convertToTestPurposes = (
         imageFileUrl: note.imageFileUrl,
         tags: note.tags,
         notes: [],
+        timestamp: 0,
       });
     } else if (note.type === "notice") {
       acc[acc.length - 1].notes.push({
@@ -149,6 +157,8 @@ const convertToTestPurposes = (
         details: note.details,
         imageFileUrl: note.imageFileUrl,
         tags: note.tags,
+        timestamp: note.timestamp,
+        videoFrame: note.videoFrame,
       });
     }
 
@@ -166,6 +176,7 @@ export const testPurposeEntityToResponse = (
     details: testPurpose.details,
     imageFileUrl: "",
     tags: [],
+    timestamp: 0,
   };
 };
 
@@ -392,6 +403,12 @@ export const convertToTestStepOperation = (
             height: testStepEntity.clientSizeHeight,
           }
         : undefined,
+    videoFrame: testStepEntity.video
+      ? {
+          url: testStepEntity.video.fileUrl,
+          time: testStepEntity.videoTime ?? 0,
+        }
+      : undefined,
   };
 };
 

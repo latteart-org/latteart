@@ -16,7 +16,7 @@
 
 import { TimestampImpl } from "../common/Timestamp";
 import { convertInputValue } from "../common/util";
-import { ElementInfo } from "latteart-client";
+import { ElementInfo, VideoFrame } from "latteart-client";
 
 /**
  * Class that handles operation information.
@@ -37,6 +37,7 @@ export class OperationForGUI {
    * @param args.compressedImageFilePath  Compressed image file path.
    * @param args.inputElements  Input information.
    * @param args.isAutomatic  Automatic or not.
+   * @param args.videoFrame VideoFrame.
    */
   public static createOperation(args: {
     sequence?: number;
@@ -53,6 +54,7 @@ export class OperationForGUI {
     inputElements?: ElementInfo[];
     keywordSet?: Set<string>;
     isAutomatic: boolean;
+    videoFrame?: VideoFrame;
   }): OperationForGUI {
     const operation = new OperationForGUI(
       args.sequence ?? 1,
@@ -80,6 +82,10 @@ export class OperationForGUI {
       operation.inputElements = args.inputElements;
     }
 
+    if (args.videoFrame !== undefined) {
+      operation.videoFrame = args.videoFrame;
+    }
+
     return operation;
   }
 
@@ -99,6 +105,7 @@ export class OperationForGUI {
    * @param args.overrideParams.compressedImageFilePath  Compressed image file path.
    * @param args.overrideparams.inputElements  Input information.
    * @param args.overrideparams.isAutomatic  Automatic or not.
+   * @param args.overrideparams.videoFrame videoFrame.
    */
   public static createFromOtherOperation(args: {
     other: OperationForGUI;
@@ -117,6 +124,7 @@ export class OperationForGUI {
       inputElements?: ElementInfo[];
       keywordSet?: Set<string>;
       isAutomatic?: boolean;
+      videoFrame?: VideoFrame;
     };
   }): OperationForGUI {
     if (args.overrideParams === undefined) {
@@ -131,7 +139,8 @@ export class OperationForGUI {
         args.other.imageFilePath,
         args.other.isAutomatic,
         args.other.windowHandle,
-        args.other.keywordSet
+        args.other.keywordSet,
+        args.other.videoFrame
       );
       newOperation.timestamp = args.other.timestamp;
       newOperation.compressedImageFilePath = args.other.compressedImageFilePath;
@@ -168,7 +177,8 @@ export class OperationForGUI {
       args.overrideParams.windowHandle !== undefined
         ? args.overrideParams.windowHandle
         : args.other.windowHandle,
-      args.overrideParams.keywordSet ?? args.other.keywordSet
+      args.overrideParams.keywordSet ?? args.other.keywordSet,
+      args.overrideParams.videoFrame ?? args.other.videoFrame
     );
     newOperation2.timestamp =
       args.overrideParams.timestamp !== undefined
@@ -246,7 +256,7 @@ export class OperationForGUI {
   public inputElements?: ElementInfo[];
 
   /**
-   * InnterText set
+   * InnterText set.
    */
   public keywordSet?: Set<string>;
 
@@ -254,6 +264,11 @@ export class OperationForGUI {
    * Automatic or not.
    */
   public isAutomatic: boolean;
+
+  /**
+   * VideoFrame.
+   */
+  public videoFrame?: VideoFrame;
 
   /**
    * Constructor.
@@ -265,7 +280,10 @@ export class OperationForGUI {
    * @param url  URL to be operated.
    * @param screenDef  Screen definition.
    * @param imageFilePath  Screen image path.
+   * @param isAutomatic Automatic or not.
    * @param windowHandle  Id of windowHandle that operated the screen.
+   * @param keywordSet InnterText set.
+   * @param videoFrame videoFrame.
    */
   constructor(
     sequence: number,
@@ -278,7 +296,8 @@ export class OperationForGUI {
     imageFilePath: string,
     isAutomatic: boolean,
     windowHandle?: string,
-    keywordSet?: Set<string>
+    keywordSet?: Set<string>,
+    videoFrame?: VideoFrame
   ) {
     this.sequence = sequence;
     this.input = input;
@@ -292,6 +311,7 @@ export class OperationForGUI {
     this.timestamp = new TimestampImpl().unix().toString();
     this.windowHandle = windowHandle === undefined ? "" : windowHandle;
     this.keywordSet = keywordSet;
+    this.videoFrame = videoFrame;
   }
 
   /**

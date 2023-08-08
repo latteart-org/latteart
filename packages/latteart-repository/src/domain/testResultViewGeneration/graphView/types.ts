@@ -33,6 +33,16 @@ export type GraphView = {
       text: string;
       attributes: { [key: string]: string };
       iframeIndex?: number;
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];

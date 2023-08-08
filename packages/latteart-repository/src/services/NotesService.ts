@@ -28,6 +28,7 @@ import {
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 export interface NotesService {
   createNote(
@@ -70,7 +71,8 @@ export class NotesServiceImpl implements NotesService {
     const registeredNoteEntity = await getRepository(NoteEntity).save({
       value: requestBody.value,
       details: requestBody.details,
-      timestamp: this.service.timestamp.unix(),
+      timestamp:
+        requestBody.timestamp ?? this.service.timestamp.epochMilliseconds(),
       testResult: testResultEntity,
       tags: tagEntities,
     });
@@ -88,10 +90,16 @@ export class NotesServiceImpl implements NotesService {
 
       const screenshotEntity = new ScreenshotEntity({
         fileUrl,
-        testResult: testResultEntity,
       });
 
       registeredNoteEntity.screenshot = screenshotEntity;
+    }
+
+    if (requestBody.videoId) {
+      registeredNoteEntity.video = await getRepository(
+        VideoEntity
+      ).findOneOrFail(requestBody.videoId);
+      registeredNoteEntity.videoTime = requestBody.videoTime ?? 0;
     }
 
     const updatedNoteEntity = await getRepository(NoteEntity).save(
@@ -103,7 +111,7 @@ export class NotesServiceImpl implements NotesService {
 
   public async getNote(noteId: string): Promise<GetNoteResponse | undefined> {
     const noteEntity = await getRepository(NoteEntity).findOne(noteId, {
-      relations: ["tags", "screenshot"],
+      relations: ["tags", "screenshot", "video"],
     });
 
     if (!noteEntity) {
@@ -118,7 +126,7 @@ export class NotesServiceImpl implements NotesService {
     requestBody: UpdateNoteDto
   ): Promise<UpdateNoteResponse> {
     const noteEntity = await getRepository(NoteEntity).findOneOrFail(noteId, {
-      relations: ["tags", "screenshot"],
+      relations: ["tags", "screenshot", "video"],
     });
 
     const tagEntities = await Promise.all(
@@ -140,7 +148,7 @@ export class NotesServiceImpl implements NotesService {
 
   public async deleteNote(noteId: string): Promise<void> {
     const noteEntity = await getRepository(NoteEntity).findOneOrFail(noteId, {
-      relations: ["testResult", "tags", "testSteps", "screenshot"],
+      relations: ["testResult", "tags", "testSteps", "screenshot", "video"],
     });
 
     await getRepository(NoteEntity).remove(noteEntity);
@@ -167,6 +175,13 @@ export class NotesServiceImpl implements NotesService {
       details: noteEntity.details,
       imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
       tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
+      timestamp: noteEntity.timestamp,
+      videoFrame: noteEntity.video
+        ? {
+            url: noteEntity.video.fileUrl ?? "",
+            time: noteEntity.videoTime ?? 0,
+          }
+        : undefined,
     };
   }
 }

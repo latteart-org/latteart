@@ -28,11 +28,12 @@ describe("NotesService", () => {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
   const timestampService: TimestampService = {
-    unix: jest.fn().mockReturnValue(0),
+    unix: jest.fn(),
     format: jest.fn(),
-    epochMilliseconds: jest.fn(),
+    epochMilliseconds: jest.fn().mockReturnValue(0),
   };
   describe("#createNote", () => {
     it("メモを1件新規追加する", async () => {
@@ -60,6 +61,7 @@ describe("NotesService", () => {
         details: "details",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });
@@ -96,6 +98,7 @@ describe("NotesService", () => {
         details: "changedDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });
@@ -129,7 +132,7 @@ describe("NotesService", () => {
 
       expect((result ?? []).length).toEqual(1);
 
-      expect((result ?? [])[0]).toEqual({
+      expect((result ?? [])[0]).toMatchObject({
         id: note2.id,
         details: note2.details,
         value: note2.value,

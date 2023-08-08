@@ -57,7 +57,10 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: { format: "png" },
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: { format: "png" },
+          },
           testResultComparison: {
             excludeItems: {
               isEnabled: false,

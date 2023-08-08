@@ -399,7 +399,7 @@ export class ProjectImportService {
           return {
             importFileData: {
               testResultFile: data.testResultFile,
-              screenshots: data.screenshots,
+              fileData: data.fileData,
             },
             testResultId: data.testResultId,
           };

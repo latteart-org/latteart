@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { ProjectConfig } from "@/interfaces/Configs";
+import { OldStyleProjectConfig, ProjectConfig } from "@/interfaces/Configs";
 
 export function parseProjectConfig(configText: string): ProjectConfig {
-  const config = JSON.parse(configText) as ProjectConfig;
+  const config = JSON.parse(configText) as
+    | ProjectConfig
+    | OldStyleProjectConfig;
 
   return {
     viewPointsPreset: config.viewPointsPreset,
@@ -27,9 +29,24 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      imageCompression: config.config.imageCompression,
+      captureMediaSetting:
+        "captureMediaSetting" in config.config
+          ? config.config.captureMediaSetting
+          : {
+              mediaType: "image",
+              imageCompression: {
+                format: config.config.imageCompression.isEnabled
+                  ? "webp"
+                  : "png",
+              },
+            },
       testResultComparison: config.config.testResultComparison,
-      misoperationPrevention: config.config.misoperationPrevention,
+      misoperationPrevention:
+        "misoperationPrevention" in config.config
+          ? config.config.misoperationPrevention
+          : {
+              isShieldEnabled: true,
+            },
     },
   };
 }

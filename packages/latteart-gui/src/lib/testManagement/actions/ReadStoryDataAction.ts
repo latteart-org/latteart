@@ -47,12 +47,9 @@ export class ReadStoryDataAction {
     }
 
     const sessions = result.data.sessions.map((session) => {
-      return new SessionDataConverter().convertToSession(
-        {
-          ...session,
-        },
-        this.repositoryService.serviceUrl
-      );
+      return new SessionDataConverter().convertToSession({
+        ...session,
+      });
     });
 
     return new ActionSuccess({ ...result.data, sessions });

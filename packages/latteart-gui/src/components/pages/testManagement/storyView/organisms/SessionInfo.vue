@@ -231,6 +231,8 @@ import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
+import { RootState } from "@/store";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -458,12 +460,18 @@ export default class SessionInfo extends Vue {
       const testResultId = testResultFiles[0].id;
       window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
+      const mediaType = (this.$store.state as RootState).projectSettings.config
+        .captureMediaSetting.mediaType;
+
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
+        mediaType,
       });
 
-      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
 
       this.addTestResultToSession({
         id: newTestResult.id,

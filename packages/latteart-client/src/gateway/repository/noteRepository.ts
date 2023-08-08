@@ -37,6 +37,9 @@ export interface NoteRepository {
       details: string;
       imageData?: string;
       tags?: string[];
+      timestamp?: number;
+      videoId?: string;
+      videoTime?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
@@ -74,8 +77,10 @@ export class NoteRepositoryImpl implements NoteRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as NoteForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as NoteForRepository,
+        data: this.convertNote(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -90,20 +95,34 @@ export class NoteRepositoryImpl implements NoteRepository {
       details: string;
       imageData?: string;
       tags?: string[];
+      timestamp?: number;
+      videoId?: string;
+      videoTime?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/test-results/${testResultId}/notes`,
-        note
+        {
+          type: note.type,
+          value: note.value,
+          details: note.details,
+          imageData: note.imageData,
+          tags: note.tags,
+          timestamp: note.timestamp,
+          videoId: note.videoId,
+          videoTime: note.videoTime,
+        }
       );
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as NoteForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as NoteForRepository,
+        data: this.convertNote(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -130,8 +149,10 @@ export class NoteRepositoryImpl implements NoteRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as NoteForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as NoteForRepository,
+        data: this.convertNote(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -157,5 +178,23 @@ export class NoteRepositoryImpl implements NoteRepository {
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertNote(note: NoteForRepository) {
+    return {
+      ...note,
+      imageFileUrl: note.imageFileUrl
+        ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+        : "",
+      videoFrame: note.videoFrame
+        ? {
+            url: new URL(
+              note.videoFrame.url,
+              this.restClient.serverUrl
+            ).toString(),
+            time: note.videoFrame.time,
+          }
+        : undefined,
+    };
   }
 }

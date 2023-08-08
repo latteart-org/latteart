@@ -179,6 +179,10 @@
     "browser2": "ブラウザのみキャプチャ",
     "fullscreen": "画面全体をキャプチャ",
     "setting-inclusion-tags": "画面要素カバレッジの設定",
+    "setting-capture-media": "キャプチャメディア設定",
+    "media-type": "メディアタイプ",
+    "still-image": "静止画",
+    "video": "動画",
     "setting-image-compression": "画像圧縮設定",
     "png": "png",
     "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
@@ -278,11 +282,13 @@
     "note-for-current-purpose": "現在のテスト目的では...",
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
-    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
+    "check-video": "動画を確認する"
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
     "replay-capture": "リプレイ結果を保存する",
+    "saving-replay-results-warning-message": "リプレイ時の動画は保存できません",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
     "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"

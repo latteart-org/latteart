@@ -235,16 +235,15 @@ export default class WebBrowser {
       beforeWindow &&
       beforeWindow.windowHandle !== this.windowContainer.currentWindowHandle
     ) {
+      const screenElements = await beforeWindow.collectAllFrameScreenElements();
+
       this.option.onGetOperation(
         beforeWindow.createCapturedOperation({
           type: SpecialOperationType.SWITCH_WINDOW,
           windowHandle: beforeWindow?.windowHandle ?? "",
           input: this.windowContainer.currentWindowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElementsPerIframe:
-            await beforeWindow.collectScreenElementsPerIframe(
-              await beforeWindow.getNumberOfIframes()
-            ),
+          screenElements,
         })
       );
     }

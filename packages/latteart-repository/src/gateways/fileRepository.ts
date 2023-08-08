@@ -40,6 +40,7 @@ export async function createFileRepositoryManager() {
     ["export", new StaticDirectory(path.join(publicDirPath, "exports"))],
     ["temp", new StaticDirectory(path.join(publicDirPath, "temp"))],
     ["work", new StaticDirectory(path.join(tmpDirPath, "work"))],
+    ["video", new StaticDirectory(path.join(publicDirPath, "video"))],
   ]);
 
   return new FileRepositoryManager(fileRepositories, publicDirPath);
@@ -133,6 +134,10 @@ export class FileRepositoryManager {
 
         return directory.copyFile(sourceFilePath, destRelativePath);
       },
+
+      async appendFile(relativePath: string, buf: Uint8Array): Promise<void> {
+        await directory.appendFile(relativePath, buf);
+      },
     };
   }
 }
@@ -196,9 +201,22 @@ export class StaticDirectory {
   ): Promise<void> {
     const destFilePath = path.join(this.staticDirPath, destRelativePath);
 
-    console.log(`${sourceFilePath} => ${destFilePath}`);
-
     await fs.mkdirp(path.dirname(destFilePath));
     await fs.copyFile(sourceFilePath, destFilePath);
+  }
+
+  public async appendFile(
+    relativePath: string,
+    buf: Uint8Array
+  ): Promise<void> {
+    await fs.mkdirp(this.staticDirPath);
+    return new Promise((resolve, reject) => {
+      fs.appendFile(path.join(this.staticDirPath, relativePath), buf, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      });
+    });
   }
 }

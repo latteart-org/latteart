@@ -175,6 +175,10 @@
     "browser2": "Capture Browser Window Only",
     "fullscreen": "Capture Full Screen",
     "setting-inclusion-tags": "Web Element Coverage Settings",
+    "setting-capture-media": "Capture Media Settings",
+    "media-type": "Media Type",
+    "still-image": "Still Image",
+    "video": "Video",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
@@ -274,11 +278,13 @@
     "note-for-current-purpose": "As for current test purpose, ...",
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
-    "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
+    "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
+    "check-video": "Check the video"
   },
   "replay-option": {
     "start-replay": "Replay",
     "replay-capture": "Save replay result",
+    "saving-replay-results-warning-message": "Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."

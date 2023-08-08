@@ -20,6 +20,7 @@ import {
   HistoryItemExportDataV0,
   HistoryItemExportDataV1,
   HistoryItemExportDataV2,
+  HistoryItemExportDataV3,
   TestResultExportDataV0,
   TestResultExportDataV1,
   TestResultExportDataV2,
@@ -105,7 +106,7 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
@@ -173,7 +174,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -233,7 +234,7 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -273,7 +274,7 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
 };
 
 const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
-  const entries: [string, HistoryItemExportDataV2][] = Object.entries(
+  const entries: [string, HistoryItemExportDataV3][] = Object.entries(
     formattedData.history
   );
   const testSteps = entries.map(([_, item]) => {
@@ -307,13 +308,14 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
         isAutomatic: item.testStep.operation.isAutomatic ?? false,
         scrollPosition: item.testStep.operation.scrollPosition,
         clientSize: item.testStep.operation.clientSize,
+        videoFrame: item.testStep.operation.videoFrame,
       },
       testPurpose,
       notes,
     };
   });
 
-  const testResult = {
+  return {
     id: formattedData.sessionId,
     name: formattedData.name,
     startTimeStamp: formattedData.startTimeStamp,
@@ -324,7 +326,6 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     coverageSources: formattedData.coverageSources,
     creationTimestamp: formattedData.creationTimestamp,
   };
-  return testResult;
 };
 
 const calculateTestingTime = (

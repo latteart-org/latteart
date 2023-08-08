@@ -28,6 +28,7 @@ import { NoteEntity } from "./NoteEntity";
 import { ScreenshotEntity } from "./ScreenshotEntity";
 import { TestPurposeEntity } from "./TestPurposeEntity";
 import { TestResultEntity } from "./TestResultEntity";
+import { VideoEntity } from "./VideoEntity";
 
 @Entity("TEST_STEPS")
 export class TestStepEntity {
@@ -110,6 +111,16 @@ export class TestStepEntity {
   })
   @JoinColumn({ name: "screenshot_id" })
   screenshot?: ScreenshotEntity;
+
+  @ManyToOne(() => VideoEntity, (video) => video.testStep, {
+    cascade: true,
+  })
+  @JoinColumn({ name: "video_id" })
+  video?: VideoEntity;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "video_time", nullable: true })
+  videoTime?: number = 0;
 
   constructor(
     props: Partial<Omit<TestStepEntity, "id" | "testResultId">> = {}
