@@ -251,8 +251,7 @@ ${CodeFormatter.indentToAllLines(
       return `await this.set_${identifier}('${operation.input}');`;
     }
 
-    return;
-    `await (await this.${identifier}).click();`;
+    return `await (await this.${identifier}).click();`;
   }
 
   private static generateChangeEventOperationString(

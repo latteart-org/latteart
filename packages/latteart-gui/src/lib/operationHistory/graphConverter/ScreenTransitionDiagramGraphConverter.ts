@@ -210,7 +210,6 @@ function extractGraphSources(view: GraphView): GraphSource {
         }
       : undefined;
 
-    console.log({ node });
     const inputElements = node.defaultValues.flatMap(({ elementId, value }) => {
       const element = view.store.elements.find(({ id }) => id === elementId);
 
