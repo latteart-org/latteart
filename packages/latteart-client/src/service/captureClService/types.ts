@@ -101,6 +101,8 @@ export type CaptureSession = {
 
   readonly isAlertVisible: boolean;
 
+  readonly hasHostNameDiff: boolean;
+
   /**
    * end capture
    */

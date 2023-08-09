@@ -97,6 +97,7 @@ export class CaptureClServerAdapter {
       onUpdateWindows: (updateInfo: {
         windows: { windowHandle: string; url: string; title: string }[];
         currentWindowHandle: string;
+        hasHostNameDiff: boolean;
         timestamp: number;
       }) => Promise<void>;
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
@@ -159,6 +160,7 @@ export class CaptureClServerAdapter {
         const updateInfo = data as {
           windows: { windowHandle: string; url: string; title: string }[];
           currentWindowHandle: string;
+          hasHostNameDiff: boolean;
           timestamp: number;
         };
 

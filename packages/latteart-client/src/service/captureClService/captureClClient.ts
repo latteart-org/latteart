@@ -112,12 +112,14 @@ class CaptureSessionImpl implements CaptureSession {
     canNavigateBack: boolean;
     canNavigateForward: boolean;
     isAlertVisible: boolean;
+    hasHostNameDiff: boolean;
   } = {
     windowHandles: [],
     currentWindowHandle: "",
     canNavigateBack: false,
     canNavigateForward: false,
     isAlertVisible: false,
+    hasHostNameDiff: false,
   };
 
   private isAutomated = false;
@@ -140,6 +142,10 @@ class CaptureSessionImpl implements CaptureSession {
 
   public get isAlertVisible(): boolean {
     return this.browserState.isAlertVisible;
+  }
+
+  public get hasHostNameDiff(): boolean {
+    return this.browserState.hasHostNameDiff;
   }
 
   async startCapture(payload: {
@@ -348,6 +354,7 @@ class CaptureSessionImpl implements CaptureSession {
         onUpdateWindows: async (updateInfo: {
           windows: { windowHandle: string; url: string; title: string }[];
           currentWindowHandle: string;
+          hasHostNameDiff: boolean;
           timestamp: number;
         }) => {
           const newWindow = updateInfo.windows.find(
@@ -361,6 +368,7 @@ class CaptureSessionImpl implements CaptureSession {
               ({ windowHandle }) => windowHandle
             ),
             currentWindowHandle: updateInfo.currentWindowHandle,
+            hasHostNameDiff: updateInfo.hasHostNameDiff,
           };
 
           if (!newWindow) {
@@ -523,6 +531,7 @@ class CaptureSessionImpl implements CaptureSession {
       canNavigateBack: false,
       canNavigateForward: false,
       isAlertVisible: false,
+      hasHostNameDiff: false,
     };
     this.isAutomated = false;
   }

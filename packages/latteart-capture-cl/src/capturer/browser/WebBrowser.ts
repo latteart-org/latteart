@@ -44,7 +44,8 @@ export default class WebBrowser {
     }) => void;
     onWindowsChanged: (
       windows: { windowHandle: string; url: string; title: string }[],
-      currentWindowHandle: string
+      currentWindowHandle: string,
+      hasHostNameDiff: boolean
     ) => void;
     onAlertVisibilityChanged: (isVisible: boolean) => void;
   };
@@ -70,7 +71,8 @@ export default class WebBrowser {
       }) => void;
       onWindowsChanged?: (
         windows: { windowHandle: string; url: string; title: string }[],
-        currentWindowHandle: string
+        currentWindowHandle: string,
+        hasHostNameDiff: boolean
       ) => void;
       onAlertVisibilityChanged?: (isVisible: boolean) => void;
     }
@@ -183,12 +185,14 @@ export default class WebBrowser {
 
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
-      if (this.windowContainer.length >= 2) {
+      const hasHostNameDiff = await this.checkHostNameDiff(beforeWindow);
+      if (hasHostNameDiff) {
         await this.protectAllWindow();
       }
       this.option.onWindowsChanged(
         this.windowContainer.windows,
-        this.windowContainer.currentWindowHandle
+        this.windowContainer.currentWindowHandle,
+        hasHostNameDiff
       );
     }
 
@@ -350,5 +354,19 @@ export default class WebBrowser {
       opacity: "0.6",
       backgroundColor: "#333",
     };
+  }
+
+  /**
+   * Check host name difference.
+   * @param beforeWindow Before window.
+   * @returns Host name diff flag.
+   */
+  private async checkHostNameDiff(beforeWindow?: WebBrowserWindow) {
+    if (!beforeWindow || !this.currentWindow) {
+      return false;
+    }
+    const beforeHostName = new URL(beforeWindow.currentUrl).hostname;
+    const currentHostName = new URL(this.currentWindow.currentUrl).hostname;
+    return beforeHostName !== currentHostName;
   }
 }

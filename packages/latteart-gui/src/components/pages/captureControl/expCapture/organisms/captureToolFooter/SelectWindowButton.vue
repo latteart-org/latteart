@@ -54,12 +54,16 @@ export default class SelectWindowButton extends Vue {
     return this.$store.state.deviceSettings;
   }
 
+  private get captureControlState() {
+    return this.$store.state.captureControl as CaptureControlState;
+  }
+
   private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
+    return this.captureControlState.isCapturing;
   }
 
   private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
+    return this.captureControlState.isReplaying;
   }
 
   private get windowSelectorIsEnabled() {
@@ -72,16 +76,13 @@ export default class SelectWindowButton extends Vue {
     return true;
   }
 
-  private get currentSessionWindowHandlesLength() {
-    return (
-      (this.$store.state.captureControl as CaptureControlState).captureSession
-        ?.windowHandles.length ?? 0
-    );
+  private get hasHostNameDiff() {
+    return this.captureControlState.captureSession?.hasHostNameDiff ?? false;
   }
 
-  @Watch("currentSessionWindowHandlesLength")
+  @Watch("hasHostNameDiff")
   private openWindowSelectorDialog() {
-    if (this.currentSessionWindowHandlesLength > 1 && !this.isReplaying) {
+    if (this.hasHostNameDiff && !this.isReplaying) {
       this.windowSelectorOpened = true;
     }
   }
