@@ -133,6 +133,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         inputValue: { dataType: "string", required: true },
         locatorMatchType: {
           dataType: "union",
@@ -1733,6 +1734,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         textWithoutChildren: { dataType: "string" },
         boundingRect: {
           dataType: "nestedObjectLiteral",
@@ -2296,6 +2298,19 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ScreenElementsPerIframe: {
+    dataType: "refObject",
+    properties: {
+      iframeIndex: { dataType: "double" },
+      screenElements: {
+        dataType: "array",
+        array: { dataType: "refAlias", ref: "ElementInfo" },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTestStepDto: {
     dataType: "refAlias",
     type: {
@@ -2323,9 +2338,9 @@ const models: TsoaRoute.Models = {
           array: { dataType: "refAlias", ref: "ElementInfo" },
           required: true,
         },
-        screenElements: {
+        screenElementsPerIframe: {
           dataType: "array",
-          array: { dataType: "refAlias", ref: "ElementInfo" },
+          array: { dataType: "refObject", ref: "ScreenElementsPerIframe" },
           required: true,
         },
         windowHandle: { dataType: "string", required: true },

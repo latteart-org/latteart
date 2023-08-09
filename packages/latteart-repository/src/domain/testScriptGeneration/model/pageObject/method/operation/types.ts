@@ -71,6 +71,7 @@ export type PageObjectElement = {
   readonly value?: string;
   readonly name?: string;
   readonly imageUrl?: string;
+  readonly iframeIndex?: number;
 };
 
 /**

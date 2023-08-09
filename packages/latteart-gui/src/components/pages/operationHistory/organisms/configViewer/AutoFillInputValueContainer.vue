@@ -91,7 +91,7 @@
             class="px-1"
           ></v-select>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-text-field
             :label="$store.getters.message('config-view.autofill.locator')"
             :value="item.locator"
@@ -99,7 +99,25 @@
             class="px-1"
           ></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
+          <number-field
+            :label="$store.getters.message('config-view.autofill.iframe-index')"
+            :item="item.iframeIndex"
+            :value="item.iframeIndex"
+            :allowBlank="true"
+            :minValue="0"
+            @updateNumberFieldValue="
+              (args) =>
+                updateCondition(index, {
+                  iframeIndex:
+                    args.value === '' ? undefined : Number(args.value),
+                })
+            "
+            class="px-1"
+          >
+          </number-field>
+        </v-col>
+        <v-col cols="2">
           <v-text-field
             :label="$store.getters.message('config-view.autofill.input-value')"
             :value="item.inputValue"
@@ -127,10 +145,12 @@ import {
   AutofillCondition,
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
+import NumberField from "@/components/molecules/NumberField.vue";
 
 @Component({
   components: {
     "screen-def-unit": ScreenDefUnit,
+    "number-field": NumberField,
   },
 })
 export default class AutoFillInputValueContainer extends Vue {

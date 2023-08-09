@@ -99,6 +99,7 @@ export type ElementInfo = {
     height: number;
   };
   textWithoutChildren?: string;
+  iframeIndex?: number;
 };
 
 /**

@@ -227,6 +227,7 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
+      "iframe-index": "Iframe通番",
       "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
       "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
       "input-value": "入力値"

@@ -32,6 +32,7 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      iframeIndex?: number;
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
@@ -65,11 +66,17 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   > & {
     elementInfo: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes"
+      "xpath" | "tagname" | "text" | "attributes" | "iframeIndex"
     > | null;
     inputElements: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes" | "checked" | "value"
+      | "xpath"
+      | "tagname"
+      | "text"
+      | "attributes"
+      | "checked"
+      | "value"
+      | "iframeIndex"
     >[];
   };
   intention: Pick<

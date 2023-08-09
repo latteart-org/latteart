@@ -42,6 +42,7 @@ export function getCoverages(
     id: string;
     name: string;
     operated: boolean;
+    iframeIndex?: number;
   }[];
 }[] {
   const testStepIdToSequenceAndImageFileUrl = new Map(
@@ -78,6 +79,7 @@ export function getCoverages(
 
           const operatedElement = {
             xpath: targetElement.xpath,
+            iframeIndex: targetElement.iframeIndex,
             ...sequenceAndImageFileUrl,
           };
 
@@ -105,7 +107,11 @@ export function getCoverages(
           return optionElement
             ? [
                 operatedElement,
-                { ...sequenceAndImageFileUrl, xpath: optionElement.xpath },
+                {
+                  ...sequenceAndImageFileUrl,
+                  xpath: optionElement.xpath,
+                  iframeIndex: optionElement.iframeIndex,
+                },
               ]
             : [operatedElement];
         }),
@@ -119,7 +125,11 @@ export function getCoverages(
       for (const element of elements) {
         const foundItem = acc
           .get(screenId)
-          ?.find(({ xpath }) => xpath === element.xpath);
+          ?.find(
+            ({ xpath, iframeIndex }) =>
+              getUniquePath(xpath, iframeIndex) ==
+              getUniquePath(element.xpath, element.iframeIndex)
+          );
 
         if (foundItem) {
           foundItem.sequenceAndImageFileUrl.push({
@@ -131,6 +141,7 @@ export function getCoverages(
 
         acc.get(screenId)?.push({
           xpath: element.xpath,
+          iframeIndex: element.iframeIndex,
           sequenceAndImageFileUrl: [
             {
               sequence: element.sequence,
@@ -141,7 +152,7 @@ export function getCoverages(
       }
 
       return acc;
-    }, new Map<string, { xpath: string; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
+    }, new Map<string, { xpath: string; iframeIndex?: number; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
@@ -164,13 +175,21 @@ export function getCoverages(
       })
       .filter((element, index, array) => {
         return (
-          array.findIndex(({ xpath }) => xpath === element.xpath) === index
+          array.findIndex(
+            ({ xpath, iframeIndex }) =>
+              getUniquePath(xpath, iframeIndex) ===
+              getUniquePath(element.xpath, element.iframeIndex)
+          ) === index
         );
       })
       .flatMap((element) => {
         const operatedElement = screenIdToOperatedElements
           .get(screen.id)
-          ?.find(({ xpath }) => xpath === element.xpath);
+          ?.find(
+            ({ xpath, iframeIndex }) =>
+              getUniquePath(xpath, iframeIndex) ===
+              getUniquePath(element.xpath, element.iframeIndex)
+          );
 
         const seqAndUrl = operatedElement?.sequenceAndImageFileUrl.at(0);
         return [
@@ -185,6 +204,7 @@ export function getCoverages(
               ? element.text
               : element.attributes["href"] ?? "",
             operated: operatedElement !== undefined,
+            iframeIndex: element.iframeIndex,
           },
         ];
       });
@@ -203,3 +223,7 @@ export function getCoverages(
 
   return results;
 }
+
+const getUniquePath = (xpath: string, iframeIndex?: number) => {
+  return `${xpath}_${iframeIndex ?? ""}`;
+};

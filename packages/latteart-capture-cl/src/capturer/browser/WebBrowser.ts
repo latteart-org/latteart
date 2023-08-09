@@ -203,9 +203,10 @@ export default class WebBrowser {
           windowHandle: beforeWindow?.windowHandle ?? "",
           input: this.windowContainer.currentWindowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
+          screenElementsPerIframe:
+            await beforeWindow.collectScreenElementsPerIframe(
+              await beforeWindow.getNumberOfIframes()
+            ),
         })
       );
     }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { ScreenElementsPerIframe } from "@/service";
+
 export type TestResultViewOptionForRepository = {
   node: {
     unit: "title" | "url";
@@ -110,7 +112,7 @@ export type CapturedOperationForRepository = {
   imageData: string;
   windowHandle: string;
   timestamp: string;
-  screenElements: ElementInfoForRepository[];
+  screenElementsPerIframe: ScreenElementsPerIframe[];
   pageSource: string;
   inputElements: ElementInfoForRepository[];
   scrollPosition: { x: number; y: number };
@@ -209,6 +211,7 @@ export type SettingsForRepository = {
           elementInfo: ElementInfoForRepository | null;
           title: string;
           url: string;
+          iframeIndex?: number;
         }[];
       }[];
     };

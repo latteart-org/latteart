@@ -23,6 +23,7 @@ import LoggingService from "@/logger/LoggingService";
  */
 export class SeleniumWebDriverClient implements WebDriverClient {
   private driver: WebDriver;
+  private frameLockedId = "";
 
   /**
    * Constructor.
@@ -113,6 +114,80 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       }
       throw error;
     }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async switchFrameTo(
+    iframeIndex: number,
+    lockId: string
+  ): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}`);
+    }
+    try {
+      return await this.driver.switchTo().frame(iframeIndex);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === "NoSuchFrameError") {
+          return;
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async switchDefaultContent(lockId: string): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}`);
+    }
+
+    try {
+      return await this.driver.switchTo().defaultContent();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public lockFrame(lockId: string): void {
+    this.frameLockedId = lockId;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public unLockFrame(): void {
+    this.frameLockedId = "";
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public isLockedFrame(): boolean {
+    return this.frameLockedId !== "";
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async waitUntilFrameUnlock(): Promise<void> {
+    for (let i = 0; i < 20; i++) {
+      if (!this.isLockedFrame()) {
+        return;
+      }
+      await this.sleep(100);
+    }
+    throw new Error(`timeout while waiting for unlock. ${this.frameLockedId}`);
   }
 
   /**

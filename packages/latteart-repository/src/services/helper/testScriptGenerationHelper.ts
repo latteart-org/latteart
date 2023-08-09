@@ -44,6 +44,7 @@ export type TestResultForTestScriptGeneration = {
     title: string;
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFilePath: string;
+    iframeIndex?: number;
   }[];
 };
 

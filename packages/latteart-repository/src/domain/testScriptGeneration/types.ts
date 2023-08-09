@@ -24,6 +24,7 @@ export type TestScriptSourceElement = {
   tagname: string;
   text?: string;
   xpath: string;
+  iframeIndex?: number;
   attributes: { [key: string]: string };
 };
 

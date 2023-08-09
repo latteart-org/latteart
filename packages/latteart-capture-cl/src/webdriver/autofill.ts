@@ -28,6 +28,7 @@ export type InputValueSet = {
   locator: string;
   locatorMatchType: "equals" | "contains";
   inputValue: string;
+  iframeIndex?: number;
 };
 
 export default class Autofill {
@@ -38,7 +39,16 @@ export default class Autofill {
   ) {}
 
   public async execute(): Promise<void> {
+    const lockId = "autoFill";
     for (const inputValueSet of this.inputValueSets) {
+      await this.currentWindow.sleep(1000);
+      await this.client.waitUntilFrameUnlock();
+
+      this.client.lockFrame(lockId);
+      await this.client.switchDefaultContent(lockId);
+      if (inputValueSet.iframeIndex !== undefined) {
+        await this.client.switchFrameTo(inputValueSet.iframeIndex, lockId);
+      }
       const targetWebElements = await this.getWebElements(
         inputValueSet.locatorType,
         inputValueSet.locator,
@@ -46,18 +56,22 @@ export default class Autofill {
       );
 
       for (const webElement of targetWebElements) {
-        await this.currentWindow.sleep(250);
+        await this.currentWindow.sleep(200);
         await this.currentWindow.focus();
-        await this.currentWindow.sleep(250);
+        await this.currentWindow.sleep(200);
 
         const tagName = await webElement.getTagName();
         if (tagName === "select") {
           await this.setValueToSelectbox(webElement, inputValueSet.inputValue);
+          await this.client.switchDefaultContent(lockId);
+          this.client.unLockFrame();
           continue;
         }
 
         if (tagName === "textarea") {
           await this.setValueToText(webElement, inputValueSet.inputValue);
+          await this.client.switchDefaultContent(lockId);
+          this.client.unLockFrame();
           continue;
         }
 
@@ -81,6 +95,8 @@ export default class Autofill {
             break;
         }
       }
+      await this.client.switchDefaultContent(lockId);
+      this.client.unLockFrame();
     }
   }
 

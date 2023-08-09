@@ -62,7 +62,8 @@ export type ElementMapper = {
   findElement: (
     pageUrl: string,
     pageTitle: string,
-    xpath: string
+    xpath: string,
+    iframeIndex?: number
   ) => GraphView["store"]["elements"][0] | undefined;
   collectElements: (filter?: {
     screenDef?: string;
@@ -82,7 +83,9 @@ export class ElementMapperFactory {
       coverageSources.flatMap(({ screenDef, screenElements }) => {
         return screenElements.map((screenElement) => {
           return [
-            `${screenElement.pageUrl}_${screenElement.pageTitle}_${screenElement.xpath}`,
+            `${screenElement.pageUrl}_${screenElement.pageTitle}_${
+              screenElement.xpath
+            }_${screenElement.iframeIndex ?? ""}`,
             {
               screenDef,
               element: {
@@ -96,9 +99,14 @@ export class ElementMapperFactory {
     );
 
     return {
-      findElement: (pageUrl: string, pageTitle: string, xpath: string) => {
+      findElement: (
+        pageUrl: string,
+        pageTitle: string,
+        xpath: string,
+        iframeIndex?: number
+      ) => {
         const element = keyToScreenElement.get(
-          `${pageUrl}_${pageTitle}_${xpath}`
+          `${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`
         )?.element;
 
         if (!element) {
@@ -113,6 +121,7 @@ export class ElementMapperFactory {
           tagname,
           text,
           attributes,
+          iframeIndex: idx,
         } = element;
 
         return {
@@ -123,6 +132,7 @@ export class ElementMapperFactory {
           tagname,
           text: text ?? "",
           attributes,
+          iframeIndex: idx,
         };
       },
       collectElements: (filter?: { screenDef?: string }) => {
@@ -149,9 +159,10 @@ export class ElementMapperFactory {
             text,
             value,
             attributes,
+            iframeIndex,
           } = element;
           return {
-            id,
+            id: id,
             pageUrl: url,
             pageTitle: title,
             xpath,
@@ -159,6 +170,7 @@ export class ElementMapperFactory {
             text: text ?? "",
             value,
             attributes,
+            iframeIndex,
           };
         });
       },
@@ -251,10 +263,10 @@ function createNodes(
       ? elementMapper.findElement(
           testStep.operation.url,
           testStep.operation.title,
-          testStep.operation.elementInfo.xpath
+          testStep.operation.elementInfo.xpath,
+          testStep.operation.elementInfo?.iframeIndex
         )?.id
       : undefined;
-
     return {
       ...testStep,
       operation: { ...testStep.operation, targetElementId },
@@ -285,6 +297,7 @@ function createNodes(
           !["open_window", "switch_window"].includes(operation.type)
       )
       .at(-1);
+
     const nodeDefaultValues = targetTestStep
       ? collectDefaultValues(targetTestStep.operation, elementMapper)
       : [];
@@ -379,7 +392,8 @@ function collectDefaultValues(
       const elementId = elementMapper.findElement(
         operation.url,
         operation.title,
-        element.xpath
+        element.xpath,
+        element.iframeIndex
       )?.id;
 
       if (!elementId) {

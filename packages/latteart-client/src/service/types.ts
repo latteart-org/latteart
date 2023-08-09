@@ -34,7 +34,7 @@ export type CapturedScreenTransition = {
   imageData: string;
   windowHandle: string;
   timestamp: string;
-  screenElements: ElementInfo[];
+  screenElementsPerIframe: ScreenElementsPerIframe[];
   pageSource: string;
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
@@ -49,12 +49,17 @@ export type CapturedOperation = {
   imageData: string;
   windowHandle: string;
   timestamp: string;
-  screenElements: ElementInfo[];
+  screenElementsPerIframe: ScreenElementsPerIframe[];
   pageSource: string;
   inputElements: ElementInfo[];
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
+};
+
+export type ScreenElementsPerIframe = {
+  iframeIndex?: number;
+  screenElements: ElementInfo[];
 };
 
 export type ElementInfo = {
@@ -71,6 +76,7 @@ export type ElementInfo = {
     height: number;
   };
   textWithoutChildren?: string;
+  iframeIndex?: number;
 };
 
 export type Operation = {

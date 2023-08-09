@@ -77,6 +77,39 @@ export default interface WebDriverClient extends ScriptExecutor {
   switchWindowTo(windowHandle: string): Promise<void>;
 
   /**
+   * Switch frames. It is necessary to lock with lockId of lockFrame in advance.
+   * @param index Frame index.
+   * @param lockId LockId specified in lockFrame.
+   */
+  switchFrameTo(index: number, lockId: string): Promise<void>;
+
+  /**
+   * Switch default content. It is necessary to lock with lockId of lockFrame in advance.
+   * @param lockId LockId specified in lockFrame.
+   */
+  switchDefaultContent(lockId: string): Promise<void>;
+
+  /**
+   * Lock the frame. You can switch frames using the specified lockId.
+   */
+  lockFrame(lockId: string): void;
+
+  /**
+   * Unlock the frame.
+   */
+  unLockFrame(): void;
+
+  /**
+   * Returns the locked state of the frame
+   */
+  isLockedFrame(): boolean;
+
+  /**
+   * Wait until the frame is unlocked. Throw an error if the lock has not been unlocked for a period of time.
+   */
+  waitUntilFrameUnlock(): Promise<void>;
+
+  /**
    * Whether alert dialog is visible or not.
    * @returns 'true': Alert dialog is visible, 'false': Alert dialog is not visible.
    */
