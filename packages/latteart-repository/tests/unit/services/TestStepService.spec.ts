@@ -73,7 +73,6 @@ describe("TestStepService", () => {
         windowHandle: testStepEntity.windowHandle,
         keywordTexts: JSON.parse(testStepEntity.keywordTexts),
         isAutomatic: testStepEntity.isAutomatic,
-        iframeIndex: null,
       };
 
       const result = await service.getTestStep(testStepEntity.id);
@@ -161,7 +160,6 @@ describe("TestStepService", () => {
           },
         ],
         isAutomatic: requestBody.isAutomatic,
-        iframeIndex: null,
       };
 
       const result = await service.createTestStep(
@@ -250,7 +248,6 @@ describe("TestStepService", () => {
           type: "",
           url: "",
           windowHandle: "",
-          iframeIndex: null,
         },
         intention: null,
         bugs: [],
