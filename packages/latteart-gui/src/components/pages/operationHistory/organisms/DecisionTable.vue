@@ -205,7 +205,6 @@ export default class DecisionTable extends Vue {
   }
 
   private get inputValueTable(): InputValueTable {
-    console.log(this.$store.state.operationHistory.inputValueTable);
     return this.$store.state.operationHistory.inputValueTable;
   }
 

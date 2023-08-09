@@ -16,11 +16,10 @@
 
 import { TimestampImpl } from "./Timestamp";
 
-export interface ScreenElementsPerIframe {
+export type ScreenElementsPerIframe = {
   iframeIndex?: number;
-
   screenElements: ElementInfo[];
-}
+};
 
 /**
  * Screen element information.

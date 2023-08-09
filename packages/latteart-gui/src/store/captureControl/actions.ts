@@ -518,7 +518,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
         if (testStep.operation.type === "screen_transition") {
           const { title, url } = testStep.operation;
-          console.log(beforeOperation);
           context.dispatch("openAutofillDialog", {
             targetPage: { title, url },
             beforeOperation,

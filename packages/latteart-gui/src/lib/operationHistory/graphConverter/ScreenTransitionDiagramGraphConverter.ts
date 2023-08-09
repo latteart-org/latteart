@@ -74,7 +74,6 @@ export async function convertToScreenTransitionDiagramGraph(
 
   const screens = graphModel.screens;
   const edges = graphModel.edges;
-  console.log({ edges });
   const screenTexts = graphModel.screens.map(({ id, name }) => {
     const lineLength = 30;
     return `${id}["${TextUtil.escapeSpecialCharacters(
@@ -213,7 +212,6 @@ function extractGraphSources(view: GraphView): GraphSource {
 
     console.log({ node });
     const inputElements = node.defaultValues.flatMap(({ elementId, value }) => {
-      console.log(elementId, value);
       const element = view.store.elements.find(({ id }) => id === elementId);
 
       if (!element) {

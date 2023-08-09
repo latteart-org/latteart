@@ -504,7 +504,7 @@ export default class BrowserOperationCapturer {
       await this.webBrowser.currentWindow.removeScreenLock();
     }
 
-    const runOperationLock = "runOperationLock";
+    const runOperationLockId = "runOperationLockId";
 
     try {
       switch (operation.type as SpecialOperationType) {
@@ -545,13 +545,13 @@ export default class BrowserOperationCapturer {
       const xpath = operation.elementInfo.xpath.toLowerCase();
 
       await this.client.waitUntilFrameUnlock();
-      this.client.lockFrame(runOperationLock);
+      this.client.lockFrame(runOperationLockId);
 
-      await this.client.switchDefaultContent(runOperationLock);
+      await this.client.switchDefaultContent(runOperationLockId);
       if (operation.elementInfo.iframeIndex !== undefined) {
         await this.client.switchFrameTo(
           operation.elementInfo.iframeIndex,
-          runOperationLock
+          runOperationLockId
         );
       }
 
@@ -583,11 +583,11 @@ export default class BrowserOperationCapturer {
         default:
           break;
       }
-      await this.client.switchDefaultContent(runOperationLock);
+      await this.client.switchDefaultContent(runOperationLockId);
       this.client.unLockFrame();
       return;
     } catch (error) {
-      await this.client.switchDefaultContent(runOperationLock);
+      await this.client.switchDefaultContent(runOperationLockId);
       this.client.unLockFrame();
       if (
         error instanceof Error &&

@@ -190,7 +190,6 @@ export default class AutoFillInputValueContainer extends Vue {
     if (condition.locatorType === "xpath") {
       condition.locatorMatchType = "equals";
     }
-    console.log({ condition });
     this.$emit("update-condition", condition, index, this.index);
   }
 

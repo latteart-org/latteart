@@ -98,12 +98,6 @@ export class ElementMapperFactory {
       })
     );
 
-    console.log("START keyToScreenElement =====>");
-    keyToScreenElement.forEach((v, k) =>
-      console.log("  ", k, v.element.id, v.screenDef)
-    );
-    console.log("END keyToScreenElement =====>");
-
     return {
       findElement: (
         pageUrl: string,
@@ -111,7 +105,6 @@ export class ElementMapperFactory {
         xpath: string,
         iframeIndex?: number
       ) => {
-        console.log(`${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`);
         const element = keyToScreenElement.get(
           `${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`
         )?.element;
@@ -274,7 +267,6 @@ function createNodes(
           testStep.operation.elementInfo?.iframeIndex
         )?.id
       : undefined;
-    console.log({ targetElementId });
     return {
       ...testStep,
       operation: { ...testStep.operation, targetElementId },
@@ -299,7 +291,6 @@ function createNodes(
       };
     });
 
-    // console.log(testStepGroup.testSteps);
     const targetTestStep = testStepGroup.testSteps
       .filter(
         ({ operation }) =>
@@ -307,22 +298,9 @@ function createNodes(
       )
       .at(-1);
 
-    console.log("=== targetTestStep ===");
-
-    console.log(
-      " type: " +
-        targetTestStep?.operation.type +
-        ", input: " +
-        targetTestStep?.operation.input
-    );
-    targetTestStep?.operation.inputElements.forEach((e) => {
-      console.log("  -> " + e.xpath);
-    });
-
     const nodeDefaultValues = targetTestStep
       ? collectDefaultValues(targetTestStep.operation, elementMapper)
       : [];
-    console.log({ nodeDefaultValues });
 
     return {
       windowId: testStepGroup.windowId,
@@ -409,11 +387,8 @@ function collectDefaultValues(
   operation: TestStepGroup["testSteps"][0]["operation"],
   elementMapper: ElementMapper
 ) {
-  console.log("== collectDefaultValues ==");
-  //console.log(operation.inputElements);
   return operation.inputElements
     .flatMap((element) => {
-      console.log(" xpath: " + element.xpath + ", value: " + element.value);
       const elementId = elementMapper.findElement(
         operation.url,
         operation.title,
@@ -426,7 +401,6 @@ function collectDefaultValues(
       }
 
       const value = getDefaultValueOfElement(element);
-      // console.log({ elementId }, { value });
       return { elementId, value };
     })
     .reverse()

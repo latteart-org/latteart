@@ -43,10 +43,6 @@ export class TestScriptCodeGeneratorFactory {
   ) {}
 
   public create(language: TestScriptCodeLanguage): TestScriptCodeGenerator {
-    console.log("===> create <===");
-    this.pageObjects.forEach((po) =>
-      po.methods.forEach((m) => m.operations.forEach((o) => console.log(o)))
-    );
     switch (language) {
       default: {
         const jsPageObjectNameGenerator = new JSPageObjectNameGenerator(

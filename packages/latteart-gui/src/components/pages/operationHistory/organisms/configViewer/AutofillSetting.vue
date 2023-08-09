@@ -143,7 +143,6 @@ export default class AutofillSetting extends Vue {
     conditionGroup: Partial<AutofillConditionGroup>,
     index: number
   ) {
-    console.log(conditionGroup);
     const config = { ...this.tempConfig };
     config.conditionGroups = config.conditionGroups.map((group, i) => {
       if (index === i) {

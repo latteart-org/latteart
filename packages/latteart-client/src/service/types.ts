@@ -57,10 +57,10 @@ export type CapturedOperation = {
   isAutomatic?: boolean;
 };
 
-export interface ScreenElementsPerIframe {
+export type ScreenElementsPerIframe = {
   iframeIndex?: number;
   screenElements: ElementInfo[];
-}
+};
 
 export type ElementInfo = {
   tagname: string;

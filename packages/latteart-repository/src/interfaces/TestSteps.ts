@@ -35,10 +35,10 @@ export type CreateTestStepDto = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
 };
-export interface ScreenElementsPerIframe {
+export type ScreenElementsPerIframe = {
   iframeIndex?: number;
   screenElements: ElementInfo[];
-}
+};
 /**
  * Test step data for the specified ID.
  */
