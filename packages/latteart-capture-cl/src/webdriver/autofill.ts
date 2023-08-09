@@ -41,7 +41,7 @@ export default class Autofill {
   public async execute(): Promise<void> {
     const lockId = "autoFill";
     for (const inputValueSet of this.inputValueSets) {
-      await this.currentWindow.sleep(100);
+      await this.currentWindow.sleep(1000);
       await this.client.waitUntilFrameUnlock();
 
       this.client.lockFrame(lockId);
@@ -54,12 +54,11 @@ export default class Autofill {
         inputValueSet.locator,
         inputValueSet.locatorMatchType
       );
-      console.log(targetWebElements);
 
       for (const webElement of targetWebElements) {
-        await this.currentWindow.sleep(250);
+        await this.currentWindow.sleep(200);
         await this.currentWindow.focus();
-        await this.currentWindow.sleep(250);
+        await this.currentWindow.sleep(200);
 
         const tagName = await webElement.getTagName();
         if (tagName === "select") {

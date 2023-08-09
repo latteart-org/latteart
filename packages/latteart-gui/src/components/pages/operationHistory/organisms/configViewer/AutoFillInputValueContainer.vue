@@ -101,7 +101,7 @@
         </v-col>
         <v-col cols="2">
           <number-field
-            label="iframeIndex"
+            :label="$store.getters.message('config-view.autofill.iframe-index')"
             :item="item.iframeIndex"
             :value="item.iframeIndex"
             :allowBlank="true"
@@ -149,7 +149,6 @@ import NumberField from "@/components/molecules/NumberField.vue";
 
 @Component({
   components: {
-    
     "screen-def-unit": ScreenDefUnit,
     "number-field": NumberField,
   },

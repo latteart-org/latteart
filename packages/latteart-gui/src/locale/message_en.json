@@ -223,6 +223,7 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
+      "iframe-index": "Iframe Index",
       "auto-popup-registration": "Automatically display a popup to register input values",
       "auto-popup-selection": "Automatically display popup to select input value",
       "input-value": "Input Value"
