@@ -537,6 +537,9 @@ The number of opened windows has been changed.
           "currentWindowHandle": {
             "type": "string"
           },
+          "currentWindowHostNameChanged": {
+            "type": "boolean"
+          },
           "timestamp": {
             "type": "number"
           }

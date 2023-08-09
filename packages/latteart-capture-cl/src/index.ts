@@ -222,13 +222,15 @@ io.on("connection", (socket) => {
           },
           onBrowserWindowsChanged: (
             windows: { windowHandle: string; url: string; title: string }[],
-            currentWindowHandle: string
+            currentWindowHandle: string,
+            currentWindowHostNameChanged: boolean
           ) => {
             LoggingService.info("Browser windows changed.");
 
             const updateInfo = JSON.stringify({
               windows,
               currentWindowHandle,
+              currentWindowHostNameChanged,
               timestamp: new TimestampImpl().epochMilliseconds(),
             });
             LoggingService.debug(updateInfo);
