@@ -168,10 +168,6 @@ function convertEntityToOperation(testStepEntity: TestStepEntity) {
     title: testStepEntity.pageTitle,
     keywordTexts,
     imageFilePath: testStepEntity.screenshot?.fileUrl ?? "",
-    iframeIndex:
-      testStepEntity.iframeIndex === null
-        ? undefined
-        : testStepEntity.iframeIndex,
   };
 }
 

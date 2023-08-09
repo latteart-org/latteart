@@ -93,17 +93,11 @@ export type Operation = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
-  iframeIndex?: number;
 };
 
 export type RunnableOperation = Pick<
   Operation,
-  | "type"
-  | "input"
-  | "elementInfo"
-  | "clientSize"
-  | "scrollPosition"
-  | "iframeIndex"
+  "type" | "input" | "elementInfo" | "clientSize" | "scrollPosition"
 > &
   Partial<Pick<Operation, "timestamp" | "windowHandle" | "title">>;
 

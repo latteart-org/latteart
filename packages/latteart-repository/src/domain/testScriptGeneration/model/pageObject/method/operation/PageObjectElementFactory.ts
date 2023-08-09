@@ -34,8 +34,7 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
   public createFrom(
     element: TestScriptSourceElement | null,
     imageUrl: string,
-    identifierGenerator: IdentifierGenerator,
-    iframeIndex?: number
+    identifierGenerator: IdentifierGenerator
   ): PageObjectElement {
     if (!element) {
       return {
@@ -45,13 +44,10 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
         name: "",
         locators: [],
         imageUrl,
-        iframeIndex,
       };
     }
-    const identifier = identifierGenerator.generateIdentifierFromElement(
-      element,
-      iframeIndex
-    );
+    const identifier =
+      identifierGenerator.generateIdentifierFromElement(element);
 
     return {
       identifier,
@@ -60,7 +56,7 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
       name: element.attributes.name ?? "",
       locators: element.locators,
       imageUrl,
-      iframeIndex,
+      iframeIndex: element.iframeIndex,
     };
   }
 

@@ -36,11 +36,9 @@ export class PageObjectOperationFactoryImpl
     const target = this.elementFactory.createFrom(
       operation.elementInfo,
       operation.imageFilePath,
-      identifierGenerator,
-      operation.iframeIndex
+      identifierGenerator
     );
 
-    console.log("iframeIndex: " + operation.iframeIndex);
     return {
       target,
       type: this.createType(operation.type),

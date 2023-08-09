@@ -575,7 +575,6 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
-                    iframeIndex: { dataType: "double" },
                     imageFileUrl: { dataType: "string" },
                     pageTitle: { dataType: "string", required: true },
                     pageUrl: { dataType: "string", required: true },
@@ -1866,7 +1865,6 @@ const models: TsoaRoute.Models = {
             width: { dataType: "double", required: true },
           },
         },
-        iframeIndex: { dataType: "double" },
       },
       validators: {},
     },
@@ -2318,7 +2316,6 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        iframeIndex: { dataType: "double" },
         clientSize: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -2341,7 +2338,7 @@ const models: TsoaRoute.Models = {
           array: { dataType: "refAlias", ref: "ElementInfo" },
           required: true,
         },
-        screenElements: {
+        screenElementsPerIframe: {
           dataType: "array",
           array: { dataType: "refObject", ref: "ScreenElementsPerIframe" },
           required: true,

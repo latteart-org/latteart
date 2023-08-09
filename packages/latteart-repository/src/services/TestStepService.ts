@@ -24,7 +24,6 @@ import {
   CreateTestStepDto,
   CreateTestStepResponse,
   PatchTestStepResponse,
-  ScreenElementsPerIframe,
 } from "@/interfaces/TestSteps";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
@@ -169,7 +168,6 @@ export class TestStepServiceImpl implements TestStepService {
       scrollPositionY: requestBody.scrollPosition?.y,
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
-      iframeIndex: requestBody.iframeIndex,
     });
 
     if (requestBody.imageData) {
@@ -349,7 +347,6 @@ export class TestStepServiceImpl implements TestStepService {
         .map((elmInfo) => {
           return {
             ...elmInfo,
-            iframeIndex: requestBody.iframeIndex,
           };
         }),
       ...requestBody.screenElementsPerIframe

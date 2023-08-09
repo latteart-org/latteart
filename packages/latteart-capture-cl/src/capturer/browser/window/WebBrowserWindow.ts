@@ -348,7 +348,6 @@ export default class WebBrowserWindow {
     screenElementsPerIframe?: ScreenElementsPerIframe[];
     inputElements?: ElementInfo[];
     pageSource?: string;
-    iframeIndex?: number;
   }): Operation {
     return new Operation({
       type: args.type,
@@ -363,7 +362,6 @@ export default class WebBrowserWindow {
       imageData: this.currentOperationSummary.screenshotBase64,
       inputElements: args.inputElements ?? [],
       pageSource: args.pageSource ?? "",
-      iframeIndex: args.iframeIndex,
     });
   }
 
@@ -670,6 +668,7 @@ export default class WebBrowserWindow {
           xpath: data.operation.elementInfo.xpath,
           attributes: data.operation.elementInfo.attributes,
           boundingRect: data.operation.elementInfo.boundingRect,
+          iframeIndex,
         };
         if (data.operation.elementInfo.checked !== undefined) {
           elementInfo.checked = data.operation.elementInfo.checked;
@@ -691,7 +690,6 @@ export default class WebBrowserWindow {
           windowHandle: this._windowHandle,
           inputElements,
           pageSource: await this.client.getCurrentPageText(),
-          iframeIndex,
         });
       })
     );

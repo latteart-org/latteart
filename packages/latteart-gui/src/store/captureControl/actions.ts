@@ -105,7 +105,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           .filter(payload.filterPredicate ?? (() => true))
           .map(({ operation }) => operation);
       })();
-      operations.forEach((o) => console.log("IFRAME_INDEX: " + o.iframeIndex));
 
       const replayOption = context.state.replayOption;
       const destTestResult = replayOption.resultSavingEnabled

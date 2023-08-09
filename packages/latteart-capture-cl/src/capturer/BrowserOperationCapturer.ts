@@ -458,12 +458,7 @@ export default class BrowserOperationCapturer {
   public async runOperation(
     operation: Pick<
       Operation,
-      | "input"
-      | "type"
-      | "elementInfo"
-      | "clientSize"
-      | "scrollPosition"
-      | "iframeIndex"
+      "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
     >
   ): Promise<void> {
     if (operation.clientSize) {
@@ -553,9 +548,9 @@ export default class BrowserOperationCapturer {
       this.client.lockFrame(runOperationLock);
 
       await this.client.switchDefaultContent(runOperationLock);
-      if (operation.iframeIndex !== undefined) {
+      if (operation.elementInfo.iframeIndex !== undefined) {
         await this.client.switchFrameTo(
-          operation.iframeIndex,
+          operation.elementInfo.iframeIndex,
           runOperationLock
         );
       }

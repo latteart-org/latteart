@@ -176,6 +176,7 @@ export type AutoOperation = {
   elementInfo: ElementInfo | null;
   title: string;
   url: string;
+  iframeIndex?: number;
 };
 
 export type OperationForReplay = AutoOperation & {

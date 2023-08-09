@@ -63,7 +63,6 @@ import { createLogger } from "./logger/logger";
 import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
 import { UpdateTestResultEntity1689841542715 } from "./migrations/1689841542715-UpdateTestResultEntity";
-import { UpdateTestStepEntity1690509738107 } from "./migrations/1690509738107-UpdateTestStepEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -127,7 +126,6 @@ async function initializeOrmConnection() {
       UpdateTestStepEntity1677835465468,
       UpdateTestResultEntity1680078703857,
       UpdateTestResultEntity1689841542715,
-      UpdateTestStepEntity1690509738107,
     ],
   };
 

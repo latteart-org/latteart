@@ -266,25 +266,12 @@ function createNodes(
   elementMapper: ElementMapper
 ): GraphView["nodes"] {
   const testStepForNodes = testSteps.map((testStep) => {
-    console.log("== inputElements ==");
-    console.log(
-      " type: " +
-        testStep.operation.type +
-        ", input: " +
-        testStep.operation.input +
-        ", xpath: " +
-        testStep.operation.elementInfo?.xpath +
-        ", iframe: " +
-        testStep.operation.iframeIndex +
-        ", inputElements.length: " +
-        testStep.operation.inputElements.length
-    );
     const targetElementId = testStep.operation.elementInfo
       ? elementMapper.findElement(
           testStep.operation.url,
           testStep.operation.title,
           testStep.operation.elementInfo.xpath,
-          testStep.operation.iframeIndex
+          testStep.operation.elementInfo?.iframeIndex
         )?.id
       : undefined;
     console.log({ targetElementId });
@@ -292,19 +279,6 @@ function createNodes(
       ...testStep,
       operation: { ...testStep.operation, targetElementId },
     };
-  });
-  console.log("=== testStepForNodes ===");
-  testStepForNodes.forEach((t) => {
-    console.log(
-      " type: " +
-        t.operation.type +
-        ", input: " +
-        t.operation.input +
-        ", xpath: " +
-        t.operation.elementInfo?.xpath +
-        ", iframe: " +
-        t.operation.iframeIndex
-    );
   });
 
   const testStepGroups = groupTestSteps(testStepForNodes, screenDefToScreen);
@@ -322,7 +296,6 @@ function createNodes(
         testPurposeId: testStep.intention?.id,
         pageUrl: testStep.operation.url,
         pageTitle: testStep.operation.title,
-        iframeIndex: testStep.operation.iframeIndex,
       };
     });
 

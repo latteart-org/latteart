@@ -62,11 +62,11 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   screenDef: string;
   operation: Pick<
     TestStep["operation"],
-    "input" | "type" | "windowHandle" | "url" | "title" | "iframeIndex"
+    "input" | "type" | "windowHandle" | "url" | "title"
   > & {
     elementInfo: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes"
+      "xpath" | "tagname" | "text" | "attributes" | "iframeIndex"
     > | null;
     inputElements: Pick<
       ElementInfo,

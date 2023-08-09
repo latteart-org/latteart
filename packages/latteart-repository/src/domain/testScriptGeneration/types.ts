@@ -24,6 +24,7 @@ export type TestScriptSourceElement = {
   tagname: string;
   text?: string;
   xpath: string;
+  iframeIndex?: number;
   attributes: { [key: string]: string };
 };
 
@@ -55,10 +56,6 @@ export type TestScriptSourceOperation = {
    * Screen image path.
    */
   imageFilePath: string;
-  /**
-   * Iframe index.
-   */
-  iframeIndex?: number;
 };
 
 export type TestScript = {

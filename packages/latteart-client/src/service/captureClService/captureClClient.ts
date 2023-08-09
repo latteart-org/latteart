@@ -384,7 +384,7 @@ class CaptureSessionImpl implements CaptureSession {
                 title: "",
                 imageData: "",
                 windowHandle: "",
-                screenElements: [],
+                screenElementsPerIframe: [],
                 pageSource: "",
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
@@ -464,7 +464,7 @@ class CaptureSessionImpl implements CaptureSession {
           title: "",
           imageData: "",
           windowHandle: "",
-          screenElements: [],
+          screenElementsPerIframe: [],
           pageSource: "",
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
@@ -587,7 +587,6 @@ class CaptureSessionImpl implements CaptureSession {
       elementInfo: operation.elementInfo,
       clientSize: operation.clientSize,
       scrollPosition: operation.scrollPosition,
-      iframeIndex: operation.iframeIndex,
     });
 
     if (result.error) {

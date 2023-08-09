@@ -70,6 +70,11 @@ export interface ElementInfo {
    * The text of the element without children.
    */
   textWithoutChildren?: string;
+
+  /**
+   * Iframe Index.
+   */
+  iframeIndex?: number;
 }
 
 /**

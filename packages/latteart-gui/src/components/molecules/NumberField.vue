@@ -140,7 +140,6 @@ export default class NumberField extends Vue {
   }
 
   private update(value: string): void {
-    console.log(value);
     if (value === "") {
       this.internalValue = "";
       return;

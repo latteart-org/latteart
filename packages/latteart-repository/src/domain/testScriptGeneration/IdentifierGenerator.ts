@@ -29,7 +29,6 @@ export class IdentifierGenerator {
    */
   public generateIdentifierFromElement(
     elem: TestScriptSourceElement,
-    iframeIndex: undefined | number,
     isUpper = false
   ): string {
     const attr = elem.attributes;
@@ -64,8 +63,8 @@ export class IdentifierGenerator {
     }
 
     tempIdentifier =
-      iframeIndex !== undefined
-        ? `iframe${iframeIndex}_${tempIdentifier}`
+      elem.iframeIndex !== undefined
+        ? `iframe${elem.iframeIndex}_${tempIdentifier}`
         : tempIdentifier;
     let identifier = "";
 

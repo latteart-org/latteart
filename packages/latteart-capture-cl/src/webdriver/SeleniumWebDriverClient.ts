@@ -116,6 +116,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
+  /**
+   * @inheritdoc
+   */
   public async switchFrameTo(
     iframeIndex: number,
     lockId: string
@@ -135,6 +138,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
+  /**
+   * @inheritdoc
+   */
   public async switchDefaultContent(lockId: string): Promise<void> {
     if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
       throw new Error(`locked frame. ${lockId}`);
@@ -150,18 +156,30 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
+  /**
+   * @inheritdoc
+   */
   public lockFrame(lockId: string): void {
     this.frameLockedId = lockId;
   }
 
+  /**
+   * @inheritdoc
+   */
   public unLockFrame(): void {
     this.frameLockedId = "";
   }
 
+  /**
+   * @inheritdoc
+   */
   public isLockedFrame(): boolean {
     return this.frameLockedId !== "";
   }
 
+  /**
+   * @inheritdoc
+   */
   public async waitUntilFrameUnlock(): Promise<void> {
     for (let i = 0; i < 20; i++) {
       if (!this.isLockedFrame()) {

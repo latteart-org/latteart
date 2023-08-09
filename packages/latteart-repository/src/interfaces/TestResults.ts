@@ -105,7 +105,6 @@ export type GetGraphViewResponse = {
       pageUrl: string;
       pageTitle: string;
       imageFileUrl?: string;
-      iframeIndex?: number;
     }[];
     defaultValues: { elementId: string; value?: string }[];
   }[];

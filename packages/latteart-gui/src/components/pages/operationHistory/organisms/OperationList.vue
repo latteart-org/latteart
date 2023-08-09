@@ -212,6 +212,8 @@ import { filterTableRows, sortTableRows } from "@/lib/common/table";
 type ElementInfoForDisplay = {
   tagname: string;
   text: string;
+  xpath: string;
+  iframeIndex?: number;
   attributes: {
     name: string;
   };
@@ -433,6 +435,8 @@ export default class OperationList extends Vue {
         attributes: elementInfo?.attributes.name
           ? { name: elementInfo.attributes.name }
           : { name: "" },
+        xpath: elementInfo?.xpath ?? "",
+        iframeIndex: elementInfo?.iframeIndex,
       };
 
       const operation: OperationForDisplay = {

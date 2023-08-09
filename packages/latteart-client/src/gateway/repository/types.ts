@@ -211,6 +211,7 @@ export type SettingsForRepository = {
           elementInfo: ElementInfoForRepository | null;
           title: string;
           url: string;
+          iframeIndex?: number;
         }[];
       }[];
     };
