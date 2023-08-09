@@ -48,7 +48,7 @@ export default class BrowserOperationCapturer {
   private onBrowserWindowsChanged: (
     windows: { windowHandle: string; url: string; title: string }[],
     currentWindowHandle: string,
-    hasHostNameDiff: boolean
+    currentWindowHostNameChanged: boolean
   ) => void;
   private onAlertVisibilityChanged: (isVisible: boolean) => void;
   private onError: (error: Error) => void;
@@ -78,7 +78,7 @@ export default class BrowserOperationCapturer {
       onBrowserWindowsChanged: (
         windows: { windowHandle: string; url: string; title: string }[],
         currentWindowHandle: string,
-        hasHostNameDiff: boolean
+        currentWindowHostNameChanged: boolean
       ) => void;
       onAlertVisibilityChanged: (isVisible: boolean) => void;
       onError: (error: Error) => void;

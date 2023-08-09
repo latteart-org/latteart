@@ -45,7 +45,7 @@ export default class WebBrowser {
     onWindowsChanged: (
       windows: { windowHandle: string; url: string; title: string }[],
       currentWindowHandle: string,
-      hasHostNameDiff: boolean
+      currentWindowHostNameChanged: boolean
     ) => void;
     onAlertVisibilityChanged: (isVisible: boolean) => void;
   };
@@ -72,7 +72,7 @@ export default class WebBrowser {
       onWindowsChanged?: (
         windows: { windowHandle: string; url: string; title: string }[],
         currentWindowHandle: string,
-        hasHostNameDiff: boolean
+        currentWindowHostNameChanged: boolean
       ) => void;
       onAlertVisibilityChanged?: (isVisible: boolean) => void;
     }
@@ -185,14 +185,16 @@ export default class WebBrowser {
 
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
-      const hasHostNameDiff = await this.checkHostNameDiff(beforeWindow);
-      if (hasHostNameDiff) {
+      const currentWindowHostNameChanged = await this.isCurrentHostNameChanged(
+        beforeWindow
+      );
+      if (currentWindowHostNameChanged) {
         await this.protectAllWindow();
       }
       this.option.onWindowsChanged(
         this.windowContainer.windows,
         this.windowContainer.currentWindowHandle,
-        hasHostNameDiff
+        currentWindowHostNameChanged
       );
     }
 
@@ -361,7 +363,7 @@ export default class WebBrowser {
    * @param beforeWindow Before window.
    * @returns Host name diff flag.
    */
-  private async checkHostNameDiff(beforeWindow?: WebBrowserWindow) {
+  private async isCurrentHostNameChanged(beforeWindow?: WebBrowserWindow) {
     if (!beforeWindow || !this.currentWindow) {
       return false;
     }

@@ -76,13 +76,16 @@ export default class SelectWindowButton extends Vue {
     return true;
   }
 
-  private get hasHostNameDiff() {
-    return this.captureControlState.captureSession?.hasHostNameDiff ?? false;
+  private get currentWindowHostNameChanged() {
+    return (
+      this.captureControlState.captureSession?.currentWindowHostNameChanged ??
+      false
+    );
   }
 
-  @Watch("hasHostNameDiff")
+  @Watch("currentWindowHostNameChanged")
   private openWindowSelectorDialog() {
-    if (this.hasHostNameDiff && !this.isReplaying) {
+    if (this.currentWindowHostNameChanged && !this.isReplaying) {
       this.windowSelectorOpened = true;
     }
   }
