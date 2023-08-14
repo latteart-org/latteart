@@ -462,15 +462,39 @@ export default class WebBrowserWindow {
   /**
    * Pause capturing.
    */
-  public async pauseCapturing(): Promise<void> {
-    await this.client.execute(captureScript.pauseCapturing);
+  public async pauseCapturing(iframeCnt: number): Promise<void> {
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "pauseCapturing";
+    this.client.lockFrame(lockId);
+    try {
+      await this.client.execute(captureScript.pauseCapturing);
+      for (let i = 0; i < iframeCnt; i++) {
+        await this.client.switchFrameTo(i, lockId);
+        await this.client.execute(captureScript.pauseCapturing);
+        await this.client.switchDefaultContent(lockId);
+      }
+    } finally {
+      this.client.unLockFrame();
+    }
   }
 
   /**
    * Resume capturing.
    */
-  public async resumeCapturing(): Promise<void> {
-    await this.client.execute(captureScript.resumeCapturing);
+  public async resumeCapturing(iframeCnt: number): Promise<void> {
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "resumeCapturing";
+    this.client.lockFrame(lockId);
+    try {
+      await this.client.execute(captureScript.resumeCapturing);
+      for (let i = 0; i < iframeCnt; i++) {
+        await this.client.switchFrameTo(i, lockId);
+        await this.client.execute(captureScript.resumeCapturing);
+        await this.client.switchDefaultContent(lockId);
+      }
+    } finally {
+      this.client.unLockFrame();
+    }
   }
 
   /**
