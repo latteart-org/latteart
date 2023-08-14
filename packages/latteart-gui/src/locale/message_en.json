@@ -128,7 +128,8 @@
     "url": "Test Target Url",
     "testing-time": "Test Time",
     "test-purpose": "Test Purpose",
-    "creation-timestamp": "Creation Date"
+    "creation-timestamp": "Creation Date",
+    "load": "Load test result"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
