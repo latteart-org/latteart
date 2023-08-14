@@ -54,7 +54,9 @@
                   height: '100%',
                   display: 'flex',
                   'align-items': 'center',
+                  cursor: 'pointer',
                 }"
+                :title="$store.getters.message('test-result-list.load')"
               >
                 <div
                   :class="{ ellipsis: true }"
