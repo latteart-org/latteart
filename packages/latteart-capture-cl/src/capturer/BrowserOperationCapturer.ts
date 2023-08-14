@@ -226,9 +226,9 @@ export default class BrowserOperationCapturer {
         if (currentWindow) {
           const iframeCnt = await currentWindow.getNumberOfIframes();
           if (this.capturingIsPaused) {
-            await currentWindow.pauseCapturing();
+            await currentWindow.pauseCapturing(iframeCnt);
           } else {
-            await currentWindow.resumeCapturing();
+            await currentWindow.resumeCapturing(iframeCnt);
           }
 
           await currentWindow.getReadyToCapture(iframeCnt);

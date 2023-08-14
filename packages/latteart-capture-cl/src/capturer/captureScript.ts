@@ -419,7 +419,11 @@ function initGuard({
   const extendedDocument: ExtendedDocument = document;
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
-  if (extendedDocument.readyState !== "complete" && !initGuard) {
+  if (
+    extendedDocument.readyState !== "complete" &&
+    !extendedDocument.__capturingIsPaused &&
+    !initGuard
+  ) {
     const shield = extendedDocument.createElement("div");
     shield.id = __LATTEART_INIT_GUARD__;
     shield.style.position = shieldStyle.position;
@@ -806,7 +810,12 @@ function setFunctionToDetectWindowSwitch({
 
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
-  if (extendedDocument.readyState !== "complete" && !initGuard) {
+
+  if (
+    extendedDocument.readyState !== "complete" &&
+    !extendedDocument.__capturingIsPaused &&
+    !initGuard
+  ) {
     const shield = extendedDocument.createElement("div");
     shield.id = __LATTEART_INIT_GUARD__;
     shield.style.position = shieldStyle.position;
