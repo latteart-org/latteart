@@ -158,7 +158,33 @@ export default class WebBrowser {
   }
 
   public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
+    this.config.isShieldEnabled = isShieldEnabled;
+    await this.client.waitUntilFrameUnlock();
+    const lockId = "setShieldEnabledLock";
+    this.client.lockFrame(lockId);
+    const frameValue = await this.currentWindow?.getNumberOfIframes();
     await this.client.execute(captureScript.setShieldEnabled, isShieldEnabled);
+    if (!isShieldEnabled) {
+      await this.client.execute(captureScript.unblockUserOperations, {
+        windowHandle: this.currentWindow?.windowHandle,
+        shieldId: WebBrowser.SHIELD_ID,
+      });
+    }
+    for (let i = 0; frameValue !== undefined && i <= frameValue; i++) {
+      await this.client.switchFrameTo(i, lockId);
+      await this.client.execute(
+        captureScript.setShieldEnabled,
+        isShieldEnabled
+      );
+      if (!isShieldEnabled) {
+        await this.client.execute(captureScript.unblockUserOperations, {
+          windowHandle: this.currentWindow?.windowHandle,
+          shieldId: WebBrowser.SHIELD_ID,
+        });
+      }
+      await this.client.switchDefaultContent(lockId);
+    }
+    this.client.unLockFrame();
   }
 
   /**
@@ -337,6 +363,7 @@ export default class WebBrowser {
       windowHandle,
       shieldId: WebBrowser.SHIELD_ID,
       shieldStyle: this.createShieldStyle(),
+      isShieldEnabled: this.config.isShieldEnabled,
     });
   }
 

@@ -135,6 +135,7 @@ export type CaptureScript = {
     windowHandle,
     shieldId,
     shieldStyle,
+    isShieldEnabled,
   }: {
     windowHandle: string;
     shieldId: string;
@@ -146,6 +147,7 @@ export type CaptureScript = {
       opacity: string;
       backgroundColor: string;
     };
+    isShieldEnabled: boolean;
   }) => void;
   refireEvent: (eventInfo: EventInfo) => void;
   unblockUserOperations: ({
@@ -780,6 +782,7 @@ function setFunctionToDetectWindowSwitch({
   windowHandle,
   shieldId,
   shieldStyle,
+  isShieldEnabled,
 }: {
   windowHandle: string;
   shieldId: string;
@@ -791,9 +794,8 @@ function setFunctionToDetectWindowSwitch({
     opacity: string;
     backgroundColor: string;
   };
+  isShieldEnabled: boolean;
 }) {
-  console.log(`injectFunctionToDetectWindowSwitch - START: ${windowHandle}`);
-
   const extendedWindow: ExtendedWindowForWindowSwitch = window;
 
   const extendedDocument: ExtendedDocument = document;
@@ -852,6 +854,10 @@ function setFunctionToDetectWindowSwitch({
     "focus",
     extendedWindow.setWindowHandleToLocalStorage
   );
+
+  if (localStorage != null && localStorage.isShieldEnabled === undefined) {
+    localStorage.isShieldEnabled = isShieldEnabled;
+  }
 
   if (!extendedWindow.removeWindowHandleToLocalStorage) {
     extendedWindow.removeWindowHandleToLocalStorage = () => {
@@ -913,7 +919,6 @@ function setFunctionToDetectWindowSwitch({
     "blur",
     extendedWindow.removeWindowHandleToLocalStorage
   );
-  console.log(`injectFunctionToDetectWindowSwitch - END`);
 }
 
 function refireEvent(eventInfo: EventInfo) {
