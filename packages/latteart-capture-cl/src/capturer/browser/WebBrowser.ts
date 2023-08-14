@@ -162,16 +162,8 @@ export default class WebBrowser {
     await this.client.waitUntilFrameUnlock();
     const lockId = "setShieldEnabledLock";
     this.client.lockFrame(lockId);
-    const frameValue = await this.currentWindow?.getNumberOfIframes();
-    await this.client.execute(captureScript.setShieldEnabled, isShieldEnabled);
-    if (!isShieldEnabled) {
-      await this.client.execute(captureScript.unblockUserOperations, {
-        windowHandle: this.currentWindow?.windowHandle,
-        shieldId: WebBrowser.SHIELD_ID,
-      });
-    }
-    for (let i = 0; frameValue !== undefined && i <= frameValue; i++) {
-      await this.client.switchFrameTo(i, lockId);
+    try {
+      const frameValue = await this.currentWindow?.getNumberOfIframes();
       await this.client.execute(
         captureScript.setShieldEnabled,
         isShieldEnabled
@@ -182,9 +174,23 @@ export default class WebBrowser {
           shieldId: WebBrowser.SHIELD_ID,
         });
       }
-      await this.client.switchDefaultContent(lockId);
+      for (let i = 0; frameValue !== undefined && i <= frameValue; i++) {
+        await this.client.switchFrameTo(i, lockId);
+        await this.client.execute(
+          captureScript.setShieldEnabled,
+          isShieldEnabled
+        );
+        if (!isShieldEnabled) {
+          await this.client.execute(captureScript.unblockUserOperations, {
+            windowHandle: this.currentWindow?.windowHandle,
+            shieldId: WebBrowser.SHIELD_ID,
+          });
+        }
+        await this.client.switchDefaultContent(lockId);
+      }
+    } finally {
+      this.client.unLockFrame();
     }
-    this.client.unLockFrame();
   }
 
   /**
