@@ -71,6 +71,11 @@ export class CaptureConfig {
   public isHeadlessMode = false;
 
   /**
+   * Shield enabled
+   */
+  public isShieldEnabled = true;
+
+  /**
    * Constructor.
    * @param init The information for initialization.
    */
