@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { normalizeXPath } from "../common/util";
-
 export type InputValueTableHeaderColumn = {
   index: number;
   sourceScreenDef: string;

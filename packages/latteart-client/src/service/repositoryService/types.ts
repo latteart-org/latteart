@@ -19,8 +19,6 @@ import {
   TestStep,
   CapturedOperation,
   Operation,
-  CoverageSource,
-  InputElementInfo,
   TestStepNote,
   Note,
   TestResultViewOption,
