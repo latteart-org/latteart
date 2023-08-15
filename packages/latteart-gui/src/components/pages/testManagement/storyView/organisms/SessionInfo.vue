@@ -161,7 +161,11 @@
 
         <v-row>
           <v-col cols="12">
-            <test-purpose-note-list :testPurposes="session.testPurposes" />
+            <test-purpose-note-list
+              :testPurposes="session.testPurposes"
+              :testResult="session.testResultFiles"
+              @reload="reload()"
+            />
           </v-col>
         </v-row>
       </v-card-text>
