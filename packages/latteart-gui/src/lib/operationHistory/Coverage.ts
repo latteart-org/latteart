@@ -136,7 +136,7 @@ export function getCoverages(
       }
 
       return acc;
-    }, new Map<string, { id: String; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
+    }, new Map<string, { id: string; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
