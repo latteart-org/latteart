@@ -44,14 +44,14 @@
             >
               <template v-slot:item="props">
                 <tr
-                  :key="props.item.xpath"
+                  :key="props.item.sequence"
                   :class="{
                     covered: props.item.operated,
                     missed: !props.item.operated,
                   }"
                   @click="selectElement(props.item.imageFileUrl)"
                 >
-                  <td :title="props.item.xpath">{{ props.item.tagname }}</td>
+                  <td>{{ props.item.tagname }}</td>
                   <td>{{ props.item.type }}</td>
                   <td>{{ props.item.id }}</td>
                   <td>{{ props.item.name }}</td>

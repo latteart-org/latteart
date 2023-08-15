@@ -35,14 +35,13 @@ export function getCoverages(
   percentage: number;
   elements: {
     sequence?: number;
-    imageFileUrl?: string;
     tagname: string;
-    text: string;
     type: string;
     id: string;
     name: string;
+    text: string;
     operated: boolean;
-    iframeIndex?: number;
+    imageFileUrl?: string;
   }[];
 }[] {
   const testStepIdToSequenceAndImageFileUrl = new Map(
@@ -78,8 +77,7 @@ export function getCoverages(
           }
 
           const operatedElement = {
-            xpath: targetElement.xpath,
-            iframeIndex: targetElement.iframeIndex,
+            id: targetElement.id,
             ...sequenceAndImageFileUrl,
           };
 
@@ -107,11 +105,7 @@ export function getCoverages(
           return optionElement
             ? [
                 operatedElement,
-                {
-                  ...sequenceAndImageFileUrl,
-                  xpath: optionElement.xpath,
-                  iframeIndex: optionElement.iframeIndex,
-                },
+                { ...sequenceAndImageFileUrl, id: optionElement.id },
               ]
             : [operatedElement];
         }),
@@ -123,13 +117,7 @@ export function getCoverages(
       }
 
       for (const element of elements) {
-        const foundItem = acc
-          .get(screenId)
-          ?.find(
-            ({ xpath, iframeIndex }) =>
-              getUniquePath(xpath, iframeIndex) ==
-              getUniquePath(element.xpath, element.iframeIndex)
-          );
+        const foundItem = acc.get(screenId)?.find(({ id }) => id == element.id);
 
         if (foundItem) {
           foundItem.sequenceAndImageFileUrl.push({
@@ -140,19 +128,15 @@ export function getCoverages(
         }
 
         acc.get(screenId)?.push({
-          xpath: element.xpath,
-          iframeIndex: element.iframeIndex,
+          id: element.id,
           sequenceAndImageFileUrl: [
-            {
-              sequence: element.sequence,
-              imageFileUrl: element.imageFileUrl,
-            },
+            { sequence: element.sequence, imageFileUrl: element.imageFileUrl },
           ],
         });
       }
 
       return acc;
-    }, new Map<string, { xpath: string; iframeIndex?: number; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
+    }, new Map<string, { id: String; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
@@ -174,22 +158,12 @@ export function getCoverages(
         return [element];
       })
       .filter((element, index, array) => {
-        return (
-          array.findIndex(
-            ({ xpath, iframeIndex }) =>
-              getUniquePath(xpath, iframeIndex) ===
-              getUniquePath(element.xpath, element.iframeIndex)
-          ) === index
-        );
+        return array.findIndex(({ id }) => id === element.id) === index;
       })
       .flatMap((element) => {
         const operatedElement = screenIdToOperatedElements
           .get(screen.id)
-          ?.find(
-            ({ xpath, iframeIndex }) =>
-              getUniquePath(xpath, iframeIndex) ===
-              getUniquePath(element.xpath, element.iframeIndex)
-          );
+          ?.find(({ id }) => id === element.id);
 
         const seqAndUrl = operatedElement?.sequenceAndImageFileUrl.at(0);
         return [
@@ -204,7 +178,6 @@ export function getCoverages(
               ? element.text
               : element.attributes["href"] ?? "",
             operated: operatedElement !== undefined,
-            iframeIndex: element.iframeIndex,
           },
         ];
       });
@@ -223,7 +196,3 @@ export function getCoverages(
 
   return results;
 }
-
-const getUniquePath = (xpath: string, iframeIndex?: number) => {
-  return `${xpath}_${iframeIndex ?? ""}`;
-};

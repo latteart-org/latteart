@@ -136,15 +136,6 @@ export const findValueRecursively = (
 };
 
 /**
- * Normalize xpath.
- * @param before  Xpath before normalization.
- * @returns Xpath after normalization
- */
-export const normalizeXPath = (before: string): string => {
-  return before.replace(/\[1\]/g, "");
-};
-
-/**
  * Convert the input value of the operation.
  * @param elementInfo  ElementInfo.
  * @param input  Input value.
