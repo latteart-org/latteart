@@ -179,8 +179,8 @@ export default class Autofill {
       const maxLength = max.split("-")[0].length;
       const year =
         maxLength < 4 || maxLength > 6
-          ? ("000000" + yyyymmdd[0]).slice(-6)
-          : ("000000" + yyyymmdd[0]).slice(-maxLength);
+          ? yyyymmdd[0].padStart(6, "0")
+          : yyyymmdd[0].padStart(maxLength, "0");
 
       return await this.setValueToText(
         target,
@@ -190,7 +190,7 @@ export default class Autofill {
 
     return await this.setValueToText(
       target,
-      `${("000000" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${yyyymmdd[2]}`
+      `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`
     );
   }
 
