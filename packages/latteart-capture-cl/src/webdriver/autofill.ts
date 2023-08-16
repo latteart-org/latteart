@@ -88,10 +88,8 @@ export default class Autofill {
             );
             break;
           case "date":
-            await this.setValueToDate(webElement, inputValueSet.inputValue);
-            break;
           case "datetime-local":
-            await this.setValueToDateTime(webElement, inputValueSet.inputValue);
+            await this.setValueToDate(webElement, inputValueSet.inputValue);
             break;
           default:
             await this.setValueToText(webElement, inputValueSet.inputValue);
@@ -175,28 +173,25 @@ export default class Autofill {
     value: string
   ): Promise<void> {
     const yyyymmdd = value.split("-");
-    return await this.setValueToText(
-      target,
-      `${("00" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${yyyymmdd[2]}`
-    );
-  }
-
-  public async setValueToDateTime(
-    target: WebElement,
-    value: string
-  ): Promise<void> {
     const max = await target.getAttribute("max");
-    const min = await target.getAttribute("min");
 
-    if (max || min) {
-      return await this.setValueToText(target, value);
-    } else {
-      const yyyymmdd = value.split("-");
+    if (max) {
+      const maxLength = max.split("-")[0].length;
+      const year =
+        maxLength < 4 || maxLength > 6
+          ? ("000000" + yyyymmdd[0]).slice(-6)
+          : ("000000" + yyyymmdd[0]).slice(-maxLength);
+
       return await this.setValueToText(
         target,
-        `${("00" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${yyyymmdd[2]}`
+        `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`
       );
     }
+
+    return await this.setValueToText(
+      target,
+      `${("000000" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${yyyymmdd[2]}`
+    );
   }
 
   private async getWebElements(

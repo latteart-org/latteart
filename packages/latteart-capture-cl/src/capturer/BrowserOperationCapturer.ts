@@ -573,12 +573,10 @@ export default class BrowserOperationCapturer {
               operation.elementInfo.tagname.toLowerCase()
             )
           ) {
+            const attributes = operation.elementInfo.attributes;
             const inputValue =
-              (operation.elementInfo.attributes.type === "date" ||
-                operation.elementInfo.attributes.type === "datetime-local") &&
-              !operation.elementInfo.attributes.max &&
-              !operation.elementInfo.attributes.min
-                ? "00" + operation.input
+              attributes.type === "date" || attributes.type === "datetime-local"
+                ? this.zeroPadding(operation.input, attributes)
                 : operation.input;
 
             await this.client.clearAndSendKeys(xpath, inputValue);
@@ -625,5 +623,22 @@ export default class BrowserOperationCapturer {
       return false;
     }
     return currentWindow.canDoBrowserForward();
+  }
+
+  private zeroPadding(value: string, attributes: { [key: string]: string }) {
+    const yyyymmdd = value.split("-");
+
+    if (attributes.max) {
+      const max = attributes.max.split("-")[0].length;
+      const year =
+        max < 4 || max > 6
+          ? ("000000" + yyyymmdd[0]).slice(-6)
+          : ("000000" + yyyymmdd[0]).slice(-max);
+
+      return `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
+    }
+    return `${("000000" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${
+      yyyymmdd[2]
+    }`;
   }
 }
