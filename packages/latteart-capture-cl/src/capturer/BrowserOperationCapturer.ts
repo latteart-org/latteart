@@ -576,7 +576,7 @@ export default class BrowserOperationCapturer {
             const attributes = operation.elementInfo.attributes;
             const inputValue =
               attributes.type === "date" || attributes.type === "datetime-local"
-                ? this.padZeros(operation.input, attributes)
+                ? this.padDateValue(operation.input, attributes)
                 : operation.input;
 
             await this.client.clearAndSendKeys(xpath, inputValue);
@@ -625,7 +625,7 @@ export default class BrowserOperationCapturer {
     return currentWindow.canDoBrowserForward();
   }
 
-  private padZeros(value: string, attributes: { [key: string]: string }) {
+  private padDateValue(value: string, attributes: { [key: string]: string }) {
     const yyyymmdd = value.split("-");
 
     if (attributes.max) {
