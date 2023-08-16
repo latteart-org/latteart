@@ -652,7 +652,8 @@ export default class WebBrowserWindow {
       // Ignore the click event when clicking an input element of calendar type.
       if (
         data.operation.type === "click" &&
-        data.operation.elementInfo.attributes.type === "date"
+        (data.operation.elementInfo.attributes.type === "date" ||
+          data.operation.elementInfo.attributes.type === "datetime-local")
       ) {
         return false;
       }
@@ -818,7 +819,8 @@ export default class WebBrowserWindow {
         data.operation.elementInfo.tagname === "INPUT" &&
         data.operation.type === "click" &&
         data.operation.elementInfo.attributes["type"] &&
-        data.operation.elementInfo.attributes["type"] === "date"
+        (data.operation.elementInfo.attributes["type"] === "date" ||
+          data.operation.elementInfo.attributes["type"] === "datetime-local")
       ) {
         return "inputDate";
       }

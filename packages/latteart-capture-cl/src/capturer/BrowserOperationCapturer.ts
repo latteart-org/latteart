@@ -573,9 +573,10 @@ export default class BrowserOperationCapturer {
               operation.elementInfo.tagname.toLowerCase()
             )
           ) {
+            const attributes = operation.elementInfo.attributes;
             const inputValue =
-              operation.elementInfo.attributes.type === "date"
-                ? "00" + operation.input
+              attributes.type === "date" || attributes.type === "datetime-local"
+                ? this.padDateValue(operation.input, attributes)
                 : operation.input;
 
             await this.client.clearAndSendKeys(xpath, inputValue);
@@ -622,5 +623,20 @@ export default class BrowserOperationCapturer {
       return false;
     }
     return currentWindow.canDoBrowserForward();
+  }
+
+  private padDateValue(value: string, attributes: { [key: string]: string }) {
+    const yyyymmdd = value.split("-");
+
+    if (attributes.max) {
+      const max = attributes.max.split("-")[0].length;
+      const year =
+        max < 4 || max > 6
+          ? yyyymmdd[0].padStart(6, "0")
+          : yyyymmdd[0].padStart(max, "0");
+
+      return `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
+    }
+    return `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
   }
 }
