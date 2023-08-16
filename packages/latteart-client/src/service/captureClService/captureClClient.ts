@@ -847,7 +847,8 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     return (
       target.type === type &&
       target.elementInfo?.tagname.toLowerCase() === "input" &&
-      target.elementInfo.attributes.type === "date"
+      (target.elementInfo.attributes.type === "date" ||
+        target.elementInfo.attributes.type === "datetime-local")
     );
   };
 

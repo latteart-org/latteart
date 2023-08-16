@@ -574,7 +574,10 @@ export default class BrowserOperationCapturer {
             )
           ) {
             const inputValue =
-              operation.elementInfo.attributes.type === "date"
+              (operation.elementInfo.attributes.type === "date" ||
+                operation.elementInfo.attributes.type === "datetime-local") &&
+              !operation.elementInfo.attributes.max &&
+              !operation.elementInfo.attributes.min
                 ? "00" + operation.input
                 : operation.input;
 
