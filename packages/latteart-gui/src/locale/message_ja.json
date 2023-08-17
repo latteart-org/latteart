@@ -485,15 +485,10 @@
     "open": "テスト目的をすべて開く",
     "close": "テスト目的をすべて閉じる",
     "details": "詳細",
-    "no-test-purpose": "目的なし",
-    "bug-status": "起票状態：{status}",
-    "bug-reported": "起票済み",
-    "bug-unreported": "起票なし",
-    "none": "なし"
+    "no-test-purpose": "目的なし"
   },
   "note-details-dialog": {
     "details": "詳細",
-    "status": "起票状態",
     "summary": "概要",
     "tags": "タグ"
   },

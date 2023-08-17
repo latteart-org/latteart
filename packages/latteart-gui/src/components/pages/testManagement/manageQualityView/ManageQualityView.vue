@@ -262,7 +262,7 @@ export default class ManageQualityView extends Vue {
             sessionNum++;
             rowTotalSessionNum++;
             bugNum += session.notes.filter((note) =>
-              (note.tags ?? []).includes("reported")
+              (note.tags ?? []).includes("bug")
             ).length;
           }
 
@@ -378,7 +378,7 @@ export default class ManageQualityView extends Vue {
               continue;
             }
             const reportedBugCount = session.notes.filter((note) =>
-              (note.tags ?? []).includes("reported")
+              (note.tags ?? []).includes("bug")
             ).length;
             sessionsData.push({
               groupName: group.name,

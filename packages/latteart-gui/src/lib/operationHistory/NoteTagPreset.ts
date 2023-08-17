@@ -27,13 +27,5 @@ export const noteTagPreset: NoteTagPreset = {
       name: "bug",
       color: "#FF8A80",
     },
-    {
-      name: "reported",
-      color: "#FFFF8D",
-    },
-    {
-      name: "invalid",
-      color: "#9E9E9E",
-    },
   ],
 };

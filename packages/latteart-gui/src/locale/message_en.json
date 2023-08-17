@@ -481,15 +481,10 @@
     "open": "Open All Test Purposes",
     "close": "Close All Test Purposes",
     "details": "Details",
-    "no-test-purpose": "No Test Purpose",
-    "bug-status": "Issue Status：{status}",
-    "bug-reported": "Reported",
-    "bug-unreported": "Not Reported",
-    "none": "None"
+    "no-test-purpose": "No Test Purpose"
   },
   "note-details-dialog": {
     "details": "Details",
-    "status": "Issue Status",
     "summary": "Summary",
     "tags": "Tags"
   },
