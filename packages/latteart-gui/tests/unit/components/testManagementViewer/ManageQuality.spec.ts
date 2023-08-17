@@ -385,7 +385,7 @@ describe("ManageQualityView.vueは", () => {
     });
   });
   describe("itemsプロパティのgetterが呼ばれたとき", () => {
-    it("全件数が選択されている場合、全てのバグ起票件数が取得できること", async () => {
+    it("全件数が選択されている場合、全てのバグ検出件数が取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
       const vm = (await shallowMount(ManageQualityView, {
@@ -450,7 +450,7 @@ describe("ManageQualityView.vueは", () => {
         });
       });
     });
-    it("1セッションあたりの件数が選択されている場合、バグ起票件数/完了済みセッション数の形式で取得できること", async () => {
+    it("1セッションあたりの件数が選択されている場合、バグ検出件数/完了済みセッション数の形式で取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
       const vm = (await shallowMount(ManageQualityView, {
@@ -595,7 +595,7 @@ describe("ManageQualityView.vueは", () => {
       });
     });
     describe("qualityDatasプロパティのgetterが呼ばれたとき", () => {
-      it("全件数が選択されている場合、全てのバグ起票件数が取得できること", async () => {
+      it("全件数が選択されている場合、全てのバグ検出件数が取得できること", async () => {
         const testMatrixId = "m000";
         const $route = { params: { testMatrixId } };
         const vm = (await shallowMount(ManageQualityView, {

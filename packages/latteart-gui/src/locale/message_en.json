@@ -409,24 +409,23 @@
   "manage-quality": {
     "window-title": "Management Tool [Quality Management]",
     "title": "Quality Management",
-    "export": "Export",
+    "attention": "*# of Found Bugs: number of notes with 'bug' tag",
     "filter-section": "[Filter]",
     "group": "Group",
     "test-target": "Target Feature",
-    "bug-count": "# of Reported Issues",
     "completed-sessions": "# of Complete Sessions",
-    "bug-report": "[Bug Report Status]",
+    "bug-report": "[# of Found Bugs]",
     "pb-curve": "[Reliability Growth Curve]",
     "total-number": "Total Number",
     "times-per-session": "# of Bugs per Session",
     "target-of-aggregation": "Aggregation Target",
     "total": "All",
     "all": "All",
-    "unit-description-total": "unit: # of Reported Issues",
-    "unit-description": "unit: # of Reported Issues / # of Complete Sessions"
+    "unit-description-total": "unit: # of Found Bugs",
+    "unit-description": "unit: # of Found Bugs / # of Complete Sessions"
   },
   "quality-chart": {
-    "bug-report-number": "# of Reported Issues",
+    "bug-report-number": "# of Found Bugs",
     "number-session": "# of Complete Session"
   },
   "group-info": {
