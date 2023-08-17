@@ -112,10 +112,10 @@
               v-slot:[`item.operation.elementInfo.attributes.name`]="{ item }"
             >
               <td
-                :title="item.operation.elementInfo.attributes.name"
+                :title="item.operation.elementInfo.attributes.name ?? ''"
                 :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
               >
-                {{ item.operation.elementInfo.attributes.name }}
+                {{ item.operation.elementInfo.attributes.name ?? "" }}
               </td>
             </template>
 
@@ -214,9 +214,7 @@ type ElementInfoForDisplay = {
   text: string;
   xpath: string;
   iframeIndex?: number;
-  attributes: {
-    name: string;
-  };
+  attributes: { [key: string]: string };
 };
 
 type OperationForDisplay = Omit<OperationForGUI, "elementInfo"> & {
@@ -432,9 +430,7 @@ export default class OperationList extends Vue {
       const elementInfoForDisplay: ElementInfoForDisplay = {
         tagname: elementInfo?.tagname ?? "",
         text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
-        attributes: elementInfo?.attributes.name
-          ? { name: elementInfo.attributes.name }
-          : { name: "" },
+        attributes: { ...elementInfo?.attributes },
         xpath: elementInfo?.xpath ?? "",
         iframeIndex: elementInfo?.iframeIndex,
       };
