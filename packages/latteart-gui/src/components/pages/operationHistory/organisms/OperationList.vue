@@ -112,10 +112,10 @@
               v-slot:[`item.operation.elementInfo.attributes.name`]="{ item }"
             >
               <td
-                :title="item.operation.elementInfo.attributes.name ?? ''"
+                :title="item.operation.elementInfo.attributes.name"
                 :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
               >
-                {{ item.operation.elementInfo.attributes.name ?? "" }}
+                {{ item.operation.elementInfo.attributes.name }}
               </td>
             </template>
 
