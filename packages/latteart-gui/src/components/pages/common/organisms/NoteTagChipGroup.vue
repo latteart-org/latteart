@@ -35,26 +35,14 @@ export default class NoteTagChipGroup extends Vue {
   @Prop({ type: Array, default: [] }) public readonly tags!: [];
 
   private bugColor = "";
-  private reportedColor = "";
-  private invalidColor = "";
   private tagsColor = noteTagPreset.items.map((item) => {
     if (item.name === "bug") {
       this.bugColor = item.color;
-    } else if (item.name === "reported") {
-      this.reportedColor = item.color;
-    } else if (item.name === "invalid") {
-      this.invalidColor = item.color;
     }
   });
 
   private getTagsColor(tag: string) {
-    return tag === "bug"
-      ? this.bugColor
-      : tag === "reported"
-      ? this.reportedColor
-      : tag === "invalid"
-      ? this.invalidColor
-      : "";
+    return tag === "bug" ? this.bugColor : "";
   }
 }
 </script>

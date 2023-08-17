@@ -413,24 +413,23 @@
   "manage-quality": {
     "window-title": "管理ツール [品質管理]",
     "title": "品質管理",
-    "export": "エクスポート",
+    "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
     "filter-section": "[フィルタ]",
     "group": "グループ",
     "test-target": "テスト対象",
-    "bug-count": "起票バグ数",
     "completed-sessions": "完了セッション数",
-    "bug-report": "[バグ起票状況]",
+    "bug-report": "[バグ検出数]",
     "pb-curve": "[PB曲線]",
     "total-number": "全件数",
     "times-per-session": "1セッションあたりの件数",
     "target-of-aggregation": "集計対象",
     "total": "全体",
     "all": "全て",
-    "unit-description-total": "単位: 起票バグ数",
-    "unit-description": "単位: 起票バグ数 / 完了セッション数"
+    "unit-description-total": "単位: バグ検出数",
+    "unit-description": "単位: バグ検出数 / 完了セッション数"
   },
   "quality-chart": {
-    "bug-report-number": "バグ起票数",
+    "bug-report-number": "バグ検出数",
     "number-session": "完了済みセッション数"
   },
   "group-info": {
@@ -485,15 +484,10 @@
     "open": "テスト目的をすべて開く",
     "close": "テスト目的をすべて閉じる",
     "details": "詳細",
-    "no-test-purpose": "目的なし",
-    "bug-status": "起票状態：{status}",
-    "bug-reported": "起票済み",
-    "bug-unreported": "起票なし",
-    "none": "なし"
+    "no-test-purpose": "目的なし"
   },
   "note-details-dialog": {
     "details": "詳細",
-    "status": "起票状態",
     "summary": "概要",
     "tags": "タグ"
   },
@@ -514,7 +508,7 @@
     "session": "セッション",
     "planned-session": "予定セッション数",
     "completed-session": "完了セッション数",
-    "bug-count": "摘出バグ数",
+    "bug-count": "バグ検出数",
     "review-target": "レビュー対象",
     "do-review": "レビューする",
     "add-session": "セッションを追加する",

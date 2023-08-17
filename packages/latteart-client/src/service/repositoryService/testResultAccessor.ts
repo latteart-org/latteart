@@ -48,7 +48,7 @@ import {
   ProjectRepository,
   TestResultComparisonRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor, SequenceView, GraphView } from "./types";
+import { TestResultAccessor, SequenceView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;

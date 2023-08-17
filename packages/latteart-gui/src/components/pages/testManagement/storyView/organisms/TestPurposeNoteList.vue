@@ -61,7 +61,6 @@
                 <v-btn
                   @click.stop="
                     openTestPurposeDetails(
-                      item.testPurpose.type,
                       item.testPurpose.value,
                       item.testPurpose.details
                     )
@@ -83,19 +82,15 @@
                   ><span :title="note.value">{{
                     note.value
                   }}</span></v-list-item-title
-                >
-                <v-list-item-subtitle>{{
-                  $store.getters.message("test-purpose-note-list.bug-status", {
-                    status: note.status,
-                  })
-                }}</v-list-item-subtitle>
+                ><v-list-item-subtitle>
+                  <note-tag-chip-group :tags="note.tags"></note-tag-chip-group
+                ></v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
                 <v-btn
                   @click="
                     openNoteDetails(
-                      note.type,
-                      note.status,
+                      note.id,
                       note.value,
                       note.details,
                       note.imageFileUrl,
@@ -116,18 +111,56 @@
     </v-card>
     <note-details-dialog
       :opened="opened"
-      :type="type"
-      :status="status"
+      :testResultId="testResultId"
+      :noteId="noteId"
       :summary="summary"
       :details="details"
       :tags="tags"
       :imageFilePath="imagePath"
+      @execute="reload()"
       @close="opened = false"
     />
+
+    <scrollable-dialog :opened="testPurposeOpened">
+      <template v-slot:title>{{
+        $store.getters.message("note-details-dialog.details")
+      }}</template>
+
+      <template v-slot:content>
+        <v-list class="note-details-dialog">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("note-details-dialog.summary")
+              }}</v-list-item-title>
+              <p class="break-all">{{ summary }}</p>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("note-details-dialog.details")
+              }}</v-list-item-title>
+              <p class="break-all pre-wrap">{{ details }}</p>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </template>
+
+      <template v-slot:footer>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" text @click="testPurposeOpened = false">{{
+          $store.getters.message("common.close")
+        }}</v-btn>
+      </template>
+    </scrollable-dialog>
   </div>
 </template>
 
 <script lang="ts">
+import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
+import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
 import { Session } from "@/lib/testManagement/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
@@ -135,15 +168,21 @@ import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 @Component({
   components: {
     "note-details-dialog": NoteDetailsDialog,
+    "note-tag-chip-group": NoteTagChipGroup,
+    "scrollable-dialog": ScrollableDialog,
   },
 })
 export default class TestPurposeNoteList extends Vue {
   @Prop({ type: Array, default: [] })
   public readonly testPurposes?: Session["testPurposes"];
+  @Prop({ type: Array, default: [] })
+  public readonly testResult?: Session["testResultFiles"];
 
   private opened = false;
-  private type = "";
-  private status = "";
+  private testPurposeOpened = false;
+
+  private testResultId = "";
+  private noteId = "";
   private summary = "";
   private details = "";
   private imagePath = "";
@@ -158,7 +197,8 @@ export default class TestPurposeNoteList extends Vue {
       tags: string[];
       value: string;
       notes: {
-        status: string;
+        id: string;
+        type: string;
         value: string;
         details: string;
         tags: string[];
@@ -190,23 +230,21 @@ export default class TestPurposeNoteList extends Vue {
     });
   }
 
-  private openTestPurposeDetails(type: string, value: string, details: string) {
-    this.type = type;
+  private openTestPurposeDetails(value: string, details: string) {
     this.summary = value;
     this.details = details;
-    this.opened = true;
+    this.testPurposeOpened = true;
   }
 
   private openNoteDetails(
-    type: string,
-    status: string,
+    id: string,
     summary: string,
     text: string,
     imageFilePath: string,
     tags: string[]
   ) {
-    this.type = type;
-    this.status = status;
+    this.testResultId = this.testResult?.at(0)?.id ?? "";
+    this.noteId = id;
     this.summary = summary;
     this.details = text;
     this.imagePath = imageFilePath;
@@ -226,32 +264,30 @@ export default class TestPurposeNoteList extends Vue {
           : (this.$store.getters.message(
               "test-purpose-note-list.no-test-purpose"
             ) as string);
-      const notes = testPurpose.notes.map((note) => {
-        const status = (() => {
-          if (note.tags.includes("reported")) {
-            return this.$store.getters.message(
-              "test-purpose-note-list.bug-reported"
-            ) as string;
-          }
-
-          if (note.tags.includes("invalid")) {
-            return this.$store.getters.message(
-              "test-purpose-note-list.bug-unreported"
-            ) as string;
-          }
-
-          return this.$store.getters.message(
-            "test-purpose-note-list.none"
-          ) as string;
-        })();
-        return { status, ...note };
-      });
 
       return {
-        testPurpose: { ...testPurpose, value, notes },
+        testPurpose: { ...testPurpose, value },
       };
     });
     this.selectedItems = this.displayedItems.map(() => true);
   }
+
+  private reload() {
+    this.$emit("reload");
+  }
 }
 </script>
+
+<style lang="sass" scoped>
+.note-details-dialog
+  .v-list__tile
+    font-size: 12px
+    height: auto
+    padding: 4px 16px
+  .v-list__tile__title
+    font-size: 12px
+    height: auto
+    line-height: normal
+  .break-all
+    font-size: 12px
+</style>
