@@ -355,7 +355,18 @@ function pullCapturedDatas() {
     result.push(extendedDocument.__sendDatas.shift()!);
   }
 
-  return result;
+  return result.map((item) => {
+    return {
+      ...item,
+      operation: {
+        ...item.operation,
+        input:
+          typeof item.operation.input === "string"
+            ? item.operation.input
+            : (item.operation.input as number).toString(),
+      },
+    };
+  });
 }
 
 function isReadyToCapture() {
