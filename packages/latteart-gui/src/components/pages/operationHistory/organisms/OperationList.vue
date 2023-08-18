@@ -459,6 +459,13 @@ export default class OperationList extends Vue {
     return sortTableRows(filteredItems, this.sortBy, this.sortDesc);
   }
 
+  private get getCheckedItems(): {
+    index: number;
+    operation: OperationForGUI;
+  }[] {
+    return this.$store.state.operationHistory.checkedOperations;
+  }
+
   private displayedOperationFilterPredicate(item: HistoryItemForDisplay) {
     if (this.displayedOperations.length === 0) {
       return true;
@@ -514,6 +521,18 @@ export default class OperationList extends Vue {
       return true;
     }
     return false;
+  }
+
+  @Watch("getCheckedItems")
+  private clearCheckedItems(
+    newValue: {
+      index: number;
+      operation: OperationForGUI;
+    }[]
+  ): void {
+    if (newValue.length === 0 && this.checkedItems.length !== 0) {
+      this.checkedItems = [];
+    }
   }
 
   @Watch("checkedItems")
