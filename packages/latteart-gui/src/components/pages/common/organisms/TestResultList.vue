@@ -28,7 +28,7 @@
     <v-data-table
       v-model="selectedTestResults"
       :headers="headers"
-      :items="items"
+      :items="testResults"
       item-key="id"
       :show-select="deletable"
       hide-default-footer
@@ -75,7 +75,10 @@
                       item.name
                     }}</v-list-item-title>
                     <v-list-item-title v-else
-                      ><v-text-field v-model="item.name" @click.stop
+                      ><v-text-field
+                        v-bind:value="item.name"
+                        v-on:input="changeTestResultName"
+                        @click.stop
                     /></v-list-item-title>
                   </v-list-item-content>
                   <v-list-item-action v-if="editable">
@@ -88,7 +91,9 @@
                     <v-btn
                       v-else
                       icon
-                      @click.stop="editTestResultName(item.id, item.name)"
+                      @click.stop="
+                        editTestResultName(item.id, newTestResultName)
+                      "
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>
@@ -179,7 +184,10 @@ export default class TestResultList extends Vue {
   private selectedTestResults: TestResultSummary[] = [];
   private search = "";
   private isEditing = false;
-  private beforTestResultName = "";
+  private oldTestResultName = "";
+  private newTestResultName = "";
+
+  private testResults: TestResultSummary[] = this.items;
 
   private get headers() {
     return [
@@ -188,6 +196,11 @@ export default class TestResultList extends Vue {
         value: "name",
       },
     ];
+  }
+
+  @Watch("items")
+  private getTestResultList() {
+    this.testResults = this.items;
   }
 
   @Watch("selectedTestResults")
@@ -203,17 +216,33 @@ export default class TestResultList extends Vue {
     testResultName: string
   ) {
     if (this.isEditing) {
-      if (this.beforTestResultName !== testResultName) {
+      if (
+        this.newTestResultName !== "" &&
+        this.oldTestResultName !== testResultName
+      ) {
         await this.$store.dispatch("operationHistory/changeTestResultName", {
           testResultId,
           testResultName,
         });
+        const targetIndex = this.testResults.findIndex(
+          ({ id }) => id === testResultId
+        );
+        this.testResults.splice(targetIndex, 1, {
+          ...this.testResults[targetIndex],
+          name: testResultName,
+        });
+        this.newTestResultName = "";
       }
+
       this.isEditing = false;
     } else {
-      this.beforTestResultName = testResultName;
+      this.oldTestResultName = testResultName;
       this.isEditing = true;
     }
+  }
+
+  private changeTestResultName(name: string) {
+    this.newTestResultName = name;
   }
 
   private millisecondsToHHmmss(millisecondsTime: number) {
