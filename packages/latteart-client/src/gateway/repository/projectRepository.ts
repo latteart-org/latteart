@@ -21,7 +21,12 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
-import { DailyTestProgressForRepository, ProjectForRepository } from "./types";
+import {
+  DailyTestProgressForRepository,
+  ProjectForRepository,
+  SessionForRepository,
+  StoryForRepository,
+} from "./types";
 
 export interface ProjectRepository {
   /**
@@ -138,8 +143,10 @@ export class ProjectRESTRepository implements ProjectRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as ProjectForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as ProjectForRepository,
+        data: this.convertProject(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -200,5 +207,42 @@ export class ProjectRESTRepository implements ProjectRepository {
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertProject(project: ProjectForRepository) {
+    return {
+      ...project,
+      stories: project.stories.map((story) => this.convertStory(story)),
+    };
+  }
+
+  private convertStory(story: StoryForRepository) {
+    return {
+      ...story,
+      sessions: story.sessions.map((session) => this.convertSession(session)),
+    };
+  }
+
+  private convertSession(session: SessionForRepository) {
+    return {
+      ...session,
+      notes: session.notes.map((note) => {
+        return {
+          ...note,
+          imageFileUrl: note.imageFileUrl
+            ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+          videoFrame: note.videoFrame
+            ? {
+                url: new URL(
+                  note.videoFrame.url,
+                  this.restClient.serverUrl
+                ).toString(),
+                time: note.videoFrame.time,
+              }
+            : undefined,
+        };
+      }),
+    };
   }
 }

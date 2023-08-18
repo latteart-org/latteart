@@ -8,6 +8,7 @@ const baseRestClient: RESTClient = {
   httpPut: jest.fn(),
   httpPatch: jest.fn(),
   httpDelete: jest.fn(),
+  httpGetFile: jest.fn(),
 };
 
 describe("createEmptyTestResult", () => {
@@ -129,10 +130,11 @@ describe("TestResultAccessor", () => {
             id: "intention1",
             value: "summary",
             details: "details",
+            imageFileUrl: "",
           },
           testStep: {
             id: "testStep1",
-            operation: {},
+            operation: { imageFileUrl: "" },
             intention: "intention1",
             bugs: null,
             notices: null,

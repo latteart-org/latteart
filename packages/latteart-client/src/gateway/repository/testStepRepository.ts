@@ -19,7 +19,6 @@ import {
   OperationForRepository,
   CapturedOperationForRepository,
   CoverageSourceForRepository,
-  InputElementInfoForRepository,
   TestStepForRepository,
 } from "./types";
 import {
@@ -51,7 +50,6 @@ export interface TestStepRepository {
       id: string;
       operation: OperationForRepository;
       coverageSource: CoverageSourceForRepository;
-      inputElementInfo: InputElementInfoForRepository;
     }>
   >;
 }
@@ -72,14 +70,16 @@ export class TestStepRepositoryImpl implements TestStepRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as {
+        id: string;
+        operation: OperationForRepository;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
+      };
+
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          operation: OperationForRepository;
-          intention: string | null;
-          bugs: string[];
-          notices: string[];
-        },
+        data: { ...data, operation: this.convertOperation(data.operation) },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -108,14 +108,16 @@ export class TestStepRepositoryImpl implements TestStepRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as {
+        id: string;
+        operation: OperationForRepository;
+        intention: string | null;
+        bugs: string[];
+        notices: string[];
+      };
+
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          operation: OperationForRepository;
-          intention: string | null;
-          bugs: string[];
-          notices: string[];
-        },
+        data: { ...data, operation: this.convertOperation(data.operation) },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -130,29 +132,63 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       id: string;
       operation: OperationForRepository;
       coverageSource: CoverageSourceForRepository;
-      inputElementInfo: InputElementInfoForRepository;
     }>
   > {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/test-results/${testResultId}/test-steps`,
-        capturedOperation
+        {
+          input: capturedOperation.input,
+          type: capturedOperation.type,
+          elementInfo: capturedOperation.elementInfo,
+          title: capturedOperation.title,
+          url: capturedOperation.url,
+          imageData: capturedOperation.imageData,
+          windowHandle: capturedOperation.windowHandle,
+          timestamp: capturedOperation.timestamp,
+          screenElements: capturedOperation.screenElements,
+          pageSource: capturedOperation.pageSource,
+          scrollPosition: capturedOperation.scrollPosition,
+          clientSize: capturedOperation.clientSize,
+          isAutomatic: capturedOperation.isAutomatic,
+          videoId: capturedOperation.videoId,
+          videoTime: capturedOperation.videoTime,
+        }
       );
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as {
+        id: string;
+        operation: OperationForRepository;
+        coverageSource: CoverageSourceForRepository;
+      };
+
       return createRepositoryAccessSuccess({
-        data: response.data as {
-          id: string;
-          operation: OperationForRepository;
-          coverageSource: CoverageSourceForRepository;
-          inputElementInfo: InputElementInfoForRepository;
-        },
+        data: { ...data, operation: this.convertOperation(data.operation) },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertOperation(operation: OperationForRepository) {
+    return {
+      ...operation,
+      imageFileUrl: operation.imageFileUrl
+        ? new URL(operation.imageFileUrl, this.restClient.serverUrl).toString()
+        : "",
+      videoFrame: operation.videoFrame
+        ? {
+            url: new URL(
+              operation.videoFrame.url,
+              this.restClient.serverUrl
+            ).toString(),
+            time: operation.videoFrame.time,
+          }
+        : undefined,
+    };
   }
 }

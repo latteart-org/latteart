@@ -110,6 +110,10 @@ describe("ProjectExportService", () => {
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
+      collectAllScreenshots: jest.fn(),
+      collectAllVideos: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: `video/testResultId.webm` }]),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {
@@ -194,7 +198,7 @@ describe("ProjectExportService", () => {
         }
       );
 
-      const a = {
+      const projectFileData = {
         ...projectData,
         version: 1,
       };
@@ -203,7 +207,7 @@ describe("ProjectExportService", () => {
         projectId: "projectId",
         projectFile: {
           fileName: "project.json",
-          data: JSON.stringify(a),
+          data: JSON.stringify(projectFileData),
         },
         stories: [
           {
@@ -223,17 +227,23 @@ describe("ProjectExportService", () => {
       });
     });
 
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す", async () => {
+    it("extractTestResultsExportDataで、TestResultのexportDataを返す", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllTestStepScreenshots = jest
         .fn()
         .mockResolvedValue([
           {
-            id: "id",
-            fileUrl: "fileUrl",
+            id: "id1",
+            fileUrl: "fileUrl1",
           },
         ]);
+      testResultService.collectAllVideos = jest.fn().mockResolvedValue([
+        {
+          id: "id2",
+          fileUrl: "fileUrl2",
+        },
+      ]);
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
 
@@ -260,7 +270,10 @@ describe("ProjectExportService", () => {
               creationTimestamp: 10,
             }),
           },
-          screenshots: [{ id: "id", fileUrl: "fileUrl" }],
+          fileData: [
+            { id: "id1", fileUrl: "fileUrl1" },
+            { id: "id2", fileUrl: "fileUrl2" },
+          ],
         },
       ]);
     });

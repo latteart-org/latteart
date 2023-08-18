@@ -18,6 +18,7 @@ import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
   AutofillSetting,
   AutoOperationSetting,
+  CaptureMediaSetting,
   Coverage,
   ImageCompression,
 } from "../gateways/settings/Settings";
@@ -71,7 +72,7 @@ export type ProjectConfig = {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
-    imageCompression: ImageCompression;
+    captureMediaSetting: CaptureMediaSetting;
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
@@ -83,5 +84,17 @@ export type ProjectConfig = {
       };
     };
     misoperationPrevention: { isShieldEnabled: boolean };
+  };
+};
+
+/**
+ * Old style project settings.
+ */
+export type OldStyleProjectConfig = Omit<ProjectConfig, "config"> & {
+  config: Omit<
+    ProjectConfig["config"],
+    "captureMediaSetting" | "misoperationPrevention"
+  > & {
+    imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
   };
 };

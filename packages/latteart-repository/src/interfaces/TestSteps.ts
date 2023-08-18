@@ -15,6 +15,7 @@
  */
 
 import { CoverageSource, ElementInfo, Operation } from "@/domain/types";
+import { VideoFrame } from "./Videos";
 
 /**
  * Test step data for new registration.
@@ -27,17 +28,18 @@ export type CreateTestStepDto = {
   url: string;
   imageData: string;
   windowHandle: string;
-  screenElementsPerIframe: ScreenElementsPerIframe[];
-  inputElements: ElementInfo[];
+  screenElements: ScreenElements[];
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
+  videoId?: string;
+  videoTime?: number;
 };
-export type ScreenElementsPerIframe = {
+export type ScreenElements = {
   iframeIndex?: number;
-  screenElements: ElementInfo[];
+  elements: ElementInfo[];
 };
 /**
  * Test step data for the specified ID.
@@ -49,6 +51,7 @@ export type GetTestStepResponse = TestStep;
  */
 export type TestStepOperation = Omit<Operation, "screenshot"> & {
   imageFileUrl: string;
+  videoFrame?: VideoFrame;
 };
 
 /**

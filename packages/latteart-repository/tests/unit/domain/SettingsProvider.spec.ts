@@ -45,7 +45,10 @@ describe("SettingsProvider", () => {
             tags: [],
           },
         },
-        imageCompression: { format: "png" },
+        captureMediaSetting: {
+          mediaType: "image",
+          imageCompression: { format: "png" },
+        },
         misoperationPrevention: { isShieldEnabled: true },
       },
       captureSettings: {
@@ -200,7 +203,10 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: { format: "png" },
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: { format: "png" },
+          },
           misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
@@ -279,7 +285,12 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: { format: "png" },
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: {
+              format: "png",
+            },
+          },
           misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
@@ -295,7 +306,11 @@ describe("SettingsProvider", () => {
 
       settingsProvider.loadFile(filePath);
 
-      expect(settingsProvider.getSetting("config.imageCompression")).toEqual({
+      expect(
+        settingsProvider.getSetting(
+          "config.captureMediaSetting.imageCompression"
+        )
+      ).toEqual({
         format: "png",
       });
     });

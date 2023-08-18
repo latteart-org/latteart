@@ -45,12 +45,9 @@ export class UpdateStoryAction {
     }
 
     const sessions = result.data.sessions.map((session) => {
-      return new SessionDataConverter().convertToSession(
-        {
-          ...session,
-        },
-        repositoryService.serviceUrl
-      );
+      return new SessionDataConverter().convertToSession({
+        ...session,
+      });
     });
 
     return new ActionSuccess({ ...result.data, sessions });

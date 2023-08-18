@@ -217,8 +217,10 @@ export class SessionsService {
         "testResult.notes",
         "testResult.notes.testSteps",
         "testResult.notes.testSteps.screenshot",
+        "testResult.notes.testSteps.video",
         "testResult.notes.tags",
         "testResult.notes.screenshot",
+        "testResult.notes.video",
       ],
     });
     if (!session) {

@@ -20,6 +20,7 @@ import {
   Operation,
   TestStepNote,
   RunnableOperation,
+  Video,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -39,6 +40,7 @@ export type CaptureClService = {
    */
   createCaptureClient(option: {
     testResult?: TestResultAccessor;
+    videoRecorder?: { getCapturingVideo(): Promise<Video> };
     config: CaptureConfig;
     eventListeners: CaptureEventListeners;
   }): CaptureClClient;
@@ -83,6 +85,7 @@ export type CaptureClClient = {
     option?: {
       compressScreenshots?: boolean;
       firstTestPurpose?: { value: string; details?: string };
+      mediaType: "image" | "video";
     }
   ): Promise<ServiceResult<CaptureSession>>;
 };
@@ -196,6 +199,12 @@ export type CaptureSession = {
    * set shield enabled
    */
   setShieldEnabled(isShieldEnabled: boolean): void;
+
+  /**
+   * set recording video
+   * @param video recording video
+   */
+  setRecordingVideo(video: Video & { startTimestamp: number }): void;
 };
 
 export type CaptureCLServiceErrorCode =

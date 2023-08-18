@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ScreenElementsPerIframe } from "@/service";
+import { ScreenElements, VideoFrame } from "@/service";
 
 export type TestResultViewOptionForRepository = {
   node: {
@@ -73,6 +73,8 @@ export type GraphViewForRepository = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoFrame?: VideoFrame;
     }[];
   };
 };
@@ -90,6 +92,8 @@ export type GraphViewNodeForRepository = {
     pageUrl: string;
     pageTitle: string;
     imageFileUrl?: string;
+    timestamp: number;
+    videoFrame?: VideoFrame;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -99,8 +103,18 @@ export type NoteForRepository = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
+  videoFrame?: VideoFrame;
+};
+
+type TestPurposeForRepository = {
+  id: string;
+  type: string;
+  value: string;
+  details: string;
+  notes: NoteForRepository[];
 };
 
 export type CapturedOperationForRepository = {
@@ -112,12 +126,13 @@ export type CapturedOperationForRepository = {
   imageData: string;
   windowHandle: string;
   timestamp: string;
-  screenElementsPerIframe: ScreenElementsPerIframe[];
+  screenElements: ScreenElements[];
   pageSource: string;
-  inputElements: ElementInfoForRepository[];
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
+  videoId?: string;
+  videoTime?: number;
 };
 
 export type TestStepForRepository = {
@@ -136,12 +151,12 @@ export type OperationForRepository = {
   url: string;
   imageFileUrl: string;
   timestamp: string;
-  inputElements: ElementInfoForRepository[];
   windowHandle: string;
   keywordTexts?: (string | { tagname: string; value: string })[];
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  videoFrame?: VideoFrame;
 };
 
 export type ElementInfoForRepository = {
@@ -157,6 +172,10 @@ export type ElementInfoForRepository = {
     width: number;
     height: number;
   };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
   textWithoutChildren?: string;
 };
 
@@ -164,12 +183,6 @@ export type CoverageSourceForRepository = {
   title: string;
   url: string;
   screenElements: ElementInfoForRepository[];
-};
-
-export type InputElementInfoForRepository = {
-  title: string;
-  url: string;
-  inputElements: ElementInfoForRepository[];
 };
 
 export type SettingsForRepository = {
@@ -229,7 +242,10 @@ export type SettingsForRepository = {
       }[];
     };
     coverage: { include: { tags: string[] } };
-    imageCompression: { format: "png" | "webp" };
+    captureMediaSetting: {
+      mediaType: "image" | "video";
+      imageCompression: { format: "png" | "webp" };
+    };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
@@ -280,7 +296,7 @@ export type SessionForRepository = {
   testResultFiles: TestResultFileForRepository[];
   initialUrl: string;
   testPurposes: TestPurposeForRepository[];
-  notes: ApiNoteForRepository[];
+  notes: NoteForRepository[];
   testingTime: number;
 };
 
@@ -349,9 +365,9 @@ export type TestResultForRepository = {
   testSteps: {
     id: string;
     operation: OperationForRepository;
-    intention: ApiNoteForRepository | null;
-    bugs: ApiNoteForRepository[];
-    notices: ApiNoteForRepository[];
+    intention: NoteForRepository | null;
+    bugs: NoteForRepository[];
+    notices: NoteForRepository[];
   }[];
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
@@ -387,19 +403,6 @@ export type ProjectForRepository = {
   name: string;
   testMatrices: TestMatrixForRepository[];
   stories: StoryForRepository[];
-};
-
-type ApiNoteForRepository = {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
-};
-
-type TestPurposeForRepository = ApiNoteForRepository & {
-  notes: ApiNoteForRepository[];
 };
 
 export type SnapshotConfigForRepository = { locale: string };

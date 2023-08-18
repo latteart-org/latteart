@@ -128,7 +128,6 @@ export default class BrowserOperationCapturer {
     let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
-    let screenElements: CapturedData["elements"] = [];
 
     while (this.isCapturing()) {
       try {
@@ -136,13 +135,8 @@ export default class BrowserOperationCapturer {
 
         if (!this.alertIsVisible) {
           pageSource = await this.client.getCurrentPageText();
-          screenElements = [
-            ...((await this.client.execute(
-              captureScript.collectScreenElements
-            )) ?? []),
-          ];
 
-          if (shouldDeleteCapturedData) {
+          if (shouldDeleteCapturedData && this.config.mediaType === "image") {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
             shouldDeleteCapturedData = false;
           }
@@ -183,14 +177,14 @@ export default class BrowserOperationCapturer {
             continue;
           }
 
+          const screenElements =
+            await currentWindow.collectAllFrameScreenElements();
+
           acceptAlertOperation = currentWindow.createCapturedOperation({
             type: SpecialOperationType.ACCEPT_ALERT,
             windowHandle: currentWindow.windowHandle,
             pageSource,
-            screenElementsPerIframe:
-              await currentWindow.collectScreenElementsPerIframe(
-                await currentWindow.getNumberOfIframes()
-              ),
+            screenElements,
           });
 
           continue;
@@ -224,16 +218,21 @@ export default class BrowserOperationCapturer {
         const currentWindow = this.webBrowser.currentWindow;
 
         if (currentWindow) {
-          const iframeCnt = await currentWindow.getNumberOfIframes();
           if (this.capturingIsPaused) {
-            await currentWindow.pauseCapturing(iframeCnt);
+            await currentWindow.pauseCapturing();
           } else {
-            await currentWindow.resumeCapturing(iframeCnt);
+            await currentWindow.resumeCapturing();
           }
 
-          await currentWindow.getReadyToCapture(iframeCnt);
-          await currentWindow.captureScreenTransition(iframeCnt);
-          await currentWindow.captureOperations(iframeCnt);
+          const captureArch =
+            this.config.mediaType === "image" ? "pull" : "push";
+
+          await currentWindow.getReadyToCapture(captureArch);
+          await currentWindow.captureScreenTransition();
+
+          if (captureArch === "pull") {
+            await currentWindow.captureOperations();
+          }
         }
       } catch (error) {
         if (!(error instanceof Error)) {
@@ -280,6 +279,27 @@ export default class BrowserOperationCapturer {
       await browser.close();
       this.webBrowser = null;
     });
+  }
+
+  /**
+   * Register captured data.
+   * @param capturedData captured data.
+   * @param option option.
+   */
+  public async registerCapturedData(
+    capturedData: Omit<CapturedData, "eventInfo">,
+    option: {
+      shouldTakeScreenshot?: boolean;
+    } = {}
+  ) {
+    if (!this.webBrowser?.currentWindow) {
+      return;
+    }
+
+    return this.webBrowser.currentWindow.registerCapturedData(
+      capturedData,
+      option.shouldTakeScreenshot ?? false
+    );
   }
 
   /**
@@ -391,15 +411,15 @@ export default class BrowserOperationCapturer {
     if (!this.capturingIsPaused && currentWindow) {
       this.capturingIsPaused = true;
 
+      const screenElements =
+        await currentWindow.collectAllFrameScreenElements();
+
       this.onGetOperation(
         currentWindow.createCapturedOperation({
           type: SpecialOperationType.PAUSE_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElementsPerIframe:
-            await currentWindow.collectScreenElementsPerIframe(
-              await currentWindow.getNumberOfIframes()
-            ),
+          screenElements,
         })
       );
     }
@@ -414,15 +434,15 @@ export default class BrowserOperationCapturer {
     if (this.capturingIsPaused && currentWindow) {
       this.capturingIsPaused = false;
 
+      const screenElements =
+        await currentWindow.collectAllFrameScreenElements();
+
       this.onGetOperation(
         currentWindow.createCapturedOperation({
           type: SpecialOperationType.RESUME_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElementsPerIframe:
-            await currentWindow.collectScreenElementsPerIframe(
-              await currentWindow.getNumberOfIframes()
-            ),
+          screenElements,
         })
       );
     }
@@ -506,7 +526,7 @@ export default class BrowserOperationCapturer {
       await this.webBrowser.currentWindow.removeScreenLock();
     }
 
-    const runOperationLockId = "runOperationLockId";
+    const runOperationLockId = "runOperation";
 
     try {
       switch (operation.type as SpecialOperationType) {

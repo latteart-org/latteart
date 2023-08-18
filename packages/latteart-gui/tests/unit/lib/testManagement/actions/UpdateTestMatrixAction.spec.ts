@@ -1,4 +1,5 @@
 import {
+  ProjectForRepository,
   ProjectRESTRepository,
   TestMatrixRepository,
   ViewPointRepository,
@@ -6,20 +7,21 @@ import {
 import { RESTClient } from "latteart-client";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 
-const beseRestClient: RESTClient = {
+const baseRestClient: RESTClient = {
   serverUrl: "",
   httpGet: jest.fn(),
   httpPost: jest.fn(),
   httpPut: jest.fn(),
   httpPatch: jest.fn(),
   httpDelete: jest.fn(),
+  httpGetFile: jest.fn(),
 };
 
 describe("UpdateTestMatrixAction", () => {
   describe("#updateTestMatrix", () => {
     it("TestMatrix更新、ViewPoint作成・更新・削除", async () => {
       const testMatrixResponse = {
-        ...beseRestClient,
+        ...baseRestClient,
         httpPatch: jest.fn().mockResolvedValue({
           status: 200,
           data: {
@@ -32,7 +34,7 @@ describe("UpdateTestMatrixAction", () => {
         }),
       };
       const viewPointResponse = {
-        ...beseRestClient,
+        ...baseRestClient,
         httpPost: jest.fn().mockResolvedValue({
           status: 200,
           data: {
@@ -53,35 +55,39 @@ describe("UpdateTestMatrixAction", () => {
         }),
         httpDelete: jest.fn().mockResolvedValue({ status: 204 }),
       };
-      const projectResponse = {
-        ...beseRestClient,
-        httpGet: jest.fn().mockResolvedValue({
-          status: 200,
-          data: {
-            testMatrices: [
+
+      const testProject: ProjectForRepository = {
+        id: "project1",
+        name: "",
+        testMatrices: [
+          {
+            id: "testMatrixId",
+            name: "newTestMatrixName",
+            index: 0,
+            groups: [],
+            viewPoints: [
               {
-                id: "testMatrixId",
-                name: "newTestMatrixName",
+                id: "viewPointId1",
+                name: "viewPointName1",
+                description: "viewPointDescription1",
                 index: 0,
-                groups: [],
-                viewPoints: [
-                  {
-                    id: "viewPointId1",
-                    name: "viewPointName1",
-                    description: "viewPointDescription1",
-                    index: 0,
-                  },
-                  {
-                    id: "viewPointId2",
-                    name: "viewPointName2",
-                    description: "viewPointDescription2",
-                    index: 1,
-                  },
-                ],
+              },
+              {
+                id: "viewPointId2",
+                name: "viewPointName2",
+                description: "viewPointDescription2",
+                index: 1,
               },
             ],
           },
-        }),
+        ],
+        stories: [],
+      };
+      const projectResponse = {
+        ...baseRestClient,
+        httpGet: jest
+          .fn()
+          .mockResolvedValue({ status: 200, data: testProject }),
       };
 
       const args = {
@@ -125,6 +131,7 @@ describe("UpdateTestMatrixAction", () => {
           ],
         },
       };
+
       const result = await new UpdateTestMatrixAction().updateTestMatrix(args, {
         testMatrixRepository: new TestMatrixRepository(testMatrixResponse),
         viewPointRepository: new ViewPointRepository(viewPointResponse),

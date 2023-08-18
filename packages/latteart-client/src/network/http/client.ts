@@ -26,6 +26,7 @@ export interface RESTClient {
   httpPut<T>(url: string, body: T): Promise<RESTClientResponse>;
   httpPatch<T>(url: string, body: T): Promise<RESTClientResponse>;
   httpDelete(url: string): Promise<RESTClientResponse>;
+  httpGetFile(url: string): Promise<RESTClientResponse>;
 }
 
 /**
@@ -100,6 +101,27 @@ export class RESTClientImpl implements RESTClient {
     return this.httpRequest(url, {
       method: "DELETE",
     });
+  }
+
+  /**
+   * Make a GET request for Blob.
+   * @param url
+   * @returns
+   */
+  public async httpGetFile(url: string): Promise<RESTClientResponse> {
+    const fullUrl = new URL(url, this.serverUrl).toString();
+
+    const res = await fetch(fullUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+    });
+
+    return {
+      status: res.status,
+      data: await res.blob(),
+    };
   }
 
   private async httpRequest(url: string, init?: RequestInit) {

@@ -83,26 +83,34 @@
         </pane>
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
-            <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
+            <template>
+              <screencast-display />
 
-            <a
-              :href="screenshotUrl"
-              :download="screenshotName"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="screenshot-button screenshot-button-single"
-              ref="dllink"
-            >
-              <v-btn
-                v-show="screenshotUrl !== ''"
-                color="white"
-                class="screenshot-button screenshot-button-single ma-1"
-                fab
-                small
+              <screen-shot-display
+                v-if="screenshotUrl"
+                :imageInfo="imageInfo"
+              ></screen-shot-display>
+
+              <a
+                v-if="screenshotUrl"
+                :href="screenshotUrl"
+                :download="screenshotName"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="screenshot-button screenshot-button-single"
+                ref="dllink"
               >
-                <v-icon>image</v-icon>
-              </v-btn></a
-            >
+                <v-btn
+                  v-show="screenshotUrl !== ''"
+                  color="white"
+                  class="screenshot-button screenshot-button-single"
+                  fab
+                  small
+                >
+                  <v-icon>image</v-icon>
+                </v-btn></a
+              >
+            </template>
           </v-container>
         </pane>
       </splitpanes>
@@ -120,7 +128,6 @@
 
       <decision-table
         v-if="diagramType === DIAGRAM_TYPE_SCREEN_TRANSITION"
-        :onSelectValueSet="selectOperation"
         :message="message"
       ></decision-table>
     </pane>
@@ -149,6 +156,7 @@ import ElementCoverage from "@/components/pages/operationHistory/organisms/Eleme
 import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import ScreencastDisplay from "./ScreencastDisplay.vue";
 
 @Component({
   components: {
@@ -157,6 +165,7 @@ import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
     "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
+    "screencast-display": ScreencastDisplay,
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
@@ -216,15 +225,7 @@ export default class HistoryDisplay extends Vue {
     if (this.displayedScreenshotUrl !== "") {
       return { decode: this.displayedScreenshotUrl };
     }
-    const history = this.history.find((val) => {
-      return val.operation.sequence === Number(this.selectedOperationSequence);
-    });
-    if (history) {
-      this.callSetRecentImageInfo(history.operation.sequence);
-      return {
-        decode: this.recentImageInfo,
-      };
-    }
+
     return { decode: "" };
   }
 
@@ -233,7 +234,15 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get displayedScreenshotUrl(): string {
-    return this.$store.state.operationHistory.displayedScreenshotUrl;
+    const screenImage = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).screenImage;
+
+    if (!screenImage || !("imageFileUrl" in screenImage.background)) {
+      return "";
+    }
+
+    return screenImage.background.imageFileUrl;
   }
 
   private get displayedOperations(): number[] {
@@ -356,51 +365,6 @@ export default class HistoryDisplay extends Vue {
     this.$store.dispatch("operationHistory/selectOperation", {
       sequence: selectedOperationSequence,
     });
-  }
-
-  private setImageFileUrl(imageFileUrl: string) {
-    this.$store.dispatch("operationHistory/changeScreenshot", {
-      imageFileUrl,
-    });
-  }
-
-  private callSetRecentImageInfo(sequence: number) {
-    let cnt = 0;
-    const id = setInterval(() => {
-      const decodeImageData = this.searchRecentImageInfo(sequence);
-      if (decodeImageData !== "") {
-        this.recentImageInfo = decodeImageData;
-        clearInterval(id);
-      }
-      if (cnt > 10) {
-        this.recentImageInfo = "";
-        clearInterval(id);
-      }
-      cnt++;
-    }, 100);
-  }
-
-  /**
-   * Find the most recent image file from the specified sequence number and return the file path.
-   */
-  private searchRecentImageInfo(sequence: number): string {
-    // Some history of image data in the most recent sequence.
-    const recentHistory = this.history
-      .slice()
-      .reverse()
-      .filter((val) => {
-        return !!val.operation.imageFilePath;
-      })
-      .find((val) => {
-        return sequence >= val.operation.sequence;
-      });
-    if (recentHistory) {
-      const imageFilePath = recentHistory.operation.compressedImageFilePath
-        ? recentHistory.operation.compressedImageFilePath
-        : recentHistory.operation.imageFilePath;
-      return imageFilePath;
-    }
-    return "";
   }
 
   private scrollGraphArea() {

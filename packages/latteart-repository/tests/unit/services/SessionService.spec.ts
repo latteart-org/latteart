@@ -193,6 +193,7 @@ function createServiceMock(params: { doneDate: string }) {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
 
   return {

@@ -17,7 +17,6 @@
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { NoteEntity } from "@/entities/NoteEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
-import { SessionEntity } from "@/entities/SessionEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -29,6 +28,7 @@ import {
   PatchTestResultResponse,
   GetGraphViewResponse,
   ExportTestResultResponse,
+  PatchTestResultDto,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository, In } from "typeorm";
@@ -63,8 +63,9 @@ import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
 import { createLogger } from "@/logger/logger";
+import { VideoEntity } from "@/entities/VideoEntity";
 
-export interface TestResultService {
+export type TestResultService = {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
 
   getTestResult(id: string): Promise<GetTestResultResponse | undefined>;
@@ -108,16 +109,25 @@ export interface TestResultService {
     testResultId2: string,
     option?: PageAssertionOption
   ): Promise<CompareTestResultsResponse>;
-}
+
+  collectAllScreenshots(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]>;
+
+  collectAllVideos(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]>;
+};
 
 export class TestResultServiceImpl implements TestResultService {
   constructor(
-    private service: {
+    private service?: {
       timestamp: TimestampService;
       testStep: TestStepService;
       screenshotFileRepository: FileRepository;
       workingFileRepository: FileRepository;
       compareReportRepository: FileRepository;
+      videoFileRepository?: FileRepository;
     }
   ) {}
 
@@ -176,13 +186,11 @@ export class TestResultServiceImpl implements TestResultService {
   }
 
   public async createTestResult(
-    body: CreateTestResultDto,
-    testResultId: string | null
+    body: CreateTestResultDto
   ): Promise<CreateTestResultResponse> {
-    const createTimestamp = body.initialUrl
-      ? this.service.timestamp.epochMilliseconds()
+    const startTimestamp = body.initialUrl
+      ? this.service?.timestamp.epochMilliseconds()
       : 0;
-    const startTimestamp = body.startTimeStamp ?? createTimestamp;
 
     const lastUpdateTimestamp = -1;
 
@@ -193,7 +201,7 @@ export class TestResultServiceImpl implements TestResultService {
     const newTestResult = await repository.save({
       name:
         body.name ??
-        `session_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+        `session_${this.service?.timestamp.format("YYYYMMDD_HHmmss")}`,
       startTimestamp,
       lastUpdateTimestamp,
       initialUrl: body.initialUrl ?? "",
@@ -204,17 +212,8 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
-      creationTimestamp: this.service.timestamp.epochMilliseconds(),
+      creationTimestamp: this.service?.timestamp.epochMilliseconds(),
     });
-
-    if (testResultId) {
-      const oldTestResult = await repository.findOne(testResultId);
-      const sessionRepository = getRepository(SessionEntity);
-      sessionRepository.update(
-        { testResult: oldTestResult },
-        { testResult: newTestResult }
-      );
-    }
 
     return {
       id: newTestResult.id,
@@ -225,8 +224,12 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotFileRepository: FileRepository
+    screenshotFileRepository: FileRepository,
+    videoFileRepository: FileRepository
   ): Promise<void> {
+    const screenshots = await this.collectAllScreenshots(testResultId);
+    const videos = await this.collectAllVideos(testResultId);
+
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
         testResult: { id: testResultId },
@@ -242,30 +245,31 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
 
-      const fileUrls = (
-        await transactionalEntityManager.find(ScreenshotEntity, {
-          testResult: { id: testResultId },
-        })
-      ).map((screenshot) => screenshot.fileUrl);
+      await transactionalEntityManager.delete(VideoEntity, {
+        testResult: { id: testResultId },
+      });
 
       await transactionalEntityManager.delete(ScreenshotEntity, {
         testResult: { id: testResultId },
       });
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
-      fileUrls.forEach((fileUrl) => {
+      videos.forEach(({ fileUrl }) => {
+        videoFileRepository.removeFile(path.basename(fileUrl));
+      });
+
+      screenshots.forEach(({ fileUrl }) => {
         screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
     return;
   }
 
-  public async patchTestResult(params: {
-    id: string;
-    name?: string;
-    startTime?: number;
-    initialUrl?: string;
-  }): Promise<PatchTestResultResponse> {
+  public async patchTestResult(
+    params: PatchTestResultDto & {
+      id: string;
+    }
+  ): Promise<PatchTestResultResponse> {
     const id = params.id;
     const testResultEntity = await getRepository(
       TestResultEntity
@@ -273,9 +277,11 @@ export class TestResultServiceImpl implements TestResultService {
       relations: [
         "testSteps",
         "testSteps.screenshot",
+        "testSteps.video",
         "testSteps.notes",
         "testSteps.notes.tags",
         "testSteps.notes.screenshot",
+        "testSteps.notes.video",
         "testSteps.testPurpose",
       ],
     });
@@ -560,7 +566,7 @@ export class TestResultServiceImpl implements TestResultService {
           )
         ),
       },
-      relations: ["screenshot"],
+      relations: ["screenshot", "video"],
     });
 
     const nodes = graphView.nodes.map((node) => {
@@ -577,13 +583,19 @@ export class TestResultServiceImpl implements TestResultService {
     const notes = (
       await getRepository(NoteEntity).find({
         where: { id: In(graphView.store.notes.map(({ id }) => id)) },
-        relations: ["tags", "screenshot"],
+        relations: ["tags", "screenshot", "video"],
       })
     ).map((noteEntity) => {
-      const { id, value, details } = noteEntity;
+      const { id, value, details, timestamp } = noteEntity;
       const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
       const imageFileUrl = noteEntity.screenshot?.fileUrl;
-      return { id, value, details, tags, imageFileUrl };
+      const videoFrame = noteEntity.video
+        ? {
+            url: noteEntity.video.fileUrl,
+            time: noteEntity.videoTime ?? 0,
+          }
+        : undefined;
+      return { id, value, details, tags, imageFileUrl, timestamp, videoFrame };
     });
 
     const testPurposes = (
@@ -608,7 +620,7 @@ export class TestResultServiceImpl implements TestResultService {
   ): Promise<CompareTestResultsResponse> {
     const testStepRepository = getRepository(TestStepEntity);
     const findOption = {
-      relations: ["screenshot"],
+      relations: ["screenshot", "video"],
       order: { timestamp: "ASC" as const },
     };
     const actualTestStepEntities = await testStepRepository.find({
@@ -620,11 +632,19 @@ export class TestResultServiceImpl implements TestResultService {
       where: { testResult: expectedTestResultId },
     });
 
+    if (!this.service) {
+      throw new ServerError(500, {
+        code: "comparison_targets_not_same_procedures",
+      });
+    }
+
+    const { screenshotFileRepository } = this.service;
+
     const actualOperations = actualTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, screenshotFileRepository);
     });
     const expectedOperations = expectedTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, screenshotFileRepository);
     });
 
     const actualActions = createTestActions(...actualOperations);
@@ -691,9 +711,11 @@ export class TestResultServiceImpl implements TestResultService {
         relations: [
           "testSteps",
           "testSteps.screenshot",
+          "testSteps.video",
           "testSteps.notes",
           "testSteps.notes.tags",
           "testSteps.notes.screenshot",
+          "testSteps.notes.video",
           "testSteps.testPurpose",
         ],
       });
@@ -715,49 +737,59 @@ export class TestResultServiceImpl implements TestResultService {
   private async convertTestResultEntityToTestResult(
     testResultEntity: TestResultEntity
   ) {
-    const testSteps = await Promise.all(
-      testResultEntity.testSteps
-        ?.sort(function (first, second) {
-          return first.timestamp - second.timestamp;
-        })
-        .map(async (testStep) => {
-          const operation = await this.service.testStep.getTestStepOperation(
-            testStep.id
-          );
-          const notes =
-            testStep.notes?.map((note) => {
+    const testStepService = this.service?.testStep;
+
+    const testSteps = testStepService
+      ? await Promise.all(
+          testResultEntity.testSteps
+            ?.sort(function (first, second) {
+              return first.timestamp - second.timestamp;
+            })
+            .map(async (testStep) => {
+              const operation = await testStepService.getTestStepOperation(
+                testStep.id
+              );
+              const notes =
+                testStep.notes?.map((note) => {
+                  return {
+                    id: note.id,
+                    type: "notice",
+                    value: note.value,
+                    details: note.details,
+                    tags: note.tags?.map((tag) => tag.name) ?? [],
+                    imageFileUrl: note.screenshot?.fileUrl ?? "",
+                    timestamp: note.timestamp,
+                    videoFrame: note.video
+                      ? {
+                          url: note.video.fileUrl,
+                          time: note.videoTime ?? 0,
+                        }
+                      : undefined,
+                  };
+                }) ?? [];
+
+              const testPurpose = testStep.testPurpose
+                ? {
+                    id: testStep.testPurpose.id,
+                    type: "intention",
+                    value: testStep.testPurpose.title,
+                    details: testStep.testPurpose.details,
+                    tags: [],
+                    imageFileUrl: "",
+                    timestamp: 0,
+                  }
+                : null;
+
               return {
-                id: note.id,
-                type: "notice",
-                value: note.value,
-                details: note.details,
-                tags: note.tags?.map((tag) => tag.name) ?? [],
-                imageFileUrl: note.screenshot?.fileUrl ?? "",
-                timestamp: note.timestamp,
+                id: testStep.id,
+                operation,
+                intention: testPurpose,
+                notices: notes,
+                bugs: [],
               };
-            }) ?? [];
-
-          const testPurpose = testStep.testPurpose
-            ? {
-                id: testStep.testPurpose.id,
-                type: "intention",
-                value: testStep.testPurpose.title,
-                details: testStep.testPurpose.details,
-                tags: [],
-                imageFileUrl: "",
-                timestamp: 0,
-              }
-            : null;
-
-          return {
-            id: testStep.id,
-            operation,
-            intention: testPurpose,
-            notices: notes,
-            bugs: [],
-          };
-        }) ?? []
-    );
+            }) ?? []
+        )
+      : [];
 
     const coverageSources =
       testResultEntity.coverageSources?.map((coverageSource) => {
@@ -780,6 +812,50 @@ export class TestResultServiceImpl implements TestResultService {
       parentTestResultId: testResultEntity.parentTestResultId,
       creationTimestamp: testResultEntity.creationTimestamp,
     };
+  }
+
+  public async collectAllVideos(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]> {
+    const testStepVideos = (
+      await getRepository(TestStepEntity).find({ testResultId })
+    ).flatMap(({ video }) => (video ? [video] : []));
+
+    const noteVideos = (
+      await getRepository(NoteEntity).find({ testResultId })
+    ).flatMap(({ video }) => (video ? [video] : []));
+
+    const videos = [...testStepVideos, ...noteVideos].filter(
+      (video, index, array) => {
+        return array.findIndex(({ id }) => id === video.id) === index;
+      }
+    );
+
+    return videos.map(({ id, fileUrl }) => {
+      return { id, fileUrl };
+    });
+  }
+
+  public async collectAllScreenshots(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]> {
+    const testStepScreenshots = (
+      await getRepository(TestStepEntity).find({ testResultId })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+
+    const noteScreenshots = (
+      await getRepository(NoteEntity).find({ testResultId })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+
+    const screenshots = [...testStepScreenshots, ...noteScreenshots].filter(
+      (screenshot, index, array) => {
+        return array.findIndex(({ id }) => id === screenshot.id) === index;
+      }
+    );
+
+    return screenshots.map(({ id, fileUrl }) => {
+      return { id, fileUrl };
+    });
   }
 
   private convertToTestResult(testResult: ExportTestResultResponse) {

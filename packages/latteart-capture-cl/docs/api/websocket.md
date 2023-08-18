@@ -99,85 +99,99 @@ Run operation.
       {
         "type": "object",
         "properties": {
-          "title": {
+          "input": {
             "type": "string"
           },
-          "url": {
+          "type": {
             "type": "string"
           },
-          "imageData": {
-            "type": "string"
-          },
-          "windowHandle": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "string"
-          },
-          "screenElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
-                  "type": "object",
-                  "patternProperties": {
-                    ".+$": {
-                      "type": "string"
-                    }
-                  }
-                }
+          "scrollPosition": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
               }
             }
           },
-          "pageSource": {
-            "type": "string"
-          },
-          "inputElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
-                  "type": "object",
-                  "patternProperties": {
-                    ".+$": {
-                      "type": "string"
-                    }
-                  }
-                }
+          "clientSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
               }
             }
+          },
+          "elementInfo": {
+            "type": "object",
+            "properties": {
+              "tagname": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "xpath": {
+                "type": "string"
+              },
+              "checked": {
+                "type": "boolean"
+              },
+              "attributes": {
+                "type": "object",
+                "patternProperties": {
+                  ".+$": {
+                    "type": "string"
+                  }
+                }
+              },
+              "boundingRect": {
+                "type": "object",
+                "properties": {
+                  "top": {
+                    "type": "number"
+                  },
+                  "left": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  }
+                }
+              },
+              "innerHeight": {
+                "type": "number"
+              },
+              "innerWidth": {
+                "type": "number"
+              },
+              "outerHeight": {
+                "type": "number"
+              },
+              "outerWidth": {
+                "type": "number"
+              },
+              "textWithoutChildren": {
+                "type": "string"
+              },
+              "iframeIndex": {
+                "type": "number"
+              }
+            }
+          },
+          "iframeIndex": {
+            "type": "number"
           }
         }
       }
@@ -194,85 +208,99 @@ Execution of operations involving screen transitions.
       {
         "type": "object",
         "properties": {
-          "title": {
+          "input": {
             "type": "string"
           },
-          "url": {
+          "type": {
             "type": "string"
           },
-          "imageData": {
-            "type": "string"
-          },
-          "windowHandle": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "string"
-          },
-          "screenElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
-                  "type": "object",
-                  "patternProperties": {
-                    ".+$": {
-                      "type": "string"
-                    }
-                  }
-                }
+          "scrollPosition": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
               }
             }
           },
-          "pageSource": {
-            "type": "string"
-          },
-          "inputElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
-                  "type": "object",
-                  "patternProperties": {
-                    ".+$": {
-                      "type": "string"
-                    }
-                  }
-                }
+          "clientSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
               }
             }
+          },
+          "elementInfo": {
+            "type": "object",
+            "properties": {
+              "tagname": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "xpath": {
+                "type": "string"
+              },
+              "checked": {
+                "type": "boolean"
+              },
+              "attributes": {
+                "type": "object",
+                "patternProperties": {
+                  ".+$": {
+                    "type": "string"
+                  }
+                }
+              },
+              "boundingRect": {
+                "type": "object",
+                "properties": {
+                  "top": {
+                    "type": "number"
+                  },
+                  "left": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  }
+                }
+              },
+              "innerHeight": {
+                "type": "number"
+              },
+              "innerWidth": {
+                "type": "number"
+              },
+              "outerHeight": {
+                "type": "number"
+              },
+              "outerWidth": {
+                "type": "number"
+              },
+              "textWithoutChildren": {
+                "type": "string"
+              },
+              "iframeIndex": {
+                "type": "number"
+              }
+            }
+          },
+          "iframeIndex": {
+            "type": "number"
           }
         }
       }
@@ -335,6 +363,28 @@ An operation has been captured.
           "type": {
             "type": "string"
           },
+          "scrollPosition": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "clientSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            }
+          },
           "elementInfo": {
             "type": "object",
             "properties": {
@@ -360,6 +410,41 @@ An operation has been captured.
                     "type": "string"
                   }
                 }
+              },
+              "boundingRect": {
+                "type": "object",
+                "properties": {
+                  "top": {
+                    "type": "number"
+                  },
+                  "left": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  }
+                }
+              },
+              "innerHeight": {
+                "type": "number"
+              },
+              "innerWidth": {
+                "type": "number"
+              },
+              "outerHeight": {
+                "type": "number"
+              },
+              "outerWidth": {
+                "type": "number"
+              },
+              "textWithoutChildren": {
+                "type": "string"
+              },
+              "iframeIndex": {
+                "type": "number"
               }
             }
           },
@@ -378,31 +463,77 @@ An operation has been captured.
           "timestamp": {
             "type": "string"
           },
+          "iframeIndex": {
+            "type": "number"
+          },
           "screenElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
+            "type": "object",
+            "properties": {
+              "iframeIndex": {
+                "type": "number"
+              },
+              "elements": {
+                "type": "array",
+                "items": {
                   "type": "object",
-                  "patternProperties": {
-                    ".+$": {
+                  "properties": {
+                    "tagname": {
                       "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "xpath": {
+                      "type": "string"
+                    },
+                    "checked": {
+                      "type": "boolean"
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "patternProperties": {
+                        ".+$": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "boundingRect": {
+                      "type": "object",
+                      "properties": {
+                        "top": {
+                          "type": "number"
+                        },
+                        "left": {
+                          "type": "number"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "innerHeight": {
+                      "type": "number"
+                    },
+                    "innerWidth": {
+                      "type": "number"
+                    },
+                    "outerHeight": {
+                      "type": "number"
+                    },
+                    "outerWidth": {
+                      "type": "number"
+                    },
+                    "textWithoutChildren": {
+                      "type": "string"
+                    },
+                    "iframeIndex": {
+                      "type": "number"
                     }
                   }
                 }
@@ -411,37 +542,6 @@ An operation has been captured.
           },
           "pageSource": {
             "type": "string"
-          },
-          "inputElements": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tagname": {
-                  "type": "string"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "string"
-                },
-                "xpath": {
-                  "type": "string"
-                },
-                "checked": {
-                  "type": "boolean"
-                },
-                "attributes": {
-                  "type": "object",
-                  "patternProperties": {
-                    ".+$": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -475,6 +575,102 @@ An screen transition has been captured.
           },
           "pageSource": {
             "type": "string"
+          },
+          "scrollPosition": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "clientSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            }
+          },
+          "screenElements": {
+            "type": "object",
+            "properties": {
+              "iframeIndex": {
+                "type": "number"
+              },
+              "elements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tagname": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "xpath": {
+                      "type": "string"
+                    },
+                    "checked": {
+                      "type": "boolean"
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "patternProperties": {
+                        ".+$": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "boundingRect": {
+                      "type": "object",
+                      "properties": {
+                        "top": {
+                          "type": "number"
+                        },
+                        "left": {
+                          "type": "number"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "innerHeight": {
+                      "type": "number"
+                    },
+                    "innerWidth": {
+                      "type": "number"
+                    },
+                    "outerHeight": {
+                      "type": "number"
+                    },
+                    "outerWidth": {
+                      "type": "number"
+                    },
+                    "textWithoutChildren": {
+                      "type": "string"
+                    },
+                    "iframeIndex": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

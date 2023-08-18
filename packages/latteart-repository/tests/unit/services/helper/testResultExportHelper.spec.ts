@@ -24,6 +24,7 @@ describe("testResultExportHelper", () => {
         details: "intention1",
         tags: [],
         imageFileUrl: "",
+        timestamp: 0,
       };
       const testResult: ExportTestResultResponse = {
         id: "testResultId",

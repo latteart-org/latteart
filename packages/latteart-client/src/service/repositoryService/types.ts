@@ -22,6 +22,8 @@ import {
   TestStepNote,
   Note,
   TestResultViewOption,
+  VideoFrame,
+  Video,
 } from "../types";
 import { RepositoryContainer } from "./testResultAccessor";
 
@@ -88,6 +90,9 @@ export type TestResultAccessor = {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
+      videoId?: string;
+      videoTime?: number;
     },
     testStepId: string,
     option?: {
@@ -162,6 +167,20 @@ export type TestResultAccessor = {
   generateSequenceView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>>;
+
+  /**
+   * create a video
+   */
+  createVideo(): Promise<ServiceResult<Video>>;
+
+  /**
+   * append video buffer
+   * @param buffer buffer
+   */
+  appendVideoBuffer(
+    videoId: string,
+    buffer: ArrayBuffer
+  ): Promise<ServiceResult<void>>;
 };
 
 export type SequenceView = {
@@ -220,6 +239,16 @@ export type GraphView = {
       text: string;
       attributes: { [key: string]: string };
       iframeIndex?: number;
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string; value: string; details: string }[];
     notes: {
@@ -228,6 +257,8 @@ export type GraphView = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoFrame?: VideoFrame;
     }[];
   };
 };
@@ -246,6 +277,7 @@ export type GraphViewNode = {
     pageTitle: string;
     imageFileUrl?: string;
     iframeIndex?: number;
+    videoFrame?: VideoFrame;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -268,4 +300,6 @@ export type RepositoryServiceErrorCode =
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
   | "generate_sequence_view_failed"
-  | "generate_graph_view_failed";
+  | "generate_graph_view_failed"
+  | "create_video_failed"
+  | "append_video_buffer_failed";

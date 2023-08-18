@@ -21,7 +21,7 @@ import {
   createConnectionRefusedFailure,
   createRepositoryAccessFailure,
 } from "./result";
-import { StoryForRepository } from "./types";
+import { SessionForRepository, StoryForRepository } from "./types";
 
 export class StoryRepository {
   constructor(private restClient: RESTClient) {}
@@ -42,8 +42,10 @@ export class StoryRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as StoryForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as StoryForRepository,
+        data: this.convertStory(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -60,11 +62,44 @@ export class StoryRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as StoryForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as StoryForRepository,
+        data: this.convertStory(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertStory(story: StoryForRepository) {
+    return {
+      ...story,
+      sessions: story.sessions.map((session) => this.convertSession(session)),
+    };
+  }
+
+  private convertSession(session: SessionForRepository) {
+    return {
+      ...session,
+      testResultFiles: session.testResultFiles,
+      notes: session.notes.map((note) => {
+        return {
+          ...note,
+          imageFileUrl: note.imageFileUrl
+            ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+          videoFrame: note.videoFrame
+            ? {
+                url: new URL(
+                  note.videoFrame.url,
+                  this.restClient.serverUrl
+                ).toString(),
+                time: note.videoFrame.time,
+              }
+            : undefined,
+        };
+      }),
+    };
   }
 }

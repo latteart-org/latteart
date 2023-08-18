@@ -26,8 +26,10 @@ export type ScreenDefinitionSetting =
 
 export type CoverageSetting = ProjectSettings["config"]["coverage"];
 
-export type ImageCompressionSetting =
-  ProjectSettings["config"]["imageCompression"];
+export type CaptureMediaSetting =
+  ProjectSettings["config"]["captureMediaSetting"];
+
+export type ImageCompressionSetting = CaptureMediaSetting["imageCompression"];
 
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";

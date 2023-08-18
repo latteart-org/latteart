@@ -52,8 +52,7 @@ export class UpdateSessionAction {
     }
 
     const convertedSession = new SessionDataConverter().convertToSession(
-      result.data,
-      this.repositoryService.serviceUrl
+      result.data
     );
 
     return new ActionSuccess(convertedSession);

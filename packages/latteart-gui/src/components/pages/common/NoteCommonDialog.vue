@@ -67,13 +67,24 @@
         </v-combobox>
 
         <v-checkbox
-          v-if="isCapturing && oldIndex === null"
+          v-if="isCapturing && oldIndex === null && mediaType === 'image'"
           v-model="shouldTakeScreenshot"
           :disabled="isAlertVisible"
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <thumbnail-image v-if="isThumbnailVisible" :imageFileUrl="screenshot" />
+
+        <thumbnail-image
+          v-if="isThumbnailVisible && mediaType === 'image'"
+          :imageFileUrl="screenshot"
+        />
+
+        <v-btn
+          v-if="mediaType === 'video'"
+          :disabled="isPictureInPictureVideoDisplayed"
+          @click="displayPictureInPictureVideo"
+          >{{ $store.getters.message("note-edit.check-video") }}</v-btn
+        >
       </template>
     </execute-dialog>
   </div>
@@ -88,6 +99,8 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -162,6 +175,20 @@ export default class NoteCommonDialog extends Vue {
     return this.isAlertVisible
       ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
       : "";
+  }
+
+  private get mediaType() {
+    return (this.$store.state as RootState).projectSettings.config
+      .captureMediaSetting.mediaType;
+  }
+  private displayPictureInPictureVideo() {
+    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
+      isDisplayed: true,
+    });
+  }
+  private get isPictureInPictureVideoDisplayed() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .isPictureInPictureWindowDisplayed;
   }
 
   private execute(): void {

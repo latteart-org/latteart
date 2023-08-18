@@ -124,7 +124,7 @@
                 shouldHideHiddenElements &&
                 elementTypeIsHidden(props.item.elementType),
             }"
-            @click="selectInputValueSet(props.index)"
+            @click="selectRow(props.index)"
             :key="props.index"
           >
             <td class="text-xs-center">
@@ -170,15 +170,24 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "../../common/organisms/NoteListDialog.vue";
+import { ElementInfo, VideoFrame } from "latteart-client";
 
 type InputValue = {
   [key: string]:
     | string
-    | number
     | {
-        value: string;
-        isDefaultValue: boolean;
-      };
+        image: { imageFileUrl?: string; videoFrame?: VideoFrame };
+        elementInfo: Pick<
+          ElementInfo,
+          | "boundingRect"
+          | "innerHeight"
+          | "innerWidth"
+          | "outerHeight"
+          | "outerWidth"
+        >;
+      }
+    | { value: string; isDefaultValue: boolean }
+    | undefined;
 };
 
 @Component({
@@ -187,9 +196,6 @@ type InputValue = {
   },
 })
 export default class DecisionTable extends Vue {
-  @Prop({ type: Function, default: -1 }) public readonly onSelectValueSet!: (
-    sequence: string
-  ) => void;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private shouldGrayOutNotInputValueCell = true;
@@ -273,20 +279,7 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
-              notes: screenTransition.notes
-                ? screenTransition.notes.map((note) => {
-                    const noteImageFileUrl = note.imageFileUrl
-                      ? new URL(
-                          note.imageFileUrl,
-                          this.$store.state.repositoryService.serviceUrl
-                        ).toString()
-                      : "";
-                    return {
-                      ...note,
-                      imageFileUrl: noteImageFileUrl,
-                    };
-                  })
-                : [],
+              notes: screenTransition.notes,
               testPurposes: screenTransition.testPurposes,
               index,
             };
@@ -298,14 +291,14 @@ export default class DecisionTable extends Vue {
 
   private get inputValues(): InputValue[] {
     return this.inputValueTable.rows.map(
-      ({ inputs, elementName, elementId, elementType, sequence }) => {
+      ({ inputs, elementName, elementId, elementType, elementImage }) => {
         return inputs.reduce(
           (acc: any, current, index) => {
             acc[`set${index}`] = current;
 
             return acc;
           },
-          { elementName, elementId, elementType, sequence }
+          { elementName, elementId, elementType, elementImage }
         );
       }
     );
@@ -315,25 +308,35 @@ export default class DecisionTable extends Vue {
     const columns = Object.entries(item);
     return columns
       .filter(([columnName]) => {
-        return columnName !== "sequence";
+        return columnName !== "media";
       })
       .some(([_, columnValue]) => {
-        if (
-          typeof columnValue === "string" ||
-          typeof columnValue === "number"
-        ) {
-          return columnValue.toString().includes(search);
-        } else {
+        if (!columnValue) {
+          return false;
+        }
+
+        if (typeof columnValue === "string") {
+          return columnValue.includes(search);
+        }
+
+        if ("value" in columnValue) {
           return columnValue.value.includes(search);
         }
+
+        return false;
       });
   }
 
-  private selectInputValueSet(index: number): void {
-    const sequence = this.inputValues[index].sequence;
-
-    if (typeof sequence === "number" && sequence > 0) {
-      this.onSelectValueSet(String(sequence));
+  private selectRow(index: number): void {
+    const elementImage = this.inputValues[index].elementImage;
+    if (
+      typeof elementImage === "object" &&
+      "image" in elementImage &&
+      "elementInfo" in elementImage
+    ) {
+      this.$store.dispatch("operationHistory/changeScreenImage", {
+        ...elementImage,
+      });
     }
   }
 
@@ -353,13 +356,13 @@ export default class DecisionTable extends Vue {
       .getScreenTransitions()
       .at(index);
 
-    if (!screenTransition || !screenTransition.trigger) {
+    if (!screenTransition) {
       return;
     }
 
     this.$store.commit("captureControl/setAutofillRegisterDialog", {
-      title: screenTransition.trigger.pageTitle,
-      url: screenTransition.trigger.pageUrl,
+      title: screenTransition.pageTitle,
+      url: screenTransition.pageUrl,
       message: this.$store.getters.message(
         "input-value.autofill-dialog-message"
       ),

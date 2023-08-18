@@ -17,6 +17,7 @@
 import { SequenceView, TestResult, TestResultViewOption } from "@/domain/types";
 import { GetNoteResponse } from "./Notes";
 import { GetTestStepResponse } from "./TestSteps";
+import { VideoFrame } from "./Videos";
 
 /**
  * Test result data for new registration.
@@ -24,9 +25,17 @@ import { GetTestStepResponse } from "./TestSteps";
 export interface CreateTestResultDto {
   initialUrl?: string;
   name?: string;
-  startTimeStamp?: number;
   parentTestResultId?: string;
 }
+
+/**
+ * Test result data for update.
+ */
+export type PatchTestResultDto = {
+  name?: string;
+  startTime?: number;
+  initialUrl?: string;
+};
 
 /**
  * Test result list record.
@@ -105,6 +114,7 @@ export type GetGraphViewResponse = {
       pageUrl: string;
       pageTitle: string;
       imageFileUrl?: string;
+      videoFrame?: VideoFrame;
     }[];
     defaultValues: { elementId: string; value?: string }[];
   }[];
@@ -119,6 +129,16 @@ export type GetGraphViewResponse = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string; value: string; details: string }[];
     notes: {
@@ -127,6 +147,8 @@ export type GetGraphViewResponse = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoFrame?: VideoFrame;
     }[];
   };
 };

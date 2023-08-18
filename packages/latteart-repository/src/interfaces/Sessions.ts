@@ -15,6 +15,7 @@
  */
 
 import { GetNoteResponse, GetTestPurposeResponse } from "./Notes";
+import { Video } from "./Videos";
 
 /**
  * Registered session data.
@@ -34,7 +35,7 @@ export type ListSessionResponse = string[];
 /**
  * Session data for update.
  */
-export interface PatchSessionDto {
+export type PatchSessionDto = {
   isDone?: boolean;
   testItem?: string;
   testerName?: string;
@@ -44,11 +45,8 @@ export interface PatchSessionDto {
     fileUrl?: string;
     fileData?: string;
   }[];
-  testResultFiles?: {
-    name: string;
-    id: string;
-  }[];
-}
+  testResultFiles?: TestResultFile[];
+};
 
 /**
  * Session.
@@ -62,16 +60,15 @@ export type Session = {
   testItem: string;
   testerName: string;
   memo: string;
-  attachedFiles: {
-    name: string;
-    fileUrl: string;
-  }[];
-  testResultFiles: {
-    name: string;
-    id: string;
-  }[];
+  attachedFiles: { name: string; fileUrl: string }[];
+  testResultFiles: TestResultFile[];
   initialUrl: string;
   testPurposes: GetTestPurposeResponse[];
   notes: GetNoteResponse[];
   testingTime: number;
+};
+
+type TestResultFile = {
+  name: string;
+  id: string;
 };

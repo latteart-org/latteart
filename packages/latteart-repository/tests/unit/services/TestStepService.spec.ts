@@ -31,6 +31,7 @@ describe("TestStepService", () => {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
 
   const timestampService: TimestampService = {
@@ -40,7 +41,7 @@ describe("TestStepService", () => {
   };
   describe("#getTestStep", () => {
     it("テストステップを1件取得する", async () => {
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -92,7 +93,7 @@ describe("TestStepService", () => {
       screenshotFileRepository.getFileUrl = jest
         .fn()
         .mockReturnValue("testStep.png");
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -136,8 +137,7 @@ describe("TestStepService", () => {
         url: "url",
         imageData: "imageData",
         windowHandle: "windowHandle",
-        screenElementsPerIframe: [{ screenElements: [element2] }] as any,
-        inputElements: [element2],
+        screenElements: [{ elements: [element2] }] as any,
         timestamp: 100,
         pageSource: "pageSource",
         isAutomatic: false,
@@ -184,9 +184,9 @@ describe("TestStepService", () => {
           url: requestBody.url,
           screenElements: [
             ...defaultScreenElements,
-            ...requestBody.screenElementsPerIframe
+            ...requestBody.screenElements
               .map((e) => {
-                return e.screenElements.map((e2) => {
+                return e.elements.map((e2) => {
                   e2.iframeIndex = e.iframeIndex;
                   return e2;
                 });
@@ -206,7 +206,7 @@ describe("TestStepService", () => {
 
   describe("#attachNotesToTestStep", () => {
     it("テストステップにnoteを1件追加する", async () => {
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -225,7 +225,7 @@ describe("TestStepService", () => {
       const noteEntity = await getRepository(NoteEntity).save({
         value: "value",
         details: "details",
-        timestamp: timestampService.unix(),
+        timestamp: timestampService.epochMilliseconds(),
         testResult: testResultEntity,
         tags: [],
       });
