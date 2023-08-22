@@ -245,20 +245,15 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
 
-      await transactionalEntityManager.delete(VideoEntity, {
-        testResult: { id: testResultId },
-      });
-
-      await transactionalEntityManager.delete(ScreenshotEntity, {
-        testResult: { id: testResultId },
-      });
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
-      videos.forEach(({ fileUrl }) => {
+      videos.forEach(async ({ id, fileUrl }) => {
+        await transactionalEntityManager.delete(VideoEntity, id);
         videoFileRepository.removeFile(path.basename(fileUrl));
       });
 
-      screenshots.forEach(({ fileUrl }) => {
+      screenshots.forEach(async ({ id, fileUrl }) => {
+        await transactionalEntityManager.delete(ScreenshotEntity, id);
         screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
@@ -818,11 +813,17 @@ export class TestResultServiceImpl implements TestResultService {
     testResultId: string
   ): Promise<{ id: string; fileUrl: string }[]> {
     const testStepVideos = (
-      await getRepository(TestStepEntity).find({ testResultId })
+      await getRepository(TestStepEntity).find({
+        relations: ["video"],
+        where: { testResult: testResultId },
+      })
     ).flatMap(({ video }) => (video ? [video] : []));
 
     const noteVideos = (
-      await getRepository(NoteEntity).find({ testResultId })
+      await getRepository(NoteEntity).find({
+        relations: ["video"],
+        where: { testResult: testResultId },
+      })
     ).flatMap(({ video }) => (video ? [video] : []));
 
     const videos = [...testStepVideos, ...noteVideos].filter(
@@ -840,11 +841,16 @@ export class TestResultServiceImpl implements TestResultService {
     testResultId: string
   ): Promise<{ id: string; fileUrl: string }[]> {
     const testStepScreenshots = (
-      await getRepository(TestStepEntity).find({ testResultId })
+      await getRepository(TestStepEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: testResultId },
+      })
     ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
-
     const noteScreenshots = (
-      await getRepository(NoteEntity).find({ testResultId })
+      await getRepository(NoteEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: testResultId },
+      })
     ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
 
     const screenshots = [...testStepScreenshots, ...noteScreenshots].filter(
