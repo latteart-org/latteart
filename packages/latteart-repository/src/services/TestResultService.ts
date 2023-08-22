@@ -566,11 +566,18 @@ export class TestResultServiceImpl implements TestResultService {
 
     const nodes = graphView.nodes.map((node) => {
       const testSteps = node.testSteps.map((testStep) => {
-        const imageFileUrl = testStepEntities.find(
+        const testStepEntity = testStepEntities.find(
           ({ id }) => id === testStep.id
-        )?.screenshot?.fileUrl;
+        );
+        const imageFileUrl = testStepEntity?.screenshot?.fileUrl;
+        const videoFrame = testStepEntity?.video
+          ? {
+              url: testStepEntity.video.fileUrl,
+              time: testStepEntity.videoTime ?? 0,
+            }
+          : undefined;
 
-        return { ...testStep, imageFileUrl };
+        return { ...testStep, imageFileUrl, videoFrame };
       });
       return { ...node, testSteps };
     });
