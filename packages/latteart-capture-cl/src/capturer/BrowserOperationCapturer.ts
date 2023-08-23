@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Operation } from "../Operation";
+import { Operation, ScreenElements } from "../Operation";
 import LoggingService from "../logger/LoggingService";
 import WebBrowser from "./browser/WebBrowser";
 import { CaptureConfig } from "../CaptureConfig";
@@ -23,7 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedData, captureScript } from "./captureScript";
+import { CapturedData } from "./captureScript";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -128,6 +128,7 @@ export default class BrowserOperationCapturer {
     let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
+    let screenElements: ScreenElements[] | undefined = [];
 
     while (this.isCapturing()) {
       try {
@@ -135,6 +136,9 @@ export default class BrowserOperationCapturer {
 
         if (!this.alertIsVisible) {
           pageSource = await this.client.getCurrentPageText();
+
+          screenElements =
+            await this.webBrowser.currentWindow?.collectAllFrameScreenElements();
 
           if (shouldDeleteCapturedData && this.config.mediaType === "image") {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
@@ -176,9 +180,6 @@ export default class BrowserOperationCapturer {
           if (!currentWindow) {
             continue;
           }
-
-          const screenElements =
-            await currentWindow.collectAllFrameScreenElements();
 
           acceptAlertOperation = currentWindow.createCapturedOperation({
             type: SpecialOperationType.ACCEPT_ALERT,
