@@ -74,13 +74,10 @@
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
 
-        <thumbnail-image
-          v-if="isThumbnailVisible && mediaType === 'image'"
-          :imageFileUrl="screenshot"
-        />
+        <thumbnail-image v-if="screenshot" :imageFileUrl="screenshot" />
 
         <v-btn
-          v-if="mediaType === 'video'"
+          v-if="video"
           :disabled="isPictureInPictureVideoDisplayed"
           @click="displayPictureInPictureVideo"
           >{{ $store.getters.message("note-edit.check-video") }}</v-btn
@@ -124,6 +121,7 @@ export default class NoteCommonDialog extends Vue {
   private newNoteDetails = "";
   private newTags: string[] = [];
   private screenshot = "";
+  private video = "";
 
   private oldSequence: number | null = null;
   private newTargetSequence: number | null = null;
@@ -132,8 +130,6 @@ export default class NoteCommonDialog extends Vue {
   private shouldTakeScreenshot = false;
 
   private isAlertVisible = false;
-
-  private isThumbnailVisible = false;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -154,6 +150,7 @@ export default class NoteCommonDialog extends Vue {
     this.oldIndex = this.noteInfo.index;
     this.oldTags = this.noteInfo.tags;
     this.screenshot = this.noteInfo.imageFilePath;
+    this.video = this.noteInfo.videoFilePath;
     this.newNote = this.oldNote;
     this.newNoteDetails = this.oldNoteDetails;
     this.newTags = [...this.oldTags];
@@ -161,10 +158,6 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
-    this.isThumbnailVisible = false;
-    this.$nextTick(() => {
-      this.isThumbnailVisible = true;
-    });
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },

@@ -57,6 +57,12 @@ export const storyEntityToResponse = (story: StoryEntity): Story => {
 const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
   const testStep = note.testSteps ? note.testSteps[0] : undefined;
   const tags = note.tags?.map((tag) => tag.name) ?? [];
+  const noteVideo = note.video
+    ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+    : undefined;
+  const operationVideo = testStep?.video
+    ? { url: testStep.video.fileUrl, time: testStep.videoTime ?? 0 }
+    : undefined;
   return {
     id: note.id,
     type: "notice",
@@ -66,9 +72,7 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
     timestamp: note.timestamp ?? 0,
-    videoFrame: note.video
-      ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
-      : undefined,
+    videoFrame: noteVideo ?? operationVideo,
   };
 };
 
@@ -95,6 +99,12 @@ const mergeTestpurposeAndNotes = (
     notes?.map((note) => {
       const testStep = note.testSteps ? note.testSteps[0] : undefined;
       const tags = note.tags?.map((tag) => tag.name) ?? [];
+      const noteVideo = note.video
+        ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+        : undefined;
+      const operationVideo = testStep?.video
+        ? { url: testStep.video.fileUrl, time: testStep.videoTime ?? 0 }
+        : undefined;
       return {
         id: note.id,
         type: "notice",
@@ -104,9 +114,7 @@ const mergeTestpurposeAndNotes = (
           note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
         tags,
         timestamp: testStep?.timestamp ?? 0,
-        videoFrame: note.video
-          ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
-          : undefined,
+        videoFrame: noteVideo ?? operationVideo,
       };
     }) ?? [];
 

@@ -186,6 +186,7 @@ export interface NoteDialogInfo {
   imageFilePath: string;
   sequence: number;
   maxSequence: number;
+  videoFilePath: string;
 }
 
 export type TestResultComparisonResult =

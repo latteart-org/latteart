@@ -33,6 +33,7 @@
 <script lang="ts">
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
+import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "./ErrorMessageDialog.vue";
 import NoteCommonDialog from "./NoteCommonDialog.vue";
@@ -57,6 +58,7 @@ export default class NoteRegisterDialog extends Vue {
     imageFilePath: "",
     sequence: 1,
     maxSequence: 1,
+    videoFilePath: "",
   };
 
   @Watch("opened")
@@ -66,17 +68,19 @@ export default class NoteRegisterDialog extends Vue {
     }
     const { sequence } =
       this.$store.state.operationHistory.selectedOperationNote;
+    const targetOperation = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).history[sequence - 1].operation;
 
     this.noteInfo = {
       value: "",
       details: "",
       index: null,
       tags: [],
-      imageFilePath:
-        this.$store.state.operationHistory.history[sequence - 1].operation
-          .imageFilePath ?? "",
+      imageFilePath: targetOperation.imageFilePath ?? "",
       sequence: sequence,
       maxSequence: this.$store.state.operationHistory.history.length,
+      videoFilePath: targetOperation.videoFrame?.url ?? "",
     };
   }
 
