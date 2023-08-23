@@ -276,7 +276,7 @@ export default class OperationList extends Vue {
   private checkedItems: HistoryItemForDisplay[] = [];
   private search = "";
   private page: number = 1;
-  private itemsPerPage: number = -1;
+  private itemsPerPage: number = 100;
   private itemsPerPageOptions: number[] = [100, 200, 500, 1000];
   private sortBy = "operation.sequence";
   private sortDesc = false;
