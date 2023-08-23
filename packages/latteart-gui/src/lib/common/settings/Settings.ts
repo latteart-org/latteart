@@ -29,8 +29,6 @@ export type CoverageSetting = ProjectSettings["config"]["coverage"];
 export type CaptureMediaSetting =
   ProjectSettings["config"]["captureMediaSetting"];
 
-export type ImageCompressionSetting = CaptureMediaSetting["imageCompression"];
-
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";
   browser: "Chrome" | "Edge" | "Safari";

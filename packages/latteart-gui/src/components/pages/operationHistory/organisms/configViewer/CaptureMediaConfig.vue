@@ -43,7 +43,7 @@
         <v-radio-group
           :value="tempConfig.imageCompression.format"
           class="py-0 my-0"
-          @change="saveConfig"
+          @change="changeCaptureFormat"
           :disabled="tempConfig.mediaType === 'video'"
         >
           <v-radio
@@ -76,7 +76,6 @@ export default class CaptureMediaConfig extends Vue {
   };
   @Watch("captureMediaSetting")
   private updateTempConfig() {
-    console.log({ captureMediaSetting: this.captureMediaSetting });
     if (!this.opened) {
       this.tempConfig = { ...this.captureMediaSetting };
     }
@@ -84,16 +83,15 @@ export default class CaptureMediaConfig extends Vue {
   @Watch("tempConfig")
   private saveConfig() {
     if (this.opened) {
-      this.$emit("save-config", {
-        captureMediaSetting: this.tempConfig,
-      });
+      this.$emit("save-config", { captureMediaSetting: this.tempConfig });
     }
   }
   private changeCaptureMediaType(mediaType: "image" | "video") {
-    this.tempConfig = {
-      ...this.tempConfig,
-      mediaType,
-    };
+    this.tempConfig = { ...this.tempConfig, mediaType };
+  }
+
+  private changeCaptureFormat(format: "png" | "webp") {
+    this.tempConfig = { ...this.tempConfig, imageCompression: { format } };
   }
 }
 </script>
