@@ -104,6 +104,9 @@ const mergeTestpurposeAndNotes = (
           note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
         tags,
         timestamp: testStep?.timestamp ?? 0,
+        videoFrame: note.video
+          ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+          : undefined,
       };
     }) ?? [];
 
