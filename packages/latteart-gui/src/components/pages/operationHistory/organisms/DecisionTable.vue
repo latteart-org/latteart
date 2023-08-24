@@ -171,6 +171,7 @@ import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "../../common/organisms/NoteListDialog.vue";
 import { ElementInfo, VideoFrame } from "latteart-client";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 type InputValue = {
   [key: string]:
@@ -211,7 +212,8 @@ export default class DecisionTable extends Vue {
   }
 
   private get inputValueTable(): InputValueTable {
-    return this.$store.state.operationHistory.inputValueTable;
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .inputValueTable;
   }
 
   private get screenTransitions() {
@@ -356,13 +358,13 @@ export default class DecisionTable extends Vue {
       .getScreenTransitions()
       .at(index);
 
-    if (!screenTransition) {
+    if (!screenTransition || !screenTransition.trigger) {
       return;
     }
 
     this.$store.commit("captureControl/setAutofillRegisterDialog", {
-      title: screenTransition.pageTitle,
-      url: screenTransition.pageUrl,
+      title: screenTransition.trigger.pageTitle,
+      url: screenTransition.trigger.pageUrl,
       message: this.$store.getters.message(
         "input-value.autofill-dialog-message"
       ),

@@ -15,7 +15,6 @@
  */
 
 import { ElementInfo, VideoFrame } from "latteart-client";
-import { Edge } from "./graphConverter/ScreenTransitionDiagramGraphConverter";
 
 export type InputValueTableHeaderColumn = {
   index: number;
@@ -52,86 +51,121 @@ export type InputValueTableRow = {
   inputs: { value: string; isDefaultValue: boolean }[];
 };
 
+export type ScreenTransition = {
+  sourceScreen: { id: string; name: string };
+  destScreen?: { id: string; name: string };
+  trigger?: {
+    sequence: number;
+    type: string;
+    target?: { xpath: string; text: string; iframeIndex?: number };
+    input?: string;
+    pageUrl: string;
+    pageTitle: string;
+  };
+  inputElements: {
+    id: string;
+    xpath: string;
+    tagname: string;
+    text: string;
+    attributes: { [key: string]: string };
+    defaultValue?: string;
+    inputs: {
+      value: string;
+      image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
+    }[];
+    iframeIndex?: number;
+    boundingRect?: { top: number; left: number; width: number; height: number };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
+  }[];
+  notes: {
+    sequence: number;
+    id: string;
+    tags: string[];
+    value: string;
+    details: string;
+    timestamp: number;
+    image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
+  }[];
+  testPurposes: { id: string; value: string; details: string }[];
+};
+
 /**
  * Class that handles input value table.
  */
 export default class InputValueTable {
-  constructor(private edges: Edge[] = []) {}
+  constructor(private screenTransitions: ScreenTransition[] = []) {}
 
   /**
    * Get column size.
    */
   public get columnSize(): number {
-    return this.edges.flatMap((edge) => edge.details).length;
+    return this.screenTransitions.length;
   }
 
   /**
    * Get column header.
    */
   public get headerColumns(): InputValueTableHeaderColumn[] {
-    return this.edges
-      .flatMap((edge) =>
-        edge.details.map((screenTransition) => {
-          return {
-            sourceScreenDef: edge.sourceScreen.name,
-            targetScreenDef: edge.destScreen.name,
-            trigger: {
-              elementText: edge.trigger?.target?.text ?? "",
-              eventType: edge.trigger?.type ?? "",
-            },
-            notes: screenTransition.notes,
-            testPurposes: screenTransition.testPurposes,
-          };
-        })
-      )
-      .map((screenTransition, index) => {
-        return { index, ...screenTransition };
-      });
+    return this.screenTransitions.map((transition, index) => {
+      return {
+        index,
+        sourceScreenDef: transition.sourceScreen.name,
+        targetScreenDef: transition.destScreen?.name ?? "",
+        trigger: {
+          elementText: transition.trigger?.target?.text ?? "",
+          eventType: transition.trigger?.type ?? "",
+        },
+        notes: transition.notes,
+        testPurposes: transition.testPurposes,
+      };
+    });
   }
 
   /**
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const edgeDetails = this.edges.flatMap((edge) => edge.details);
-
-    const inputElements = edgeDetails
-      .flatMap(({ inputElements }) => inputElements)
+    const elements = this.screenTransitions
+      .flatMap((screenTransition) => screenTransition.inputElements)
       .filter((e1, index, array) => {
         return array.findIndex((e2) => e2.id === e1.id) === index;
       });
 
-    return inputElements.map((element) => {
+    return elements.map((element) => {
       const attributes = element.attributes;
 
-      const inputs = this.edges
-        .flatMap(({ details }) => details)
-        .map((screenTransition) => {
-          const inputElement = screenTransition.inputElements.find(
-            ({ id }) => id === element.id
-          );
-          const input = inputElement?.inputs.at(-1);
+      const inputs = this.screenTransitions.map((screenTransition) => {
+        const inputElement = screenTransition.inputElements.find(
+          ({ id }) => id === element.id
+        );
+        const input = inputElement?.inputs.at(-1);
 
-          if (input === undefined) {
-            return {
-              value: inputElement?.defaultValue ?? "",
-              isDefaultValue: true,
-            };
-          }
-
+        if (input === undefined) {
           return {
-            value: input.value,
-            isDefaultValue: false,
+            value: inputElement?.defaultValue ?? "",
+            isDefaultValue: true,
           };
-        });
+        }
+
+        return {
+          value: input.value,
+          image: input.image,
+          isDefaultValue: false,
+        };
+      });
+
+      const elementImage = inputs.find(({ image }) => image)?.image;
 
       return {
         elementId: attributes["id"] ?? "",
         elementName: attributes["name"] ?? "",
         elementType: attributes["type"] ?? "",
-        elementImage: element.image
+        elementImage: elementImage
           ? {
-              image: element.image,
+              image: elementImage,
               elementInfo: {
                 boundingRect: element.boundingRect,
                 innerHeight: element.innerHeight,
@@ -141,7 +175,9 @@ export default class InputValueTable {
               },
             }
           : undefined,
-        inputs,
+        inputs: inputs.map(({ value, isDefaultValue }) => {
+          return { value, isDefaultValue };
+        }),
       };
     });
   }
@@ -150,10 +186,7 @@ export default class InputValueTable {
    * Get screen transition.
    * @returns Screen transitions.
    */
-  public getScreenTransitions(): (Pick<Edge, "trigger"> &
-    Pick<Edge["details"][0], "inputElements" | "pageTitle" | "pageUrl">)[] {
-    return this.edges.flatMap((edge) => {
-      return edge.details;
-    });
+  public getScreenTransitions(): ScreenTransition[] {
+    return this.screenTransitions;
   }
 }

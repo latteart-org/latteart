@@ -1,23 +1,21 @@
-import { Edge } from "@/lib/operationHistory/graphConverter/ScreenTransitionDiagramGraphConverter";
-import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import InputValueTable, {
+  ScreenTransition,
+} from "@/lib/operationHistory/InputValueTable";
 
 describe("InputValueTable", () => {
   describe("#rows", () => {
     describe("指定の画面遷移群を元に入力値テーブルの行情報を構築する", () => {
-      const edgeBase = {
+      const screenTransitionBase = {
         sourceScreen: { id: "", name: "" },
         destScreen: { id: "", name: "" },
         trigger: {
+          sequence: 0,
           type: "",
-          target: { id: "", xpath: "", text: "" },
+          target: { xpath: "", text: "" },
+          input: "",
+          pageUrl: "",
+          pageTitle: "",
         },
-        details: [],
-      };
-
-      const edgeDetailsBase = {
-        pageUrl: "",
-        pageTitle: "",
-        inputElements: [],
         notes: [],
         testPurposes: [],
       };
@@ -26,29 +24,34 @@ describe("InputValueTable", () => {
         tagname: "",
         text: "",
         xpath: "",
+        boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+        innerHeight: 0,
+        innerWidth: 0,
+        outerHeight: 0,
+        outerWidth: 0,
       };
 
       it("画面遷移していない場合", () => {
-        const edges: Edge[] = [
+        const screenTransitions: ScreenTransition[] = [
           {
-            ...edgeBase,
-            details: [
+            ...screenTransitionBase,
+            inputElements: [
               {
-                ...edgeDetailsBase,
-                inputElements: [
+                ...inputElementBase,
+                id: "element1",
+                attributes: { id: "id1", name: "name1", type: "type1" },
+                defaultValue: "defaultValue",
+                inputs: [],
+              },
+              {
+                ...inputElementBase,
+                id: "element2",
+                attributes: { id: "id2", name: "name2", type: "type2" },
+                defaultValue: "",
+                inputs: [
                   {
-                    ...inputElementBase,
-                    id: "element1",
-                    attributes: { id: "id1", name: "name1", type: "type1" },
-                    defaultValue: "defaultValue",
-                    inputs: [],
-                  },
-                  {
-                    ...inputElementBase,
-                    id: "element2",
-                    attributes: { id: "id2", name: "name2", type: "type2" },
-                    defaultValue: "",
-                    inputs: [{ value: "inputValue" }],
+                    value: "inputValue",
+                    image: { imageFileUrl: "element2Image" },
                   },
                 ],
               },
@@ -56,7 +59,7 @@ describe("InputValueTable", () => {
           },
         ];
 
-        const rows = new InputValueTable(edges).rows;
+        const rows = new InputValueTable(screenTransitions).rows;
 
         expect(rows).toEqual([
           {
@@ -69,6 +72,16 @@ describe("InputValueTable", () => {
             elementId: "id2",
             elementName: "name2",
             elementType: "type2",
+            elementImage: {
+              image: { imageFileUrl: "element2Image" },
+              elementInfo: {
+                boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
+              },
+            },
             inputs: [{ value: "inputValue", isDefaultValue: false }],
           },
         ]);
@@ -76,64 +89,74 @@ describe("InputValueTable", () => {
 
       describe("画面遷移している場合", () => {
         it("全ての画面遷移の入力要素数が同じ場合", () => {
-          const edges: Edge[] = [
+          const screenTransitions: ScreenTransition[] = [
             {
-              ...edgeBase,
-              details: [
+              ...screenTransitionBase,
+              inputElements: [
                 {
-                  ...edgeDetailsBase,
-                  inputElements: [
+                  ...inputElementBase,
+                  id: "element1",
+                  attributes: { id: "id1", name: "name1", type: "type1" },
+                  defaultValue: "defaultValue",
+                  inputs: [],
+                },
+                {
+                  ...inputElementBase,
+                  id: "element2",
+                  attributes: { id: "id2", name: "name2", type: "type2" },
+                  defaultValue: "",
+                  inputs: [
                     {
-                      ...inputElementBase,
-                      id: "element1",
-                      attributes: { id: "id1", name: "name1", type: "type1" },
-                      defaultValue: "defaultValue",
-                      inputs: [],
-                    },
-                    {
-                      ...inputElementBase,
-                      id: "element2",
-                      attributes: { id: "id2", name: "name2", type: "type2" },
-                      defaultValue: "",
-                      inputs: [{ value: "inputValue" }],
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
                     },
                   ],
                 },
+              ],
+            },
+            {
+              ...screenTransitionBase,
+              inputElements: [
                 {
-                  ...edgeDetailsBase,
-                  inputElements: [
+                  ...inputElementBase,
+                  id: "element1",
+                  attributes: { id: "id1", name: "name1", type: "type1" },
+                  defaultValue: "defaultValue",
+                  inputs: [],
+                },
+                {
+                  ...inputElementBase,
+                  id: "element2",
+                  attributes: { id: "id2", name: "name2", type: "type2" },
+                  defaultValue: "",
+                  inputs: [
                     {
-                      ...inputElementBase,
-                      id: "element1",
-                      attributes: { id: "id1", name: "name1", type: "type1" },
-                      defaultValue: "defaultValue",
-                      inputs: [],
-                    },
-                    {
-                      ...inputElementBase,
-                      id: "element2",
-                      attributes: { id: "id2", name: "name2", type: "type2" },
-                      defaultValue: "",
-                      inputs: [{ value: "inputValue" }],
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
                     },
                   ],
                 },
+              ],
+            },
+            {
+              ...screenTransitionBase,
+              inputElements: [
                 {
-                  ...edgeDetailsBase,
-                  inputElements: [
+                  ...inputElementBase,
+                  id: "element1",
+                  attributes: { id: "id1", name: "name1", type: "type1" },
+                  defaultValue: "defaultValue",
+                  inputs: [],
+                },
+                {
+                  ...inputElementBase,
+                  id: "element2",
+                  attributes: { id: "id2", name: "name2", type: "type2" },
+                  defaultValue: "",
+                  inputs: [
                     {
-                      ...inputElementBase,
-                      id: "element1",
-                      attributes: { id: "id1", name: "name1", type: "type1" },
-                      defaultValue: "defaultValue",
-                      inputs: [],
-                    },
-                    {
-                      ...inputElementBase,
-                      id: "element2",
-                      attributes: { id: "id2", name: "name2", type: "type2" },
-                      defaultValue: "",
-                      inputs: [{ value: "inputValue" }],
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
                     },
                   ],
                 },
@@ -141,7 +164,7 @@ describe("InputValueTable", () => {
             },
           ];
 
-          const rows = new InputValueTable(edges).rows;
+          const rows = new InputValueTable(screenTransitions).rows;
 
           expect(rows).toEqual([
             {
@@ -158,55 +181,64 @@ describe("InputValueTable", () => {
               elementId: "id2",
               elementName: "name2",
               elementType: "type2",
+              elementImage: {
+                image: { imageFileUrl: "element2Image" },
+                elementInfo: {
+                  boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
+                },
+              },
               inputs: [
-                { value: "inputValue", isDefaultValue: false },
-                { value: "inputValue", isDefaultValue: false },
-                { value: "inputValue", isDefaultValue: false },
+                {
+                  value: "inputValue",
+                  isDefaultValue: false,
+                },
+                {
+                  value: "inputValue",
+                  isDefaultValue: false,
+                },
+                {
+                  value: "inputValue",
+                  isDefaultValue: false,
+                },
               ],
             },
           ]);
         });
 
         it("各画面遷移で入力要素数が異なる場合、入力が無いセルは空文字のデフォルト値とみなす", () => {
-          const edges: Edge[] = [
+          const screenTransitions: ScreenTransition[] = [
             {
-              ...edgeBase,
-              details: [
+              ...screenTransitionBase,
+              inputElements: [],
+            },
+            {
+              ...screenTransitionBase,
+              inputElements: [
                 {
-                  ...edgeDetailsBase,
-                  inputElements: [],
+                  ...inputElementBase,
+                  id: "element1",
+                  attributes: { id: "id1", name: "name1", type: "type1" },
+                  defaultValue: "defaultValue",
+                  inputs: [],
                 },
               ],
             },
             {
-              ...edgeBase,
-              details: [
+              ...screenTransitionBase,
+              inputElements: [
                 {
-                  ...edgeDetailsBase,
-                  inputElements: [
+                  ...inputElementBase,
+                  id: "element2",
+                  attributes: { id: "id2", name: "name2", type: "type2" },
+                  defaultValue: "",
+                  inputs: [
                     {
-                      ...inputElementBase,
-                      id: "element1",
-                      attributes: { id: "id1", name: "name1", type: "type1" },
-                      defaultValue: "defaultValue",
-                      inputs: [],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              ...edgeBase,
-              details: [
-                {
-                  ...edgeDetailsBase,
-                  inputElements: [
-                    {
-                      ...inputElementBase,
-                      id: "element2",
-                      attributes: { id: "id2", name: "name2", type: "type2" },
-                      defaultValue: "",
-                      inputs: [{ value: "inputValue" }],
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
                     },
                   ],
                 },
@@ -214,7 +246,7 @@ describe("InputValueTable", () => {
             },
           ];
 
-          const rows = new InputValueTable(edges).rows;
+          const rows = new InputValueTable(screenTransitions).rows;
 
           expect(rows).toEqual([
             {
@@ -231,10 +263,23 @@ describe("InputValueTable", () => {
               elementId: "id2",
               elementName: "name2",
               elementType: "type2",
+              elementImage: {
+                image: { imageFileUrl: "element2Image" },
+                elementInfo: {
+                  boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
+                },
+              },
               inputs: [
                 { value: "", isDefaultValue: true },
                 { value: "", isDefaultValue: true },
-                { value: "inputValue", isDefaultValue: false },
+                {
+                  value: "inputValue",
+                  isDefaultValue: false,
+                },
               ],
             },
           ]);
