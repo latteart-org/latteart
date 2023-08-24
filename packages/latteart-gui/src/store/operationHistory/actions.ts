@@ -693,8 +693,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
+            const inputValueTable = new InputValueTable(edge.details);
             const image = edge.trigger?.image;
-            const inputValueTable = new InputValueTable([edge]);
 
             payload.callback.onClickEdge({ image, inputValueTable });
           },
@@ -706,7 +706,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             }
 
             const inputValueTable = new InputValueTable(
-              screens.find(({ id }) => id === screenId)?.edges ?? []
+              screens.find(({ id }) => id === screenId)?.details ?? []
             );
             const image = screens[index].image;
 
