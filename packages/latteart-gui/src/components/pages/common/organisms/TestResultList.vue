@@ -86,6 +86,7 @@
                       v-if="!isEditing"
                       icon
                       @click.stop="editTestResultName(item.id, item.name)"
+                      :title="$store.getters.message('test-result-list.edit')"
                       ><v-icon>edit</v-icon></v-btn
                     >
                     <v-btn
@@ -94,6 +95,7 @@
                       @click.stop="
                         editTestResultName(item.id, newTestResultName)
                       "
+                      :title="$store.getters.message('test-result-list.edit')"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>

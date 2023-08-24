@@ -133,7 +133,8 @@
     "testing-time": "テスト時間",
     "test-purpose": "テスト目的",
     "creation-timestamp": "作成日時",
-    "load": "テスト結果を読み込む"
+    "load": "テスト結果を読み込む",
+    "edit": "テスト結果名編集"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
