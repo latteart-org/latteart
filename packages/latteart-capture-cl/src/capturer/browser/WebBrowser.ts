@@ -159,11 +159,8 @@ export default class WebBrowser {
 
   public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
     this.config.isShieldEnabled = isShieldEnabled;
-    await this.client.waitUntilFrameUnlock();
-    const lockId = "setShieldEnabledLock";
-    this.client.lockFrame(lockId);
-    try {
-      const frameValue = await this.currentWindow?.getNumberOfIframes();
+
+    const action = async () => {
       await this.client.execute(
         captureScript.setShieldEnabled,
         isShieldEnabled
@@ -174,23 +171,10 @@ export default class WebBrowser {
           shieldId: WebBrowser.SHIELD_ID,
         });
       }
-      for (let i = 0; frameValue !== undefined && i <= frameValue; i++) {
-        await this.client.switchFrameTo(i, lockId);
-        await this.client.execute(
-          captureScript.setShieldEnabled,
-          isShieldEnabled
-        );
-        if (!isShieldEnabled) {
-          await this.client.execute(captureScript.unblockUserOperations, {
-            windowHandle: this.currentWindow?.windowHandle,
-            shieldId: WebBrowser.SHIELD_ID,
-          });
-        }
-        await this.client.switchDefaultContent(lockId);
-      }
-    } finally {
-      this.client.unLockFrame();
-    }
+    };
+
+    await action();
+    await this.client.doActionInIframes("setShieldEnabledLock", action);
   }
 
   /**

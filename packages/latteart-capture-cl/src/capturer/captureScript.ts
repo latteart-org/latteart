@@ -191,7 +191,6 @@ export type CaptureScript = {
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
   setShieldEnabled: (isShieldEnabled: boolean) => void;
-  getNumberOfIframes: () => number;
 };
 
 /**
@@ -225,7 +224,6 @@ export const captureScript: CaptureScript = {
   focusWindow,
   collectScreenElements,
   setShieldEnabled,
-  getNumberOfIframes,
 };
 
 export type CapturedElementInfo = {
@@ -1232,8 +1230,4 @@ function setShieldEnabled(isShieldEnabled: boolean) {
   }
 
   localStorage.isShieldEnabled = isShieldEnabled;
-}
-
-function getNumberOfIframes() {
-  return document.getElementsByTagName("iframe").length;
 }

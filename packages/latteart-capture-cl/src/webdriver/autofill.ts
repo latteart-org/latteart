@@ -39,65 +39,70 @@ export default class Autofill {
   ) {}
 
   public async execute(): Promise<void> {
-    const lockId = "autoFill";
     for (const inputValueSet of this.inputValueSets) {
-      await this.currentWindow.sleep(1000);
-      await this.client.waitUntilFrameUnlock();
+      const action = async () => {
+        const targetWebElements = await this.getWebElements(
+          inputValueSet.locatorType,
+          inputValueSet.locator,
+          inputValueSet.locatorMatchType
+        );
 
-      this.client.lockFrame(lockId);
-      await this.client.switchDefaultContent(lockId);
-      if (inputValueSet.iframeIndex !== undefined) {
-        await this.client.switchFrameTo(inputValueSet.iframeIndex, lockId);
-      }
-      const targetWebElements = await this.getWebElements(
-        inputValueSet.locatorType,
-        inputValueSet.locator,
-        inputValueSet.locatorMatchType
-      );
+        for (const webElement of targetWebElements) {
+          await this.currentWindow.sleep(200);
+          await this.currentWindow.focus();
+          await this.currentWindow.sleep(200);
 
-      for (const webElement of targetWebElements) {
-        await this.currentWindow.sleep(200);
-        await this.currentWindow.focus();
-        await this.currentWindow.sleep(200);
+          const tagName = await webElement.getTagName();
 
-        const tagName = await webElement.getTagName();
-        if (tagName === "select") {
-          await this.setValueToSelectbox(webElement, inputValueSet.inputValue);
-          await this.client.switchDefaultContent(lockId);
-          this.client.unLockFrame();
-          continue;
-        }
-
-        if (tagName === "textarea") {
-          await this.setValueToText(webElement, inputValueSet.inputValue);
-          await this.client.switchDefaultContent(lockId);
-          this.client.unLockFrame();
-          continue;
-        }
-
-        const inputType = await webElement.getAttribute("type");
-
-        switch (inputType) {
-          case "checkbox":
-            await this.setValueToCheckbox(webElement, inputValueSet.inputValue);
-            break;
-          case "radio":
-            await this.setValueToRadiobutton(
+          if (tagName === "select") {
+            await this.setValueToSelectbox(
               webElement,
               inputValueSet.inputValue
             );
-            break;
-          case "date":
-          case "datetime-local":
-            await this.setValueToDate(webElement, inputValueSet.inputValue);
-            break;
-          default:
+            continue;
+          }
+
+          if (tagName === "textarea") {
             await this.setValueToText(webElement, inputValueSet.inputValue);
-            break;
+            continue;
+          }
+
+          const inputType = await webElement.getAttribute("type");
+
+          switch (inputType) {
+            case "checkbox":
+              await this.setValueToCheckbox(
+                webElement,
+                inputValueSet.inputValue
+              );
+              break;
+            case "radio":
+              await this.setValueToRadiobutton(
+                webElement,
+                inputValueSet.inputValue
+              );
+              break;
+            case "date":
+            case "datetime-local":
+              await this.setValueToDate(webElement, inputValueSet.inputValue);
+              break;
+            default:
+              await this.setValueToText(webElement, inputValueSet.inputValue);
+              break;
+          }
         }
+      };
+
+      // wait to prevent multiple operations being pulled in main loop.
+      await this.currentWindow.sleep(100);
+
+      if (inputValueSet.iframeIndex !== undefined) {
+        await this.client.doActionInIframes("autoFill", action, {
+          iframeIndexes: [inputValueSet.iframeIndex],
+        });
+      } else {
+        await action();
       }
-      await this.client.switchDefaultContent(lockId);
-      this.client.unLockFrame();
     }
   }
 

@@ -116,78 +116,35 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
-  /**
-   * @inheritdoc
-   */
-  public async switchFrameTo(
-    iframeIndex: number,
-    lockId: string
-  ): Promise<void> {
-    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
-      throw new Error(`locked frame. ${lockId}`);
-    }
+  public async doActionInIframes<T>(
+    lockId: string,
+    action: (iframeIndex?: number) => Promise<T>,
+    where?: { iframeIndexes: number[] }
+  ): Promise<{ iframeIndex: number; result: T }[]> {
     try {
-      return await this.driver.switchTo().frame(iframeIndex);
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.name === "NoSuchFrameError") {
-          return;
+      await this.waitUntilFrameUnlock();
+      this.lockFrame(lockId);
+
+      const numberOfIframes = await this.getNumberOfIframes();
+      const results: { iframeIndex: number; result: T }[] = [];
+
+      for (let i = 0; i < numberOfIframes; i++) {
+        if ((where?.iframeIndexes ?? []).includes(i)) {
+          continue;
+        }
+
+        try {
+          await this.switchFrameTo(i, lockId);
+          results.push({ iframeIndex: i, result: await action(i) });
+        } finally {
+          await this.switchDefaultContent(lockId);
         }
       }
-      throw error;
+
+      return results;
+    } finally {
+      this.unLockFrame();
     }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public async switchDefaultContent(lockId: string): Promise<void> {
-    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
-      throw new Error(`locked frame. ${lockId}`);
-    }
-
-    try {
-      return await this.driver.switchTo().defaultContent();
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public lockFrame(lockId: string): void {
-    this.frameLockedId = lockId;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public unLockFrame(): void {
-    this.frameLockedId = "";
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public isLockedFrame(): boolean {
-    return this.frameLockedId !== "";
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public async waitUntilFrameUnlock(): Promise<void> {
-    for (let i = 0; i < 20; i++) {
-      if (!this.isLockedFrame()) {
-        return;
-      }
-      await this.sleep(100);
-    }
-    throw new Error(`timeout while waiting for unlock. ${this.frameLockedId}`);
   }
 
   /**
@@ -330,7 +287,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   ): Promise<T | null> {
     try {
       let notReady = true;
-      for (let cnt = 0; cnt < 30; cnt++) {
+      for (let cnt = 0; cnt < 100; cnt++) {
         notReady =
           (await this.driver.executeScript(
             `return !document || !document.body`
@@ -549,6 +506,94 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         LoggingService.warn(`${error}`);
         LoggingService.warn(`Retry.`);
       }
+    }
+  }
+
+  /**
+   * Wait until the frame is unlocked. Throw an error if the lock has not been unlocked for a period of time.
+   */
+  private async waitUntilFrameUnlock(): Promise<void> {
+    for (let i = 0; i < 100; i++) {
+      if (!this.isLockedFrame()) {
+        return;
+      }
+      await this.sleep(100);
+    }
+    throw new Error(`timeout while waiting for unlock. ${this.frameLockedId}`);
+  }
+
+  /**
+   * Lock the frame. You can switch frames using the specified lockId.
+   */
+  private lockFrame(lockId: string): void {
+    this.frameLockedId = lockId;
+  }
+
+  /**
+   * Unlock the frame.
+   */
+  private unLockFrame(): void {
+    this.frameLockedId = "";
+  }
+
+  /**
+   * Returns the locked state of the frame
+   */
+  private isLockedFrame(): boolean {
+    return this.frameLockedId !== "";
+  }
+
+  /**
+   * Get number of iframes.
+   */
+  private async getNumberOfIframes(): Promise<number> {
+    const numberOfIframes = await this.execute(() => {
+      return document.getElementsByTagName("iframe").length;
+    });
+
+    return numberOfIframes === null ? 0 : numberOfIframes;
+  }
+
+  /**
+   * Switch frames. It is necessary to lock with lockId of lockFrame in advance.
+   * @param index Frame index.
+   * @param lockId LockId specified in lockFrame.
+   */
+  private async switchFrameTo(
+    iframeIndex: number,
+    lockId: string
+  ): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
+    }
+    try {
+      return await this.driver.switchTo().frame(iframeIndex);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === "NoSuchFrameError") {
+          return;
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Switch default content. It is necessary to lock with lockId of lockFrame in advance.
+   * @param lockId LockId specified in lockFrame.
+   */
+  private async switchDefaultContent(lockId: string): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
+    }
+
+    try {
+      return await this.driver.switchTo().defaultContent();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+      }
+      throw error;
     }
   }
 }
