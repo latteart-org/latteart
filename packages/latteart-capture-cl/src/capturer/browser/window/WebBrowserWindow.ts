@@ -253,7 +253,11 @@ export default class WebBrowserWindow {
     shouldTakeScreenshot: boolean
   ) {
     const clientSize = await this.client.getClientSize();
-    const elements = await this.collectAllFrameScreenElements();
+    let elements = await this.collectAllFrameScreenElements();
+
+    if (capturedData.operation.url !== (await this.client.getCurrentUrl())) {
+      elements = [];
+    }
 
     const capturedOperations = await this.convertToCapturedOperations(
       [{ ...capturedData, elements }],
@@ -552,20 +556,18 @@ export default class WebBrowserWindow {
       this.client.lockFrame(lockId);
 
       const numberOfIframes = await this.getNumberOfIframes();
+      const elementsInIFrames: ScreenElements[] = [];
+      for (let iframeIndex = 0; iframeIndex < numberOfIframes; iframeIndex++) {
+        await this.client.switchFrameTo(iframeIndex, lockId);
 
-      const elementsInIFrames = await Promise.all(
-        [...Array(numberOfIframes)].map(async (_, iframeIndex) => {
-          await this.client.switchFrameTo(iframeIndex, lockId);
+        const elements =
+          (await this.client.execute(captureScript.collectScreenElements)) ??
+          [];
 
-          const elements =
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [];
+        await this.client.switchDefaultContent(lockId);
 
-          await this.client.switchDefaultContent(lockId);
-
-          return { iframeIndex, elements };
-        })
-      );
+        elementsInIFrames.push({ iframeIndex, elements });
+      }
 
       const elementsInDefaultContent = {
         iframeIndex: undefined,

@@ -316,7 +316,10 @@ function createNodes(
         ({ operation }) =>
           !["open_window", "switch_window"].includes(operation.type)
       )
-      .at(-1);
+      .reverse()
+      .find((testStep) => {
+        return testStep.operation.inputElements.length > 0;
+      });
 
     const nodeDefaultValues = targetTestStep
       ? collectDefaultValues(targetTestStep.operation, elementMapper)
