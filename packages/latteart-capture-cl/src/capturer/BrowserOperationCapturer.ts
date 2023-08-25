@@ -527,8 +527,6 @@ export default class BrowserOperationCapturer {
       await this.webBrowser.currentWindow.removeScreenLock();
     }
 
-    const runOperationLockId = "runOperation";
-
     try {
       switch (operation.type as SpecialOperationType) {
         case SpecialOperationType.ACCEPT_ALERT:
@@ -565,54 +563,49 @@ export default class BrowserOperationCapturer {
         return;
       }
 
-      const xpath = operation.elementInfo.xpath.toLowerCase();
+      const operationType = operation.type;
+      const elementInfo = operation.elementInfo;
+      const xpath = elementInfo.xpath.toLowerCase();
 
-      await this.client.waitUntilFrameUnlock();
-      this.client.lockFrame(runOperationLockId);
-
-      await this.client.switchDefaultContent(runOperationLockId);
-      if (operation.elementInfo.iframeIndex !== undefined) {
-        await this.client.switchFrameTo(
-          operation.elementInfo.iframeIndex,
-          runOperationLockId
-        );
-      }
-
-      switch (operation.type) {
-        case "click":
-          await this.client.clickElement(xpath);
-          break;
-
-        case "change":
-          if (operation.elementInfo.tagname.toLowerCase() === "select") {
+      const action = async () => {
+        switch (operationType) {
+          case "click":
             await this.client.clickElement(xpath);
-            await this.client.selectOption(xpath, operation.input);
-          }
+            break;
 
-          if (
-            ["input", "textarea"].includes(
-              operation.elementInfo.tagname.toLowerCase()
-            )
-          ) {
-            const attributes = operation.elementInfo.attributes;
-            const inputValue =
-              attributes.type === "date" || attributes.type === "datetime-local"
-                ? this.padDateValue(operation.input, attributes)
-                : operation.input;
+          case "change":
+            if (elementInfo.tagname.toLowerCase() === "select") {
+              await this.client.clickElement(xpath);
+              await this.client.selectOption(xpath, operation.input);
+            }
 
-            await this.client.clearAndSendKeys(xpath, inputValue);
-          }
-          break;
+            if (
+              ["input", "textarea"].includes(elementInfo.tagname.toLowerCase())
+            ) {
+              const attributes = elementInfo.attributes;
+              const inputValue =
+                attributes.type === "date" ||
+                attributes.type === "datetime-local"
+                  ? this.padDateValue(operation.input, attributes)
+                  : operation.input;
 
-        default:
-          break;
+              await this.client.clearAndSendKeys(xpath, inputValue);
+            }
+            break;
+
+          default:
+            break;
+        }
+      };
+
+      if (elementInfo.iframeIndex !== undefined) {
+        await this.client.doActionInIframes("runOperation", action, {
+          iframeIndexes: [elementInfo.iframeIndex],
+        });
+      } else {
+        await action();
       }
-      await this.client.switchDefaultContent(runOperationLockId);
-      this.client.unLockFrame();
-      return;
     } catch (error) {
-      await this.client.switchDefaultContent(runOperationLockId);
-      this.client.unLockFrame();
       if (
         error instanceof Error &&
         (error.name === "WebDriverError" || error.name === "NoSuchWindowError")

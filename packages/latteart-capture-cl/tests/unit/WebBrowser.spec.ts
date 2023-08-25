@@ -70,9 +70,7 @@ describe("WebBrowserは", () => {
         switchFrameTo: jest.fn(),
         switchDefaultContent: jest.fn(),
         getCurrentPageText: jest.fn(),
-        waitUntilFrameUnlock: jest.fn(),
-        lockFrame: jest.fn(),
-        unLockFrame: jest.fn(),
+        doActionInIframes: jest.fn(),
       };
       config = new CaptureConfig();
     });
@@ -105,6 +103,8 @@ describe("WebBrowserは", () => {
         .mockResolvedValueOnce("windowHandle2") // updateState内のgetBrowsingWindowHandle
         .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
         .mockResolvedValueOnce(undefined); // updateState内のinjectFunctionToDetectWindowSwitch
+
+      clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
 
       const browser = new WebBrowser(clientMock, config);
 
