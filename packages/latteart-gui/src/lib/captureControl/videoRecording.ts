@@ -50,7 +50,15 @@ class VideoRecorderImpl implements VideoRecorder {
   public async startRecording(): Promise<ServiceResult<void>> {
     const { startTimestamp, mediaRecorder } = await this.startMediaRecorder();
 
-    const createVideoResult = await this.testResult.createVideo();
+    const videoTrackSettings = mediaRecorder.stream
+      .getVideoTracks()
+      .at(0)
+      ?.getSettings();
+
+    const createVideoResult = await this.testResult.createVideo({
+      width: videoTrackSettings?.width ?? 0,
+      height: videoTrackSettings?.height ?? 0,
+    });
 
     if (createVideoResult.isFailure()) {
       return createVideoResult;

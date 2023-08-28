@@ -1,14 +1,14 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class AddVideoEntity1692090536715 implements MigrationInterface {
-    name = 'AddVideoEntity1692090536715'
+export class AddVideoEntity1693220246649 implements MigrationInterface {
+    name = 'AddVideoEntity1693220246649'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "temporary_SCREENSHOTS" ("screenshot_id" varchar PRIMARY KEY NOT NULL, "file_url" varchar NOT NULL, "test_result_id" varchar)`);
         await queryRunner.query(`INSERT INTO "temporary_SCREENSHOTS"("screenshot_id", "file_url", "test_result_id") SELECT "screenshot_id", "file_url", "test_result_id" FROM "SCREENSHOTS"`);
         await queryRunner.query(`DROP TABLE "SCREENSHOTS"`);
         await queryRunner.query(`ALTER TABLE "temporary_SCREENSHOTS" RENAME TO "SCREENSHOTS"`);
-        await queryRunner.query(`CREATE TABLE "VIDEOS" ("video_id" varchar PRIMARY KEY NOT NULL, "file_url" varchar NOT NULL)`);
+        await queryRunner.query(`CREATE TABLE "VIDEOS" ("video_id" varchar PRIMARY KEY NOT NULL, "file_url" varchar NOT NULL, "width" integer NOT NULL, "height" integer NOT NULL)`);
         await queryRunner.query(`CREATE TABLE "temporary_SCREENSHOTS" ("screenshot_id" varchar PRIMARY KEY NOT NULL, "file_url" varchar NOT NULL)`);
         await queryRunner.query(`INSERT INTO "temporary_SCREENSHOTS"("screenshot_id", "file_url") SELECT "screenshot_id", "file_url" FROM "SCREENSHOTS"`);
         await queryRunner.query(`DROP TABLE "SCREENSHOTS"`);

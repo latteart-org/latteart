@@ -93,12 +93,7 @@ export class TestStepServiceImpl implements TestStepService {
     });
 
     const screenElements = requestBody.screenElements
-      .map((e) => {
-        return e.elements.map((e2) => {
-          e2.iframeIndex = e.iframeIndex;
-          return e2;
-        });
-      })
+      .map(({ elements }) => elements)
       .flat();
 
     const inputElements = this.createInputElements(requestBody);
@@ -121,8 +116,8 @@ export class TestStepServiceImpl implements TestStepService {
           return (
             newElements.findIndex(
               (elem) =>
-                elem.xpath + elem.iframeIndex ===
-                newElement.xpath + newElement.iframeIndex
+                elem.xpath + elem.iframe?.index ===
+                newElement.xpath + newElement.iframe?.index
             ) === index
           );
         })
@@ -352,14 +347,7 @@ export class TestStepServiceImpl implements TestStepService {
     return [
       ...requestBody.screenElements
         .map((elemsWithIframeIndex) => {
-          return elemsWithIframeIndex.elements
-            .filter(inputElementsFilter)
-            .map((elem) => {
-              return {
-                ...elem,
-                iframeIndex: elemsWithIframeIndex.iframeIndex,
-              };
-            });
+          return elemsWithIframeIndex.elements.filter(inputElementsFilter);
         })
         .flat(),
     ];

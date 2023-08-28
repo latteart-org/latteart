@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ScreenElements, VideoFrame } from "@/service";
+import { ScreenElements, VideoFrame } from "../../service";
 
 export type TestResultViewOptionForRepository = {
   node: {

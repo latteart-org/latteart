@@ -23,14 +23,12 @@ import { getRepository } from "typeorm";
 import { TestResultService } from "./TestResultService";
 import { TestScriptFileRepositoryService } from "./TestScriptFileRepositoryService";
 import {
-  createTestScriptSourceOperations as createTestScriptSourceOperations,
+  createTestScriptSourceOperations,
   createScreenDefinitionConfig,
   convertEntityToTestResult,
 } from "./helper/testScriptGenerationHelper";
 import { TestResultEntity } from "@/entities/TestResultEntity";
-import ScreenDefFactory, {
-  ScreenDefinitionConfig,
-} from "@/domain/ScreenDefFactory";
+import ScreenDefFactory from "@/domain/ScreenDefFactory";
 
 export class TestScriptsService {
   constructor(

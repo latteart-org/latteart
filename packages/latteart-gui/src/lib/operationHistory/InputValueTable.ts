@@ -57,7 +57,23 @@ export type ScreenTransition = {
   trigger?: {
     sequence: number;
     type: string;
-    target?: { xpath: string; text: string; iframeIndex?: number };
+    target?: {
+      xpath: string;
+      text: string;
+      iframe?: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+    };
     input?: string;
     pageUrl: string;
     pageTitle: string;
@@ -73,7 +89,19 @@ export type ScreenTransition = {
       value: string;
       image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
     }[];
-    iframeIndex?: number;
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    };
     boundingRect?: { top: number; left: number; width: number; height: number };
     innerHeight?: number;
     innerWidth?: number;

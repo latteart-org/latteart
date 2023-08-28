@@ -46,7 +46,23 @@ type Edge = {
   destScreenId: string;
   trigger?: {
     type: string;
-    target?: { xpath: string; iframeIndex?: number; text: string };
+    target?: {
+      xpath: string;
+      iframe?: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+      text: string;
+    };
     sequence: number;
     image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
   };
@@ -195,7 +211,7 @@ function extractGraphSources(view: GraphView): GraphSource {
             ? {
                 xpath: targetElement.xpath,
                 text: targetElement.text,
-                iframeIndex: targetElement.iframeIndex,
+                iframe: targetElement.iframe,
               }
             : undefined,
           sequence:
@@ -204,7 +220,6 @@ function extractGraphSources(view: GraphView): GraphSource {
           input: lastTestStep.input,
           pageUrl: lastTestStep.pageUrl,
           pageTitle: lastTestStep.pageTitle,
-          iframeIndex: lastTestStep.iframeIndex,
         }
       : undefined;
 
@@ -293,8 +308,8 @@ function extractGraphSources(view: GraphView): GraphSource {
         edge.destScreenId === detail.destScreen?.id &&
         edge.trigger?.type === detail.trigger?.type &&
         edge.trigger?.target?.xpath === detail.trigger?.target?.xpath &&
-        (edge.trigger?.target?.iframeIndex ?? "") ===
-          (detail.trigger?.target?.iframeIndex ?? "")
+        (edge.trigger?.target?.iframe?.index ?? "") ===
+          (detail.trigger?.target?.iframe?.index ?? "")
       );
     });
 

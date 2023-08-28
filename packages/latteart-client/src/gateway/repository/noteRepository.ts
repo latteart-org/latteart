@@ -188,11 +188,11 @@ export class NoteRepositoryImpl implements NoteRepository {
         : "",
       videoFrame: note.videoFrame
         ? {
+            ...note.videoFrame,
             url: new URL(
               note.videoFrame.url,
               this.restClient.serverUrl
             ).toString(),
-            time: note.videoFrame.time,
           }
         : undefined,
     };

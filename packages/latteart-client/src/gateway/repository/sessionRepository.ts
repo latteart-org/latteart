@@ -116,11 +116,11 @@ export class SessionRepository {
                 : "",
               videoFrame: note.videoFrame
                 ? {
+                    ...note.videoFrame,
                     url: new URL(
                       note.videoFrame.url,
                       this.restClient.serverUrl
                     ).toString(),
-                    time: note.videoFrame.time,
                   }
                 : undefined,
             };
@@ -135,11 +135,11 @@ export class SessionRepository {
             : "",
           videoFrame: note.videoFrame
             ? {
+                ...note.videoFrame,
                 url: new URL(
                   note.videoFrame.url,
                   this.restClient.serverUrl
                 ).toString(),
-                time: note.videoFrame.time,
               }
             : undefined,
         };

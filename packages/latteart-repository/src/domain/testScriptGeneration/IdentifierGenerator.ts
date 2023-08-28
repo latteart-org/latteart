@@ -63,8 +63,8 @@ export class IdentifierGenerator {
     }
 
     tempIdentifier =
-      elem.iframeIndex !== undefined
-        ? `iframe${elem.iframeIndex}_${tempIdentifier}`
+      elem.iframe?.index !== undefined
+        ? `iframe${elem.iframe.index}_${tempIdentifier}`
         : tempIdentifier;
     let identifier = "";
 

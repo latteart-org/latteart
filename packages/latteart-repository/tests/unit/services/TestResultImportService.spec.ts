@@ -1116,6 +1116,8 @@ describe("TestResultImportService", () => {
         videoFrame: {
           url: "video/testResult.webm",
           time: 0,
+          width: 0,
+          height: 0,
         },
       };
 
@@ -1137,6 +1139,8 @@ describe("TestResultImportService", () => {
             videoFrame: {
               url: "video/testResult.webm",
               time: 0,
+              width: 0,
+              height: 0,
             },
           },
           inputElements: [element1],

@@ -648,8 +648,11 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess(result.data);
   }
 
-  async createVideo(): Promise<ServiceResult<Video>> {
-    const result = await this.repositories.videoRepository.createVideo();
+  async createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<ServiceResult<Video>> {
+    const result = await this.repositories.videoRepository.createVideo(params);
 
     if (result.isFailure()) {
       const error: ServiceError = {

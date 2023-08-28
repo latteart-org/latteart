@@ -32,7 +32,7 @@ import {
   DeserializedTestStep,
 } from "@/interfaces/exportData";
 import { VideoEntity } from "@/entities/VideoEntity";
-import { Video, VideoFrame } from "@/interfaces/Videos";
+import { VideoFrame } from "@/interfaces/Videos";
 
 export interface TestResultImportService {
   importTestResult(

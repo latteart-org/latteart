@@ -182,11 +182,11 @@ export class TestStepRepositoryImpl implements TestStepRepository {
         : "",
       videoFrame: operation.videoFrame
         ? {
+            ...operation.videoFrame,
             url: new URL(
               operation.videoFrame.url,
               this.restClient.serverUrl
             ).toString(),
-            time: operation.videoFrame.time,
           }
         : undefined,
     };

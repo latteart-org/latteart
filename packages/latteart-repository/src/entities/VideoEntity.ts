@@ -27,6 +27,14 @@ export class VideoEntity {
   @Column({ name: "file_url" })
   fileUrl: string = "";
 
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "width" })
+  width: number = 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "height" })
+  height: number = 0;
+
   @OneToMany(() => TestStepEntity, (testStep) => testStep.video)
   testStep?: TestStepEntity;
 

@@ -574,6 +574,8 @@ export class TestResultServiceImpl implements TestResultService {
           ? {
               url: testStepEntity.video.fileUrl,
               time: testStepEntity.videoTime ?? 0,
+              width: testStepEntity.video.width,
+              height: testStepEntity.video.height,
             }
           : undefined;
 
@@ -595,6 +597,8 @@ export class TestResultServiceImpl implements TestResultService {
         ? {
             url: noteEntity.video.fileUrl,
             time: noteEntity.videoTime ?? 0,
+            width: noteEntity.video.width,
+            height: noteEntity.video.height,
           }
         : undefined;
       return { id, value, details, tags, imageFileUrl, timestamp, videoFrame };
@@ -765,6 +769,8 @@ export class TestResultServiceImpl implements TestResultService {
                       ? {
                           url: note.video.fileUrl,
                           time: note.videoTime ?? 0,
+                          width: note.video.width,
+                          height: note.video.height,
                         }
                       : undefined,
                   };
