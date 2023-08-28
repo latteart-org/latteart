@@ -50,6 +50,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       script: number;
     }> = {}
   ): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     if (timeouts.implicit !== undefined) {
       await this.driver.manage().setTimeouts({ implicit: timeouts.implicit });
     }
@@ -67,6 +70,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async sleep(ms: number): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     return this.driver.sleep(ms);
   }
 
@@ -74,6 +80,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async refresh(): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     return this.driver.navigate().refresh();
   }
 
@@ -81,6 +90,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async close(): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     return this.driver.quit();
   }
 
@@ -89,6 +101,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getAllWindowHandles(): Promise<string[]> {
     try {
+      if (await this.alertIsVisible()) {
+        return [];
+      }
       return await this.driver.getAllWindowHandles();
     } catch (error) {
       if (error instanceof Error) {
@@ -105,6 +120,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async switchWindowTo(windowHandle: string): Promise<void> {
     try {
+      if (await this.alertIsVisible()) {
+        return;
+      }
       return await this.driver.switchTo().window(windowHandle);
     } catch (error) {
       if (error instanceof Error) {
@@ -159,6 +177,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getCurrentUrl(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return await this.driver.getCurrentUrl();
     } catch (error) {
       if (error instanceof Error) {
@@ -175,6 +196,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getCurrentWindowHandle(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return await this.driver.getWindowHandle();
     } catch (error) {
       if (error instanceof Error) {
@@ -192,6 +216,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getCurrentTitle(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return await this.driver.getTitle();
     } catch (error) {
       if (error instanceof Error) {
@@ -208,6 +235,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async takeScreenshot(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return this.driver.takeScreenshot();
     } catch (error) {
       if (error instanceof Error) {
@@ -223,6 +253,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async browserBack(): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     return this.driver.navigate().back();
   }
 
@@ -230,6 +263,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async browserForward(): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     return this.driver.navigate().forward();
   }
 
@@ -238,6 +274,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getCurrentPageSource(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return await this.driver.getPageSource();
     } catch (error) {
       if (error instanceof Error) {
@@ -254,6 +293,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    */
   public async getCurrentPageText(): Promise<string> {
     try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
       return await this.driver.executeScript(
         `
           if (!document) {
@@ -288,6 +330,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     try {
       let notReady = true;
       for (let cnt = 0; cnt < 100; cnt++) {
+        if (await this.alertIsVisible()) {
+          return null;
+        }
         notReady =
           (await this.driver.executeScript(
             `return !document || !document.body`
@@ -300,7 +345,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       if (notReady) {
         throw new Error("timeout error");
       }
-
+      if (await this.alertIsVisible()) {
+        return null;
+      }
       return await this.driver.executeScript(script, args);
     } catch (error) {
       if (error instanceof Error) {
@@ -383,6 +430,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async getDocumentReadyState(): Promise<string> {
+    if (await this.alertIsVisible()) {
+      return "";
+    }
     const readyState = (await this.driver.executeScript(
       "return document.readyState"
     )) as string;
@@ -467,6 +517,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   }
 
   public async getClientSize(): Promise<{ width: number; height: number }> {
+    if (await this.alertIsVisible()) {
+      return { width: 0, height: 0 };
+    }
     let rect = await this.driver.manage().window().getRect();
 
     for (let i = 0; i < 10; i++) {
@@ -547,6 +600,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * Get number of iframes.
    */
   private async getNumberOfIframes(): Promise<number> {
+    if (await this.alertIsVisible()) {
+      return 0;
+    }
     const numberOfIframes = await this.execute(() => {
       return document.getElementsByTagName("iframe").length;
     });
@@ -563,6 +619,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     iframeIndex: number,
     lockId: string
   ): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
       throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
     }
@@ -583,6 +642,9 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @param lockId LockId specified in lockFrame.
    */
   private async switchDefaultContent(lockId: string): Promise<void> {
+    if (await this.alertIsVisible()) {
+      return;
+    }
     if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
       throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
     }
