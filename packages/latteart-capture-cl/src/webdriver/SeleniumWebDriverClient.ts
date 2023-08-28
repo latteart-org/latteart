@@ -129,7 +129,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       const results: { iframeIndex: number; result: T }[] = [];
 
       for (let i = 0; i < numberOfIframes; i++) {
-        if ((where?.iframeIndexes ?? []).includes(i)) {
+        if (where && !where.iframeIndexes.includes(i)) {
           continue;
         }
 
