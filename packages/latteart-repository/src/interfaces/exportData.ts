@@ -205,8 +205,17 @@ export type HistoryItemExportDataV3 = Omit<
   "testStep"
 > & {
   testStep: Omit<TestStepExportDataV2, "operation"> & {
-    operation: OperationExportDataV2 & {
-      videoFrame?: VideoFrame;
-    };
+    operation: OperationExportDataV3;
   };
+};
+
+type OperationExportDataV3 = Omit<OperationExportDataV2, "elementInfo"> & {
+  elementInfo: ElementInfoExportDataV3 | null;
+  videoFrame?: VideoFrame;
+};
+type ElementInfoExportDataV3 = ElementInfoExportDataV2 & {
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
 };

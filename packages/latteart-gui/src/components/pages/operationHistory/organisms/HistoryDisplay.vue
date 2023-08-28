@@ -69,7 +69,6 @@
               <v-col cols="12" class="pt-0 fill-height">
                 <element-coverage
                   v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
-                  :onSelectElement="setImageFileUrl"
                   :message="message"
                 ></element-coverage>
                 <history-summary-diagram

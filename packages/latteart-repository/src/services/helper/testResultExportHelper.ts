@@ -127,6 +127,10 @@ function convertToExportableElement(element: SerializeElementInfo) {
     checked: element.checked ?? false,
     attributes: element.attributes,
     boundingRect: element.boundingRect,
+    innerHeight: element.innerHeight,
+    innerWidth: element.innerWidth,
+    outerHeight: element.outerHeight,
+    outerWidth: element.outerWidth,
     textWithoutChildren: element.textWithoutChildren ?? "",
   };
 }

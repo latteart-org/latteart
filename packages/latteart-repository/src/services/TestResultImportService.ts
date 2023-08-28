@@ -359,6 +359,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       value: note.value,
       details: note.details,
       timestamp: note.timestamp,
+      videoTime: note.videoFrame?.time,
       screenshot: screenshotEntity,
       tags: tagEntities,
       video: videoEntity,
