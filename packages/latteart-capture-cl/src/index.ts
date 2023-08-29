@@ -157,11 +157,11 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
   res.json("latteart-capture-cl");
 });
 
-app.post(`${v1RootPath}/operation`, (req, res) => {
+app.post(`${v1RootPath}/operation`, async (req, res) => {
   LoggingService.info("operation");
   const capturedData: Omit<CapturedData, "eventInfo"> = req.body;
 
-  capturer.registerCapturedData(capturedData);
+  await capturer.registerCapturedData(capturedData);
 
   res.json("OK");
 });
