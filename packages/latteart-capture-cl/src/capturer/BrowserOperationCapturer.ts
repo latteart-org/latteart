@@ -598,9 +598,9 @@ export default class BrowserOperationCapturer {
         }
       };
 
-      if (elementInfo.iframeIndex !== undefined) {
+      if (elementInfo.iframe !== undefined) {
         await this.client.doActionInIframes("runOperation", action, {
-          iframeIndexes: [elementInfo.iframeIndex],
+          iframeIndexes: [elementInfo.iframe.index],
         });
       } else {
         await action();

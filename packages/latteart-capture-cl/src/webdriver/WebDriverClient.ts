@@ -218,7 +218,36 @@ export default interface WebDriverClient extends ScriptExecutor {
    */
   doActionInIframes<T>(
     lockId: string,
-    action: (iframeIndex?: number) => Promise<T>,
+    action: (iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }) => Promise<T>,
     where?: { iframeIndexes: number[] }
-  ): Promise<{ iframeIndex: number; result: T }[]>;
+  ): Promise<
+    {
+      iframe: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+      result: T;
+    }[]
+  >;
 }

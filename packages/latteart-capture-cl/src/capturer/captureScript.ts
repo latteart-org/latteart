@@ -21,7 +21,19 @@ export type CapturedData = {
   operation: CapturedOperationInfo;
   eventInfo: EventInfo;
   windowHandle?: string;
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 };
 
 /**
@@ -134,7 +146,19 @@ export type CaptureScript = {
   setFunctionToHandleCapturedEvent: (args: {
     ignoreElementIds: string[];
     captureType: "pull" | "push";
-    iframeIndex?: number;
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    };
   }) => boolean;
   setFunctionToDetectWindowSwitch: ({
     windowHandle,
@@ -743,7 +767,19 @@ function setFunctionToBuildOperationInfo() {
 function setFunctionToHandleCapturedEvent(args: {
   ignoreElementIds: string[];
   captureType: "pull" | "push";
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 }) {
   const extendedDocument: ExtendedDocument = document;
 
@@ -819,8 +855,8 @@ function setFunctionToHandleCapturedEvent(args: {
         },
       };
       extendedDocument.__sendDatas.push(
-        args.iframeIndex !== undefined
-          ? { ...sendData, iframeIndex: args.iframeIndex }
+        args.iframe !== undefined
+          ? { ...sendData, iframe: args.iframe }
           : sendData
       );
     } else {
@@ -831,8 +867,8 @@ function setFunctionToHandleCapturedEvent(args: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          args.iframeIndex !== undefined
-            ? { operation, iframeIndex: args.iframeIndex }
+          args.iframe !== undefined
+            ? { operation, iframe: args.iframe }
             : { operation }
         ),
       });

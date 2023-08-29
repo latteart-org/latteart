@@ -85,7 +85,7 @@ export class ElementMapperFactory {
           return [
             `${screenElement.pageUrl}_${screenElement.pageTitle}_${
               screenElement.xpath
-            }_${screenElement.iframeIndex ?? ""}`,
+            }_${screenElement.iframe?.index ?? ""}`,
             {
               screenDef,
               element: {
@@ -121,7 +121,7 @@ export class ElementMapperFactory {
           tagname,
           text,
           attributes,
-          iframeIndex: idx,
+          iframe,
           boundingRect,
           innerHeight,
           innerWidth,
@@ -137,7 +137,7 @@ export class ElementMapperFactory {
           tagname,
           text: text ?? "",
           attributes,
-          iframeIndex: idx,
+          iframe,
           boundingRect,
           innerHeight,
           innerWidth,
@@ -169,7 +169,7 @@ export class ElementMapperFactory {
             text,
             value,
             attributes,
-            iframeIndex,
+            iframe,
             boundingRect,
             innerHeight,
             innerWidth,
@@ -185,7 +185,7 @@ export class ElementMapperFactory {
             text: text ?? "",
             value,
             attributes,
-            iframeIndex,
+            iframe,
             boundingRect,
             innerHeight,
             innerWidth,
@@ -284,7 +284,7 @@ function createNodes(
           testStep.operation.url,
           testStep.operation.title,
           testStep.operation.elementInfo.xpath,
-          testStep.operation.elementInfo?.iframeIndex
+          testStep.operation.elementInfo?.iframe?.index
         )?.id
       : undefined;
     return {
@@ -416,7 +416,7 @@ function collectDefaultValues(
         operation.url,
         operation.title,
         element.xpath,
-        element.iframeIndex
+        element.iframe?.index
       )?.id;
 
       if (!elementId) {

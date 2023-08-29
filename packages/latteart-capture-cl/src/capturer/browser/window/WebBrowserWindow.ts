@@ -154,7 +154,19 @@ export default class WebBrowserWindow {
   }
 
   public async getReadyToCapture(captureArch: "pull" | "push"): Promise<void> {
-    const doGetReadyToCapture = async (iframeIndex?: number) => {
+    const doGetReadyToCapture = async (iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }) => {
       const isReadyToCapture =
         (await this.client.execute(
           captureScript.isReadyToCapture,
@@ -176,15 +188,15 @@ export default class WebBrowserWindow {
         (await this.injectFunctionToHandleCapturedEvent(
           [WebBrowser.SHIELD_ID],
           captureArch,
-          iframeIndex
+          iframe
         )) &&
         (await this.resetEventListeners());
     };
 
     await doGetReadyToCapture();
 
-    await this.client.doActionInIframes("injectScript", (i) =>
-      doGetReadyToCapture(i)
+    await this.client.doActionInIframes("injectScript", (iframe) =>
+      doGetReadyToCapture(iframe)
     );
   }
 
@@ -513,8 +525,8 @@ export default class WebBrowserWindow {
     };
     const elementsInIFrames = (
       await this.client.doActionInIframes("collectScreenElements", action)
-    ).map(({ iframeIndex, result }) => {
-      return { iframeIndex, elements: result };
+    ).map(({ iframe, result }) => {
+      return { iframeIndex: iframe.index, elements: result };
     });
 
     return [...elementsInIFrames, elementsInDefaultContent];
@@ -623,7 +635,7 @@ export default class WebBrowserWindow {
           );
 
           screenShotBase64 =
-            results.find(({ iframeIndex }) => iframeIndex === data.iframeIndex)
+            results.find(({ iframe }) => iframe.index === data.iframeIndex)
               ?.result ?? "";
         } else {
           screenShotBase64 = await action();
@@ -646,7 +658,7 @@ export default class WebBrowserWindow {
           xpath: data.operation.elementInfo.xpath,
           attributes: data.operation.elementInfo.attributes,
           boundingRect: data.operation.elementInfo.boundingRect,
-          iframeIndex: data.iframeIndex,
+          iframe: data.iframe,
           innerHeight: data.operation.elementInfo.innerHeight,
           innerWidth: data.operation.elementInfo.innerWidth,
           outerHeight: data.operation.elementInfo.outerHeight,
@@ -667,7 +679,7 @@ export default class WebBrowserWindow {
           );
 
           pageSource =
-            results.find(({ iframeIndex }) => iframeIndex === data.iframeIndex)
+            results.find(({ iframe }) => iframe.index === data.iframeIndex)
               ?.result ?? "";
         } else {
           pageSource = await action();
@@ -768,11 +780,23 @@ export default class WebBrowserWindow {
   private async injectFunctionToHandleCapturedEvent(
     ignoreElementIds: string[],
     captureType: "pull" | "push",
-    iframeIndex?: number
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }
   ): Promise<boolean | null> {
     return await this.client.execute(
       captureScript.setFunctionToHandleCapturedEvent,
-      { ignoreElementIds, captureType, iframeIndex }
+      { ignoreElementIds, captureType, iframe }
     );
   }
 
@@ -805,9 +829,9 @@ export default class WebBrowserWindow {
       }
     };
 
-    if (capturedData.iframeIndex !== undefined) {
+    if (capturedData.iframe !== undefined) {
       await this.client.doActionInIframes("refireSuspendedEvent", action, {
-        iframeIndexes: [capturedData.iframeIndex],
+        iframeIndexes: [capturedData.iframe.index],
       });
     } else {
       await action();
@@ -843,7 +867,7 @@ export default class WebBrowserWindow {
       .map((data) => {
         return {
           operation: data.operation,
-          iframeIndex: data.iframeIndex,
+          iframeIndex: data.iframe?.index,
           suspendedEvent: {
             refireType: getRefireType(data),
             refire: () => refire(data.eventInfo),

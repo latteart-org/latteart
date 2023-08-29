@@ -432,7 +432,7 @@ export default class OperationList extends Vue {
         text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
         attributes: { ...elementInfo?.attributes },
         xpath: elementInfo?.xpath ?? "",
-        iframeIndex: elementInfo?.iframeIndex,
+        iframeIndex: elementInfo?.iframe?.index,
       };
 
       const operation: OperationForDisplay = {

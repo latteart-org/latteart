@@ -170,8 +170,12 @@ export type TestResultAccessor = {
 
   /**
    * create a video
+   * @param params video params
    */
-  createVideo(): Promise<ServiceResult<Video>>;
+  createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<ServiceResult<Video>>;
 
   /**
    * append video buffer
@@ -238,7 +242,19 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
-      iframeIndex?: number;
+      iframe?: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
       boundingRect?: {
         top: number;
         left: number;
@@ -276,7 +292,6 @@ export type GraphViewNode = {
     pageUrl: string;
     pageTitle: string;
     imageFileUrl?: string;
-    iframeIndex?: number;
     videoFrame?: VideoFrame;
   }[];
   defaultValues: { elementId: string; value?: string }[];

@@ -487,14 +487,35 @@ const models: TsoaRoute.Models = {
     type: { ref: "ExportableConfig", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  VideoFrame: {
+  "Pick_Video.Exclude_keyofVideo.id__": {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        time: { dataType: "double", required: true },
         url: { dataType: "string", required: true },
+        width: { dataType: "double", required: true },
+        height: { dataType: "double", required: true },
       },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Omit_Video.id_": {
+    dataType: "refAlias",
+    type: { ref: "Pick_Video.Exclude_keyofVideo.id__", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  VideoFrame: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Omit_Video.id_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { time: { dataType: "double", required: true } },
+        },
+      ],
       validators: {},
     },
   },
@@ -1790,7 +1811,26 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        iframeIndex: { dataType: "double" },
+        iframe: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            outerWidth: { dataType: "double", required: true },
+            outerHeight: { dataType: "double", required: true },
+            innerWidth: { dataType: "double", required: true },
+            innerHeight: { dataType: "double", required: true },
+            boundingRect: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                height: { dataType: "double", required: true },
+                width: { dataType: "double", required: true },
+                left: { dataType: "double", required: true },
+                top: { dataType: "double", required: true },
+              },
+              required: true,
+            },
+            index: { dataType: "double", required: true },
+          },
+        },
         textWithoutChildren: { dataType: "string" },
         outerWidth: { dataType: "double" },
         outerHeight: { dataType: "double" },
@@ -1875,6 +1915,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        url: { dataType: "string", required: true },
         type: { dataType: "string", required: true },
         timestamp: { dataType: "string", required: true },
         input: { dataType: "string", required: true },
@@ -1887,7 +1928,6 @@ const models: TsoaRoute.Models = {
           required: true,
         },
         title: { dataType: "string", required: true },
-        url: { dataType: "string", required: true },
         windowHandle: { dataType: "string", required: true },
         inputElements: {
           dataType: "array",
@@ -3239,7 +3279,7 @@ const models: TsoaRoute.Models = {
               dataType: "array",
               array: {
                 dataType: "enum",
-                enums: ["screenshot", "title", "url", "elementTexts"],
+                enums: ["url", "screenshot", "title", "elementTexts"],
               },
             },
           },
@@ -3256,6 +3296,8 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        height: { dataType: "double", required: true },
+        width: { dataType: "double", required: true },
         url: { dataType: "string", required: true },
         id: { dataType: "string", required: true },
       },
@@ -3283,6 +3325,33 @@ const models: TsoaRoute.Models = {
         code: {
           dataType: "enum",
           enums: ["create_video_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_save_video_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["save_video_failed"],
           required: true,
         },
       },
@@ -5782,7 +5851,18 @@ export function RegisterRoutes(app: Router) {
     ...fetchMiddlewares<RequestHandler>(Videos.prototype.createVideo),
 
     function Videos_createVideo(request: any, response: any, next: any) {
-      const args = {};
+      const args = {
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+        },
+      };
 
       // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
@@ -5837,7 +5917,7 @@ export function RegisterRoutes(app: Router) {
           controller,
           validatedArgs as any
         );
-        promiseHandler(controller, promise, response, undefined, next);
+        promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }

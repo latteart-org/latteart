@@ -56,7 +56,7 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
       name: element.attributes.name ?? "",
       locators: element.locators,
       imageUrl,
-      iframeIndex: element.iframeIndex,
+      iframe: element.iframe,
     };
   }
 

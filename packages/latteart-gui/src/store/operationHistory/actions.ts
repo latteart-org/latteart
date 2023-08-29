@@ -50,7 +50,6 @@ import {
   ServiceSuccess,
   SequenceView,
   GraphView,
-  Video,
   VideoFrame,
   ElementInfo,
 } from "latteart-client";
@@ -1384,6 +1383,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         | "innerWidth"
         | "outerHeight"
         | "outerWidth"
+        | "iframe"
       >;
     }
   ) {
@@ -1403,13 +1403,24 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         innerHeight = 0,
         outerHeight = 0,
         outerWidth,
+        iframe,
       } = element;
 
       return {
-        width: outerWidth,
-        height: outerHeight,
-        offset: { y: outerHeight - innerHeight },
-        markerRect: boundingRect,
+        width: iframe ? iframe.outerWidth : outerWidth,
+        height: iframe ? iframe.outerHeight : outerHeight,
+        offset: {
+          y: iframe
+            ? iframe.outerHeight - iframe.innerHeight
+            : outerHeight - innerHeight,
+        },
+        markerRect: boundingRect
+          ? {
+              ...boundingRect,
+              top: boundingRect.top + (iframe?.boundingRect.top ?? 0),
+              left: boundingRect.left + (iframe?.boundingRect.left ?? 0),
+            }
+          : undefined,
       };
     })(payload.elementInfo);
 

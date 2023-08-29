@@ -136,24 +136,68 @@ export class SeleniumWebDriverClient implements WebDriverClient {
 
   public async doActionInIframes<T>(
     lockId: string,
-    action: (iframeIndex?: number) => Promise<T>,
+    action: (iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }) => Promise<T>,
     where?: { iframeIndexes: number[] }
-  ): Promise<{ iframeIndex: number; result: T }[]> {
+  ): Promise<
+    {
+      iframe: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+      result: T;
+    }[]
+  > {
     try {
       await this.waitUntilFrameUnlock();
       this.lockFrame(lockId);
 
-      const numberOfIframes = await this.getNumberOfIframes();
-      const results: { iframeIndex: number; result: T }[] = [];
+      const iframes = await this.getIframes();
+      const results: {
+        iframe: {
+          index: number;
+          boundingRect: {
+            top: number;
+            left: number;
+            width: number;
+            height: number;
+          };
+          innerHeight: number;
+          innerWidth: number;
+          outerHeight: number;
+          outerWidth: number;
+        };
+        result: T;
+      }[] = [];
 
-      for (let i = 0; i < numberOfIframes; i++) {
-        if (where && !where.iframeIndexes.includes(i)) {
+      for (const iframe of iframes) {
+        if (where && !where.iframeIndexes.includes(iframe.index)) {
           continue;
         }
 
         try {
-          await this.switchFrameTo(i, lockId);
-          results.push({ iframeIndex: i, result: await action(i) });
+          await this.switchFrameTo(iframe.index, lockId);
+          results.push({ iframe, result: await action(iframe) });
         } finally {
           await this.switchDefaultContent(lockId);
         }
@@ -597,17 +641,45 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   }
 
   /**
-   * Get number of iframes.
+   * Get iframes.
    */
-  private async getNumberOfIframes(): Promise<number> {
+  private async getIframes(): Promise<
+    {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }[]
+  > {
     if (await this.alertIsVisible()) {
-      return 0;
+      return [];
     }
-    const numberOfIframes = await this.execute(() => {
-      return document.getElementsByTagName("iframe").length;
+
+    const iframes = await this.execute(() => {
+      return [...document.getElementsByTagName("iframe")].map(
+        (iframe, index) => {
+          const { top, left, width, height } = iframe.getBoundingClientRect();
+          const { innerHeight, innerWidth, outerHeight, outerWidth } = window;
+          return {
+            index,
+            boundingRect: { top, left, width, height },
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
+          };
+        }
+      );
     });
 
-    return numberOfIframes === null ? 0 : numberOfIframes;
+    return iframes === null ? [] : iframes;
   }
 
   /**

@@ -178,8 +178,10 @@ export class NotesServiceImpl implements NotesService {
       timestamp: noteEntity.timestamp,
       videoFrame: noteEntity.video
         ? {
-            url: noteEntity.video.fileUrl ?? "",
+            url: noteEntity.video.fileUrl,
             time: noteEntity.videoTime ?? 0,
+            width: noteEntity.video.width,
+            height: noteEntity.video.height,
           }
         : undefined,
     };

@@ -71,6 +71,8 @@ export function convertNotesForSnapshot(
               note.videoFrame.url ?? ""
             )}`,
             time: note.videoFrame.time,
+            width: note.videoFrame.width,
+            height: note.videoFrame.height,
           }
         : undefined,
     };
@@ -111,6 +113,8 @@ export function convertTestStepsForSnapshot(
               path.basename(testStep.operation.videoFrame.url ?? "")
             ),
             time: testStep.operation.videoFrame.time,
+            width: testStep.operation.videoFrame.width,
+            height: testStep.operation.videoFrame.height,
           }
         : undefined,
     };
@@ -125,6 +129,8 @@ export function convertTestStepsForSnapshot(
               path.basename(notice.videoFrame.url ?? "")
             ),
             time: notice.videoFrame.time,
+            width: notice.videoFrame.width,
+            height: notice.videoFrame.height,
           }
         : undefined;
 
@@ -162,6 +168,8 @@ export function convertGraphViewForSnapshot(
                 path.basename(testStep.videoFrame.url ?? "")
               ),
               time: testStep.videoFrame.time,
+              width: testStep.videoFrame.width,
+              height: testStep.videoFrame.height,
             }
           : undefined;
 
@@ -183,6 +191,8 @@ export function convertGraphViewForSnapshot(
                 path.basename(note.videoFrame.url ?? "")
               ),
               time: note.videoFrame.time,
+              width: note.videoFrame.width,
+              height: note.videoFrame.height,
             }
           : undefined;
 

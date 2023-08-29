@@ -284,11 +284,11 @@ export class TestResultRepository {
         : "",
       videoFrame: operation.videoFrame
         ? {
+            ...operation.videoFrame,
             url: new URL(
               operation.videoFrame.url,
               this.restClient.serverUrl
             ).toString(),
-            time: operation.videoFrame.time,
           }
         : undefined,
     };
@@ -302,11 +302,11 @@ export class TestResultRepository {
         : "",
       videoFrame: note.videoFrame
         ? {
+            ...note.videoFrame,
             url: new URL(
               note.videoFrame.url,
               this.restClient.serverUrl
             ).toString(),
-            time: note.videoFrame.time,
           }
         : undefined,
     };
@@ -329,11 +329,11 @@ export class TestResultRepository {
                 : undefined,
               videoFrame: testStep.videoFrame
                 ? {
+                    ...testStep.videoFrame,
                     url: new URL(
                       testStep.videoFrame.url,
                       this.restClient.serverUrl
                     ).toString(),
-                    time: testStep.videoFrame.time,
                   }
                 : undefined,
             };
@@ -350,11 +350,11 @@ export class TestResultRepository {
               : undefined,
             videoFrame: note.videoFrame
               ? {
+                  ...note.videoFrame,
                   url: new URL(
                     note.videoFrame.url,
                     this.restClient.serverUrl
                   ).toString(),
-                  time: note.videoFrame.time,
                 }
               : undefined,
           };

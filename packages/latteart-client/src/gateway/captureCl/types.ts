@@ -71,7 +71,19 @@ export type ElementInfoForCaptureCl = {
   outerHeight?: number;
   outerWidth?: number;
   textWithoutChildren?: string;
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 };
 
 export type CaptureCLServerError = {

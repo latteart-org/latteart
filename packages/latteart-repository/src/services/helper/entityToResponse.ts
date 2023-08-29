@@ -58,10 +58,20 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
   const testStep = note.testSteps ? note.testSteps[0] : undefined;
   const tags = note.tags?.map((tag) => tag.name) ?? [];
   const noteVideo = note.video
-    ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+    ? {
+        url: note.video.fileUrl,
+        time: note.videoTime ?? 0,
+        width: note.video.width,
+        height: note.video.height,
+      }
     : undefined;
   const operationVideo = testStep?.video
-    ? { url: testStep.video.fileUrl, time: testStep.videoTime ?? 0 }
+    ? {
+        url: testStep.video.fileUrl,
+        time: testStep.videoTime ?? 0,
+        width: testStep.video.width,
+        height: testStep.video.height,
+      }
     : undefined;
   return {
     id: note.id,
@@ -100,10 +110,20 @@ const mergeTestpurposeAndNotes = (
       const testStep = note.testSteps ? note.testSteps[0] : undefined;
       const tags = note.tags?.map((tag) => tag.name) ?? [];
       const noteVideo = note.video
-        ? { url: note.video.fileUrl, time: note.videoTime ?? 0 }
+        ? {
+            url: note.video.fileUrl,
+            time: note.videoTime ?? 0,
+            width: note.video.width,
+            height: note.video.height,
+          }
         : undefined;
       const operationVideo = testStep?.video
-        ? { url: testStep.video.fileUrl, time: testStep.videoTime ?? 0 }
+        ? {
+            url: testStep.video.fileUrl,
+            time: testStep.videoTime ?? 0,
+            width: testStep.video.width,
+            height: testStep.video.height,
+          }
         : undefined;
       return {
         id: note.id,
@@ -418,6 +438,8 @@ export const convertToTestStepOperation = (
       ? {
           url: testStepEntity.video.fileUrl,
           time: testStepEntity.videoTime ?? 0,
+          width: testStepEntity.video.width,
+          height: testStepEntity.video.height,
         }
       : undefined,
   };

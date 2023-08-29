@@ -34,17 +34,22 @@ import {
 export class Videos extends Controller {
   /**
    * Create video.
+   * @param requestBody video params.
    * @returns Created video information.
    */
   @Response<ServerErrorData<"create_video_failed">>(500, "Create video failed")
   @SuccessResponse(200, "Success")
   @Post()
-  public async createVideo(): Promise<Video> {
+  public async createVideo(
+    @Body() requestBody: { width: number; height: number }
+  ): Promise<Video> {
     try {
       const fileRepositoryManager = await createFileRepositoryManager();
       const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-      return await new VideoService({ videoFileRepository }).createVideo();
+      return await new VideoService({ videoFileRepository }).createVideo(
+        requestBody
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Create video failed", error);
@@ -56,6 +61,13 @@ export class Videos extends Controller {
     }
   }
 
+  /**
+   * Update video.
+   * @param videoId video id.
+   * @param requestBody params for update.
+   */
+  @Response<ServerErrorData<"save_video_failed">>(500, "Save video failed")
+  @SuccessResponse(200, "Success")
   @Patch("{videoId}")
   public async patch(
     @Path() videoId: string,

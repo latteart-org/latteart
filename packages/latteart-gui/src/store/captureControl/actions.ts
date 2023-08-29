@@ -434,7 +434,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               return {
                 ...element,
                 xpath: element.xpath.toLowerCase(),
-                iframeIndex: element.iframeIndex,
+                iframeIndex: element.iframe?.index,
                 attributes: element.attributes,
                 inputValue:
                   element.tagname === "INPUT" &&

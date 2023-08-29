@@ -97,11 +97,11 @@ export class StoryRepository {
                 : "",
               videoFrame: note.videoFrame
                 ? {
+                    ...note.videoFrame,
                     url: new URL(
                       note.videoFrame.url,
                       this.restClient.serverUrl
                     ).toString(),
-                    time: note.videoFrame.time,
                   }
                 : undefined,
             };
@@ -116,11 +116,11 @@ export class StoryRepository {
             : "",
           videoFrame: note.videoFrame
             ? {
+                ...note.videoFrame,
                 url: new URL(
                   note.videoFrame.url,
                   this.restClient.serverUrl
                 ).toString(),
-                time: note.videoFrame.time,
               }
             : undefined,
         };
