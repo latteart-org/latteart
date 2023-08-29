@@ -477,6 +477,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState as any
       ).operationHistory;
 
+      await payload.videoRecorder?.updateVideo();
+
       context.commit(
         "operationHistory/addTestStepId",
         { testStepId: id },
@@ -500,8 +502,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         },
         { root: true }
       );
-
-      payload.videoRecorder?.requestData();
     };
 
     const callbacks = {
