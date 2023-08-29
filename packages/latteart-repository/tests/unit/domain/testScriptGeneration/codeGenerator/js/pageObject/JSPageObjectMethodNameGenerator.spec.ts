@@ -64,8 +64,10 @@ describe("JSPageObjectMethodNameGenerator", () => {
       expect(generator.generate("emptyMethod")).toEqual(
         "goname_of_pageObject2Empty"
       );
-      expect(generator.generate("linkMethod")).toEqual("goname_of_pageObject2");
-      expect(generator.generate("otherMethod")).toEqual("dootherOperation");
+      expect(generator.generate("linkMethod")).toEqual("linkOperation");
+      expect(generator.generate("otherMethod")).toEqual(
+        "goname_of_pageObject2"
+      );
     });
   });
 });
