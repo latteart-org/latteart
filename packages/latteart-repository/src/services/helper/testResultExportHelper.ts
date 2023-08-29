@@ -132,5 +132,6 @@ function convertToExportableElement(element: SerializeElementInfo) {
     outerHeight: element.outerHeight,
     outerWidth: element.outerWidth,
     textWithoutChildren: element.textWithoutChildren ?? "",
+    iframe: element.iframe,
   };
 }

@@ -311,6 +311,11 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       ? videoFilePathToEntity?.get(path.basename(videoFileUrl))
       : undefined;
 
+    if (videoEntity) {
+      videoEntity.height = testStep.operation.videoFrame?.height ?? 0;
+      videoEntity.width = testStep.operation.videoFrame?.width ?? 0;
+    }
+
     return new TestStepEntity({
       pageTitle: testStep.operation.title,
       pageUrl: testStep.operation.url,
