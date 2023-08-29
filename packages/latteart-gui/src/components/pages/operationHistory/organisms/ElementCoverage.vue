@@ -81,9 +81,6 @@ import { VideoFrame } from "latteart-client";
 
 @Component
 export default class ElementCoverage extends Vue {
-  @Prop({ type: Function }) public readonly onSelectElement!: (
-    fileImageUrl: string
-  ) => void;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private get coverages() {
