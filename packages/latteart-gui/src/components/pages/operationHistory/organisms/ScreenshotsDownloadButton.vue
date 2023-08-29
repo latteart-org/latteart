@@ -56,7 +56,6 @@ export default class ScreenshotsDownloadButton extends Vue {
       this.isCapturing ||
       this.isReplaying ||
       this.isResuming ||
-      this.$store.getters["operationHistory/getOperations"]().length === 0 ||
       this.processing ||
       !this.hasImageUrl
     );
