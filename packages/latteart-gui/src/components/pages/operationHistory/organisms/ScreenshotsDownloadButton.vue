@@ -58,7 +58,7 @@ export default class ScreenshotsDownloadButton extends Vue {
       this.isResuming ||
       this.$store.getters["operationHistory/getOperations"]().length === 0 ||
       this.processing ||
-      this.isMediaTypeVideo
+      !this.hasImageUrl
     );
   }
 
@@ -82,11 +82,11 @@ export default class ScreenshotsDownloadButton extends Vue {
     return this.operationHistoryState.testResultInfo.id;
   }
 
-  private get isMediaTypeVideo(): boolean {
-    const videoFrame = this.operationHistoryState.history.find(
-      (item) => item.operation.videoFrame
+  private get hasImageUrl(): boolean {
+    const operation = this.operationHistoryState.history.find(
+      (item) => item.operation.imageFilePath !== ""
     );
-    return videoFrame ? true : false;
+    return operation ? true : false;
   }
 
   private async execute() {
