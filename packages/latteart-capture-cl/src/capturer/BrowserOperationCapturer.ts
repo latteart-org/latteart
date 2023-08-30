@@ -152,21 +152,23 @@ export default class BrowserOperationCapturer {
         }
         // Wait.
         await ((msec) => new Promise((resolve) => setTimeout(resolve, msec)))(
-          100
+          200
         );
 
         const beforeWindow = this.webBrowser.currentWindow;
 
         // Delete actions after executing all registered actions.
-        await Promise.all(
-          this.actionQueue.map(async (action) => {
-            await action(this.webBrowser!);
-          })
-        );
-        this.actionQueue = [];
+        if (!this.alertIsVisible) {
+          await Promise.all(
+            this.actionQueue.map(async (action) => {
+              await action(this.webBrowser!);
+            })
+          );
+          this.actionQueue = [];
+        }
 
         if (!this.isCapturing()) {
-          return;
+          break;
         }
 
         if (this.alertIsVisible) {
@@ -212,7 +214,7 @@ export default class BrowserOperationCapturer {
         if (this.webBrowser.countWindows() === 0) {
           await this.webBrowser.close();
 
-          return;
+          break;
         }
 
         // Capture operations.
@@ -298,10 +300,13 @@ export default class BrowserOperationCapturer {
     }
 
     try {
-      await this.webBrowser.currentWindow.registerCapturedData(
-        capturedData,
-        option.shouldTakeScreenshot ?? false
-      );
+      this.alertIsVisible = await this.client.alertIsVisible();
+      this.actionQueue.push(async (browser) => {
+        await browser.currentWindow?.registerCapturedData(
+          capturedData,
+          option.shouldTakeScreenshot ?? false
+        );
+      });
     } catch (error) {
       if (!(error instanceof Error)) {
         throw error;
