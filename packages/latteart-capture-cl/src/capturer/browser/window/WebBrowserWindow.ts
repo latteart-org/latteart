@@ -305,6 +305,8 @@ export default class WebBrowserWindow {
   public createCapturedOperation(args: {
     type: string;
     windowHandle: string;
+    url?: string;
+    title?: string;
     input?: string;
     scrollPosition?: { x: number; y: number };
     clientSize?: { width: number; height: number };
@@ -321,8 +323,8 @@ export default class WebBrowserWindow {
       elementInfo: args.elementInfo ?? null,
       screenElements: args.screenElements ?? [],
       windowHandle: args.windowHandle,
-      title: this.currentScreenSummary.title,
-      url: this.currentScreenSummary.url,
+      title: args.title ?? this.currentScreenSummary.title,
+      url: args.url ?? this.currentScreenSummary.url,
       imageData: this.currentOperationSummary.screenshotBase64,
       pageSource: args.pageSource ?? "",
     };
@@ -684,6 +686,9 @@ export default class WebBrowserWindow {
         } else {
           pageSource = await action();
         }
+        if (data.operation.url !== (await this.client.getCurrentUrl())) {
+          pageSource = "";
+        }
 
         return this.createCapturedOperation({
           input: data.operation.input,
@@ -693,6 +698,8 @@ export default class WebBrowserWindow {
           elementInfo,
           screenElements: data.elements,
           windowHandle: this._windowHandle,
+          url: data.operation.url,
+          title: data.operation.title,
           pageSource,
           timestamp: data.operation.timestamp,
         });
