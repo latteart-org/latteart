@@ -72,12 +72,12 @@ export class Videos extends Controller {
   public async patch(
     @Path() videoId: string,
     @Body() requestBody: { base64: string }
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const fileRepositoryManager = await createFileRepositoryManager();
       const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-      await new VideoService({ videoFileRepository }).append(
+      return await new VideoService({ videoFileRepository }).append(
         videoId,
         requestBody.base64
       );

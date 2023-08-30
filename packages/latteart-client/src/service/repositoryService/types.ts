@@ -184,7 +184,7 @@ export type TestResultAccessor = {
   appendVideoBuffer(
     videoId: string,
     buffer: ArrayBuffer
-  ): Promise<ServiceResult<void>>;
+  ): Promise<ServiceResult<string>>;
 };
 
 export type SequenceView = {

@@ -669,7 +669,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
   async appendVideoBuffer(
     videoId: string,
     buffer: ArrayBuffer
-  ): Promise<ServiceResult<void>> {
+  ): Promise<ServiceResult<string>> {
     const result = await this.repositories.videoRepository.appendBuffer(
       videoId,
       buffer
