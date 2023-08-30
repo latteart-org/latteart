@@ -71,7 +71,7 @@ export class VideoRepository {
   public async appendBuffer(
     videoId: string,
     buffer: ArrayBuffer
-  ): Promise<RepositoryAccessResult<void>> {
+  ): Promise<RepositoryAccessResult<string>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/videos/${videoId}`,
@@ -80,12 +80,12 @@ export class VideoRepository {
         }
       );
 
-      if (response.status !== 204) {
+      if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as void,
+        data: response.data as string,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

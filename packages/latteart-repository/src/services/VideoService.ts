@@ -51,7 +51,7 @@ export class VideoService {
     };
   }
 
-  public async append(videoId: string, base64: string): Promise<void> {
+  public async append(videoId: string, base64: string): Promise<string> {
     const buf = Uint8Array.from(Buffer.from(base64, "base64"));
 
     const video = await getRepository(VideoEntity).findOneOrFail(videoId);
@@ -60,5 +60,7 @@ export class VideoService {
     const fileRepositoryManager = await createFileRepositoryManager();
     const videoFileRepository = fileRepositoryManager.getRepository("video");
     await videoFileRepository.appendFile(videoUrl, buf);
+
+    return videoId;
   }
 }
