@@ -45,6 +45,7 @@ export type ElementType =
   | "CheckBox"
   | "SelectBox"
   | "Button"
+  | "Link"
   | "Other";
 
 /**

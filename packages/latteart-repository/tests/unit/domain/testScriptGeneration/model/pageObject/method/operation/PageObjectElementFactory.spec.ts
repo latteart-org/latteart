@@ -78,7 +78,7 @@ describe("PageObjectElementFactoryImpl", () => {
             tagname     | elementType | expectedType
             ${"INPUT"}  | ${"submit"} | ${"Button"}
             ${"INPUT"}  | ${"button"} | ${"Button"}
-            ${"A"}      | ${""}       | ${"Button"}
+            ${"A"}      | ${""}       | ${"Link"}
             ${"BUTTON"} | ${""}       | ${"Button"}
             ${"SPAN"}   | ${""}       | ${"Other"}
             ${"IMG"}    | ${""}       | ${"Other"}
@@ -122,7 +122,7 @@ describe("PageObjectElementFactoryImpl", () => {
             tagname     | elementType | expectedType
             ${"INPUT"}  | ${"submit"} | ${"Other"}
             ${"INPUT"}  | ${"button"} | ${"Other"}
-            ${"A"}      | ${""}       | ${"Other"}
+            ${"A"}      | ${""}       | ${"Link"}
             ${"BUTTON"} | ${""}       | ${"Other"}
             ${"SPAN"}   | ${""}       | ${"Other"}
             ${"IMG"}    | ${""}       | ${"Other"}
@@ -170,7 +170,7 @@ describe("PageObjectElementFactoryImpl", () => {
             tagname     | elementType | expectedType
             ${"INPUT"}  | ${"submit"} | ${"Other"}
             ${"INPUT"}  | ${"button"} | ${"Other"}
-            ${"A"}      | ${""}       | ${"Other"}
+            ${"A"}      | ${""}       | ${"Link"}
             ${"BUTTON"} | ${""}       | ${"Other"}
             ${"SPAN"}   | ${""}       | ${"Button"}
             ${"IMG"}    | ${""}       | ${"Button"}
@@ -214,7 +214,7 @@ describe("PageObjectElementFactoryImpl", () => {
             tagname     | elementType | expectedType
             ${"INPUT"}  | ${"submit"} | ${"Button"}
             ${"INPUT"}  | ${"button"} | ${"Button"}
-            ${"A"}      | ${""}       | ${"Other"}
+            ${"A"}      | ${""}       | ${"Link"}
             ${"BUTTON"} | ${""}       | ${"Other"}
             ${"SPAN"}   | ${""}       | ${"Other"}
             ${"IMG"}    | ${""}       | ${"Other"}
@@ -263,7 +263,7 @@ describe("PageObjectElementFactoryImpl", () => {
             tagname     | elementType | expectedType
             ${"INPUT"}  | ${"submit"} | ${"Button"}
             ${"INPUT"}  | ${"button"} | ${"Other"}
-            ${"A"}      | ${""}       | ${"Other"}
+            ${"A"}      | ${""}       | ${"Link"}
             ${"BUTTON"} | ${""}       | ${"Other"}
             ${"SPAN"}   | ${""}       | ${"Other"}
             ${"IMG"}    | ${""}       | ${"Other"}
