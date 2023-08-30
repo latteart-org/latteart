@@ -297,10 +297,18 @@ export default class BrowserOperationCapturer {
       return;
     }
 
-    return this.webBrowser.currentWindow.registerCapturedData(
-      capturedData,
-      option.shouldTakeScreenshot ?? false
-    );
+    try {
+      await this.webBrowser.currentWindow.registerCapturedData(
+        capturedData,
+        option.shouldTakeScreenshot ?? false
+      );
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      this.onError(error);
+    }
   }
 
   /**
