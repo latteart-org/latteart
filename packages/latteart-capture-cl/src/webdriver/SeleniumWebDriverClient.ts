@@ -349,6 +349,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         `
       );
     } catch (error) {
+      LoggingService.debug("get current page text failed.");
       if (error instanceof Error) {
         if (
           [
@@ -357,6 +358,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
             "StaleElementReferenceError",
           ].includes(error.name)
         ) {
+          LoggingService.debug(`${error}`);
           return "";
         }
       }
@@ -394,8 +396,10 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       }
       return await this.driver.executeScript(script, args);
     } catch (error) {
+      LoggingService.debug("execute failed.");
       if (error instanceof Error) {
         if (error.name == "NoSuchWindowError") {
+          LoggingService.debug(`${error}`);
           return null;
         }
       }
@@ -474,13 +478,24 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async getDocumentReadyState(): Promise<string> {
-    if (await this.alertIsVisible()) {
-      return "";
+    try {
+      if (await this.alertIsVisible()) {
+        return "";
+      }
+      const readyState = (await this.driver.executeScript(
+        "return document.readyState"
+      )) as string;
+      return readyState;
+    } catch (error) {
+      LoggingService.debug("get document ready state failed.");
+      if (error instanceof Error) {
+        if (error.name === "NoSuchWindowError") {
+          LoggingService.debug(`${error}`);
+          return "";
+        }
+      }
+      throw error;
     }
-    const readyState = (await this.driver.executeScript(
-      "return document.readyState"
-    )) as string;
-    return readyState;
   }
 
   private async getAlert(): Promise<Alert | undefined> {
@@ -588,7 +603,18 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   }
 
   public async setScrollPosition(x: number, y: number): Promise<void> {
-    return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+    try {
+      return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+    } catch (error) {
+      LoggingService.debug("set scroll position failed.");
+      if (error instanceof Error) {
+        if (error.name === "NoSuchWindowError") {
+          LoggingService.debug(`${error}`);
+          return;
+        }
+      }
+      throw error;
+    }
   }
 
   private async retryAction(action: () => Promise<void>, limit = 10) {
@@ -700,8 +726,10 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     try {
       return await this.driver.switchTo().frame(iframeIndex);
     } catch (error) {
+      LoggingService.debug("switch frame failed.");
       if (error instanceof Error) {
         if (error.name === "NoSuchFrameError") {
+          LoggingService.debug(`${error}`);
           return;
         }
       }
@@ -724,8 +752,12 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     try {
       return await this.driver.switchTo().defaultContent();
     } catch (error) {
+      LoggingService.debug("switch default content failed.");
       if (error instanceof Error) {
-        console.error(error);
+        if (error.name === "NoSuchWindowError") {
+          LoggingService.debug(`${error}`);
+          return;
+        }
       }
       throw error;
     }
