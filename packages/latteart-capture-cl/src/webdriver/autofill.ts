@@ -94,7 +94,7 @@ export default class Autofill {
       };
 
       // wait to prevent multiple operations being pulled in main loop.
-      await this.currentWindow.sleep(100);
+      await this.currentWindow.sleep(200);
 
       if (inputValueSet.iframeIndex !== undefined) {
         await this.client.doActionInIframes("autoFill", action, {
