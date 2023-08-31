@@ -372,8 +372,7 @@ export default class DecisionTable extends Vue {
         return {
           xpath: element.xpath.toLowerCase(),
           attributes: element.attributes,
-          inputValue:
-            element.inputs.at(-1)?.value ?? element.defaultValue ?? "",
+          inputValue: element.defaultValue ?? element.inputs.at(-1) ?? "",
           iframeIndex: element.iframe?.index,
         };
       }),
