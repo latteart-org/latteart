@@ -577,7 +577,6 @@ export default class WebBrowserWindow {
 
   private async convertToCapturedOperations(
     capturedDatas: (Omit<CapturedData, "eventInfo"> & {
-      iframeIndex?: number;
       elements: {
         iframeIndex?: number;
         elements: CapturedElementInfo[];
@@ -629,15 +628,15 @@ export default class WebBrowserWindow {
         );
 
       for (const data of filteredDatas) {
-        if (data.iframeIndex !== undefined) {
+        if (data.iframe !== undefined) {
           const results = await this.client.doActionInIframes(
             "takeScreenshot",
             action,
-            { iframeIndexes: [data.iframeIndex] }
+            { iframeIndexes: [data.iframe.index] }
           );
 
           screenShotBase64 =
-            results.find(({ iframe }) => iframe.index === data.iframeIndex)
+            results.find(({ iframe }) => iframe.index === data.iframe?.index)
               ?.result ?? "";
         } else {
           screenShotBase64 = await action();
@@ -673,15 +672,15 @@ export default class WebBrowserWindow {
         let pageSource = "";
         const action = () => this.client.getCurrentPageText();
 
-        if (data.iframeIndex !== undefined) {
+        if (data.iframe !== undefined) {
           const results = await this.client.doActionInIframes(
             "getCurrentPageText",
             action,
-            { iframeIndexes: [data.iframeIndex] }
+            { iframeIndexes: [data.iframe.index] }
           );
 
           pageSource =
-            results.find(({ iframe }) => iframe.index === data.iframeIndex)
+            results.find(({ iframe }) => iframe.index === data.iframe?.index)
               ?.result ?? "";
         } else {
           pageSource = await action();
@@ -874,7 +873,7 @@ export default class WebBrowserWindow {
       .map((data) => {
         return {
           operation: data.operation,
-          iframeIndex: data.iframe?.index,
+          iframe: data.iframe,
           suspendedEvent: {
             refireType: getRefireType(data),
             refire: () => refire(data.eventInfo),
