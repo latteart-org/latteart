@@ -41,12 +41,6 @@ export function parseProjectConfig(configText: string): ProjectConfig {
               },
             },
       testResultComparison: config.config.testResultComparison,
-      misoperationPrevention:
-        "misoperationPrevention" in config.config
-          ? config.config.misoperationPrevention
-          : {
-              isShieldEnabled: true,
-            },
     },
   };
 }

@@ -72,14 +72,6 @@ Switch capturing window.
   - destWindowHandle
     - type: string
 
-### `unprotect_windows`
-
-Unsuppress user interaction on all windows.
-
-### `protect_windows`
-
-Suppress user interaction in all windows.
-
 ### `pause_capture`
 
 Pause capturing operations.

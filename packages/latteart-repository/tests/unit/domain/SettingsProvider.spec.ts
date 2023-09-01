@@ -49,7 +49,6 @@ describe("SettingsProvider", () => {
           mediaType: "image",
           imageCompression: { format: "png" },
         },
-        misoperationPrevention: { isShieldEnabled: true },
       },
       captureSettings: {
         ignoreTags: [],
@@ -207,7 +206,6 @@ describe("SettingsProvider", () => {
             mediaType: "image",
             imageCompression: { format: "png" },
           },
-          misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
           ignoreTags: [
@@ -291,7 +289,6 @@ describe("SettingsProvider", () => {
               format: "png",
             },
           },
-          misoperationPrevention: { isShieldEnabled: true },
         },
         captureSettings: {
           ignoreTags: [],

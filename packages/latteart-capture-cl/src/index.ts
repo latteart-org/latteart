@@ -73,11 +73,8 @@ enum ClientToServerSocketIOEvent {
   BROWSER_BACK = "browser_back",
   BROWSER_FORWARD = "browser_forward",
   SWITCH_CAPTURING_WINDOW = "switch_capturing_window",
-  UNPROTECT_WINDOWS = "unprotect_windows",
-  PROTECT_WINDOWS = "protect_windows",
   PAUSE_CAPTURE = "pause_capture",
   RESUME_CAPTURE = "resume_capture",
-  SET_SHIELD_ENABLED = "set_shield_enabled",
   RUN_OPERATION = "run_operation",
   RUN_OPERATION_AND_SCREEN_TRANSITION = "run_operation_and_screen_transition",
   ENTER_VALUES = "enter_values",
@@ -96,7 +93,6 @@ enum ServerToClientSocketIOEvent {
   ALERT_VISIBLE_CHANGED = "alert_visibility_changed",
   CAPTURE_PAUSED = "capture_paused",
   CAPTURE_RESUMED = "capture_resumed",
-  SHIELD_ENABLED_SET = "shield_enabled_set",
   RUN_OPERATION_COMPLETED = "run_operation_completed",
   RUN_OPERATION_FAILED = "run_operation_failed",
   ENTER_VALUES_COMPLETED = "enter_values_completed",
@@ -296,12 +292,6 @@ io.on("connection", (socket) => {
             capturer.switchCapturingWindow(JSON.parse(destWindowHandle));
           }
         );
-        socket.on(ClientToServerSocketIOEvent.UNPROTECT_WINDOWS, async () => {
-          capturer.switchCancel();
-        });
-        socket.on(ClientToServerSocketIOEvent.PROTECT_WINDOWS, async () => {
-          capturer.selectCapturingWindow();
-        });
         socket.on(ClientToServerSocketIOEvent.PAUSE_CAPTURE, async () => {
           await capturer.pauseCapturing();
 
@@ -312,14 +302,6 @@ io.on("connection", (socket) => {
 
           socket.emit(ServerToClientSocketIOEvent.CAPTURE_RESUMED);
         });
-        socket.on(
-          ClientToServerSocketIOEvent.SET_SHIELD_ENABLED,
-          async (isShieldEnabled: boolean) => {
-            await capturer.setShieldEnabled(isShieldEnabled);
-
-            socket.emit(ServerToClientSocketIOEvent.SHIELD_ENABLED_SET);
-          }
-        );
         socket.on(
           ClientToServerSocketIOEvent.ENTER_VALUES,
           async (inputValueSets: string) => {

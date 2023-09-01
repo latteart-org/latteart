@@ -52,6 +52,3 @@ export type SnapshotConfig = SnapshotConfigForRepository;
 
 export type TestResultComparisonSetting =
   ProjectSettings["config"]["testResultComparison"];
-
-export type MisoperationPreventionSetting =
-  ProjectSettings["config"]["misoperationPrevention"];

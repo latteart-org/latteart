@@ -42,7 +42,6 @@ export default class Settings {
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     captureMediaSetting: CaptureMediaSetting;
-    misoperationPrevention: MisoperationPrevention;
   };
   public captureSettings: {
     ignoreTags: string[];
@@ -84,9 +83,6 @@ export default class Settings {
       captureMediaSetting: {
         mediaType: "image",
         imageCompression: { format: "png" },
-      },
-      misoperationPrevention: {
-        isShieldEnabled: true,
       },
     };
     this.captureSettings = {
@@ -185,11 +181,4 @@ export interface ScreenDefinitionConditionGroup {
     definitionType: "url" | "title" | "keyword";
     word: string;
   }>;
-}
-
-/**
- * Misoperation prevention settings.
- */
-export interface MisoperationPrevention {
-  isShieldEnabled: boolean;
 }

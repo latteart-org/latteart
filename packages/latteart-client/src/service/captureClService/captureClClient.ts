@@ -467,11 +467,6 @@ class CaptureSessionImpl implements CaptureSession {
             this.eventListeners.onResume();
           }
         },
-        onChangeShield: () => {
-          if (this.eventListeners.onChangeShield) {
-            this.eventListeners.onChangeShield();
-          }
-        },
         onError: (serverError: CaptureCLServerError) => {
           const error: ServiceError = convertToServiceError(serverError);
 
@@ -864,24 +859,12 @@ class CaptureSessionImpl implements CaptureSession {
     this.captureCl.switchWindow(destWindowHandle);
   }
 
-  protectWindows() {
-    this.captureCl.protectWindows();
-  }
-
-  unprotectWindows() {
-    this.captureCl.unprotectWindows();
-  }
-
   pauseCapture() {
     this.captureCl.pauseCapture();
   }
 
   resumeCapture() {
     this.captureCl.resumeCapture();
-  }
-
-  setShieldEnabled(isShieldEnabled: boolean) {
-    this.captureCl.setShieldEnabled(isShieldEnabled);
   }
 
   setRecordingVideo(video: Video & { startTimestamp: number }) {

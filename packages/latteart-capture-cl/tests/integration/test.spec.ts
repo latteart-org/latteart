@@ -77,7 +77,6 @@ describe("動作確認用", () => {
     platformVersion: "",
     waitTimeForStartupReload: 0,
     isHeadlessMode: false,
-    isShieldEnabled: true,
     mediaType: "image" as "image" | "video",
   };
 

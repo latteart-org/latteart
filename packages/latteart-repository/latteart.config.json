@@ -177,9 +177,6 @@
         "isEnabled": false,
         "values": []
       }
-    },
-    "misoperationPrevention": {
-      "isShieldEnabled": true
     }
   },
   "captureSettings": {

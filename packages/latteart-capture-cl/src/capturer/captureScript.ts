@@ -162,12 +162,9 @@ export type CaptureScript = {
   }) => boolean;
   setFunctionToDetectWindowSwitch: ({
     windowHandle,
-    shieldId,
     shieldStyle,
-    isShieldEnabled,
   }: {
     windowHandle: string;
-    shieldId: string;
     shieldStyle: {
       position: string;
       zIndex: string;
@@ -176,10 +173,9 @@ export type CaptureScript = {
       opacity: string;
       backgroundColor: string;
     };
-    isShieldEnabled: boolean;
   }) => void;
   refireEvent: (eventInfo: EventInfo) => void;
-  unblockUserOperations: ({
+  detachShield: ({
     windowHandle,
     shieldId,
   }: {
@@ -214,7 +210,6 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
-  setShieldEnabled: (isShieldEnabled: boolean) => void;
 };
 
 /**
@@ -238,7 +233,7 @@ export const captureScript: CaptureScript = {
   setFunctionToHandleCapturedEvent,
   setFunctionToDetectWindowSwitch,
   refireEvent,
-  unblockUserOperations,
+  detachShield,
   getBrowsingWindowHandle,
   markRect,
   unmarkElements,
@@ -247,7 +242,6 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
-  setShieldEnabled,
 };
 
 export type CapturedElementInfo = {
@@ -879,12 +873,9 @@ function setFunctionToHandleCapturedEvent(args: {
 
 function setFunctionToDetectWindowSwitch({
   windowHandle,
-  shieldId,
   shieldStyle,
-  isShieldEnabled,
 }: {
   windowHandle: string;
-  shieldId: string;
   shieldStyle: {
     position: string;
     zIndex: string;
@@ -893,7 +884,6 @@ function setFunctionToDetectWindowSwitch({
     opacity: string;
     backgroundColor: string;
   };
-  isShieldEnabled: boolean;
 }) {
   const extendedWindow: ExtendedWindowForWindowSwitch = window;
 
@@ -959,43 +949,11 @@ function setFunctionToDetectWindowSwitch({
     extendedWindow.setWindowHandleToLocalStorage
   );
 
-  if (localStorage != null && localStorage.isShieldEnabled === undefined) {
-    localStorage.isShieldEnabled = isShieldEnabled;
-  }
-
   if (!extendedWindow.removeWindowHandleToLocalStorage) {
     extendedWindow.removeWindowHandleToLocalStorage = () => {
       if (extendedDocument.__capturingIsPaused) {
         return;
       }
-      // Block user operations.
-      (() => {
-        const target = document.getElementById(shieldId);
-
-        if (target) {
-          return;
-        }
-
-        const isShieldEnabled =
-          localStorage != null && localStorage.isShieldEnabled !== undefined
-            ? JSON.parse(localStorage.isShieldEnabled.toLowerCase())
-            : true;
-
-        if (!isShieldEnabled) {
-          return;
-        }
-
-        const shield = document.createElement("div");
-        shield.id = shieldId;
-        shield.style.position = "absolute";
-        shield.style.zIndex = "2147483647";
-        shield.style.width = "100%";
-        shield.style.height = `${document.body.clientHeight}px`;
-        shield.style.opacity = "0.6";
-        shield.style.backgroundColor = "#333";
-
-        document.body.insertAdjacentElement("afterbegin", shield);
-      })();
 
       const isLocalStorageEnabled = (() => {
         try {
@@ -1113,7 +1071,7 @@ function refireEvent(eventInfo: EventInfo) {
   }
 }
 
-function unblockUserOperations({
+function detachShield({
   windowHandle,
   shieldId,
 }: {
@@ -1250,20 +1208,4 @@ function collectScreenElements() {
     "/HTML/BODY"
   );
   return elements;
-}
-
-function setShieldEnabled(isShieldEnabled: boolean) {
-  const isLocalStorageEnabled = (() => {
-    try {
-      return localStorage !== undefined && localStorage !== null;
-    } catch (e) {
-      return false;
-    }
-  })();
-
-  if (!isLocalStorageEnabled) {
-    return;
-  }
-
-  localStorage.isShieldEnabled = isShieldEnabled;
 }

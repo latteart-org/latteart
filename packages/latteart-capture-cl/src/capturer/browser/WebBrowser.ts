@@ -30,7 +30,6 @@ export default class WebBrowser {
   public static readonly SHIELD_ID = "__LATTEART_USER_OPERATION_SHIELD__";
 
   private _isOpened = false;
-  private _isWindowSelecting = false;
 
   private client: WebDriverClient;
   private config: CaptureConfig;
@@ -123,10 +122,6 @@ export default class WebBrowser {
     return this._isOpened;
   }
 
-  public get isWindowSelecting(): boolean {
-    return this._isWindowSelecting;
-  }
-
   /**
    * Current window.
    */
@@ -157,26 +152,6 @@ export default class WebBrowser {
     this._isOpened = false;
   }
 
-  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
-    this.config.isShieldEnabled = isShieldEnabled;
-
-    const action = async () => {
-      await this.client.execute(
-        captureScript.setShieldEnabled,
-        isShieldEnabled
-      );
-      if (!isShieldEnabled) {
-        await this.client.execute(captureScript.unblockUserOperations, {
-          windowHandle: this.currentWindow?.windowHandle,
-          shieldId: WebBrowser.SHIELD_ID,
-        });
-      }
-    };
-
-    await action();
-    await this.client.doActionInIframes("setShieldEnabledLock", action);
-  }
-
   /**
    * Update browser state.
    */
@@ -193,20 +168,16 @@ export default class WebBrowser {
     }
 
     // Update current window of the container to be the same as actual current window.
-    if (!this.isWindowSelecting) {
-      await this.windowContainer.changeCurrentWindowTo(
-        (await this.getBrowsingWindowHandle()) ?? ""
-      );
-    }
+    await this.windowContainer.changeCurrentWindowTo(
+      (await this.getBrowsingWindowHandle()) ?? ""
+    );
 
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
       const currentWindowHostNameChanged = await this.isCurrentHostNameChanged(
         beforeWindow
       );
-      if (currentWindowHostNameChanged) {
-        await this.protectAllWindow();
-      }
+
       this.option.onWindowsChanged(
         this.windowContainer.windows,
         this.windowContainer.currentWindowHandle,
@@ -232,14 +203,6 @@ export default class WebBrowser {
       );
     }
 
-    // Unblock user operations.
-    if (!this.isWindowSelecting) {
-      await this.client.execute(captureScript.unblockUserOperations, {
-        windowHandle: this.currentWindow?.windowHandle,
-        shieldId: WebBrowser.SHIELD_ID,
-      });
-    }
-
     if (this.currentWindow?.windowHandle) {
       await this.injectFunctionToDetectWindowSwitch(
         this.currentWindow.windowHandle
@@ -256,26 +219,11 @@ export default class WebBrowser {
   }
 
   /**
-   * Switch current window.
+   * Change current window.
    * @param windowHandle Destination window handle.
    */
-  public switchWindowTo(windowHandle: string): Promise<void> {
+  public changeCurrentWindow(windowHandle: string): Promise<void> {
     return this.windowContainer.changeCurrentWindowTo(windowHandle);
-  }
-
-  public async protectAllWindow(): Promise<void> {
-    this._isWindowSelecting = true;
-    if (!this.currentWindow) {
-      return;
-    }
-    await this.client.switchWindowTo(this.currentWindow.windowHandle);
-    await this.client.execute(captureScript.attachShield, {
-      shieldId: WebBrowser.SHIELD_ID,
-    });
-  }
-
-  public async unprotectAllWindow(): Promise<void> {
-    this._isWindowSelecting = false;
   }
 
   /**
@@ -296,6 +244,9 @@ export default class WebBrowser {
         await this.client.execute(captureScript.initGuard, {
           shieldStyle: this.createShieldStyle(),
         });
+        await this.client.execute(captureScript.attachShield, {
+          shieldId: WebBrowser.SHIELD_ID,
+        });
 
         const window = await (async () => {
           await this.injectFunctionToDetectWindowSwitch(windowHandle);
@@ -312,9 +263,12 @@ export default class WebBrowser {
         })();
         await window.focus();
 
-        // If current window is focused, switch back the window that switched temporarily.
-        if (currentWindow && currentWindowIsFocused) {
+        if (currentWindow) {
           await this.client.switchWindowTo(currentWindow.windowHandle);
+        }
+
+        if (!currentWindowIsFocused) {
+          await this.switchWindow(window, currentWindow);
         }
         return window;
       })
@@ -332,9 +286,18 @@ export default class WebBrowser {
   private async switchWindow(to: WebBrowserWindow, from?: WebBrowserWindow) {
     if (from) {
       from.lockScreenTransitionHistory();
+
+      await this.client.execute(captureScript.attachShield, {
+        shieldId: WebBrowser.SHIELD_ID,
+      });
     }
 
     await this.client.switchWindowTo(to.windowHandle);
+
+    await this.client.execute(captureScript.detachShield, {
+      windowHandle: to.windowHandle,
+      shieldId: WebBrowser.SHIELD_ID,
+    });
 
     to.clearScreenAndOperationInfo();
   }
@@ -350,9 +313,7 @@ export default class WebBrowser {
   ): Promise<void> {
     await this.client.execute(captureScript.setFunctionToDetectWindowSwitch, {
       windowHandle,
-      shieldId: WebBrowser.SHIELD_ID,
       shieldStyle: this.createShieldStyle(),
-      isShieldEnabled: this.config.isShieldEnabled,
     });
   }
 
