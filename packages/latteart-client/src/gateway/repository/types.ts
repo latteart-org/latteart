@@ -224,6 +224,7 @@ export type SettingsForRepository = {
           elementInfo: ElementInfoForRepository | null;
           title: string;
           url: string;
+          timestamp: string;
           iframeIndex?: number;
         }[];
       }[];

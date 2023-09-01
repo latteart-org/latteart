@@ -169,6 +169,7 @@ export type AutoOperation = {
   elementInfo: ElementInfo | null;
   title: string;
   url: string;
+  timestamp: string;
   iframeIndex?: number;
 };
 
