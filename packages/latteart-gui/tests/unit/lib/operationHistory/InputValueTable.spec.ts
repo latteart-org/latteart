@@ -82,7 +82,7 @@ describe("InputValueTable", () => {
                 outerWidth: 0,
               },
             },
-            inputs: [{ value: "inputValue", isDefaultValue: false }],
+            inputs: [{ value: "", isDefaultValue: false }],
           },
         ]);
       });
@@ -131,7 +131,7 @@ describe("InputValueTable", () => {
                   defaultValue: "",
                   inputs: [
                     {
-                      value: "inputValue",
+                      value: "",
                       image: { imageFileUrl: "element2Image" },
                     },
                   ],
@@ -155,7 +155,7 @@ describe("InputValueTable", () => {
                   defaultValue: "",
                   inputs: [
                     {
-                      value: "inputValue",
+                      value: "",
                       image: { imageFileUrl: "element2Image" },
                     },
                   ],
@@ -193,15 +193,15 @@ describe("InputValueTable", () => {
               },
               inputs: [
                 {
-                  value: "inputValue",
+                  value: "",
                   isDefaultValue: false,
                 },
                 {
-                  value: "inputValue",
+                  value: "",
                   isDefaultValue: false,
                 },
                 {
-                  value: "inputValue",
+                  value: "",
                   isDefaultValue: false,
                 },
               ],
@@ -277,7 +277,7 @@ describe("InputValueTable", () => {
                 { value: "", isDefaultValue: true },
                 { value: "", isDefaultValue: true },
                 {
-                  value: "inputValue",
+                  value: "",
                   isDefaultValue: false,
                 },
               ],

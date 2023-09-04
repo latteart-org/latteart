@@ -179,7 +179,7 @@ export default class InputValueTable {
         }
 
         return {
-          value: input.value,
+          value: inputElement?.defaultValue ?? input.value,
           image: input.image,
           isDefaultValue: false,
         };
