@@ -129,7 +129,8 @@
     "testing-time": "Test Time",
     "test-purpose": "Test Purpose",
     "creation-timestamp": "Creation Date",
-    "load": "Load test result"
+    "load": "Load test result",
+    "edit": "Edit test result name"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
