@@ -531,13 +531,6 @@ export default class WebBrowserWindow {
       return { iframeIndex: iframe.index, elements: result };
     });
 
-    const elements = [
-      ...elementsInDefaultContent.elements,
-      ...elementsInIFrames.flatMap(({ elements }) => elements),
-    ];
-
-    LoggingService.debug(`collected elements length: ${elements.length}`);
-
     return [...elementsInIFrames, elementsInDefaultContent];
   }
 

@@ -159,12 +159,24 @@ export default class BrowserOperationCapturer {
 
         // Delete actions after executing all registered actions.
         if (!this.alertIsVisible) {
-          await Promise.all(
-            this.actionQueue.map(async (action) => {
-              await action(this.webBrowser!);
-            })
-          );
-          this.actionQueue = [];
+          for (const action of [...this.actionQueue]) {
+            try {
+              await action(this.webBrowser);
+
+              this.actionQueue.shift();
+            } catch (error) {
+              if (
+                error instanceof Error &&
+                error.name === "NoSuchWindowError"
+              ) {
+                LoggingService.debug(`${error}`);
+
+                break;
+              }
+
+              throw error;
+            }
+          }
         }
 
         if (!this.isCapturing()) {
