@@ -62,16 +62,16 @@ export type ScreenTransition = {
       text: string;
       iframe?: {
         index: number;
-        boundingRect: {
+        boundingRect?: {
           top: number;
           left: number;
           width: number;
           height: number;
         };
-        innerHeight: number;
-        innerWidth: number;
-        outerHeight: number;
-        outerWidth: number;
+        innerHeight?: number;
+        innerWidth?: number;
+        outerHeight?: number;
+        outerWidth?: number;
       };
     };
     input?: string;
@@ -91,16 +91,16 @@ export type ScreenTransition = {
     }[];
     iframe?: {
       index: number;
-      boundingRect: {
+      boundingRect?: {
         top: number;
         left: number;
         width: number;
         height: number;
       };
-      innerHeight: number;
-      innerWidth: number;
-      outerHeight: number;
-      outerWidth: number;
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     };
     boundingRect?: { top: number; left: number; width: number; height: number };
     innerHeight?: number;

@@ -85,7 +85,11 @@ export class ElementMapperFactory {
           return [
             `${screenElement.pageUrl}_${screenElement.pageTitle}_${
               screenElement.xpath
-            }_${screenElement.iframe?.index ?? ""}`,
+            }_${
+              screenElement.iframe?.index !== undefined
+                ? screenElement.iframe?.index
+                : ""
+            }`,
             {
               screenDef,
               element: {
@@ -106,7 +110,9 @@ export class ElementMapperFactory {
         iframeIndex?: number
       ) => {
         const element = keyToScreenElement.get(
-          `${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`
+          `${pageUrl}_${pageTitle}_${xpath}_${
+            iframeIndex !== undefined ? iframeIndex : ""
+          }`
         )?.element;
 
         if (!element) {

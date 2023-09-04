@@ -244,7 +244,7 @@ export type GraphView = {
       attributes: { [key: string]: string };
       iframe?: {
         index: number;
-        boundingRect: {
+        boundingRect?: {
           top: number;
           left: number;
           width: number;

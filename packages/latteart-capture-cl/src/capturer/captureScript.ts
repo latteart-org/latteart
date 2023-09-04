@@ -752,8 +752,8 @@ function setFunctionToBuildOperationInfo() {
       input: element.value ? element.value : "",
       type: eventType,
       elementInfo,
-      title: extendedDocument.title,
-      url: extendedDocument.URL,
+      title: window.top?.document.title ?? "",
+      url: window.top?.document.URL ?? "",
       scrollPosition: {
         x: window.scrollX,
         y: window.scrollY,
