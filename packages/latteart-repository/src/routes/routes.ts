@@ -1814,10 +1814,10 @@ const models: TsoaRoute.Models = {
         iframe: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
-            outerWidth: { dataType: "double", required: true },
-            outerHeight: { dataType: "double", required: true },
-            innerWidth: { dataType: "double", required: true },
-            innerHeight: { dataType: "double", required: true },
+            outerWidth: { dataType: "double" },
+            outerHeight: { dataType: "double" },
+            innerWidth: { dataType: "double" },
+            innerHeight: { dataType: "double" },
             boundingRect: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {
@@ -1826,7 +1826,6 @@ const models: TsoaRoute.Models = {
                 left: { dataType: "double", required: true },
                 top: { dataType: "double", required: true },
               },
-              required: true,
             },
             index: { dataType: "double", required: true },
           },

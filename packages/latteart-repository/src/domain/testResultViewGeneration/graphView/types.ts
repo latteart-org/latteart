@@ -34,16 +34,16 @@ export type GraphView = {
       attributes: { [key: string]: string };
       iframe?: {
         index: number;
-        boundingRect: {
+        boundingRect?: {
           top: number;
           left: number;
           width: number;
           height: number;
         };
-        innerHeight: number;
-        innerWidth: number;
-        outerHeight: number;
-        outerWidth: number;
+        innerHeight?: number;
+        innerWidth?: number;
+        outerHeight?: number;
+        outerWidth?: number;
       };
       boundingRect?: {
         top: number;

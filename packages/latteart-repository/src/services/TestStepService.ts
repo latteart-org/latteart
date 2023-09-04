@@ -93,10 +93,21 @@ export class TestStepServiceImpl implements TestStepService {
     });
 
     const screenElements = requestBody.screenElements
-      .map(({ elements }) => elements)
+      .map((screenElement) => {
+        return screenElement.elements.map((element) => {
+          return screenElement.iframeIndex === undefined
+            ? element
+            : {
+                ...element,
+                iframe: {
+                  index: screenElement.iframeIndex,
+                },
+              };
+        });
+      })
       .flat();
 
-    const inputElements = this.createInputElements(requestBody);
+    const inputElements = this.createInputElements(screenElements);
 
     const targetCoverageSource = testResultEntity.coverageSources?.find(
       (coverageSource) => {
@@ -322,7 +333,7 @@ export class TestStepServiceImpl implements TestStepService {
     });
   }
 
-  private createInputElements(requestBody: CreateTestStepDto) {
+  private createInputElements(screenElements: ElementInfo[]) {
     const inputElementsFilter = (elmInfo: ElementInfo) => {
       let expected = false;
       switch (elmInfo.tagname.toLowerCase()) {
@@ -344,12 +355,6 @@ export class TestStepServiceImpl implements TestStepService {
       }
       return expected;
     };
-    return [
-      ...requestBody.screenElements
-        .map((elemsWithIframeIndex) => {
-          return elemsWithIframeIndex.elements.filter(inputElementsFilter);
-        })
-        .flat(),
-    ];
+    return [...screenElements.filter(inputElementsFilter).flat()];
   }
 }

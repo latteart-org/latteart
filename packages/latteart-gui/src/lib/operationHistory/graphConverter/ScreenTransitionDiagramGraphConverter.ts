@@ -50,16 +50,16 @@ type Edge = {
       xpath: string;
       iframe?: {
         index: number;
-        boundingRect: {
+        boundingRect?: {
           top: number;
           left: number;
           width: number;
           height: number;
         };
-        innerHeight: number;
-        innerWidth: number;
-        outerHeight: number;
-        outerWidth: number;
+        innerHeight?: number;
+        innerWidth?: number;
+        outerHeight?: number;
+        outerWidth?: number;
       };
       text: string;
     };
@@ -303,13 +303,20 @@ function extractGraphSources(view: GraphView): GraphSource {
 
   const edges = edgeDetails.reduce((acc: Edge[], detail) => {
     const foundEdge = acc.find((edge) => {
+      const edgeIframeIndex =
+        edge.trigger?.target?.iframe?.index !== undefined
+          ? edge.trigger?.target?.iframe?.index
+          : "";
+      const detailIframeIndex =
+        detail.trigger?.target?.iframe?.index !== undefined
+          ? detail.trigger?.target?.iframe?.index
+          : "";
       return (
         edge.sourceScreenId === detail.sourceScreen.id &&
         edge.destScreenId === detail.destScreen?.id &&
         edge.trigger?.type === detail.trigger?.type &&
         edge.trigger?.target?.xpath === detail.trigger?.target?.xpath &&
-        (edge.trigger?.target?.iframe?.index ?? "") ===
-          (detail.trigger?.target?.iframe?.index ?? "")
+        edgeIframeIndex === detailIframeIndex
       );
     });
 
