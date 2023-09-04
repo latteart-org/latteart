@@ -68,7 +68,6 @@ export default class WindowSelectorDialog extends Vue {
     });
 
     if (this.opened && captureControlState.captureSession) {
-      this.$store.dispatch("captureControl/selectCapturingWindow");
       this.capturingWindowInfo.currentWindowHandle =
         captureControlState.captureSession.currentWindowHandle;
       this.capturingWindowInfo.windows.splice(
@@ -91,8 +90,6 @@ export default class WindowSelectorDialog extends Vue {
 
   private onCancelWindowSelector(): void {
     (async () => {
-      await this.$store.dispatch("captureControl/switchCancel");
-
       this.$emit("close");
     })();
   }

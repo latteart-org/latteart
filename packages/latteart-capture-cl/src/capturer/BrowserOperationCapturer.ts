@@ -207,10 +207,6 @@ export default class BrowserOperationCapturer {
         // Updates browser state.
         await this.webBrowser.updateState(beforeWindow);
 
-        if (this.webBrowser.isWindowSelecting) {
-          continue;
-        }
-
         if (this.webBrowser.countWindows() === 0) {
           await this.webBrowser.close();
 
@@ -348,10 +344,6 @@ export default class BrowserOperationCapturer {
     return this.webBrowser?.isOpened ?? false;
   }
 
-  public isWindowSelecting(): boolean {
-    return this.webBrowser?.isWindowSelecting ?? false;
-  }
-
   /**
    * Switch capturing window.
    * @param destWindowHandle Destination window handle.
@@ -361,23 +353,8 @@ export default class BrowserOperationCapturer {
       if (!this.isCapturing) {
         return;
       }
-      await browser.unprotectAllWindow();
-      await browser.switchWindowTo(destWindowHandle);
+      await browser.changeCurrentWindow(destWindowHandle);
     });
-  }
-
-  public async switchCancel(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.unprotectAllWindow();
-  }
-
-  public async selectCapturingWindow(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.protectAllWindow();
   }
 
   /**
@@ -460,13 +437,6 @@ export default class BrowserOperationCapturer {
         })
       );
     }
-  }
-
-  /**
-   * Set shield enabled.
-   */
-  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
-    await this.webBrowser?.setShieldEnabled(isShieldEnabled);
   }
 
   public async autofill(

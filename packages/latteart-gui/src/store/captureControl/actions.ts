@@ -205,11 +205,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       };
 
-      session.setShieldEnabled(false);
       const runOperationsResult = await session
         .automate({ preScript })
         .runOperations(...operations);
-      session.setShieldEnabled(true);
 
       if (runOperationsResult.isFailure()) {
         const elementInfo = runOperationsResult.error.variables?.elementInfo
@@ -304,14 +302,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   switchCapturingWindow(context, payload: { to: string }) {
     context.state.captureSession?.switchWindow(payload.to);
-  },
-
-  switchCancel(context) {
-    context.state.captureSession?.unprotectWindows();
-  },
-
-  selectCapturingWindow(context) {
-    context.state.captureSession?.protectWindows();
   },
 
   /**
@@ -588,9 +578,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       onResume: async () => {
         context.commit("setPaused", { isPaused: false });
       },
-      onChangeShield: async () => {
-        /**Do nothing */
-      },
       onUpdateWindowTitle: async (windowHandle: string, title: string) => {
         context.commit(
           "operationHistory/updateWindowTitle",
@@ -690,11 +677,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }
 
       const session = result.data;
-
-      session.setShieldEnabled(
-        context.rootState.projectSettings.config.misoperationPrevention
-          .isShieldEnabled
-      );
 
       if (videoRecorder) {
         const startRecordingResult = await videoRecorder.startRecording();
@@ -797,15 +779,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   resetTimer(context, payload?: { millis: number }) {
     context.state.timer.reset(payload?.millis);
-  },
-
-  /**
-   * Set shield enabled.
-   * @param context Action context.
-   * @param payload.isShieldEnabled Shield setting.
-   */
-  setShieldEnabled(context, payload: { isShieldEnabled: boolean }) {
-    context.state.captureSession?.setShieldEnabled(payload.isShieldEnabled);
   },
 };
 

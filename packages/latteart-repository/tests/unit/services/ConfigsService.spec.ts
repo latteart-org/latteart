@@ -31,7 +31,6 @@ describe("ConfigsService", () => {
             },
           },
           imageCompression: { format: "webp" },
-          misoperationPrevention: { isShieldEnabled: true },
         },
       };
 
@@ -71,7 +70,6 @@ describe("ConfigsService", () => {
               values: [],
             },
           },
-          misoperationPrevention: { isShieldEnabled: true },
         },
       };
 

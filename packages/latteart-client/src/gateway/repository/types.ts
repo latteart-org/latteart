@@ -257,7 +257,6 @@ export type SettingsForRepository = {
         values: { tagname: string }[];
       };
     };
-    misoperationPrevention: { isShieldEnabled: boolean };
   };
 };
 
