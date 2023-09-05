@@ -381,18 +381,7 @@ function pullCapturedDatas() {
     result.push(extendedDocument.__sendDatas.shift()!);
   }
 
-  return result.map((item) => {
-    return {
-      ...item,
-      operation: {
-        ...item.operation,
-        input:
-          typeof item.operation.input === "string"
-            ? item.operation.input
-            : (item.operation.input as number).toString(),
-      },
-    };
-  });
+  return result;
 }
 
 function isReadyToCapture(shouldTakeScreenshot: boolean) {
@@ -743,7 +732,7 @@ function setFunctionToBuildOperationInfo() {
     }
 
     return {
-      input: element.value ? element.value : "",
+      input: element.value != null ? `${element.value}` : "",
       type: eventType,
       elementInfo,
       title: window.top?.document.title ?? "",
