@@ -154,24 +154,28 @@ export default class WebBrowserWindow {
   }
 
   public async getReadyToCapture(captureArch: "pull" | "push"): Promise<void> {
-    const doGetReadyToCapture = async (iframe?: {
-      index: number;
-      boundingRect: {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-      };
-      innerHeight: number;
-      innerWidth: number;
-      outerHeight: number;
-      outerWidth: number;
-    }) => {
+    const doGetReadyToCapture = async (
+      urlAndTitle: { url: string; title: string } | null,
+      iframe?: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      }
+    ) => {
       const isReadyToCapture =
-        (await this.client.execute(
-          captureScript.isReadyToCapture,
-          captureArch === "pull"
-        )) ?? false;
+        (await this.client.execute(captureScript.isReadyToCapture, {
+          shouldTakeScreenshot: captureArch === "pull",
+          url: urlAndTitle?.url ?? "",
+          title: urlAndTitle?.title ?? "",
+        })) ?? false;
 
       if (isReadyToCapture) {
         return;
@@ -193,10 +197,11 @@ export default class WebBrowserWindow {
         (await this.resetEventListeners());
     };
 
-    await doGetReadyToCapture();
+    const urlAndTitle = await this.client.execute(captureScript.getUrlAndTitle);
+    await doGetReadyToCapture(urlAndTitle);
 
     await this.client.doActionInIframes("injectScript", (iframe) =>
-      doGetReadyToCapture(iframe)
+      doGetReadyToCapture(urlAndTitle, iframe)
     );
   }
 

@@ -121,7 +121,11 @@ export type CaptureScript = {
    * Whether it is ready to capture or not.
    * @returns 'true': It is ready to capture, 'false': It is not ready to capture.
    */
-  isReadyToCapture: (shouldTakeScreenshot: boolean) => boolean;
+  isReadyToCapture: (args: {
+    shouldTakeScreenshot: boolean;
+    url: string;
+    title: string;
+  }) => boolean;
   /**
    * Reset event listeners
    */
@@ -210,6 +214,7 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
+  getUrlAndTitle: () => { url: string; title: string };
 };
 
 /**
@@ -242,6 +247,7 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
+  getUrlAndTitle,
 };
 
 export type CapturedElementInfo = {
@@ -275,6 +281,8 @@ type ExtendedDocument = Document & {
   __capturingIsPaused?: boolean;
   __protected?: boolean;
   __completedInjectFunction?: boolean;
+  __parentUrl?: string;
+  __parentTitle?: string;
   handleCapturedEvent?: (e: Event) => void;
   extractElements?: (
     parent: Element,
@@ -384,8 +392,14 @@ function pullCapturedDatas() {
   return result;
 }
 
-function isReadyToCapture(shouldTakeScreenshot: boolean) {
+function isReadyToCapture(args: {
+  shouldTakeScreenshot: boolean;
+  url: string;
+  title: string;
+}) {
   const extendedDocument: ExtendedDocument = document;
+  extendedDocument.__parentUrl = args.url;
+  extendedDocument.__parentTitle = args.title;
 
   if (extendedDocument.handleCapturedEvent === undefined) return false;
   if (extendedDocument.extractElements === undefined) return false;
@@ -393,7 +407,7 @@ function isReadyToCapture(shouldTakeScreenshot: boolean) {
   if (extendedDocument.collectVisibleElements === undefined) return false;
   if (
     extendedDocument.enqueueEventForReFire === undefined &&
-    shouldTakeScreenshot
+    args.shouldTakeScreenshot
   )
     return false;
   if (extendedDocument.buildOperationInfo === undefined) return false;
@@ -1189,4 +1203,9 @@ function collectScreenElements() {
     "/HTML/BODY"
   );
   return elements;
+}
+
+function getUrlAndTitle() {
+  const extendedDocument: ExtendedDocumentForScreenTransition = document;
+  return { url: extendedDocument.URL, title: extendedDocument.title };
 }
