@@ -220,6 +220,7 @@ export default class BrowserOperationCapturer {
         await this.webBrowser.updateState(beforeWindow);
 
         if (this.webBrowser.countWindows() === 0) {
+          LoggingService.info("No windows opened.");
           await this.webBrowser.close();
 
           break;

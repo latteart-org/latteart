@@ -92,7 +92,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getAllWindowHandles();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return [];
         }
       }
@@ -108,7 +116,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.switchTo().window(windowHandle);
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return;
         }
       }
@@ -180,6 +196,23 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         try {
           await this.switchFrameTo(iframe.index, lockId);
           results.push({ iframe, result: await action(iframe) });
+        } catch (error) {
+          if (error instanceof Error) {
+            if (
+              [
+                "NoSuchWindowError",
+                "NoSuchFrameError",
+                "NoSuchElementError",
+                "StaleElementReferenceError",
+                "WebDriverError",
+              ].includes(error.name)
+            ) {
+              LoggingService.debug(`${error}`);
+              continue;
+            }
+          }
+
+          throw error;
         } finally {
           await this.switchDefaultContent(lockId);
         }
@@ -206,7 +239,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getCurrentUrl();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -223,7 +264,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       if (error instanceof Error) {
         console.error(error);
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -239,7 +288,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getTitle();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -255,7 +312,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return this.driver.takeScreenshot();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -285,7 +350,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getPageSource();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name == "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -312,8 +385,10 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         if (
           [
             "NoSuchWindowError",
+            "NoSuchFrameError",
             "NoSuchElementError",
             "StaleElementReferenceError",
+            "WebDriverError",
           ].includes(error.name)
         ) {
           LoggingService.debug(`${error}`);
@@ -350,7 +425,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       LoggingService.debug("execute failed.");
       if (error instanceof Error) {
-        if (error.name == "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           LoggingService.debug(`${error}`);
           return null;
         }
@@ -438,7 +521,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       LoggingService.debug("get document ready state failed.");
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           LoggingService.debug(`${error}`);
           return "";
         }
@@ -554,7 +645,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       LoggingService.debug("set scroll position failed.");
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           LoggingService.debug(`${error}`);
           return;
         }
@@ -665,13 +764,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     try {
       return await this.driver.switchTo().frame(iframeIndex);
     } catch (error) {
-      LoggingService.debug("switch frame failed.");
-      if (error instanceof Error) {
-        if (error.name === "NoSuchFrameError") {
-          LoggingService.debug(`${error}`);
-          return;
-        }
-      }
+      LoggingService.debug(`switch frame failed. index: ${iframeIndex}`);
       throw error;
     }
   }
@@ -690,7 +783,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       LoggingService.debug("switch default content failed.");
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           LoggingService.debug(`${error}`);
           return;
         }
