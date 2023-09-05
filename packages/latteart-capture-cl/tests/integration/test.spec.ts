@@ -42,12 +42,12 @@ describe("動作確認用", () => {
       console.log(`Browser history changed.: ${JSON.stringify(browserStatus)}`);
     },
     onBrowserWindowsChanged: (
-      windowHandles: string[],
+      windows: { windowHandle: string; url: string; title: string }[],
       currentWindowHandle: string
     ) => {
       console.log(
         `Browser windows changed.: ${JSON.stringify({
-          windowHandles,
+          windows,
           currentWindowHandle,
         })}`
       );
@@ -77,6 +77,7 @@ describe("動作確認用", () => {
     platformVersion: "",
     waitTimeForStartupReload: 0,
     isHeadlessMode: false,
+    mediaType: "image" as "image" | "video",
   };
 
   it("BrowserOperationCapturer", async () => {
@@ -123,6 +124,10 @@ describe("動作確認用", () => {
             width: 0,
             height: 0,
           },
+          innerHeight: 0,
+          innerWidth: 0,
+          outerHeight: 0,
+          outerWidth: 0,
         },
       });
 

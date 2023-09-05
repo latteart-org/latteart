@@ -56,7 +56,6 @@
     <history-display
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="testResult.history"
-      :windows="windows"
       :message="messageProvider"
       :screenDefinitionConfig="screenDefinitionConfig"
       :scriptGenerationEnabled="!$isViewerMode"
@@ -268,11 +267,6 @@ export default class ReviewView extends Vue {
     return this.$store.getters.message;
   }
 
-  private get windows() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .windows;
-  }
-
   private get tempStory() {
     return this.$store.state.testManagement.tempStory as Story;
   }
@@ -295,7 +289,6 @@ export default class ReviewView extends Vue {
     this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");
-    this.$store.commit("operationHistory/clearDisplayedScreenshotUrl");
 
     this.$router.push({
       name: "storyView",

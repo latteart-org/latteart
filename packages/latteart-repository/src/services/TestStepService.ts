@@ -37,6 +37,7 @@ import {
   convertToTestStepOperation,
 } from "./helper/entityToResponse";
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -91,6 +92,23 @@ export class TestStepServiceImpl implements TestStepService {
       relations: ["coverageSources"],
     });
 
+    const screenElements = requestBody.screenElements
+      .map((screenElement) => {
+        return screenElement.elements.map((element) => {
+          return screenElement.iframeIndex === undefined
+            ? element
+            : {
+                ...element,
+                iframe: {
+                  index: screenElement.iframeIndex,
+                },
+              };
+        });
+      })
+      .flat();
+
+    const inputElements = this.createInputElements(screenElements);
+
     const targetCoverageSource = testResultEntity.coverageSources?.find(
       (coverageSource) => {
         return (
@@ -102,13 +120,16 @@ export class TestStepServiceImpl implements TestStepService {
     if (targetCoverageSource) {
       const newElements: ElementInfo[] = [
         ...JSON.parse(targetCoverageSource.screenElements),
-        ...(await this.removeIgnoreTagsFrom(requestBody.screenElements)),
+        ...(await this.removeIgnoreTagsFrom(screenElements)),
       ];
       targetCoverageSource.screenElements = JSON.stringify(
         newElements.filter((newElement, index) => {
           return (
-            newElements.findIndex((elem) => elem.xpath === newElement.xpath) ===
-            index
+            newElements.findIndex(
+              (elem) =>
+                elem.xpath + elem.iframe?.index ===
+                newElement.xpath + newElement.iframe?.index
+            ) === index
           );
         })
       );
@@ -117,7 +138,7 @@ export class TestStepServiceImpl implements TestStepService {
         new CoverageSourceEntity({
           title: requestBody.title,
           url: requestBody.url,
-          screenElements: JSON.stringify(requestBody.screenElements),
+          screenElements: JSON.stringify(screenElements),
           testResult: testResultEntity,
         })
       );
@@ -130,7 +151,7 @@ export class TestStepServiceImpl implements TestStepService {
     );
 
     // add test step.
-    const keywordTexts = requestBody.screenElements
+    const keywordTexts = screenElements
       .map((screenElement) => {
         return {
           tagname: screenElement.tagname,
@@ -144,7 +165,7 @@ export class TestStepServiceImpl implements TestStepService {
       operationType: requestBody.type,
       operationInput: requestBody.input,
       operationElement: JSON.stringify(requestBody.elementInfo),
-      inputElements: JSON.stringify(requestBody.inputElements),
+      inputElements: JSON.stringify(inputElements),
       windowHandle: requestBody.windowHandle,
       keywordTexts: JSON.stringify(keywordTexts),
       timestamp: requestBody.timestamp,
@@ -165,9 +186,16 @@ export class TestStepServiceImpl implements TestStepService {
       );
       const screenshot = new ScreenshotEntity({
         fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
-        testResult: savedTestResultEntity,
       });
       newTestStepEntity.screenshot = screenshot;
+    }
+
+    if (requestBody.videoId) {
+      const video = await getRepository(VideoEntity).findOneOrFail(
+        requestBody.videoId
+      );
+      newTestStepEntity.video = video;
+      newTestStepEntity.videoTime = requestBody.videoTime ?? 0;
     }
 
     const savedTestStepEntity = await getRepository(TestStepEntity).save(
@@ -244,7 +272,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -257,7 +285,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOne(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -269,7 +297,7 @@ export class TestStepServiceImpl implements TestStepService {
 
   private async getTestStepEntity(testStepId: string) {
     return getRepository(TestStepEntity).findOneOrFail(testStepId, {
-      relations: ["notes", "testPurpose", "screenshot"],
+      relations: ["notes", "testPurpose", "screenshot", "video"],
     });
   }
 
@@ -303,5 +331,30 @@ export class TestStepServiceImpl implements TestStepService {
     return await getRepository(TestResultEntity).save({
       ...testResultEntity,
     });
+  }
+
+  private createInputElements(screenElements: ElementInfo[]) {
+    const inputElementsFilter = (elmInfo: ElementInfo) => {
+      let expected = false;
+      switch (elmInfo.tagname.toLowerCase()) {
+        case "input":
+          if (
+            !!elmInfo.attributes.type &&
+            elmInfo.attributes.type !== "button" &&
+            elmInfo.attributes.type !== "submit"
+          ) {
+            expected = true;
+          }
+          break;
+        case "select":
+        case "textarea":
+          expected = true;
+          break;
+        default:
+          break;
+      }
+      return expected;
+    };
+    return [...screenElements.filter(inputElementsFilter).flat()];
   }
 }

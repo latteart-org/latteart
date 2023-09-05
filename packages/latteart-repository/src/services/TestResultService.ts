@@ -17,7 +17,6 @@
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { NoteEntity } from "@/entities/NoteEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
-import { SessionEntity } from "@/entities/SessionEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -28,6 +27,8 @@ import {
   GetTestResultResponse,
   PatchTestResultResponse,
   GetGraphViewResponse,
+  ExportTestResultResponse,
+  PatchTestResultDto,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository, In } from "typeorm";
@@ -62,11 +63,16 @@ import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
 import { createLogger } from "@/logger/logger";
+import { VideoEntity } from "@/entities/VideoEntity";
 
-export interface TestResultService {
+export type TestResultService = {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
 
   getTestResult(id: string): Promise<GetTestResultResponse | undefined>;
+
+  getTestResultForExport(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined>;
 
   createTestResult(
     body: CreateTestResultDto,
@@ -103,70 +109,88 @@ export interface TestResultService {
     testResultId2: string,
     option?: PageAssertionOption
   ): Promise<CompareTestResultsResponse>;
-}
+
+  collectAllScreenshots(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]>;
+
+  collectAllVideos(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]>;
+};
 
 export class TestResultServiceImpl implements TestResultService {
   constructor(
-    private service: {
+    private service?: {
       timestamp: TimestampService;
       testStep: TestStepService;
       screenshotFileRepository: FileRepository;
       workingFileRepository: FileRepository;
       compareReportRepository: FileRepository;
+      videoFileRepository?: FileRepository;
     }
   ) {}
 
   public async getTestResultIdentifiers(): Promise<ListTestResultResponse[]> {
-    const testResultEntities = await getRepository(TestResultEntity).find();
-
-    return testResultEntities.map((testResult) => {
-      return {
-        id: testResult.id,
-        name: testResult.name,
-        parentTestResultId: testResult.parentTestResultId,
-      };
+    const testResultEntities = await getRepository(TestResultEntity).find({
+      relations: ["testPurposes", "testPurposes.testSteps"],
     });
+
+    return testResultEntities
+      .sort((a, b) => {
+        const first =
+          a.creationTimestamp === 0 ? a.startTimestamp : a.creationTimestamp;
+        const second =
+          b.creationTimestamp === 0 ? b.startTimestamp : b.creationTimestamp;
+
+        return first - second;
+      })
+      .map((testResult) => {
+        const testPurposes =
+          testResult.testPurposes
+            ?.sort((a, b) => {
+              const first = a.testSteps?.at(0)?.timestamp ?? 0;
+              const second = b.testSteps?.at(0)?.timestamp ?? 0;
+              return first - second;
+            })
+            .map((testPurpose) => {
+              return { value: testPurpose.title };
+            }) ?? [];
+        return {
+          id: testResult.id,
+          name: testResult.name,
+          parentTestResultId: testResult.parentTestResultId,
+          testingTime: testResult.testingTime,
+          initialUrl: testResult.initialUrl,
+          testPurposes,
+          creationTimestamp: testResult.creationTimestamp,
+        };
+      });
   }
 
   public async getTestResult(
     id: string
   ): Promise<GetTestResultResponse | undefined> {
-    try {
-      const testResultEntity = await getRepository(
-        TestResultEntity
-      ).findOneOrFail(id, {
-        relations: [
-          "testSteps",
-          "testSteps.screenshot",
-          "testSteps.notes",
-          "testSteps.notes.tags",
-          "testSteps.notes.screenshot",
-          "testSteps.testPurpose",
-        ],
-      });
-      const { coverageSources } = await getRepository(
-        TestResultEntity
-      ).findOneOrFail(id, {
-        relations: ["coverageSources"],
-      });
+    const testResult = await this.getTestResultData(id);
 
-      return await this.convertTestResultEntityToTestResult({
-        coverageSources,
-        ...testResultEntity,
-      });
-    } catch (error) {
-      return undefined;
+    if (testResult) {
+      return this.convertToTestResult(testResult);
     }
+    return testResult;
+  }
+
+  public async getTestResultForExport(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined> {
+    return await this.getTestResultData(id);
   }
 
   public async createTestResult(
-    body: CreateTestResultDto,
-    testResultId: string | null
+    body: CreateTestResultDto
   ): Promise<CreateTestResultResponse> {
-    const createTimestamp = body.initialUrl
-      ? this.service.timestamp.epochMilliseconds()
+    const startTimestamp = body.initialUrl
+      ? this.service?.timestamp.epochMilliseconds()
       : 0;
-    const startTimestamp = body.startTimeStamp ?? createTimestamp;
 
     const lastUpdateTimestamp = -1;
 
@@ -177,7 +201,7 @@ export class TestResultServiceImpl implements TestResultService {
     const newTestResult = await repository.save({
       name:
         body.name ??
-        `session_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+        `session_${this.service?.timestamp.format("YYYYMMDD_HHmmss")}`,
       startTimestamp,
       lastUpdateTimestamp,
       initialUrl: body.initialUrl ?? "",
@@ -188,16 +212,8 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
+      creationTimestamp: this.service?.timestamp.epochMilliseconds(),
     });
-
-    if (testResultId) {
-      const oldTestResult = await repository.findOne(testResultId);
-      const sessionRepository = getRepository(SessionEntity);
-      sessionRepository.update(
-        { testResult: oldTestResult },
-        { testResult: newTestResult }
-      );
-    }
 
     return {
       id: newTestResult.id,
@@ -208,8 +224,12 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotFileRepository: FileRepository
+    screenshotFileRepository: FileRepository,
+    videoFileRepository: FileRepository
   ): Promise<void> {
+    const screenshots = await this.collectAllScreenshots(testResultId);
+    const videos = await this.collectAllVideos(testResultId);
+
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
         testResult: { id: testResultId },
@@ -225,30 +245,26 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
 
-      const fileUrls = (
-        await transactionalEntityManager.find(ScreenshotEntity, {
-          testResult: { id: testResultId },
-        })
-      ).map((screenshot) => screenshot.fileUrl);
-
-      await transactionalEntityManager.delete(ScreenshotEntity, {
-        testResult: { id: testResultId },
-      });
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
-      fileUrls.forEach((fileUrl) => {
+      videos.forEach(async ({ id, fileUrl }) => {
+        await transactionalEntityManager.delete(VideoEntity, id);
+        videoFileRepository.removeFile(path.basename(fileUrl));
+      });
+
+      screenshots.forEach(async ({ id, fileUrl }) => {
+        await transactionalEntityManager.delete(ScreenshotEntity, id);
         screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
     return;
   }
 
-  public async patchTestResult(params: {
-    id: string;
-    name?: string;
-    startTime?: number;
-    initialUrl?: string;
-  }): Promise<PatchTestResultResponse> {
+  public async patchTestResult(
+    params: PatchTestResultDto & {
+      id: string;
+    }
+  ): Promise<PatchTestResultResponse> {
     const id = params.id;
     const testResultEntity = await getRepository(
       TestResultEntity
@@ -256,9 +272,11 @@ export class TestResultServiceImpl implements TestResultService {
       relations: [
         "testSteps",
         "testSteps.screenshot",
+        "testSteps.video",
         "testSteps.notes",
         "testSteps.notes.tags",
         "testSteps.notes.screenshot",
+        "testSteps.notes.video",
         "testSteps.testPurpose",
       ],
     });
@@ -285,10 +303,12 @@ export class TestResultServiceImpl implements TestResultService {
       testResultEntity
     );
 
-    return this.convertTestResultEntityToTestResult({
+    const testResult = await this.convertTestResultEntityToTestResult({
       coverageSources,
       ...updatedTestResultEntity,
     });
+
+    return this.convertToTestResult(testResult);
   }
 
   public async collectAllTestStepIds(testResultId: string): Promise<string[]> {
@@ -541,16 +561,25 @@ export class TestResultServiceImpl implements TestResultService {
           )
         ),
       },
-      relations: ["screenshot"],
+      relations: ["screenshot", "video"],
     });
 
     const nodes = graphView.nodes.map((node) => {
       const testSteps = node.testSteps.map((testStep) => {
-        const imageFileUrl = testStepEntities.find(
+        const testStepEntity = testStepEntities.find(
           ({ id }) => id === testStep.id
-        )?.screenshot?.fileUrl;
+        );
+        const imageFileUrl = testStepEntity?.screenshot?.fileUrl;
+        const videoFrame = testStepEntity?.video
+          ? {
+              url: testStepEntity.video.fileUrl,
+              time: testStepEntity.videoTime ?? 0,
+              width: testStepEntity.video.width,
+              height: testStepEntity.video.height,
+            }
+          : undefined;
 
-        return { ...testStep, imageFileUrl };
+        return { ...testStep, imageFileUrl, videoFrame };
       });
       return { ...node, testSteps };
     });
@@ -558,13 +587,21 @@ export class TestResultServiceImpl implements TestResultService {
     const notes = (
       await getRepository(NoteEntity).find({
         where: { id: In(graphView.store.notes.map(({ id }) => id)) },
-        relations: ["tags", "screenshot"],
+        relations: ["tags", "screenshot", "video"],
       })
     ).map((noteEntity) => {
-      const { id, value, details } = noteEntity;
+      const { id, value, details, timestamp } = noteEntity;
       const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
       const imageFileUrl = noteEntity.screenshot?.fileUrl;
-      return { id, value, details, tags, imageFileUrl };
+      const videoFrame = noteEntity.video
+        ? {
+            url: noteEntity.video.fileUrl,
+            time: noteEntity.videoTime ?? 0,
+            width: noteEntity.video.width,
+            height: noteEntity.video.height,
+          }
+        : undefined;
+      return { id, value, details, tags, imageFileUrl, timestamp, videoFrame };
     });
 
     const testPurposes = (
@@ -589,7 +626,7 @@ export class TestResultServiceImpl implements TestResultService {
   ): Promise<CompareTestResultsResponse> {
     const testStepRepository = getRepository(TestStepEntity);
     const findOption = {
-      relations: ["screenshot"],
+      relations: ["screenshot", "video"],
       order: { timestamp: "ASC" as const },
     };
     const actualTestStepEntities = await testStepRepository.find({
@@ -601,11 +638,19 @@ export class TestResultServiceImpl implements TestResultService {
       where: { testResult: expectedTestResultId },
     });
 
+    if (!this.service) {
+      throw new ServerError(500, {
+        code: "comparison_targets_not_same_procedures",
+      });
+    }
+
+    const { screenshotFileRepository } = this.service;
+
     const actualOperations = actualTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, screenshotFileRepository);
     });
     const expectedOperations = expectedTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, screenshotFileRepository);
     });
 
     const actualActions = createTestActions(...actualOperations);
@@ -662,52 +707,97 @@ export class TestResultServiceImpl implements TestResultService {
     return { url: reportUrl, targetNames, summary };
   }
 
+  private async getTestResultData(
+    id: string
+  ): Promise<ExportTestResultResponse | undefined> {
+    try {
+      const testResultEntity = await getRepository(
+        TestResultEntity
+      ).findOneOrFail(id, {
+        relations: [
+          "testSteps",
+          "testSteps.screenshot",
+          "testSteps.video",
+          "testSteps.notes",
+          "testSteps.notes.tags",
+          "testSteps.notes.screenshot",
+          "testSteps.notes.video",
+          "testSteps.testPurpose",
+        ],
+      });
+      const { coverageSources } = await getRepository(
+        TestResultEntity
+      ).findOneOrFail(id, {
+        relations: ["coverageSources"],
+      });
+
+      return await this.convertTestResultEntityToTestResult({
+        coverageSources,
+        ...testResultEntity,
+      });
+    } catch (error) {
+      return undefined;
+    }
+  }
+
   private async convertTestResultEntityToTestResult(
     testResultEntity: TestResultEntity
   ) {
-    const testSteps = await Promise.all(
-      testResultEntity.testSteps
-        ?.sort(function (first, second) {
-          return first.timestamp - second.timestamp;
-        })
-        .map(async (testStep) => {
-          const operation = await this.service.testStep.getTestStepOperation(
-            testStep.id
-          );
-          const notes =
-            testStep.notes?.map((note) => {
+    const testStepService = this.service?.testStep;
+
+    const testSteps = testStepService
+      ? await Promise.all(
+          testResultEntity.testSteps
+            ?.sort(function (first, second) {
+              return first.timestamp - second.timestamp;
+            })
+            .map(async (testStep) => {
+              const operation = await testStepService.getTestStepOperation(
+                testStep.id
+              );
+              const notes =
+                testStep.notes?.map((note) => {
+                  return {
+                    id: note.id,
+                    type: "notice",
+                    value: note.value,
+                    details: note.details,
+                    tags: note.tags?.map((tag) => tag.name) ?? [],
+                    imageFileUrl: note.screenshot?.fileUrl ?? "",
+                    timestamp: note.timestamp,
+                    videoFrame: note.video
+                      ? {
+                          url: note.video.fileUrl,
+                          time: note.videoTime ?? 0,
+                          width: note.video.width,
+                          height: note.video.height,
+                        }
+                      : undefined,
+                  };
+                }) ?? [];
+
+              const testPurpose = testStep.testPurpose
+                ? {
+                    id: testStep.testPurpose.id,
+                    type: "intention",
+                    value: testStep.testPurpose.title,
+                    details: testStep.testPurpose.details,
+                    tags: [],
+                    imageFileUrl: "",
+                    timestamp: 0,
+                  }
+                : null;
+
               return {
-                id: note.id,
-                type: "notice",
-                value: note.value,
-                details: note.details,
-                tags: note.tags?.map((tag) => tag.name) ?? [],
-                imageFileUrl: note.screenshot?.fileUrl ?? "",
-                timestamp: note.timestamp,
+                id: testStep.id,
+                operation,
+                intention: testPurpose,
+                notices: notes,
+                bugs: [],
               };
-            }) ?? [];
-
-          const testPurpose = testStep.testPurpose
-            ? {
-                id: testStep.testPurpose.id,
-                type: "intention",
-                value: testStep.testPurpose.title,
-                details: testStep.testPurpose.details,
-                tags: [],
-                imageFileUrl: "",
-                timestamp: 0,
-              }
-            : null;
-
-          return {
-            id: testStep.id,
-            operation,
-            intention: testPurpose,
-            notices: notes,
-            bugs: [],
-          };
-        }) ?? []
-    );
+            }) ?? []
+        )
+      : [];
 
     const coverageSources =
       testResultEntity.coverageSources?.map((coverageSource) => {
@@ -728,6 +818,76 @@ export class TestResultServiceImpl implements TestResultService {
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,
+      creationTimestamp: testResultEntity.creationTimestamp,
+    };
+  }
+
+  public async collectAllVideos(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]> {
+    const testStepVideos = (
+      await getRepository(TestStepEntity).find({
+        relations: ["video"],
+        where: { testResult: testResultId },
+      })
+    ).flatMap(({ video }) => (video ? [video] : []));
+
+    const noteVideos = (
+      await getRepository(NoteEntity).find({
+        relations: ["video"],
+        where: { testResult: testResultId },
+      })
+    ).flatMap(({ video }) => (video ? [video] : []));
+
+    const videos = [...testStepVideos, ...noteVideos].filter(
+      (video, index, array) => {
+        return array.findIndex(({ id }) => id === video.id) === index;
+      }
+    );
+
+    return videos.map(({ id, fileUrl }) => {
+      return { id, fileUrl };
+    });
+  }
+
+  public async collectAllScreenshots(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]> {
+    const testStepScreenshots = (
+      await getRepository(TestStepEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: testResultId },
+      })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+    const noteScreenshots = (
+      await getRepository(NoteEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: testResultId },
+      })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+
+    const screenshots = [...testStepScreenshots, ...noteScreenshots].filter(
+      (screenshot, index, array) => {
+        return array.findIndex(({ id }) => id === screenshot.id) === index;
+      }
+    );
+
+    return screenshots.map(({ id, fileUrl }) => {
+      return { id, fileUrl };
+    });
+  }
+
+  private convertToTestResult(testResult: ExportTestResultResponse) {
+    return {
+      id: testResult.id,
+      name: testResult.name,
+      startTimeStamp: testResult.startTimeStamp,
+      lastUpdateTimeStamp: testResult.lastUpdateTimeStamp,
+      initialUrl: testResult.initialUrl,
+      testingTime: testResult.testingTime,
+      testSteps: testResult.testSteps,
+      coverageSources: testResult.coverageSources,
+      parentTestResultId: testResult.parentTestResultId,
     };
   }
 }

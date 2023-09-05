@@ -15,12 +15,16 @@
  */
 
 import { Note } from "@/domain/types";
+import { VideoFrame } from "./Videos";
 
 /**
  * Note data for new registration.
  */
 export type CreateNoteDto = UpdateNoteDto & {
   imageData?: string;
+  timestamp?: number;
+  videoId?: string;
+  videoTime?: number;
 };
 
 /**
@@ -35,6 +39,7 @@ export type UpdateNoteDto = Pick<Note, "type" | "value" | "details"> & {
  */
 export type CreateNoteResponse = Omit<Note, "screenshot"> & {
   imageFileUrl: string;
+  videoFrame?: VideoFrame;
 };
 
 /**

@@ -15,42 +15,31 @@
  */
 
 export function filterTableRows<T>(
-  rows: {
-    index: number;
-    columns: T;
-  }[],
+  rows: T[],
   predicates: ((item: T) => boolean)[]
-): {
-  index: number;
-  columns: T;
-}[] {
-  return rows.filter(({ columns }) => {
+): T[] {
+  return rows.filter((row) => {
     return predicates.every((filteringPredicate) => {
-      return filteringPredicate(columns);
+      return filteringPredicate(row);
     });
   });
 }
 
 export function sortTableRows<T>(
-  rows: {
-    index: number;
-    columns: T;
-  }[],
-  sortBy: string
-): {
-  index: number;
-  columns: T;
-}[] {
+  rows: T[],
+  sortBy: string,
+  sortDesc: boolean = false
+): T[] {
   return rows.slice().sort((rowA, rowB) => {
     const valueA =
       sortBy.split(".").reduce((acc: any, pathItem) => {
         return acc ? acc[pathItem] : acc;
-      }, rowA.columns) ?? "";
+      }, rowA) ?? "";
     const valueB =
       sortBy.split(".").reduce((acc: any, pathItem) => {
         return acc ? acc[pathItem] : acc;
-      }, rowB.columns) ?? "";
+      }, rowB) ?? "";
 
-    return valueA >= valueB ? 1 : -1;
+    return (valueA >= valueB ? 1 : -1) * (sortDesc ? -1 : 1);
   });
 }

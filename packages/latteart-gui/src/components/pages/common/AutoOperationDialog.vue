@@ -144,6 +144,7 @@ export default class AutoOperationDialog extends Vue {
           operation.elementInfo,
           operation.input
         ).substring(0, 60),
+        iframeIndex: operation.elementInfo?.iframe?.index,
       };
     });
   }

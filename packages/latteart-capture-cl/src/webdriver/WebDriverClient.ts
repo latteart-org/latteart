@@ -209,4 +209,45 @@ export default interface WebDriverClient extends ScriptExecutor {
    * Set scroll position.
    */
   setScrollPosition(x: number, height: number): Promise<void>;
+
+  /**
+   * Do action in iframes.
+   * @param lockId lock id
+   * @param action action
+   * @param where target iframe index (if not specified, all iframes will be target)
+   */
+  doActionInIframes<T>(
+    lockId: string,
+    action: (iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }) => Promise<T>,
+    where?: { iframeIndexes: number[] }
+  ): Promise<
+    {
+      iframe: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+      result: T;
+    }[]
+  >;
 }

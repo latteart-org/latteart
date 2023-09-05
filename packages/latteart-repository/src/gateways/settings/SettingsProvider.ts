@@ -214,10 +214,10 @@ export class SettingsProvider {
       }
     }
 
-    if (source.config && source.config.imageCompression) {
+    if (source.config && source.config.captureMediaSetting) {
       Object.assign(
-        target.config.imageCompression,
-        source.config.imageCompression
+        target.config.captureMediaSetting,
+        source.config.captureMediaSetting
       );
     }
 

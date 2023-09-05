@@ -15,6 +15,7 @@ describe("WebBrowserは", () => {
         getCurrentWindowHandle: jest
           .fn()
           .mockResolvedValue("firstWindowHandle"),
+        waitUntilFrameUnlock: jest.fn(),
       };
 
       config = new CaptureConfig();
@@ -58,6 +59,7 @@ describe("WebBrowserは", () => {
       clientMock = {
         getAllWindowHandles: jest.fn(),
         getCurrentUrl: jest.fn().mockResolvedValue("http://127.0.0.1/dummy"),
+        getCurrentTitle: jest.fn().mockResolvedValue("dummy"),
         getTitle: jest.fn().mockResolvedValue("dummy"),
         takeScreenshot: jest.fn().mockResolvedValue("dummy"),
         switchTo: jest.fn().mockReturnValue({
@@ -65,7 +67,10 @@ describe("WebBrowserは", () => {
         }),
         execute: jest.fn(),
         switchWindowTo: jest.fn(),
+        switchFrameTo: jest.fn(),
+        switchDefaultContent: jest.fn(),
         getCurrentPageText: jest.fn(),
+        doActionInIframes: jest.fn(),
       };
       config = new CaptureConfig();
     });
@@ -84,32 +89,34 @@ describe("WebBrowserは", () => {
         .fn()
         // 1回目のupdateState
         .mockResolvedValueOnce("windowHandle1") // createWindows内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // createWindows内のinitGurd
+        .mockResolvedValueOnce(undefined) // createWindows内のinitGuard
+        .mockResolvedValueOnce(undefined) // createWindows内のattachShield
         .mockResolvedValueOnce(undefined) // createWindows内のinjectFunctionToDetectWindowSwitch(windowHandle1)
         .mockResolvedValueOnce(undefined) // createWindows内のwindow.focus(windowHandle1)
-        .mockResolvedValueOnce(undefined) // createWindows内のinitGurd
+        .mockResolvedValueOnce(undefined) // createWindows内のinitGuard
+        .mockResolvedValueOnce(undefined) // createWindows内のattachShield
         .mockResolvedValueOnce(undefined) // createWindows内のinjectFunctionToDetectWindowSwitch(windowHandle2)
         .mockResolvedValueOnce(undefined) // createWindows内のwindow.focus(windowHandle2)
         .mockResolvedValueOnce("windowHandle1") // updateState内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
         .mockResolvedValueOnce(undefined) // updateState内のinjectFunctionToDetectWindowSwitch
         // 2回目のupdateState
         .mockResolvedValueOnce("windowHandle2") // createWindows内のgetBrowsingWindowHandle
         .mockResolvedValueOnce("windowHandle2") // updateState内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
         .mockResolvedValueOnce(undefined); // updateState内のinjectFunctionToDetectWindowSwitch
+
+      clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
 
       const browser = new WebBrowser(clientMock, config);
 
       expect(browser.countWindows()).toEqual(0);
       expect(browser.currentWindow).toBeUndefined();
 
-      await browser.updateState(); // 増加
+      await browser.updateState(browser.currentWindow); // 増加
 
       expect(browser.countWindows()).toEqual(2);
       expect(browser.currentWindow?.windowHandle).toEqual("windowHandle1");
 
-      await browser.updateState(); // 減少
+      await browser.updateState(browser.currentWindow); // 減少
 
       expect(browser.countWindows()).toEqual(1);
       expect(browser.currentWindow?.windowHandle).toEqual("windowHandle2");

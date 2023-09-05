@@ -1,13 +1,13 @@
 {
   "name": "latteart",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "preinstall": "npx -y only-allow npm",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand tests/unit",
     "package": "run-p package:win package:mac",
     "package:win": "run-p package:win:launch package:win:cli package:win:gui package:win:repository package:win:capturecl",
     "package:mac": "run-p package:mac:launch package:mac:cli package:win:gui package:mac:repository package:mac:capturecl",

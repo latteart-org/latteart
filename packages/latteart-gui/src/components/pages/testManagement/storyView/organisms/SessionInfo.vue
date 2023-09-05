@@ -161,7 +161,11 @@
 
         <v-row>
           <v-col cols="12">
-            <test-purpose-note-list :testPurposes="session.testPurposes" />
+            <test-purpose-note-list
+              :testPurposes="session.testPurposes"
+              :testResult="session.testResultFiles"
+              @reload="reload()"
+            />
           </v-col>
         </v-row>
       </v-card-text>
@@ -179,19 +183,10 @@
       }}</template>
 
       <template v-slot:content>
-        <v-row
-          class="mt-0"
-          wrap
-          v-for="testResult in testResults"
-          :key="testResult.id"
-        >
-          <v-col cols="9">{{ testResult.name }}</v-col>
-          <v-col cols="3"
-            ><v-btn @click="addTestResultToSession(testResult)">{{
-              $store.getters.message("session-info.result-import")
-            }}</v-btn></v-col
-          >
-        </v-row>
+        <test-result-list
+          :items="testResults"
+          @click-item="addTestResultToSession"
+        />
       </template>
 
       <template v-slot:footer>
@@ -235,6 +230,9 @@ import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
+import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
+import { RootState } from "@/store";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -242,6 +240,7 @@ import TestPurposeNoteList from "./TestPurposeNoteList.vue";
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "test-purpose-note-list": TestPurposeNoteList,
+    "test-result-list": TestResultList,
   },
 })
 export default class SessionInfo extends Vue {
@@ -251,10 +250,7 @@ export default class SessionInfo extends Vue {
   private reportSectionDisplayed = false;
 
   private testResultSelectionDialogOpened = false;
-  private testResults: {
-    name: string;
-    id: string;
-  }[] = [];
+  private testResults: TestResultSummary[] = [];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -289,12 +285,9 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.call-test-results"),
     });
     try {
-      const testResultSummaries: TestResultSummary[] =
-        await this.$store.dispatch("testManagement/getTestResults");
-
-      this.testResults = testResultSummaries.map(({ id, name }) => {
-        return { id, name };
-      });
+      this.testResults = await this.$store.dispatch(
+        "testManagement/getTestResults"
+      );
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }
@@ -467,12 +460,18 @@ export default class SessionInfo extends Vue {
       const testResultId = testResultFiles[0].id;
       window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
+      const mediaType = (this.$store.state as RootState).projectSettings.config
+        .captureMediaSetting.mediaType;
+
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
+        mediaType,
       });
 
-      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
 
       this.addTestResultToSession({
         id: newTestResult.id,

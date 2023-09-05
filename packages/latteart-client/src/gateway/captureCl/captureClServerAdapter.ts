@@ -94,10 +94,12 @@ export class CaptureClServerAdapter {
         canGoBack: boolean;
         canGoForward: boolean;
       }) => void;
-      onUpdateWindows: (updatedWindowsInfo: {
-        windowHandles: string[];
+      onUpdateWindows: (updateInfo: {
+        windows: { windowHandle: string; url: string; title: string }[];
         currentWindowHandle: string;
-      }) => void;
+        currentWindowHostNameChanged: boolean;
+        timestamp: number;
+      }) => Promise<void>;
       onChangeAlertVisibility: (data: { isVisible: boolean }) => void;
       onPause: () => void;
       onResume: () => void;
@@ -119,6 +121,7 @@ export class CaptureClServerAdapter {
         },
         platformVersion: config.platformVersion ?? "",
         waitTimeForStartupReload: config.waitTimeForStartupReload,
+        mediaType: config.mediaType,
       };
 
       const onGetOperation = async (data?: unknown) => {
@@ -154,12 +157,14 @@ export class CaptureClServerAdapter {
         console.info(`onUpdateWindows: ${JSON.stringify(data)}`);
 
         // TODO: Type check
-        const updateWindowsInfo = data as {
-          windowHandles: string[];
+        const updateInfo = data as {
+          windows: { windowHandle: string; url: string; title: string }[];
           currentWindowHandle: string;
+          currentWindowHostNameChanged: boolean;
+          timestamp: number;
         };
 
-        eventListeners.onUpdateWindows(updateWindowsInfo);
+        await eventListeners.onUpdateWindows(updateInfo);
       };
 
       const onChangeAlertVisibility = async (data?: unknown) => {
@@ -295,22 +300,6 @@ export class CaptureClServerAdapter {
     }
   }
 
-  public protectWindows(): void {
-    try {
-      this.socketIOClient.emit("protect_windows");
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  public unprotectWindows(): void {
-    try {
-      this.socketIOClient.emit("unprotect_windows");
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   public pauseCapture(): void {
     try {
       this.socketIOClient.emit("pause_capture");
@@ -403,6 +392,7 @@ export class CaptureClServerAdapter {
         locatorType: "id" | "xpath";
         locator: string;
         locatorMatchType: "equals" | "regex";
+        iframeIndex?: number;
       };
       value: string;
     }[]

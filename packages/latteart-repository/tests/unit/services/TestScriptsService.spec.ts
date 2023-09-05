@@ -30,6 +30,7 @@ describe("TestScriptsService", () => {
       emptyTestResultService = {
         getTestResultIdentifiers: jest.fn(),
         getTestResult: jest.fn(),
+        getTestResultForExport: jest.fn(),
         createTestResult: jest.fn(),
         patchTestResult: jest.fn(),
         collectAllTestStepIds: jest.fn(),
@@ -38,6 +39,8 @@ describe("TestScriptsService", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        collectAllScreenshots: jest.fn(),
+        collectAllVideos: jest.fn(),
       };
       emptyTestScriptFileRepositoryService = {
         write: jest.fn().mockResolvedValue("url"),
@@ -124,16 +127,20 @@ describe("TestScriptsService", () => {
  * @description Page1
  * @mermaid
  * graph TD;
- *   Page1 ==> |dotextfield1|Page1;
+ *   Page1 ==> |gotoPage1|Page1;
  */
 class Page1 {
-  get textfield1() { return $('#textField1'); }
+  get textfield1() {
+    return driver
+      .switchToFrame(null)
+      .then(async () => $('#textField1'));
+  }
 
   /**
    * <ol><li>Change [ <a href="imageFileUrl1">textfield1</a> ]</li>
    * <li>Move to [ <a href="imageFileUrl1">Page1</a> ]</li></ol>
    */
-  async dotextfield1() {
+  async gotoPage1() {
     await this.textfield1.setValue('hoge');
 
     return new Page1();
@@ -165,12 +172,12 @@ describe('TestSuite1', () => {
    * @memberof TestSuite1
    * @mermaid
    * graph TD;
-   *   Page1 ==> |dotextfield1|Page1;
+   *   Page1 ==> |gotoPage1|Page1;
    */
   it('Page1', async () => {
     await new Page1()
       // Page1.page.js
-      .dotextfield1();
+      .gotoPage1();
   });
 });
 `,
@@ -270,14 +277,14 @@ describe('TestSuite1', () => {
  * @description Page1
  * @mermaid
  * graph TD;
- *   Page1 ==> |do|Page1;
+ *   Page1 ==> |gotoPage1|Page1;
  */
 class Page1 {
   /**
    * <ol><li><span style="color:red">Do 'Accept alert'</span><span style="color:gray"># Please implement it manually</span></li>
    * <li>Move to [ <a href="imageFileUrl1">Page1</a> ]</li></ol>
    */
-  async do() {
+  async gotoPage1() {
     // Please insert code for 'accept_alert' here.
 
     return new Page1();
@@ -309,12 +316,12 @@ describe('TestSuite1', () => {
    * @memberof TestSuite1
    * @mermaid
    * graph TD;
-   *   Page1 ==> |do|Page1;
+   *   Page1 ==> |gotoPage1|Page1;
    */
   it('Page1', async () => {
     await new Page1()
       // Page1.page.js
-      .do();
+      .gotoPage1();
   });
 });
 `,

@@ -42,8 +42,10 @@ export class SessionRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as SessionForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as SessionForRepository,
+        data: this.convertSession(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -65,8 +67,10 @@ export class SessionRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as SessionForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as SessionForRepository,
+        data: this.convertSession(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -92,5 +96,54 @@ export class SessionRepository {
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertSession(session: SessionForRepository) {
+    return {
+      ...session,
+      testResultFiles: session.testResultFiles,
+      testPurposes: session.testPurposes.map((testPurpose) => {
+        return {
+          ...testPurpose,
+          notes: testPurpose.notes.map((note) => {
+            return {
+              ...note,
+              imageFileUrl: note.imageFileUrl
+                ? new URL(
+                    note.imageFileUrl,
+                    this.restClient.serverUrl
+                  ).toString()
+                : "",
+              videoFrame: note.videoFrame
+                ? {
+                    ...note.videoFrame,
+                    url: new URL(
+                      note.videoFrame.url,
+                      this.restClient.serverUrl
+                    ).toString(),
+                  }
+                : undefined,
+            };
+          }),
+        };
+      }),
+      notes: session.notes.map((note) => {
+        return {
+          ...note,
+          imageFileUrl: note.imageFileUrl
+            ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+          videoFrame: note.videoFrame
+            ? {
+                ...note.videoFrame,
+                url: new URL(
+                  note.videoFrame.url,
+                  this.restClient.serverUrl
+                ).toString(),
+              }
+            : undefined,
+        };
+      }),
+    };
   }
 }

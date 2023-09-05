@@ -16,6 +16,11 @@
 
 import { TimestampImpl } from "./Timestamp";
 
+export type ScreenElements = {
+  iframeIndex?: number;
+  elements: ElementInfo[];
+};
+
 /**
  * Screen element information.
  */
@@ -61,9 +66,46 @@ export interface ElementInfo {
   };
 
   /**
+   * InnerHeight.
+   */
+  innerHeight: number;
+
+  /**
+   * InnerWidth.
+   */
+  innerWidth: number;
+
+  /**
+   * OuterHeight.
+   */
+  outerHeight: number;
+
+  /**
+   * OuterWidth.
+   */
+  outerWidth: number;
+
+  /**
    * The text of the element without children.
    */
   textWithoutChildren?: string;
+
+  /**
+   * Iframe
+   */
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 }
 
 /**
@@ -123,17 +165,12 @@ export class Operation {
   /**
    * The screen elements in the screen that has been operated.
    */
-  public screenElements: ElementInfo[] = [];
+  public screenElements: ScreenElements[] = [];
 
   /**
    * The page source of the screen that has been operated.
    */
   public pageSource = "";
-
-  /**
-   * The input elements in the screen that has been operated at first.
-   */
-  public inputElements: ElementInfo[] = [];
 
   /**
    * Constructor.

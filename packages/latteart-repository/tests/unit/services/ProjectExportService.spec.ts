@@ -49,6 +49,7 @@ describe("ProjectExportService", () => {
       testingTime: 0,
       testSteps: [],
       coverageSources: [],
+      creationTimestamp: 10,
     };
 
     const dailyTestProgress = [
@@ -75,7 +76,7 @@ describe("ProjectExportService", () => {
         autoOperationSetting: { conditionGroups: [] },
         screenDefinition: { screenDefType: "url", conditionGroups: [] },
         coverage: { include: { tags: [] } },
-        imageCompression: { isEnabled: false, isDeleteSrcImage: false },
+        imageCompression: { format: "png" },
         testResultComparison: {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },
@@ -93,7 +94,8 @@ describe("ProjectExportService", () => {
 
     const testResultService: TestResultService = {
       getTestResultIdentifiers: jest.fn(),
-      getTestResult: jest.fn().mockResolvedValue(testResultData),
+      getTestResult: jest.fn(),
+      getTestResultForExport: jest.fn().mockResolvedValue(testResultData),
       createTestResult: jest.fn(),
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
@@ -107,6 +109,10 @@ describe("ProjectExportService", () => {
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
+      collectAllScreenshots: jest.fn(),
+      collectAllVideos: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: `video/testResultId.webm` }]),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {
@@ -191,7 +197,7 @@ describe("ProjectExportService", () => {
         }
       );
 
-      const a = {
+      const projectFileData = {
         ...projectData,
         version: 1,
       };
@@ -200,7 +206,7 @@ describe("ProjectExportService", () => {
         projectId: "projectId",
         projectFile: {
           fileName: "project.json",
-          data: JSON.stringify(a),
+          data: JSON.stringify(projectFileData),
         },
         stories: [
           {
@@ -220,17 +226,23 @@ describe("ProjectExportService", () => {
       });
     });
 
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す", async () => {
+    it("extractTestResultsExportDataで、TestResultのexportDataを返す", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllTestStepScreenshots = jest
         .fn()
         .mockResolvedValue([
           {
-            id: "id",
-            fileUrl: "fileUrl",
+            id: "id1",
+            fileUrl: "fileUrl1",
           },
         ]);
+      testResultService.collectAllVideos = jest.fn().mockResolvedValue([
+        {
+          id: "id2",
+          fileUrl: "fileUrl2",
+        },
+      ]);
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
 
@@ -244,7 +256,7 @@ describe("ProjectExportService", () => {
           testResultFile: {
             fileName: "log.json",
             data: JSON.stringify({
-              version: 2,
+              version: 3,
               name: "testResultName",
               sessionId: "testResultId",
               startTimeStamp: 0,
@@ -254,9 +266,13 @@ describe("ProjectExportService", () => {
               history: {},
               notes: [],
               coverageSources: [],
+              creationTimestamp: 10,
             }),
           },
-          screenshots: [{ id: "id", fileUrl: "fileUrl" }],
+          fileData: [
+            { id: "id1", fileUrl: "fileUrl1" },
+            { id: "id2", fileUrl: "fileUrl2" },
+          ],
         },
       ]);
     });

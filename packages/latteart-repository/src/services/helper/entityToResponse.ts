@@ -57,6 +57,22 @@ export const storyEntityToResponse = (story: StoryEntity): Story => {
 const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
   const testStep = note.testSteps ? note.testSteps[0] : undefined;
   const tags = note.tags?.map((tag) => tag.name) ?? [];
+  const noteVideo = note.video
+    ? {
+        url: note.video.fileUrl,
+        time: note.videoTime ?? 0,
+        width: note.video.width,
+        height: note.video.height,
+      }
+    : undefined;
+  const operationVideo = testStep?.video
+    ? {
+        url: testStep.video.fileUrl,
+        time: testStep.videoTime ?? 0,
+        width: testStep.video.width,
+        height: testStep.video.height,
+      }
+    : undefined;
   return {
     id: note.id,
     type: "notice",
@@ -65,6 +81,8 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
     imageFileUrl:
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
+    timestamp: note.timestamp ?? 0,
+    videoFrame: noteVideo ?? operationVideo,
   };
 };
 
@@ -91,6 +109,22 @@ const mergeTestpurposeAndNotes = (
     notes?.map((note) => {
       const testStep = note.testSteps ? note.testSteps[0] : undefined;
       const tags = note.tags?.map((tag) => tag.name) ?? [];
+      const noteVideo = note.video
+        ? {
+            url: note.video.fileUrl,
+            time: note.videoTime ?? 0,
+            width: note.video.width,
+            height: note.video.height,
+          }
+        : undefined;
+      const operationVideo = testStep?.video
+        ? {
+            url: testStep.video.fileUrl,
+            time: testStep.videoTime ?? 0,
+            width: testStep.video.width,
+            height: testStep.video.height,
+          }
+        : undefined;
       return {
         id: note.id,
         type: "notice",
@@ -100,6 +134,7 @@ const mergeTestpurposeAndNotes = (
           note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
         tags,
         timestamp: testStep?.timestamp ?? 0,
+        videoFrame: noteVideo ?? operationVideo,
       };
     }) ?? [];
 
@@ -128,8 +163,11 @@ const convertToTestPurposes = (
             details: note.details,
             imageFileUrl: note.imageFileUrl,
             tags: note.tags,
+            timestamp: note.timestamp,
+            videoFrame: note.videoFrame,
           },
         ],
+        timestamp: 0,
       });
     } else if (note.type === "intention") {
       acc.push({
@@ -140,6 +178,7 @@ const convertToTestPurposes = (
         imageFileUrl: note.imageFileUrl,
         tags: note.tags,
         notes: [],
+        timestamp: 0,
       });
     } else if (note.type === "notice") {
       acc[acc.length - 1].notes.push({
@@ -149,6 +188,8 @@ const convertToTestPurposes = (
         details: note.details,
         imageFileUrl: note.imageFileUrl,
         tags: note.tags,
+        timestamp: note.timestamp,
+        videoFrame: note.videoFrame,
       });
     }
 
@@ -166,6 +207,7 @@ export const testPurposeEntityToResponse = (
     details: testPurpose.details,
     imageFileUrl: "",
     tags: [],
+    timestamp: 0,
   };
 };
 
@@ -392,6 +434,14 @@ export const convertToTestStepOperation = (
             height: testStepEntity.clientSizeHeight,
           }
         : undefined,
+    videoFrame: testStepEntity.video
+      ? {
+          url: testStepEntity.video.fileUrl,
+          time: testStepEntity.videoTime ?? 0,
+          width: testStepEntity.video.width,
+          height: testStepEntity.video.height,
+        }
+      : undefined,
   };
 };
 

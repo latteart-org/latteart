@@ -22,6 +22,7 @@ import express, {
 } from "express";
 import { ValidateError } from "tsoa";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
 import { ConnectionOptions, createConnection } from "typeorm";
@@ -62,6 +63,9 @@ import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-
 import { createLogger } from "./logger/logger";
 import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
+import { UpdateTestResultEntity1689841542715 } from "./migrations/1689841542715-UpdateTestResultEntity";
+import { VideoEntity } from "./entities/VideoEntity";
+import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideoEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -110,6 +114,7 @@ async function initializeOrmConnection() {
       ViewPointEntity,
       ViewPointPresetEntity,
       TestProgressEntity,
+      VideoEntity,
     ],
     migrations: [
       Init1638930268191,
@@ -124,6 +129,8 @@ async function initializeOrmConnection() {
       UpdateTestResultEntity1671087205573,
       UpdateTestStepEntity1677835465468,
       UpdateTestResultEntity1680078703857,
+      UpdateTestResultEntity1689841542715,
+      AddVideoEntity1693220246649,
     ],
   };
 
@@ -160,6 +167,7 @@ async function initializeOrmConnection() {
 function runServer(port: number, timeout?: number) {
   const app = express();
 
+  app.use(cors());
   app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(

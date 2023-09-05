@@ -53,7 +53,9 @@ export class UnnecessaryOperationFilter implements OperationFilter {
 
       return (
         operation.type === "click" &&
-        ["RadioButton", "CheckBox", "Button"].includes(operation.target.type)
+        ["RadioButton", "CheckBox", "Button", "Link"].includes(
+          operation.target.type
+        )
       );
     });
   }

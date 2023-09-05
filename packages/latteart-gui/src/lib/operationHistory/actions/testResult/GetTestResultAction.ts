@@ -50,32 +50,62 @@ export class GetTestResultAction {
     return new ActionSuccess({
       ...result.data,
       testSteps: result.data.testSteps.map((testStep) => {
-        const operationImageFileUrl = testStep.operation.imageFileUrl
-          ? new URL(
-              testStep.operation.imageFileUrl,
-              this.repositoryService.serviceUrl
-            ).toString()
-          : "";
+        const {
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
+          videoFrame,
+          imageFileUrl,
+        } = testStep.operation;
 
         const operation = {
-          ...testStep.operation,
-          imageFileUrl: operationImageFileUrl,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
+          imageFileUrl,
+          videoFrame,
         };
 
         return {
           ...testStep,
           operation,
           notices: [...testStep.bugs, ...testStep.notices].map((note) => {
-            const noteImageFileUrl = note.imageFileUrl
-              ? new URL(
-                  note.imageFileUrl,
-                  this.repositoryService.serviceUrl
-                ).toString()
-              : "";
+            const {
+              id,
+              type,
+              value,
+              details,
+              tags,
+              timestamp,
+              imageFileUrl,
+              videoFrame,
+            } = note;
 
             return {
-              ...note,
-              imageFileUrl: noteImageFileUrl,
+              id,
+              type,
+              value,
+              details,
+              tags,
+              timestamp,
+              imageFileUrl,
+              videoFrame,
             };
           }),
           bugs: [],

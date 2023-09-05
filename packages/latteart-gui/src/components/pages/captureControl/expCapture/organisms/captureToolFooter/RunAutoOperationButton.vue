@@ -100,6 +100,7 @@ export default class RunAutoOperationButton extends Vue {
           elementInfo: operation.elementInfo,
           title: operation.title,
           url: operation.url,
+          timestamp: operation.timestamp,
         };
       });
 

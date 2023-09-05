@@ -44,14 +44,14 @@
             >
               <template v-slot:item="props">
                 <tr
-                  :key="props.item.xpath"
+                  :key="props.item.sequence"
                   :class="{
                     covered: props.item.operated,
                     missed: !props.item.operated,
                   }"
-                  @click="selectElement(props.item.imageFileUrl)"
+                  @click="selectElement(props.item)"
                 >
-                  <td :title="props.item.xpath">{{ props.item.tagname }}</td>
+                  <td>{{ props.item.tagname }}</td>
                   <td>{{ props.item.type }}</td>
                   <td>{{ props.item.id }}</td>
                   <td>{{ props.item.name }}</td>
@@ -76,16 +76,16 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { VideoFrame } from "latteart-client";
 
 @Component
 export default class ElementCoverage extends Vue {
-  @Prop({ type: Function }) public readonly onSelectElement!: (
-    fileImageUrl: string
-  ) => void;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private get coverages() {
-    return this.$store.state.operationHistory.elementCoverages;
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .elementCoverages;
   }
 
   private get headers() {
@@ -113,10 +113,28 @@ export default class ElementCoverage extends Vue {
     return headers;
   }
 
-  private selectElement(fileImageUrl: string) {
-    if (fileImageUrl !== "") {
-      this.onSelectElement(fileImageUrl);
-    }
+  private selectElement(element: {
+    imageFileUrl?: string;
+    videoFrame?: VideoFrame;
+    boundingRect?: { top: number; left: number; width: number; height: number };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
+  }) {
+    this.$store.dispatch("operationHistory/changeScreenImage", {
+      image: {
+        imageFileUrl: element.imageFileUrl,
+        videoFrame: element.videoFrame,
+      },
+      elementInfo: {
+        boundingRect: element.boundingRect,
+        innerHeight: element.innerHeight,
+        innerWidth: element.innerWidth,
+        outerHeight: element.outerHeight,
+        outerWidth: element.outerWidth,
+      },
+    });
   }
 }
 </script>

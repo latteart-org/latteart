@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { NoteEntity } from "./NoteEntity";
-import { TestResultEntity } from "./TestResultEntity";
 import { TestStepEntity } from "./TestStepEntity";
 
 @Entity("SCREENSHOTS")
@@ -34,10 +26,6 @@ export class ScreenshotEntity {
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "file_url" })
   fileUrl: string = "";
-
-  @ManyToOne(() => TestResultEntity, (testResult) => testResult.screenshots)
-  @JoinColumn({ name: "test_result_id" })
-  testResult?: TestResultEntity;
 
   @OneToOne(() => TestStepEntity, (testStep) => testStep.screenshot)
   testStep?: TestStepEntity;

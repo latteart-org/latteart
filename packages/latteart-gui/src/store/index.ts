@@ -404,9 +404,9 @@ const actions: ActionTree<RootState, RootState> = {
         coverage:
           payload.config.coverage ??
           context.rootState.projectSettings.config.coverage,
-        imageCompression:
-          payload.config.imageCompression ??
-          context.rootState.projectSettings.config.imageCompression,
+        captureMediaSetting:
+          payload.config.captureMediaSetting ??
+          context.rootState.projectSettings.config.captureMediaSetting,
         testResultComparison:
           payload.config.testResultComparison ??
           context.rootState.projectSettings.config.testResultComparison,
@@ -620,9 +620,9 @@ const store: StoreOptions<RootState> = {
             tags: [],
           },
         },
-        imageCompression: {
-          isEnabled: true,
-          isDeleteSrcImage: true,
+        captureMediaSetting: {
+          mediaType: "image",
+          imageCompression: { format: "png" },
         },
         testResultComparison: {
           excludeItems: {

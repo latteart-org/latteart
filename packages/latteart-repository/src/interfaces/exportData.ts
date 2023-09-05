@@ -22,6 +22,7 @@ import {
   TestResult,
   TestStep,
 } from "@/domain/types";
+import { VideoFrame } from "./Videos";
 
 export type DeserializedTestResult = Omit<
   TestResult,
@@ -31,6 +32,7 @@ export type DeserializedTestResult = Omit<
   coverageSources: (Pick<CoverageSource, "title" | "url"> & {
     screenElements: DeserializedElementInfo[];
   })[];
+  creationTimestamp: number;
 };
 export type DeserializedTestStep = Pick<TestStep, "id"> & {
   operation: Omit<
@@ -41,9 +43,13 @@ export type DeserializedTestStep = Pick<TestStep, "id"> & {
     inputElements: DeserializedElementInfo[];
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFileUrl: string;
+    videoFrame?: VideoFrame;
   };
   testPurpose: (Omit<Note, "screenshot"> & { imageFileUrl: string }) | null;
-  notes: (Omit<Note, "screenshot"> & { imageFileUrl: string })[];
+  notes: (Omit<Note, "screenshot"> & {
+    imageFileUrl: string;
+    videoFrame?: VideoFrame;
+  })[];
 };
 
 type DeserializedElementInfo = Pick<ElementInfo, "tagname" | "xpath"> & {
@@ -72,6 +78,7 @@ export type TestResultExportDataV0 = {
     details: string;
     imageFileUrl: string;
     tags: string[];
+    timestamp: number;
   }[];
   coverageSources: CoverageSourceExportDataV0[];
   history: { [k: string]: HistoryItemExportDataV0 };
@@ -145,17 +152,18 @@ export type HistoryItemExportDataV2 = Omit<
   HistoryItemExportDataV1,
   "testStep"
 > & {
-  testStep: Omit<
-    HistoryItemExportDataV1["testStep"],
-    "operation" | "inputElements" | "pageInfo"
-  > & {
-    operation: OperationExportDataV2;
-    inputElements: ElementInfoExportDataV2[];
-    pageInfo: {
-      title: string;
-      url: string;
-      keywordTexts: (string | { tagname: string; value: string })[];
-    };
+  testStep: TestStepExportDataV2;
+};
+type TestStepExportDataV2 = Omit<
+  HistoryItemExportDataV1["testStep"],
+  "operation" | "inputElements" | "pageInfo"
+> & {
+  operation: OperationExportDataV2;
+  inputElements: ElementInfoExportDataV2[];
+  pageInfo: {
+    title: string;
+    url: string;
+    keywordTexts: (string | { tagname: string; value: string })[];
   };
 };
 type OperationExportDataV2 = Omit<OperationExportDataV1, "elementInfo"> & {
@@ -171,4 +179,56 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
     height: number;
   };
   textWithoutChildren?: string;
+};
+
+// V3 Format
+export type TestResultExportDataV3 = Omit<
+  TestResultExportDataV2,
+  "history" | "notes"
+> & {
+  history: { [k: string]: HistoryItemExportDataV3 };
+  notes: {
+    id: string;
+    type: string;
+    value: string;
+    details: string;
+    imageFileUrl: string;
+    tags: string[];
+    timestamp: number;
+    videoFrame?: VideoFrame;
+  }[];
+  creationTimestamp: number;
+};
+
+export type HistoryItemExportDataV3 = Omit<
+  HistoryItemExportDataV2,
+  "testStep"
+> & {
+  testStep: Omit<TestStepExportDataV2, "operation"> & {
+    operation: OperationExportDataV3;
+  };
+};
+
+type OperationExportDataV3 = Omit<OperationExportDataV2, "elementInfo"> & {
+  elementInfo: ElementInfoExportDataV3 | null;
+  videoFrame?: VideoFrame;
+};
+type ElementInfoExportDataV3 = ElementInfoExportDataV2 & {
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
+  iframe?: {
+    index: number;
+    boundingRect?: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
+  };
 };

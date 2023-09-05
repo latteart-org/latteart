@@ -30,10 +30,7 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
-          },
+          imageCompression: { format: "webp" },
         },
       };
 
@@ -59,9 +56,9 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: { format: "png" },
           },
           testResultComparison: {
             excludeItems: {

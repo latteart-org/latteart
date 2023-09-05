@@ -27,29 +27,39 @@ import {
   TestResultViewOptionForRepository,
   SequenceViewForRepository,
   GraphViewForRepository,
+  OperationForRepository,
+  NoteForRepository,
 } from "./types";
 
 export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
 
   /**
-   * Delete test result.
-   * @param testResultId  Test result id.
+   * Delete test results.
+   * @param testResultIds  Test result ids.
    */
-  public async deleteTestResult(
-    testResultId: string
+  public async deleteTestResults(
+    testResultIds: string[]
   ): Promise<RepositoryAccessResult<void>> {
     try {
-      const response = await this.restClient.httpDelete(
-        `api/v1/test-results/${testResultId}`
+      const responses = await Promise.all(
+        testResultIds.map(async (testResultId) => {
+          return await this.restClient.httpDelete(
+            `api/v1/test-results/${testResultId}`
+          );
+        })
       );
 
-      if (response.status !== 204) {
-        return createRepositoryAccessFailure(response);
+      const errorIndex = responses.findIndex(
+        (response) => response.status !== 204
+      );
+
+      if (errorIndex > -1) {
+        return createRepositoryAccessFailure(responses[errorIndex]);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as void,
+        data: responses[0].data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -93,7 +103,7 @@ export class TestResultRepository {
       name?: string;
       parentTestResultId?: string;
     } = {}
-  ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
+  ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
     try {
       const url = `api/v1/test-results`;
       const response = await this.restClient.httpPost(url, option);
@@ -103,7 +113,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as TestResultSummaryForRepository,
+        data: response.data as { id: string; name: string },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -115,7 +125,7 @@ export class TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<TestResultSummaryForRepository>>
+    RepositoryAccessResult<TestResultSummaryForRepository[]>
   > {
     try {
       const response = await this.restClient.httpGet(`api/v1/test-results`);
@@ -124,11 +134,11 @@ export class TestResultRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const testResultSummaries =
+        response.data as TestResultSummaryForRepository[];
+
       return createRepositoryAccessSuccess({
-        data: response.data as Array<{
-          id: string;
-          name: string;
-        }>,
+        data: testResultSummaries,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -151,8 +161,10 @@ export class TestResultRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as TestResultForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as TestResultForRepository,
+        data: this.convertTestResult(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -175,8 +187,10 @@ export class TestResultRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as TestResultForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as TestResultForRepository,
+        data: this.convertTestResult(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -238,11 +252,114 @@ export class TestResultRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as GraphViewForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as GraphViewForRepository,
+        data: this.convertGraphView(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertTestResult(testResult: TestResultForRepository) {
+    return {
+      ...testResult,
+      testSteps: testResult.testSteps.map((testStep) => {
+        return {
+          ...testStep,
+          operation: this.convertOperation(testStep.operation),
+          bugs: testStep.bugs.map((note) => this.convertNote(note)),
+          notices: testStep.notices.map((note) => this.convertNote(note)),
+        };
+      }),
+    };
+  }
+
+  private convertOperation(operation: OperationForRepository) {
+    return {
+      ...operation,
+      imageFileUrl: operation.imageFileUrl
+        ? new URL(operation.imageFileUrl, this.restClient.serverUrl).toString()
+        : "",
+      videoFrame: operation.videoFrame
+        ? {
+            ...operation.videoFrame,
+            url: new URL(
+              operation.videoFrame.url,
+              this.restClient.serverUrl
+            ).toString(),
+          }
+        : undefined,
+    };
+  }
+
+  private convertNote(note: NoteForRepository) {
+    return {
+      ...note,
+      imageFileUrl: note.imageFileUrl
+        ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+        : "",
+      videoFrame: note.videoFrame
+        ? {
+            ...note.videoFrame,
+            url: new URL(
+              note.videoFrame.url,
+              this.restClient.serverUrl
+            ).toString(),
+          }
+        : undefined,
+    };
+  }
+
+  private convertGraphView(graphView: GraphViewForRepository) {
+    return {
+      ...graphView,
+      nodes: graphView.nodes.map((node) => {
+        return {
+          ...node,
+          testSteps: node.testSteps.map((testStep) => {
+            return {
+              ...testStep,
+              imageFileUrl: testStep.imageFileUrl
+                ? new URL(
+                    testStep.imageFileUrl,
+                    this.restClient.serverUrl
+                  ).toString()
+                : undefined,
+              videoFrame: testStep.videoFrame
+                ? {
+                    ...testStep.videoFrame,
+                    url: new URL(
+                      testStep.videoFrame.url,
+                      this.restClient.serverUrl
+                    ).toString(),
+                  }
+                : undefined,
+            };
+          }),
+        };
+      }),
+      store: {
+        ...graphView.store,
+        notes: graphView.store.notes.map((note) => {
+          return {
+            ...note,
+            imageFileUrl: note.imageFileUrl
+              ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+              : undefined,
+            videoFrame: note.videoFrame
+              ? {
+                  ...note.videoFrame,
+                  url: new URL(
+                    note.videoFrame.url,
+                    this.restClient.serverUrl
+                  ).toString(),
+                }
+              : undefined,
+          };
+        }),
+      },
+    };
   }
 }

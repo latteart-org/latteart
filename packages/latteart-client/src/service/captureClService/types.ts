@@ -20,6 +20,7 @@ import {
   Operation,
   TestStepNote,
   RunnableOperation,
+  Video,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -39,6 +40,7 @@ export type CaptureClService = {
    */
   createCaptureClient(option: {
     testResult?: TestResultAccessor;
+    videoRecorder?: { getCapturingVideo(): Promise<Video> };
     config: CaptureConfig;
     eventListeners: CaptureEventListeners;
   }): CaptureClClient;
@@ -64,9 +66,10 @@ export type CaptureEventListeners = {
   }) => Promise<void>;
   onAddNote?: (testStepNote: TestStepNote) => Promise<void>;
   onAddTestPurpose?: (testStepNote: TestStepNote) => Promise<void>;
-  onAddWindow?: (windowHandle: string) => Promise<void>;
+  onAddWindow?: (windowHandle: string, title: string) => Promise<void>;
   onPause?: () => void;
   onResume?: () => void;
+  onUpdateWindowTitle?: (windowHandle: string, title: string) => Promise<void>;
 };
 
 export type CaptureClClient = {
@@ -81,6 +84,7 @@ export type CaptureClClient = {
     option?: {
       compressScreenshots?: boolean;
       firstTestPurpose?: { value: string; details?: string };
+      mediaType: "image" | "video";
     }
   ): Promise<ServiceResult<CaptureSession>>;
 };
@@ -98,6 +102,8 @@ export type CaptureSession = {
   readonly canNavigateForward: boolean;
 
   readonly isAlertVisible: boolean;
+
+  readonly currentWindowHostNameChanged: boolean;
 
   /**
    * end capture
@@ -147,6 +153,7 @@ export type CaptureSession = {
           locatorType: "id" | "xpath";
           locator: string;
           locatorMatchType: "equals" | "regex";
+          iframeIndex?: number;
         };
         value: string;
       }[]
@@ -168,16 +175,6 @@ export type CaptureSession = {
   switchWindow(destWindowHandle: string): void;
 
   /**
-   * protect windows from user operations
-   */
-  protectWindows(): void;
-
-  /**
-   * unprotect windows from user operations
-   */
-  unprotectWindows(): void;
-
-  /**
    * pause capture
    */
   pauseCapture(): void;
@@ -186,6 +183,12 @@ export type CaptureSession = {
    * resume capture
    */
   resumeCapture(): void;
+
+  /**
+   * set recording video
+   * @param video recording video
+   */
+  setRecordingVideo(video: Video & { startTimestamp: number }): void;
 };
 
 export type CaptureCLServiceErrorCode =

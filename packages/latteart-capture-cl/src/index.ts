@@ -30,6 +30,9 @@ import path from "path";
 import { TimestampImpl } from "./Timestamp";
 import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { CapturedData } from "./capturer/captureScript";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
@@ -40,6 +43,8 @@ export const appRootPath = path.relative(
 );
 
 const app = express();
+
+app.use(cors());
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE");
@@ -50,6 +55,8 @@ app.use(function (req, res, next) {
 
   next();
 });
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "100mb" }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -66,8 +73,6 @@ enum ClientToServerSocketIOEvent {
   BROWSER_BACK = "browser_back",
   BROWSER_FORWARD = "browser_forward",
   SWITCH_CAPTURING_WINDOW = "switch_capturing_window",
-  UNPROTECT_WINDOWS = "unprotect_windows",
-  PROTECT_WINDOWS = "protect_windows",
   PAUSE_CAPTURE = "pause_capture",
   RESUME_CAPTURE = "resume_capture",
   RUN_OPERATION = "run_operation",
@@ -136,6 +141,9 @@ app.get(`${v1RootPath}/devices`, (req, res) => {
   })();
 });
 
+let capturer: BrowserOperationCapturer;
+let client: WebDriverClient;
+
 /**
  * Get server name.
  */
@@ -145,11 +153,17 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
   res.json("latteart-capture-cl");
 });
 
+app.post(`${v1RootPath}/operation`, async (req, res) => {
+  LoggingService.info("operation");
+  const capturedData: Omit<CapturedData, "eventInfo"> = req.body;
+
+  await capturer.registerCapturedData(capturedData);
+
+  res.json("OK");
+});
+
 io.on("connection", (socket) => {
   LoggingService.info("Socket connected.");
-
-  let capturer: BrowserOperationCapturer;
-  let client: WebDriverClient;
 
   /**
    * Start capture.
@@ -219,19 +233,22 @@ io.on("connection", (socket) => {
             );
           },
           onBrowserWindowsChanged: (
-            windowHandles: string[],
-            currentWindowHandle: string
+            windows: { windowHandle: string; url: string; title: string }[],
+            currentWindowHandle: string,
+            currentWindowHostNameChanged: boolean
           ) => {
             LoggingService.info("Browser windows changed.");
 
-            const windowsInfo = JSON.stringify({
-              windowHandles,
+            const updateInfo = JSON.stringify({
+              windows,
               currentWindowHandle,
+              currentWindowHostNameChanged,
+              timestamp: new TimestampImpl().epochMilliseconds(),
             });
-            LoggingService.debug(windowsInfo);
+            LoggingService.debug(updateInfo);
             socket.emit(
               ServerToClientSocketIOEvent.BROWSER_WINDOWS_CHANGED,
-              windowsInfo
+              updateInfo
             );
           },
           onAlertVisibilityChanged: (isVisible: boolean) => {
@@ -275,12 +292,6 @@ io.on("connection", (socket) => {
             capturer.switchCapturingWindow(JSON.parse(destWindowHandle));
           }
         );
-        socket.on(ClientToServerSocketIOEvent.UNPROTECT_WINDOWS, async () => {
-          capturer.switchCancel();
-        });
-        socket.on(ClientToServerSocketIOEvent.PROTECT_WINDOWS, async () => {
-          capturer.selectCapturingWindow();
-        });
         socket.on(ClientToServerSocketIOEvent.PAUSE_CAPTURE, async () => {
           await capturer.pauseCapturing();
 

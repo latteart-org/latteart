@@ -25,7 +25,6 @@ import { CoverageSourceEntity } from "./CoverageSourceEntity";
 import { TestStepEntity } from "./TestStepEntity";
 import { TestPurposeEntity } from "./TestPurposeEntity";
 import { NoteEntity } from "./NoteEntity";
-import { ScreenshotEntity } from "./ScreenshotEntity";
 import { SessionEntity } from "./SessionEntity";
 
 @Entity("TEST_RESULTS")
@@ -56,6 +55,10 @@ export class TestResultEntity {
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "testing_time" })
   testingTime: number = 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "creation_timestamp", nullable: true, default: 0 })
+  creationTimestamp: number = 0;
 
   @OneToMany(() => SessionEntity, (session) => session.testResult)
   sessions?: SessionEntity[];
@@ -91,19 +94,11 @@ export class TestResultEntity {
   @RelationId((testResult: TestResultEntity) => testResult.notes)
   noteIds?: string[];
 
-  @OneToMany(() => ScreenshotEntity, (screenshot) => screenshot.testResult, {
-    cascade: true,
-  })
-  screenshots?: ScreenshotEntity[];
-
-  @RelationId((testResult: TestResultEntity) => testResult.screenshots)
-  screenshotIds?: string[];
-
   constructor(
     props: Partial<
       Omit<
         TestResultEntity,
-        "id" | "testStepIds" | "testPurposeIds" | "noteIds" | "screenshotIds"
+        "id" | "testStepIds" | "testPurposeIds" | "noteIds"
       >
     > = {}
   ) {

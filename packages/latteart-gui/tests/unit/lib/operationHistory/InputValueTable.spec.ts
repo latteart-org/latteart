@@ -24,9 +24,14 @@ describe("InputValueTable", () => {
         tagname: "",
         text: "",
         xpath: "",
+        boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+        innerHeight: 0,
+        innerWidth: 0,
+        outerHeight: 0,
+        outerWidth: 0,
       };
 
-      it("画面遷移が1つの場合", () => {
+      it("画面遷移していない場合", () => {
         const screenTransitions: ScreenTransition[] = [
           {
             ...screenTransitionBase,
@@ -43,7 +48,12 @@ describe("InputValueTable", () => {
                 id: "element2",
                 attributes: { id: "id2", name: "name2", type: "type2" },
                 defaultValue: "",
-                inputs: [{ sequence: 2, value: "inputValue" }],
+                inputs: [
+                  {
+                    value: "inputValue",
+                    image: { imageFileUrl: "element2Image" },
+                  },
+                ],
               },
             ],
           },
@@ -56,20 +66,28 @@ describe("InputValueTable", () => {
             elementId: "id1",
             elementName: "name1",
             elementType: "type1",
-            sequence: 0,
             inputs: [{ value: "defaultValue", isDefaultValue: true }],
           },
           {
             elementId: "id2",
             elementName: "name2",
             elementType: "type2",
-            sequence: 2,
-            inputs: [{ value: "inputValue", isDefaultValue: false }],
+            elementImage: {
+              image: { imageFileUrl: "element2Image" },
+              elementInfo: {
+                boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
+              },
+            },
+            inputs: [{ value: "", isDefaultValue: false }],
           },
         ]);
       });
 
-      describe("画面遷移の場合", () => {
+      describe("画面遷移している場合", () => {
         it("全ての画面遷移の入力要素数が同じ場合", () => {
           const screenTransitions: ScreenTransition[] = [
             {
@@ -87,7 +105,12 @@ describe("InputValueTable", () => {
                   id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
-                  inputs: [{ sequence: 2, value: "inputValue" }],
+                  inputs: [
+                    {
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
+                    },
+                  ],
                 },
               ],
             },
@@ -106,7 +129,12 @@ describe("InputValueTable", () => {
                   id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
-                  inputs: [{ sequence: 2, value: "inputValue" }],
+                  inputs: [
+                    {
+                      value: "",
+                      image: { imageFileUrl: "element2Image" },
+                    },
+                  ],
                 },
               ],
             },
@@ -125,7 +153,12 @@ describe("InputValueTable", () => {
                   id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
-                  inputs: [{ sequence: 2, value: "inputValue" }],
+                  inputs: [
+                    {
+                      value: "",
+                      image: { imageFileUrl: "element2Image" },
+                    },
+                  ],
                 },
               ],
             },
@@ -138,7 +171,6 @@ describe("InputValueTable", () => {
               elementId: "id1",
               elementName: "name1",
               elementType: "type1",
-              sequence: 0,
               inputs: [
                 { value: "defaultValue", isDefaultValue: true },
                 { value: "defaultValue", isDefaultValue: true },
@@ -149,11 +181,29 @@ describe("InputValueTable", () => {
               elementId: "id2",
               elementName: "name2",
               elementType: "type2",
-              sequence: 2,
+              elementImage: {
+                image: { imageFileUrl: "element2Image" },
+                elementInfo: {
+                  boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
+                },
+              },
               inputs: [
-                { value: "inputValue", isDefaultValue: false },
-                { value: "inputValue", isDefaultValue: false },
-                { value: "inputValue", isDefaultValue: false },
+                {
+                  value: "",
+                  isDefaultValue: false,
+                },
+                {
+                  value: "",
+                  isDefaultValue: false,
+                },
+                {
+                  value: "",
+                  isDefaultValue: false,
+                },
               ],
             },
           ]);
@@ -185,7 +235,12 @@ describe("InputValueTable", () => {
                   id: "element2",
                   attributes: { id: "id2", name: "name2", type: "type2" },
                   defaultValue: "",
-                  inputs: [{ sequence: 2, value: "inputValue" }],
+                  inputs: [
+                    {
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" },
+                    },
+                  ],
                 },
               ],
             },
@@ -198,7 +253,6 @@ describe("InputValueTable", () => {
               elementId: "id1",
               elementName: "name1",
               elementType: "type1",
-              sequence: 0,
               inputs: [
                 { value: "", isDefaultValue: true },
                 { value: "defaultValue", isDefaultValue: true },
@@ -209,11 +263,23 @@ describe("InputValueTable", () => {
               elementId: "id2",
               elementName: "name2",
               elementType: "type2",
-              sequence: 2,
+              elementImage: {
+                image: { imageFileUrl: "element2Image" },
+                elementInfo: {
+                  boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
+                },
+              },
               inputs: [
                 { value: "", isDefaultValue: true },
                 { value: "", isDefaultValue: true },
-                { value: "inputValue", isDefaultValue: false },
+                {
+                  value: "",
+                  isDefaultValue: false,
+                },
               ],
             },
           ]);

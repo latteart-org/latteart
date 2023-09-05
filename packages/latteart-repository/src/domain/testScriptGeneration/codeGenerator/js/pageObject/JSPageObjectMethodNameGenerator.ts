@@ -56,10 +56,10 @@ export class JSPageObjectMethodNameGenerator implements NameGenerator {
     );
 
     const methodNameCandidate = !lastOperatedElement
-      ? `go${destination}Empty`
+      ? `goto${destination}Empty`
       : lastOperatedElement.type === "Button"
-      ? `go${destination}`
-      : `do${lastOperatedElement.identifier}`;
+      ? `${lastOperatedElement.identifier}Func`
+      : `goto${destination}`;
 
     const key = method.pageObjectId + methodNameCandidate;
 

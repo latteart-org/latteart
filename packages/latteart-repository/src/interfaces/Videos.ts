@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-export function extractWindowHandles(
-  history: { operation: { windowHandle: string } }[]
-): string[] {
-  return history
-    .map((operationWithNotes) => {
-      return operationWithNotes.operation.windowHandle;
-    })
-    .filter((windowHandle, index, array) => {
-      return array.indexOf(windowHandle) === index;
-    });
-}
+/**
+ * Video.
+ */
+export type Video = { id: string; url: string; width: number; height: number };
+
+/**
+ * Video frame.
+ */
+export type VideoFrame = Omit<Video, "id"> & { time: number };

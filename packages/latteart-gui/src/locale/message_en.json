@@ -115,6 +115,23 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose"
   },
+  "test-result-navigation-drawer": {
+    "title": "Test Result List",
+    "delete-test-results": "Delete Test Result",
+    "delete-test-result-message": "Delete selected test results?",
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "deleting-test-results": "Deleting test results.",
+    "load": "Loading"
+  },
+  "test-result-list": {
+    "name": "Test Result Name",
+    "url": "Test Target Url",
+    "testing-time": "Test Time",
+    "test-purpose": "Test Purpose",
+    "creation-timestamp": "Creation Date",
+    "load": "Load test result",
+    "edit": "Edit test result name"
+  },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
     "project-import-title": "Import Config/Project",
@@ -159,9 +176,13 @@
     "browser2": "Capture Browser Window Only",
     "fullscreen": "Capture Full Screen",
     "setting-inclusion-tags": "Web Element Coverage Settings",
+    "setting-capture-media": "Capture Media Settings",
+    "media-type": "Media Type",
+    "still-image": "Still Image",
+    "video": "Video",
     "setting-image-compression": "Image Compression Settings",
-    "image-compression-enabled": "Compress Screenshots",
-    "image-compression-delete-source-image": "Delete Original Screenshots",
+    "png": "png",
+    "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
     "include-coverage": "Tags to include in coverage calculation",
     "setting-test-result-comparison": "Compare Test Results Settings",
     "comparison-exclude-items-enabled": "Do not detect differences in specified items",
@@ -205,6 +226,7 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
+      "iframe-index": "Iframe Index",
       "auto-popup-registration": "Automatically display a popup to register input values",
       "auto-popup-selection": "Automatically display popup to select input value",
       "input-value": "Input Value"
@@ -254,11 +276,13 @@
     "note-for-current-purpose": "As for current test purpose, ...",
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
-    "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
+    "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
+    "check-video": "Check the video"
   },
   "replay-option": {
     "start-replay": "Replay",
     "replay-capture": "Save replay result",
+    "saving-replay-results-warning-message": "Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
@@ -389,24 +413,23 @@
   "manage-quality": {
     "window-title": "Management Tool [Quality Management]",
     "title": "Quality Management",
-    "export": "Export",
+    "attention": "*# of Found Bugs: number of notes with 'bug' tag",
     "filter-section": "[Filter]",
     "group": "Group",
     "test-target": "Target Feature",
-    "bug-count": "# of Reported Issues",
     "completed-sessions": "# of Complete Sessions",
-    "bug-report": "[Bug Report Status]",
+    "bug-report": "[# of Found Bugs]",
     "pb-curve": "[Reliability Growth Curve]",
     "total-number": "Total Number",
     "times-per-session": "# of Bugs per Session",
     "target-of-aggregation": "Aggregation Target",
     "total": "All",
     "all": "All",
-    "unit-description-total": "unit: # of Reported Issues",
-    "unit-description": "unit: # of Reported Issues / # of Complete Sessions"
+    "unit-description-total": "unit: # of Found Bugs",
+    "unit-description": "unit: # of Found Bugs / # of Complete Sessions"
   },
   "quality-chart": {
-    "bug-report-number": "# of Reported Issues",
+    "bug-report-number": "# of Found Bugs",
     "number-session": "# of Complete Session"
   },
   "group-info": {
@@ -452,7 +475,6 @@
     "file-open-read-error": "Failed to read the attached file.",
     "file-open-copy-error": "Failed to save the attached file.",
     "result-list": "Import Test Result",
-    "result-import": "Import",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool"
@@ -462,15 +484,10 @@
     "open": "Open All Test Purposes",
     "close": "Close All Test Purposes",
     "details": "Details",
-    "no-test-purpose": "No Test Purpose",
-    "bug-status": "Issue Status：{status}",
-    "bug-reported": "Reported",
-    "bug-unreported": "Not Reported",
-    "none": "None"
+    "no-test-purpose": "No Test Purpose"
   },
   "note-details-dialog": {
     "details": "Details",
-    "status": "Issue Status",
     "summary": "Summary",
     "tags": "Tags"
   },
@@ -535,8 +552,7 @@
     "connecting-remote-url": "Connecting to a repository.",
     "connect-remote-url-succeeded": "Connected to {url}.",
     "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
-    "delete-testresults": "Deleting test results.",
-    "load": "Loading"
+    "delete-testresults": "Deleting test results."
   },
   "error": {
     "common": {

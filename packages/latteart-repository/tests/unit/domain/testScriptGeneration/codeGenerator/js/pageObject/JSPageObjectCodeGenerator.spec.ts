@@ -87,7 +87,11 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
  * PageObjectComment1
  */
 class name_of_PageObject1 {
-  get param1() { return $('#param1'); }
+  get param1() {
+    return driver
+      .switchToFrame(null)
+      .then(async () => $('#param1'));
+  }
 
   async name_of_method1() {
     // no operation
@@ -98,13 +102,13 @@ class name_of_PageObject1 {
   async name_of_method2({
     param1
   }) {
-    await this.param1.setValue(param1);
+    await (await this.param1).setValue(param1);
 
     return new name_of_PageObject2();
   }
 
   async name_of_method3() {
-    await this.param1.click();
+    await (await this.param1).click();
     await browser.switchWindow("targetUrl");
 
     return new name_of_PageObject2();
@@ -196,7 +200,11 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
  * PageObjectComment1
  */
 class name_of_PageObject1 {
-  get param1() { return $('#param1'); }
+  get param1() {
+    return driver
+      .switchToFrame(null)
+      .then(async () => $('#param1'));
+  }
 
   async name_of_method1() {
     // no operation
@@ -207,7 +215,7 @@ class name_of_PageObject1 {
   async name_of_method2({
     param1
   }) {
-    await this.param1.setValue(param1);
+    await (await this.param1).setValue(param1);
 
     return new name_of_PageObject2();
   }
@@ -306,11 +314,13 @@ import name_of_PageObject2 from './name_of_PageObject2.page';
  */
 class name_of_PageObject1 {
   get param1() {
-    return driver.findElementMulti(
-      {"id":"param1"},
-      {"xpath":"xpath/xpath"}
-    )
-  }
+    return driver
+      .switchToFrame(null)
+      .then(async () => driver.findElementMulti(
+        {"id":"param1"},
+        {"xpath":"xpath/xpath"}
+      ));
+    }
 
   async name_of_method1() {
     // no operation

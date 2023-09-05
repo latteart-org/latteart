@@ -58,6 +58,7 @@ export default class AutofillRegisterDialog extends Vue {
       xpath: string;
       attributes: { [key: string]: string };
       inputValue: string;
+      iframeIndex?: number;
     }[];
     callback: () => void;
   } | null {
@@ -91,6 +92,7 @@ export default class AutofillRegisterDialog extends Vue {
             locatorType: element.attributes.id ? "id" : "xpath",
             locatorMatchType: "equals",
             inputValue: element.inputValue,
+            iframeIndex: element.iframeIndex,
           };
         }),
     };

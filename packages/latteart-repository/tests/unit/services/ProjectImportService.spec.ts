@@ -39,6 +39,7 @@ describe("ProjectImportService", () => {
     let testResultService: TestResultService;
     let testStepService: TestStepService;
     let screenshotFileRepository: FileRepository;
+    let videoFileRepository: FileRepository;
     let attachedFileRepository: FileRepository;
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
@@ -50,6 +51,7 @@ describe("ProjectImportService", () => {
       testResultService = createTestResultServiceMock();
       testStepService = createTestStepServiceMock();
       screenshotFileRepository = createStaticDirectoryServiceMock();
+      videoFileRepository = createStaticDirectoryServiceMock();
       attachedFileRepository = createStaticDirectoryServiceMock();
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
@@ -62,7 +64,7 @@ describe("ProjectImportService", () => {
         autoOperationSetting: { conditionGroups: [] },
         screenDefinition: { screenDefType: "url", conditionGroups: [] },
         coverage: { include: { tags: [] } },
-        imageCompression: { isEnabled: false, isDeleteSrcImage: false },
+        imageCompression: { format: "png" },
         testResultComparison: {
           excludeItems: { isEnabled: false, values: [] },
           excludeElements: { isEnabled: false, values: [] },
@@ -89,7 +91,8 @@ describe("ProjectImportService", () => {
 
       const testResultImportService = new TestResultImportServiceImpl({
         importFileRepository,
-        screenshotFileRepository: screenshotFileRepository,
+        screenshotFileRepository,
+        videoFileRepository,
         timestamp: timestampService,
       });
 
@@ -109,8 +112,8 @@ describe("ProjectImportService", () => {
           testResultService,
           configService,
           testStepService,
-          screenshotFileRepository: screenshotFileRepository,
-          attachedFileRepository: attachedFileRepository,
+          screenshotFileRepository,
+          attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
@@ -146,7 +149,8 @@ describe("ProjectImportService", () => {
 
       const testResultImportService = new TestResultImportServiceImpl({
         importFileRepository,
-        screenshotFileRepository: screenshotFileRepository,
+        screenshotFileRepository,
+        videoFileRepository,
         timestamp: timestampService,
       });
 
@@ -166,8 +170,8 @@ describe("ProjectImportService", () => {
           testResultService,
           configService,
           testStepService,
-          screenshotFileRepository: screenshotFileRepository,
-          attachedFileRepository: attachedFileRepository,
+          screenshotFileRepository,
+          attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),

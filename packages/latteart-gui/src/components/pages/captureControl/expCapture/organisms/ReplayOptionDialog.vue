@@ -38,6 +38,13 @@
           </v-card-text>
         </v-card>
 
+        <p
+          v-if="savingReplayResultsWarningMessage !== ''"
+          class="alert-message"
+        >
+          {{ savingReplayResultsWarningMessage }}
+        </p>
+
         <v-checkbox
           :disabled="!isResultSavingEnabled"
           :label="
@@ -86,6 +93,7 @@ import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -101,11 +109,21 @@ export default class ReplayOptionDialog extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private alertMessage = "";
+
   private get okButtonIsDisabled() {
     if (this.isResultSavingEnabled) {
       return !this.testResultName ? true : false;
     }
     return false;
+  }
+
+  private get savingReplayResultsWarningMessage(): string {
+    return (this.$store.state as RootState).projectSettings.config
+      .captureMediaSetting.mediaType === "video"
+      ? this.$store.getters.message(
+          "replay-option.saving-replay-results-warning-message"
+        )
+      : "";
   }
 
   private get hasIgnoredOperations(): boolean {

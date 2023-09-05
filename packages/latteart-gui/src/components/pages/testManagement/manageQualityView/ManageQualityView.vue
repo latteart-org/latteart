@@ -21,6 +21,7 @@
         {{ $store.getters.message("manage-quality.title") }}
       </p>
       <v-spacer></v-spacer>
+      <div>{{ $store.getters.message("manage-quality.attention") }}</div>
     </v-row>
     <v-row>
       {{ $store.getters.message("manage-quality.filter-section") }}
@@ -262,7 +263,7 @@ export default class ManageQualityView extends Vue {
             sessionNum++;
             rowTotalSessionNum++;
             bugNum += session.notes.filter((note) =>
-              (note.tags ?? []).includes("reported")
+              (note.tags ?? []).includes("bug")
             ).length;
           }
 
@@ -352,7 +353,7 @@ export default class ManageQualityView extends Vue {
       testTargetName: string;
       testTargetId: string;
       doneDate: string;
-      reportedBugCount: number;
+      foundBugCount: number;
     }> = [];
     for (const group of this.testMatrix.groups) {
       if (this.selectedGroup !== "all" && this.selectedGroup !== group.id) {
@@ -377,8 +378,8 @@ export default class ManageQualityView extends Vue {
             if (!session.isDone) {
               continue;
             }
-            const reportedBugCount = session.notes.filter((note) =>
-              (note.tags ?? []).includes("reported")
+            const foundBugCount = session.notes.filter((note) =>
+              (note.tags ?? []).includes("bug")
             ).length;
             sessionsData.push({
               groupName: group.name,
@@ -386,7 +387,7 @@ export default class ManageQualityView extends Vue {
               testTargetName: testTarget.name,
               testTargetId: `${group.id}_${testTarget.id}`,
               doneDate: session.doneDate,
-              reportedBugCount,
+              foundBugCount,
             });
           }
         }
@@ -430,7 +431,7 @@ export default class ManageQualityView extends Vue {
           (this.selectedTestTarget === "all" ||
             this.selectedTestTarget === value.testTargetId)
         ) {
-          setValue += value.reportedBugCount;
+          setValue += value.foundBugCount;
         }
         groupData.push({
           x: index + 1,

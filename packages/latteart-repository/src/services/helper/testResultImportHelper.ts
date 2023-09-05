@@ -20,9 +20,11 @@ import {
   HistoryItemExportDataV0,
   HistoryItemExportDataV1,
   HistoryItemExportDataV2,
+  HistoryItemExportDataV3,
   TestResultExportDataV0,
   TestResultExportDataV1,
   TestResultExportDataV2,
+  TestResultExportDataV3,
 } from "@/interfaces/exportData";
 
 export const deserializeTestResult = (
@@ -40,6 +42,11 @@ export const deserializeTestResult = (
   if (version === 2) {
     const v2FormatData = validateV2Format(data);
     return deserializeTestResultV2(v2FormatData);
+  }
+
+  if (version === 3) {
+    const v3FormatData = validateV3Format(data);
+    return deserializeTestResultV3(v3FormatData);
   }
 
   return deserializeTestResultV0(data);
@@ -69,6 +76,18 @@ const validateV2Format = (data: any): TestResultExportDataV2 => {
   throw new Error("ImportData is invalid format.");
 };
 
+const validateV3Format = (data: any): TestResultExportDataV3 => {
+  if (
+    Object.values(data.history).every((historyItem: any) => {
+      return historyItem.testPurpose !== undefined && historyItem.notes;
+    })
+  ) {
+    return data;
+  }
+
+  throw new Error("ImportData is invalid format.");
+};
+
 const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
   const entries: [string, HistoryItemExportDataV0][] = Object.entries(
     formattedData.history
@@ -87,7 +106,7 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
@@ -134,6 +153,7 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
+    creationTimestamp: 0,
   };
   return testResult;
 };
@@ -154,7 +174,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -193,6 +213,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
+    creationTimestamp: 0,
   };
   return testResult;
 };
@@ -213,7 +234,7 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -247,8 +268,64 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     testingTime: formattedData.testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
+    creationTimestamp: 0,
   };
   return testResult;
+};
+
+const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
+  const entries: [string, HistoryItemExportDataV3][] = Object.entries(
+    formattedData.history
+  );
+  const testSteps = entries.map(([_, item]) => {
+    const testPurpose = (() => {
+      const testPurpose = formattedData.notes.find(
+        (note) => note.id === item.testPurpose
+      );
+
+      return testPurpose ? testPurpose : null;
+    })();
+
+    const notes = item.notes.flatMap((noteId) => {
+      const note = formattedData.notes.find((note) => note.id === noteId);
+
+      return note ? [note] : [];
+    });
+
+    return {
+      id: "",
+      operation: {
+        input: item.testStep.operation.input,
+        type: item.testStep.operation.type,
+        elementInfo: item.testStep.operation.elementInfo,
+        title: item.testStep.pageInfo.title,
+        url: item.testStep.pageInfo.url,
+        imageFileUrl: item.testStep.imageFileUrl,
+        timestamp: item.testStep.timestamp,
+        windowHandle: item.testStep.windowInfo.windowHandle,
+        inputElements: item.testStep.inputElements,
+        keywordTexts: item.testStep.pageInfo.keywordTexts,
+        isAutomatic: item.testStep.operation.isAutomatic ?? false,
+        scrollPosition: item.testStep.operation.scrollPosition,
+        clientSize: item.testStep.operation.clientSize,
+        videoFrame: item.testStep.operation.videoFrame,
+      },
+      testPurpose,
+      notes,
+    };
+  });
+
+  return {
+    id: formattedData.sessionId,
+    name: formattedData.name,
+    startTimeStamp: formattedData.startTimeStamp,
+    lastUpdateTimeStamp: formattedData.lastUpdateTimeStamp,
+    initialUrl: formattedData.initialUrl,
+    testingTime: formattedData.testingTime,
+    testSteps,
+    coverageSources: formattedData.coverageSources,
+    creationTimestamp: formattedData.creationTimestamp,
+  };
 };
 
 const calculateTestingTime = (

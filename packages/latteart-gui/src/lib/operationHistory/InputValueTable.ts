@@ -14,40 +14,41 @@
  * limitations under the License.
  */
 
-import { normalizeXPath } from "../common/util";
+import { ElementInfo, VideoFrame } from "latteart-client";
 
 export type InputValueTableHeaderColumn = {
   index: number;
   sourceScreenDef: string;
   targetScreenDef: string;
-  trigger: {
-    elementText: string;
-    eventType: string;
-  };
+  trigger: { elementText: string; eventType: string };
   notes: {
     sequence: number;
     id: string;
-    imageFileUrl: string;
     tags: string[];
     value: string;
     details: string;
+    timestamp: number;
+    image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
-  testPurposes: {
-    id: string;
-    value: string;
-    details: string;
-  }[];
+  testPurposes: { id: string; value: string; details: string }[];
 };
 
 export type InputValueTableRow = {
   elementId: string;
   elementName: string;
   elementType: string;
-  sequence: number;
-  inputs: Array<{
-    value: string;
-    isDefaultValue: boolean;
-  }>;
+  elementImage?: {
+    image: { imageFileUrl?: string; videoFrame?: VideoFrame };
+    elementInfo: Pick<
+      ElementInfo,
+      | "boundingRect"
+      | "innerHeight"
+      | "innerWidth"
+      | "outerHeight"
+      | "outerWidth"
+    >;
+  };
+  inputs: { value: string; isDefaultValue: boolean }[];
 };
 
 export type ScreenTransition = {
@@ -56,7 +57,23 @@ export type ScreenTransition = {
   trigger?: {
     sequence: number;
     type: string;
-    target?: { xpath: string; text: string };
+    target?: {
+      xpath: string;
+      text: string;
+      iframe?: {
+        index: number;
+        boundingRect?: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight?: number;
+        innerWidth?: number;
+        outerHeight?: number;
+        outerWidth?: number;
+      };
+    };
     input?: string;
     pageUrl: string;
     pageTitle: string;
@@ -66,25 +83,41 @@ export type ScreenTransition = {
     xpath: string;
     tagname: string;
     text: string;
-    attributes: {
-      [key: string]: string;
-    };
+    attributes: { [key: string]: string };
     defaultValue?: string;
-    inputs: { sequence: number; value: string }[];
+    inputs: {
+      value: string;
+      image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
+    }[];
+    iframe?: {
+      index: number;
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
+    };
+    boundingRect?: { top: number; left: number; width: number; height: number };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
   }[];
   notes: {
     sequence: number;
     id: string;
-    imageFileUrl: string;
     tags: string[];
     value: string;
     details: string;
+    timestamp: number;
+    image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
-  testPurposes: {
-    id: string;
-    value: string;
-    details: string;
-  }[];
+  testPurposes: { id: string; value: string; details: string }[];
 };
 
 /**
@@ -123,26 +156,14 @@ export default class InputValueTable {
    * Get all lines.
    */
   public get rows(): InputValueTableRow[] {
-    const elementWithSequences = this.screenTransitions
-      .flatMap((screenTransition) => {
-        return screenTransition.inputElements.map((inputElement) => {
-          const { id, xpath, tagname, text, attributes } = inputElement;
-          const sequence = inputElement.inputs.at(0)?.sequence ?? 0;
-          const element = { id, xpath, tagname, text, attributes };
-          return { element, sequence };
-        });
-      })
-      .filter(({ element: e1 }, index, array) => {
-        return array.findIndex(({ element: e2 }) => e2.id === e1.id) === index;
+    const elements = this.screenTransitions
+      .flatMap((screenTransition) => screenTransition.inputElements)
+      .filter((e1, index, array) => {
+        return array.findIndex((e2) => e2.id === e1.id) === index;
       });
 
-    return elementWithSequences.map(({ element }, _, array) => {
+    return elements.map((element) => {
       const attributes = element.attributes;
-
-      const sequence =
-        array.find(
-          ({ element: { id }, sequence }) => id === element.id && sequence > 0
-        )?.sequence ?? 0;
 
       const inputs = this.screenTransitions.map((screenTransition) => {
         const inputElement = screenTransition.inputElements.find(
@@ -158,17 +179,33 @@ export default class InputValueTable {
         }
 
         return {
-          value: input.value,
+          value: inputElement?.defaultValue ?? input.value,
+          image: input.image,
           isDefaultValue: false,
         };
       });
+
+      const elementImage = inputs.find(({ image }) => image)?.image;
 
       return {
         elementId: attributes["id"] ?? "",
         elementName: attributes["name"] ?? "",
         elementType: attributes["type"] ?? "",
-        sequence,
-        inputs,
+        elementImage: elementImage
+          ? {
+              image: elementImage,
+              elementInfo: {
+                boundingRect: element.boundingRect,
+                innerHeight: element.innerHeight,
+                innerWidth: element.innerWidth,
+                outerHeight: element.outerHeight,
+                outerWidth: element.outerWidth,
+              },
+            }
+          : undefined,
+        inputs: inputs.map(({ value, isDefaultValue }) => {
+          return { value, isDefaultValue };
+        }),
       };
     });
   }

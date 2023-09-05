@@ -262,5 +262,476 @@ describe("generateSequenceView", () => {
         });
       });
     });
+
+    describe("シナリオ内の各テストステップは画面遷移毎にノードとしてグループ化する", () => {
+      const operationBase = {
+        input: "input1",
+        elementInfo: {
+          xpath: "xpath1",
+          tagname: "tagname1",
+          text: "text1",
+          attributes: {
+            value: "value1",
+          },
+        },
+      };
+      const testStepBase = {
+        operation: operationBase,
+        bugs: [],
+        notices: [],
+        intention: null,
+      };
+      const expectedTestStepBase = {
+        input: "input1",
+        element: { xpath: "xpath1", tagname: "tagname1", text: "text1" },
+        notes: [],
+      } as const;
+
+      it("screen_transitionがあった場合はそのテストステップから別ノードとする", () => {
+        const testSteps: TestStepForSequenceView[] = [
+          {
+            ...testStepBase,
+            id: "ts1",
+            operation: { ...operationBase, type: "type1", windowHandle: "w1" },
+            screenDef: "画面A",
+          },
+          {
+            ...testStepBase,
+            id: "ts2",
+            operation: { ...operationBase, type: "type1", windowHandle: "w1" },
+            screenDef: "画面A",
+          },
+          {
+            ...testStepBase,
+            id: "ts3",
+            operation: {
+              ...operationBase,
+              type: "screen_transition",
+              windowHandle: "w1",
+            },
+            screenDef: "画面A",
+          },
+          {
+            ...testStepBase,
+            id: "ts4",
+            operation: { ...operationBase, type: "type1", windowHandle: "w1" },
+            screenDef: "画面A",
+          },
+        ];
+
+        const testResultId = "testResult1";
+
+        const result = generateSequenceView(testResultId, testSteps);
+
+        expect(result).toEqual({
+          testResultId,
+          windows: [{ id: "w1", name: "window1" }],
+          screens: [{ id: "s0", name: "画面A" }],
+          scenarios: [
+            {
+              nodes: [
+                {
+                  windowId: "w1",
+                  screenId: "s0",
+                  testSteps: [
+                    { ...expectedTestStepBase, id: "ts1", type: "type1" },
+                    { ...expectedTestStepBase, id: "ts2", type: "type1" },
+                  ],
+                },
+                {
+                  windowId: "w1",
+                  screenId: "s0",
+                  testSteps: [
+                    {
+                      ...expectedTestStepBase,
+                      id: "ts3",
+                      type: "screen_transition",
+                    },
+                    { ...expectedTestStepBase, id: "ts4", type: "type1" },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+      });
+
+      describe("pause_capturingがあったら、直後に空の無効ノードを追加する", () => {
+        it(`pause_capturingが最後のテストステップの場合`, () => {
+          const testSteps: TestStepForSequenceView[] = [
+            {
+              ...testStepBase,
+              id: "ts1",
+              operation: {
+                ...operationBase,
+                type: "type1",
+                windowHandle: "w1",
+              },
+              screenDef: "画面A",
+            },
+            {
+              ...testStepBase,
+              id: "ts2",
+              operation: {
+                ...operationBase,
+                type: "pause_capturing",
+                windowHandle: "w1",
+              },
+              screenDef: "画面A",
+            },
+          ];
+
+          const testResultId = "testResult1";
+
+          const result = generateSequenceView(testResultId, testSteps);
+
+          expect(result).toEqual({
+            testResultId,
+            windows: [{ id: "w1", name: "window1" }],
+            screens: [{ id: "s0", name: "画面A" }],
+            scenarios: [
+              {
+                nodes: [
+                  {
+                    windowId: "w1",
+                    screenId: "s0",
+                    testSteps: [
+                      { ...expectedTestStepBase, id: "ts1", type: "type1" },
+                      {
+                        ...expectedTestStepBase,
+                        id: "ts2",
+                        type: "pause_capturing",
+                      },
+                    ],
+                  },
+                  {
+                    windowId: "w1",
+                    screenId: "s0",
+                    testSteps: [],
+                    disabled: true,
+                  },
+                ],
+              },
+            ],
+          });
+        });
+
+        describe.each`
+          resumeKeyword
+          ${"resume_capturing"}
+          ${"start_capturing"}
+        `(
+          "pause_capturingが最後のテストステップでない場合、次の$resumeKeywordまでのノードを全て無効ノードとする",
+          ({ resumeKeyword }) => {
+            it(`pause_capturingと${resumeKeyword}の間にテストステップが無い場合`, () => {
+              const testSteps: TestStepForSequenceView[] = [
+                {
+                  ...testStepBase,
+                  id: "ts1",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts2",
+                  operation: {
+                    ...operationBase,
+                    type: "pause_capturing",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts3",
+                  operation: {
+                    ...operationBase,
+                    type: resumeKeyword,
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts4",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+              ];
+
+              const testResultId = "testResult1";
+
+              const result = generateSequenceView(testResultId, testSteps);
+
+              expect(result).toEqual({
+                testResultId,
+                windows: [{ id: "w1", name: "window1" }],
+                screens: [{ id: "s0", name: "画面A" }],
+                scenarios: [
+                  {
+                    nodes: [
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          { ...expectedTestStepBase, id: "ts1", type: "type1" },
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts2",
+                            type: "pause_capturing",
+                          },
+                        ],
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [],
+                        disabled: true,
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts3",
+                            type: resumeKeyword,
+                          },
+                          { ...expectedTestStepBase, id: "ts4", type: "type1" },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              });
+            });
+
+            it(`pause_capturingと${resumeKeyword}の間にscreen_transitionがある場合`, () => {
+              const testSteps: TestStepForSequenceView[] = [
+                {
+                  ...testStepBase,
+                  id: "ts1",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts2",
+                  operation: {
+                    ...operationBase,
+                    type: "pause_capturing",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts3",
+                  operation: {
+                    ...operationBase,
+                    type: "screen_transition",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts4",
+                  operation: {
+                    ...operationBase,
+                    type: resumeKeyword,
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts5",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+              ];
+
+              const testResultId = "testResult1";
+
+              const result = generateSequenceView(testResultId, testSteps);
+
+              expect(result).toEqual({
+                testResultId,
+                windows: [{ id: "w1", name: "window1" }],
+                screens: [{ id: "s0", name: "画面A" }],
+                scenarios: [
+                  {
+                    nodes: [
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          { ...expectedTestStepBase, id: "ts1", type: "type1" },
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts2",
+                            type: "pause_capturing",
+                          },
+                        ],
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [],
+                        disabled: true,
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts3",
+                            type: "screen_transition",
+                          },
+                        ],
+                        disabled: true,
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts4",
+                            type: resumeKeyword,
+                          },
+                          { ...expectedTestStepBase, id: "ts5", type: "type1" },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              });
+            });
+
+            it(`pause_capturingと${resumeKeyword}の間にscreen_transition以外のテストステップがある場合`, () => {
+              const testSteps: TestStepForSequenceView[] = [
+                {
+                  ...testStepBase,
+                  id: "ts1",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts2",
+                  operation: {
+                    ...operationBase,
+                    type: "pause_capturing",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts3",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts4",
+                  operation: {
+                    ...operationBase,
+                    type: resumeKeyword,
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+                {
+                  ...testStepBase,
+                  id: "ts5",
+                  operation: {
+                    ...operationBase,
+                    type: "type1",
+                    windowHandle: "w1",
+                  },
+                  screenDef: "画面A",
+                },
+              ];
+
+              const testResultId = "testResult1";
+
+              const result = generateSequenceView(testResultId, testSteps);
+
+              expect(result).toEqual({
+                testResultId,
+                windows: [{ id: "w1", name: "window1" }],
+                screens: [{ id: "s0", name: "画面A" }],
+                scenarios: [
+                  {
+                    nodes: [
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          { ...expectedTestStepBase, id: "ts1", type: "type1" },
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts2",
+                            type: "pause_capturing",
+                          },
+                        ],
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          { ...expectedTestStepBase, id: "ts3", type: "type1" },
+                        ],
+                        disabled: true,
+                      },
+                      {
+                        windowId: "w1",
+                        screenId: "s0",
+                        testSteps: [
+                          {
+                            ...expectedTestStepBase,
+                            id: "ts4",
+                            type: resumeKeyword,
+                          },
+                          { ...expectedTestStepBase, id: "ts5", type: "type1" },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              });
+            });
+          }
+        );
+      });
+    });
   });
 });

@@ -119,6 +119,23 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集"
   },
+  "test-result-navigation-drawer": {
+    "title": "テスト結果一覧",
+    "delete-test-results": "テスト結果の削除",
+    "delete-test-result-message": "選択したテスト結果を削除しますか？",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "deleting-test-results": "テスト結果削除中",
+    "load": "読み込み中"
+  },
+  "test-result-list": {
+    "name": "テスト結果名",
+    "url": "テスト対象URL",
+    "testing-time": "テスト時間",
+    "test-purpose": "テスト目的",
+    "creation-timestamp": "作成日時",
+    "load": "テスト結果を読み込む",
+    "edit": "テスト結果名編集"
+  },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
     "project-import-title": "設定・プロジェクトのインポート",
@@ -163,9 +180,13 @@
     "browser2": "ブラウザのみキャプチャ",
     "fullscreen": "画面全体をキャプチャ",
     "setting-inclusion-tags": "画面要素カバレッジの設定",
+    "setting-capture-media": "キャプチャメディア設定",
+    "media-type": "メディアタイプ",
+    "still-image": "静止画",
+    "video": "動画",
     "setting-image-compression": "画像圧縮設定",
-    "image-compression-enabled": "取得したスクリーンショットを圧縮する",
-    "image-compression-delete-source-image": "元画像を削除する",
+    "png": "png",
+    "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-test-result-comparison": "テスト結果比較の設定",
     "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
@@ -209,6 +230,7 @@
       "locator": "Locater",
       "locator-type": "Locater Type",
       "locator-match-type": "Locater Match Type",
+      "iframe-index": "Iframe通番",
       "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
       "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
       "input-value": "入力値"
@@ -258,11 +280,13 @@
     "note-for-current-purpose": "現在のテスト目的では...",
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
-    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
+    "check-video": "動画を確認する"
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
     "replay-capture": "リプレイ結果を保存する",
+    "saving-replay-results-warning-message": "リプレイ時の動画は保存できません",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
     "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
@@ -393,24 +417,23 @@
   "manage-quality": {
     "window-title": "管理ツール [品質管理]",
     "title": "品質管理",
-    "export": "エクスポート",
+    "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
     "filter-section": "[フィルタ]",
     "group": "グループ",
     "test-target": "テスト対象",
-    "bug-count": "起票バグ数",
     "completed-sessions": "完了セッション数",
-    "bug-report": "[バグ起票状況]",
+    "bug-report": "[バグ検出数]",
     "pb-curve": "[PB曲線]",
     "total-number": "全件数",
     "times-per-session": "1セッションあたりの件数",
     "target-of-aggregation": "集計対象",
     "total": "全体",
     "all": "全て",
-    "unit-description-total": "単位: 起票バグ数",
-    "unit-description": "単位: 起票バグ数 / 完了セッション数"
+    "unit-description-total": "単位: バグ検出数",
+    "unit-description": "単位: バグ検出数 / 完了セッション数"
   },
   "quality-chart": {
-    "bug-report-number": "バグ起票数",
+    "bug-report-number": "バグ検出数",
     "number-session": "完了済みセッション数"
   },
   "group-info": {
@@ -456,7 +479,6 @@
     "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
     "file-open-copy-error": "添付ファイルの保存に失敗しました。",
     "result-list": "実行結果取り込み",
-    "result-import": "取り込む",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動"
@@ -466,15 +488,10 @@
     "open": "テスト目的をすべて開く",
     "close": "テスト目的をすべて閉じる",
     "details": "詳細",
-    "no-test-purpose": "目的なし",
-    "bug-status": "起票状態：{status}",
-    "bug-reported": "起票済み",
-    "bug-unreported": "起票なし",
-    "none": "なし"
+    "no-test-purpose": "目的なし"
   },
   "note-details-dialog": {
     "details": "詳細",
-    "status": "起票状態",
     "summary": "概要",
     "tags": "タグ"
   },
@@ -495,7 +512,7 @@
     "session": "セッション",
     "planned-session": "予定セッション数",
     "completed-session": "完了セッション数",
-    "bug-count": "摘出バグ数",
+    "bug-count": "バグ検出数",
     "review-target": "レビュー対象",
     "do-review": "レビューする",
     "add-session": "セッションを追加する",
@@ -539,8 +556,7 @@
     "connecting-remote-url": "リポジトリに接続中",
     "connect-remote-url-succeeded": "{url}に接続しました。",
     "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
-    "delete-testresults": "テスト結果削除中",
-    "load": "読み込み中"
+    "delete-testresults": "テスト結果削除中"
   },
   "error": {
     "common": {

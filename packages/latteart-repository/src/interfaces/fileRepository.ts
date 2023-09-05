@@ -46,6 +46,8 @@ export type FileRepository = {
     destRelativePath: string,
     sourceRepositoryName: RepositoryName
   ): Promise<void>;
+
+  appendFile(relativePath: string, buf: Uint8Array): Promise<void>;
 };
 
 /**
@@ -58,4 +60,5 @@ export type RepositoryName =
   | "testScript"
   | "export"
   | "temp"
-  | "work";
+  | "work"
+  | "video";

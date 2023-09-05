@@ -31,7 +31,6 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { ConfigsService } from "../services/ConfigsService";
-import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { createLogger } from "@/logger/logger";
 
 @Route("projects/{projectId}/configs")
@@ -49,8 +48,7 @@ export class ConfigsController {
     @Path() projectId: string
   ): Promise<GetConfigResponse> {
     try {
-      const config = await new ConfigsService().getProjectConfig(projectId);
-      return convertToExportableConfig(config);
+      return await new ConfigsService().getProjectConfig(projectId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get settings failed.", error);
@@ -80,11 +78,7 @@ export class ConfigsController {
     @Body() requestBody: PutConfigDto
   ): Promise<PutConfigResponse> {
     try {
-      const config = await new ConfigsService().updateConfig(
-        projectId,
-        requestBody
-      );
-      return convertToExportableConfig(config);
+      return await new ConfigsService().updateConfig(projectId, requestBody);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Save settings failed.", error);

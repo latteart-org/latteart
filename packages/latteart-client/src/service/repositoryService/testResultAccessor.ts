@@ -27,6 +27,7 @@ import {
   TestStepNote,
   Note,
   TestResultViewOption,
+  Video,
 } from "../types";
 import {
   TestResultRepository,
@@ -47,8 +48,9 @@ import {
   NoteRepository,
   ProjectRepository,
   TestResultComparisonRepository,
+  VideoRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor, SequenceView, GraphView } from "./types";
+import { TestResultAccessor, SequenceView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -69,11 +71,11 @@ export type RepositoryContainer = {
   readonly viewPointRepository: ViewPointRepository;
   readonly storyRepository: StoryRepository;
   readonly testResultComparisonRepository: TestResultComparisonRepository;
+  readonly videoRepository: VideoRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
   constructor(
-    private serviceUrl: string,
     private repositories: RepositoryContainer,
     private testResultId: string
   ) {}
@@ -134,7 +136,23 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
-        operation
+        {
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+          title: operation.title,
+          url: operation.url,
+          imageData: operation.imageData,
+          windowHandle: operation.windowHandle,
+          timestamp: operation.timestamp,
+          screenElements: operation.screenElements,
+          pageSource: operation.pageSource,
+          scrollPosition: operation.scrollPosition,
+          clientSize: operation.clientSize,
+          isAutomatic: operation.isAutomatic,
+          videoId: operation.videoId,
+          videoTime: operation.videoTime,
+        }
       );
 
     if (registerOperationResult.isFailure()) {
@@ -146,22 +164,39 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    if (
-      !option.compressScreenshot ||
-      !registerOperationResult.data.operation.imageFileUrl
-    ) {
-      const imageFileUrl = registerOperationResult.data.operation.imageFileUrl
-        ? new URL(
-            registerOperationResult.data.operation.imageFileUrl,
-            this.serviceUrl
-          ).toString()
-        : "";
+    const {
+      input,
+      type,
+      elementInfo,
+      title,
+      url,
+      timestamp,
+      windowHandle,
+      keywordTexts,
+      scrollPosition,
+      clientSize,
+      isAutomatic,
+      imageFileUrl,
+      videoFrame,
+    } = registerOperationResult.data.operation;
 
+    if (!option.compressScreenshot || !imageFileUrl) {
       return new ServiceSuccess({
         ...registerOperationResult.data,
         operation: {
-          ...registerOperationResult.data.operation,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
           imageFileUrl,
+          videoFrame,
         },
       });
     }
@@ -181,18 +216,22 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = compressImageResult.data.imageFileUrl
-      ? new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString()
-      : "";
-
     return new ServiceSuccess({
       ...registerOperationResult.data,
       operation: {
-        ...registerOperationResult.data.operation,
-        imageFileUrl,
+        input,
+        type,
+        elementInfo,
+        title,
+        url,
+        timestamp,
+        windowHandle,
+        keywordTexts,
+        scrollPosition,
+        clientSize,
+        isAutomatic,
+        imageFileUrl: compressImageResult.data.imageFileUrl,
+        videoFrame,
       },
     });
   }
@@ -203,6 +242,9 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
+      videoId?: string;
+      videoTime?: number;
     },
     testStepId: string,
     option: {
@@ -217,6 +259,9 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         details: note.details ?? "",
         tags: note.tags ?? [],
         imageData: note.imageData,
+        timestamp: note.timestamp,
+        videoId: note.videoId,
+        videoTime: note.videoTime,
       }
     );
 
@@ -261,18 +306,60 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const savedTestStep = linkTestStepResult.data;
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
 
-    if (!option.compressScreenshot || !savedNote.imageFileUrl) {
-      const imageFileUrl = savedNote.imageFileUrl
-        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-        : "";
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
 
+    const savedTestStep = {
+      ...linkTestStepResult.data,
+      operation: {
+        input: linkTestStepResult.data.operation.input,
+        type: linkTestStepResult.data.operation.type,
+        elementInfo: linkTestStepResult.data.operation.elementInfo,
+        title: linkTestStepResult.data.operation.title,
+        url: linkTestStepResult.data.operation.url,
+        imageFileUrl: linkTestStepResult.data.operation.imageFileUrl,
+        timestamp: linkTestStepResult.data.operation.timestamp,
+        windowHandle: linkTestStepResult.data.operation.windowHandle,
+        keywordTexts: linkTestStepResult.data.operation.keywordTexts,
+        scrollPosition: linkTestStepResult.data.operation.scrollPosition,
+        clientSize: linkTestStepResult.data.operation.clientSize,
+        isAutomatic: linkTestStepResult.data.operation.isAutomatic,
+        videoFrame: linkTestStepResult.data.operation.videoFrame,
+      },
+    };
+
+    const {
+      id,
+      type,
+      value,
+      details,
+      tags,
+      timestamp,
+      imageFileUrl,
+      videoFrame,
+    } = savedNote;
+
+    if (!option.compressScreenshot || !imageFileUrl) {
       return new ServiceSuccess({
         testStep: savedTestStep,
         note: {
-          ...savedNote,
+          id,
+          type,
+          value,
+          details,
+          tags,
+          timestamp,
           imageFileUrl,
+          videoFrame,
         },
       });
     }
@@ -292,18 +379,17 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = compressImageResult.data.imageFileUrl
-      ? new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString()
-      : "";
-
     return new ServiceSuccess({
       testStep: savedTestStep,
       note: {
-        ...savedNote,
-        imageFileUrl,
+        id,
+        type,
+        value,
+        details,
+        tags,
+        timestamp,
+        imageFileUrl: compressImageResult.data.imageFileUrl,
+        videoFrame,
       },
     });
   }
@@ -336,13 +422,38 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = result.data.imageFileUrl
-      ? new URL(result.data.imageFileUrl, this.serviceUrl).toString()
-      : "";
+    const {
+      id,
+      type,
+      value,
+      details,
+      tags,
+      timestamp,
+      imageFileUrl,
+      videoFrame,
+    } = result.data;
+
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "edit_note_failed",
+        message: "Edit Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
 
     return new ServiceSuccess({
-      ...result.data,
+      id,
+      type,
+      value,
+      details,
+      tags,
+      timestamp,
       imageFileUrl,
+      videoFrame,
     });
   }
 
@@ -529,6 +640,45 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       const error: ServiceError = {
         errorCode: "generate_sequence_view_failed",
         message: "Generate Sequence View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<ServiceResult<Video>> {
+    const result = await this.repositories.videoRepository.createVideo(params);
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "create_video_failed",
+        message: "Create video failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async appendVideoBuffer(
+    videoId: string,
+    buffer: ArrayBuffer
+  ): Promise<ServiceResult<string>> {
+    const result = await this.repositories.videoRepository.appendBuffer(
+      videoId,
+      buffer
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "append_video_buffer_failed",
+        message: "Append video buffer failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

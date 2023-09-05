@@ -18,7 +18,7 @@ import path from "path";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
 
-type exportProjectData = {
+type ExportProjectData = {
   projectId: string;
   projectFile: { fileName: string; data: string };
   stories: {
@@ -32,26 +32,26 @@ type exportProjectData = {
   }[];
   progressesFile: { fileName: string; data: string };
 };
-type exportTestResultData = {
+type ExportTestResultData = {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
-  screenshots: { id: string; fileUrl: string }[];
+  fileData: { id: string; fileUrl: string }[];
 };
-type exportConfigData = { fileName: string; data: string };
+type ExportConfigData = { fileName: string; data: string };
 
-export interface ExportFileRepositoryService {
+export type ExportFileRepositoryService = {
   exportProject(
-    project: exportProjectData | null,
-    testResults: exportTestResultData[],
-    config: exportConfigData | null
+    project: ExportProjectData | null,
+    testResults: ExportTestResultData[],
+    config: ExportConfigData | null
   ): Promise<string>;
 
   exportTestResult(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: { id: string; fileUrl: string }[];
   }): Promise<string>;
-}
+};
 
 export class ExportFileRepositoryServiceImpl
   implements ExportFileRepositoryService
@@ -65,9 +65,9 @@ export class ExportFileRepositoryServiceImpl
   ) {}
 
   public async exportProject(
-    project: exportProjectData | null,
-    testResults: exportTestResultData[],
-    config: exportConfigData | null
+    project: ExportProjectData | null,
+    testResults: ExportTestResultData[],
+    config: ExportConfigData | null
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
     const outputDirName = `project_${timestamp}`;
@@ -111,7 +111,7 @@ export class ExportFileRepositoryServiceImpl
 
   public async outputProjectFiles(
     projectsDirPath: string,
-    project: exportProjectData
+    project: ExportProjectData
   ): Promise<void> {
     const projectPath = path.join(projectsDirPath, project.projectId);
     await this.service.workingFileRepository.outputFile(
@@ -157,7 +157,7 @@ export class ExportFileRepositoryServiceImpl
 
   public async outputTestResultFiles(
     testResultsDirPath: string,
-    testResult: exportTestResultData
+    testResult: ExportTestResultData
   ): Promise<void> {
     const testResultPath = path.join(
       testResultsDirPath,
@@ -175,24 +175,30 @@ export class ExportFileRepositoryServiceImpl
     );
 
     await Promise.all(
-      testResult.screenshots.map(async (screenshot) => {
-        const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
-
-        return await this.service.workingFileRepository.copyFile(
-          fileName,
-          path.join(testResultPath, "screenshot", fileName),
-          "screenshot"
-        );
+      testResult.fileData.map(async (videoOrScreenshot) => {
+        const fileName = videoOrScreenshot.fileUrl.split("/").slice(-1)[0];
+        if (fileName.split(".")[1] === "webm") {
+          return await this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(testResultPath, "video", fileName),
+            "video"
+          );
+        } else {
+          return await this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(testResultPath, "screenshot", fileName),
+            "screenshot"
+          );
+        }
       })
     ).catch((e) => {
-      console.log(e);
       throw e;
     });
   }
 
   public async outputConfigFile(
     configDirPath: string,
-    config: exportConfigData
+    config: ExportConfigData
   ): Promise<void> {
     await this.service.workingFileRepository.outputFile(
       path.join(configDirPath, config.fileName),
@@ -203,7 +209,7 @@ export class ExportFileRepositoryServiceImpl
   public async exportTestResult(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: { id: string; fileUrl: string }[];
   }): Promise<string> {
     const outputDirName = await this.outputFiles(testResult);
 
@@ -227,7 +233,7 @@ export class ExportFileRepositoryServiceImpl
   private async outputFiles(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: { id: string; fileUrl: string }[];
   }) {
     const outputDirName = `test_result`;
     await this.service.workingFileRepository.outputFile(
@@ -235,17 +241,27 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    const screenshotFileNames = testResult.screenshots.map(({ fileUrl }) => {
-      return fileUrl.split("/").slice(-1)[0];
-    });
+    const videoOrScreenshotFileNames = testResult.fileData.map(
+      ({ fileUrl }) => {
+        return fileUrl.split("/").slice(-1)[0];
+      }
+    );
 
     await Promise.all(
-      screenshotFileNames.map((fileName) => {
-        return this.service.workingFileRepository.copyFile(
-          fileName,
-          path.join(outputDirName, path.basename(fileName)),
-          "screenshot"
-        );
+      videoOrScreenshotFileNames.map((fileName) => {
+        if (fileName.split(".")[1] === "webm") {
+          return this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(outputDirName, path.basename(fileName)),
+            "video"
+          );
+        } else {
+          return this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(outputDirName, path.basename(fileName)),
+            "screenshot"
+          );
+        }
       })
     );
 

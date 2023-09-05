@@ -132,6 +132,7 @@ describe("issueReportHelper", () => {
       const testResult: TestResultService = {
         getTestResultIdentifiers: jest.fn(),
         getTestResult: jest.fn(),
+        getTestResultForExport: jest.fn(),
         createTestResult: jest.fn(),
         patchTestResult: jest.fn(),
         collectAllTestStepIds: jest.fn().mockResolvedValue(["testStep1"]),
@@ -140,6 +141,8 @@ describe("issueReportHelper", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        collectAllScreenshots: jest.fn(),
+        collectAllVideos: jest.fn(),
       };
       const testStep: TestStepService = {
         getTestStep: jest.fn().mockResolvedValue({

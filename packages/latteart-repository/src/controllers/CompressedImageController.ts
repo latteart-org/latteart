@@ -79,9 +79,7 @@ export class CompressedImageController extends Controller {
         commandExecutor: new CommandExecutorImpl(),
         logger,
       }).compressImage(testStepId, {
-        shouldDeleteOriginalFile: (
-          await new ConfigsService().getProjectConfig("")
-        ).config.imageCompression.isDeleteSrcImage,
+        shouldDeleteOriginalFile: true,
       });
     } catch (error) {
       if (error instanceof Error) {

@@ -48,7 +48,11 @@ export class CompressedImageRepository {
       const { imageFileUrl } = response.data as { imageFileUrl: string };
 
       return createRepositoryAccessSuccess({
-        data: { imageFileUrl },
+        data: {
+          imageFileUrl: imageFileUrl
+            ? new URL(imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -78,7 +82,11 @@ export class CompressedImageRepository {
       const { imageFileUrl } = response.data as { imageFileUrl: string };
 
       return createRepositoryAccessSuccess({
-        data: { imageFileUrl },
+        data: {
+          imageFileUrl: imageFileUrl
+            ? new URL(imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

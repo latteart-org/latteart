@@ -66,9 +66,14 @@ export class CaptureConfig {
   public waitTimeForStartupReload = 0;
 
   /**
-   * Set the browser's headless mode.
+   * Whether browser is headless mode or not.
    */
   public isHeadlessMode = false;
+
+  /**
+   * Media type.
+   */
+  public mediaType: "image" | "video" = "image";
 
   /**
    * Constructor.

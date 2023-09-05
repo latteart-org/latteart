@@ -42,6 +42,7 @@ describe("WebBrowserWindow", () => {
       getClientSize: jest.fn(),
       setClientSize: jest.fn(),
       setScrollPosition: jest.fn(),
+      doActionInIframes: jest.fn(),
     };
   });
 
@@ -49,7 +50,7 @@ describe("WebBrowserWindow", () => {
     it("WebDriver経由でスクリーンショットを取得する", async () => {
       clientMock.takeScreenshot = jest.fn().mockResolvedValue("screenshot");
 
-      const window = new WebBrowserWindow("", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "");
 
       expect(await window.getScreenshot()).toEqual("screenshot");
     });
@@ -79,9 +80,9 @@ describe("WebBrowserWindow", () => {
       (captureScript.resetEventListeners as jest.Mock).mockReturnValue(true);
       (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([]);
 
-      const window = new WebBrowserWindow("", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "");
 
-      await window.getReadyToCapture();
+      await window.getReadyToCapture("pull");
 
       expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
       expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
@@ -133,6 +134,7 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
@@ -144,6 +146,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -163,7 +169,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -176,6 +188,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -185,7 +201,6 @@ describe("WebBrowserWindow", () => {
                 timestamp: expect.any(String),
                 screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -216,15 +231,21 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+
               const e1 = {
                 tagname: targetTagname1,
                 text: "text",
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -232,6 +253,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -249,7 +274,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -262,6 +293,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -271,7 +306,6 @@ describe("WebBrowserWindow", () => {
                 timestamp: expect.any(String),
                 screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -283,6 +317,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath2,
                   attributes: targetAttributes2,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -292,7 +330,6 @@ describe("WebBrowserWindow", () => {
                 timestamp: expect.any(String),
                 screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -316,9 +353,11 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+
               const elements: CapturedData["operation"]["elementInfo"][] = [
                 {
                   tagname: targetTagname,
@@ -326,6 +365,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -345,7 +388,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -378,15 +427,21 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
               );
+
               const e1 = {
                 tagname: targetTagname1,
                 text: "text",
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -394,6 +449,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -411,7 +470,13 @@ describe("WebBrowserWindow", () => {
               ]);
 
               const option = { onGetOperation: jest.fn() };
-              const window = new WebBrowserWindow("", clientMock, "", option);
+              const window = new WebBrowserWindow(
+                "",
+                "",
+                clientMock,
+                "",
+                option
+              );
 
               await window.captureOperations();
 
@@ -424,6 +489,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -433,7 +502,6 @@ describe("WebBrowserWindow", () => {
                 timestamp: expect.any(String),
                 screenElements: expect.any(Array),
                 pageSource: expect.any(String),
-                inputElements: expect.any(Array),
                 scrollPosition: { x: 0, y: 0 },
                 clientSize: { width: 0, height: 0 },
               });
@@ -456,7 +524,9 @@ describe("WebBrowserWindow", () => {
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -464,6 +534,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -483,7 +557,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -507,7 +581,9 @@ describe("WebBrowserWindow", () => {
             clientMock.getClientSize = jest
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -515,6 +591,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -534,7 +614,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -558,8 +638,10 @@ describe("WebBrowserWindow", () => {
             clientMock.getClientSize = jest
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
+
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
                 tagname: targetTagname,
@@ -567,6 +649,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -586,7 +672,7 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", clientMock, "", option);
+            const window = new WebBrowserWindow("", "", clientMock, "", option);
 
             await window.captureOperations();
 
@@ -613,6 +699,7 @@ describe("WebBrowserWindow", () => {
         clientMock.getCurrentUrl = jest
           .fn()
           .mockResolvedValue("http://127.0.0.1/page1");
+        clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
         (captureScript.isCurrentScreenObserved as jest.Mock).mockReturnValue(
           false
         );
@@ -622,6 +709,7 @@ describe("WebBrowserWindow", () => {
           onHistoryChanged: jest.fn(),
         };
         const window = new WebBrowserWindow(
+          "",
           "",
           clientMock,
           "windowHandle",
@@ -640,7 +728,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -667,6 +755,7 @@ describe("WebBrowserWindow", () => {
           .mockResolvedValueOnce("http://127.0.0.1/page1")
           .mockResolvedValueOnce("http://127.0.0.1/page2")
           .mockResolvedValueOnce("http://127.0.0.1/page2");
+        clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
         (captureScript.isCurrentScreenObserved as jest.Mock)
           .mockReturnValueOnce(false)
           .mockReturnValueOnce(true);
@@ -676,6 +765,7 @@ describe("WebBrowserWindow", () => {
           onHistoryChanged: jest.fn(),
         };
         const window = new WebBrowserWindow(
+          "",
           "",
           clientMock,
           "windowHandle",
@@ -694,7 +784,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(1);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -714,7 +804,7 @@ describe("WebBrowserWindow", () => {
           timestamp: expect.any(String),
           scrollPosition: { x: 0, y: 0 },
           clientSize: { width: 0, height: 0 },
-          screenElements: [],
+          screenElements: [{ elements: [] }],
         });
         expect(option.onHistoryChanged).toBeCalledTimes(2);
         expect(option.onHistoryChanged).toBeCalledWith({
@@ -749,6 +839,7 @@ describe("WebBrowserWindow", () => {
         };
         const window = new WebBrowserWindow(
           "",
+          "",
           clientMock,
           "windowHandle",
           option
@@ -778,6 +869,7 @@ describe("WebBrowserWindow", () => {
         onHistoryChanged: jest.fn(),
       };
       const window = new WebBrowserWindow(
+        "",
         "",
         clientMock,
         "windowHandle",

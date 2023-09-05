@@ -7,8 +7,9 @@ describe("Autofill", () => {
   };
 
   describe("#execute", () => {
+    const client: any = {};
+
     it("selectboxに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -36,7 +37,6 @@ describe("Autofill", () => {
     });
 
     it("textareaに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -64,7 +64,6 @@ describe("Autofill", () => {
     });
 
     it("checkboxに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -93,7 +92,6 @@ describe("Autofill", () => {
     });
 
     it("radioに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -122,7 +120,6 @@ describe("Autofill", () => {
     });
 
     it("dateに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",
@@ -151,7 +148,6 @@ describe("Autofill", () => {
     });
 
     it("textに値を設定", async () => {
-      const client: any = {};
       const inputValueSets: InputValueSet[] = [
         {
           locatorType: "id",

@@ -98,7 +98,7 @@ export function extractTestResultsData(
     const testResultObj: TestResultData = testResultMap.get(testResultId) ?? {
       testResultId,
       testResultFile: { fileName: "", data: "" },
-      screenshots: [],
+      fileData: [],
     };
 
     if (path.basename(testResultFile.filePath) === "log.json") {
@@ -107,10 +107,12 @@ export function extractTestResultsData(
         data: testResultFile.data as string,
       };
     } else if (
-      [".png", ".webp"].includes(path.extname(testResultFile.filePath)) &&
+      [".png", ".webp", ".webm"].includes(
+        path.extname(testResultFile.filePath)
+      ) &&
       typeof testResultFile.data !== "string"
     ) {
-      testResultObj.screenshots.push({
+      testResultObj.fileData.push({
         filePath: path.basename(testResultFile.filePath),
         data: testResultFile.data,
       });
@@ -148,7 +150,7 @@ export function extractConfigData(
 export type TestResultData = {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
-  screenshots: { filePath: string; data: Buffer }[];
+  fileData: { filePath: string; data: Buffer }[];
 };
 
 export type ProjectData = {

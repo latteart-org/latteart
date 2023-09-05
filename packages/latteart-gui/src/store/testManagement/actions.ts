@@ -765,6 +765,32 @@ const actions: ActionTree<TestManagementState, RootState> = {
 
     return result.data;
   },
+
+  async updateNotes(
+    context,
+    payload: {
+      testResultId: string;
+      noteId: string;
+      value: string;
+      details?: string;
+      tags: string[];
+    }
+  ) {
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        payload.testResultId
+      );
+
+    const result = await testResult.editNote(payload.noteId, {
+      value: payload.value,
+      details: payload.details ?? "",
+      tags: payload.tags,
+    });
+    if (result.isFailure()) {
+      const messageKey = `error.operation_history.${result.error.errorCode}`;
+      throw new Error(context.rootGetters.message(messageKey));
+    }
+  },
 };
 
 export default actions;

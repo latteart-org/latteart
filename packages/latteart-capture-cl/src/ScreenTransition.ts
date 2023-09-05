@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ElementInfo } from "./Operation";
+import { ScreenElements } from "./Operation";
 import { TimestampImpl } from "./Timestamp";
 
 /**
@@ -64,7 +64,7 @@ export default class ScreenTransition {
   /**
    * The screen elements in the screen.
    */
-  public screenElements: ElementInfo[] = [];
+  public screenElements: ScreenElements[] = [];
 
   /**
    * Constructor.

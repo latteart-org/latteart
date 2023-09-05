@@ -45,10 +45,9 @@ describe("SettingsProvider", () => {
             tags: [],
           },
         },
-        imageCompression: {
-          command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-          isDeleteSrcImage: true,
-          isEnabled: true,
+        captureMediaSetting: {
+          mediaType: "image",
+          imageCompression: { format: "png" },
         },
       },
       captureSettings: {
@@ -203,10 +202,9 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: { format: "png" },
           },
         },
         captureSettings: {
@@ -285,10 +283,11 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+          captureMediaSetting: {
+            mediaType: "image",
+            imageCompression: {
+              format: "png",
+            },
           },
         },
         captureSettings: {
@@ -304,10 +303,12 @@ describe("SettingsProvider", () => {
 
       settingsProvider.loadFile(filePath);
 
-      expect(settingsProvider.getSetting("config.imageCompression")).toEqual({
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-        isDeleteSrcImage: true,
-        isEnabled: true,
+      expect(
+        settingsProvider.getSetting(
+          "config.captureMediaSetting.imageCompression"
+        )
+      ).toEqual({
+        format: "png",
       });
     });
   });

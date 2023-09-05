@@ -42,6 +42,7 @@ describe("TestPurposeService", () => {
         details: "details",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });
@@ -78,6 +79,7 @@ describe("TestPurposeService", () => {
         details: "changedDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });

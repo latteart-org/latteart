@@ -21,10 +21,12 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import {
   OperationWithNotes,
   OperationHistory,
+  ScreenImage,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { VideoFrame } from "latteart-client";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**
@@ -273,6 +275,8 @@ const mutations: MutationTree<OperationHistoryState> = {
           name: string;
           text: string;
           operated: boolean;
+          imageFileUrl?: string;
+          videoFrame?: VideoFrame;
         }>;
       }>;
     }
@@ -320,29 +324,20 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set displayed operations to the State.
-   * @param state State.
-   * @param payload.sequences Sequence numbers of displayed operations.
-   */
-  setDisplayedOperations(state, payload: { sequences: number[] }) {
-    state.displayedOperations = payload.sequences;
-  },
-
-  /**
-   * Set displayed screenshot url to the State.
+   * Set displayed screenshot media.
    * @param state  State.
    * @param payload Image file url.
    */
-  setDisplayedScreenshotUrl(state, payload: { imageFileUrl: string }) {
-    state.displayedScreenshotUrl = payload.imageFileUrl;
+  setScreenImage(state, payload: { screenImage: ScreenImage }) {
+    state.screenImage = payload.screenImage;
   },
 
   /**
-   * Clear displayed screenshot url
+   * Clear displayed media.
    * @param state State.
    */
-  clearDisplayedScreenshotUrl(state) {
-    state.displayedScreenshotUrl = "";
+  clearScreenImage(state) {
+    state.screenImage = null;
   },
 
   /**
@@ -549,34 +544,72 @@ const mutations: MutationTree<OperationHistoryState> = {
     Vue.set(state, "checkedOperations", []);
   },
 
+  setCheckedTestResults(state, payload: { checkedTestResults: string[] }) {
+    state.checkedTestResults = payload.checkedTestResults;
+  },
+
+  clearCheckedTestResults(state) {
+    Vue.set(state, "checkedTestResults", []);
+  },
+
   /**
    * Set window handles to the State.
    * @param state State.
-   * @param payload.windowHandles Window handles.
+   * @param payload.windows Window handle and title.
    */
-  setWindows(state, payload: { windowHandles: string[] }) {
-    state.windows = payload.windowHandles.map((windowHandle, index) => {
-      const text = `window${index + 1}`;
+  setWindows(
+    state,
+    payload: { windows: { windowHandle: string; title: string }[] }
+  ) {
+    state.windows = payload.windows.map((window, index) => {
+      const text = `window${index + 1}:${window.title}`;
 
       return {
         text,
-        value: windowHandle,
+        value: window.windowHandle,
+        title: window.title,
       };
     });
   },
 
   /**
-   * Add window handles to the State.
+   * Add window handles and title to the State.
    * @param state State.
-   * @param payload.windowHandles Window handles.
+   * @param payload.windowHandle Window handle.
+   * @param payload.title Title.
    */
-  addWindow(state, payload: { windowHandle: string }) {
-    const text = `window${state.windows.length + 1}`;
+  addWindow(state, payload: { windowHandle: string; title: string }) {
+    const text = `window${state.windows.length + 1}:${payload.title}`;
 
     state.windows.push({
       text,
       value: payload.windowHandle,
+      title: payload.title,
     });
+  },
+
+  /**
+   * Update window title to the State.
+   * @param state State.
+   * @param payload.windowHandle Window handle.
+   * @param payload.title Title.
+   */
+  updateWindowTitle(state, payload: { windowHandle: string; title: string }) {
+    const windowIndex = state.windows.findIndex(
+      ({ value }) => value === payload.windowHandle
+    );
+
+    if (state.windows[windowIndex].title !== payload.title) {
+      const indexOfFirst = state.windows[windowIndex].text.indexOf(":");
+      const strHead = state.windows[windowIndex].text.slice(0, indexOfFirst);
+      const text = `${strHead}:${payload.title}`;
+
+      state.windows.splice(windowIndex, 1, {
+        text,
+        value: payload.windowHandle,
+        title: payload.title,
+      });
+    }
   },
 
   /**
@@ -585,6 +618,15 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   clearWindows(state) {
     Vue.set(state, "windows", []);
+  },
+
+  /**
+   * Set whether Picture-In-Picture window is displayed or not.
+   * @param state State.
+   * @param payload.isDisplayed Whether Picture-In-Picture window is displayed or not.
+   */
+  setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
+    state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
   },
 };
 

@@ -18,7 +18,6 @@ import { MutationTree } from "vuex";
 import { CaptureControlState } from ".";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 import { CaptureSession } from "latteart-client";
-import { ElementInfo } from "latteart-client";
 
 const mutations: MutationTree<CaptureControlState> = {
   /**
@@ -137,6 +136,10 @@ const mutations: MutationTree<CaptureControlState> = {
     } | null
   ) {
     state.autofillRegisterDialogData = payload;
+  },
+
+  setTestResultNavigationDrawerOpened(state, payload: { isOpened: boolean }) {
+    state.isTestResultNavigationDrawerOpened = payload.isOpened;
   },
 };
 

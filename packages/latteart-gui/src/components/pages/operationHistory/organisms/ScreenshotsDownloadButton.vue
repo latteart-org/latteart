@@ -31,6 +31,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -55,8 +56,8 @@ export default class ScreenshotsDownloadButton extends Vue {
       this.isCapturing ||
       this.isReplaying ||
       this.isResuming ||
-      this.$store.getters["operationHistory/getOperations"]().length === 0 ||
-      this.processing
+      this.processing ||
+      !this.hasImageUrl
     );
   }
 
@@ -72,8 +73,19 @@ export default class ScreenshotsDownloadButton extends Vue {
     return this.$store.state.captureControl.isResuming;
   }
 
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
+
   private get testResultId(): string {
-    return this.$store.state.operationHistory.testResultInfo.id;
+    return this.operationHistoryState.testResultInfo.id;
+  }
+
+  private get hasImageUrl(): boolean {
+    const operation = this.operationHistoryState.history.find(
+      (item) => item.operation.imageFilePath !== ""
+    );
+    return operation ? true : false;
   }
 
   private async execute() {

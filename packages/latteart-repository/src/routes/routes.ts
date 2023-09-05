@@ -60,6 +60,8 @@ import { StoriesController } from "./../controllers/StoriesController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TestResultComparisonController } from "./../controllers/TestResultComparisonController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { Videos } from "./../controllers/VideosController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectImportController } from "./../controllers/ProjectImportController";
 import type { RequestHandler, Router } from "express";
 
@@ -133,6 +135,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframeIndex: { dataType: "double" },
         inputValue: { dataType: "string", required: true },
         locatorMatchType: {
           dataType: "union",
@@ -278,6 +281,37 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ImageCompression: {
+    dataType: "refObject",
+    properties: {
+      format: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["png"] },
+          { dataType: "enum", enums: ["webp"] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CaptureMediaSetting: {
+    dataType: "refObject",
+    properties: {
+      mediaType: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["image"] },
+          { dataType: "enum", enums: ["video"] },
+        ],
+        required: true,
+      },
+      imageCompression: { ref: "ImageCompression", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectConfig: {
     dataType: "refAlias",
     type: {
@@ -329,14 +363,7 @@ const models: TsoaRoute.Models = {
               },
               required: true,
             },
-            imageCompression: {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                isDeleteSrcImage: { dataType: "boolean", required: true },
-                isEnabled: { dataType: "boolean", required: true },
-              },
-              required: true,
-            },
+            captureMediaSetting: { ref: "CaptureMediaSetting", required: true },
             coverage: { ref: "Coverage", required: true },
             screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
             autoOperationSetting: {
@@ -453,6 +480,39 @@ const models: TsoaRoute.Models = {
     type: { ref: "ExportableConfig", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Pick_Video.Exclude_keyofVideo.id__": {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        url: { dataType: "string", required: true },
+        width: { dataType: "double", required: true },
+        height: { dataType: "double", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Omit_Video.id_": {
+    dataType: "refAlias",
+    type: { ref: "Pick_Video.Exclude_keyofVideo.id__", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  VideoFrame: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Omit_Video.id_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { time: { dataType: "double", required: true } },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   GetGraphViewResponse: {
     dataType: "refAlias",
     type: {
@@ -466,6 +526,8 @@ const models: TsoaRoute.Models = {
               array: {
                 dataType: "nestedObjectLiteral",
                 nestedProperties: {
+                  videoFrame: { ref: "VideoFrame" },
+                  timestamp: { dataType: "double", required: true },
                   imageFileUrl: { dataType: "string" },
                   tags: { dataType: "array", array: { dataType: "string" } },
                   details: { dataType: "string", required: true },
@@ -492,6 +554,19 @@ const models: TsoaRoute.Models = {
               array: {
                 dataType: "nestedObjectLiteral",
                 nestedProperties: {
+                  outerWidth: { dataType: "double" },
+                  outerHeight: { dataType: "double" },
+                  innerWidth: { dataType: "double" },
+                  innerHeight: { dataType: "double" },
+                  boundingRect: {
+                    dataType: "nestedObjectLiteral",
+                    nestedProperties: {
+                      height: { dataType: "double", required: true },
+                      width: { dataType: "double", required: true },
+                      left: { dataType: "double", required: true },
+                      top: { dataType: "double", required: true },
+                    },
+                  },
                   attributes: {
                     dataType: "nestedObjectLiteral",
                     nestedProperties: {},
@@ -559,6 +634,7 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
+                    videoFrame: { ref: "VideoFrame" },
                     imageFileUrl: { dataType: "string" },
                     pageTitle: { dataType: "string", required: true },
                     pageUrl: { dataType: "string", required: true },
@@ -746,6 +822,7 @@ const models: TsoaRoute.Models = {
           array: { dataType: "string" },
           required: true,
         },
+        timestamp: { dataType: "double", required: true },
       },
       validators: {},
     },
@@ -765,6 +842,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            videoFrame: { ref: "VideoFrame" },
             imageFileUrl: { dataType: "string", required: true },
           },
         },
@@ -834,7 +912,12 @@ const models: TsoaRoute.Models = {
         { ref: "UpdateNoteDto" },
         {
           dataType: "nestedObjectLiteral",
-          nestedProperties: { imageData: { dataType: "string" } },
+          nestedProperties: {
+            videoTime: { dataType: "double" },
+            videoId: { dataType: "string" },
+            timestamp: { dataType: "double" },
+            imageData: { dataType: "string" },
+          },
         },
       ],
       validators: {},
@@ -1117,6 +1200,18 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestResultFile: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        id: { dataType: "string", required: true },
+        name: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   GetTestPurposeResponse: {
     dataType: "refAlias",
     type: {
@@ -1157,13 +1252,7 @@ const models: TsoaRoute.Models = {
         initialUrl: { dataType: "string", required: true },
         testResultFiles: {
           dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              id: { dataType: "string", required: true },
-              name: { dataType: "string", required: true },
-            },
-          },
+          array: { dataType: "refAlias", ref: "TestResultFile" },
           required: true,
         },
         attachedFiles: {
@@ -1487,35 +1576,32 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   PatchSessionDto: {
-    dataType: "refObject",
-    properties: {
-      isDone: { dataType: "boolean" },
-      testItem: { dataType: "string" },
-      testerName: { dataType: "string" },
-      memo: { dataType: "string" },
-      attachedFiles: {
-        dataType: "array",
-        array: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            fileData: { dataType: "string" },
-            fileUrl: { dataType: "string" },
-            name: { dataType: "string", required: true },
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        testResultFiles: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "TestResultFile" },
+        },
+        attachedFiles: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              fileData: { dataType: "string" },
+              fileUrl: { dataType: "string" },
+              name: { dataType: "string", required: true },
+            },
           },
         },
+        memo: { dataType: "string" },
+        testerName: { dataType: "string" },
+        testItem: { dataType: "string" },
+        isDone: { dataType: "boolean" },
       },
-      testResultFiles: {
-        dataType: "array",
-        array: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            id: { dataType: "string", required: true },
-            name: { dataType: "string", required: true },
-          },
-        },
-      },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_delete_session_failed_: {
@@ -1671,13 +1757,15 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  "Pick_TestResult.id-or-name_": {
+  "Pick_TestResult.id-or-name-or-initialUrl-or-testingTime_": {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
+        initialUrl: { dataType: "string", required: true },
+        testingTime: { dataType: "double", required: true },
       },
       validators: {},
     },
@@ -1688,10 +1776,23 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "intersection",
       subSchemas: [
-        { ref: "Pick_TestResult.id-or-name_" },
+        { ref: "Pick_TestResult.id-or-name-or-initialUrl-or-testingTime_" },
         {
           dataType: "nestedObjectLiteral",
-          nestedProperties: { parentTestResultId: { dataType: "string" } },
+          nestedProperties: {
+            creationTimestamp: { dataType: "double", required: true },
+            testPurposes: {
+              dataType: "array",
+              array: {
+                dataType: "nestedObjectLiteral",
+                nestedProperties: {
+                  value: { dataType: "string", required: true },
+                },
+              },
+              required: true,
+            },
+            parentTestResultId: { dataType: "string" },
+          },
         },
       ],
       validators: {},
@@ -1703,7 +1804,30 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        iframe: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            outerWidth: { dataType: "double" },
+            outerHeight: { dataType: "double" },
+            innerWidth: { dataType: "double" },
+            innerHeight: { dataType: "double" },
+            boundingRect: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                height: { dataType: "double", required: true },
+                width: { dataType: "double", required: true },
+                left: { dataType: "double", required: true },
+                top: { dataType: "double", required: true },
+              },
+            },
+            index: { dataType: "double", required: true },
+          },
+        },
         textWithoutChildren: { dataType: "string" },
+        outerWidth: { dataType: "double" },
+        outerHeight: { dataType: "double" },
+        innerWidth: { dataType: "double" },
+        innerHeight: { dataType: "double" },
         boundingRect: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -1736,10 +1860,10 @@ const models: TsoaRoute.Models = {
       nestedProperties: {
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
-        startTimeStamp: { dataType: "double", required: true },
-        lastUpdateTimeStamp: { dataType: "double", required: true },
         initialUrl: { dataType: "string", required: true },
         testingTime: { dataType: "double", required: true },
+        startTimeStamp: { dataType: "double", required: true },
+        lastUpdateTimeStamp: { dataType: "double", required: true },
         coverageSources: {
           dataType: "array",
           array: {
@@ -1783,7 +1907,9 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        url: { dataType: "string", required: true },
         type: { dataType: "string", required: true },
+        timestamp: { dataType: "string", required: true },
         input: { dataType: "string", required: true },
         elementInfo: {
           dataType: "union",
@@ -1794,8 +1920,6 @@ const models: TsoaRoute.Models = {
           required: true,
         },
         title: { dataType: "string", required: true },
-        url: { dataType: "string", required: true },
-        timestamp: { dataType: "string", required: true },
         windowHandle: { dataType: "string", required: true },
         inputElements: {
           dataType: "array",
@@ -1855,6 +1979,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            videoFrame: { ref: "VideoFrame" },
             imageFileUrl: { dataType: "string", required: true },
           },
         },
@@ -1982,7 +2107,6 @@ const models: TsoaRoute.Models = {
     properties: {
       initialUrl: { dataType: "string" },
       name: { dataType: "string" },
-      startTimeStamp: { dataType: "double" },
       parentTestResultId: { dataType: "string" },
     },
     additionalProperties: false,
@@ -2015,6 +2139,19 @@ const models: TsoaRoute.Models = {
           enums: ["update_test_result_failed"],
           required: true,
         },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PatchTestResultDto: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        initialUrl: { dataType: "string" },
+        startTime: { dataType: "double" },
+        name: { dataType: "string" },
       },
       validators: {},
     },
@@ -2266,11 +2403,29 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ScreenElements: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        elements: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "ElementInfo" },
+          required: true,
+        },
+        iframeIndex: { dataType: "double" },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTestStepDto: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        videoTime: { dataType: "double" },
+        videoId: { dataType: "string" },
         clientSize: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -2288,14 +2443,9 @@ const models: TsoaRoute.Models = {
         isAutomatic: { dataType: "boolean" },
         pageSource: { dataType: "string", required: true },
         timestamp: { dataType: "double", required: true },
-        inputElements: {
-          dataType: "array",
-          array: { dataType: "refAlias", ref: "ElementInfo" },
-          required: true,
-        },
         screenElements: {
           dataType: "array",
-          array: { dataType: "refAlias", ref: "ElementInfo" },
+          array: { dataType: "refAlias", ref: "ScreenElements" },
           required: true,
         },
         windowHandle: { dataType: "string", required: true },
@@ -3121,13 +3271,81 @@ const models: TsoaRoute.Models = {
               dataType: "array",
               array: {
                 dataType: "enum",
-                enums: ["screenshot", "title", "url", "elementTexts"],
+                enums: ["url", "screenshot", "title", "elementTexts"],
               },
             },
           },
         },
         expectedTestResultId: { dataType: "string", required: true },
         actualTestResultId: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  Video: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        height: { dataType: "double", required: true },
+        width: { dataType: "double", required: true },
+        url: { dataType: "string", required: true },
+        id: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_create_video_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["create_video_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_save_video_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["save_video_failed"],
+          required: true,
+        },
       },
       validators: {},
     },
@@ -4390,12 +4608,7 @@ export function RegisterRoutes(app: Router) {
           in: "body",
           name: "requestBody",
           required: true,
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            initialUrl: { dataType: "string" },
-            startTime: { dataType: "double" },
-            name: { dataType: "string" },
-          },
+          ref: "PatchTestResultDto",
         },
       };
 
@@ -5614,6 +5827,85 @@ export function RegisterRoutes(app: Router) {
         const controller = new TestResultComparisonController();
 
         const promise = controller.compareTestResults.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/videos",
+    ...fetchMiddlewares<RequestHandler>(Videos),
+    ...fetchMiddlewares<RequestHandler>(Videos.prototype.createVideo),
+
+    function Videos_createVideo(request: any, response: any, next: any) {
+      const args = {
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new Videos();
+
+        const promise = controller.createVideo.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.patch(
+    "/api/v1/videos/:videoId",
+    ...fetchMiddlewares<RequestHandler>(Videos),
+    ...fetchMiddlewares<RequestHandler>(Videos.prototype.patch),
+
+    function Videos_patch(request: any, response: any, next: any) {
+      const args = {
+        videoId: {
+          in: "path",
+          name: "videoId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { base64: { dataType: "string", required: true } },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new Videos();
+
+        const promise = controller.patch.apply(
           controller,
           validatedArgs as any
         );

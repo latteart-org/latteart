@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-import { ExportableConfig, ProjectConfig } from "@/interfaces/Configs";
-
-export function convertToExportableConfig(
-  settings: ProjectConfig
-): ExportableConfig {
-  return {
-    config: {
-      ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
-      },
-    },
-    defaultTagList: settings.defaultTagList,
-    viewPointsPreset: settings.viewPointsPreset,
-  };
-}
+import { OldStyleProjectConfig, ProjectConfig } from "@/interfaces/Configs";
 
 export function parseProjectConfig(configText: string): ProjectConfig {
-  const config = JSON.parse(configText) as ProjectConfig;
+  const config = JSON.parse(configText) as
+    | ProjectConfig
+    | OldStyleProjectConfig;
 
   return {
     viewPointsPreset: config.viewPointsPreset,
@@ -43,7 +29,17 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      imageCompression: config.config.imageCompression,
+      captureMediaSetting:
+        "captureMediaSetting" in config.config
+          ? config.config.captureMediaSetting
+          : {
+              mediaType: "image",
+              imageCompression: {
+                format: config.config.imageCompression.isEnabled
+                  ? "webp"
+                  : "png",
+              },
+            },
       testResultComparison: config.config.testResultComparison,
     },
   };

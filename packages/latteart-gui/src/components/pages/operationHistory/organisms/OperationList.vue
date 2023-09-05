@@ -29,114 +29,133 @@
       justify="end"
       class="fill-height"
       style="height: calc(100% - 90px)"
+      no-gutters
     >
-      <v-col cols="12" :style="{ height: '100%' }" class="pr-12">
-        <selectable-data-table
-          @selectItems="onSelectOperations"
-          @contextmenu="openOperationContextMenu"
-          @checkItems="updateCheckedOperationList"
-          :selected-item-indexes="selectedOperationIndexes"
-          :checked-item-indexes="checkedOperationIndexes"
-          :marked-item-indexes="autoOperationIndexes"
-          :disabled-item-indexes="disabledOperationIndexes"
-          :headers="headers"
-          :items="displayedHistory"
-          :filtering-predicates="[
-            displayedOperationFilterPredicate,
-            textFilterPredicate,
-            noteFilterPredicate,
-          ]"
-          shortcut
-          sortBy="operation.sequence"
-          :itemsPerPage="10"
-          :hide-check-box="isViewerMode"
-          :hide-headers="true"
-        >
-          <template v-slot:row="{ columns }">
-            <td class="seq-col">
-              {{ columns.operation.sequence }}
-            </td>
-            <td class="icon-col">
-              <v-icon
-                v-if="hasIntention(columns.intention)"
-                :title="message('app.intention')"
-                class="mx-1"
-                color="blue"
-                >event_note</v-icon
+      <v-col cols="12" :style="{ height: '100%' }">
+        <v-container fluid fill-height>
+          <v-data-table
+            height="calc(100% - 59px)"
+            :style="{ height: '100%', width: '100%' }"
+            dense
+            fixed-header
+            :show-select="!isViewerMode"
+            item-key="operation.sequence"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            :custom-sort="(items) => items"
+            must-sort
+            :headers="headers"
+            :items="displayedHistoryItems"
+            v-model="checkedItems"
+            :search="search"
+            :page.sync="page"
+            :items-per-page.sync="itemsPerPage"
+            :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
+            @click:row="(item) => onSelectOperations(item.index)"
+            @contextmenu:row="(event, item) => contextmenu(item.index, event)"
+          >
+            <template
+              v-slot:[`item.data-table-select`]="{ isSelected, select, item }"
+            >
+              <td :class="createCssClassForRow(item.index)">
+                <v-simple-checkbox
+                  :value="isSelected"
+                  @input="select($event)"
+                />
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.sequence`]="{ item }">
+              <td :class="createCssClassForRow(item.index)">
+                {{ item.operation.sequence }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.notes`]="{ item }">
+              <td :class="createCssClassForRow(item.index)">
+                <v-icon
+                  v-if="item.notes.intention"
+                  :title="message('app.intention')"
+                  class="mx-1"
+                  color="blue"
+                  >event_note</v-icon
+                >
+                <v-icon
+                  v-if="item.notes.notices.length + item.notes.bugs.length > 0"
+                  :title="message('app.note')"
+                  class="mx-1"
+                  color="purple lighten-3"
+                  >announcement</v-icon
+                >
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.title`]="{ item }">
+              <td
+                :title="item.operation.title"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
               >
-              <v-icon
-                v-if="hasNote(columns.notices, columns.bugs)"
-                :title="message('app.note')"
-                class="mx-1"
-                color="purple lighten-3"
-                >announcement</v-icon
+                {{ item.operation.title.substring(0, 60) }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.elementInfo.tagname`]="{ item }">
+              <td
+                :title="item.operation.elementInfo.tagname"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
               >
-            </td>
-            <td :title="columns.operation.title" class="ellipsis">
-              {{
-                columns.operation.title
-                  ? columns.operation.title.substring(0, 60)
-                  : ""
-              }}
-            </td>
-            <td
-              :title="
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.tagname
-                  : ''
-              "
-              class="ellipsis"
+                {{ item.operation.elementInfo.tagname }}
+              </td>
+            </template>
+
+            <template
+              v-slot:[`item.operation.elementInfo.attributes.name`]="{ item }"
             >
-              {{
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.tagname
-                  : ""
-              }}
-            </td>
-            <td
-              :title="
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.attributes.name || ''
-                  : ''
-              "
-              class="ellipsis"
-            >
-              {{
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.attributes.name || ""
-                  : ""
-              }}
-            </td>
-            <td
-              :title="
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.text || ''
-                  : ''
-              "
-              class="ellipsis"
-            >
-              {{
-                !!columns.operation.elementInfo
-                  ? columns.operation.elementInfo.text
-                    ? columns.operation.elementInfo.text.substring(0, 60)
-                    : ""
-                  : ""
-              }}
-            </td>
-            <td :title="columns.operation.type" class="ellipsis">
-              {{ columns.operation.type }}
-            </td>
-            <td :title="columns.operation.inputValue" class="ellipsis">
-              {{ columns.operation.inputValue.substring(0, 60) }}
-            </td>
-            <td
-              :title="formatTimestamp(columns.operation.timestamp)"
-              class="ellipsis"
-            >
-              {{ formatTimestamp(columns.operation.timestamp) }}
-            </td>
-          </template>
-        </selectable-data-table>
+              <td
+                :title="item.operation.elementInfo.attributes.name"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
+              >
+                {{ item.operation.elementInfo.attributes.name }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.elementInfo.text`]="{ item }">
+              <td
+                :title="item.operation.elementInfo.text"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
+              >
+                {{ item.operation.elementInfo.text.substring(0, 60) }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.type`]="{ item }">
+              <td
+                :title="item.operation.type"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
+              >
+                {{ item.operation.type }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.inputValue`]="{ item }">
+              <td
+                :title="item.operation.inputValue"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
+              >
+                {{ item.operation.inputValue.substring(0, 60) }}
+              </td>
+            </template>
+
+            <template v-slot:[`item.operation.timestamp`]="{ item }">
+              <td
+                :title="formatTimestamp(item.operation.timestamp)"
+                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
+              >
+                {{ formatTimestamp(item.operation.timestamp) }}
+              </td>
+            </template>
+          </v-data-table>
+        </v-container>
       </v-col>
     </v-row>
 
@@ -152,12 +171,12 @@
         <v-checkbox
           class="search-checkbox pl-4"
           :label="message('operation.purpose')"
-          v-model="purposeCheckbox"
+          v-model="isPurposeFilterEnabled"
         ></v-checkbox>
         <v-checkbox
           class="search-checkbox"
           :label="message('operation.notice')"
-          v-model="noticeCheckbox"
+          v-model="isNoteFilterEnabled"
         ></v-checkbox>
         <v-text-field
           class="pl-4"
@@ -180,22 +199,41 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import {
-  OperationWithNotes,
   OperationHistory,
   MessageProvider,
 } from "@/lib/operationHistory/types";
 import OperationContextMenu from "@/components/pages/captureControl/historyView/OperationContextMenu.vue";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import SelectableDataTable from "@/components/molecules/SelectableDataTable.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
-import { ElementInfo } from "latteart-client";
+import { filterTableRows, sortTableRows } from "@/lib/common/table";
+
+type ElementInfoForDisplay = {
+  tagname: string;
+  text: string;
+  xpath: string;
+  iframeIndex?: number;
+  attributes: { [key: string]: string };
+};
+
+type OperationForDisplay = Omit<OperationForGUI, "elementInfo"> & {
+  elementInfo: ElementInfoForDisplay;
+};
+
+type HistoryItemForDisplay = {
+  index: number;
+  operation: OperationForDisplay;
+  notes: {
+    bugs: NoteForGUI[];
+    notices: NoteForGUI[];
+    intention: NoteForGUI | null;
+  };
+};
 
 @Component({
   components: {
     "operation-context-menu": OperationContextMenu,
-    "selectable-data-table": SelectableDataTable,
     "auto-operation-register-button": AutoOperationRegisterButton,
   },
 })
@@ -213,7 +251,6 @@ export default class OperationList extends Vue {
   public readonly onSelectOperation!: (sequence: number) => void;
   @Prop({ type: Array, default: [] })
   public readonly displayedOperations!: number[];
-  @Prop({ type: Function }) public readonly onResetFilter!: () => void;
   @Prop({ type: Function }) public readonly message!: MessageProvider;
   @Prop({ type: Boolean, default: false })
   public readonly operationContextEnabled!: boolean;
@@ -222,12 +259,11 @@ export default class OperationList extends Vue {
     ? (this as any).$isViewerMode
     : false;
 
-  private search = "";
   private selectedSequences: number[] = [];
   private checkedSequences: number[] = [];
 
-  private purposeCheckbox = false;
-  private noticeCheckbox = false;
+  private isPurposeFilterEnabled = false;
+  private isNoteFilterEnabled = false;
 
   private contextMenuOpened = false;
   private contextMenuX = -1;
@@ -237,12 +273,13 @@ export default class OperationList extends Vue {
     selectedSequences: [],
   };
 
-  private get checkedOperations(): {
-    index: number;
-    operation: OperationForGUI;
-  }[] {
-    return this.$store.state.operationHistory.checkedOperations;
-  }
+  private checkedItems: HistoryItemForDisplay[] = [];
+  private search = "";
+  private page: number = 1;
+  private itemsPerPage: number = 100;
+  private itemsPerPageOptions: number[] = [100, 200, 500, 1000];
+  private sortBy = "operation.sequence";
+  private sortDesc = false;
 
   private get headers(): {
     text: string;
@@ -260,7 +297,7 @@ export default class OperationList extends Vue {
       },
       {
         text: "",
-        value: "",
+        value: "notes",
         class: "icon-col",
         width: "90",
         sortable: false,
@@ -279,7 +316,7 @@ export default class OperationList extends Vue {
         value: "operation.elementInfo.text",
       },
       { text: this.message("operation.type"), value: "operation.type" },
-      { text: this.message("operation.input"), value: "operation.input" },
+      { text: this.message("operation.input"), value: "operation.inputValue" },
       {
         text: this.message("operation.timestamp"),
         value: "operation.timestamp",
@@ -287,8 +324,24 @@ export default class OperationList extends Vue {
     ];
   }
 
-  private created() {
+  created() {
     this.initializeSelectedSequences();
+  }
+
+  mounted(): void {
+    document.addEventListener("keydown", this.keyDown);
+  }
+
+  beforeDestroy(): void {
+    document.removeEventListener("keydown", this.keyDown);
+  }
+
+  private createCssClassForRow(itemIndex: number) {
+    return {
+      selected: this.selectedOperationIndexes.includes(itemIndex),
+      marked: this.autoOperationIndexes.includes(itemIndex),
+      disabled: this.disabledOperationIndexes.includes(itemIndex),
+    };
   }
 
   @Watch("selectedOperationSequence")
@@ -296,28 +349,124 @@ export default class OperationList extends Vue {
     this.selectedSequences = [this.selectedOperationSequence];
   }
 
-  private hasIntention(intention: NoteForGUI | null): boolean {
-    return !!intention;
-  }
-
-  private hasNote(
-    notices: NoteForGUI[] | null,
-    bugs: NoteForGUI[] | null
-  ): boolean {
-    if (!!notices && notices.length > 0) {
-      return true;
-    }
-    if (!!bugs && bugs.length > 0) {
-      return true;
-    }
-    return false;
-  }
-
   private formatTimestamp(epochMilliseconds: string) {
     return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
   }
 
-  private displayedOperationFilterPredicate(item: OperationWithNotes) {
+  private onSelectOperations(...indexes: number[]) {
+    this.selectedSequences = indexes.map((index) => index + 1);
+
+    this.onSelectOperation(this.selectedSequences[0]);
+  }
+
+  private openOperationContextMenu(target: {
+    itemIndex: number;
+    x: number;
+    y: number;
+  }) {
+    if ((this as any).$isViewerMode || !this.operationContextEnabled) {
+      return;
+    }
+
+    this.contextMenuOpened = false;
+
+    // for close and  open animation.
+    this.$nextTick(() => {
+      this.resetPosition();
+      setTimeout(() => {
+        this.contextMenuX = target.x;
+        this.contextMenuY = target.y;
+        this.contextMenuInfo = {
+          sequence: target.itemIndex + 1,
+          selectedSequences: this.selectedSequences,
+        };
+        this.contextMenuOpened = true;
+      }, 100);
+    });
+  }
+
+  private get selectedOperationIndexes() {
+    return this.selectedSequences.map((sequence) => sequence - 1);
+  }
+
+  private get autoOperationIndexes() {
+    const autoOperationIndexes = [];
+    for (const [index, { operation }] of this.history.entries()) {
+      if (operation.isAutomatic) {
+        autoOperationIndexes.push(index);
+      }
+    }
+    console.log(autoOperationIndexes);
+    return autoOperationIndexes;
+  }
+
+  private get disabledOperationIndexes() {
+    const disabledIndexes = [];
+    let isCounting = false;
+
+    for (const [index, { operation }] of this.history.entries()) {
+      if (operation.type === "pause_capturing") {
+        isCounting = true;
+        continue;
+      }
+
+      if (["resume_capturing", "start_capturing"].includes(operation.type)) {
+        isCounting = false;
+        continue;
+      }
+
+      if (isCounting) {
+        disabledIndexes.push(index);
+      }
+    }
+
+    return disabledIndexes;
+  }
+
+  private get displayedHistoryItems(): HistoryItemForDisplay[] {
+    const items = this.history.map((operationWithNotes, index) => {
+      const elementInfo = operationWithNotes.operation.elementInfo;
+
+      const elementInfoForDisplay: ElementInfoForDisplay = {
+        tagname: elementInfo?.tagname ?? "",
+        text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
+        attributes: { ...elementInfo?.attributes },
+        xpath: elementInfo?.xpath ?? "",
+        iframeIndex: elementInfo?.iframe?.index,
+      };
+
+      const operation: OperationForDisplay = {
+        ...operationWithNotes.operation,
+        inputValue: operationWithNotes.operation.inputValue,
+        elementInfo: elementInfoForDisplay,
+      };
+
+      const notes = {
+        bugs: operationWithNotes.bugs ?? [],
+        notices: operationWithNotes.notices ?? [],
+        intention: operationWithNotes.intention,
+      };
+
+      return { index, operation, notes };
+    });
+
+    const filteredItems = filterTableRows(items, [
+      this.displayedOperationFilterPredicate,
+      this.textFilterPredicate,
+      this.noteFilterPredicate,
+    ]);
+
+    return sortTableRows(filteredItems, this.sortBy, this.sortDesc);
+  }
+
+  private get getCheckedItems(): {
+    index: number;
+    operation: OperationForGUI;
+  }[] {
+    return this.$store.state.operationHistory.checkedOperations;
+  }
+
+  private displayedOperationFilterPredicate(item: HistoryItemForDisplay) {
     if (this.displayedOperations.length === 0) {
       return true;
     }
@@ -325,21 +474,21 @@ export default class OperationList extends Vue {
     return this.displayedOperations.includes(item.operation.sequence);
   }
 
-  private noteFilterPredicate(item: OperationWithNotes): boolean {
-    if (!this.noticeCheckbox && !this.purposeCheckbox) {
+  private noteFilterPredicate(item: HistoryItemForDisplay): boolean {
+    if (!this.isNoteFilterEnabled && !this.isPurposeFilterEnabled) {
       return true;
     }
-    if (this.noticeCheckbox && (item.notices?.length ?? 0 > 0)) {
+    if (this.isNoteFilterEnabled && (item.notes.notices?.length ?? 0 > 0)) {
       return true;
     }
-    if (this.purposeCheckbox && item.intention) {
+    if (this.isPurposeFilterEnabled && item.notes.intention) {
       return true;
     }
 
     return false;
   }
 
-  private textFilterPredicate(item: OperationWithNotes): boolean {
+  private textFilterPredicate(item: HistoryItemForDisplay): boolean {
     const search = this.search;
 
     if (
@@ -374,117 +523,34 @@ export default class OperationList extends Vue {
     return false;
   }
 
-  private resetFilter() {
-    this.onResetFilter();
-  }
-
-  private onSelectOperations(...indexes: number[]) {
-    this.selectedSequences = indexes.map((index) => index + 1);
-
-    this.onSelectOperation(this.selectedSequences[0]);
-  }
-
-  private openOperationContextMenu(target: {
-    itemIndex: number;
-    x: number;
-    y: number;
-  }) {
-    if ((this as any).$isViewerMode || !this.operationContextEnabled) {
-      return;
+  @Watch("getCheckedItems")
+  private clearCheckedItems(
+    newValue: {
+      index: number;
+      operation: OperationForGUI;
+    }[]
+  ): void {
+    if (newValue.length === 0 && this.checkedItems.length !== 0) {
+      this.checkedItems = [];
     }
+  }
 
-    this.contextMenuOpened = false;
-
-    // for close and  open animation.
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.contextMenuX = target.x;
-        this.contextMenuY = target.y;
-        this.contextMenuInfo = {
-          sequence: target.itemIndex + 1,
-          selectedSequences: this.selectedSequences,
-        };
-        this.contextMenuOpened = true;
-      }, 100);
+  @Watch("checkedItems")
+  private updateCheckedOperationList(): void {
+    const checkedOperations = this.checkedItems.map(({ index, operation }) => {
+      return { index, operation };
+    });
+    this.$store.commit("operationHistory/setCheckedOperations", {
+      checkedOperations,
     });
   }
 
-  private get selectedOperationIndexes() {
-    return this.selectedSequences.map((sequence) => sequence - 1);
-  }
-
-  private get checkedOperationIndexes() {
-    return this.checkedOperations.map(({ index }) => {
-      return index;
-    });
-  }
-
-  private get autoOperationIndexes() {
-    const autoOperationIndexes = [];
-    for (const [index, { operation }] of this.history.entries()) {
-      if (operation.isAutomatic) {
-        autoOperationIndexes.push(index);
-      }
-    }
-    console.log(autoOperationIndexes);
-    return autoOperationIndexes;
-  }
-
-  private get disabledOperationIndexes() {
-    const disabledIndexes = [];
-    let isCounting = false;
-
-    for (const [index, { operation }] of this.history.entries()) {
-      if (operation.type === "pause_capturing") {
-        isCounting = true;
-        continue;
-      }
-
-      if (operation.type === "resume_capturing") {
-        isCounting = false;
-        continue;
-      }
-
-      if (isCounting) {
-        disabledIndexes.push(index);
-      }
-    }
-
-    return disabledIndexes;
-  }
-
-  private get displayedHistory(): OperationHistory {
-    return this.history.map((operationWithNotes) => {
-      if (!operationWithNotes.operation.elementInfo) {
-        return operationWithNotes;
-      }
-
-      const elementInfo = operationWithNotes.operation.elementInfo;
-
-      const elementInfoForDisplay: ElementInfo = {
-        tagname: elementInfo.tagname,
-        text: elementInfo.text
-          ? elementInfo.text
-          : elementInfo.value
-          ? elementInfo.value
-          : "",
-        xpath: elementInfo.xpath,
-        value: elementInfo.value,
-        checked: elementInfo.checked,
-        attributes: elementInfo.attributes,
-      };
-
-      return {
-        operation: OperationForGUI.createFromOtherOperation({
-          other: operationWithNotes.operation,
-          overrideParams: {
-            elementInfo: elementInfoForDisplay,
-          },
-        }),
-        bugs: operationWithNotes.bugs,
-        notices: operationWithNotes.notices,
-        intention: operationWithNotes.intention,
-      };
+  private contextmenu(itemIndex: number, event: MouseEvent) {
+    event.preventDefault();
+    this.openOperationContextMenu({
+      itemIndex,
+      x: event.clientX,
+      y: event.clientY,
     });
   }
 
@@ -492,17 +558,109 @@ export default class OperationList extends Vue {
     event.stopPropagation();
   }
 
-  private updateCheckedOperationList(indexes: number[]): void {
-    const checkedOperations = this.displayedHistory
-      .map((history, index) => {
-        return { index, operation: history.operation };
-      })
-      .filter(({ index }) => {
-        return indexes.includes(index);
-      });
-    this.$store.commit("operationHistory/setCheckedOperations", {
-      checkedOperations,
+  private keyDown(event: KeyboardEvent): void {
+    const keyToAction = new Map([
+      ["ArrowUp", this.prev],
+      ["ArrowDown", this.next],
+      ["ArrowRight", this.pageForward],
+      ["ArrowLeft", this.pageBack],
+    ]);
+
+    const action = keyToAction.get(event.key) ?? (() => undefined);
+
+    action();
+  }
+
+  private prev() {
+    const destItem = this.displayedHistoryItems[this.currentItemIndex - 1];
+
+    if (destItem) {
+      this.onSelectOperations(destItem.index);
+      this.switchTablePage(destItem.index);
+    }
+  }
+
+  private next() {
+    const destItem = this.displayedHistoryItems[this.currentItemIndex + 1];
+
+    if (destItem) {
+      this.onSelectOperations(destItem.index);
+      this.switchTablePage(destItem.index);
+    }
+  }
+
+  private switchTablePage(itemIndex: number) {
+    const itemsPerPage =
+      this.itemsPerPage > 0
+        ? this.itemsPerPage
+        : this.displayedHistoryItems.length;
+
+    this.page = Math.floor(itemIndex / itemsPerPage) + 1;
+  }
+
+  private scrollToTableRow(itemIndex: number) {
+    const itemsPerPage =
+      this.itemsPerPage > 0
+        ? this.itemsPerPage
+        : this.displayedHistoryItems.length;
+
+    const rowHeight = 29;
+
+    this.$vuetify.goTo(rowHeight * Math.floor(itemIndex % itemsPerPage), {
+      container: ".v-data-table__wrapper:first-child",
+      duration: 100,
     });
+  }
+
+  private pageForward() {
+    const destIndex = this.currentItemIndex + this.itemsPerPage;
+    const destItem =
+      this.displayedHistoryItems[
+        destIndex > this.displayedHistoryItems.length - 1
+          ? this.displayedHistoryItems.length - 1
+          : destIndex
+      ];
+
+    if (destItem) {
+      this.onSelectOperations(destItem.index);
+      this.page++;
+    }
+  }
+
+  private pageBack() {
+    const destIndex = this.currentItemIndex - this.itemsPerPage;
+    const destItem = this.displayedHistoryItems[destIndex < 0 ? 0 : destIndex];
+
+    if (destItem) {
+      this.onSelectOperations(destItem.index);
+      this.page--;
+    }
+  }
+
+  private get currentItemIndex() {
+    return this.displayedHistoryItems.findIndex(
+      ({ index }) => index === this.selectedOperationIndexes[0]
+    );
+  }
+
+  private get displayedHistoryStr() {
+    return JSON.stringify(this.displayedHistoryItems);
+  }
+
+  @Watch("itemsPerPage")
+  @Watch("selectedOperationIndexes")
+  @Watch("displayedHistoryStr")
+  private resetPosition() {
+    const currentItemIndex = this.selectedOperationIndexes[0];
+
+    const itemIndex = this.displayedHistoryItems.findIndex(
+      ({ index }) => index === currentItemIndex
+    );
+
+    if (itemIndex !== -1) {
+      this.switchTablePage(itemIndex);
+      this.scrollToTableRow(itemIndex);
+    }
   }
 }
 </script>
@@ -516,10 +674,6 @@ td
   white-space: nowrap
   text-overflow: ellipsis
   max-width: 150px
-
-.selected
-  td
-    font-weight: inherit
 
 #operation-list
   position: relative
@@ -552,6 +706,17 @@ td
 .seq-col
   padding-right: 8px !important
 
-td
-  height: 30px !important
+.marked
+  color: #44A
+  background-color: #F3F3FF
+
+.disabled
+  color: #888
+  font-style: italic
+  background-color: rgba(0,0,0,0.12)
+
+.selected
+  background-color: lemonchiffon !important
+  font-weight: bold
+  color: chocolate
 </style>

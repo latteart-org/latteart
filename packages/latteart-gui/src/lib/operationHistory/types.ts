@@ -21,6 +21,8 @@ import {
   ElementInfo,
   TestResultForRepository,
   TestResultComparisonResultForRepository,
+  Note,
+  VideoFrame,
 } from "latteart-client";
 
 /**
@@ -80,6 +82,7 @@ export interface ScreenDef {
 export interface WindowInfo {
   text: string;
   value: string;
+  title: string;
 }
 
 export interface RouterPushValueByName {
@@ -117,6 +120,7 @@ export type AutofillCondition = {
   locator: string;
   locatorMatchType: LocatorMatchType;
   inputValue: string;
+  iframeIndex?: number;
 };
 
 export interface AutoOperationSetting {
@@ -141,15 +145,6 @@ export interface ScreenDefinitionConditionGroup {
   }>;
 }
 
-interface ApiNote {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
-}
-
 export type TestResult = Omit<
   TestResultForRepository,
   "testSteps" | "coverageSources"
@@ -157,16 +152,16 @@ export type TestResult = Omit<
   testSteps: {
     id: string;
     operation: Operation;
-    intention: ApiNote | null;
-    bugs: ApiNote[];
-    notices: ApiNote[];
+    intention: Note | null;
+    bugs: Note[];
+    notices: Note[];
   }[];
 };
 
 export type TestResultSummary = Pick<
-  TestResult,
-  "id" | "name" | "parentTestResultId"
->;
+  TestResultForRepository,
+  "id" | "name" | "parentTestResultId" | "initialUrl" | "testingTime"
+> & { testPurposes: { value: string }[]; creationTimestamp: number };
 
 export type AutoOperation = {
   input: string;
@@ -174,6 +169,8 @@ export type AutoOperation = {
   elementInfo: ElementInfo | null;
   title: string;
   url: string;
+  timestamp: string;
+  iframeIndex?: number;
 };
 
 export type OperationForReplay = AutoOperation & {
@@ -190,7 +187,18 @@ export interface NoteDialogInfo {
   imageFilePath: string;
   sequence: number;
   maxSequence: number;
+  videoFilePath: string;
 }
 
 export type TestResultComparisonResult =
   TestResultComparisonResultForRepository;
+
+export type ScreenImage = {
+  background: { imageFileUrl: string } | { videoFileUrl: string; time: number };
+  overlay?: {
+    width: number;
+    height: number;
+    offset?: { x?: number; y?: number };
+    markerRect?: { top: number; left: number; width: number; height: number };
+  };
+};

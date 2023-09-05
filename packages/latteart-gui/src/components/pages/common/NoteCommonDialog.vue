@@ -67,13 +67,21 @@
         </v-combobox>
 
         <v-checkbox
-          v-if="isCapturing && oldIndex === null"
+          v-if="isCapturing && oldIndex === null && mediaType === 'image'"
           v-model="shouldTakeScreenshot"
           :disabled="isAlertVisible"
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <thumbnail-image v-if="isThumbnailVisible" :imageFileUrl="screenshot" />
+
+        <thumbnail-image v-if="screenshot" :imageFileUrl="screenshot" />
+
+        <v-btn
+          v-if="video"
+          :disabled="isPictureInPictureVideoDisplayed"
+          @click="displayPictureInPictureVideo"
+          >{{ $store.getters.message("note-edit.check-video") }}</v-btn
+        >
       </template>
     </execute-dialog>
   </div>
@@ -88,6 +96,8 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -111,6 +121,7 @@ export default class NoteCommonDialog extends Vue {
   private newNoteDetails = "";
   private newTags: string[] = [];
   private screenshot = "";
+  private video = "";
 
   private oldSequence: number | null = null;
   private newTargetSequence: number | null = null;
@@ -119,8 +130,6 @@ export default class NoteCommonDialog extends Vue {
   private shouldTakeScreenshot = false;
 
   private isAlertVisible = false;
-
-  private isThumbnailVisible = false;
 
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
@@ -141,6 +150,7 @@ export default class NoteCommonDialog extends Vue {
     this.oldIndex = this.noteInfo.index;
     this.oldTags = this.noteInfo.tags;
     this.screenshot = this.noteInfo.imageFilePath;
+    this.video = this.noteInfo.videoFilePath;
     this.newNote = this.oldNote;
     this.newNoteDetails = this.oldNoteDetails;
     this.newTags = [...this.oldTags];
@@ -148,10 +158,6 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
-    this.isThumbnailVisible = false;
-    this.$nextTick(() => {
-      this.isThumbnailVisible = true;
-    });
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -162,6 +168,20 @@ export default class NoteCommonDialog extends Vue {
     return this.isAlertVisible
       ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
       : "";
+  }
+
+  private get mediaType() {
+    return (this.$store.state as RootState).projectSettings.config
+      .captureMediaSetting.mediaType;
+  }
+  private displayPictureInPictureVideo() {
+    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
+      isDisplayed: true,
+    });
+  }
+  private get isPictureInPictureVideoDisplayed() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .isPictureInPictureWindowDisplayed;
   }
 
   private execute(): void {

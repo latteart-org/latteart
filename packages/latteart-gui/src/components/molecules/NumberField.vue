@@ -66,13 +66,14 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class NumberField extends Vue {
   @Prop({ type: String, default: "" }) public readonly id!: string;
-  @Prop({ type: Number, default: 0 }) public readonly value!: number;
+  @Prop({ type: Number }) public readonly value!: number;
   @Prop({ type: Number, default: 9999 }) public readonly maxValue!: number;
   @Prop({ type: Number, default: 0 }) public readonly minValue!: number;
   @Prop({ type: String }) public readonly label!: string;
   @Prop({ type: String }) public readonly suffix!: string;
   @Prop({ type: Boolean, default: false }) public readonly arrowOnly!: boolean;
   @Prop({ type: Boolean, default: false }) public readonly disabled!: boolean;
+  @Prop({ type: Boolean, default: false }) public readonly allowBlank!: boolean;
 
   private internalValue: number | string = 0;
   private clicking = false;
@@ -93,7 +94,7 @@ export default class NumberField extends Vue {
   private onBlur() {
     if (!this.clicking) {
       const num = this.internalValue;
-      if (num === "") {
+      if (num === "" && !this.allowBlank) {
         this.internalValue = this.minValue;
       } else if (this.maxValue !== undefined && num > this.maxValue) {
         this.internalValue = this.maxValue;
@@ -108,11 +109,21 @@ export default class NumberField extends Vue {
     this.clicking = true;
   }
 
+  private disabledInternalValue(): boolean {
+    return (
+      this.internalValue === "" ||
+      this.internalValue === undefined ||
+      this.internalValue === null
+    );
+  }
+
   private increase(): void {
     if (this.internalValue < this.maxValue) {
       !this.internalValue
         ? this.update("1")
         : this.update(`${Number(this.internalValue) + 1}`);
+    } else if (this.disabledInternalValue()) {
+      this.update("1");
     }
     this.clicking = false;
   }
@@ -122,6 +133,8 @@ export default class NumberField extends Vue {
       !this.internalValue
         ? this.update("-1")
         : this.update(`${Number(this.internalValue) - 1}`);
+    } else if (this.disabledInternalValue()) {
+      this.update("0");
     }
     this.clicking = false;
   }

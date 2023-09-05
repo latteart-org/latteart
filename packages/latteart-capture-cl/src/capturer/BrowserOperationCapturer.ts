@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Operation } from "../Operation";
+import { Operation, ScreenElements } from "../Operation";
 import LoggingService from "../logger/LoggingService";
 import WebBrowser from "./browser/WebBrowser";
 import { CaptureConfig } from "../CaptureConfig";
@@ -23,7 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedData, captureScript } from "./captureScript";
+import { CapturedData } from "./captureScript";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -46,8 +46,9 @@ export default class BrowserOperationCapturer {
     canGoForward: boolean;
   }) => void;
   private onBrowserWindowsChanged: (
-    windowHandles: string[],
-    currentWindowHandle: string
+    windows: { windowHandle: string; url: string; title: string }[],
+    currentWindowHandle: string,
+    currentWindowHostNameChanged: boolean
   ) => void;
   private onAlertVisibilityChanged: (isVisible: boolean) => void;
   private onError: (error: Error) => void;
@@ -75,8 +76,9 @@ export default class BrowserOperationCapturer {
         canGoForward: boolean;
       }) => void;
       onBrowserWindowsChanged: (
-        windowHandles: string[],
-        currentWindowHandle: string
+        windows: { windowHandle: string; url: string; title: string }[],
+        currentWindowHandle: string,
+        currentWindowHostNameChanged: boolean
       ) => void;
       onAlertVisibilityChanged: (isVisible: boolean) => void;
       onError: (error: Error) => void;
@@ -126,7 +128,7 @@ export default class BrowserOperationCapturer {
     let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
-    let screenElements: CapturedData["elements"] = [];
+    let screenElements: ScreenElements[] | undefined = [];
 
     while (this.isCapturing()) {
       try {
@@ -134,13 +136,11 @@ export default class BrowserOperationCapturer {
 
         if (!this.alertIsVisible) {
           pageSource = await this.client.getCurrentPageText();
-          screenElements = [
-            ...((await this.client.execute(
-              captureScript.collectScreenElements
-            )) ?? []),
-          ];
 
-          if (shouldDeleteCapturedData) {
+          screenElements =
+            await this.webBrowser.currentWindow?.collectAllFrameScreenElements();
+
+          if (shouldDeleteCapturedData && this.config.mediaType === "image") {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
             shouldDeleteCapturedData = false;
           }
@@ -152,19 +152,35 @@ export default class BrowserOperationCapturer {
         }
         // Wait.
         await ((msec) => new Promise((resolve) => setTimeout(resolve, msec)))(
-          100
+          200
         );
+
+        const beforeWindow = this.webBrowser.currentWindow;
 
         // Delete actions after executing all registered actions.
-        await Promise.all(
-          this.actionQueue.map(async (action) => {
-            await action(this.webBrowser!);
-          })
-        );
-        this.actionQueue = [];
+        if (!this.alertIsVisible) {
+          for (const action of [...this.actionQueue]) {
+            try {
+              await action(this.webBrowser);
+
+              this.actionQueue.shift();
+            } catch (error) {
+              if (
+                error instanceof Error &&
+                error.name === "NoSuchWindowError"
+              ) {
+                LoggingService.debug(`${error}`);
+
+                break;
+              }
+
+              throw error;
+            }
+          }
+        }
 
         if (!this.isCapturing()) {
-          return;
+          break;
         }
 
         if (this.alertIsVisible) {
@@ -201,16 +217,13 @@ export default class BrowserOperationCapturer {
         }
 
         // Updates browser state.
-        await this.webBrowser.updateState();
-
-        if (this.webBrowser.isWindowSelecting) {
-          continue;
-        }
+        await this.webBrowser.updateState(beforeWindow);
 
         if (this.webBrowser.countWindows() === 0) {
+          LoggingService.info("No windows opened.");
           await this.webBrowser.close();
 
-          return;
+          break;
         }
 
         // Capture operations.
@@ -223,9 +236,15 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
-          await currentWindow.getReadyToCapture();
+          const captureArch =
+            this.config.mediaType === "image" ? "pull" : "push";
+
+          await currentWindow.getReadyToCapture(captureArch);
           await currentWindow.captureScreenTransition();
-          await currentWindow.captureOperations();
+
+          if (captureArch === "pull") {
+            await currentWindow.captureOperations();
+          }
         }
       } catch (error) {
         if (!(error instanceof Error)) {
@@ -275,6 +294,38 @@ export default class BrowserOperationCapturer {
   }
 
   /**
+   * Register captured data.
+   * @param capturedData captured data.
+   * @param option option.
+   */
+  public async registerCapturedData(
+    capturedData: Omit<CapturedData, "eventInfo">,
+    option: {
+      shouldTakeScreenshot?: boolean;
+    } = {}
+  ) {
+    if (!this.webBrowser?.currentWindow) {
+      return;
+    }
+
+    try {
+      this.alertIsVisible = await this.client.alertIsVisible();
+      this.actionQueue.push(async (browser) => {
+        await browser.currentWindow?.registerCapturedData(
+          capturedData,
+          option.shouldTakeScreenshot ?? false
+        );
+      });
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      this.onError(error);
+    }
+  }
+
+  /**
    * Take a screenshot of the monitored screen.
    * If failed to take a screenshot, call a callback function and return empty string.
    * @param onError The callback when failed to take a screenshot.
@@ -306,35 +357,17 @@ export default class BrowserOperationCapturer {
     return this.webBrowser?.isOpened ?? false;
   }
 
-  public isWindowSelecting(): boolean {
-    return this.webBrowser?.isWindowSelecting ?? false;
-  }
-
   /**
    * Switch capturing window.
    * @param destWindowHandle Destination window handle.
    */
   public async switchCapturingWindow(destWindowHandle: string): Promise<void> {
-    if (!this.isCapturing) {
-      return;
-    }
-
-    await this.webBrowser?.unprotectAllWindow();
-    await this.webBrowser?.switchWindowTo(destWindowHandle);
-  }
-
-  public async switchCancel(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.unprotectAllWindow();
-  }
-
-  public async selectCapturingWindow(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.protectAllWindow();
+    this.actionQueue.push(async (browser) => {
+      if (!this.isCapturing) {
+        return;
+      }
+      await browser.changeCurrentWindow(destWindowHandle);
+    });
   }
 
   /**
@@ -382,14 +415,15 @@ export default class BrowserOperationCapturer {
     if (!this.capturingIsPaused && currentWindow) {
       this.capturingIsPaused = true;
 
+      const screenElements =
+        await currentWindow.collectAllFrameScreenElements();
+
       this.onGetOperation(
         currentWindow.createCapturedOperation({
           type: SpecialOperationType.PAUSE_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
+          screenElements,
         })
       );
     }
@@ -404,14 +438,15 @@ export default class BrowserOperationCapturer {
     if (this.capturingIsPaused && currentWindow) {
       this.capturingIsPaused = false;
 
+      const screenElements =
+        await currentWindow.collectAllFrameScreenElements();
+
       this.onGetOperation(
         currentWindow.createCapturedOperation({
           type: SpecialOperationType.RESUME_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
+          screenElements,
         })
       );
     }
@@ -423,6 +458,7 @@ export default class BrowserOperationCapturer {
       locator: string;
       locatorMatchType: "equals" | "contains";
       inputValue: string;
+      iframeIndex?: number;
     }[]
   ): Promise<void> {
     if (this.webBrowser?.currentWindow) {
@@ -523,37 +559,47 @@ export default class BrowserOperationCapturer {
         return;
       }
 
-      const xpath = operation.elementInfo.xpath.toLowerCase();
+      const operationType = operation.type;
+      const elementInfo = operation.elementInfo;
+      const xpath = elementInfo.xpath.toLowerCase();
 
-      switch (operation.type) {
-        case "click":
-          await this.client.clickElement(xpath);
-
-          return;
-
-        case "change":
-          if (operation.elementInfo.tagname.toLowerCase() === "select") {
+      const action = async () => {
+        switch (operationType) {
+          case "click":
             await this.client.clickElement(xpath);
-            await this.client.selectOption(xpath, operation.input);
-          }
+            break;
 
-          if (
-            ["input", "textarea"].includes(
-              operation.elementInfo.tagname.toLowerCase()
-            )
-          ) {
-            const inputValue =
-              operation.elementInfo.attributes.type === "date"
-                ? "00" + operation.input
-                : operation.input;
+          case "change":
+            if (elementInfo.tagname.toLowerCase() === "select") {
+              await this.client.clickElement(xpath);
+              await this.client.selectOption(xpath, operation.input);
+            }
 
-            await this.client.clearAndSendKeys(xpath, inputValue);
-          }
+            if (
+              ["input", "textarea"].includes(elementInfo.tagname.toLowerCase())
+            ) {
+              const attributes = elementInfo.attributes;
+              const inputValue =
+                attributes.type === "date" ||
+                attributes.type === "datetime-local"
+                  ? this.padDateValue(operation.input, attributes)
+                  : operation.input;
 
-          return;
+              await this.client.clearAndSendKeys(xpath, inputValue);
+            }
+            break;
 
-        default:
-          return;
+          default:
+            break;
+        }
+      };
+
+      if (elementInfo.iframe !== undefined) {
+        await this.client.doActionInIframes("runOperation", action, {
+          iframeIndexes: [elementInfo.iframe.index],
+        });
+      } else {
+        await action();
       }
     } catch (error) {
       if (
@@ -587,5 +633,20 @@ export default class BrowserOperationCapturer {
       return false;
     }
     return currentWindow.canDoBrowserForward();
+  }
+
+  private padDateValue(value: string, attributes: { [key: string]: string }) {
+    const yyyymmdd = value.split("-");
+
+    if (attributes.max) {
+      const max = attributes.max.split("-")[0].length;
+      const year =
+        max < 4 || max > 6
+          ? yyyymmdd[0].padStart(6, "0")
+          : yyyymmdd[0].padStart(max, "0");
+
+      return `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
+    }
+    return `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
   }
 }

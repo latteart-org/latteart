@@ -16,16 +16,18 @@
 
 import {
   SerializeElementInfo,
-  TestResultExportDataV2,
-  HistoryItemExportDataV2,
+  TestResultExportDataV3,
+  HistoryItemExportDataV3,
 } from "@/interfaces/exportData";
-import { GetTestResultResponse } from "@/interfaces/TestResults";
+import { ExportTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
 
-export function serializeTestResult(testResult: GetTestResultResponse): string {
+export function serializeTestResult(
+  testResult: ExportTestResultResponse
+): string {
   const { historyEntries, notes } = testResult.testSteps.reduce(
     (acc, testStep, index) => {
-      const testStepEntry: [number, HistoryItemExportDataV2] = [
+      const testStepEntry: [number, HistoryItemExportDataV3] = [
         index + 1,
         {
           testStep: {
@@ -48,6 +50,7 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
               isAutomatic: testStep.operation.isAutomatic,
               scrollPosition: testStep.operation.scrollPosition,
               clientSize: testStep.operation.clientSize,
+              videoFrame: testStep.operation.videoFrame,
             },
             inputElements: testStep.operation.inputElements.map((element) =>
               convertToExportableElement(element)
@@ -79,15 +82,15 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
       return acc;
     },
     {
-      historyEntries: Array<[number, HistoryItemExportDataV2]>(),
-      notes: [] as TestResultExportDataV2["notes"],
+      historyEntries: Array<[number, HistoryItemExportDataV3]>(),
+      notes: Array<TestResultExportDataV3["notes"][0]>(),
     }
   );
 
   const history = Object.fromEntries(historyEntries);
 
-  const data: TestResultExportDataV2 = {
-    version: 2,
+  const data: TestResultExportDataV3 = {
+    version: 3,
     name: testResult.name,
     sessionId: testResult.id,
     startTimeStamp: testResult.startTimeStamp,
@@ -105,6 +108,7 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
         ),
       };
     }),
+    creationTimestamp: testResult.creationTimestamp,
   };
 
   return JSON.stringify(data);
@@ -123,6 +127,11 @@ function convertToExportableElement(element: SerializeElementInfo) {
     checked: element.checked ?? false,
     attributes: element.attributes,
     boundingRect: element.boundingRect,
+    innerHeight: element.innerHeight,
+    innerWidth: element.innerWidth,
+    outerHeight: element.outerHeight,
+    outerWidth: element.outerWidth,
     textWithoutChildren: element.textWithoutChildren ?? "",
+    iframe: element.iframe,
   };
 }

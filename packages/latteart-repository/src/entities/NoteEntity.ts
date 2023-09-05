@@ -23,11 +23,13 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  RelationId,
 } from "typeorm";
 import { ScreenshotEntity } from "./ScreenshotEntity";
 import { TagEntity } from "./TagEntity";
 import { TestResultEntity } from "./TestResultEntity";
 import { TestStepEntity } from "./TestStepEntity";
+import { VideoEntity } from "./VideoEntity";
 
 @Entity("NOTES")
 export class NoteEntity {
@@ -43,12 +45,15 @@ export class NoteEntity {
   details: string = "";
 
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-  @Column({ name: "timestamp" })
+  @Column({ name: "timestamp", default: 0 })
   timestamp: number = 0;
 
   @ManyToOne(() => TestResultEntity, (testResult) => testResult.notes)
   @JoinColumn({ name: "test_result_id" })
   testResult?: TestResultEntity;
+
+  @RelationId((note: NoteEntity) => note.testResult)
+  testResultId?: string;
 
   @ManyToMany(() => TagEntity, (tag) => tag.notes, { cascade: true })
   @JoinTable({
@@ -71,6 +76,16 @@ export class NoteEntity {
   })
   @JoinColumn({ name: "screenshot_id" })
   screenshot?: ScreenshotEntity;
+
+  @ManyToOne(() => VideoEntity, (video) => video.note, {
+    cascade: true,
+  })
+  @JoinColumn({ name: "video_id" })
+  video?: VideoEntity;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "video_time", nullable: true })
+  videoTime?: number = 0;
 
   constructor(props: Partial<Omit<NoteEntity, "id">> = {}) {
     Object.assign(this, props);

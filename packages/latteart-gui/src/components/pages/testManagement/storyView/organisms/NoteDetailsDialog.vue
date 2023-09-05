@@ -15,21 +15,17 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened">
-    <template v-slot:title>{{
-      $store.getters.message("note-details-dialog.details")
-    }}</template>
-    <template v-slot:content>
+  <execute-dialog
+    :opened="opened"
+    :title="$store.getters.message('note-details-dialog.details')"
+    @accept="
+      execute();
+      close();
+    "
+    @cancel="close()"
+  >
+    <template>
       <v-list class="note-details-dialog">
-        <v-list-item v-if="isNote">
-          <v-list-item-content>
-            <v-list-item-title>{{
-              $store.getters.message("note-details-dialog.status")
-            }}</v-list-item-title>
-            <p class="break-all">{{ status }}</p>
-          </v-list-item-content>
-        </v-list-item>
-
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>{{
@@ -48,54 +44,110 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item v-if="tags.length > 0 && isNote" class="mb-2">
+        <v-list-item class="mb-2">
           <v-list-item-content>
             <v-list-item-title>{{
               $store.getters.message("note-details-dialog.tags")
             }}</v-list-item-title>
-            <note-tag-chip-group :tags="tags"></note-tag-chip-group>
+            <v-combobox
+              :items="tagsItem"
+              :search-input.sync="search"
+              v-model="newTags"
+              multiple
+              small-chips
+              hide-selected
+            >
+              <template v-slot:no-data>
+                <v-list-item v-if="search">
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      No results matching "<strong>{{ search }}</strong
+                      >". Press <kbd>enter</kbd> to create a new one
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-combobox>
           </v-list-item-content>
         </v-list-item>
-        <popup-image v-if="isNote" :imageFileUrl="imageFilePath" />
+
+        <video-display v-if="videoUrl" :videoUrl="videoUrl" />
+        <popup-image v-if="imageFilePath" :imageFileUrl="imageFilePath" />
       </v-list>
     </template>
-    <template v-slot:footer>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" text @click="close()">{{
-        $store.getters.message("common.close")
-      }}</v-btn>
-    </template>
-  </scrollable-dialog>
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
+    />
+  </execute-dialog>
 </template>
 
 <script lang="ts">
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
-import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 
 @Component({
   components: {
-    "scrollable-dialog": ScrollableDialog,
-    "note-tag-chip-group": NoteTagChipGroup,
+    "execute-dialog": ExecuteDialog,
     "popup-image": PopupImage,
+    "error-message-dialog": ErrorMessageDialog,
+    "video-display": VideoDisplay,
   },
 })
 export default class NoteDetailsDialog extends Vue {
   @Prop({ type: Boolean, default: false }) opened!: boolean;
-  @Prop({ type: String, default: "" }) type!: string;
-  @Prop({ type: String, default: "" }) status!: string;
+  @Prop({ type: String, default: "" }) testResultId!: string;
+  @Prop({ type: String, default: "" }) noteId!: string;
   @Prop({ type: String, default: "" }) summary!: string;
   @Prop({ type: String, default: "" }) details!: string;
   @Prop({ type: Array, default: [] }) tags!: string[];
   @Prop({ type: String, default: "" }) imageFilePath!: string;
+  @Prop({ type: String, default: "" }) videoUrl!: string;
 
-  private get isNote() {
-    return this.type !== "intention";
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
+
+  private search = "";
+  private newTags: string[] = [];
+  private tagsItem = noteTagPreset.items.map((item) => {
+    return item.name;
+  });
+
+  @Watch("opened")
+  private initialize() {
+    if (!this.opened) {
+      return;
+    }
+    this.newTags = [...this.tags];
   }
 
-  private close() {
+  private async execute() {
+    try {
+      await this.$store.dispatch("testManagement/updateNotes", {
+        testResultId: this.testResultId,
+        noteId: this.noteId,
+        value: this.summary,
+        details: this.details,
+        tags: this.newTags,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      } else {
+        throw error;
+      }
+    }
+
+    this.$emit("execute");
+  }
+
+  private close(): void {
     this.$emit("close");
   }
 }

@@ -73,10 +73,7 @@ ${CodeFormatter.prependTextToAllLines(pageObject.comment, " * ")}
         useMultiLocator
       );
 
-    const methodStrings = this.generateMethodStrings(
-      pageObject.methods,
-      useMultiLocator
-    );
+    const methodStrings = this.generateMethodStrings(pageObject.methods);
 
     const pageObjectName = this.nameGenerator.pageObject.generate(
       pageObject.id
@@ -158,8 +155,16 @@ export default ${pageObjectName};
         }
 
         return useMultiLocator
-          ? generateFindElementMultiAccessorString(identifier, elem.locators)
-          : generateAccessorString(identifier, elem.locators);
+          ? generateFindElementMultiAccessorString(
+              identifier,
+              elem.locators,
+              elem.iframe?.index
+            )
+          : generateAccessorString(
+              identifier,
+              elem.locators,
+              elem.iframe?.index
+            );
       }
     );
   }
@@ -167,13 +172,14 @@ export default ${pageObjectName};
   private static generateCheckBoxAccessorString(
     identifier: string,
     locators: Locator[],
-    useMultiLocator: boolean
+    useMultiLocator: boolean,
+    iframeIndex?: number
   ): string {
     return `\
 ${
   useMultiLocator
-    ? generateFindElementMultiAccessorString(identifier, locators)
-    : generateAccessorString(identifier, locators)
+    ? generateFindElementMultiAccessorString(identifier, locators, iframeIndex)
+    : generateAccessorString(identifier, locators, iframeIndex)
 }
 
 async set_${identifier}(isClick) {
@@ -192,10 +198,7 @@ async set_${identifier}(isClick) {
       .join("\n");
   }
 
-  private generateMethodStrings(
-    methods: PageObjectMethod[],
-    useMultiLocator: boolean
-  ) {
+  private generateMethodStrings(methods: PageObjectMethod[]) {
     return methods.map((method) => {
       const argsString = JSPageObjectCodeGenerator.generateArgsString(method);
 
@@ -207,8 +210,7 @@ async set_${identifier}(isClick) {
             const clickEventOperationString =
               JSPageObjectCodeGenerator.generateClickEventOperationString(
                 operation.target,
-                radioButtons,
-                useMultiLocator
+                radioButtons
               );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
@@ -217,8 +219,7 @@ async set_${identifier}(isClick) {
           if (operation.type === "change") {
             const changeEventOperationString =
               JSPageObjectCodeGenerator.generateChangeEventOperationString(
-                operation.target,
-                useMultiLocator
+                operation.target
               );
 
             return [changeEventOperationString];
@@ -294,8 +295,7 @@ ${Array.from(args)
 
   private static generateClickEventOperationString(
     element: PageObjectElement,
-    radioButtons: Set<string>,
-    useMultiLocator: boolean
+    radioButtons: Set<string>
   ) {
     if (element.type === "RadioButton" && element.identifier) {
       if (radioButtons.has(element.identifier)) {
@@ -313,25 +313,18 @@ ${Array.from(args)
       return `await this.set_${identifier}(${identifier});`;
     }
 
-    return useMultiLocator
-      ? `await (await this.${identifier}).click();`
-      : `await this.${identifier}.click();`;
+    return `await (await this.${identifier}).click();`;
   }
 
   private static generateChangeEventOperationString(
-    element: PageObjectElement,
-    useMultiLocator: boolean
+    element: PageObjectElement
   ) {
     const identifier = element.identifier;
 
     if (element.type === "SelectBox") {
-      return useMultiLocator
-        ? `await (await this.${identifier}).selectByAttribute('value', ${identifier});`
-        : `await this.${identifier}.selectByAttribute('value', ${identifier});`;
+      return `await (await this.${identifier}).selectByAttribute('value', ${identifier});`;
     }
 
-    return useMultiLocator
-      ? `await (await this.${identifier}).setValue(${identifier});`
-      : `await this.${identifier}.setValue(${identifier});`;
+    return `await (await this.${identifier}).setValue(${identifier});`;
   }
 }

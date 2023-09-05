@@ -25,16 +25,19 @@ import { TestPurposeServiceImpl } from "./TestPurposeService";
 import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
-import { convertToExportableConfig } from "@/services/helper/configHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 import { Session } from "@/interfaces/Sessions";
 import { Story } from "@/interfaces/Stories";
 import {
+  convertGraphViewForSnapshot,
+  convertTestStepsForSnapshot,
   createAttachedFiles,
-  createNotes,
+  convertNotesForSnapshot,
   createTestResultFiles,
+  convertViewOptionForSnapshot,
 } from "./helper/snapshotHelper";
+import { VideoFrame } from "@/interfaces/Videos";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -195,6 +198,10 @@ export class SnapshotFileRepositoryServiceImpl
       return;
     }
     const testResultId = testResultIds[0];
+    const testResult = await this.service.testResult.getTestResult(
+      testResultId
+    );
+
     const testStepIds = await this.service.testResult.collectAllTestStepIds(
       testResultId
     );
@@ -203,36 +210,9 @@ export class SnapshotFileRepositoryServiceImpl
 
     const testSteps = await Promise.all(
       testStepIds.map(async (testStepId) => {
-        return this.service.testStep.getTestStep(testStepId);
-      })
-    );
+        const testStep = await this.service.testStep.getTestStep(testStepId);
 
-    const history = await Promise.all(
-      testSteps.map(async (testStep, index) => {
-        const operation = {
-          sequence: index + 1,
-          input: testStep.operation.input,
-          type: testStep.operation.type,
-          elementInfo: testStep.operation.elementInfo,
-          title: testStep.operation.title,
-          url: testStep.operation.url,
-          imageFileUrl: path.join(
-            "testResult",
-            path.basename(testStep.operation.imageFileUrl ?? "")
-          ),
-          timestamp: testStep.operation.timestamp,
-          inputElements: testStep.operation.inputElements,
-          windowHandle: testStep.operation.windowHandle,
-          keywordTexts: testStep.operation.keywordTexts,
-          isAutomatic: testStep.operation.isAutomatic,
-        };
-
-        await this.copyScreenshot(
-          testStep.operation.imageFileUrl,
-          destTestResultPath
-        );
-
-        const notes = (
+        const notices = (
           await Promise.all(
             testStep.notices.map(async (noteId) => {
               const note = await this.service.note.getNote(noteId);
@@ -240,25 +220,6 @@ export class SnapshotFileRepositoryServiceImpl
             })
           )
         ).flat();
-        const notices =
-          (await Promise.all(
-            notes.map(async (note) => {
-              await this.copyScreenshot(note.imageFileUrl, destTestResultPath);
-
-              return {
-                sequence: index + 1,
-                id: note.id,
-                type: note.type,
-                value: note.value,
-                details: note.details,
-                tags: note.tags,
-                imageFileUrl: note.imageFileUrl
-                  ? path.join("testResult", path.basename(note.imageFileUrl))
-                  : "",
-                timestamp: this.service.timestamp.unix().toString(),
-              };
-            })
-          )) ?? [];
 
         const testPurposeId = testStep.intention;
         const intention = testPurposeId
@@ -267,64 +228,34 @@ export class SnapshotFileRepositoryServiceImpl
           : null;
 
         return {
-          operation,
-          bugs: [],
+          operation: testStep.operation,
           notices,
           intention,
         };
       })
     );
 
-    const testResult = await this.service.testResult.getTestResult(
-      testResultId
+    const { config } = await this.service.config.getProjectConfig("");
+    const viewOption = convertViewOptionForSnapshot(config);
+
+    // output log file
+    const history = convertTestStepsForSnapshot(testSteps);
+    await this.service.workingFileRepository.outputFile(
+      path.join(destTestResultPath, "log.js"),
+      `const historyLog = ${JSON.stringify({
+        history,
+        coverageSources: testResult?.coverageSources ?? [],
+      })}`,
+      "utf8"
     );
 
-    const { config } = await this.service.config.getProjectConfig("");
-    const viewOption = {
-      node: {
-        unit: config.screenDefinition.screenDefType,
-        definitions: config.screenDefinition.conditionGroups
-          .filter(({ isEnabled }) => isEnabled)
-          .map((group) => {
-            return {
-              name: group.screenName,
-              conditions: group.conditions
-                .filter(({ isEnabled }) => isEnabled)
-                .map((condition) => {
-                  return {
-                    target: condition.definitionType,
-                    method: condition.matchType,
-                    value: condition.word,
-                  };
-                }),
-            };
-          }),
-      },
-    };
+    await this.copyAssets(history, destTestResultPath);
 
+    // output sequence view file
     const sequenceViewData = await this.service.testResult.generateSequenceView(
       testResultId,
       viewOption
     );
-
-    const graphViewData = await this.service.testResult.generateGraphView(
-      testResultId,
-      viewOption
-    );
-
-    const historyLogData = {
-      history,
-      coverageSources: testResult?.coverageSources ?? [],
-    };
-
-    // output log file
-    await this.service.workingFileRepository.outputFile(
-      path.join(destTestResultPath, "log.js"),
-      `const historyLog = ${JSON.stringify(historyLogData)}`,
-      "utf8"
-    );
-
-    // output sequence view file
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "sequence-view.js"),
       `const sequenceView = ${JSON.stringify(sequenceViewData)}`,
@@ -332,9 +263,15 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     // output graph view file
+    const graphViewData = await this.service.testResult.generateGraphView(
+      testResultId,
+      viewOption
+    );
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "graph-view.js"),
-      `const graphView = ${JSON.stringify(graphViewData)}`,
+      `const graphView = ${JSON.stringify(
+        convertGraphViewForSnapshot(graphViewData)
+      )}`,
       "utf8"
     );
 
@@ -344,6 +281,47 @@ export class SnapshotFileRepositoryServiceImpl
       "index.html",
       destSessionPath
     );
+  }
+
+  private async copyAssets(
+    history: {
+      operation: { imageFileUrl: string; videoFrame?: VideoFrame };
+      notices: { imageFileUrl: string; videoFrame?: VideoFrame }[];
+    }[],
+    destTestResultPath: string
+  ) {
+    await Promise.all(
+      history.map(async ({ operation, notices }) => {
+        if (operation.imageFileUrl !== "") {
+          await this.copyScreenshot(
+            path.basename(operation.imageFileUrl),
+            destTestResultPath
+          );
+        }
+
+        await Promise.all(
+          notices.map(async (notice) => {
+            if (notice.imageFileUrl !== "") {
+              await this.copyScreenshot(
+                path.basename(notice.imageFileUrl),
+                destTestResultPath
+              );
+            }
+          })
+        );
+      })
+    );
+
+    const videoUrls =
+      history.flatMap(({ operation, notices }) =>
+        [operation, ...notices].flatMap(({ videoFrame }) =>
+          videoFrame ? [videoFrame.url] : []
+        )
+      ) ?? [];
+
+    for (const videoUrl of videoUrls ?? []) {
+      await this.copyVideo(path.basename(videoUrl), destTestResultPath);
+    }
   }
 
   private async copyScreenshot(
@@ -360,6 +338,23 @@ export class SnapshotFileRepositoryServiceImpl
       fileName,
       path.join(destDirectoryName, fileName),
       "screenshot"
+    );
+  }
+
+  private async copyVideo(
+    sourceVideoFileUrl: string,
+    destDirectoryName: string
+  ) {
+    if (!sourceVideoFileUrl) {
+      return;
+    }
+
+    const fileName = sourceVideoFileUrl.split("/").slice(-1)[0];
+
+    await this.service.workingFileRepository.copyFile(
+      fileName,
+      path.join(destDirectoryName, fileName),
+      "video"
     );
   }
 
@@ -380,12 +375,20 @@ export class SnapshotFileRepositoryServiceImpl
               session.testResultFiles
             );
 
-            const notes = createNotes(story.id, sessionIdAlias, session.notes);
+            const notes = convertNotesForSnapshot(
+              story.id,
+              sessionIdAlias,
+              session.notes
+            );
 
             const testPurposes = session.testPurposes.map((testPurpose) => {
               return {
                 ...testPurpose,
-                notes: createNotes(story.id, sessionIdAlias, testPurpose.notes),
+                notes: convertNotesForSnapshot(
+                  story.id,
+                  sessionIdAlias,
+                  testPurpose.notes
+                ),
               };
             });
 
@@ -448,8 +451,7 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async outputConfigFile(outputDirPath: string, locale: string) {
-    const tempConfig = await this.service.config.getProjectConfig("");
-    const config = convertToExportableConfig(tempConfig);
+    const config = await this.service.config.getProjectConfig("");
     const configWithLocale = {
       ...config,
       locale,

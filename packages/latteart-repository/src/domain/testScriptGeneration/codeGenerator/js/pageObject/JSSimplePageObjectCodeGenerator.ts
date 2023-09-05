@@ -175,8 +175,7 @@ export default ${pageObjectName};
           if (operation.type === "click") {
             const clickEventOperationString =
               JSSimplePageObjectCodeGenerator.generateClickEventOperationString(
-                operation,
-                useMultiLocator
+                operation
               );
 
             return clickEventOperationString ? [clickEventOperationString] : [];
@@ -243,8 +242,7 @@ ${CodeFormatter.indentToAllLines(
     });
   }
   private static generateClickEventOperationString(
-    operation: PageObjectOperation,
-    useMultiLocator: boolean
+    operation: PageObjectOperation
   ) {
     const element = operation.target;
     const identifier = element.identifier;
@@ -253,11 +251,7 @@ ${CodeFormatter.indentToAllLines(
       return `await this.set_${identifier}('${operation.input}');`;
     }
 
-    if (identifier) {
-      return useMultiLocator
-        ? `await (await this.${identifier}).click();`
-        : `await this.${identifier}.click();`;
-    }
+    return `await (await this.${identifier}).click();`;
   }
 
   private static generateChangeEventOperationString(

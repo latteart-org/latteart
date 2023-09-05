@@ -18,7 +18,6 @@ import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
 import { ConfigsService } from "./ConfigsService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
-import { convertToExportableConfig } from "./helper/configHelper";
 import { serializeTestResult } from "./helper/testResultExportHelper";
 import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
@@ -69,21 +68,27 @@ export class ProjectExportService {
     const testResultEntities = await getRepository(TestResultEntity).find();
     return await Promise.all(
       testResultEntities.map(async (testResultEntity) => {
-        const screenshots =
-          await service.testResultService.collectAllTestStepScreenshots(
+        const testResult =
+          await service.testResultService.getTestResultForExport(
             testResultEntity.id
           );
-        const testResult = await service.testResultService.getTestResult(
-          testResultEntity.id
-        );
         if (!testResult) {
           throw new Error();
         }
+
+        const fileData = (
+          await service.testResultService.collectAllTestStepScreenshots(
+            testResultEntity.id
+          )
+        ).concat(
+          await service.testResultService.collectAllVideos(testResult.id)
+        );
+
         const serializedTestResult = serializeTestResult(testResult);
         return {
           testResultId: testResult.id,
           testResultFile: { fileName: "log.json", data: serializedTestResult },
-          screenshots,
+          fileData,
         };
       })
     );
@@ -134,9 +139,7 @@ export class ProjectExportService {
       configService: ConfigsService;
     }
   ) {
-    const tempConfig = await service.configService.getProjectConfig(projectId);
-
-    const config = convertToExportableConfig(tempConfig);
+    const config = await service.configService.getProjectConfig(projectId);
 
     return {
       fileName: "config.json",

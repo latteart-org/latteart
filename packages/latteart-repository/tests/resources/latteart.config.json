@@ -154,10 +154,9 @@
         "tags": []
       }
     },
-    "imageCompression": {
-      "command": "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-      "isDeleteSrcImage": true,
-      "isEnabled": true
+    "captureMediaSetting": {
+      "mediaType": "image",
+      "imageCompression": { "format": "png" }
     }
   }
 }

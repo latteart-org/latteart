@@ -71,10 +71,18 @@ export default class WindowContainer {
   }
 
   /**
-   * Holding window handles.
+   * Window handle and current url and current title of holding windows.
    */
-  public get windowHandles(): string[] {
-    return Array.from(this.windowHandleToManagedWindow.keys());
+  public get windows(): { windowHandle: string; url: string; title: string }[] {
+    return Array.from(this.windowHandleToManagedWindow.entries()).map(
+      ([windowHandle, window]) => {
+        return {
+          windowHandle,
+          url: window.currentUrl,
+          title: window.currentTitle,
+        };
+      }
+    );
   }
 
   /**
@@ -180,6 +188,10 @@ export default class WindowContainer {
       return !this.windowHandles.includes(windowHandle);
     });
     await this.add(...newWindowHandles);
+  }
+
+  private get windowHandles(): string[] {
+    return Array.from(this.windowHandleToManagedWindow.keys());
   }
 
   private arrayEquals<T>(lhs: T[], rhs: T[]) {

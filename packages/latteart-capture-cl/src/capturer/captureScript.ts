@@ -19,8 +19,21 @@
  */
 export type CapturedData = {
   operation: CapturedOperationInfo;
-  elements: CapturedElementInfo[];
   eventInfo: EventInfo;
+  windowHandle?: string;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 };
 
 /**
@@ -108,7 +121,11 @@ export type CaptureScript = {
    * Whether it is ready to capture or not.
    * @returns 'true': It is ready to capture, 'false': It is not ready to capture.
    */
-  isReadyToCapture: () => boolean;
+  isReadyToCapture: (args: {
+    shouldTakeScreenshot: boolean;
+    url: string;
+    title: string;
+  }) => boolean;
   /**
    * Reset event listeners
    */
@@ -130,14 +147,28 @@ export type CaptureScript = {
   setFunctionToExtractElements: () => boolean;
   setFunctionToEnqueueEventForReFire: () => boolean;
   setFunctionToBuildOperationInfo: () => boolean;
-  setFunctionToHandleCapturedEvent: (ignoreElementIds: string[]) => boolean;
+  setFunctionToHandleCapturedEvent: (args: {
+    ignoreElementIds: string[];
+    captureType: "pull" | "push";
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    };
+  }) => boolean;
   setFunctionToDetectWindowSwitch: ({
     windowHandle,
-    shieldId,
     shieldStyle,
   }: {
     windowHandle: string;
-    shieldId: string;
     shieldStyle: {
       position: string;
       zIndex: string;
@@ -148,7 +179,7 @@ export type CaptureScript = {
     };
   }) => void;
   refireEvent: (eventInfo: EventInfo) => void;
-  unblockUserOperations: ({
+  detachShield: ({
     windowHandle,
     shieldId,
   }: {
@@ -183,6 +214,7 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
+  getUrlAndTitle: () => { url: string; title: string };
 };
 
 /**
@@ -206,7 +238,7 @@ export const captureScript: CaptureScript = {
   setFunctionToHandleCapturedEvent,
   setFunctionToDetectWindowSwitch,
   refireEvent,
-  unblockUserOperations,
+  detachShield,
   getBrowsingWindowHandle,
   markRect,
   unmarkElements,
@@ -215,9 +247,10 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
+  getUrlAndTitle,
 };
 
-type CapturedElementInfo = {
+export type CapturedElementInfo = {
   tagname: string;
   text?: string;
   value?: string;
@@ -225,6 +258,10 @@ type CapturedElementInfo = {
   checked?: boolean;
   attributes: { [key: string]: string };
   boundingRect: BoundingRect;
+  outerHeight: number;
+  outerWidth: number;
+  innerHeight: number;
+  innerWidth: number;
   textWithoutChildren?: string;
 };
 
@@ -235,6 +272,7 @@ type CapturedOperationInfo = {
   title: string;
   url: string;
   scrollPosition: { x: number; y: number };
+  timestamp: number;
 };
 
 type ExtendedDocument = Document & {
@@ -243,6 +281,8 @@ type ExtendedDocument = Document & {
   __capturingIsPaused?: boolean;
   __protected?: boolean;
   __completedInjectFunction?: boolean;
+  __parentUrl?: string;
+  __parentTitle?: string;
   handleCapturedEvent?: (e: Event) => void;
   extractElements?: (
     parent: Element,
@@ -352,14 +392,24 @@ function pullCapturedDatas() {
   return result;
 }
 
-function isReadyToCapture() {
+function isReadyToCapture(args: {
+  shouldTakeScreenshot: boolean;
+  url: string;
+  title: string;
+}) {
   const extendedDocument: ExtendedDocument = document;
+  extendedDocument.__parentUrl = args.url;
+  extendedDocument.__parentTitle = args.title;
 
   if (extendedDocument.handleCapturedEvent === undefined) return false;
   if (extendedDocument.extractElements === undefined) return false;
   if (extendedDocument.getAttributesFromElement === undefined) return false;
   if (extendedDocument.collectVisibleElements === undefined) return false;
-  if (extendedDocument.enqueueEventForReFire === undefined) return false;
+  if (
+    extendedDocument.enqueueEventForReFire === undefined &&
+    args.shouldTakeScreenshot
+  )
+    return false;
   if (extendedDocument.buildOperationInfo === undefined) return false;
   if (extendedDocument.__completedInjectFunction == undefined) return false;
 
@@ -413,7 +463,11 @@ function initGuard({
   const extendedDocument: ExtendedDocument = document;
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
-  if (extendedDocument.readyState !== "complete" && !initGuard) {
+  if (
+    extendedDocument.readyState !== "complete" &&
+    !extendedDocument.__capturingIsPaused &&
+    !initGuard
+  ) {
     const shield = extendedDocument.createElement("div");
     shield.id = __LATTEART_INIT_GUARD__;
     shield.style.position = shieldStyle.position;
@@ -493,7 +547,8 @@ function setFunctionToExtractElements() {
       !extendedDocument.defaultView ||
       !extendedDocument.collectVisibleElements ||
       !extendedDocument.getAttributesFromElement ||
-      !extendedDocument.extractElements
+      !extendedDocument.extractElements ||
+      extendedDocument.__capturingIsPaused
     ) {
       return elementsWithTargetXPath;
     }
@@ -564,6 +619,10 @@ function setFunctionToExtractElements() {
           width: boundingRect.width,
           height: boundingRect.height,
         },
+        outerHeight: window.outerHeight,
+        outerWidth: window.outerWidth,
+        innerHeight: window.innerHeight,
+        innerWidth: window.innerWidth,
         textWithoutChildren,
       };
       if (element.value != null) {
@@ -670,6 +729,10 @@ function setFunctionToBuildOperationInfo() {
         width: boundingRect.width,
         height: boundingRect.height,
       },
+      outerHeight: window.outerHeight,
+      outerWidth: window.outerWidth,
+      innerHeight: window.innerHeight,
+      innerWidth: window.innerWidth,
       textWithoutChildren,
     };
     if (element.value != null) {
@@ -683,28 +746,44 @@ function setFunctionToBuildOperationInfo() {
     }
 
     return {
-      input: element.value ? element.value : "",
+      input: element.value != null ? `${element.value}` : "",
       type: eventType,
       elementInfo,
-      title: extendedDocument.title,
-      url: extendedDocument.URL,
+      title: extendedDocument.__parentTitle ?? "",
+      url: extendedDocument.__parentUrl ?? "",
       scrollPosition: {
         x: window.scrollX,
         y: window.scrollY,
       },
+      timestamp: new Date().valueOf(),
     };
   };
   return true;
 }
 
-function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
+function setFunctionToHandleCapturedEvent(args: {
+  ignoreElementIds: string[];
+  captureType: "pull" | "push";
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
+}) {
   const extendedDocument: ExtendedDocument = document;
 
   extendedDocument.handleCapturedEvent = (event: Event) => {
     if (
       !extendedDocument.getAttributesFromElement ||
       !extendedDocument.extractElements ||
-      !extendedDocument.enqueueEventForReFire ||
       !extendedDocument.buildOperationInfo
     ) {
       return;
@@ -720,15 +799,17 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
 
     const targetElement = event.composedPath()[0] as HTMLInputElement;
 
-    if (targetElement && ignoreElementIds.includes(targetElement.id)) {
+    if (targetElement && args.ignoreElementIds.includes(targetElement.id)) {
       return;
     }
 
     // Stop event temporarily and enqueue for refire.
     const eventId = event.type + event.timeStamp;
-    extendedDocument.enqueueEventForReFire(eventId, event);
-    event.preventDefault();
-    event.stopPropagation();
+    if (args.captureType === "pull" && extendedDocument.enqueueEventForReFire) {
+      extendedDocument.enqueueEventForReFire(eventId, event);
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     if (!targetElement) {
       return;
@@ -736,7 +817,7 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
 
     // Extract elements from the screen.
     targetElement.classList.add("${CaptureScriptExecutor.TARGET_CLASS_NAME}");
-    const { elements, targetXPath } = extendedDocument.extractElements(
+    const { targetXPath } = extendedDocument.extractElements(
       extendedDocument.body,
       "/HTML/BODY"
     );
@@ -748,14 +829,18 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
       window
     );
 
-    if (operation !== null) {
+    if (!operation) {
+      return;
+    }
+
+    if (args.captureType === "pull") {
       // Set the operation.
       if (!extendedDocument.__sendDatas) {
         extendedDocument.__sendDatas = [];
       }
-      extendedDocument.__sendDatas.push({
-        operation: operation,
-        elements: elements,
+
+      const sendData = {
+        operation,
         eventInfo: {
           id: eventId,
           targetXPath: operation.elementInfo.xpath,
@@ -765,6 +850,24 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
             cancelable: event.cancelable,
           },
         },
+      };
+      extendedDocument.__sendDatas.push(
+        args.iframe !== undefined
+          ? { ...sendData, iframe: args.iframe }
+          : sendData
+      );
+    } else {
+      fetch("http://localhost:3001/api/v1/operation", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          args.iframe !== undefined
+            ? { operation, iframe: args.iframe }
+            : { operation }
+        ),
       });
     }
   };
@@ -773,11 +876,9 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
 
 function setFunctionToDetectWindowSwitch({
   windowHandle,
-  shieldId,
   shieldStyle,
 }: {
   windowHandle: string;
-  shieldId: string;
   shieldStyle: {
     position: string;
     zIndex: string;
@@ -787,14 +888,18 @@ function setFunctionToDetectWindowSwitch({
     backgroundColor: string;
   };
 }) {
-  console.log(`injectFunctionToDetectWindowSwitch - START: ${windowHandle}`);
-
   const extendedWindow: ExtendedWindowForWindowSwitch = window;
 
   const extendedDocument: ExtendedDocument = document;
+
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
-  if (extendedDocument.readyState !== "complete" && !initGuard) {
+
+  if (
+    extendedDocument.readyState !== "complete" &&
+    !extendedDocument.__capturingIsPaused &&
+    !initGuard
+  ) {
     const shield = extendedDocument.createElement("div");
     shield.id = __LATTEART_INIT_GUARD__;
     shield.style.position = shieldStyle.position;
@@ -816,7 +921,7 @@ function setFunctionToDetectWindowSwitch({
 
   if (!extendedWindow.setWindowHandleToLocalStorage) {
     extendedWindow.setWindowHandleToLocalStorage = () => {
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -824,7 +929,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -845,27 +950,7 @@ function setFunctionToDetectWindowSwitch({
 
   if (!extendedWindow.removeWindowHandleToLocalStorage) {
     extendedWindow.removeWindowHandleToLocalStorage = () => {
-      // Block user operations.
-      (() => {
-        const target = document.getElementById(shieldId);
-
-        if (target) {
-          return;
-        }
-
-        const shield = document.createElement("div");
-        shield.id = shieldId;
-        shield.style.position = "absolute";
-        shield.style.zIndex = "2147483647";
-        shield.style.width = "100%";
-        shield.style.height = `${document.body.clientHeight}px`;
-        shield.style.opacity = "0.6";
-        shield.style.backgroundColor = "#333";
-
-        document.body.insertAdjacentElement("afterbegin", shield);
-      })();
-
-      const localStorageIsEnabled = (() => {
+      const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
         } catch (e) {
@@ -873,7 +958,7 @@ function setFunctionToDetectWindowSwitch({
         }
       })();
 
-      if (!localStorageIsEnabled) {
+      if (!isLocalStorageEnabled) {
         return;
       }
 
@@ -891,7 +976,6 @@ function setFunctionToDetectWindowSwitch({
     "blur",
     extendedWindow.removeWindowHandleToLocalStorage
   );
-  console.log(`injectFunctionToDetectWindowSwitch - END`);
 }
 
 function refireEvent(eventInfo: EventInfo) {
@@ -982,7 +1066,7 @@ function refireEvent(eventInfo: EventInfo) {
   }
 }
 
-function unblockUserOperations({
+function detachShield({
   windowHandle,
   shieldId,
 }: {
@@ -1001,7 +1085,7 @@ function unblockUserOperations({
 }
 
 function getBrowsingWindowHandle() {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1009,7 +1093,7 @@ function getBrowsingWindowHandle() {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return "";
   }
 
@@ -1093,7 +1177,7 @@ function observeCurrentScreen() {
 }
 
 function focusWindow(windowHandle: string) {
-  const localStorageIsEnabled = (() => {
+  const isLocalStorageEnabled = (() => {
     try {
       return localStorage !== undefined && localStorage !== null;
     } catch (e) {
@@ -1101,7 +1185,7 @@ function focusWindow(windowHandle: string) {
     }
   })();
 
-  if (!localStorageIsEnabled) {
+  if (!isLocalStorageEnabled) {
     return;
   }
 
@@ -1119,4 +1203,9 @@ function collectScreenElements() {
     "/HTML/BODY"
   );
   return elements;
+}
+
+function getUrlAndTitle() {
+  const extendedDocument: ExtendedDocumentForScreenTransition = document;
+  return { url: extendedDocument.URL, title: extendedDocument.title };
 }

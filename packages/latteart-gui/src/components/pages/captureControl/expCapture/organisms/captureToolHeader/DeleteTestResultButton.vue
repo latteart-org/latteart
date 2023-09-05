@@ -126,7 +126,9 @@ export default class DeleteTestResultButton extends Vue {
     });
 
     try {
-      await this.$store.dispatch("operationHistory/deleteCurrentTestResult");
+      await this.$store.dispatch("operationHistory/deleteTestResults", {
+        testResultIds: [this.$store.state.operationHistory.testResultInfo.id],
+      });
       this.$store.commit("operationHistory/removeStoringTestResultInfos", {
         testResultInfos: [
           {
@@ -139,7 +141,6 @@ export default class DeleteTestResultButton extends Vue {
       this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
       this.$store.commit("operationHistory/clearElementCoverages");
       this.$store.commit("operationHistory/clearInputValueTable");
-      this.$store.commit("operationHistory/clearDisplayedScreenshotUrl");
       await this.$store.dispatch("captureControl/resetTimer");
 
       this.informationMessageDialogOpened = true;

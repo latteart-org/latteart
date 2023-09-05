@@ -46,8 +46,7 @@ export class AddNewSessionAction {
     }
 
     const convertedSession = new SessionDataConverter().convertToSession(
-      result.data,
-      repositoryService.serviceUrl
+      result.data
     );
 
     return new ActionSuccess(convertedSession);

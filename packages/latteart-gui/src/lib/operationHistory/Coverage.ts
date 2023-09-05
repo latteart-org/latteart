@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { GraphView } from "latteart-client";
+import { GraphView, VideoFrame } from "latteart-client";
 
 export interface InclusionTableItem {
   text: string;
@@ -34,30 +34,32 @@ export function getCoverages(
   screenTitle: string;
   percentage: number;
   elements: {
-    sequence?: number;
-    imageFileUrl?: string;
     tagname: string;
-    text: string;
     type: string;
     id: string;
     name: string;
+    text: string;
     operated: boolean;
+    imageFileUrl?: string;
+    videoFrame?: VideoFrame;
+    boundingRect?: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
   }[];
 }[] {
-  const testStepIdToSequenceAndImageFileUrl = new Map(
-    graphView.nodes
-      .flatMap(({ testSteps }) =>
-        testSteps.map(({ id, imageFileUrl }) => {
-          return { id, imageFileUrl };
-        })
-      )
-      .map((idAndImageFileUrl, index) => [
-        idAndImageFileUrl.id,
-        {
-          sequence: index + 1,
-          imageFileUrl: idAndImageFileUrl?.imageFileUrl ?? "",
-        },
-      ])
+  const testStepIdToImage = new Map(
+    graphView.nodes.flatMap(({ testSteps }) =>
+      testSteps.map(({ id, imageFileUrl, videoFrame }) => {
+        return [id, { imageFileUrl: imageFileUrl ?? "", videoFrame }];
+      })
+    )
   );
 
   const screenIdToOperatedElements = graphView.nodes
@@ -66,19 +68,18 @@ export function getCoverages(
         screenId: node.screenId,
         elements: node.testSteps.flatMap((testStep) => {
           const { id, targetElementId } = testStep;
-          const sequenceAndImageFileUrl =
-            testStepIdToSequenceAndImageFileUrl.get(id);
+          const image = testStepIdToImage.get(id);
           const targetElement = graphView.store.elements.find(({ id }) => {
             return id === targetElementId;
           });
 
-          if (!targetElement || sequenceAndImageFileUrl === undefined) {
+          if (!targetElement || !image) {
             return [];
           }
 
           const operatedElement = {
-            xpath: targetElement.xpath,
-            ...sequenceAndImageFileUrl,
+            id: targetElement.id,
+            ...image,
           };
 
           if (targetElement?.tagname.toLowerCase() !== "select") {
@@ -103,10 +104,7 @@ export function getCoverages(
           );
 
           return optionElement
-            ? [
-                operatedElement,
-                { ...sequenceAndImageFileUrl, xpath: optionElement.xpath },
-              ]
+            ? [operatedElement, { ...image, id: optionElement.id }]
             : [operatedElement];
         }),
       };
@@ -117,31 +115,29 @@ export function getCoverages(
       }
 
       for (const element of elements) {
-        const foundItem = acc
-          .get(screenId)
-          ?.find(({ xpath }) => xpath === element.xpath);
+        const foundItem = acc.get(screenId)?.find(({ id }) => id == element.id);
 
         if (foundItem) {
-          foundItem.sequenceAndImageFileUrl.push({
-            sequence: element.sequence,
+          foundItem.images.push({
             imageFileUrl: element.imageFileUrl,
+            videoFrame: element.videoFrame,
           });
           continue;
         }
 
         acc.get(screenId)?.push({
-          xpath: element.xpath,
-          sequenceAndImageFileUrl: [
+          id: element.id,
+          images: [
             {
-              sequence: element.sequence,
               imageFileUrl: element.imageFileUrl,
+              videoFrame: element.videoFrame,
             },
           ],
         });
       }
 
       return acc;
-    }, new Map<string, { xpath: string; sequenceAndImageFileUrl: { sequence: number; imageFileUrl: string }[] }[]>());
+    }, new Map<string, { id: string; images: { imageFileUrl: string; videoFrame?: VideoFrame }[] }[]>());
 
   const inclusionSet = new Set(inclusionTags);
 
@@ -163,20 +159,18 @@ export function getCoverages(
         return [element];
       })
       .filter((element, index, array) => {
-        return (
-          array.findIndex(({ xpath }) => xpath === element.xpath) === index
-        );
+        return array.findIndex(({ id }) => id === element.id) === index;
       })
       .flatMap((element) => {
         const operatedElement = screenIdToOperatedElements
           .get(screen.id)
-          ?.find(({ xpath }) => xpath === element.xpath);
+          ?.find(({ id }) => id === element.id);
 
-        const seqAndUrl = operatedElement?.sequenceAndImageFileUrl.at(0);
+        const image = operatedElement?.images.at(0);
         return [
           {
-            sequence: seqAndUrl?.sequence,
-            imageFileUrl: seqAndUrl?.imageFileUrl ?? "",
+            imageFileUrl: image?.imageFileUrl ?? "",
+            videoFrame: image?.videoFrame,
             tagname: element.tagname,
             type: element.attributes["type"] ?? "",
             id: element.attributes["id"] ?? "",
@@ -185,6 +179,11 @@ export function getCoverages(
               ? element.text
               : element.attributes["href"] ?? "",
             operated: operatedElement !== undefined,
+            boundingRect: element.boundingRect,
+            innerHeight: element.innerHeight,
+            innerWidth: element.innerWidth,
+            outerHeight: element.outerHeight,
+            outerWidth: element.outerWidth,
           },
         ];
       });

@@ -30,7 +30,6 @@ export default class WebBrowser {
   public static readonly SHIELD_ID = "__LATTEART_USER_OPERATION_SHIELD__";
 
   private _isOpened = false;
-  private _isWindowSelecting = false;
 
   private client: WebDriverClient;
   private config: CaptureConfig;
@@ -43,8 +42,9 @@ export default class WebBrowser {
       canGoForward: boolean;
     }) => void;
     onWindowsChanged: (
-      windowHandles: string[],
-      currentWindowHandle: string
+      windows: { windowHandle: string; url: string; title: string }[],
+      currentWindowHandle: string,
+      currentWindowHostNameChanged: boolean
     ) => void;
     onAlertVisibilityChanged: (isVisible: boolean) => void;
   };
@@ -69,8 +69,9 @@ export default class WebBrowser {
         canGoForward: boolean;
       }) => void;
       onWindowsChanged?: (
-        windowHandles: string[],
-        currentWindowHandle: string
+        windows: { windowHandle: string; url: string; title: string }[],
+        currentWindowHandle: string,
+        currentWindowHostNameChanged: boolean
       ) => void;
       onAlertVisibilityChanged?: (isVisible: boolean) => void;
     }
@@ -121,10 +122,6 @@ export default class WebBrowser {
     return this._isOpened;
   }
 
-  public get isWindowSelecting(): boolean {
-    return this._isWindowSelecting;
-  }
-
   /**
    * Current window.
    */
@@ -158,7 +155,9 @@ export default class WebBrowser {
   /**
    * Update browser state.
    */
-  public async updateState(): Promise<void> {
+  public async updateState(
+    beforeWindow: WebBrowserWindow | undefined
+  ): Promise<void> {
     const beforeContainerLength = this.windowContainer.length;
 
     // Update the container to be the same as actual windows.
@@ -169,29 +168,39 @@ export default class WebBrowser {
     }
 
     // Update current window of the container to be the same as actual current window.
-    if (!this.isWindowSelecting) {
-      await this.windowContainer.changeCurrentWindowTo(
-        (await this.getBrowsingWindowHandle()) ?? ""
-      );
-    }
+    await this.windowContainer.changeCurrentWindowTo(
+      (await this.getBrowsingWindowHandle()) ?? ""
+    );
 
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
-      if (this.windowContainer.length >= 2) {
-        await this.protectAllWindow();
-      }
+      const currentWindowHostNameChanged = await this.isCurrentHostNameChanged(
+        beforeWindow
+      );
+
       this.option.onWindowsChanged(
-        this.windowContainer.windowHandles,
-        this.windowContainer.currentWindowHandle
+        this.windowContainer.windows,
+        this.windowContainer.currentWindowHandle,
+        currentWindowHostNameChanged
       );
     }
 
-    // Unblock user operations.
-    if (!this.isWindowSelecting) {
-      await this.client.execute(captureScript.unblockUserOperations, {
-        windowHandle: this.currentWindow?.windowHandle,
-        shieldId: WebBrowser.SHIELD_ID,
-      });
+    // If current window is changed, create switch_window operation.
+    if (
+      beforeWindow &&
+      beforeWindow.windowHandle !== this.windowContainer.currentWindowHandle
+    ) {
+      const screenElements = await beforeWindow.collectAllFrameScreenElements();
+
+      this.option.onGetOperation(
+        beforeWindow.createCapturedOperation({
+          type: SpecialOperationType.SWITCH_WINDOW,
+          windowHandle: beforeWindow?.windowHandle ?? "",
+          input: this.windowContainer.currentWindowHandle,
+          pageSource: await this.client.getCurrentPageText(),
+          screenElements,
+        })
+      );
     }
 
     if (this.currentWindow?.windowHandle) {
@@ -210,26 +219,11 @@ export default class WebBrowser {
   }
 
   /**
-   * Switch current window.
+   * Change current window.
    * @param windowHandle Destination window handle.
    */
-  public switchWindowTo(windowHandle: string): Promise<void> {
+  public changeCurrentWindow(windowHandle: string): Promise<void> {
     return this.windowContainer.changeCurrentWindowTo(windowHandle);
-  }
-
-  public async protectAllWindow(): Promise<void> {
-    this._isWindowSelecting = true;
-    if (!this.currentWindow) {
-      return;
-    }
-    await this.client.switchWindowTo(this.currentWindow.windowHandle);
-    await this.client.execute(captureScript.attachShield, {
-      shieldId: WebBrowser.SHIELD_ID,
-    });
-  }
-
-  public async unprotectAllWindow(): Promise<void> {
-    this._isWindowSelecting = false;
   }
 
   /**
@@ -250,13 +244,18 @@ export default class WebBrowser {
         await this.client.execute(captureScript.initGuard, {
           shieldStyle: this.createShieldStyle(),
         });
+        await this.client.execute(captureScript.attachShield, {
+          shieldId: WebBrowser.SHIELD_ID,
+        });
 
         const window = await (async () => {
           await this.injectFunctionToDetectWindowSwitch(windowHandle);
           const firstUrl = await this.client.getCurrentUrl();
+          const firstTitle = await this.client.getCurrentTitle();
 
           return new WebBrowserWindow(
             firstUrl,
+            firstTitle,
             this.client,
             windowHandle,
             this.option
@@ -264,9 +263,12 @@ export default class WebBrowser {
         })();
         await window.focus();
 
-        // If current window is focused, switch back the window that switched temporarily.
-        if (currentWindow && currentWindowIsFocused) {
+        if (currentWindow) {
           await this.client.switchWindowTo(currentWindow.windowHandle);
+        }
+
+        if (!currentWindowIsFocused) {
+          await this.switchWindow(window, currentWindow);
         }
         return window;
       })
@@ -285,20 +287,17 @@ export default class WebBrowser {
     if (from) {
       from.lockScreenTransitionHistory();
 
-      this.option.onGetOperation(
-        from.createCapturedOperation({
-          type: SpecialOperationType.SWITCH_WINDOW,
-          windowHandle: from?.windowHandle ?? "",
-          input: to.windowHandle,
-          pageSource: await this.client.getCurrentPageText(),
-          screenElements:
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [],
-        })
-      );
+      await this.client.execute(captureScript.attachShield, {
+        shieldId: WebBrowser.SHIELD_ID,
+      });
     }
 
     await this.client.switchWindowTo(to.windowHandle);
+
+    await this.client.execute(captureScript.detachShield, {
+      windowHandle: to.windowHandle,
+      shieldId: WebBrowser.SHIELD_ID,
+    });
 
     to.clearScreenAndOperationInfo();
   }
@@ -314,7 +313,6 @@ export default class WebBrowser {
   ): Promise<void> {
     await this.client.execute(captureScript.setFunctionToDetectWindowSwitch, {
       windowHandle,
-      shieldId: WebBrowser.SHIELD_ID,
       shieldStyle: this.createShieldStyle(),
     });
   }
@@ -335,5 +333,19 @@ export default class WebBrowser {
       opacity: "0.6",
       backgroundColor: "#333",
     };
+  }
+
+  /**
+   * Check host name difference.
+   * @param beforeWindow Before window.
+   * @returns Host name diff flag.
+   */
+  private async isCurrentHostNameChanged(beforeWindow?: WebBrowserWindow) {
+    if (!beforeWindow || !this.currentWindow) {
+      return false;
+    }
+    const beforeHostName = new URL(beforeWindow.currentUrl).hostname;
+    const currentHostName = new URL(this.currentWindow.currentUrl).hostname;
+    return beforeHostName !== currentHostName;
   }
 }

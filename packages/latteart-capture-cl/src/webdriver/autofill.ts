@@ -28,6 +28,7 @@ export type InputValueSet = {
   locator: string;
   locatorMatchType: "equals" | "contains";
   inputValue: string;
+  iframeIndex?: number;
 };
 
 export default class Autofill {
@@ -39,47 +40,68 @@ export default class Autofill {
 
   public async execute(): Promise<void> {
     for (const inputValueSet of this.inputValueSets) {
-      const targetWebElements = await this.getWebElements(
-        inputValueSet.locatorType,
-        inputValueSet.locator,
-        inputValueSet.locatorMatchType
-      );
+      const action = async () => {
+        const targetWebElements = await this.getWebElements(
+          inputValueSet.locatorType,
+          inputValueSet.locator,
+          inputValueSet.locatorMatchType
+        );
 
-      for (const webElement of targetWebElements) {
-        await this.currentWindow.sleep(250);
-        await this.currentWindow.focus();
-        await this.currentWindow.sleep(250);
+        for (const webElement of targetWebElements) {
+          await this.currentWindow.sleep(200);
+          await this.currentWindow.focus();
+          await this.currentWindow.sleep(200);
 
-        const tagName = await webElement.getTagName();
-        if (tagName === "select") {
-          await this.setValueToSelectbox(webElement, inputValueSet.inputValue);
-          continue;
-        }
+          const tagName = await webElement.getTagName();
 
-        if (tagName === "textarea") {
-          await this.setValueToText(webElement, inputValueSet.inputValue);
-          continue;
-        }
-
-        const inputType = await webElement.getAttribute("type");
-
-        switch (inputType) {
-          case "checkbox":
-            await this.setValueToCheckbox(webElement, inputValueSet.inputValue);
-            break;
-          case "radio":
-            await this.setValueToRadiobutton(
+          if (tagName === "select") {
+            await this.setValueToSelectbox(
               webElement,
               inputValueSet.inputValue
             );
-            break;
-          case "date":
-            await this.setValueToDate(webElement, inputValueSet.inputValue);
-            break;
-          default:
+            continue;
+          }
+
+          if (tagName === "textarea") {
             await this.setValueToText(webElement, inputValueSet.inputValue);
-            break;
+            continue;
+          }
+
+          const inputType = await webElement.getAttribute("type");
+
+          switch (inputType) {
+            case "checkbox":
+              await this.setValueToCheckbox(
+                webElement,
+                inputValueSet.inputValue
+              );
+              break;
+            case "radio":
+              await this.setValueToRadiobutton(
+                webElement,
+                inputValueSet.inputValue
+              );
+              break;
+            case "date":
+            case "datetime-local":
+              await this.setValueToDate(webElement, inputValueSet.inputValue);
+              break;
+            default:
+              await this.setValueToText(webElement, inputValueSet.inputValue);
+              break;
+          }
         }
+      };
+
+      // wait to prevent multiple operations being pulled in main loop.
+      await this.currentWindow.sleep(200);
+
+      if (inputValueSet.iframeIndex !== undefined) {
+        await this.client.doActionInIframes("autoFill", action, {
+          iframeIndexes: [inputValueSet.iframeIndex],
+        });
+      } else {
+        await action();
       }
     }
   }
@@ -156,9 +178,24 @@ export default class Autofill {
     value: string
   ): Promise<void> {
     const yyyymmdd = value.split("-");
+    const max = await target.getAttribute("max");
+
+    if (max) {
+      const maxLength = max.split("-")[0].length;
+      const year =
+        maxLength < 4 || maxLength > 6
+          ? yyyymmdd[0].padStart(6, "0")
+          : yyyymmdd[0].padStart(maxLength, "0");
+
+      return await this.setValueToText(
+        target,
+        `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`
+      );
+    }
+
     return await this.setValueToText(
       target,
-      `${("00" + yyyymmdd[0]).slice(-6)}-${yyyymmdd[1]}-${yyyymmdd[2]}`
+      `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`
     );
   }
 
