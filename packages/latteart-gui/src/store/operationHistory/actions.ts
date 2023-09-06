@@ -1017,7 +1017,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             inputValueTable: InputValueTable;
           }) => {
             if (edge.image) {
-              context.dispatch("changeScreenImage", { image: edge.image });
+              context.dispatch("changeScreenImage", {
+                image: edge.image,
+              });
+            } else {
+              context.commit("clearScreenImage");
             }
             context.commit("setInputValueTable", {
               inputValueTable: edge.inputValueTable,
@@ -1029,6 +1033,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           }) => {
             if (rect.image) {
               context.dispatch("changeScreenImage", { image: rect.image });
+            } else {
+              context.commit("clearScreenImage");
             }
             context.commit("setInputValueTable", {
               inputValueTable: rect.inputValueTable,
@@ -1362,13 +1368,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const selectedOperation = selectedItem?.operation ?? null;
 
     if (selectedOperation) {
-      context.dispatch("changeScreenImage", {
-        image: {
-          imageFileUrl: selectedOperation.imageFilePath,
-          videoFrame: selectedOperation.videoFrame,
-        },
-        elementInfo: selectedOperation.elementInfo,
-      });
+      if (selectedOperation.imageFilePath || selectedOperation.videoFrame) {
+        context.dispatch("changeScreenImage", {
+          image: {
+            imageFileUrl: selectedOperation.imageFilePath,
+            videoFrame: selectedOperation.videoFrame,
+          },
+          elementInfo: selectedOperation.elementInfo,
+        });
+      } else {
+        context.commit("clearScreenImage");
+      }
     }
   },
 
