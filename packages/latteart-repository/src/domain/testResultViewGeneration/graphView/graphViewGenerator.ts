@@ -85,7 +85,11 @@ export class ElementMapperFactory {
           return [
             `${screenElement.pageUrl}_${screenElement.pageTitle}_${
               screenElement.xpath
-            }_${screenElement.iframeIndex ?? ""}`,
+            }_${
+              screenElement.iframe?.index !== undefined
+                ? screenElement.iframe?.index
+                : ""
+            }`,
             {
               screenDef,
               element: {
@@ -106,7 +110,9 @@ export class ElementMapperFactory {
         iframeIndex?: number
       ) => {
         const element = keyToScreenElement.get(
-          `${pageUrl}_${pageTitle}_${xpath}_${iframeIndex ?? ""}`
+          `${pageUrl}_${pageTitle}_${xpath}_${
+            iframeIndex !== undefined ? iframeIndex : ""
+          }`
         )?.element;
 
         if (!element) {
@@ -121,7 +127,7 @@ export class ElementMapperFactory {
           tagname,
           text,
           attributes,
-          iframeIndex: idx,
+          iframe,
           boundingRect,
           innerHeight,
           innerWidth,
@@ -137,7 +143,7 @@ export class ElementMapperFactory {
           tagname,
           text: text ?? "",
           attributes,
-          iframeIndex: idx,
+          iframe,
           boundingRect,
           innerHeight,
           innerWidth,
@@ -169,7 +175,7 @@ export class ElementMapperFactory {
             text,
             value,
             attributes,
-            iframeIndex,
+            iframe,
             boundingRect,
             innerHeight,
             innerWidth,
@@ -185,7 +191,7 @@ export class ElementMapperFactory {
             text: text ?? "",
             value,
             attributes,
-            iframeIndex,
+            iframe,
             boundingRect,
             innerHeight,
             innerWidth,
@@ -284,7 +290,7 @@ function createNodes(
           testStep.operation.url,
           testStep.operation.title,
           testStep.operation.elementInfo.xpath,
-          testStep.operation.elementInfo?.iframeIndex
+          testStep.operation.elementInfo?.iframe?.index
         )?.id
       : undefined;
     return {
@@ -316,7 +322,10 @@ function createNodes(
         ({ operation }) =>
           !["open_window", "switch_window"].includes(operation.type)
       )
-      .at(-1);
+      .reverse()
+      .find((testStep) => {
+        return testStep.operation.inputElements.length > 0;
+      });
 
     const nodeDefaultValues = targetTestStep
       ? collectDefaultValues(targetTestStep.operation, elementMapper)
@@ -413,7 +422,7 @@ function collectDefaultValues(
         operation.url,
         operation.title,
         element.xpath,
-        element.iframeIndex
+        element.iframe?.index
       )?.id;
 
       if (!elementId) {

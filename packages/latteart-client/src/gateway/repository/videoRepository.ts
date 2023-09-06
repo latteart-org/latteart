@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { RESTClient } from "@/network/http/client";
-import { Video } from "@/service";
+import { RESTClient } from "../../network/http/client";
+import { Video } from "../../service";
 import {
   createConnectionRefusedFailure,
   createRepositoryAccessFailure,
@@ -26,9 +26,12 @@ import {
 export class VideoRepository {
   constructor(private restClient: RESTClient) {}
 
-  public async createVideo(): Promise<RepositoryAccessResult<Video>> {
+  public async createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<RepositoryAccessResult<Video>> {
     try {
-      const response = await this.restClient.httpPost(`api/v1/videos`);
+      const response = await this.restClient.httpPost(`api/v1/videos`, params);
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
@@ -68,7 +71,7 @@ export class VideoRepository {
   public async appendBuffer(
     videoId: string,
     buffer: ArrayBuffer
-  ): Promise<RepositoryAccessResult<void>> {
+  ): Promise<RepositoryAccessResult<string>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/videos/${videoId}`,
@@ -77,12 +80,12 @@ export class VideoRepository {
         }
       );
 
-      if (response.status !== 204) {
+      if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as void,
+        data: response.data as string,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

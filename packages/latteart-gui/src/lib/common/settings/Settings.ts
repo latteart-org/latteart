@@ -29,8 +29,6 @@ export type CoverageSetting = ProjectSettings["config"]["coverage"];
 export type CaptureMediaSetting =
   ProjectSettings["config"]["captureMediaSetting"];
 
-export type ImageCompressionSetting = CaptureMediaSetting["imageCompression"];
-
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";
   browser: "Chrome" | "Edge" | "Safari";
@@ -54,6 +52,3 @@ export type SnapshotConfig = SnapshotConfigForRepository;
 
 export type TestResultComparisonSetting =
   ProjectSettings["config"]["testResultComparison"];
-
-export type MisoperationPreventionSetting =
-  ProjectSettings["config"]["misoperationPrevention"];

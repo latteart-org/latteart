@@ -60,6 +60,7 @@ export default class NoteUpdateDialog extends Vue {
     imageFilePath: "",
     sequence: 1,
     maxSequence: 1,
+    videoFilePath: "",
   };
 
   @Watch("opened")
@@ -85,6 +86,10 @@ export default class NoteUpdateDialog extends Vue {
             : historyItem.operation.imageFilePath,
         sequence: sequence,
         maxSequence: this.$store.state.operationHistory.history.length,
+        videoFilePath:
+          historyItem.notices[index].videoFrame?.url ??
+          historyItem.operation.videoFrame?.url ??
+          "",
       };
     }
   }

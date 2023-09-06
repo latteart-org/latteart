@@ -133,7 +133,8 @@
     "testing-time": "テスト時間",
     "test-purpose": "テスト目的",
     "creation-timestamp": "作成日時",
-    "load": "テスト結果を読み込む"
+    "load": "テスト結果を読み込む",
+    "edit": "テスト結果名編集"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
@@ -196,9 +197,6 @@
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
     "setting-auto-operation": "自動操作設定",
-    "setting-misoperation-prevention": "操作抑止用設定",
-    "setting-misoperation-prevention-notice": "※ ONにすると、複数のタブ・ウィンドウ・フレームを記録する際、記録対象外のウィンドウの操作を抑止するため、ウィンドウをグレーアウトします。iframe要素内の記録時等、グレーアウトが支障となる場合には一時的にOFFにしてください。（テスト開始時、本設定は自動でONになります。）",
-    "set-shield": "記録対象外ウィンドウをグレーアウトする",
     "no-data": "操作セットが登録されていません",
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",

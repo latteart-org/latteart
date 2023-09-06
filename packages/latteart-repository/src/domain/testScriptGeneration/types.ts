@@ -24,7 +24,19 @@ export type TestScriptSourceElement = {
   tagname: string;
   text?: string;
   xpath: string;
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect?: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight?: number;
+    innerWidth?: number;
+    outerHeight?: number;
+    outerWidth?: number;
+  };
   attributes: { [key: string]: string };
 };
 

@@ -19,7 +19,7 @@ import {
   CapturedScreenTransitionForCaptureCl,
   ElementInfoForCaptureCl,
   ScreenElementsForCaptureCl,
-} from "@/gateway/captureCl";
+} from "../gateway/captureCl";
 
 export type TestResultViewOption = {
   node: {
@@ -49,9 +49,9 @@ export type ScreenElements = ScreenElementsForCaptureCl;
 
 export type ElementInfo = ElementInfoForCaptureCl;
 
-export type Video = { id: string; url: string };
+export type Video = { id: string; url: string; width: number; height: number };
 
-export type VideoFrame = { url: string; time: number };
+export type VideoFrame = Omit<Video, "id"> & { time: number };
 
 export type Operation = {
   input: string;

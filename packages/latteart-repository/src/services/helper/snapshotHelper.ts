@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-import { GetNoteResponse } from "@/interfaces/Notes";
+import { ProjectConfig } from "@/interfaces/Configs";
+import { CreateNoteResponse, GetNoteResponse } from "@/interfaces/Notes";
 import { Session } from "@/interfaces/Sessions";
+import { GetGraphViewResponse } from "@/interfaces/TestResults";
+import { TestStepOperation } from "@/interfaces/TestSteps";
 import path from "path";
 
 export function createAttachedFiles(
@@ -44,7 +47,7 @@ export function createTestResultFiles(
   });
 }
 
-export function createNotes(
+export function convertNotesForSnapshot(
   storyId: string,
   sessionIdAlias: string,
   notes: GetNoteResponse[]
@@ -55,14 +58,170 @@ export function createNotes(
       type: note.type,
       value: note.value,
       details: note.details,
-      imageFileUrl: note.videoFrame
-        ? ""
-        : `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
+      imageFileUrl: note.imageFileUrl
+        ? `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
             note.imageFileUrl ?? ""
-          )}`,
+          )}`
+        : "",
       tags: note.tags,
       timestamp: note.timestamp,
-      videoFrame: note.videoFrame,
+      videoFrame: note.videoFrame
+        ? {
+            url: `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
+              note.videoFrame.url ?? ""
+            )}`,
+            time: note.videoFrame.time,
+            width: note.videoFrame.width,
+            height: note.videoFrame.height,
+          }
+        : undefined,
     };
   });
+}
+
+export function convertTestStepsForSnapshot(
+  testSteps: {
+    operation: TestStepOperation;
+    notices: CreateNoteResponse[];
+    intention: CreateNoteResponse | null;
+  }[]
+) {
+  return testSteps.map((testStep, index) => {
+    const operation = {
+      sequence: index + 1,
+      input: testStep.operation.input,
+      type: testStep.operation.type,
+      elementInfo: testStep.operation.elementInfo,
+      title: testStep.operation.title,
+      url: testStep.operation.url,
+      imageFileUrl:
+        testStep.operation.imageFileUrl !== ""
+          ? path.join(
+              "testResult",
+              path.basename(testStep.operation.imageFileUrl ?? "")
+            )
+          : "",
+      timestamp: testStep.operation.timestamp,
+      inputElements: testStep.operation.inputElements,
+      windowHandle: testStep.operation.windowHandle,
+      keywordTexts: testStep.operation.keywordTexts,
+      isAutomatic: testStep.operation.isAutomatic,
+      videoFrame: testStep.operation.videoFrame
+        ? {
+            url: path.join(
+              "testResult",
+              path.basename(testStep.operation.videoFrame.url ?? "")
+            ),
+            time: testStep.operation.videoFrame.time,
+            width: testStep.operation.videoFrame.width,
+            height: testStep.operation.videoFrame.height,
+          }
+        : undefined,
+    };
+    const notices = testStep.notices.map((notice) => {
+      const imageFileUrl = notice.imageFileUrl
+        ? path.join("testResult", path.basename(notice.imageFileUrl))
+        : "";
+      const videoFrame = notice.videoFrame
+        ? {
+            url: path.join(
+              "testResult",
+              path.basename(notice.videoFrame.url ?? "")
+            ),
+            time: notice.videoFrame.time,
+            width: notice.videoFrame.width,
+            height: notice.videoFrame.height,
+          }
+        : undefined;
+
+      return {
+        sequence: index + 1,
+        id: notice.id,
+        type: notice.type,
+        value: notice.value,
+        details: notice.details,
+        tags: notice.tags,
+        imageFileUrl,
+        timestamp: notice.timestamp.toString(),
+        videoFrame,
+      };
+    });
+
+    return { operation, notices, intention: testStep.intention };
+  });
+}
+
+export function convertGraphViewForSnapshot(
+  graphViewData: GetGraphViewResponse
+) {
+  return {
+    ...graphViewData,
+    nodes: graphViewData.nodes.map((node) => {
+      const testSteps = node.testSteps.map((testStep) => {
+        const imageFileUrl = testStep.imageFileUrl
+          ? path.join("testResult", path.basename(testStep.imageFileUrl ?? ""))
+          : "";
+        const videoFrame = testStep.videoFrame
+          ? {
+              url: path.join(
+                "testResult",
+                path.basename(testStep.videoFrame.url ?? "")
+              ),
+              time: testStep.videoFrame.time,
+              width: testStep.videoFrame.width,
+              height: testStep.videoFrame.height,
+            }
+          : undefined;
+
+        return { ...testStep, imageFileUrl, videoFrame };
+      });
+
+      return { ...node, testSteps };
+    }),
+    store: {
+      ...graphViewData.store,
+      notes: graphViewData.store.notes.map((note) => {
+        const imageFileUrl = note.imageFileUrl
+          ? path.join("testResult", path.basename(note.imageFileUrl ?? ""))
+          : "";
+        const videoFrame = note.videoFrame
+          ? {
+              url: path.join(
+                "testResult",
+                path.basename(note.videoFrame.url ?? "")
+              ),
+              time: note.videoFrame.time,
+              width: note.videoFrame.width,
+              height: note.videoFrame.height,
+            }
+          : undefined;
+
+        return { ...note, imageFileUrl, videoFrame };
+      }),
+    },
+  };
+}
+
+export function convertViewOptionForSnapshot(config: ProjectConfig["config"]) {
+  return {
+    node: {
+      unit: config.screenDefinition.screenDefType,
+      definitions: config.screenDefinition.conditionGroups
+        .filter(({ isEnabled }) => isEnabled)
+        .map((group) => {
+          return {
+            name: group.screenName,
+            conditions: group.conditions
+              .filter(({ isEnabled }) => isEnabled)
+              .map((condition) => {
+                return {
+                  target: condition.definitionType,
+                  method: condition.matchType,
+                  value: condition.word,
+                };
+              }),
+          };
+        }),
+    },
+  };
 }

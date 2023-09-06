@@ -71,11 +71,6 @@ export class CaptureConfig {
   public isHeadlessMode = false;
 
   /**
-   * Shield enabled.
-   */
-  public isShieldEnabled = true;
-
-  /**
    * Media type.
    */
   public mediaType: "image" | "video" = "image";

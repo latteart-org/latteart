@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { PageObjectElement, PageObjectElementFactory } from "./types";
+import {
+  ElementType,
+  PageObjectElement,
+  PageObjectElementFactory,
+} from "./types";
 import { TestScriptSourceElement } from "../../../../types";
 import { IdentifierGenerator } from "@/domain/testScriptGeneration/IdentifierGenerator";
 import { TestScriptGenerationOption } from "@/domain/testScriptGeneration";
@@ -56,14 +60,14 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
       name: element.attributes.name ?? "",
       locators: element.locators,
       imageUrl,
-      iframeIndex: element.iframeIndex,
+      iframe: element.iframe,
     };
   }
 
   private createElementType(
     tagname: string,
     attributes: { [key: string]: string }
-  ) {
+  ): ElementType {
     if (tagname === "INPUT" && attributes.type === "radio") {
       return "RadioButton";
     }
@@ -74,6 +78,10 @@ export class PageObjectElementFactoryImpl implements PageObjectElementFactory {
 
     if (tagname === "SELECT") {
       return "SelectBox";
+    }
+
+    if (tagname === "A") {
+      return "Link";
     }
 
     const isButton = this.option.buttonDefinitions.some((d) => {

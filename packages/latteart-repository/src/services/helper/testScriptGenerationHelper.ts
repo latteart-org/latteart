@@ -44,7 +44,6 @@ export type TestResultForTestScriptGeneration = {
     title: string;
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFilePath: string;
-    iframeIndex?: number;
   }[];
 };
 
@@ -125,7 +124,7 @@ export function createTestScriptSourceOperations(
     createTestScriptSourceOperationFactory(screenDefToElements, option);
 
   return testResult.operations
-    .filter(({ type }) => type !== "start_capturing")
+    .filter(({ type }) => !["start_capturing", "open_window"].includes(type))
     .map((operation) => {
       const keywordSet = new Set(
         operation.keywordTexts.map((keywordText) => {

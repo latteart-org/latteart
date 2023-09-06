@@ -17,9 +17,9 @@
 /**
  * Video.
  */
-export type Video = { id: string; url: string };
+export type Video = { id: string; url: string; width: number; height: number };
 
 /**
  * Video frame.
  */
-export type VideoFrame = { url: string; time: number };
+export type VideoFrame = Omit<Video, "id"> & { time: number };

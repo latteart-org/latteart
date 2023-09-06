@@ -164,7 +164,10 @@
         ]
       }
     },
-    "imageCompression": { "format": "png" },
+    "captureMediaSetting": {
+      "mediaType": "image",
+      "imageCompression": { "format": "png" }
+    },
     "testResultComparison": {
       "excludeItems": {
         "isEnabled": false,
@@ -174,9 +177,6 @@
         "isEnabled": false,
         "values": []
       }
-    },
-    "misoperationPrevention": {
-      "isShieldEnabled": true
     }
   },
   "captureSettings": {

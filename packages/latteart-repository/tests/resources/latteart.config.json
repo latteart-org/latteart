@@ -154,7 +154,9 @@
         "tags": []
       }
     },
-    "imageCompression": { "format": "png" },
-    "misoperationPrevention": { "isShieldEnabled": true }
+    "captureMediaSetting": {
+      "mediaType": "image",
+      "imageCompression": { "format": "png" }
+    }
   }
 }

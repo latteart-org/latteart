@@ -70,9 +70,7 @@ describe("WebBrowserは", () => {
         switchFrameTo: jest.fn(),
         switchDefaultContent: jest.fn(),
         getCurrentPageText: jest.fn(),
-        waitUntilFrameUnlock: jest.fn(),
-        lockFrame: jest.fn(),
-        unLockFrame: jest.fn(),
+        doActionInIframes: jest.fn(),
       };
       config = new CaptureConfig();
     });
@@ -91,20 +89,22 @@ describe("WebBrowserは", () => {
         .fn()
         // 1回目のupdateState
         .mockResolvedValueOnce("windowHandle1") // createWindows内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // createWindows内のinitGurd
+        .mockResolvedValueOnce(undefined) // createWindows内のinitGuard
+        .mockResolvedValueOnce(undefined) // createWindows内のattachShield
         .mockResolvedValueOnce(undefined) // createWindows内のinjectFunctionToDetectWindowSwitch(windowHandle1)
         .mockResolvedValueOnce(undefined) // createWindows内のwindow.focus(windowHandle1)
-        .mockResolvedValueOnce(undefined) // createWindows内のinitGurd
+        .mockResolvedValueOnce(undefined) // createWindows内のinitGuard
+        .mockResolvedValueOnce(undefined) // createWindows内のattachShield
         .mockResolvedValueOnce(undefined) // createWindows内のinjectFunctionToDetectWindowSwitch(windowHandle2)
         .mockResolvedValueOnce(undefined) // createWindows内のwindow.focus(windowHandle2)
         .mockResolvedValueOnce("windowHandle1") // updateState内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
         .mockResolvedValueOnce(undefined) // updateState内のinjectFunctionToDetectWindowSwitch
         // 2回目のupdateState
         .mockResolvedValueOnce("windowHandle2") // createWindows内のgetBrowsingWindowHandle
         .mockResolvedValueOnce("windowHandle2") // updateState内のgetBrowsingWindowHandle
-        .mockResolvedValueOnce(undefined) // updateState内のユーザ操作のアンブロック
         .mockResolvedValueOnce(undefined); // updateState内のinjectFunctionToDetectWindowSwitch
+
+      clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
 
       const browser = new WebBrowser(clientMock, config);
 

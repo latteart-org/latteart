@@ -32,7 +32,7 @@ import {
   DeserializedTestStep,
 } from "@/interfaces/exportData";
 import { VideoEntity } from "@/entities/VideoEntity";
-import { Video, VideoFrame } from "@/interfaces/Videos";
+import { VideoFrame } from "@/interfaces/Videos";
 
 export interface TestResultImportService {
   importTestResult(
@@ -311,6 +311,11 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       ? videoFilePathToEntity?.get(path.basename(videoFileUrl))
       : undefined;
 
+    if (videoEntity) {
+      videoEntity.height = testStep.operation.videoFrame?.height ?? 0;
+      videoEntity.width = testStep.operation.videoFrame?.width ?? 0;
+    }
+
     return new TestStepEntity({
       pageTitle: testStep.operation.title,
       pageUrl: testStep.operation.url,
@@ -359,6 +364,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       value: note.value,
       details: note.details,
       timestamp: note.timestamp,
+      videoTime: note.videoFrame?.time,
       screenshot: screenshotEntity,
       tags: tagEntities,
       video: videoEntity,

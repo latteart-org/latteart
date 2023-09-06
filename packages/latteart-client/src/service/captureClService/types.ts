@@ -69,7 +69,6 @@ export type CaptureEventListeners = {
   onAddWindow?: (windowHandle: string, title: string) => Promise<void>;
   onPause?: () => void;
   onResume?: () => void;
-  onChangeShield?: () => void;
   onUpdateWindowTitle?: (windowHandle: string, title: string) => Promise<void>;
 };
 
@@ -176,16 +175,6 @@ export type CaptureSession = {
   switchWindow(destWindowHandle: string): void;
 
   /**
-   * protect windows from user operations
-   */
-  protectWindows(): void;
-
-  /**
-   * unprotect windows from user operations
-   */
-  unprotectWindows(): void;
-
-  /**
    * pause capture
    */
   pauseCapture(): void;
@@ -194,11 +183,6 @@ export type CaptureSession = {
    * resume capture
    */
   resumeCapture(): void;
-
-  /**
-   * set shield enabled
-   */
-  setShieldEnabled(isShieldEnabled: boolean): void;
 
   /**
    * set recording video

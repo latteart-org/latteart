@@ -137,7 +137,7 @@ describe("TestStepService", () => {
         url: "url",
         imageData: "imageData",
         windowHandle: "windowHandle",
-        screenElements: [{ elements: [element2] }] as any,
+        screenElements: [{ elements: [element2] }],
         timestamp: 100,
         pageSource: "pageSource",
         isAutomatic: false,
@@ -185,12 +185,7 @@ describe("TestStepService", () => {
           screenElements: [
             ...defaultScreenElements,
             ...requestBody.screenElements
-              .map((e) => {
-                return e.elements.map((e2) => {
-                  e2.iframeIndex = e.iframeIndex;
-                  return e2;
-                });
-              })
+              .map(({ elements }) => elements)
               .flat(),
           ],
         },

@@ -158,9 +158,13 @@ export default ${pageObjectName};
           ? generateFindElementMultiAccessorString(
               identifier,
               elem.locators,
-              elem.iframeIndex
+              elem.iframe?.index
             )
-          : generateAccessorString(identifier, elem.locators, elem.iframeIndex);
+          : generateAccessorString(
+              identifier,
+              elem.locators,
+              elem.iframe?.index
+            );
       }
     );
   }

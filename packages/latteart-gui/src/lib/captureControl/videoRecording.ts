@@ -24,7 +24,7 @@ import {
 export type VideoRecorder = {
   readonly recordingVideo?: Video & { startTimestamp: number };
   startRecording(): Promise<ServiceResult<void>>;
-  requestData(): void;
+  updateVideo(): Promise<void>;
 };
 
 export function createVideoRecorder(
@@ -50,7 +50,15 @@ class VideoRecorderImpl implements VideoRecorder {
   public async startRecording(): Promise<ServiceResult<void>> {
     const { startTimestamp, mediaRecorder } = await this.startMediaRecorder();
 
-    const createVideoResult = await this.testResult.createVideo();
+    const videoTrackSettings = mediaRecorder.stream
+      .getVideoTracks()
+      .at(0)
+      ?.getSettings();
+
+    const createVideoResult = await this.testResult.createVideo({
+      width: videoTrackSettings?.width ?? 0,
+      height: videoTrackSettings?.height ?? 0,
+    });
 
     if (createVideoResult.isFailure()) {
       return createVideoResult;
@@ -59,20 +67,37 @@ class VideoRecorderImpl implements VideoRecorder {
     this.mediaRecorder = mediaRecorder;
     this.videoInfo = { ...createVideoResult.data, startTimestamp };
 
-    this.requestData();
+    await this.updateVideo();
 
     return new ServiceSuccess(undefined);
   }
 
-  public requestData(): void {
-    if (this.mediaRecorder === null) {
-      return;
-    }
-    if (this.mediaRecorder.state !== "recording") {
-      return;
-    }
+  public updateVideo(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if (this.mediaRecorder === null) {
+        resolve();
+        return;
+      }
 
-    this.mediaRecorder.requestData();
+      if (this.mediaRecorder.state !== "recording") {
+        resolve();
+        return;
+      }
+
+      this.mediaRecorder.ondataavailable = async (blobEvent) => {
+        if (!this.videoInfo) {
+          resolve();
+          return;
+        }
+
+        const buffer = await blobEvent.data.arrayBuffer();
+
+        await this.testResult.appendVideoBuffer(this.videoInfo?.id, buffer);
+        resolve();
+      };
+
+      this.mediaRecorder.requestData();
+    });
   }
 
   private async startMediaRecorder() {
@@ -91,13 +116,7 @@ class VideoRecorderImpl implements VideoRecorder {
         mimeType: "video/webm; codecs=vp9",
         videoBitsPerSecond: 2048000,
       });
-      mediaRecorder.ondataavailable = async (blobEvent) => {
-        const buffer = await blobEvent.data.arrayBuffer();
 
-        if (this.videoInfo) {
-          this.testResult.appendVideoBuffer(this.videoInfo?.id, buffer);
-        }
-      };
       mediaRecorder.onstart = () => {
         resolve({
           startTimestamp: new Date().getTime(),

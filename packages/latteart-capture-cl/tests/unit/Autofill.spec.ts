@@ -7,13 +7,7 @@ describe("Autofill", () => {
   };
 
   describe("#execute", () => {
-    const client: any = {
-      waitUntilFrameUnlock: jest.fn(),
-      switchDefaultContent: jest.fn(),
-      switchFrameTo: jest.fn(),
-      lockFrame: jest.fn(),
-      unLockFrame: jest.fn(),
-    };
+    const client: any = {};
 
     it("selectboxに値を設定", async () => {
       const inputValueSets: InputValueSet[] = [

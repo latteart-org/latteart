@@ -154,12 +154,28 @@ export default class WebBrowserWindow {
   }
 
   public async getReadyToCapture(captureArch: "pull" | "push"): Promise<void> {
-    const execute = async (iframeIndex?: number) => {
+    const doGetReadyToCapture = async (
+      urlAndTitle: { url: string; title: string },
+      iframe?: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      }
+    ) => {
       const isReadyToCapture =
-        (await this.client.execute(
-          captureScript.isReadyToCapture,
-          captureArch === "pull"
-        )) ?? false;
+        (await this.client.execute(captureScript.isReadyToCapture, {
+          shouldTakeScreenshot: captureArch === "pull",
+          url: urlAndTitle.url,
+          title: urlAndTitle.title,
+        })) ?? false;
 
       if (isReadyToCapture) {
         return;
@@ -176,29 +192,19 @@ export default class WebBrowserWindow {
         (await this.injectFunctionToHandleCapturedEvent(
           [WebBrowser.SHIELD_ID],
           captureArch,
-          iframeIndex
+          iframe
         )) &&
         (await this.resetEventListeners());
     };
 
-    try {
-      await this.client.waitUntilFrameUnlock();
+    const urlAndTitle = (await this.client.execute(
+      captureScript.getUrlAndTitle
+    )) ?? { url: "", title: "" };
+    await doGetReadyToCapture(urlAndTitle);
 
-      const lockId = "injectScript";
-      this.client.lockFrame(lockId);
-
-      const numberOfIframes = await this.getNumberOfIframes();
-
-      for (let i = 0; i < numberOfIframes; i++) {
-        await this.client.switchFrameTo(i, lockId);
-        await execute(i);
-        await this.client.switchDefaultContent(lockId);
-      }
-
-      await execute();
-    } finally {
-      this.client.unLockFrame();
-    }
+    await this.client.doActionInIframes("injectScript", (iframe) =>
+      doGetReadyToCapture(urlAndTitle, iframe)
+    );
   }
 
   /**
@@ -253,7 +259,11 @@ export default class WebBrowserWindow {
     shouldTakeScreenshot: boolean
   ) {
     const clientSize = await this.client.getClientSize();
-    const elements = await this.collectAllFrameScreenElements();
+    let elements = await this.collectAllFrameScreenElements();
+
+    if (capturedData.operation.url !== (await this.client.getCurrentUrl())) {
+      elements = [];
+    }
 
     const capturedOperations = await this.convertToCapturedOperations(
       [{ ...capturedData, elements }],
@@ -302,6 +312,8 @@ export default class WebBrowserWindow {
   public createCapturedOperation(args: {
     type: string;
     windowHandle: string;
+    url?: string;
+    title?: string;
     input?: string;
     scrollPosition?: { x: number; y: number };
     clientSize?: { width: number; height: number };
@@ -318,8 +330,8 @@ export default class WebBrowserWindow {
       elementInfo: args.elementInfo ?? null,
       screenElements: args.screenElements ?? [],
       windowHandle: args.windowHandle,
-      title: this.currentScreenSummary.title,
-      url: this.currentScreenSummary.url,
+      title: args.title ?? this.currentScreenSummary.title,
+      url: args.url ?? this.currentScreenSummary.url,
       imageData: this.currentOperationSummary.screenshotBase64,
       pageSource: args.pageSource ?? "",
     };
@@ -430,45 +442,20 @@ export default class WebBrowserWindow {
    * Pause capturing.
    */
   public async pauseCapturing(): Promise<void> {
-    await this.client.waitUntilFrameUnlock();
-    const lockId = "pauseCapturing";
-    this.client.lockFrame(lockId);
+    const action = () => this.client.execute(captureScript.pauseCapturing);
 
-    try {
-      await this.client.execute(captureScript.pauseCapturing);
-
-      const numberOfIframes = await this.getNumberOfIframes();
-
-      for (let i = 0; i < numberOfIframes; i++) {
-        await this.client.switchFrameTo(i, lockId);
-        await this.client.execute(captureScript.pauseCapturing);
-        await this.client.switchDefaultContent(lockId);
-      }
-    } finally {
-      this.client.unLockFrame();
-    }
+    await action();
+    await this.client.doActionInIframes("pauseCapturing", action);
   }
 
   /**
    * Resume capturing.
    */
   public async resumeCapturing(): Promise<void> {
-    await this.client.waitUntilFrameUnlock();
-    const lockId = "resumeCapturing";
-    this.client.lockFrame(lockId);
-    try {
-      await this.client.execute(captureScript.resumeCapturing);
+    const action = () => this.client.execute(captureScript.resumeCapturing);
 
-      const numberOfIframes = await this.getNumberOfIframes();
-
-      for (let i = 0; i < numberOfIframes; i++) {
-        await this.client.switchFrameTo(i, lockId);
-        await this.client.execute(captureScript.resumeCapturing);
-        await this.client.switchDefaultContent(lockId);
-      }
-    } finally {
-      this.client.unLockFrame();
-    }
+    await action();
+    await this.client.doActionInIframes("resumeCapturing", action);
   }
 
   /**
@@ -479,13 +466,6 @@ export default class WebBrowserWindow {
     return (
       (await this.client.execute(captureScript.capturingIsPaused)) ?? false
     );
-  }
-
-  public async getNumberOfIframes(): Promise<number> {
-    const numberOfIframes = await this.client.execute(
-      captureScript.getNumberOfIframes
-    );
-    return numberOfIframes === null ? 0 : numberOfIframes;
   }
 
   private noticeCapturedOperations(...operations: Operation[]) {
@@ -545,39 +525,20 @@ export default class WebBrowserWindow {
       elements: CapturedElementInfo[];
     }[]
   > {
-    try {
-      await this.client.waitUntilFrameUnlock();
+    const action = async () =>
+      (await this.client.execute(captureScript.collectScreenElements)) ?? [];
 
-      const lockId = "collectScreenElements";
-      this.client.lockFrame(lockId);
+    const elementsInDefaultContent = {
+      iframeIndex: undefined,
+      elements: await action(),
+    };
+    const elementsInIFrames = (
+      await this.client.doActionInIframes("collectScreenElements", action)
+    ).map(({ iframe, result }) => {
+      return { iframeIndex: iframe.index, elements: result };
+    });
 
-      const numberOfIframes = await this.getNumberOfIframes();
-
-      const elementsInIFrames = await Promise.all(
-        [...Array(numberOfIframes)].map(async (_, iframeIndex) => {
-          await this.client.switchFrameTo(iframeIndex, lockId);
-
-          const elements =
-            (await this.client.execute(captureScript.collectScreenElements)) ??
-            [];
-
-          await this.client.switchDefaultContent(lockId);
-
-          return { iframeIndex, elements };
-        })
-      );
-
-      const elementsInDefaultContent = {
-        iframeIndex: undefined,
-        elements:
-          (await this.client.execute(captureScript.collectScreenElements)) ??
-          [],
-      };
-
-      return [...elementsInIFrames, elementsInDefaultContent];
-    } finally {
-      this.client.unLockFrame();
-    }
+    return [...elementsInIFrames, elementsInDefaultContent];
   }
 
   private capturedDataHasChangeEventFiredByMouseClick(
@@ -623,7 +584,6 @@ export default class WebBrowserWindow {
 
   private async convertToCapturedOperations(
     capturedDatas: (Omit<CapturedData, "eventInfo"> & {
-      iframeIndex?: number;
       elements: {
         iframeIndex?: number;
         elements: CapturedElementInfo[];
@@ -669,25 +629,24 @@ export default class WebBrowserWindow {
         (data) => data.operation.elementInfo.boundingRect
       );
 
+      const action = () =>
+        new MarkedScreenShotTaker(this.client).takeScreenshotWithMarkOf(
+          boundingRects
+        );
+
       for (const data of filteredDatas) {
-        await this.client.waitUntilFrameUnlock();
-        const lockId = "takeScreenshot";
-        this.client.lockFrame(lockId);
+        if (data.iframe !== undefined) {
+          const results = await this.client.doActionInIframes(
+            "takeScreenshot",
+            action,
+            { iframeIndexes: [data.iframe.index] }
+          );
 
-        try {
-          if (data.iframeIndex !== undefined) {
-            await this.client.switchFrameTo(data.iframeIndex, lockId);
-          }
-
-          screenShotBase64 = await new MarkedScreenShotTaker(
-            this.client
-          ).takeScreenshotWithMarkOf(boundingRects);
-
-          if (data.iframeIndex !== undefined) {
-            await this.client.switchDefaultContent(lockId);
-          }
-        } finally {
-          this.client.unLockFrame();
+          screenShotBase64 =
+            results.find(({ iframe }) => iframe.index === data.iframe?.index)
+              ?.result ?? "";
+        } else {
+          screenShotBase64 = await action();
         }
       }
     }
@@ -707,7 +666,7 @@ export default class WebBrowserWindow {
           xpath: data.operation.elementInfo.xpath,
           attributes: data.operation.elementInfo.attributes,
           boundingRect: data.operation.elementInfo.boundingRect,
-          iframeIndex: data.iframeIndex,
+          iframe: data.iframe,
           innerHeight: data.operation.elementInfo.innerHeight,
           innerWidth: data.operation.elementInfo.innerWidth,
           outerHeight: data.operation.elementInfo.outerHeight,
@@ -718,21 +677,23 @@ export default class WebBrowserWindow {
         }
 
         let pageSource = "";
-        await this.client.waitUntilFrameUnlock();
-        const lockId = "getCurrentPageText";
-        this.client.lockFrame(lockId);
-        try {
-          if (data.iframeIndex !== undefined) {
-            await this.client.switchFrameTo(data.iframeIndex, lockId);
-          }
+        const action = () => this.client.getCurrentPageText();
 
-          pageSource = await this.client.getCurrentPageText();
+        if (data.iframe !== undefined) {
+          const results = await this.client.doActionInIframes(
+            "getCurrentPageText",
+            action,
+            { iframeIndexes: [data.iframe.index] }
+          );
 
-          if (data.iframeIndex !== undefined) {
-            await this.client.switchDefaultContent(lockId);
-          }
-        } finally {
-          this.client.unLockFrame();
+          pageSource =
+            results.find(({ iframe }) => iframe.index === data.iframe?.index)
+              ?.result ?? "";
+        } else {
+          pageSource = await action();
+        }
+        if (data.operation.url !== (await this.client.getCurrentUrl())) {
+          pageSource = "";
         }
 
         return this.createCapturedOperation({
@@ -743,6 +704,8 @@ export default class WebBrowserWindow {
           elementInfo,
           screenElements: data.elements,
           windowHandle: this._windowHandle,
+          url: data.operation.url,
+          title: data.operation.title,
           pageSource,
           timestamp: data.operation.timestamp,
         });
@@ -830,11 +793,23 @@ export default class WebBrowserWindow {
   private async injectFunctionToHandleCapturedEvent(
     ignoreElementIds: string[],
     captureType: "pull" | "push",
-    iframeIndex?: number
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }
   ): Promise<boolean | null> {
     return await this.client.execute(
       captureScript.setFunctionToHandleCapturedEvent,
-      { ignoreElementIds, captureType, iframeIndex }
+      { ignoreElementIds, captureType, iframe }
     );
   }
 
@@ -845,48 +820,18 @@ export default class WebBrowserWindow {
   private async pullCapturedDatasEveryIframe(): Promise<
     SuspendedCapturedData[]
   > {
-    try {
-      const lockId = "pullCapturedDatas";
-      await this.client.waitUntilFrameUnlock();
+    const action = () => this.pullCapturedDatas();
 
-      this.client.lockFrame(lockId);
+    const defaultContentCapturedDatas = await action();
+    const iframeCapturedDatas = (
+      await this.client.doActionInIframes("pullCapturedDatas", action)
+    ).flatMap(({ result }) => result);
 
-      const allFrameCapturedDatas = [
-        ...(
-          await Promise.all(
-            [...Array(await this.getNumberOfIframes())].map(
-              async (_, iframeIndex) => {
-                await this.client.switchFrameTo(iframeIndex, lockId);
-
-                const capturedDatas = await this.pullCapturedDatas();
-
-                await this.client.switchDefaultContent(lockId);
-
-                return capturedDatas;
-              }
-            )
-          )
-        ).flat(),
-        ...(await this.pullCapturedDatas()),
-      ];
-
-      return allFrameCapturedDatas;
-    } finally {
-      this.client.unLockFrame();
-    }
+    return [...defaultContentCapturedDatas, ...iframeCapturedDatas];
   }
 
   private async refireSuspendedEvent(capturedData: SuspendedCapturedData) {
-    try {
-      const lockId = "refireSuspendedEvent";
-      await this.client.waitUntilFrameUnlock();
-
-      this.client.lockFrame(lockId);
-
-      if (capturedData.iframeIndex !== undefined) {
-        await this.client.switchFrameTo(capturedData.iframeIndex, lockId);
-      }
-
+    const action = async () => {
       if (capturedData.suspendedEvent.refireType === "inputDate") {
         await this.client.sendKeys(
           capturedData.operation.elementInfo.xpath,
@@ -895,12 +840,14 @@ export default class WebBrowserWindow {
       } else {
         await capturedData.suspendedEvent.refire();
       }
+    };
 
-      if (capturedData.iframeIndex !== undefined) {
-        await this.client.switchDefaultContent(lockId);
-      }
-    } finally {
-      this.client.unLockFrame();
+    if (capturedData.iframe !== undefined) {
+      await this.client.doActionInIframes("refireSuspendedEvent", action, {
+        iframeIndexes: [capturedData.iframe.index],
+      });
+    } else {
+      await action();
     }
   }
 
@@ -933,7 +880,7 @@ export default class WebBrowserWindow {
       .map((data) => {
         return {
           operation: data.operation,
-          iframeIndex: data.iframeIndex,
+          iframe: data.iframe,
           suspendedEvent: {
             refireType: getRefireType(data),
             refire: () => refire(data.eventInfo),

@@ -21,7 +21,19 @@ export type CapturedData = {
   operation: CapturedOperationInfo;
   eventInfo: EventInfo;
   windowHandle?: string;
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 };
 
 /**
@@ -109,7 +121,11 @@ export type CaptureScript = {
    * Whether it is ready to capture or not.
    * @returns 'true': It is ready to capture, 'false': It is not ready to capture.
    */
-  isReadyToCapture: (shouldTakeScreenshot: boolean) => boolean;
+  isReadyToCapture: (args: {
+    shouldTakeScreenshot: boolean;
+    url: string;
+    title: string;
+  }) => boolean;
   /**
    * Reset event listeners
    */
@@ -134,16 +150,25 @@ export type CaptureScript = {
   setFunctionToHandleCapturedEvent: (args: {
     ignoreElementIds: string[];
     captureType: "pull" | "push";
-    iframeIndex?: number;
+    iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    };
   }) => boolean;
   setFunctionToDetectWindowSwitch: ({
     windowHandle,
-    shieldId,
     shieldStyle,
-    isShieldEnabled,
   }: {
     windowHandle: string;
-    shieldId: string;
     shieldStyle: {
       position: string;
       zIndex: string;
@@ -152,10 +177,9 @@ export type CaptureScript = {
       opacity: string;
       backgroundColor: string;
     };
-    isShieldEnabled: boolean;
   }) => void;
   refireEvent: (eventInfo: EventInfo) => void;
-  unblockUserOperations: ({
+  detachShield: ({
     windowHandle,
     shieldId,
   }: {
@@ -190,8 +214,7 @@ export type CaptureScript = {
   observeCurrentScreen: () => void;
   focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
-  setShieldEnabled: (isShieldEnabled: boolean) => void;
-  getNumberOfIframes: () => number;
+  getUrlAndTitle: () => { url: string; title: string };
 };
 
 /**
@@ -215,7 +238,7 @@ export const captureScript: CaptureScript = {
   setFunctionToHandleCapturedEvent,
   setFunctionToDetectWindowSwitch,
   refireEvent,
-  unblockUserOperations,
+  detachShield,
   getBrowsingWindowHandle,
   markRect,
   unmarkElements,
@@ -224,8 +247,7 @@ export const captureScript: CaptureScript = {
   observeCurrentScreen,
   focusWindow,
   collectScreenElements,
-  setShieldEnabled,
-  getNumberOfIframes,
+  getUrlAndTitle,
 };
 
 export type CapturedElementInfo = {
@@ -259,6 +281,8 @@ type ExtendedDocument = Document & {
   __capturingIsPaused?: boolean;
   __protected?: boolean;
   __completedInjectFunction?: boolean;
+  __parentUrl?: string;
+  __parentTitle?: string;
   handleCapturedEvent?: (e: Event) => void;
   extractElements?: (
     parent: Element,
@@ -365,22 +389,17 @@ function pullCapturedDatas() {
     result.push(extendedDocument.__sendDatas.shift()!);
   }
 
-  return result.map((item) => {
-    return {
-      ...item,
-      operation: {
-        ...item.operation,
-        input:
-          typeof item.operation.input === "string"
-            ? item.operation.input
-            : (item.operation.input as number).toString(),
-      },
-    };
-  });
+  return result;
 }
 
-function isReadyToCapture(shouldTakeScreenshot: boolean) {
+function isReadyToCapture(args: {
+  shouldTakeScreenshot: boolean;
+  url: string;
+  title: string;
+}) {
   const extendedDocument: ExtendedDocument = document;
+  extendedDocument.__parentUrl = args.url;
+  extendedDocument.__parentTitle = args.title;
 
   if (extendedDocument.handleCapturedEvent === undefined) return false;
   if (extendedDocument.extractElements === undefined) return false;
@@ -388,7 +407,7 @@ function isReadyToCapture(shouldTakeScreenshot: boolean) {
   if (extendedDocument.collectVisibleElements === undefined) return false;
   if (
     extendedDocument.enqueueEventForReFire === undefined &&
-    shouldTakeScreenshot
+    args.shouldTakeScreenshot
   )
     return false;
   if (extendedDocument.buildOperationInfo === undefined) return false;
@@ -727,11 +746,11 @@ function setFunctionToBuildOperationInfo() {
     }
 
     return {
-      input: element.value ? element.value : "",
+      input: element.value != null ? `${element.value}` : "",
       type: eventType,
       elementInfo,
-      title: extendedDocument.title,
-      url: extendedDocument.URL,
+      title: extendedDocument.__parentTitle ?? "",
+      url: extendedDocument.__parentUrl ?? "",
       scrollPosition: {
         x: window.scrollX,
         y: window.scrollY,
@@ -745,7 +764,19 @@ function setFunctionToBuildOperationInfo() {
 function setFunctionToHandleCapturedEvent(args: {
   ignoreElementIds: string[];
   captureType: "pull" | "push";
-  iframeIndex?: number;
+  iframe?: {
+    index: number;
+    boundingRect: {
+      top: number;
+      left: number;
+      width: number;
+      height: number;
+    };
+    innerHeight: number;
+    innerWidth: number;
+    outerHeight: number;
+    outerWidth: number;
+  };
 }) {
   const extendedDocument: ExtendedDocument = document;
 
@@ -821,8 +852,8 @@ function setFunctionToHandleCapturedEvent(args: {
         },
       };
       extendedDocument.__sendDatas.push(
-        args.iframeIndex !== undefined
-          ? { ...sendData, iframeIndex: args.iframeIndex }
+        args.iframe !== undefined
+          ? { ...sendData, iframe: args.iframe }
           : sendData
       );
     } else {
@@ -833,8 +864,8 @@ function setFunctionToHandleCapturedEvent(args: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          args.iframeIndex !== undefined
-            ? { operation, iframeIndex: args.iframeIndex }
+          args.iframe !== undefined
+            ? { operation, iframe: args.iframe }
             : { operation }
         ),
       });
@@ -845,12 +876,9 @@ function setFunctionToHandleCapturedEvent(args: {
 
 function setFunctionToDetectWindowSwitch({
   windowHandle,
-  shieldId,
   shieldStyle,
-  isShieldEnabled,
 }: {
   windowHandle: string;
-  shieldId: string;
   shieldStyle: {
     position: string;
     zIndex: string;
@@ -859,15 +887,10 @@ function setFunctionToDetectWindowSwitch({
     opacity: string;
     backgroundColor: string;
   };
-  isShieldEnabled: boolean;
 }) {
   const extendedWindow: ExtendedWindowForWindowSwitch = window;
 
   const extendedDocument: ExtendedDocument = document;
-
-  if (extendedDocument.__capturingIsPaused) {
-    return;
-  }
 
   const __LATTEART_INIT_GUARD__ = "__latteart_init_guard__";
   const initGuard = extendedDocument.getElementById(__LATTEART_INIT_GUARD__);
@@ -925,44 +948,8 @@ function setFunctionToDetectWindowSwitch({
     extendedWindow.setWindowHandleToLocalStorage
   );
 
-  if (localStorage != null && localStorage.isShieldEnabled === undefined) {
-    localStorage.isShieldEnabled = isShieldEnabled;
-  }
-
   if (!extendedWindow.removeWindowHandleToLocalStorage) {
     extendedWindow.removeWindowHandleToLocalStorage = () => {
-      if (extendedDocument.__capturingIsPaused) {
-        return;
-      }
-      // Block user operations.
-      (() => {
-        const target = document.getElementById(shieldId);
-
-        if (target) {
-          return;
-        }
-
-        const isShieldEnabled =
-          localStorage != null && localStorage.isShieldEnabled !== undefined
-            ? JSON.parse(localStorage.isShieldEnabled.toLowerCase())
-            : true;
-
-        if (!isShieldEnabled) {
-          return;
-        }
-
-        const shield = document.createElement("div");
-        shield.id = shieldId;
-        shield.style.position = "absolute";
-        shield.style.zIndex = "2147483647";
-        shield.style.width = "100%";
-        shield.style.height = `${document.body.clientHeight}px`;
-        shield.style.opacity = "0.6";
-        shield.style.backgroundColor = "#333";
-
-        document.body.insertAdjacentElement("afterbegin", shield);
-      })();
-
       const isLocalStorageEnabled = (() => {
         try {
           return localStorage !== undefined && localStorage !== null;
@@ -1079,7 +1066,7 @@ function refireEvent(eventInfo: EventInfo) {
   }
 }
 
-function unblockUserOperations({
+function detachShield({
   windowHandle,
   shieldId,
 }: {
@@ -1218,22 +1205,7 @@ function collectScreenElements() {
   return elements;
 }
 
-function setShieldEnabled(isShieldEnabled: boolean) {
-  const isLocalStorageEnabled = (() => {
-    try {
-      return localStorage !== undefined && localStorage !== null;
-    } catch (e) {
-      return false;
-    }
-  })();
-
-  if (!isLocalStorageEnabled) {
-    return;
-  }
-
-  localStorage.isShieldEnabled = isShieldEnabled;
-}
-
-function getNumberOfIframes() {
-  return document.getElementsByTagName("iframe").length;
+function getUrlAndTitle() {
+  const extendedDocument: ExtendedDocumentForScreenTransition = document;
+  return { url: extendedDocument.URL, title: extendedDocument.title };
 }

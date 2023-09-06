@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ScreenElements, VideoFrame } from "@/service";
+import { ScreenElements, VideoFrame } from "../../service";
 
 export type TestResultViewOptionForRepository = {
   node: {
@@ -224,6 +224,7 @@ export type SettingsForRepository = {
           elementInfo: ElementInfoForRepository | null;
           title: string;
           url: string;
+          timestamp: string;
           iframeIndex?: number;
         }[];
       }[];
@@ -256,7 +257,6 @@ export type SettingsForRepository = {
         values: { tagname: string }[];
       };
     };
-    misoperationPrevention: { isShieldEnabled: boolean };
   };
 };
 

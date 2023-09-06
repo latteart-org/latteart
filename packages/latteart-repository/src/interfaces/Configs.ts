@@ -83,7 +83,6 @@ export type ProjectConfig = {
         values: { tagname: string }[];
       };
     };
-    misoperationPrevention: { isShieldEnabled: boolean };
   };
 };
 
@@ -91,10 +90,7 @@ export type ProjectConfig = {
  * Old style project settings.
  */
 export type OldStyleProjectConfig = Omit<ProjectConfig, "config"> & {
-  config: Omit<
-    ProjectConfig["config"],
-    "captureMediaSetting" | "misoperationPrevention"
-  > & {
+  config: Omit<ProjectConfig["config"], "captureMediaSetting"> & {
     imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
   };
 };

@@ -205,11 +205,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
       };
 
-      session.setShieldEnabled(false);
       const runOperationsResult = await session
         .automate({ preScript })
         .runOperations(...operations);
-      session.setShieldEnabled(true);
 
       if (runOperationsResult.isFailure()) {
         const elementInfo = runOperationsResult.error.variables?.elementInfo
@@ -304,14 +302,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   switchCapturingWindow(context, payload: { to: string }) {
     context.state.captureSession?.switchWindow(payload.to);
-  },
-
-  switchCancel(context) {
-    context.state.captureSession?.unprotectWindows();
-  },
-
-  selectCapturingWindow(context) {
-    context.state.captureSession?.protectWindows();
   },
 
   /**
@@ -434,7 +424,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
               return {
                 ...element,
                 xpath: element.xpath.toLowerCase(),
-                iframeIndex: element.iframeIndex,
+                iframeIndex: element.iframe?.index,
                 attributes: element.attributes,
                 inputValue:
                   element.tagname === "INPUT" &&
@@ -477,6 +467,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState as any
       ).operationHistory;
 
+      await payload.videoRecorder?.updateVideo();
+
       context.commit(
         "operationHistory/addTestStepId",
         { testStepId: id },
@@ -500,8 +492,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         },
         { root: true }
       );
-
-      payload.videoRecorder?.requestData();
     };
 
     const callbacks = {
@@ -587,9 +577,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       },
       onResume: async () => {
         context.commit("setPaused", { isPaused: false });
-      },
-      onChangeShield: async () => {
-        /**Do nothing */
       },
       onUpdateWindowTitle: async (windowHandle: string, title: string) => {
         context.commit(
@@ -690,11 +677,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       }
 
       const session = result.data;
-
-      session.setShieldEnabled(
-        context.rootState.projectSettings.config.misoperationPrevention
-          .isShieldEnabled
-      );
 
       if (videoRecorder) {
         const startRecordingResult = await videoRecorder.startRecording();
@@ -797,15 +779,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    */
   resetTimer(context, payload?: { millis: number }) {
     context.state.timer.reset(payload?.millis);
-  },
-
-  /**
-   * Set shield enabled.
-   * @param context Action context.
-   * @param payload.isShieldEnabled Shield setting.
-   */
-  setShieldEnabled(context, payload: { isShieldEnabled: boolean }) {
-    context.state.captureSession?.setShieldEnabled(payload.isShieldEnabled);
   },
 };
 

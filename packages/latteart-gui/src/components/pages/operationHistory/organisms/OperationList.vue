@@ -276,7 +276,7 @@ export default class OperationList extends Vue {
   private checkedItems: HistoryItemForDisplay[] = [];
   private search = "";
   private page: number = 1;
-  private itemsPerPage: number = -1;
+  private itemsPerPage: number = 100;
   private itemsPerPageOptions: number[] = [100, 200, 500, 1000];
   private sortBy = "operation.sequence";
   private sortDesc = false;
@@ -432,7 +432,7 @@ export default class OperationList extends Vue {
         text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
         attributes: { ...elementInfo?.attributes },
         xpath: elementInfo?.xpath ?? "",
-        iframeIndex: elementInfo?.iframeIndex,
+        iframeIndex: elementInfo?.iframe?.index,
       };
 
       const operation: OperationForDisplay = {

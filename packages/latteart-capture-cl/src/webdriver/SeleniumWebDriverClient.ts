@@ -92,7 +92,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getAllWindowHandles();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return [];
         }
       }
@@ -108,7 +116,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.switchTo().window(windowHandle);
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return;
         }
       }
@@ -116,78 +132,96 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
-  /**
-   * @inheritdoc
-   */
-  public async switchFrameTo(
-    iframeIndex: number,
-    lockId: string
-  ): Promise<void> {
-    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
-      throw new Error(`locked frame. ${lockId}`);
-    }
+  public async doActionInIframes<T>(
+    lockId: string,
+    action: (iframe?: {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }) => Promise<T>,
+    where?: { iframeIndexes: number[] }
+  ): Promise<
+    {
+      iframe: {
+        index: number;
+        boundingRect: {
+          top: number;
+          left: number;
+          width: number;
+          height: number;
+        };
+        innerHeight: number;
+        innerWidth: number;
+        outerHeight: number;
+        outerWidth: number;
+      };
+      result: T;
+    }[]
+  > {
     try {
-      return await this.driver.switchTo().frame(iframeIndex);
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.name === "NoSuchFrameError") {
-          return;
+      await this.waitUntilFrameUnlock();
+      this.lockFrame(lockId);
+
+      const iframes = await this.getIframes();
+      const results: {
+        iframe: {
+          index: number;
+          boundingRect: {
+            top: number;
+            left: number;
+            width: number;
+            height: number;
+          };
+          innerHeight: number;
+          innerWidth: number;
+          outerHeight: number;
+          outerWidth: number;
+        };
+        result: T;
+      }[] = [];
+
+      for (const iframe of iframes) {
+        if (where && !where.iframeIndexes.includes(iframe.index)) {
+          continue;
+        }
+
+        try {
+          await this.switchFrameTo(iframe.index, lockId);
+          results.push({ iframe, result: await action(iframe) });
+        } catch (error) {
+          if (error instanceof Error) {
+            if (
+              [
+                "NoSuchWindowError",
+                "NoSuchFrameError",
+                "NoSuchElementError",
+                "StaleElementReferenceError",
+                "WebDriverError",
+              ].includes(error.name)
+            ) {
+              LoggingService.debug(`${error}`);
+              continue;
+            }
+          }
+
+          throw error;
+        } finally {
+          await this.switchDefaultContent(lockId);
         }
       }
-      throw error;
+
+      return results;
+    } finally {
+      this.unLockFrame();
     }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public async switchDefaultContent(lockId: string): Promise<void> {
-    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
-      throw new Error(`locked frame. ${lockId}`);
-    }
-
-    try {
-      return await this.driver.switchTo().defaultContent();
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public lockFrame(lockId: string): void {
-    this.frameLockedId = lockId;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public unLockFrame(): void {
-    this.frameLockedId = "";
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public isLockedFrame(): boolean {
-    return this.frameLockedId !== "";
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public async waitUntilFrameUnlock(): Promise<void> {
-    for (let i = 0; i < 20; i++) {
-      if (!this.isLockedFrame()) {
-        return;
-      }
-      await this.sleep(100);
-    }
-    throw new Error(`timeout while waiting for unlock. ${this.frameLockedId}`);
   }
 
   /**
@@ -205,7 +239,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getCurrentUrl();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -222,7 +264,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     } catch (error) {
       if (error instanceof Error) {
         console.error(error);
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -238,7 +288,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getTitle();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -254,7 +312,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return this.driver.takeScreenshot();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -284,7 +350,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       return await this.driver.getPageSource();
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name == "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
           return "";
         }
       }
@@ -306,14 +380,18 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         `
       );
     } catch (error) {
+      LoggingService.debug("get current page text failed.");
       if (error instanceof Error) {
         if (
           [
             "NoSuchWindowError",
+            "NoSuchFrameError",
             "NoSuchElementError",
             "StaleElementReferenceError",
+            "WebDriverError",
           ].includes(error.name)
         ) {
+          LoggingService.debug(`${error}`);
           return "";
         }
       }
@@ -330,7 +408,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   ): Promise<T | null> {
     try {
       let notReady = true;
-      for (let cnt = 0; cnt < 30; cnt++) {
+      for (let cnt = 0; cnt < 100; cnt++) {
         notReady =
           (await this.driver.executeScript(
             `return !document || !document.body`
@@ -343,11 +421,20 @@ export class SeleniumWebDriverClient implements WebDriverClient {
       if (notReady) {
         throw new Error("timeout error");
       }
-
       return await this.driver.executeScript(script, args);
     } catch (error) {
+      LoggingService.debug("execute failed.");
       if (error instanceof Error) {
-        if (error.name == "NoSuchWindowError") {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
+          LoggingService.debug(`${error}`);
           return null;
         }
       }
@@ -426,10 +513,29 @@ export class SeleniumWebDriverClient implements WebDriverClient {
    * @inheritdoc
    */
   public async getDocumentReadyState(): Promise<string> {
-    const readyState = (await this.driver.executeScript(
-      "return document.readyState"
-    )) as string;
-    return readyState;
+    try {
+      const readyState = (await this.driver.executeScript(
+        "return document.readyState"
+      )) as string;
+      return readyState;
+    } catch (error) {
+      LoggingService.debug("get document ready state failed.");
+      if (error instanceof Error) {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
+          LoggingService.debug(`${error}`);
+          return "";
+        }
+      }
+      throw error;
+    }
   }
 
   private async getAlert(): Promise<Alert | undefined> {
@@ -534,7 +640,26 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   }
 
   public async setScrollPosition(x: number, y: number): Promise<void> {
-    return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+    try {
+      return await this.driver.executeScript(`window.scrollTo(${x},${y});`);
+    } catch (error) {
+      LoggingService.debug("set scroll position failed.");
+      if (error instanceof Error) {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
+          LoggingService.debug(`${error}`);
+          return;
+        }
+      }
+      throw error;
+    }
   }
 
   private async retryAction(action: () => Promise<void>, limit = 10) {
@@ -549,6 +674,129 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         LoggingService.warn(`${error}`);
         LoggingService.warn(`Retry.`);
       }
+    }
+  }
+
+  /**
+   * Wait until the frame is unlocked. Throw an error if the lock has not been unlocked for a period of time.
+   */
+  private async waitUntilFrameUnlock(): Promise<void> {
+    for (let i = 0; i < 100; i++) {
+      if (!this.isLockedFrame()) {
+        return;
+      }
+      await this.sleep(100);
+    }
+    throw new Error(`timeout while waiting for unlock. ${this.frameLockedId}`);
+  }
+
+  /**
+   * Lock the frame. You can switch frames using the specified lockId.
+   */
+  private lockFrame(lockId: string): void {
+    this.frameLockedId = lockId;
+  }
+
+  /**
+   * Unlock the frame.
+   */
+  private unLockFrame(): void {
+    this.frameLockedId = "";
+  }
+
+  /**
+   * Returns the locked state of the frame
+   */
+  private isLockedFrame(): boolean {
+    return this.frameLockedId !== "";
+  }
+
+  /**
+   * Get iframes.
+   */
+  private async getIframes(): Promise<
+    {
+      index: number;
+      boundingRect: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight: number;
+      innerWidth: number;
+      outerHeight: number;
+      outerWidth: number;
+    }[]
+  > {
+    const iframes = await this.execute(() => {
+      return [...document.getElementsByTagName("iframe")].map(
+        (iframe, index) => {
+          const { top, left, width, height } = iframe.getBoundingClientRect();
+          const { innerHeight, innerWidth, outerHeight, outerWidth } = window;
+          return {
+            index,
+            boundingRect: { top, left, width, height },
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
+          };
+        }
+      );
+    });
+
+    return iframes === null ? [] : iframes;
+  }
+
+  /**
+   * Switch frames. It is necessary to lock with lockId of lockFrame in advance.
+   * @param index Frame index.
+   * @param lockId LockId specified in lockFrame.
+   */
+  private async switchFrameTo(
+    iframeIndex: number,
+    lockId: string
+  ): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
+    }
+    try {
+      return await this.driver.switchTo().frame(iframeIndex);
+    } catch (error) {
+      LoggingService.debug(`switch frame failed. index: ${iframeIndex}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Switch default content. It is necessary to lock with lockId of lockFrame in advance.
+   * @param lockId LockId specified in lockFrame.
+   */
+  private async switchDefaultContent(lockId: string): Promise<void> {
+    if (this.frameLockedId !== "" && this.frameLockedId !== lockId) {
+      throw new Error(`locked frame. ${lockId}: (lock frame: ${lockId})`);
+    }
+
+    try {
+      return await this.driver.switchTo().defaultContent();
+    } catch (error) {
+      LoggingService.debug("switch default content failed.");
+      if (error instanceof Error) {
+        if (
+          [
+            "NoSuchWindowError",
+            "NoSuchFrameError",
+            "NoSuchElementError",
+            "StaleElementReferenceError",
+            "WebDriverError",
+          ].includes(error.name)
+        ) {
+          LoggingService.debug(`${error}`);
+          return;
+        }
+      }
+      throw error;
     }
   }
 }

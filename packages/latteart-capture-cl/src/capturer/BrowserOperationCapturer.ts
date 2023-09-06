@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Operation } from "../Operation";
+import { Operation, ScreenElements } from "../Operation";
 import LoggingService from "../logger/LoggingService";
 import WebBrowser from "./browser/WebBrowser";
 import { CaptureConfig } from "../CaptureConfig";
@@ -23,7 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedData, captureScript } from "./captureScript";
+import { CapturedData } from "./captureScript";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -128,6 +128,7 @@ export default class BrowserOperationCapturer {
     let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
+    let screenElements: ScreenElements[] | undefined = [];
 
     while (this.isCapturing()) {
       try {
@@ -135,6 +136,9 @@ export default class BrowserOperationCapturer {
 
         if (!this.alertIsVisible) {
           pageSource = await this.client.getCurrentPageText();
+
+          screenElements =
+            await this.webBrowser.currentWindow?.collectAllFrameScreenElements();
 
           if (shouldDeleteCapturedData && this.config.mediaType === "image") {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
@@ -148,21 +152,35 @@ export default class BrowserOperationCapturer {
         }
         // Wait.
         await ((msec) => new Promise((resolve) => setTimeout(resolve, msec)))(
-          100
+          200
         );
 
         const beforeWindow = this.webBrowser.currentWindow;
 
         // Delete actions after executing all registered actions.
-        await Promise.all(
-          this.actionQueue.map(async (action) => {
-            await action(this.webBrowser!);
-          })
-        );
-        this.actionQueue = [];
+        if (!this.alertIsVisible) {
+          for (const action of [...this.actionQueue]) {
+            try {
+              await action(this.webBrowser);
+
+              this.actionQueue.shift();
+            } catch (error) {
+              if (
+                error instanceof Error &&
+                error.name === "NoSuchWindowError"
+              ) {
+                LoggingService.debug(`${error}`);
+
+                break;
+              }
+
+              throw error;
+            }
+          }
+        }
 
         if (!this.isCapturing()) {
-          return;
+          break;
         }
 
         if (this.alertIsVisible) {
@@ -176,9 +194,6 @@ export default class BrowserOperationCapturer {
           if (!currentWindow) {
             continue;
           }
-
-          const screenElements =
-            await currentWindow.collectAllFrameScreenElements();
 
           acceptAlertOperation = currentWindow.createCapturedOperation({
             type: SpecialOperationType.ACCEPT_ALERT,
@@ -204,14 +219,11 @@ export default class BrowserOperationCapturer {
         // Updates browser state.
         await this.webBrowser.updateState(beforeWindow);
 
-        if (this.webBrowser.isWindowSelecting) {
-          continue;
-        }
-
         if (this.webBrowser.countWindows() === 0) {
+          LoggingService.info("No windows opened.");
           await this.webBrowser.close();
 
-          return;
+          break;
         }
 
         // Capture operations.
@@ -296,10 +308,21 @@ export default class BrowserOperationCapturer {
       return;
     }
 
-    return this.webBrowser.currentWindow.registerCapturedData(
-      capturedData,
-      option.shouldTakeScreenshot ?? false
-    );
+    try {
+      this.alertIsVisible = await this.client.alertIsVisible();
+      this.actionQueue.push(async (browser) => {
+        await browser.currentWindow?.registerCapturedData(
+          capturedData,
+          option.shouldTakeScreenshot ?? false
+        );
+      });
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      this.onError(error);
+    }
   }
 
   /**
@@ -334,10 +357,6 @@ export default class BrowserOperationCapturer {
     return this.webBrowser?.isOpened ?? false;
   }
 
-  public isWindowSelecting(): boolean {
-    return this.webBrowser?.isWindowSelecting ?? false;
-  }
-
   /**
    * Switch capturing window.
    * @param destWindowHandle Destination window handle.
@@ -347,23 +366,8 @@ export default class BrowserOperationCapturer {
       if (!this.isCapturing) {
         return;
       }
-      await browser.unprotectAllWindow();
-      await browser.switchWindowTo(destWindowHandle);
+      await browser.changeCurrentWindow(destWindowHandle);
     });
-  }
-
-  public async switchCancel(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.unprotectAllWindow();
-  }
-
-  public async selectCapturingWindow(): Promise<void> {
-    if (!this.isCapturing || !this.webBrowser) {
-      return;
-    }
-    await this.webBrowser.protectAllWindow();
   }
 
   /**
@@ -448,13 +452,6 @@ export default class BrowserOperationCapturer {
     }
   }
 
-  /**
-   * Set shield enabled.
-   */
-  public async setShieldEnabled(isShieldEnabled: boolean): Promise<void> {
-    await this.webBrowser?.setShieldEnabled(isShieldEnabled);
-  }
-
   public async autofill(
     inputValueSets: {
       locatorType: "id" | "xpath";
@@ -526,8 +523,6 @@ export default class BrowserOperationCapturer {
       await this.webBrowser.currentWindow.removeScreenLock();
     }
 
-    const runOperationLockId = "runOperation";
-
     try {
       switch (operation.type as SpecialOperationType) {
         case SpecialOperationType.ACCEPT_ALERT:
@@ -564,54 +559,49 @@ export default class BrowserOperationCapturer {
         return;
       }
 
-      const xpath = operation.elementInfo.xpath.toLowerCase();
+      const operationType = operation.type;
+      const elementInfo = operation.elementInfo;
+      const xpath = elementInfo.xpath.toLowerCase();
 
-      await this.client.waitUntilFrameUnlock();
-      this.client.lockFrame(runOperationLockId);
-
-      await this.client.switchDefaultContent(runOperationLockId);
-      if (operation.elementInfo.iframeIndex !== undefined) {
-        await this.client.switchFrameTo(
-          operation.elementInfo.iframeIndex,
-          runOperationLockId
-        );
-      }
-
-      switch (operation.type) {
-        case "click":
-          await this.client.clickElement(xpath);
-          break;
-
-        case "change":
-          if (operation.elementInfo.tagname.toLowerCase() === "select") {
+      const action = async () => {
+        switch (operationType) {
+          case "click":
             await this.client.clickElement(xpath);
-            await this.client.selectOption(xpath, operation.input);
-          }
+            break;
 
-          if (
-            ["input", "textarea"].includes(
-              operation.elementInfo.tagname.toLowerCase()
-            )
-          ) {
-            const attributes = operation.elementInfo.attributes;
-            const inputValue =
-              attributes.type === "date" || attributes.type === "datetime-local"
-                ? this.padDateValue(operation.input, attributes)
-                : operation.input;
+          case "change":
+            if (elementInfo.tagname.toLowerCase() === "select") {
+              await this.client.clickElement(xpath);
+              await this.client.selectOption(xpath, operation.input);
+            }
 
-            await this.client.clearAndSendKeys(xpath, inputValue);
-          }
-          break;
+            if (
+              ["input", "textarea"].includes(elementInfo.tagname.toLowerCase())
+            ) {
+              const attributes = elementInfo.attributes;
+              const inputValue =
+                attributes.type === "date" ||
+                attributes.type === "datetime-local"
+                  ? this.padDateValue(operation.input, attributes)
+                  : operation.input;
 
-        default:
-          break;
+              await this.client.clearAndSendKeys(xpath, inputValue);
+            }
+            break;
+
+          default:
+            break;
+        }
+      };
+
+      if (elementInfo.iframe !== undefined) {
+        await this.client.doActionInIframes("runOperation", action, {
+          iframeIndexes: [elementInfo.iframe.index],
+        });
+      } else {
+        await action();
       }
-      await this.client.switchDefaultContent(runOperationLockId);
-      this.client.unLockFrame();
-      return;
     } catch (error) {
-      await this.client.switchDefaultContent(runOperationLockId);
-      this.client.unLockFrame();
       if (
         error instanceof Error &&
         (error.name === "WebDriverError" || error.name === "NoSuchWindowError")

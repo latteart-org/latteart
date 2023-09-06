@@ -28,20 +28,30 @@ export class VideoService {
     }
   ) {}
 
-  public async createVideo(): Promise<Video> {
+  public async createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<Video> {
     const videoRepository = getRepository(VideoEntity);
 
     const videoEntity = await videoRepository.save(new VideoEntity());
     videoEntity.fileUrl = this.service.videoFileRepository.getFileUrl(
       `${videoEntity.id}.webm`
     );
+    videoEntity.width = params.width;
+    videoEntity.height = params.height;
 
     await videoRepository.save(videoEntity);
 
-    return { id: videoEntity.id, url: videoEntity.fileUrl };
+    return {
+      id: videoEntity.id,
+      url: videoEntity.fileUrl,
+      width: videoEntity.width,
+      height: videoEntity.height,
+    };
   }
 
-  public async append(videoId: string, base64: string): Promise<void> {
+  public async append(videoId: string, base64: string): Promise<string> {
     const buf = Uint8Array.from(Buffer.from(base64, "base64"));
 
     const video = await getRepository(VideoEntity).findOneOrFail(videoId);
@@ -50,5 +60,7 @@ export class VideoService {
     const fileRepositoryManager = await createFileRepositoryManager();
     const videoFileRepository = fileRepositoryManager.getRepository("video");
     await videoFileRepository.appendFile(videoUrl, buf);
+
+    return videoId;
   }
 }

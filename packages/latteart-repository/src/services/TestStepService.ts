@@ -93,15 +93,21 @@ export class TestStepServiceImpl implements TestStepService {
     });
 
     const screenElements = requestBody.screenElements
-      .map((e) => {
-        return e.elements.map((e2) => {
-          e2.iframeIndex = e.iframeIndex;
-          return e2;
+      .map((screenElement) => {
+        return screenElement.elements.map((element) => {
+          return screenElement.iframeIndex === undefined
+            ? element
+            : {
+                ...element,
+                iframe: {
+                  index: screenElement.iframeIndex,
+                },
+              };
         });
       })
       .flat();
 
-    const inputElements = this.createInputElements(requestBody);
+    const inputElements = this.createInputElements(screenElements);
 
     const targetCoverageSource = testResultEntity.coverageSources?.find(
       (coverageSource) => {
@@ -121,8 +127,8 @@ export class TestStepServiceImpl implements TestStepService {
           return (
             newElements.findIndex(
               (elem) =>
-                elem.xpath + elem.iframeIndex ===
-                newElement.xpath + newElement.iframeIndex
+                elem.xpath + elem.iframe?.index ===
+                newElement.xpath + newElement.iframe?.index
             ) === index
           );
         })
@@ -327,7 +333,7 @@ export class TestStepServiceImpl implements TestStepService {
     });
   }
 
-  private createInputElements(requestBody: CreateTestStepDto) {
+  private createInputElements(screenElements: ElementInfo[]) {
     const inputElementsFilter = (elmInfo: ElementInfo) => {
       let expected = false;
       switch (elmInfo.tagname.toLowerCase()) {
@@ -349,19 +355,6 @@ export class TestStepServiceImpl implements TestStepService {
       }
       return expected;
     };
-    return [
-      ...requestBody.screenElements
-        .map((elemsWithIframeIndex) => {
-          return elemsWithIframeIndex.elements
-            .filter(inputElementsFilter)
-            .map((elem) => {
-              return {
-                ...elem,
-                iframeIndex: elemsWithIframeIndex.iframeIndex,
-              };
-            });
-        })
-        .flat(),
-    ];
+    return [...screenElements.filter(inputElementsFilter).flat()];
   }
 }

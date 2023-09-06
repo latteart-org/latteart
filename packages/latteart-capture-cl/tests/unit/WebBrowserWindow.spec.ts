@@ -16,8 +16,6 @@ describe("WebBrowserWindow", () => {
       close: jest.fn(),
       getAllWindowHandles: jest.fn(),
       switchWindowTo: jest.fn(),
-      switchFrameTo: jest.fn(),
-      switchDefaultContent: jest.fn(),
       alertIsVisible: jest.fn(),
       getCurrentUrl: jest.fn(),
       getCurrentWindowHandle: jest.fn(),
@@ -44,10 +42,7 @@ describe("WebBrowserWindow", () => {
       getClientSize: jest.fn(),
       setClientSize: jest.fn(),
       setScrollPosition: jest.fn(),
-      lockFrame: jest.fn(),
-      unLockFrame: jest.fn(),
-      isLockedFrame: jest.fn(),
-      waitUntilFrameUnlock: jest.fn(),
+      doActionInIframes: jest.fn(),
     };
   });
 
@@ -139,11 +134,9 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
-              );
-              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-                null
               );
 
               const elements: CapturedData["operation"]["elementInfo"][] = [
@@ -238,11 +231,9 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
-              );
-              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-                null
               );
 
               const e1 = {
@@ -362,11 +353,9 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
-              );
-              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-                null
               );
 
               const elements: CapturedData["operation"]["elementInfo"][] = [
@@ -438,11 +427,9 @@ describe("WebBrowserWindow", () => {
               clientMock.getClientSize = jest
                 .fn()
                 .mockResolvedValue({ width: 0, height: 0 });
+              clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
               (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(
                 true
-              );
-              (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-                null
               );
 
               const e1 = {
@@ -537,10 +524,8 @@ describe("WebBrowserWindow", () => {
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
-            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-              null
-            );
 
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
@@ -596,10 +581,8 @@ describe("WebBrowserWindow", () => {
             clientMock.getClientSize = jest
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
-            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-              null
-            );
 
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
@@ -655,11 +638,9 @@ describe("WebBrowserWindow", () => {
             clientMock.getClientSize = jest
               .fn()
               .mockResolvedValue({ width: 0, height: 0 });
+            clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
             clientMock.alertIsVisible = jest.fn().mockResolvedValue(true);
             (captureScript.isReadyToCapture as jest.Mock).mockReturnValue(true);
-            (captureScript.getNumberOfIframes as jest.Mock).mockReturnValue(
-              null
-            );
 
             const elements: CapturedData["operation"]["elementInfo"][] = [
               {
@@ -718,6 +699,7 @@ describe("WebBrowserWindow", () => {
         clientMock.getCurrentUrl = jest
           .fn()
           .mockResolvedValue("http://127.0.0.1/page1");
+        clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
         (captureScript.isCurrentScreenObserved as jest.Mock).mockReturnValue(
           false
         );
@@ -773,6 +755,7 @@ describe("WebBrowserWindow", () => {
           .mockResolvedValueOnce("http://127.0.0.1/page1")
           .mockResolvedValueOnce("http://127.0.0.1/page2")
           .mockResolvedValueOnce("http://127.0.0.1/page2");
+        clientMock.doActionInIframes = jest.fn().mockResolvedValue([]);
         (captureScript.isCurrentScreenObserved as jest.Mock)
           .mockReturnValueOnce(false)
           .mockReturnValueOnce(true);

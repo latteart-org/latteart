@@ -71,11 +71,8 @@
           </v-list-item-content>
         </v-list-item>
 
-        <video-display v-if="isNote && videoUrl" :videoUrl="videoUrl" />
-        <popup-image
-          v-if="isNote && imageFilePath"
-          :imageFileUrl="imageFilePath"
-        />
+        <video-display v-if="videoUrl" :videoUrl="videoUrl" />
+        <popup-image v-if="imageFilePath" :imageFileUrl="imageFilePath" />
       </v-list>
     </template>
     <error-message-dialog

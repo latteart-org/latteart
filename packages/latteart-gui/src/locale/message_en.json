@@ -129,7 +129,8 @@
     "testing-time": "Test Time",
     "test-purpose": "Test Purpose",
     "creation-timestamp": "Creation Date",
-    "load": "Load test result"
+    "load": "Load test result",
+    "edit": "Edit test result name"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
@@ -192,9 +193,6 @@
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
     "setting-auto-operation": "Auto Operation Setting",
-    "setting-misoperation-prevention": "Misoperation Prevention Setting",
-    "setting-misoperation-prevention-notice": "* When set to ON, when recording multiple tabs, windows, and frames, windows are grayed out to prevent operations on windows not targeted for recording. Temporarily turn it off if the grayout is a problem, such as when recording to an iframe element. (This setting is automatically turned ON when the test starts.)",
-    "set-shield": "Gray out non-recording windows",
     "no-data": "Operation Set not registered",
     "screen-def": {
       "judgement-url": "Determined by URL",

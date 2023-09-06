@@ -94,6 +94,7 @@ export default class AutoOperationRegisterDialog extends Vue {
           elementInfo: operation.elementInfo,
           title: operation.title,
           url: operation.url,
+          timestamp: operation.timestamp,
         };
       });
     this.$store.dispatch("operationHistory/registerAutoOperation", {

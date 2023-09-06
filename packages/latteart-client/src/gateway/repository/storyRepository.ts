@@ -83,6 +83,31 @@ export class StoryRepository {
     return {
       ...session,
       testResultFiles: session.testResultFiles,
+      testPurposes: session.testPurposes.map((testPurpose) => {
+        return {
+          ...testPurpose,
+          notes: testPurpose.notes.map((note) => {
+            return {
+              ...note,
+              imageFileUrl: note.imageFileUrl
+                ? new URL(
+                    note.imageFileUrl,
+                    this.restClient.serverUrl
+                  ).toString()
+                : "",
+              videoFrame: note.videoFrame
+                ? {
+                    ...note.videoFrame,
+                    url: new URL(
+                      note.videoFrame.url,
+                      this.restClient.serverUrl
+                    ).toString(),
+                  }
+                : undefined,
+            };
+          }),
+        };
+      }),
       notes: session.notes.map((note) => {
         return {
           ...note,
@@ -91,11 +116,11 @@ export class StoryRepository {
             : "",
           videoFrame: note.videoFrame
             ? {
+                ...note.videoFrame,
                 url: new URL(
                   note.videoFrame.url,
                   this.restClient.serverUrl
                 ).toString(),
-                time: note.videoFrame.time,
               }
             : undefined,
         };

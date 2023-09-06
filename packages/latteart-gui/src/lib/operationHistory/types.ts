@@ -169,6 +169,7 @@ export type AutoOperation = {
   elementInfo: ElementInfo | null;
   title: string;
   url: string;
+  timestamp: string;
   iframeIndex?: number;
 };
 
@@ -186,6 +187,7 @@ export interface NoteDialogInfo {
   imageFilePath: string;
   sequence: number;
   maxSequence: number;
+  videoFilePath: string;
 }
 
 export type TestResultComparisonResult =
