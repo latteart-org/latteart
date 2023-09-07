@@ -42,7 +42,6 @@
               href="https://github.com/latteart-org/multi-locator"
               target="_blank"
               @click.stop
-              v-on="on"
               >multi-locator</a
             >{{ $store.getters.message("history-view.use-multi-locator2") }}
           </div>
