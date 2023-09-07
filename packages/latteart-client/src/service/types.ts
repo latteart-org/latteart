@@ -115,7 +115,7 @@ export type CaptureConfig = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
-  mediaType: "image" | "video";
+  captureArch: "polling" | "push";
 };
 
 export type VisualizeConfig = {

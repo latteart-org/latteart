@@ -121,7 +121,7 @@ export class CaptureClServerAdapter {
         },
         platformVersion: config.platformVersion ?? "",
         waitTimeForStartupReload: config.waitTimeForStartupReload,
-        mediaType: config.mediaType,
+        captureArch: config.captureArch,
       };
 
       const onGetOperation = async (data?: unknown) => {

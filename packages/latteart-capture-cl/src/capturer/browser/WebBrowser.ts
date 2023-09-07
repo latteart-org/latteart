@@ -258,6 +258,7 @@ export default class WebBrowser {
             firstTitle,
             this.client,
             windowHandle,
+            this.config.captureArch,
             this.option
           );
         })();
