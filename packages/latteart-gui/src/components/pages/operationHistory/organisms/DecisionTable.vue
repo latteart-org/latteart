@@ -336,9 +336,13 @@ export default class DecisionTable extends Vue {
       "image" in elementImage &&
       "elementInfo" in elementImage
     ) {
-      this.$store.dispatch("operationHistory/changeScreenImage", {
-        ...elementImage,
-      });
+      if (elementImage.image.imageFileUrl || elementImage.image.videoFrame) {
+        this.$store.dispatch("operationHistory/changeScreenImage", {
+          ...elementImage,
+        });
+      } else {
+        this.$store.commit("operationHistory/clearScreenImage");
+      }
     }
   }
 

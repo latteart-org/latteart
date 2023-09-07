@@ -159,8 +159,11 @@ function extractGraphSources(view: GraphView): GraphSource {
 
   const screens = filteredNodes
     .map(({ screenId, testSteps }) => {
+      const testStep = testSteps.find(
+        ({ imageFileUrl, videoFrame }) => imageFileUrl || videoFrame
+      );
       const sequenceAndImage = testStepIdToSequenceAndImage.get(
-        testSteps.at(0)?.id ?? ""
+        testStep?.id ?? ""
       );
       const sequence = sequenceAndImage?.sequence ?? 0;
       const image = sequenceAndImage?.image;
