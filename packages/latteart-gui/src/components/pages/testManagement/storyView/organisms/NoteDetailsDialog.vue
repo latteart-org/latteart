@@ -23,6 +23,7 @@
       close();
     "
     @cancel="close()"
+    :acceptButtonDisabled="isViewerMode"
   >
     <template>
       <v-list class="note-details-dialog">
@@ -56,6 +57,7 @@
               multiple
               small-chips
               hide-selected
+              :readonly="isViewerMode"
             >
               <template v-slot:no-data>
                 <v-list-item v-if="search">
@@ -117,6 +119,10 @@ export default class NoteDetailsDialog extends Vue {
   private tagsItem = noteTagPreset.items.map((item) => {
     return item.name;
   });
+
+  private isViewerMode = (this as any).$isViewerMode
+    ? (this as any).$isViewerMode
+    : false;
 
   @Watch("opened")
   private initialize() {
