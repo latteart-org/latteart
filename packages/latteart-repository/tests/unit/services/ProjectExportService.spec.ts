@@ -100,16 +100,13 @@ describe("ProjectExportService", () => {
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
       collectAllTestPurposeIds: jest.fn(),
-      collectAllTestStepScreenshots: jest.fn().mockResolvedValue([
-        {
-          id: "id",
-          fileUrl: "fileUrl",
-        },
-      ]),
+      collectAllTestStepScreenshots: jest.fn(),
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
-      collectAllScreenshots: jest.fn(),
+      collectAllScreenshots: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]),
       collectAllVideos: jest
         .fn()
         .mockResolvedValue([{ id: "id", fileUrl: `video/testResultId.webm` }]),
@@ -133,14 +130,9 @@ describe("ProjectExportService", () => {
     it("includeProject: true, includeTestResults: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
-      testResultService.collectAllTestStepScreenshots = jest
+      testResultService.collectAllScreenshots = jest
         .fn()
-        .mockResolvedValue([
-          {
-            id: "id",
-            fileUrl: "fileUrl",
-          },
-        ]);
+        .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]);
       configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
@@ -155,15 +147,13 @@ describe("ProjectExportService", () => {
 
       expect(result).toEqual("project.zip");
       expect(projectService.getProject).toBeCalledTimes(1);
-      expect(testResultService.collectAllTestStepScreenshots).toBeCalledTimes(
-        1
-      );
+      expect(testResultService.collectAllScreenshots).toBeCalledTimes(1);
       expect(configService.getProjectConfig).toBeCalledTimes(1);
     });
 
     it("includeProject: false, includeTestResults: false, includeConfig: falseの場合、Project・TestResult・Configのexport処理が共に実行しない", async () => {
       projectService.getProject = jest.fn();
-      testResultService.collectAllTestStepScreenshots = jest.fn();
+      testResultService.collectAllScreenshots = jest.fn();
       configService.getProjectConfig = jest.fn();
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
@@ -177,9 +167,7 @@ describe("ProjectExportService", () => {
       });
 
       expect(projectService.getProject).toBeCalledTimes(0);
-      expect(testResultService.collectAllTestStepScreenshots).toBeCalledTimes(
-        0
-      );
+      expect(testResultService.collectAllScreenshots).toBeCalledTimes(0);
       expect(configService.getProjectConfig).toBeCalledTimes(0);
     });
 
@@ -229,20 +217,12 @@ describe("ProjectExportService", () => {
     it("extractTestResultsExportDataで、TestResultのexportDataを返す", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
-      testResultService.collectAllTestStepScreenshots = jest
+      testResultService.collectAllScreenshots = jest
         .fn()
-        .mockResolvedValue([
-          {
-            id: "id1",
-            fileUrl: "fileUrl1",
-          },
-        ]);
-      testResultService.collectAllVideos = jest.fn().mockResolvedValue([
-        {
-          id: "id2",
-          fileUrl: "fileUrl2",
-        },
-      ]);
+        .mockResolvedValue([{ id: "id1", fileUrl: "fileUrl1" }]);
+      testResultService.collectAllVideos = jest
+        .fn()
+        .mockResolvedValue([{ id: "id2", fileUrl: "fileUrl2" }]);
 
       await getRepository(TestResultEntity).save(new TestResultEntity());
 
