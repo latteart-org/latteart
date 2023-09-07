@@ -40,7 +40,7 @@ export class TestResultExportServiceImpl implements TestResultExportService {
     }
 
     const fileData = (
-      await this.service.testResult.collectAllTestStepScreenshots(testResultId)
+      await this.service.testResult.collectAllScreenshots(testResultId)
     ).concat(await this.service.testResult.collectAllVideos(testResultId));
 
     const serializedTestResult = serializeTestResult(testResult);

@@ -77,9 +77,7 @@ export class ProjectExportService {
         }
 
         const fileData = (
-          await service.testResultService.collectAllTestStepScreenshots(
-            testResultEntity.id
-          )
+          await service.testResultService.collectAllScreenshots(testResult.id)
         ).concat(
           await service.testResultService.collectAllVideos(testResult.id)
         );
