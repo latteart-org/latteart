@@ -36,7 +36,7 @@ export default class NoteTagChipGroup extends Vue {
 
   private bugColor = "";
   private tagsColor = noteTagPreset.items.map((item) => {
-    if (item.name === "bug") {
+    if (item.text === "bug") {
       this.bugColor = item.color;
     }
   });

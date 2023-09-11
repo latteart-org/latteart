@@ -47,15 +47,16 @@
 
         <v-combobox
           :label="$store.getters.message('note-edit.tags')"
+          v-model="newTags"
+          :hide-no-data="!search"
           :items="tagsItem"
           :search-input.sync="search"
-          v-model="newTags"
+          hide-selected
           multiple
           small-chips
-          hide-selected
         >
           <template v-slot:no-data>
-            <v-list-item v-if="search">
+            <v-list-item>
               <v-list-item-content>
                 <v-list-item-title>
                   No results matching "<strong>{{ search }}</strong
@@ -63,6 +64,18 @@
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+          </template>
+          <template v-slot:selection="{ attrs, item, parent, selected }">
+            <v-chip
+              v-if="item === Object(item)"
+              v-bind="attrs"
+              :color="item.color"
+              :input-value="selected"
+              small
+            >
+              <span class="pr-2">{{ item.text }} </span>
+              <v-icon small @click="parent.selectItem(item)">$delete</v-icon>
+            </v-chip>
           </template>
         </v-combobox>
 
@@ -91,7 +104,10 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import {
+  NoteTagItem,
+  noteTagPreset,
+} from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
@@ -113,13 +129,13 @@ export default class NoteCommonDialog extends Vue {
   @Prop({ type: Object, default: undefined })
   public readonly noteInfo!: NoteDialogInfo;
 
-  private search = "";
+  private search = null;
   private oldNote = "";
   private oldNoteDetails = "";
   private oldTags: string[] = [];
   private newNote = "";
   private newNoteDetails = "";
-  private newTags: string[] = [];
+  private newTags: NoteTagItem[] = [];
   private screenshot = "";
   private video = "";
 
@@ -131,9 +147,7 @@ export default class NoteCommonDialog extends Vue {
 
   private isAlertVisible = false;
 
-  private tagsItem = noteTagPreset.items.map((item) => {
-    return item.name;
-  });
+  private tagsItem = noteTagPreset.items;
 
   @Watch("opened")
   private initialize() {
@@ -153,7 +167,17 @@ export default class NoteCommonDialog extends Vue {
     this.video = this.noteInfo.videoFilePath;
     this.newNote = this.oldNote;
     this.newNoteDetails = this.oldNoteDetails;
-    this.newTags = [...this.oldTags];
+    this.newTags = this.oldTags.map((tag) => {
+      const targetTagItem = this.tagsItem.find((item) => item.text === tag);
+      if (targetTagItem) {
+        return targetTagItem;
+      }
+
+      return {
+        text: tag,
+        color: "#E0E0E0",
+      };
+    });
     this.oldSequence = this.noteInfo.sequence;
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
@@ -161,6 +185,24 @@ export default class NoteCommonDialog extends Vue {
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
+    });
+  }
+
+  @Watch("newTags")
+  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
+    if (val.length === prev.length) return;
+
+    this.newTags = val.map((v) => {
+      if (typeof v === "string") {
+        v = {
+          text: v,
+          color: "#E0E0E0",
+        };
+
+        this.newTags.push(v);
+      }
+
+      return v;
     });
   }
 
@@ -195,7 +237,7 @@ export default class NoteCommonDialog extends Vue {
       note: this.newNote,
       noteDetails: this.newNoteDetails,
       shouldTakeScreenshot: this.shouldTakeScreenshot,
-      tags: this.newTags,
+      tags: this.newTags.map((tag) => tag.text),
     } as NoteEditInfo;
     this.$emit("execute", noteEditInfo);
   }
