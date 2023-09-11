@@ -15,21 +15,14 @@
  */
 
 interface NoteTagPreset {
-  items: {
-    name: string;
-    color: string;
-  }[];
+  items: NoteTagItem[];
 }
+
+export type NoteTagItem = { text: string; color: string };
 
 export const noteTagPreset: NoteTagPreset = {
   items: [
-    {
-      name: "bug",
-      color: "#FF8A80",
-    },
-    {
-      name: "reported",
-      color: "#E0E0E0",
-    },
+    { text: "bug", color: "#FF8A80" },
+    { text: "reported", color: "#E0E0E0" },
   ],
 };
