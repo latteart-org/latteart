@@ -623,6 +623,7 @@ const store: StoreOptions<RootState> = {
         captureMediaSetting: {
           mediaType: "image",
           imageCompression: { format: "png" },
+          captureArch: "polling",
         },
         testResultComparison: {
           excludeItems: {

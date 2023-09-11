@@ -308,6 +308,14 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       imageCompression: { ref: "ImageCompression", required: true },
+      captureArch: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["polling"] },
+          { dataType: "enum", enums: ["push"] },
+        ],
+        required: true,
+      },
     },
     additionalProperties: false,
   },

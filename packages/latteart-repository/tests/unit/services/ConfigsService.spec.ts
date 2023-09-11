@@ -59,6 +59,7 @@ describe("ConfigsService", () => {
           captureMediaSetting: {
             mediaType: "image",
             imageCompression: { format: "png" },
+            captureArch: "polling",
           },
           testResultComparison: {
             excludeItems: {

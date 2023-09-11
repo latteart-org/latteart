@@ -83,6 +83,7 @@ export default class Settings {
       captureMediaSetting: {
         mediaType: "image",
         imageCompression: { format: "png" },
+        captureArch: "polling",
       },
     };
     this.captureSettings = {
@@ -128,6 +129,7 @@ export interface Coverage {
 export interface CaptureMediaSetting {
   mediaType: "image" | "video";
   imageCompression: ImageCompression;
+  captureArch: "polling" | "push";
 }
 
 /**

@@ -20,7 +20,6 @@ import {
   AutoOperationSetting,
   CaptureMediaSetting,
   Coverage,
-  ImageCompression,
 } from "../gateways/settings/Settings";
 
 /**

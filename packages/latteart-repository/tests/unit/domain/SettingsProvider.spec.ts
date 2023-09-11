@@ -48,6 +48,7 @@ describe("SettingsProvider", () => {
         captureMediaSetting: {
           mediaType: "image",
           imageCompression: { format: "png" },
+          captureArch: "polling",
         },
       },
       captureSettings: {
@@ -205,6 +206,7 @@ describe("SettingsProvider", () => {
           captureMediaSetting: {
             mediaType: "image",
             imageCompression: { format: "png" },
+            captureArch: "polling",
           },
         },
         captureSettings: {
@@ -285,9 +287,8 @@ describe("SettingsProvider", () => {
           },
           captureMediaSetting: {
             mediaType: "image",
-            imageCompression: {
-              format: "png",
-            },
+            imageCompression: { format: "png" },
+            captureArch: "polling",
           },
         },
         captureSettings: {

@@ -168,9 +168,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           ...context.rootState.deviceSettings,
           captureArch:
             context.rootState.projectSettings.config.captureMediaSetting
-              .mediaType === "image"
-              ? "polling"
-              : "push",
+              .captureArch,
         },
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
@@ -620,9 +618,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       ...context.rootState.deviceSettings,
       captureArch:
         context.rootState.projectSettings.config.captureMediaSetting
-          .mediaType === "image"
-          ? "polling"
-          : "push",
+          .captureArch,
     };
 
     try {
@@ -638,7 +634,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const videoRecorder =
         context.rootState.projectSettings.config.captureMediaSetting
-          .mediaType === "video"
+          .mediaType === "video" ||
+        context.rootState.projectSettings.config.captureMediaSetting
+          .captureArch === "push"
           ? createVideoRecorder(testResult)
           : undefined;
 

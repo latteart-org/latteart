@@ -39,6 +39,7 @@ export function parseProjectConfig(configText: string): ProjectConfig {
                   ? "webp"
                   : "png",
               },
+              captureArch: "polling",
             },
       testResultComparison: config.config.testResultComparison,
     },
