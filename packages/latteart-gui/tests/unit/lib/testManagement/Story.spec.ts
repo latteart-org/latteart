@@ -19,10 +19,8 @@ describe("Storyの", () => {
       memo: "",
       attachedFiles: [],
       testResultFiles: [],
-      initialUrl: "",
       testPurposes: [],
       notes: [],
-      testingTime: 0,
     };
 
     const story: Story = {

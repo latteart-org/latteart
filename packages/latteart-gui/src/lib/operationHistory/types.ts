@@ -22,7 +22,6 @@ import {
   TestResultForRepository,
   TestResultComparisonResultForRepository,
   Note,
-  VideoFrame,
 } from "latteart-client";
 
 /**

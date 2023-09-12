@@ -69,7 +69,7 @@
                 >
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
-                      millisecondsToHHmmss(session.testingTime)
+                      millisecondsToHHmmss(file.testingTime)
                     }})
                     <v-btn
                       class="mr-0"
@@ -370,7 +370,11 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.import-test-result"),
     });
 
-    await this.updateSession({ testResultFiles: [testResult] }).finally(() => {
+    const testResultFiles = [...(this.session?.testResultFiles ?? [])];
+
+    await this.updateSession({
+      testResultFiles: [...testResultFiles, testResult],
+    }).finally(() => {
       this.$store.dispatch("closeProgressDialog");
     });
   }
@@ -472,6 +476,8 @@ export default class SessionInfo extends Vue {
       this.addTestResultToSession({
         id: newTestResult.id,
         name: newTestResult.name,
+        initialUrl: "",
+        testingTime: 0,
       });
 
       window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");

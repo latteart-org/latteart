@@ -49,9 +49,10 @@
             <template v-slot:activator>
               <v-list-item-content>
                 <v-list-item-title
-                  ><span :title="item.testPurpose.value">{{
-                    item.testPurpose.value
-                  }}</span></v-list-item-title
+                  ><span :title="item.testPurpose.value"
+                    >{{ item.testPurpose.value }} -
+                    {{ testResultName(item.testPurpose.testResultId) }}</span
+                  ></v-list-item-title
                 >
                 <v-list-item-subtitle>{{
                   item.testPurpose.details
@@ -231,6 +232,10 @@ export default class TestPurposeNoteList extends Vue {
     return this.selectedItems.every((opened) => {
       return opened === true;
     });
+  }
+
+  private testResultName(id: string): string {
+    return this.testResult?.find((result) => result.id === id)?.name ?? "";
   }
 
   private openTestPurposeDetails(value: string, details: string) {

@@ -38,6 +38,7 @@ import {
   convertViewOptionForSnapshot,
 } from "./helper/snapshotHelper";
 import { VideoFrame } from "@/interfaces/Videos";
+import { SequenceView } from "@/domain/types";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -192,79 +193,90 @@ export class SnapshotFileRepositoryServiceImpl
     outputDirPath: string
   ) {
     const destSessionPath = path.join(outputDirPath, storyId, session.id);
+    const destTestResultPath = path.join(destSessionPath, "testResult");
 
     const testResultIds = session.testResultFiles.map(({ id }) => id) ?? [];
     if (testResultIds.length === 0) {
       return;
     }
-    const testResultId = testResultIds[0];
-    const testResult = await this.service.testResult.getTestResult(
-      testResultId
-    );
 
-    const testStepIds = await this.service.testResult.collectAllTestStepIds(
-      testResultId
-    );
-
-    const destTestResultPath = path.join(destSessionPath, "testResult");
-
-    const testSteps = await Promise.all(
-      testStepIds.map(async (testStepId) => {
-        const testStep = await this.service.testStep.getTestStep(testStepId);
-
-        const notices = (
-          await Promise.all(
-            testStep.notices.map(async (noteId) => {
-              const note = await this.service.note.getNote(noteId);
-              return note ? [note] : [];
-            })
-          )
-        ).flat();
-
-        const testPurposeId = testStep.intention;
-        const intention = testPurposeId
-          ? (await this.service.testPurpose.getTestPurpose(testPurposeId)) ??
-            null
-          : null;
-
-        return {
-          operation: testStep.operation,
-          notices,
-          intention,
-        };
-      })
-    );
-
+    const historyLog: any[] = [];
+    const sequenceViewData: SequenceView[] = [];
     const { config } = await this.service.config.getProjectConfig("");
     const viewOption = convertViewOptionForSnapshot(config);
 
-    // output log file
-    const history = convertTestStepsForSnapshot(testSteps);
+    await Promise.all(
+      testResultIds.map(async (testResultId) => {
+        const testResult = await this.service.testResult.getTestResult(
+          testResultId
+        );
+        const testResultName = testResult?.name;
+        const testStepIds = await this.service.testResult.collectAllTestStepIds(
+          testResultId
+        );
+
+        const testSteps = await Promise.all(
+          testStepIds.map(async (testStepId) => {
+            const testStep = await this.service.testStep.getTestStep(
+              testStepId
+            );
+            const notices = (
+              await Promise.all(
+                testStep.notices.map(async (noteId) => {
+                  const note = await this.service.note.getNote(noteId);
+                  return note ? [note] : [];
+                })
+              )
+            ).flat();
+            const testPurposeId = testStep.intention;
+            const intention = testPurposeId
+              ? (await this.service.testPurpose.getTestPurpose(
+                  testPurposeId
+                )) ?? null
+              : null;
+            return {
+              operation: testStep.operation,
+              notices,
+              intention,
+            };
+          })
+        );
+
+        // output log file
+        const history = convertTestStepsForSnapshot(testSteps);
+        historyLog.push({
+          testResultId,
+          testResultName,
+          history,
+          coverageSources: testResult?.coverageSources ?? [],
+        });
+        await this.copyAssets(history, destTestResultPath);
+
+        // output sequence view file
+        sequenceViewData.push(
+          await this.service.testResult.generateSequenceView(
+            testResultId,
+            viewOption
+          )
+        );
+      })
+    );
+
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "log.js"),
-      `const historyLog = ${JSON.stringify({
-        history,
-        coverageSources: testResult?.coverageSources ?? [],
-      })}`,
+      `const historyLogs = ${JSON.stringify(historyLog)}`,
       "utf8"
     );
 
-    await this.copyAssets(history, destTestResultPath);
-
-    // output sequence view file
-    const sequenceViewData = await this.service.testResult.generateSequenceView(
-      testResultId,
-      viewOption
-    );
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "sequence-view.js"),
-      `const sequenceView = ${JSON.stringify(sequenceViewData)}`,
+      `const sequenceViews = ${JSON.stringify(sequenceViewData)}`,
       "utf8"
     );
 
     // output graph view file
     const graphViewData = await this.service.testResult.generateGraphView(
-      testResultId,
+      testResultIds,
       viewOption
     );
     await this.service.workingFileRepository.outputFile(
@@ -403,10 +415,8 @@ export class SnapshotFileRepositoryServiceImpl
               memo: session.memo,
               attachedFiles,
               testResultFiles,
-              initialUrl: session.initialUrl,
               testPurposes,
               notes,
-              testingTime: session.testingTime,
             };
           })
         );

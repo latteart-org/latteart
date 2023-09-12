@@ -40,6 +40,7 @@ export type UpdateNoteDto = Pick<Note, "type" | "value" | "details"> & {
 export type CreateNoteResponse = Omit<Note, "screenshot"> & {
   imageFileUrl: string;
   videoFrame?: VideoFrame;
+  testResultId?: string;
 };
 
 /**

@@ -46,6 +46,7 @@ import {
 } from "@/domain/dataExtractor";
 import { ProjectConfig } from "@/interfaces/Configs";
 import { ConfigsService } from "./ConfigsService";
+import { In } from "typeorm";
 
 export class ProjectImportService {
   public async import(
@@ -280,14 +281,20 @@ export class ProjectImportService {
                       (s) => s.sessionId === sessionBeforeSaving.id
                     ) ?? undefined;
                   const testResultFiles = sessionBeforeSaving.testResultFiles;
-                  const id =
-                    (testResultFiles ?? []).length > 0
-                      ? ((testResultFiles as any)[0].id as string)
-                      : "";
-                  const newTestResultId = testResultIdMap.get(id);
-                  const testResult = await transactionalEntityManager.findOne(
+                  const ids = testResultFiles.map((result) => result.id);
+
+                  const newTestResultIds = ids
+                    .map((id) => {
+                      return testResultIdMap.get(id);
+                    })
+                    .filter((id) => id) as string[];
+                  const testResults = await transactionalEntityManager.find(
                     TestResultEntity,
-                    newTestResultId ?? ""
+                    {
+                      where: {
+                        id: In(newTestResultIds),
+                      },
+                    }
                   );
                   const sessionEntity = new SessionEntity({
                     name: sessionBeforeSaving.name,
@@ -295,10 +302,9 @@ export class ProjectImportService {
                     index: sessionIndex,
                     testItem: sessionBeforeSaving.testItem,
                     testUser: sessionBeforeSaving.testerName,
-                    testingTime: sessionBeforeSaving.testingTime,
                     doneDate: sessionBeforeSaving.doneDate,
                     story: newStoryEntity,
-                    testResult: testResult ?? undefined,
+                    testResults,
                   });
                   const newSessionEntity =
                     await transactionalEntityManager.save(sessionEntity);

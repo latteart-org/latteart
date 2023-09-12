@@ -66,6 +66,7 @@ import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-
 import { UpdateTestResultEntity1689841542715 } from "./migrations/1689841542715-UpdateTestResultEntity";
 import { VideoEntity } from "./entities/VideoEntity";
 import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideoEntity";
+import { LinkMultipleTestResultsToSession1694494561042 } from "./migrations/1694494561042-LinkMultipleTestResultsToSession";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -131,6 +132,7 @@ async function initializeOrmConnection() {
       UpdateTestResultEntity1680078703857,
       UpdateTestResultEntity1689841542715,
       AddVideoEntity1693220246649,
+      LinkMultipleTestResultsToSession1694494561042,
     ],
   };
 

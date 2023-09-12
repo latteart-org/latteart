@@ -268,7 +268,9 @@ export default class StoryView extends Vue {
       const sessionNameSuffix =
         this.story?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
 
-      const testResultName = session.testResultFiles.at(0)?.name;
+      const testResultName = session.testResultFiles
+        .map((result) => result.name)
+        .join(", ");
 
       return {
         id: session.id,

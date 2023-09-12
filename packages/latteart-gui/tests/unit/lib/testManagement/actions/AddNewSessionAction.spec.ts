@@ -70,10 +70,8 @@ describe("AddNewSessionAction", () => {
         memo: "",
         attachedFiles: [],
         testResultFiles: [],
-        initialUrl: "",
         testPurposes: [],
         notes: [],
-        testingTime: 0,
       });
     });
   });

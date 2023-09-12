@@ -155,3 +155,13 @@ export type Image = {
   height: number;
   data: Buffer;
 };
+
+/**
+ * Operation history and Notes information.
+ */
+export interface OperationWithNotes {
+  operation: Operation;
+  intention: Note | null;
+  bugs: Note[] | null;
+  notices: Note[] | null;
+}

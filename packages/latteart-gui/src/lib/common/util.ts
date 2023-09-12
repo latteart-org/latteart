@@ -15,6 +15,8 @@
  */
 
 import { ElementInfo } from "latteart-client";
+import { OperationForGUI } from "../operationHistory/OperationForGUI";
+import { NoteForGUI } from "../operationHistory/NoteForGUI";
 
 /**
  * Abbreviates the string to the specified number of characters and returns the ending as "...".
@@ -159,4 +161,50 @@ export const convertInputValue = (
   }
 
   return input;
+};
+
+export const historyLogToHistory = (history: any[]) => {
+  return history.map((item) => {
+    return {
+      operation: OperationForGUI.createFromOtherOperation({
+        other: item.operation,
+        overrideParams: {
+          imageFilePath: item.operation.imageFileUrl,
+          keywordSet: new Set(
+            (
+              item.operation.keywordTexts as (
+                | string
+                | { tagname: string; value: string }
+              )[]
+            )?.map((keywordText) => {
+              return typeof keywordText === "string"
+                ? keywordText
+                : keywordText.value;
+            }) ?? []
+          ),
+        },
+      }),
+      bugs:
+        item.bugs?.map((bug: any) =>
+          NoteForGUI.createFromOtherNote({
+            other: bug,
+            overrideParams: {
+              imageFilePath: bug.imageFileUrl,
+            },
+          })
+        ) ?? [],
+      notices:
+        item.notices?.map((notice: any) =>
+          NoteForGUI.createFromOtherNote({
+            other: notice,
+            overrideParams: {
+              imageFilePath: notice.imageFileUrl,
+            },
+          })
+        ) ?? [],
+      intention: item.intention
+        ? NoteForGUI.createFromOtherNote({ other: item.intention })
+        : null,
+    };
+  });
 };
