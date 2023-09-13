@@ -96,7 +96,7 @@ export class TestPurposeServiceImpl implements TestPurposeService {
     const testPurposeEntity = await getRepository(
       TestPurposeEntity
     ).findOneOrFail(testPurposeId, {
-      relations: ["testResults", "testSteps"],
+      relations: ["testResult", "testSteps"],
     });
 
     await getRepository(TestPurposeEntity).remove(testPurposeEntity);
