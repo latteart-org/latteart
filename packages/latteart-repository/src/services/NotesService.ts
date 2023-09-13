@@ -148,7 +148,7 @@ export class NotesServiceImpl implements NotesService {
 
   public async deleteNote(noteId: string): Promise<void> {
     const noteEntity = await getRepository(NoteEntity).findOneOrFail(noteId, {
-      relations: ["testResults", "tags", "testSteps", "screenshot", "video"],
+      relations: ["testResult", "tags", "testSteps", "screenshot", "video"],
     });
 
     await getRepository(NoteEntity).remove(noteEntity);
