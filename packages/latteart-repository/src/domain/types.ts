@@ -159,9 +159,9 @@ export type Image = {
 /**
  * Operation history and Notes information.
  */
-export interface OperationWithNotes {
+export type OperationWithNotes = {
   operation: Operation;
   intention: Note | null;
   bugs: Note[] | null;
   notices: Note[] | null;
-}
+};
