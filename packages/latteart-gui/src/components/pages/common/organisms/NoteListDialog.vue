@@ -56,9 +56,9 @@
               value="video"
             ></v-radio>
           </v-radio-group>
-          <v-img
+          <popup-image
             v-if="note.image.imageFileUrl && captureMedia === 'image'"
-            :src="note.image.imageFileUrl"
+            :imageFileUrl="note.image.imageFileUrl"
           />
           <video-display
             v-else-if="note.image.videoFrame && captureMedia === 'video'"
@@ -85,12 +85,14 @@ import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import { VideoFrame } from "latteart-client";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
     "video-display": VideoDisplay,
+    "popup-image": PopupImage,
   },
 })
 export default class NoteListDialog extends Vue {
