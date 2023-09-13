@@ -37,6 +37,7 @@ describe("TestPurposeService", () => {
 
       expect(result).toEqual({
         id: expect.any(String),
+        testResultId: testResultEntity.id,
         type: "intention",
         value: "value",
         details: "details",
@@ -74,6 +75,7 @@ describe("TestPurposeService", () => {
 
       expect(result).toEqual({
         id: expect.any(String),
+        testResultId: testResultEntity.id,
         type: "intention",
         value: "changedValue",
         details: "changedDetails",
