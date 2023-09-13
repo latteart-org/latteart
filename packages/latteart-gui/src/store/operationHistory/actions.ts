@@ -1218,6 +1218,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+
+    if (context.state.testResultInfo.id === payload.testResultId) {
+      context.commit("setTestResultName", { name: result.data });
+    }
   },
 
   async getScreenshots(context, payload: { testResultId: string }) {
