@@ -77,7 +77,7 @@ describe("動作確認用", () => {
     platformVersion: "",
     waitTimeForStartupReload: 0,
     isHeadlessMode: false,
-    mediaType: "image" as "image" | "video",
+    captureArch: "polling" as "polling" | "push",
   };
 
   it("BrowserOperationCapturer", async () => {

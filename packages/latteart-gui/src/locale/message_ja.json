@@ -117,7 +117,9 @@
     "test-result-name": "テスト結果名",
     "test-purpose": "テスト目的",
     "no-test-purpose": "目的なし",
-    "edit-test-purpose": "テスト目的の編集"
+    "edit-test-purpose": "テスト目的の編集",
+    "image": "静止画",
+    "video": "動画"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -183,10 +185,13 @@
     "setting-capture-media": "キャプチャメディア設定",
     "media-type": "メディアタイプ",
     "still-image": "静止画",
-    "video": "動画",
+    "video": "静止画＋動画",
     "setting-image-compression": "画像圧縮設定",
     "png": "png",
     "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
+    "experimental-features": "実験的機能",
+    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
+    "attention": "※動画のみ記録可能",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-test-result-comparison": "テスト結果比較の設定",
     "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
@@ -309,7 +314,9 @@
   "note-list-dialog": {
     "note-list": "メモ一覧",
     "note": "メモ",
-    "details": "詳細"
+    "details": "詳細",
+    "image": "静止画",
+    "video": "動画"
   },
   "operation": {
     "search": "検索",
@@ -493,7 +500,9 @@
   "note-details-dialog": {
     "details": "詳細",
     "summary": "概要",
-    "tags": "タグ"
+    "tags": "タグ",
+    "image": "静止画",
+    "video": "動画"
   },
   "session-list": {
     "complete": "セッションを完了にする",

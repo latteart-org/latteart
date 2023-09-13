@@ -271,6 +271,7 @@ export default class ConfigView extends Vue {
       this.config?.captureMediaSetting ?? {
         mediaType: "image",
         imageCompression: { format: "png" },
+        captureArch: "polling",
       }
     );
   }

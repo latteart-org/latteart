@@ -36,7 +36,6 @@ import {
   CaptureConfig,
 } from "latteart-client";
 import { NoteEditInfo } from "@/lib/captureControl/types";
-import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { convertInputValue } from "@/lib/common/util";
 import {
   VideoRecorder,
@@ -167,9 +166,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         testResult: destTestResult,
         config: {
           ...context.rootState.deviceSettings,
-          mediaType:
+          captureArch:
             context.rootState.projectSettings.config.captureMediaSetting
-              .mediaType,
+              .captureArch,
         },
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
@@ -181,9 +180,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             compressScreenshots:
               context.rootState.projectSettings.config.captureMediaSetting
                 .imageCompression.format === "webp",
-            mediaType:
-              context.rootState.projectSettings.config.captureMediaSetting
-                .mediaType,
           }
         );
         if (startCaptureResult.isFailure()) {
@@ -607,24 +603,23 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * Start capture.
    * @param context Action context.
    * @param payload.url Target URL.
-   * @param payload.config Capture config.
-   * The callback when the number of opened windows on the test target browser.
+   * @param payload.callbacks Callbacks.
    */
   async startCapture(
     context,
     payload: {
       url: string;
-      mediaType: "image" | "video";
-      config: DeviceSettings;
       callbacks: {
         onEnd: (error?: Error) => void;
       };
     }
   ) {
-    const config: CaptureConfig = Object.assign(payload.config, {
+    const config: CaptureConfig = {
       ...context.rootState.deviceSettings,
-      mediaType: payload.mediaType,
-    });
+      captureArch:
+        context.rootState.projectSettings.config.captureMediaSetting
+          .captureArch,
+    };
 
     try {
       const operationHistoryState: OperationHistoryState = (
@@ -639,7 +634,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const videoRecorder =
         context.rootState.projectSettings.config.captureMediaSetting
-          .mediaType === "video"
+          .mediaType === "video" ||
+        context.rootState.projectSettings.config.captureMediaSetting
+          .captureArch === "push"
           ? createVideoRecorder(testResult)
           : undefined;
 
@@ -664,7 +661,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         compressScreenshots:
           context.rootState.projectSettings.config.captureMediaSetting
             .imageCompression.format === "webp",
-        mediaType: payload.mediaType,
         firstTestPurpose,
       });
 

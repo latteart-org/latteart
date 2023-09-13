@@ -19,7 +19,7 @@
 
         <v-radio-group
           :value="tempConfig.mediaType"
-          :disabled="isCapturing"
+          :disabled="isCapturing || captureArch === 'push'"
           @change="changeCaptureMediaType"
           class="py-0 my-0"
           row
@@ -35,7 +35,7 @@
         </v-radio-group>
       </v-col>
 
-      <v-col cols="12" class="pt-0">
+      <v-col cols="12" class="py-0">
         <h4>
           {{ $store.getters.message("config-view.setting-image-compression") }}
         </h4>
@@ -44,7 +44,7 @@
           :value="tempConfig.imageCompression.format"
           class="py-0 my-0"
           @change="changeCaptureFormat"
-          :disabled="tempConfig.mediaType === 'video'"
+          :disabled="captureArch === 'push'"
         >
           <v-radio
             :label="$store.getters.message('config-view.png')"
@@ -55,6 +55,24 @@
             value="webp"
           ></v-radio>
         </v-radio-group>
+      </v-col>
+
+      <v-col class="pt-0">
+        <h4>
+          {{ $store.getters.message("config-view.experimental-features") }}
+        </h4>
+        <v-checkbox
+          v-model="captureArch"
+          :label="$store.getters.message('config-view.capture-arch')"
+          hide-details
+          class="py-0 my-0"
+          true-value="push"
+          false-value="polling"
+        >
+        </v-checkbox>
+        <span class="pl-8">{{
+          $store.getters.message("config-view.attention")
+        }}</span>
       </v-col>
     </v-row>
   </v-container>
@@ -92,6 +110,17 @@ export default class CaptureMediaConfig extends Vue {
 
   private changeCaptureFormat(format: "png" | "webp") {
     this.tempConfig = { ...this.tempConfig, imageCompression: { format } };
+  }
+
+  private get captureArch(): "polling" | "push" {
+    return this.tempConfig.captureArch;
+  }
+
+  private set captureArch(captureArch: "polling" | "push") {
+    this.tempConfig = {
+      ...this.tempConfig,
+      captureArch,
+    };
   }
 }
 </script>

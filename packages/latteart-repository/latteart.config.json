@@ -166,7 +166,8 @@
     },
     "captureMediaSetting": {
       "mediaType": "image",
-      "imageCompression": { "format": "png" }
+      "imageCompression": { "format": "png" },
+      "captureArch": "polling"
     },
     "testResultComparison": {
       "excludeItems": {

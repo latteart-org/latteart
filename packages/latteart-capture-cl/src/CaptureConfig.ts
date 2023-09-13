@@ -71,9 +71,9 @@ export class CaptureConfig {
   public isHeadlessMode = false;
 
   /**
-   * Media type.
+   * Capturing architecture type.
    */
-  public mediaType: "image" | "video" = "image";
+  public captureArch: "polling" | "push" = "polling";
 
   /**
    * Constructor.

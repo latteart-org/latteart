@@ -53,6 +53,7 @@ export default class WebBrowserWindow {
   public currentOperationSummary: OperationSummary = new OperationSummary();
 
   private client: WebDriverClient;
+  private captureArch: "polling" | "push";
   private _windowHandle: string;
   private beforeOperation: Operation | null = null;
   private onGetOperation: (operation: Operation) => void;
@@ -71,6 +72,7 @@ export default class WebBrowserWindow {
    * @param firstUrl Initial URL.
    * @param client The WebDriver client to access a window.
    * @param windowHandle Window handle.
+   * @param captureArch Captureing architecture type.
    * @param option.onGetOperation The callback when an operation is captured.
    * @param option.onGetScreenTransition The callback when a screen transition is captured.
    * @param option.onHistoryChanged The callback when opened windows are changed.
@@ -80,6 +82,7 @@ export default class WebBrowserWindow {
     firstTitle: string,
     client: WebDriverClient,
     windowHandle: string,
+    captureArch: "polling" | "push",
     option?: {
       onGetOperation?: (operation: Operation) => void;
       onGetScreenTransition?: (screenTransition: ScreenTransition) => void;
@@ -92,6 +95,7 @@ export default class WebBrowserWindow {
     this.firstUrl = firstUrl;
     this.firstTitle = firstTitle;
     this.client = client;
+    this.captureArch = captureArch;
     this.onGetOperation =
       option?.onGetOperation ??
       (() => {
@@ -142,7 +146,9 @@ export default class WebBrowserWindow {
    * @returns The screenshot of current screen(base64)
    */
   public async getScreenshot(): Promise<string> {
-    return await this.client.takeScreenshot();
+    return this.captureArch === "polling"
+      ? await this.client.takeScreenshot()
+      : "";
   }
 
   /**
@@ -153,7 +159,7 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
-  public async getReadyToCapture(captureArch: "pull" | "push"): Promise<void> {
+  public async getReadyToCapture(): Promise<void> {
     const doGetReadyToCapture = async (
       urlAndTitle: { url: string; title: string },
       iframe?: {
@@ -172,7 +178,7 @@ export default class WebBrowserWindow {
     ) => {
       const isReadyToCapture =
         (await this.client.execute(captureScript.isReadyToCapture, {
-          shouldTakeScreenshot: captureArch === "pull",
+          captureArch: this.captureArch,
           url: urlAndTitle.url,
           title: urlAndTitle.title,
         })) ?? false;
@@ -181,7 +187,7 @@ export default class WebBrowserWindow {
         return;
       }
 
-      if (captureArch === "pull") {
+      if (this.captureArch === "polling") {
         await this.injectFunctionToEnqueueEventForReFire();
       }
 
@@ -191,7 +197,7 @@ export default class WebBrowserWindow {
         (await this.injectFunctionToBuildOperationInfo()) &&
         (await this.injectFunctionToHandleCapturedEvent(
           [WebBrowser.SHIELD_ID],
-          captureArch,
+          this.captureArch,
           iframe
         )) &&
         (await this.resetEventListeners());
@@ -792,7 +798,7 @@ export default class WebBrowserWindow {
 
   private async injectFunctionToHandleCapturedEvent(
     ignoreElementIds: string[],
-    captureType: "pull" | "push",
+    captureType: "polling" | "push",
     iframe?: {
       index: number;
       boundingRect: {

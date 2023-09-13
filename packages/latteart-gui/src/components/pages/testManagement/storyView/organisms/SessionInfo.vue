@@ -460,13 +460,9 @@ export default class SessionInfo extends Vue {
       const testResultId = testResultFiles[0].id;
       window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
-      const mediaType = (this.$store.state as RootState).projectSettings.config
-        .captureMediaSetting.mediaType;
-
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
-        mediaType,
       });
 
       const newTestResult = (

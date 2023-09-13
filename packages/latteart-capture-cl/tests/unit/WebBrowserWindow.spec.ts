@@ -50,7 +50,7 @@ describe("WebBrowserWindow", () => {
     it("WebDriver経由でスクリーンショットを取得する", async () => {
       clientMock.takeScreenshot = jest.fn().mockResolvedValue("screenshot");
 
-      const window = new WebBrowserWindow("", "", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "", "polling");
 
       expect(await window.getScreenshot()).toEqual("screenshot");
     });
@@ -80,9 +80,9 @@ describe("WebBrowserWindow", () => {
       (captureScript.resetEventListeners as jest.Mock).mockReturnValue(true);
       (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([]);
 
-      const window = new WebBrowserWindow("", "", clientMock, "");
+      const window = new WebBrowserWindow("", "", clientMock, "", "polling");
 
-      await window.getReadyToCapture("pull");
+      await window.getReadyToCapture();
 
       expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
       expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
@@ -174,6 +174,7 @@ describe("WebBrowserWindow", () => {
                 "",
                 clientMock,
                 "",
+                "polling",
                 option
               );
 
@@ -279,6 +280,7 @@ describe("WebBrowserWindow", () => {
                 "",
                 clientMock,
                 "",
+                "polling",
                 option
               );
 
@@ -393,6 +395,7 @@ describe("WebBrowserWindow", () => {
                 "",
                 clientMock,
                 "",
+                "polling",
                 option
               );
 
@@ -475,6 +478,7 @@ describe("WebBrowserWindow", () => {
                 "",
                 clientMock,
                 "",
+                "polling",
                 option
               );
 
@@ -557,7 +561,14 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", "", clientMock, "", option);
+            const window = new WebBrowserWindow(
+              "",
+              "",
+              clientMock,
+              "",
+              "polling",
+              option
+            );
 
             await window.captureOperations();
 
@@ -614,7 +625,14 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", "", clientMock, "", option);
+            const window = new WebBrowserWindow(
+              "",
+              "",
+              clientMock,
+              "",
+              "polling",
+              option
+            );
 
             await window.captureOperations();
 
@@ -672,7 +690,14 @@ describe("WebBrowserWindow", () => {
             ]);
 
             const option = { onGetOperation: jest.fn() };
-            const window = new WebBrowserWindow("", "", clientMock, "", option);
+            const window = new WebBrowserWindow(
+              "",
+              "",
+              clientMock,
+              "",
+              "polling",
+              option
+            );
 
             await window.captureOperations();
 
@@ -713,6 +738,7 @@ describe("WebBrowserWindow", () => {
           "",
           clientMock,
           "windowHandle",
+          "polling",
           option
         );
 
@@ -769,6 +795,7 @@ describe("WebBrowserWindow", () => {
           "",
           clientMock,
           "windowHandle",
+          "polling",
           option
         );
 
@@ -842,6 +869,7 @@ describe("WebBrowserWindow", () => {
           "",
           clientMock,
           "windowHandle",
+          "polling",
           option
         );
 
@@ -873,6 +901,7 @@ describe("WebBrowserWindow", () => {
         "",
         clientMock,
         "windowHandle",
+        "polling",
         option
       );
 

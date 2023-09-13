@@ -83,32 +83,28 @@
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
-              <screencast-display />
-
-              <screen-shot-display
-                v-if="screenshotUrl"
-                :imageInfo="imageInfo"
-              ></screen-shot-display>
-
-              <a
-                v-if="screenshotUrl"
-                :href="screenshotUrl"
-                :download="screenshotName"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="screenshot-button screenshot-button-single"
-                ref="dllink"
+              <v-radio-group
+                v-model="captureMedia"
+                row
+                class="py-0"
+                hide-details
+                v-if="displayedUrl"
+                style="position: absolute; top: 7px; left: 5px"
               >
-                <v-btn
-                  v-show="screenshotUrl !== ''"
-                  color="white"
-                  class="screenshot-button screenshot-button-single"
-                  fab
-                  small
-                >
-                  <v-icon>image</v-icon>
-                </v-btn></a
-              >
+                <v-radio
+                  :label="message('history-view.image')"
+                  value="image"
+                ></v-radio>
+                <v-radio
+                  :label="message('history-view.video')"
+                  value="video"
+                ></v-radio>
+              </v-radio-group>
+              <screencapture-display
+                v-if="captureMedia === 'image'"
+                class="screen-display"
+              />
+              <screencast-display v-else class="screen-display" />
             </template>
           </v-container>
         </pane>
@@ -156,6 +152,7 @@ import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import ScreencastDisplay from "./ScreencastDisplay.vue";
+import ScreencaptureDisplay from "./ScreencaptureDisplay.vue";
 
 @Component({
   components: {
@@ -165,6 +162,7 @@ import ScreencastDisplay from "./ScreencastDisplay.vue";
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
     "screencast-display": ScreencastDisplay,
+    "screencapture-display": ScreencaptureDisplay,
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
@@ -206,6 +204,8 @@ export default class HistoryDisplay extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private media: "image" | "video" = "image";
+
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
   private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
@@ -220,28 +220,31 @@ export default class HistoryDisplay extends Vue {
     return [...this.rawHistory];
   }
 
-  private get imageInfo(): { decode: string } {
-    if (this.displayedScreenshotUrl !== "") {
-      return { decode: this.displayedScreenshotUrl };
-    }
-
-    return { decode: "" };
-  }
-
   private get selectedOperationSequence(): number {
     return this.$store.state.operationHistory.selectedOperationSequence;
   }
 
-  private get displayedScreenshotUrl(): string {
+  private get captureMedia(): "image" | "video" {
+    return this.media;
+  }
+
+  private set captureMedia(captureMedia: "image" | "video") {
+    this.media = captureMedia;
+  }
+
+  private get displayedUrl(): string {
     const screenImage = (
       this.$store.state.operationHistory as OperationHistoryState
     ).screenImage;
-
-    if (!screenImage || !("imageFileUrl" in screenImage.background)) {
+    if (!screenImage) {
       return "";
     }
 
-    return screenImage.background.imageFileUrl;
+    return (
+      screenImage.background.image.url ??
+      screenImage.background.video?.url ??
+      ""
+    );
   }
 
   private get displayedOperations(): number[] {
@@ -252,18 +255,6 @@ export default class HistoryDisplay extends Vue {
 
   private get updating(): boolean {
     return this.$store.state.operationHistory.isTestResultViewModelUpdating;
-  }
-
-  private get screenshotUrl(): string {
-    return this.imageInfo.decode ?? "";
-  }
-
-  private get screenshotName(): string {
-    const url = this.imageInfo.decode;
-    const ar = url.split(".");
-    const ext = ar[ar.length - 1];
-    const sequence = this.selectedOperationSequence;
-    return `${sequence}.${ext}`;
   }
 
   @Watch("diagramType")
@@ -387,12 +378,7 @@ export default class HistoryDisplay extends Vue {
   padding-right: 16px
   background-color: #f2f2f2
 
-.screenshot-button
+.screen-display
   position: absolute
-  z-index: 10
-
-  &-multi
-    bottom: 45px
-  &-single
-    bottom: 0px
+  top: 45px
 </style>

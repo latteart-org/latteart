@@ -66,7 +66,7 @@ export default class ScreencastDisplay extends Vue {
     const screenImage = this.operationHistoryState.screenImage;
     if (
       !screenImage ||
-      !("videoFileUrl" in screenImage.background) ||
+      !screenImage.background.video ||
       !screenImage.overlay?.markerRect
     ) {
       return { display: "none" };
@@ -83,11 +83,11 @@ export default class ScreencastDisplay extends Vue {
   private get videoUrl() {
     this.isRectDisplayed = true;
     const screenImage = this.operationHistoryState.screenImage;
-    if (!screenImage || !("videoFileUrl" in screenImage.background)) {
+    if (!screenImage || !screenImage.background.video) {
       return "";
     }
-    const { videoFileUrl, time } = screenImage.background;
-    return `${videoFileUrl}#t=${time}`;
+    const { url, time } = screenImage.background.video;
+    return `${url}#t=${time}`;
   }
   private togglePipMode(isPipMode: boolean) {
     if (isPipMode) {

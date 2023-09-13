@@ -122,7 +122,7 @@ export type CaptureScript = {
    * @returns 'true': It is ready to capture, 'false': It is not ready to capture.
    */
   isReadyToCapture: (args: {
-    shouldTakeScreenshot: boolean;
+    captureArch: "polling" | "push";
     url: string;
     title: string;
   }) => boolean;
@@ -149,7 +149,7 @@ export type CaptureScript = {
   setFunctionToBuildOperationInfo: () => boolean;
   setFunctionToHandleCapturedEvent: (args: {
     ignoreElementIds: string[];
-    captureType: "pull" | "push";
+    captureType: "polling" | "push";
     iframe?: {
       index: number;
       boundingRect: {
@@ -393,7 +393,7 @@ function pullCapturedDatas() {
 }
 
 function isReadyToCapture(args: {
-  shouldTakeScreenshot: boolean;
+  captureArch: "polling" | "push";
   url: string;
   title: string;
 }) {
@@ -407,7 +407,7 @@ function isReadyToCapture(args: {
   if (extendedDocument.collectVisibleElements === undefined) return false;
   if (
     extendedDocument.enqueueEventForReFire === undefined &&
-    args.shouldTakeScreenshot
+    args.captureArch === "polling"
   )
     return false;
   if (extendedDocument.buildOperationInfo === undefined) return false;
@@ -763,7 +763,7 @@ function setFunctionToBuildOperationInfo() {
 
 function setFunctionToHandleCapturedEvent(args: {
   ignoreElementIds: string[];
-  captureType: "pull" | "push";
+  captureType: "polling" | "push";
   iframe?: {
     index: number;
     boundingRect: {
@@ -805,7 +805,10 @@ function setFunctionToHandleCapturedEvent(args: {
 
     // Stop event temporarily and enqueue for refire.
     const eventId = event.type + event.timeStamp;
-    if (args.captureType === "pull" && extendedDocument.enqueueEventForReFire) {
+    if (
+      args.captureType === "polling" &&
+      extendedDocument.enqueueEventForReFire
+    ) {
       extendedDocument.enqueueEventForReFire(eventId, event);
       event.preventDefault();
       event.stopPropagation();
@@ -833,7 +836,7 @@ function setFunctionToHandleCapturedEvent(args: {
       return;
     }
 
-    if (args.captureType === "pull") {
+    if (args.captureType === "polling") {
       // Set the operation.
       if (!extendedDocument.__sendDatas) {
         extendedDocument.__sendDatas = [];

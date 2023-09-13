@@ -113,7 +113,9 @@
     "test-result-name": "Test Result Name",
     "test-purpose": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
-    "edit-test-purpose": "Edit Test Purpose"
+    "edit-test-purpose": "Edit Test Purpose",
+    "image": "Image",
+    "video": "Video"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -179,10 +181,13 @@
     "setting-capture-media": "Capture Media Settings",
     "media-type": "Media Type",
     "still-image": "Still Image",
-    "video": "Video",
+    "video": "Still Image + Video",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
+    "experimental-features": "Experimental Features",
+    "capture-arch": "Record operations on the test page using PUSH method",
+    "attention": "*Only videos can be recorded",
     "include-coverage": "Tags to include in coverage calculation",
     "setting-test-result-comparison": "Compare Test Results Settings",
     "comparison-exclude-items-enabled": "Do not detect differences in specified items",
@@ -305,7 +310,9 @@
   "note-list-dialog": {
     "note-list": "Note List",
     "note": "Note",
-    "details": "Details"
+    "details": "Details",
+    "image": "Image",
+    "video": "Video"
   },
   "operation": {
     "search": "Search",
@@ -489,7 +496,9 @@
   "note-details-dialog": {
     "details": "Details",
     "summary": "Summary",
-    "tags": "Tags"
+    "tags": "Tags",
+    "image": "Image",
+    "video": "Video"
   },
   "session-list": {
     "complete": "Check as Complete",
