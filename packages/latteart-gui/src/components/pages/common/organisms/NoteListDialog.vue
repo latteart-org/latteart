@@ -46,13 +46,23 @@
             readonly
           >
           </v-textarea>
-          <video-display
-            v-if="note.image.videoFrame"
-            :videoUrl="note.videoUrl"
-          />
+          <v-radio-group v-model="captureMedia" row hide-details>
+            <v-radio
+              :label="message('note-list-dialog.image')"
+              value="image"
+            ></v-radio>
+            <v-radio
+              :label="message('note-list-dialog.video')"
+              value="video"
+            ></v-radio>
+          </v-radio-group>
           <v-img
-            v-else-if="note.image.imageFileUrl"
+            v-if="note.image.imageFileUrl && captureMedia === 'image'"
             :src="note.image.imageFileUrl"
+          />
+          <video-display
+            v-else-if="note.image.videoFrame && captureMedia === 'video'"
+            :videoUrl="note.videoUrl"
           />
         </v-card-text>
         <v-divider v-if="index + 1 !== noteWithTime.length"></v-divider>
@@ -96,6 +106,16 @@ export default class NoteListDialog extends Vue {
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
+
+  private media: "image" | "video" = "image";
+
+  private get captureMedia(): "image" | "video" {
+    return this.media;
+  }
+
+  private set captureMedia(captureMedia: "image" | "video") {
+    this.media = captureMedia;
+  }
 
   private get noteWithTime() {
     return this.notes

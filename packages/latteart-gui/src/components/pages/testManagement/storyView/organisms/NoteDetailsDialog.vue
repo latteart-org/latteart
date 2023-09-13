@@ -56,6 +56,7 @@
               :items="tagsItem"
               :search-input.sync="search"
               hide-selected
+              hide-details
               multiple
               small-chips
               :readonly="isViewerMode"
@@ -88,8 +89,30 @@
           </v-list-item-content>
         </v-list-item>
 
-        <video-display v-if="videoUrl" :videoUrl="videoUrl" />
-        <popup-image v-if="imageFilePath" :imageFileUrl="imageFilePath" />
+        <v-radio-group
+          v-model="captureMedia"
+          row
+          hide-details
+          class="mt-0 mb-3"
+        >
+          <v-radio
+            :label="$store.getters.message('note-details-dialog.image')"
+            value="image"
+          ></v-radio>
+          <v-radio
+            :label="$store.getters.message('note-details-dialog.video')"
+            value="video"
+          ></v-radio>
+        </v-radio-group>
+
+        <video-display
+          v-if="videoUrl && captureMedia === 'video'"
+          :videoUrl="videoUrl"
+        />
+        <popup-image
+          v-if="imageFilePath && captureMedia === 'image'"
+          :imageFileUrl="imageFilePath"
+        />
       </v-list>
     </template>
     <error-message-dialog
@@ -139,6 +162,16 @@ export default class NoteDetailsDialog extends Vue {
   private isViewerMode = (this as any).$isViewerMode
     ? (this as any).$isViewerMode
     : false;
+
+  private media: "image" | "video" = "image";
+
+  private get captureMedia(): "image" | "video" {
+    return this.media;
+  }
+
+  private set captureMedia(captureMedia: "image" | "video") {
+    this.media = captureMedia;
+  }
 
   @Watch("opened")
   private initialize() {

@@ -1400,8 +1400,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const { videoFrame, imageFileUrl } = payload.image;
 
     const background = videoFrame
-      ? { videoFileUrl: videoFrame.url, time: videoFrame.time }
-      : { imageFileUrl: imageFileUrl ?? "" };
+      ? {
+          image: { url: imageFileUrl ?? "" },
+          video: { url: videoFrame.url, time: videoFrame.time },
+        }
+      : { image: { url: imageFileUrl ?? "" } };
 
     const overlay = ((element) => {
       if (!element) {

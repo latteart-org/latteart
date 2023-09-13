@@ -194,7 +194,7 @@ export type TestResultComparisonResult =
   TestResultComparisonResultForRepository;
 
 export type ScreenImage = {
-  background: { imageFileUrl: string } | { videoFileUrl: string; time: number };
+  background: { image: { url: string }; video?: { url: string; time: number } };
   overlay?: {
     width: number;
     height: number;

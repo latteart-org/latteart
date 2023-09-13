@@ -110,6 +110,7 @@
 
             <v-btn
               v-if="mediaType === 'video'"
+              class="mt-3"
               :disabled="isPictureInPictureVideoDisplayed"
               @click="displayPictureInPictureVideo"
               >{{ $store.getters.message("note-edit.check-video") }}</v-btn

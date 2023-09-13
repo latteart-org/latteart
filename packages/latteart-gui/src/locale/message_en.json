@@ -113,7 +113,9 @@
     "test-result-name": "Test Result Name",
     "test-purpose": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
-    "edit-test-purpose": "Edit Test Purpose"
+    "edit-test-purpose": "Edit Test Purpose",
+    "image": "Image",
+    "video": "Video"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -308,7 +310,9 @@
   "note-list-dialog": {
     "note-list": "Note List",
     "note": "Note",
-    "details": "Details"
+    "details": "Details",
+    "image": "Image",
+    "video": "Video"
   },
   "operation": {
     "search": "Search",
@@ -492,7 +496,9 @@
   "note-details-dialog": {
     "details": "Details",
     "summary": "Summary",
-    "tags": "Tags"
+    "tags": "Tags",
+    "image": "Image",
+    "video": "Video"
   },
   "session-list": {
     "complete": "Check as Complete",
