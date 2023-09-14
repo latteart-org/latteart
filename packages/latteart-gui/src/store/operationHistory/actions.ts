@@ -649,6 +649,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         createSequenceDiagramGraphExtender
       )
     ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
+      if (!graph) {
+        return { sequence, testPurpose };
+      }
+
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(

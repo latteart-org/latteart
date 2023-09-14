@@ -239,7 +239,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       graphs: {
         sequence: number;
         testPurpose?: { value: string; details?: string };
-        element: Element;
+        element?: Element;
       }[];
     }
   ) {
