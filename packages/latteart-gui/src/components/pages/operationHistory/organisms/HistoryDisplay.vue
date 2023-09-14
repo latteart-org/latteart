@@ -88,7 +88,7 @@
                 row
                 class="py-0"
                 hide-details
-                v-if="displayedUrl"
+                v-if="hasDisplayUrl"
                 style="position: absolute; top: 7px; left: 5px"
               >
                 <v-radio
@@ -232,19 +232,18 @@ export default class HistoryDisplay extends Vue {
     this.media = captureMedia;
   }
 
-  private get displayedUrl(): string {
+  private get hasDisplayUrl(): boolean {
     const screenImage = (
       this.$store.state.operationHistory as OperationHistoryState
     ).screenImage;
     if (!screenImage) {
-      return "";
+      return false;
     }
 
-    return (
-      screenImage.background.image.url ??
-      screenImage.background.video?.url ??
-      ""
-    );
+    return screenImage.background.image.url !== "" ||
+      screenImage.background.video?.url
+      ? true
+      : false;
   }
 
   private get displayedOperations(): number[] {

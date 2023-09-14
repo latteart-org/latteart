@@ -189,9 +189,6 @@
     "setting-image-compression": "画像圧縮設定",
     "png": "png",
     "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
-    "experimental-features": "実験的機能",
-    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
-    "attention": "※動画のみ記録可能",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-test-result-comparison": "テスト結果比較の設定",
     "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
@@ -246,7 +243,12 @@
       "title": "自動操作：セット内容",
       "details-list": "詳細"
     },
-    "settings": "設定"
+    "settings": "設定",
+    "setting-experimental-features": "実験的機能設定",
+    "recording-method": "記録方式",
+    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
+    "attention": "※チェックを入れると、チェック無しでは記録できなかった要素に対して記録できるようになる可能性がありますが、全体的に動作が不安定になります",
+    "attention-video": "※キャプチャメディア設定は無視され、動画のみ記録されます"
   },
   "autofill-register-dialog": {
     "title": "自動入力：登録",

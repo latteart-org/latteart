@@ -248,7 +248,6 @@ export type SettingsForRepository = {
     captureMediaSetting: {
       mediaType: "image" | "video";
       imageCompression: { format: "png" | "webp" };
-      captureArch: "polling" | "push";
     };
     testResultComparison: {
       excludeItems: {
@@ -260,6 +259,7 @@ export type SettingsForRepository = {
         values: { tagname: string }[];
       };
     };
+    experimentalFeatureSetting: { captureArch: "polling" | "push" };
   };
 };
 

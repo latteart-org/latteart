@@ -111,7 +111,6 @@ import {
   ProjectSettings,
   CoverageSetting,
   ScreenDefinitionSetting,
-  CaptureMediaSetting,
 } from "@/lib/common/settings/Settings";
 import {
   AutofillSetting,
@@ -214,7 +213,6 @@ export default class ConfigViewer extends Vue {
     autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinitionSetting;
     coverage?: CoverageSetting;
-    captureMediaSetting?: CaptureMediaSetting;
   }) {
     const projectConfig = {
       ...config,

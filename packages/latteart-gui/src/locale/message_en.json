@@ -185,9 +185,6 @@
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
-    "experimental-features": "Experimental Features",
-    "capture-arch": "Record operations on the test page using PUSH method",
-    "attention": "*Only videos can be recorded",
     "include-coverage": "Tags to include in coverage calculation",
     "setting-test-result-comparison": "Compare Test Results Settings",
     "comparison-exclude-items-enabled": "Do not detect differences in specified items",
@@ -242,7 +239,12 @@
       "title": "Auto operation: Set Content",
       "details-list": "Details"
     },
-    "settings": "Settings"
+    "settings": "Settings",
+    "setting-experimental-features": "Experimental Feature Settings",
+    "recording-method": "Recording Method",
+    "capture-arch": "Record operations on the test page using PUSH method",
+    "attention": "*If checked, it may be possible to record elements that could not be recorded without checking, but the overall operation will be unstable.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded"
   },
   "autofill-register-dialog": {
     "title": "Autofill: Registration",

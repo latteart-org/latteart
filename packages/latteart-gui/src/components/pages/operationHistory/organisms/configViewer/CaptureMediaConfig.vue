@@ -56,30 +56,13 @@
           ></v-radio>
         </v-radio-group>
       </v-col>
-
-      <v-col class="pt-0">
-        <h4>
-          {{ $store.getters.message("config-view.experimental-features") }}
-        </h4>
-        <v-checkbox
-          v-model="captureArch"
-          :label="$store.getters.message('config-view.capture-arch')"
-          hide-details
-          class="py-0 my-0"
-          true-value="push"
-          false-value="polling"
-        >
-        </v-checkbox>
-        <span class="pl-8">{{
-          $store.getters.message("config-view.attention")
-        }}</span>
-      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
 import { CaptureMediaSetting } from "@/lib/common/settings/Settings";
+import { RootState } from "@/store";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class CaptureMediaConfig extends Vue {
@@ -92,6 +75,14 @@ export default class CaptureMediaConfig extends Vue {
   private tempConfig: CaptureMediaSetting = {
     ...this.captureMediaSetting,
   };
+
+  private get captureArch() {
+    return (
+      (this.$store.state as RootState).projectSettings.config
+        .experimentalFeatureSetting.captureArch ?? "polling"
+    );
+  }
+
   @Watch("captureMediaSetting")
   private updateTempConfig() {
     if (!this.opened) {
@@ -110,17 +101,6 @@ export default class CaptureMediaConfig extends Vue {
 
   private changeCaptureFormat(format: "png" | "webp") {
     this.tempConfig = { ...this.tempConfig, imageCompression: { format } };
-  }
-
-  private get captureArch(): "polling" | "push" {
-    return this.tempConfig.captureArch;
-  }
-
-  private set captureArch(captureArch: "polling" | "push") {
-    this.tempConfig = {
-      ...this.tempConfig,
-      captureArch,
-    };
   }
 }
 </script>
