@@ -87,7 +87,7 @@ export async function convertToSequenceDiagramGraphs(
   {
     sequence: number;
     testPurpose?: { value: string; details?: string };
-    graph: MermaidGraph;
+    graph?: MermaidGraph;
     disabledNodeIndexes: number[];
   }[]
 > {
@@ -142,6 +142,10 @@ function createGraphBuilder(
 ) {
   return {
     build(screens: { id: string; name: string }[], nodes: SequenceViewNode[]) {
+      if (screens.length === 0) {
+        return { disabledNodeIndexes: [] };
+      }
+
       const sourceNodes = createSourceNodes(
         nodes,
         windowIdToName,

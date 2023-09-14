@@ -86,7 +86,7 @@ export interface OperationHistoryState {
   sequenceDiagramGraphs: {
     sequence: number;
     testPurpose?: { value: string; details?: string };
-    element: Element;
+    element?: Element;
   }[];
 
   /**
