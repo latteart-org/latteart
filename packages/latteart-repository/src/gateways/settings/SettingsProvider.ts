@@ -224,5 +224,12 @@ export class SettingsProvider {
     if (source.captureSettings && source.captureSettings.ignoreTags) {
       target.captureSettings.ignoreTags = source.captureSettings.ignoreTags;
     }
+
+    if (source.config && source.config.experimentalFeatureSetting) {
+      Object.assign(
+        target.config.experimentalFeatureSetting,
+        source.config.experimentalFeatureSetting
+      );
+    }
   }
 }

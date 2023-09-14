@@ -308,6 +308,13 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       imageCompression: { ref: "ImageCompression", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ExperimentalFeatureSetting: {
+    dataType: "refObject",
+    properties: {
       captureArch: {
         dataType: "union",
         subSchemas: [
@@ -328,6 +335,10 @@ const models: TsoaRoute.Models = {
         config: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            experimentalFeatureSetting: {
+              ref: "ExperimentalFeatureSetting",
+              required: true,
+            },
             testResultComparison: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {

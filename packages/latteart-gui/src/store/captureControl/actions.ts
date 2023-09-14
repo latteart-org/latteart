@@ -167,7 +167,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         config: {
           ...context.rootState.deviceSettings,
           captureArch:
-            context.rootState.projectSettings.config.captureMediaSetting
+            context.rootState.projectSettings.config.experimentalFeatureSetting
               .captureArch,
         },
         eventListeners: await context.dispatch("createCaptureEventListeners"),
@@ -617,7 +617,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     const config: CaptureConfig = {
       ...context.rootState.deviceSettings,
       captureArch:
-        context.rootState.projectSettings.config.captureMediaSetting
+        context.rootState.projectSettings.config.experimentalFeatureSetting
           .captureArch,
     };
 
@@ -635,7 +635,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const videoRecorder =
         context.rootState.projectSettings.config.captureMediaSetting
           .mediaType === "video" ||
-        context.rootState.projectSettings.config.captureMediaSetting
+        context.rootState.projectSettings.config.experimentalFeatureSetting
           .captureArch === "push"
           ? createVideoRecorder(testResult)
           : undefined;

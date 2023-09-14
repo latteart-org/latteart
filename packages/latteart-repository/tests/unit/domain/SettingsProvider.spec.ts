@@ -48,8 +48,8 @@ describe("SettingsProvider", () => {
         captureMediaSetting: {
           mediaType: "image",
           imageCompression: { format: "png" },
-          captureArch: "polling",
         },
+        experimentalFeatureSetting: { captureArch: "polling" },
       },
       captureSettings: {
         ignoreTags: [],
@@ -206,8 +206,8 @@ describe("SettingsProvider", () => {
           captureMediaSetting: {
             mediaType: "image",
             imageCompression: { format: "png" },
-            captureArch: "polling",
           },
+          experimentalFeatureSetting: { captureArch: "polling" },
         },
         captureSettings: {
           ignoreTags: [
@@ -288,8 +288,8 @@ describe("SettingsProvider", () => {
           captureMediaSetting: {
             mediaType: "image",
             imageCompression: { format: "png" },
-            captureArch: "polling",
           },
+          experimentalFeatureSetting: { captureArch: "polling" },
         },
         captureSettings: {
           ignoreTags: [],

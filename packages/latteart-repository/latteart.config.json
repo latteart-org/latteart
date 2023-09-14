@@ -166,8 +166,7 @@
     },
     "captureMediaSetting": {
       "mediaType": "image",
-      "imageCompression": { "format": "png" },
-      "captureArch": "polling"
+      "imageCompression": { "format": "png" }
     },
     "testResultComparison": {
       "excludeItems": {
@@ -178,7 +177,8 @@
         "isEnabled": false,
         "values": []
       }
-    }
+    },
+    "experimentalFeatureSetting": { "captureArch": "polling" }
   },
   "captureSettings": {
     "ignoreTags": [
