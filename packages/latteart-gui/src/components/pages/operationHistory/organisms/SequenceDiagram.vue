@@ -141,14 +141,23 @@ export default class SequenceDiagram extends Vue {
 
   private async changeCurrentTestResultId(testResultId: string) {
     try {
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId,
-      });
+      if ((this as any).$isViewerMode ? (this as any).$isViewerMode : false) {
+        await this.$store.dispatch(
+          "operationHistory/loadTestResultForSnapshot",
+          {
+            testResultId,
+          }
+        );
+      } else {
+        await this.$store.dispatch("operationHistory/loadTestResult", {
+          testResultId,
+        });
+      }
 
       this.$store.commit("operationHistory/setCanUpdateModels", {
         setCanUpdateModels: false,
       });
-      this.$store.dispatch("selectOperation", { sequence: 1 });
+      this.$store.dispatch("operationHistory/selectOperation", { sequence: 1 });
 
       this.selectedTestPurposeIndex = 0;
     } catch (error) {

@@ -18,6 +18,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -51,9 +52,6 @@ export class SessionEntity {
   @Column({ name: "test_item" })
   testItem!: string;
 
-  @Column({ name: "testing_time" })
-  testingTime!: number;
-
   @Column({ name: "done_date" })
   doneDate!: string;
 
@@ -68,12 +66,10 @@ export class SessionEntity {
   @JoinColumn({ name: "story_id" })
   story!: StoryEntity;
 
-  @ManyToOne(() => TestResultEntity, (testResult) => testResult.sessions, {
-    nullable: true,
-    onDelete: "SET NULL",
+  @ManyToMany(() => TestResultEntity, (testResult) => testResult.sessions, {
+    cascade: true,
   })
-  @JoinColumn({ name: "test_result_id" })
-  testResult?: TestResultEntity | null;
+  testResults!: TestResultEntity[];
 
   constructor(props: SessionEntityInitializationProps) {
     Object.assign(this, props);

@@ -27,7 +27,7 @@ import {
 } from "@/interfaces/Sessions";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
-import { getRepository } from "typeorm";
+import { In, getRepository } from "typeorm";
 import { TestProgressServiceImpl } from "./TestProgressService";
 import { TimestampService } from "./TimestampService";
 
@@ -51,9 +51,9 @@ export class SessionsService {
         index: story.sessions.length,
         testItem: "",
         testUser: "",
-        testingTime: 0,
         doneDate: "",
         story,
+        testResults: [],
       })
     );
 
@@ -76,7 +76,7 @@ export class SessionsService {
   ): Promise<PatchSessionResponse> {
     const sessionRepository = getRepository(SessionEntity);
     const updateTargetSession = await sessionRepository.findOne(sessionId, {
-      relations: ["testResult", "story", "attachedFiles"],
+      relations: ["testResults", "story", "attachedFiles"],
     });
     if (!updateTargetSession) {
       throw new Error(`Session not found: ${sessionId}`);
@@ -107,15 +107,25 @@ export class SessionsService {
 
     if (requestBody.testResultFiles) {
       if (requestBody.testResultFiles.length > 0) {
-        const testResult = await getRepository(TestResultEntity).findOne(
-          requestBody.testResultFiles[0].id
-        );
-        if (!testResult) {
-          throw new Error("test result not found.");
+        const testResults = await getRepository(TestResultEntity).find({
+          where: {
+            id: In(
+              requestBody.testResultFiles.map(
+                (testResultFile) => testResultFile.id
+              )
+            ),
+          },
+        });
+        if (testResults.length !== requestBody.testResultFiles.length) {
+          throw new Error(
+            `test result not found. request(${requestBody.testResultFiles.map(
+              (result) => result.id
+            )}, exists(${testResults.map((result) => result.id)})`
+          );
         }
-        updateTargetSession.testResult = testResult;
+        updateTargetSession.testResults = testResults;
       } else {
-        updateTargetSession.testResult = null;
+        updateTargetSession.testResults = [];
       }
     }
     const result = await sessionRepository.save(updateTargetSession);
@@ -150,7 +160,12 @@ export class SessionsService {
     testResultId: string
   ): Promise<ListSessionResponse> {
     const sessionEntities = await getRepository(SessionEntity).find({
-      testResult: { id: testResultId },
+      relations: ["testResults"],
+      where: {
+        testResults: {
+          id: testResultId,
+        },
+      },
     });
 
     return sessionEntities.map((session) => {
@@ -211,16 +226,16 @@ export class SessionsService {
     const session = await getRepository(SessionEntity).findOne(sessionId, {
       relations: [
         "attachedFiles",
-        "testResult",
-        "testResult.testPurposes",
-        "testResult.testPurposes.testSteps",
-        "testResult.notes",
-        "testResult.notes.testSteps",
-        "testResult.notes.testSteps.screenshot",
-        "testResult.notes.testSteps.video",
-        "testResult.notes.tags",
-        "testResult.notes.screenshot",
-        "testResult.notes.video",
+        "testResults",
+        "testResults.testPurposes",
+        "testResults.testPurposes.testSteps",
+        "testResults.notes",
+        "testResults.notes.testSteps",
+        "testResults.notes.testSteps.screenshot",
+        "testResults.notes.testSteps.video",
+        "testResults.notes.tags",
+        "testResults.notes.screenshot",
+        "testResults.notes.video",
       ],
     });
     if (!session) {

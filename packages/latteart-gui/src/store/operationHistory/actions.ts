@@ -56,6 +56,7 @@ import {
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
+import { parseHistoryLog } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -401,6 +402,23 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   },
 
+  async loadTestResultForSnapshot(context, payload: { testResultId: string }) {
+    const historyLog = Vue.prototype.$historyLogs.find(
+      (historyLog: any) => historyLog.testResultId === payload.testResultId
+    );
+    if (!historyLog) {
+      throw new Error(`historyLog not found. ${payload.testResultId}`);
+    }
+
+    context.commit("resetHistory", {
+      historyItems: parseHistoryLog(historyLog.history),
+    });
+
+    await context.dispatch("updateModelsFromSequenceView", {
+      testResultId: payload.testResultId,
+    });
+  },
+
   /**
    * Load a test result from the repository and restore history in the State.
    * @param context Action context.
@@ -492,7 +510,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async loadTestResultSummaries(
     context,
     payload: {
-      testResultIds: string;
+      testResultIds: string[];
     }
   ) {
     const testResults = (
@@ -800,8 +818,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       const sequenceView = await (async () => {
-        if (Vue.prototype.$sequenceView) {
-          return Vue.prototype.$sequenceView as SequenceView;
+        if (Vue.prototype.$sequenceViews) {
+          return (Vue.prototype.$sequenceViews as SequenceView[]).find(
+            (view) => view.testResultId === payload.testResultId
+          );
         }
 
         const testResult =

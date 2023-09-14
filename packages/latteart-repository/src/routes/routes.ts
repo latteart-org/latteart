@@ -850,6 +850,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            testResultId: { dataType: "string" },
             videoFrame: { ref: "VideoFrame" },
             imageFileUrl: { dataType: "string", required: true },
           },
@@ -1213,6 +1214,8 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        testingTime: { dataType: "double" },
+        initialUrl: { dataType: "string" },
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
       },
@@ -1246,7 +1249,6 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        testingTime: { dataType: "double", required: true },
         notes: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "GetNoteResponse" },
@@ -1257,7 +1259,6 @@ const models: TsoaRoute.Models = {
           array: { dataType: "refAlias", ref: "GetTestPurposeResponse" },
           required: true,
         },
-        initialUrl: { dataType: "string", required: true },
         testResultFiles: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "TestResultFile" },

@@ -146,12 +146,15 @@ describe("IssueReportService", () => {
                 memo: "",
                 attachedFiles: [],
                 testResultFiles: [
-                  { id: "testResult1", name: "testResultName1" },
+                  {
+                    id: "testResult1",
+                    name: "testResultName1",
+                    initialUrl: "",
+                    testingTime: 0,
+                  },
                 ],
-                initialUrl: "",
                 testPurposes: [],
                 notes: [],
-                testingTime: 0,
               },
             ],
           },

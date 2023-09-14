@@ -83,10 +83,12 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
     tags,
     timestamp: note.timestamp ?? 0,
     videoFrame: noteVideo ?? operationVideo,
+    testResultId: note.testResultId ?? "",
   };
 };
 
 const mergeTestpurposeAndNotes = (
+  testResultId: string,
   notes?: NoteEntity[],
   testPurposes?: TestPurposeEntity[]
 ): NoteWithTimeResponse[] => {
@@ -102,6 +104,7 @@ const mergeTestpurposeAndNotes = (
         timestamp: testPurpose.testSteps
           ? testPurpose.testSteps[0].timestamp
           : 0,
+        testResultId,
       };
     }) ?? [];
 
@@ -135,6 +138,7 @@ const mergeTestpurposeAndNotes = (
         tags,
         timestamp: testStep?.timestamp ?? 0,
         videoFrame: noteVideo ?? operationVideo,
+        testResultId,
       };
     }) ?? [];
 
@@ -144,6 +148,7 @@ const mergeTestpurposeAndNotes = (
 };
 
 const convertToTestPurposes = (
+  testResultId: string,
   notes: NoteWithTimeResponse[]
 ): GetTestPurposeResponse[] => {
   return notes.reduce((acc, note, index) => {
@@ -165,9 +170,11 @@ const convertToTestPurposes = (
             tags: note.tags,
             timestamp: note.timestamp,
             videoFrame: note.videoFrame,
+            testResultId,
           },
         ],
         timestamp: 0,
+        testResultId,
       });
     } else if (note.type === "intention") {
       acc.push({
@@ -179,6 +186,7 @@ const convertToTestPurposes = (
         tags: note.tags,
         notes: [],
         timestamp: 0,
+        testResultId,
       });
     } else if (note.type === "notice") {
       acc[acc.length - 1].notes.push({
@@ -190,6 +198,7 @@ const convertToTestPurposes = (
         tags: note.tags,
         timestamp: note.timestamp,
         videoFrame: note.videoFrame,
+        testResultId,
       });
     }
 
@@ -208,30 +217,41 @@ export const testPurposeEntityToResponse = (
     imageFileUrl: "",
     tags: [],
     timestamp: 0,
+    testResultId: testPurpose.testResult?.id ?? "",
   };
 };
 
 export const sessionEntityToResponse = (session: SessionEntity): Session => {
-  const mergedNotes = mergeTestpurposeAndNotes(
-    session.testResult?.notes,
-    session.testResult?.testPurposes
-  );
+  const testPurposes: GetTestPurposeResponse[] = [];
+  const notes: GetNoteResponse[] = [];
+  session.testResults.forEach((testResult) => {
+    const mergedNotes = mergeTestpurposeAndNotes(
+      testResult.id,
+      testResult?.notes,
+      testResult?.testPurposes
+    );
+    convertToTestPurposes(testResult.id, mergedNotes).forEach((p) =>
+      testPurposes.push(p)
+    );
 
-  const testPurposes = convertToTestPurposes(mergedNotes);
+    const sortedNotes =
+      testResult?.notes?.slice().sort((a, b) => {
+        const stepA = a.testSteps ? a.testSteps[0] : undefined;
+        const stepB = b.testSteps ? b.testSteps[0] : undefined;
 
-  const sortedNotes =
-    session.testResult?.notes?.slice().sort((a, b) => {
-      const stepA = a.testSteps ? a.testSteps[0] : undefined;
-      const stepB = b.testSteps ? b.testSteps[0] : undefined;
+        const result = (stepA?.timestamp ?? 0) - (stepB?.timestamp ?? 0);
 
-      const result = (stepA?.timestamp ?? 0) - (stepB?.timestamp ?? 0);
+        if (result !== 0) {
+          return result;
+        }
 
-      if (result !== 0) {
-        return result;
-      }
+        return a.timestamp - b.timestamp;
+      }) ?? [];
 
-      return a.timestamp - b.timestamp;
-    }) ?? [];
+    sortedNotes.forEach((note) => {
+      notes.push(noteEntityToResponse(note));
+    });
+  });
 
   return {
     index: session.index,
@@ -256,20 +276,16 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
             fileUrl: attachedFile.fileUrl,
           };
         }) ?? [],
-    testResultFiles: session.testResult
-      ? [
-          {
-            name: session.testResult?.name ?? "",
-            id: session.testResult?.id ?? "",
-          },
-        ]
-      : [],
-    initialUrl: session.testResult?.initialUrl ?? "",
-    testPurposes,
-    notes: sortedNotes.map((note) => {
-      return noteEntityToResponse(note);
+    testResultFiles: session.testResults.map((result) => {
+      return {
+        name: result?.name ?? "",
+        id: result?.id ?? "",
+        initialUrl: result?.initialUrl ?? "",
+        testingTime: result?.testingTime ?? 0,
+      };
     }),
-    testingTime: session.testResult?.testingTime ?? 0,
+    testPurposes,
+    notes,
   };
 };
 

@@ -484,7 +484,8 @@
     "result-list": "Import Test Result",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
-    "start-capture-tool": "Start capture tool"
+    "start-capture-tool": "Start capture tool",
+    "resume-capture": "Resume capture"
   },
   "test-purpose-note-list": {
     "title": "Test Purposes/Bugs",

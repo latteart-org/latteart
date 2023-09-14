@@ -52,9 +52,9 @@ export default class ReviewButton extends Vue {
         this.story,
         this.sessionIds
       );
-      const testResultIds = sessions!.map(
-        (session) => session.testResultFiles[0].id
-      );
+      const testResultIds = sessions!
+        .map((session) => session.testResultFiles.map((result) => result.id))
+        .flat();
       this.$router.push({
         path: `../history`,
         query: { sessionIds: this.sessionIds, testResultIds },
