@@ -61,15 +61,17 @@ export class LinkMultipleTestResultsToSession1694494561042
       `CREATE INDEX "IDX_5587ef5339b22cb7f5227a1348" ON "TESTRESULT_SESSION_RELATIONS" ("session_id") `
     );
 
-    const insertValues = testResultIdWithSessionId
-      ?.map((v) => {
-        return `('${v?.session_id}', '${v?.test_result_id}')`;
-      })
-      .join(",");
+    if (testResultIdWithSessionId.length > 0) {
+      const insertValues = testResultIdWithSessionId
+        ?.map((v) => {
+          return `('${v?.session_id}', '${v?.test_result_id}')`;
+        })
+        .join(",");
 
-    await queryRunner.query(
-      `INSERT INTO "TESTRESULT_SESSION_RELATIONS" ("session_id", "test_result_id") VALUES ${insertValues}`
-    );
+      await queryRunner.query(
+        `INSERT INTO "TESTRESULT_SESSION_RELATIONS" ("session_id", "test_result_id") VALUES ${insertValues}`
+      );
+    }
   }
 
   public async down(): Promise<void> {
