@@ -163,8 +163,8 @@ export const convertInputValue = (
   return input;
 };
 
-export const historyLogToHistory = (history: any[]) => {
-  return history.map((item) => {
+export const parseHistoryLog = (historyItems: any[]) => {
+  return historyItems.map((item) => {
     return {
       operation: OperationForGUI.createFromOtherOperation({
         other: item.operation,

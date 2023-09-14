@@ -31,39 +31,45 @@
             : $store.getters.message("test-purpose-note-list.open")
         }}</v-btn
       >
-      <v-card-text class="py-0">
-        <v-list expand>
+      <v-card-text
+        v-for="(displayedItem, index) in displayedItems"
+        class="py-0"
+        :key="displayedItem.testResultId"
+      >
+        <span class="test-purpose-h">
+          {{ testResultName(displayedItem.testResultId) }}
+        </span>
+        <v-list expand class="pt-0">
           <v-list-group
-            v-for="(item, index) in displayedItems"
-            v-model="selectedItems[index]"
-            :key="item.testPurpose.title"
+            v-for="(testPurpose, index2) in displayedItem.testPurposes"
+            v-model="selectedItems[index][index2]"
+            :key="testPurpose.title"
             value="true"
             no-action
             two-line
-            :id="`testPurposeArea${index}`"
+            :id="`testPurposeArea${index2}`"
             :prepend-icon="
-              selectedItems[index] ? 'arrow_drop_up' : 'arrow_drop_down'
+              selectedItems[index2] ? 'arrow_drop_up' : 'arrow_drop_down'
             "
             :append-icon="null"
           >
             <template v-slot:activator>
               <v-list-item-content>
                 <v-list-item-title
-                  ><span :title="item.testPurpose.value"
-                    >{{ item.testPurpose.value }} -
-                    {{ testResultName(item.testPurpose.testResultId) }}</span
-                  ></v-list-item-title
+                  ><span :title="testPurpose.value">{{
+                    testPurpose.value
+                  }}</span></v-list-item-title
                 >
                 <v-list-item-subtitle>{{
-                  item.testPurpose.details
+                  testPurpose.details
                 }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
                 <v-btn
                   @click.stop="
                     openTestPurposeDetails(
-                      item.testPurpose.value,
-                      item.testPurpose.details
+                      testPurpose.value,
+                      testPurpose.details
                     )
                   "
                   >{{
@@ -75,7 +81,7 @@
             <v-list-item
               two-line
               link
-              v-for="(note, i) in item.testPurpose.notes"
+              v-for="(note, i) in testPurpose.notes"
               :key="i"
             >
               <v-list-item-content>
@@ -169,6 +175,25 @@ import { VideoFrame } from "latteart-client";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 
+type DisplayedItem = {
+  testResultId: string;
+  testPurposes: {
+    id: string;
+    type: string;
+    details: string;
+    value: string;
+    notes: {
+      id: string;
+      type: string;
+      value: string;
+      details: string;
+      tags: string[];
+      imageFileUrl: string;
+      videoUrl: string;
+    }[];
+  }[];
+};
+
 @Component({
   components: {
     "note-details-dialog": NoteDetailsDialog,
@@ -192,24 +217,8 @@ export default class TestPurposeNoteList extends Vue {
   private imagePath = "";
   private videoUrl = "";
   private tags: string[] = [];
-  private selectedItems: boolean[] = [];
-  private displayedItems: {
-    testPurpose: {
-      id: string;
-      type: string;
-      details: string;
-      value: string;
-      notes: {
-        id: string;
-        type: string;
-        value: string;
-        details: string;
-        tags: string[];
-        imageFileUrl: string;
-        videoUrl: string;
-      }[];
-    };
-  }[] = [];
+  private selectedItems: boolean[][] = [];
+  private displayedItems: DisplayedItem[] = [];
 
   private mounted() {
     if (!this.testPurposes) {
@@ -229,8 +238,9 @@ export default class TestPurposeNoteList extends Vue {
   }
 
   private get isAllSelect() {
-    return this.selectedItems.every((opened) => {
-      return opened === true;
+    console.log(this.selectedItems);
+    return this.selectedItems.every((items) => {
+      return items.every((opened) => opened === true);
     });
   }
 
@@ -263,38 +273,58 @@ export default class TestPurposeNoteList extends Vue {
   }
 
   private openAllTestPurposes() {
-    this.selectedItems = this.displayedItems.map(() => !this.isAllSelect);
+    this.selectedItems = this.displayedItems.map((item) => {
+      return item.testPurposes.map(() => !this.isAllSelect);
+    });
   }
 
   private createDisplayedTestPurposes(testPurposes: Session["testPurposes"]) {
-    this.displayedItems = testPurposes.map((testPurpose) => {
-      const value =
-        testPurpose.value !== ""
-          ? testPurpose.value
-          : (this.$store.getters.message(
-              "test-purpose-note-list.no-test-purpose"
-            ) as string);
-      const notes = testPurpose.notes.map((note) => {
-        const { id, type, value, details, tags, imageFileUrl } = note;
+    this.displayedItems = testPurposes
+      .map((testPurpose) => {
+        const value =
+          testPurpose.value !== ""
+            ? testPurpose.value
+            : (this.$store.getters.message(
+                "test-purpose-note-list.no-test-purpose"
+              ) as string);
+        const notes = testPurpose.notes.map((note) => {
+          const { id, type, value, details, tags, imageFileUrl } = note;
+
+          return {
+            id,
+            type,
+            value,
+            details,
+            tags,
+            imageFileUrl,
+            videoUrl: note.videoFrame
+              ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
+              : "",
+          };
+        });
 
         return {
-          id,
-          type,
-          value,
-          details,
-          tags,
-          imageFileUrl,
-          videoUrl: note.videoFrame
-            ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
-            : "",
+          testPurpose: { ...testPurpose, value, notes },
         };
-      });
-
-      return {
-        testPurpose: { ...testPurpose, value, notes },
-      };
+      })
+      .reduce((acu, cur) => {
+        const displayedItem = acu.find(
+          (testPurpose) =>
+            testPurpose.testResultId === cur.testPurpose.testResultId
+        );
+        if (displayedItem) {
+          displayedItem.testPurposes.push(cur.testPurpose);
+        } else {
+          acu.push({
+            testResultId: cur.testPurpose.testResultId,
+            testPurposes: [cur.testPurpose],
+          });
+        }
+        return acu;
+      }, [] as DisplayedItem[]);
+    this.selectedItems = this.displayedItems.map((item) => {
+      return item.testPurposes.map(() => true);
     });
-    this.selectedItems = this.displayedItems.map(() => true);
   }
 
   private reload() {
@@ -315,4 +345,8 @@ export default class TestPurposeNoteList extends Vue {
     line-height: normal
   .break-all
     font-size: 12px
+
+.test-purpose-h
+  display: block
+  margin: 12px 0 -4px 4px
 </style>

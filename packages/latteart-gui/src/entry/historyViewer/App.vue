@@ -41,7 +41,7 @@ import HistoryDisplay from "@/components/pages/operationHistory/organisms/Histor
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
-import { historyLogToHistory } from "@/lib/common/util";
+import { parseHistoryLog } from "@/lib/common/util";
 import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
@@ -60,9 +60,7 @@ export default class App extends Vue {
       this.i18n = createI18n(this.settings.locale);
 
       this.$store.commit("operationHistory/resetHistory", {
-        historyItems: historyLogToHistory(
-          (this as any).$historyLogs[0].history
-        ),
+        historyItems: parseHistoryLog((this as any).$historyLogs[0].history),
       });
 
       const testResultInfos = (this as any).$historyLogs.map((history: any) => {

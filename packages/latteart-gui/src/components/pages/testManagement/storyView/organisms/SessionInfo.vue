@@ -87,6 +87,14 @@
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
                     >
+                    <v-btn
+                      small
+                      v-if="!isViewerMode"
+                      @click="resumeRecording(file.id)"
+                      >{{
+                        $store.getters.message("session-info.resume-capture")
+                      }}</v-btn
+                    >
                   </li>
                 </ul>
               </v-card-text>
@@ -454,34 +462,37 @@ export default class SessionInfo extends Vue {
     });
   }
 
+  private async resumeRecording(testResultId: string) {
+    const origin = location.origin;
+    const captureClUrl = this.$store.state.captureClService.serviceUrl;
+    const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
+    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
+    window.open(`${url}&testResultId=${testResultId}`, "_blank");
+  }
+
   private async openCaptureTool(testResultFiles: TestResultFile[]) {
     const origin = location.origin;
     const captureClUrl = this.$store.state.captureClService.serviceUrl;
     const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
 
-    if (testResultFiles.length > 0) {
-      const testResultId = testResultFiles[0].id;
-      window.open(`${url}&testResultId=${testResultId}`, "_blank");
-    } else {
-      await this.$store.dispatch("operationHistory/createTestResult", {
-        initialUrl: "",
-        name: "",
-      });
+    await this.$store.dispatch("operationHistory/createTestResult", {
+      initialUrl: "",
+      name: "",
+    });
 
-      const newTestResult = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).testResultInfo;
+    const newTestResult = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).testResultInfo;
 
-      this.addTestResultToSession({
-        id: newTestResult.id,
-        name: newTestResult.name,
-        initialUrl: "",
-        testingTime: 0,
-      });
+    this.addTestResultToSession({
+      id: newTestResult.id,
+      name: newTestResult.name,
+      initialUrl: "",
+      testingTime: 0,
+    });
 
-      window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
-    }
+    window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
   }
 
   private get memo(): string {

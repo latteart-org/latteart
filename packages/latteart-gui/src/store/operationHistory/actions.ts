@@ -56,7 +56,7 @@ import {
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
-import { historyLogToHistory } from "@/lib/common/util";
+import { parseHistoryLog } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -402,10 +402,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   },
 
-  async loadTestResultForViewerMode(
-    context,
-    payload: { testResultId: string }
-  ) {
+  async loadTestResultForSnapshot(context, payload: { testResultId: string }) {
     const historyLog = Vue.prototype.$historyLogs.find(
       (historyLog: any) => historyLog.testResultId === payload.testResultId
     );
@@ -414,7 +411,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     context.commit("resetHistory", {
-      historyItems: historyLogToHistory(historyLog.history),
+      historyItems: parseHistoryLog(historyLog.history),
     });
 
     await context.dispatch("updateModelsFromSequenceView", {

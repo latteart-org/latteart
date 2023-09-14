@@ -143,7 +143,7 @@ export default class SequenceDiagram extends Vue {
     try {
       if ((this as any).$isViewerMode ? (this as any).$isViewerMode : false) {
         await this.$store.dispatch(
-          "operationHistory/loadTestResultForViewerMode",
+          "operationHistory/loadTestResultForSnapshot",
           {
             testResultId,
           }

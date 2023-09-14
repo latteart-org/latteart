@@ -488,7 +488,8 @@
     "result-list": "実行結果取り込み",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
-    "start-capture-tool": "記録ツール起動"
+    "start-capture-tool": "記録ツール起動",
+    "resume-capture": "記録を再開する"
   },
   "test-purpose-note-list": {
     "title": "テスト目的・気づき",
