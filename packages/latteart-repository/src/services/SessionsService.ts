@@ -163,13 +163,11 @@ export class SessionsService {
       TestResultEntity
     ).findOneOrFail(testResultId, { relations: ["sessions"] });
 
-    if (!testResultEntity.sessions) {
-      return [];
-    }
-
-    return testResultEntity.sessions.map((session) => {
-      return session.id;
-    });
+    return (
+      testResultEntity.sessions?.map((session) => {
+        return session.id;
+      }) ?? []
+    );
   }
 
   private async updateAttachedFiles(
