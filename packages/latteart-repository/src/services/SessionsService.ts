@@ -159,18 +159,11 @@ export class SessionsService {
   public async getSessionIdentifiers(
     testResultId: string
   ): Promise<ListSessionResponse> {
-    const sessionEntities = await getRepository(SessionEntity).find({
-      relations: ["testResults"],
-      where: {
-        testResults: {
-          id: testResultId,
-        },
-      },
-    });
+    const testResultEntity = await getRepository(
+      TestResultEntity
+    ).findOneOrFail(testResultId, { relations: ["sessions"] });
 
-    return sessionEntities.map((session) => {
-      return session.id;
-    });
+    return testResultEntity.sessions?.map(({ id }) => id) ?? [];
   }
 
   private async updateAttachedFiles(
