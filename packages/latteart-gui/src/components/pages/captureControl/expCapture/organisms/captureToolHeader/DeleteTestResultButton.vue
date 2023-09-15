@@ -51,6 +51,7 @@
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/pages/common/InformationMessageDialog.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -78,7 +79,7 @@ export default class DeleteTestResultButton extends Vue {
       this.isCapturing ||
       this.isReplaying ||
       this.isResuming ||
-      this.testResultName === ""
+      this.testResultInfo.id === ""
     );
   }
 
@@ -94,8 +95,9 @@ export default class DeleteTestResultButton extends Vue {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get testResultName(): string {
-    return this.$store.state.operationHistory.testResultInfo.name;
+  private get testResultInfo() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo;
   }
 
   private get operations() {
@@ -111,11 +113,11 @@ export default class DeleteTestResultButton extends Vue {
       sessions.length > 0
         ? this.$store.getters.message(
             "history-view.delete-test-result-associated-session-message",
-            { value: this.testResultName }
+            { value: this.testResultInfo.name }
           )
         : this.$store.getters.message(
             "history-view.delete-test-result-message",
-            { value: this.testResultName }
+            { value: this.testResultInfo.name }
           );
     this.confirmDialogOpened = true;
   }
@@ -127,14 +129,11 @@ export default class DeleteTestResultButton extends Vue {
 
     try {
       await this.$store.dispatch("operationHistory/deleteTestResults", {
-        testResultIds: [this.$store.state.operationHistory.testResultInfo.id],
+        testResultIds: [this.testResultInfo.id],
       });
       this.$store.commit("operationHistory/removeStoringTestResultInfos", {
         testResultInfos: [
-          {
-            id: this.$store.state.operationHistory.testResultInfo.id,
-            name: this.testResultName,
-          },
+          { id: this.testResultInfo.id, name: this.testResultInfo.name },
         ],
       });
       await this.$store.dispatch("operationHistory/clearTestResult");
