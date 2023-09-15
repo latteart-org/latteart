@@ -133,17 +133,17 @@ export default class ManageEditView extends Vue {
       title: this.$store.getters.message("manage-edit-view.window-title"),
     });
 
-    this.readLocalStorageForTestMatrix();
+    this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());
   }
 
   @Watch("testMatrices")
-  private watchTestMatrices(
+  private chantSelectedTestMatrix(
     newTestMatrices: TestMatrix[],
     oldTestMatrices: TestMatrix[]
   ) {
     if (oldTestMatrices.length > newTestMatrices.length) {
       this.$nextTick(() => {
-        this.readLocalStorageForTestMatrix();
+        this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());
       });
     }
   }
@@ -187,8 +187,7 @@ export default class ManageEditView extends Vue {
     })();
   }
 
-  private readLocalStorageForTestMatrix() {
-    console.log("AAA");
+  private readTestMatrixIdFromLocalStorage() {
     const testMatrixId =
       localStorage.getItem(
         "latteart-management-selectedTestMatrixIdOnEditor"
@@ -196,11 +195,9 @@ export default class ManageEditView extends Vue {
       this.testMatrices[0]?.id ??
       "";
 
-    if (this.testMatrices.find((tm) => tm.id === testMatrixId)) {
-      this.selectTestMatrix(testMatrixId);
-    } else {
-      this.selectTestMatrix(this.testMatrices[0]?.id);
-    }
+    return this.testMatrices.find((tm) => tm.id === testMatrixId)
+      ? testMatrixId
+      : this.testMatrices[0]?.id;
   }
 }
 </script>
