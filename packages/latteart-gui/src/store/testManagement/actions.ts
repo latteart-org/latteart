@@ -260,17 +260,19 @@ const actions: ActionTree<TestManagementState, RootState> = {
    * Create a group.
    * @param context Action context.
    * @param payload.testMatrixId ID of the test matrix that has the group to create.
+   * @param payload.groupName Name of group to create.
    */
   async addNewGroup(
     context,
     payload: {
       testMatrixId: string;
+      groupName: string;
     }
   ): Promise<void> {
     const result = await new AddNewGroupAction().addNewGroup(
       {
         testMatrixId: payload.testMatrixId,
-        name: context.rootGetters.message("group-edit-list.name"),
+        name: payload.groupName,
       },
       context.rootState.repositoryService
     );
