@@ -159,16 +159,20 @@ export class SessionsService {
   public async getSessionIdentifiers(
     testResultId: string
   ): Promise<ListSessionResponse> {
-    const testResultEntity = await getRepository(TestResultEntity).find({
-      relations: ["sessions"],
-      where: { id: testResultId },
-    });
+    const testResultEntity = await getRepository(TestResultEntity).findOne(
+      testResultId,
+      { relations: ["sessions"] }
+    );
 
-    if (!testResultEntity[0].sessions) {
+    if (!testResultEntity) {
+      throw new Error(`test result not found. ${testResultId}`);
+    }
+
+    if (!testResultEntity.sessions) {
       return [];
     }
 
-    return testResultEntity[0].sessions.map((session) => {
+    return testResultEntity.sessions.map((session) => {
       return session.id;
     });
   }
