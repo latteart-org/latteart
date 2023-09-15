@@ -16,7 +16,7 @@
     "finish": "テスト終了",
     "pause-capturing": "記録の一時停止",
     "resume-capturing": "記録の再開",
-    "reset": "履歴をリセット",
+    "reset": "履歴のリセット（新規のテストに向けてリセットします。テスト結果は保存されています。）",
     "import": "過去のテスト結果の読み込み",
     "replay": "テスト結果のリプレイ",
     "replay-operations": "操作のリプレイ",
