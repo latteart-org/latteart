@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import ManageEditFooter from "./organisms/ManageEditFooter.vue";
 import TestMatrixDialog from "./organisms/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "./ManageEditTypes";
@@ -133,15 +133,18 @@ export default class ManageEditView extends Vue {
       title: this.$store.getters.message("manage-edit-view.window-title"),
     });
 
-    const testMatrixId =
-      localStorage.getItem(
-        "latteart-management-selectedTestMatrixIdOnEditor"
-      ) ??
-      this.testMatrices[0]?.id ??
-      "";
+    this.readLocalStorageForTestMatrix();
+  }
 
-    if (testMatrixId) {
-      this.selectTestMatrix(testMatrixId);
+  @Watch("testMatrices")
+  private watchTestMatrices(
+    newTestMatrices: TestMatrix[],
+    oldTestMatrices: TestMatrix[]
+  ) {
+    if (oldTestMatrices.length > newTestMatrices.length) {
+      this.$nextTick(() => {
+        this.readLocalStorageForTestMatrix();
+      });
     }
   }
 
@@ -182,6 +185,22 @@ export default class ManageEditView extends Vue {
       });
       this.selectTestMatrix(this.testMatrices[this.testMatrices.length - 1].id);
     })();
+  }
+
+  private readLocalStorageForTestMatrix() {
+    console.log("AAA");
+    const testMatrixId =
+      localStorage.getItem(
+        "latteart-management-selectedTestMatrixIdOnEditor"
+      ) ??
+      this.testMatrices[0]?.id ??
+      "";
+
+    if (this.testMatrices.find((tm) => tm.id === testMatrixId)) {
+      this.selectTestMatrix(testMatrixId);
+    } else {
+      this.selectTestMatrix(this.testMatrices[0]?.id);
+    }
   }
 }
 </script>
