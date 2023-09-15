@@ -14,7 +14,7 @@
     "finish": "Finish",
     "pause-capturing": "Pause Capture",
     "resume-capturing": "Resume Capture",
-    "reset": "Reset History (Reset for new test. Current test result is already saved.)",
+    "reset": "Reset History (Reset for new test. Current test result has already been saved.)",
     "import": "Load Past Test Results",
     "replay": "Replay Test Result",
     "replay-operations": "Replay Operations",
