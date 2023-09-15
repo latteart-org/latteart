@@ -159,14 +159,9 @@ export class SessionsService {
   public async getSessionIdentifiers(
     testResultId: string
   ): Promise<ListSessionResponse> {
-    const testResultEntity = await getRepository(TestResultEntity).findOne(
-      testResultId,
-      { relations: ["sessions"] }
-    );
-
-    if (!testResultEntity) {
-      throw new Error(`test result not found. ${testResultId}`);
-    }
+    const testResultEntity = await getRepository(
+      TestResultEntity
+    ).findOneOrFail(testResultId, { relations: ["sessions"] });
 
     if (!testResultEntity.sessions) {
       return [];
