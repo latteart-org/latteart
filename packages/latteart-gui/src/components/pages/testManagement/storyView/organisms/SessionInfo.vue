@@ -80,7 +80,7 @@
                           'session-info.open-recording-tool-title'
                         )
                       "
-                      @click="resumeRecording(file.id)"
+                      @click="openRecordingTool(file.id)"
                       ><v-icon>launch</v-icon></v-btn
                     >
                     <v-btn
@@ -477,7 +477,7 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async resumeRecording(testResultId: string) {
+  private async openRecordingTool(testResultId: string) {
     const origin = location.origin;
     const captureClUrl = this.$store.state.captureClService.serviceUrl;
     const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
