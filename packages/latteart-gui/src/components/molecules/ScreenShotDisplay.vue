@@ -24,7 +24,7 @@
       :max-bounds="state.maxBounds"
       :center="state.center"
       :zoom="state.zoom"
-      style="z-index: 7; height: 100%; width: 100%"
+      style="z-index: 6; height: 100%; width: 100%"
     >
       <l-image-overlay
         ref="overlay"

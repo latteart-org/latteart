@@ -98,11 +98,11 @@ export default class ScreencaptureDisplay extends Vue {
 <style lang="sass" scoped>
 .screenshot-button
   position: absolute
-  z-index: 10
+  z-index: 6
 
   &-multi
     bottom: 45px
   &-single
-    bottom: 27px
+    bottom: 48px
     left: 2px
 </style>
