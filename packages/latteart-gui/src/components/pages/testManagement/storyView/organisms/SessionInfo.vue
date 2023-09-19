@@ -72,28 +72,43 @@
                       millisecondsToHHmmss(file.testingTime)
                     }})
                     <v-btn
+                      text
+                      icon
+                      v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.open-capture-tool-title'
+                        )
+                      "
+                      @click="openCaptureTool(file.id)"
+                      ><v-icon>launch</v-icon></v-btn
+                    >
+                    <v-btn
                       class="mr-0"
                       text
                       icon
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.update-test-results-title'
+                        )
+                      "
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
+
                     <v-btn
                       text
                       icon
                       color="error"
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.remove-test-results-title'
+                        )
+                      "
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
-                    >
-                    <v-btn
-                      small
-                      v-if="!isViewerMode"
-                      @click="resumeRecording(file.id)"
-                      >{{
-                        $store.getters.message("session-info.resume-capture")
-                      }}</v-btn
                     >
                   </li>
                 </ul>
@@ -103,7 +118,7 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   v-if="!isViewerMode"
-                  @click="openCaptureTool(session.testResultFiles)"
+                  @click="openCaptureTool(undefined)"
                   id="openCaptureToolButton"
                   >{{
                     $store.getters.message("session-info.start-capture-tool")
@@ -426,7 +441,7 @@ export default class SessionInfo extends Vue {
       "session-info.delete-test-result-confirm"
     );
     this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
+      "session-info.delete-test-result-confirm-message"
     );
     this.confirmDialogAccept = () => {
       this.updateSession({
@@ -462,37 +477,33 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async resumeRecording(testResultId: string) {
-    const origin = location.origin;
-    const captureClUrl = this.$store.state.captureClService.serviceUrl;
-    const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
-    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
-    window.open(`${url}&testResultId=${testResultId}`, "_blank");
-  }
-
-  private async openCaptureTool(testResultFiles: TestResultFile[]) {
+  private async openCaptureTool(testResultId: string) {
     const origin = location.origin;
     const captureClUrl = this.$store.state.captureClService.serviceUrl;
     const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
 
-    await this.$store.dispatch("operationHistory/createTestResult", {
-      initialUrl: "",
-      name: "",
-    });
+    let id = testResultId;
 
-    const newTestResult = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).testResultInfo;
+    if (!id) {
+      await this.$store.dispatch("operationHistory/createTestResult", {
+        initialUrl: "",
+        name: "",
+      });
 
-    this.addTestResultToSession({
-      id: newTestResult.id,
-      name: newTestResult.name,
-      initialUrl: "",
-      testingTime: 0,
-    });
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
+      id = newTestResult.id;
 
-    window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
+      this.addTestResultToSession({
+        id: newTestResult.id,
+        name: newTestResult.name,
+        initialUrl: "",
+        testingTime: 0,
+      });
+    }
+    window.open(`${url}&testResultId=${id}`, "_blank");
   }
 
   private get memo(): string {

@@ -478,7 +478,8 @@
     "import": "Import Session Log",
     "file": "Attachments",
     "add-file": "Add Attachments",
-    "delete-test-result-confirm": "Are you sure you want to delete the test result?",
+    "delete-test-result-confirm": "Are you sure you want to remove the test results from the session?",
+    "delete-test-result-confirm-message": "The test results themselves are not deleted.",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
     "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
     "file-open-read-error": "Failed to read the attached file.",
@@ -487,7 +488,9 @@
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool",
-    "resume-capture": "Resume capture"
+    "open-capture-tool-title": "Open test results in capture tool.",
+    "update-test-results-title": "Update test result name and capture time.",
+    "remove-test-results-title": "Remove test results from session."
   },
   "test-purpose-note-list": {
     "title": "Test Purposes/Bugs",
