@@ -15,8 +15,13 @@
 -->
 
 <template>
-  <splitpanes horizontal class="default-theme">
+  <splitpanes
+    horizontal
+    @resized="resize('vertical', $event)"
+    class="default-theme"
+  >
     <pane
+      :size="verticalPaneSize"
       :class="{
         'disp-coverage': dispCoverage,
         'hidden-coverage': !dispCoverage,
@@ -35,8 +40,8 @@
           message("history-view.there-are-updates-on-history")
         }}</span>
       </div>
-      <splitpanes style="height: calc(100% - 46px)">
-        <pane>
+      <splitpanes @resized="resize('horizontal', $event)">
+        <pane :size="horizontalPaneSize">
           <v-container fluid fill-height class="pa-0 ma-0">
             <v-row no-gutters>
               <v-col cols="12">
@@ -212,6 +217,32 @@ export default class HistoryDisplay extends Vue {
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
+  private verticalPaneSize: number = 0;
+  private horizontalPaneSize: number = 0;
+
+  private get verticalPaneSizeKey(): string {
+    return "latteart-management-verticalPaneSizeKey";
+  }
+
+  private get horizontalPaneSizeKey(): string {
+    return "latteart-management-horizontalPaneSizeKey";
+  }
+
+  private setPaneSize(key: "vertical" | "horizontal", value: number) {
+    localStorage.setItem(
+      key === "vertical"
+        ? this.verticalPaneSizeKey
+        : this.horizontalPaneSizeKey,
+      value.toString()
+    );
+  }
+
+  private getPaneSize(key: "vertical" | "horizontal"): string | null {
+    return localStorage.getItem(
+      key === "vertical" ? this.verticalPaneSizeKey : this.horizontalPaneSizeKey
+    );
+  }
+
   private get dispCoverage() {
     return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
   }
@@ -320,6 +351,9 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
+    this.verticalPaneSize = Number(this.getPaneSize("vertical") ?? "50");
+    this.horizontalPaneSize = Number(this.getPaneSize("horizontal") ?? "50");
+
     this.selectFirstOperation();
     this.updateWindowTitle();
   }
@@ -364,6 +398,10 @@ export default class HistoryDisplay extends Vue {
         ).scrollHeight;
       });
     }
+  }
+
+  private resize(type: "vertical" | "horizontal", event: any) {
+    this.setPaneSize(type, event[0].size);
   }
 }
 </script>
