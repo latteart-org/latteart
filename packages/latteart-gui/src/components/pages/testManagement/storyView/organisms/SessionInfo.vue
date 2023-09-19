@@ -77,10 +77,10 @@
                       v-if="!isViewerMode"
                       :title="
                         $store.getters.message(
-                          'session-info.open-recording-tool-title'
+                          'session-info.open-capture-tool-title'
                         )
                       "
-                      @click="openRecordingTool(file.id)"
+                      @click="openCaptureTool(file.id)"
                       ><v-icon>launch</v-icon></v-btn
                     >
                     <v-btn
@@ -118,7 +118,7 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   v-if="!isViewerMode"
-                  @click="openCaptureTool(session.testResultFiles)"
+                  @click="openCaptureTool(undefined)"
                   id="openCaptureToolButton"
                   >{{
                     $store.getters.message("session-info.start-capture-tool")
@@ -477,37 +477,33 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async openRecordingTool(testResultId: string) {
-    const origin = location.origin;
-    const captureClUrl = this.$store.state.captureClService.serviceUrl;
-    const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
-    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
-    window.open(`${url}&testResultId=${testResultId}`, "_blank");
-  }
-
-  private async openCaptureTool(testResultFiles: TestResultFile[]) {
+  private async openCaptureTool(testResultId: string) {
     const origin = location.origin;
     const captureClUrl = this.$store.state.captureClService.serviceUrl;
     const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
 
-    await this.$store.dispatch("operationHistory/createTestResult", {
-      initialUrl: "",
-      name: "",
-    });
+    let id = testResultId;
 
-    const newTestResult = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).testResultInfo;
+    if (!id) {
+      await this.$store.dispatch("operationHistory/createTestResult", {
+        initialUrl: "",
+        name: "",
+      });
 
-    this.addTestResultToSession({
-      id: newTestResult.id,
-      name: newTestResult.name,
-      initialUrl: "",
-      testingTime: 0,
-    });
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
+      id = newTestResult.id;
 
-    window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
+      this.addTestResultToSession({
+        id: newTestResult.id,
+        name: newTestResult.name,
+        initialUrl: "",
+        testingTime: 0,
+      });
+    }
+    window.open(`${url}&testResultId=${id}`, "_blank");
   }
 
   private get memo(): string {

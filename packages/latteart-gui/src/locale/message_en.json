@@ -488,8 +488,8 @@
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool",
-    "open-recording-tool-title": "Open test results in recording tool.",
-    "update-test-results-title": "Update test result name and recording time.",
+    "open-capture-tool-title": "Open test results in capture tool.",
+    "update-test-results-title": "Update test result name and capture time.",
     "remove-test-results-title": "Remove test results from session."
   },
   "test-purpose-note-list": {
