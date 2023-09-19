@@ -26,7 +26,7 @@
       :title="$store.getters.message('app.reset')"
       class="mx-2"
     >
-      <v-icon>refresh</v-icon>
+      <v-icon dark>post_add</v-icon>
     </v-btn>
   </div>
 </template>

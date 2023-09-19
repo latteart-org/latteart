@@ -482,7 +482,8 @@
     "import": "実行結果の取り込み",
     "file": "添付ファイル",
     "add-file": "添付ファイルの追加",
-    "delete-test-result-confirm": "テスト結果を削除してもよろしいですか？",
+    "delete-test-result-confirm": "セッションからテスト結果を取り外してもよろしいですか？",
+    "delete-test-result-confirm-message": "テスト結果そのものは削除されません。",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
     "test-result-import-error": "テスト実行モデルファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
     "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
@@ -491,7 +492,9 @@
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture-tool": "記録ツール起動",
-    "resume-capture": "記録を再開する"
+    "open-recording-tool-title": "記録ツールでテスト結果を開く",
+    "update-test-results-title": "テスト結果名と記録時間を最新化する",
+    "remove-test-results-title": "セッションからテスト結果を外す"
   },
   "test-purpose-note-list": {
     "title": "テスト目的・気づき",

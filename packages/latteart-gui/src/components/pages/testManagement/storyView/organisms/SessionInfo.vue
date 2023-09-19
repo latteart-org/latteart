@@ -72,28 +72,43 @@
                       millisecondsToHHmmss(file.testingTime)
                     }})
                     <v-btn
+                      text
+                      icon
+                      v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.open-recording-tool-title'
+                        )
+                      "
+                      @click="resumeRecording(file.id)"
+                      ><v-icon>launch</v-icon></v-btn
+                    >
+                    <v-btn
                       class="mr-0"
                       text
                       icon
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.update-test-results-title'
+                        )
+                      "
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
+
                     <v-btn
                       text
                       icon
                       color="error"
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.remove-test-results-title'
+                        )
+                      "
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
-                    >
-                    <v-btn
-                      small
-                      v-if="!isViewerMode"
-                      @click="resumeRecording(file.id)"
-                      >{{
-                        $store.getters.message("session-info.resume-capture")
-                      }}</v-btn
                     >
                   </li>
                 </ul>
@@ -426,7 +441,7 @@ export default class SessionInfo extends Vue {
       "session-info.delete-test-result-confirm"
     );
     this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
+      "session-info.delete-test-result-confirm-message"
     );
     this.confirmDialogAccept = () => {
       this.updateSession({
