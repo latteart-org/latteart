@@ -115,7 +115,7 @@
         </pane>
       </splitpanes>
     </pane>
-    <pane v-if="!dispCoverage">
+    <pane v-if="!dispCoverage" style="z-index: 6">
       <operation-list
         v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
         :displayedOperations="displayedOperations"
@@ -151,7 +151,6 @@ import {
 } from "@/lib/operationHistory/types";
 import HistorySummaryDiagram from "@/components/pages/operationHistory/organisms/HistorySummaryDiagram.vue";
 import OperationList from "@/components/pages/operationHistory/organisms/OperationList.vue";
-import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
@@ -163,7 +162,6 @@ import ScreencaptureDisplay from "./ScreencaptureDisplay.vue";
   components: {
     "history-summary-diagram": HistorySummaryDiagram,
     "operation-list": OperationList,
-    "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
     "screencast-display": ScreencastDisplay,
