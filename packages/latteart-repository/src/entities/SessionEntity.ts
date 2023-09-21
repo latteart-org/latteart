@@ -67,7 +67,7 @@ export class SessionEntity {
   story!: StoryEntity;
 
   @ManyToMany(() => TestResultEntity, (testResult) => testResult.sessions, {
-    cascade: true,
+    onDelete: "CASCADE",
   })
   testResults!: TestResultEntity[];
 
