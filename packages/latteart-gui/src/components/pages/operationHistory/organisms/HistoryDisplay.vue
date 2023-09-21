@@ -40,7 +40,10 @@
           message("history-view.there-are-updates-on-history")
         }}</span>
       </div>
-      <splitpanes @resized="resize('horizontal', $event)">
+      <splitpanes
+        @resized="resize('horizontal', $event)"
+        :style="{ height: 'calc(100% - 44px)' }"
+      >
         <pane :size="horizontalPaneSize">
           <v-container fluid fill-height class="pa-0 ma-0">
             <v-row no-gutters>
@@ -88,28 +91,32 @@
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
-              <v-radio-group
-                v-model="captureMedia"
-                row
-                class="py-0"
-                hide-details
-                v-if="hasDisplayUrl"
-                style="position: absolute; top: 7px; left: 5px"
-              >
-                <v-radio
-                  :label="message('history-view.image')"
-                  value="image"
-                ></v-radio>
-                <v-radio
-                  :label="message('history-view.video')"
-                  value="video"
-                ></v-radio>
-              </v-radio-group>
-              <screencapture-display
-                v-if="captureMedia === 'image'"
-                class="screen-display"
-              />
-              <screencast-display v-else class="screen-display" />
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-radio-group
+                    v-model="captureMedia"
+                    row
+                    class="py-0 pl-2"
+                    hide-details
+                    v-if="hasDisplayUrl"
+                  >
+                    <v-radio
+                      :label="message('history-view.image')"
+                      value="image"
+                    ></v-radio>
+                    <v-radio
+                      :label="message('history-view.video')"
+                      value="video"
+                    ></v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+              <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
+                <v-col cols="12" class="fill-height pl-2">
+                  <screencapture-display v-if="captureMedia === 'image'" />
+                  <screencast-display v-else />
+                </v-col>
+              </v-row>
             </template>
           </v-container>
         </pane>
@@ -412,8 +419,4 @@ export default class HistoryDisplay extends Vue {
   padding-left: 16px
   padding-right: 16px
   background-color: #f2f2f2
-
-.screen-display
-  position: absolute
-  top: 45px
 </style>

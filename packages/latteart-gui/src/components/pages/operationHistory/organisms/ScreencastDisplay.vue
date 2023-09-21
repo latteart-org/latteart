@@ -15,12 +15,7 @@
 -->
 
 <template>
-  <v-container
-    v-if="videoUrl"
-    fluid
-    class="fill-height"
-    style="overflow: scroll"
-  >
+  <v-container v-if="videoUrl" fluid fill-height pa-0>
     <video-display
       :videoUrl="videoUrl"
       :pictureInPicture="isPipMode"
