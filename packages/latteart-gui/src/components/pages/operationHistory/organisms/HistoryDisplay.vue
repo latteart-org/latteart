@@ -85,16 +85,15 @@
             </v-row>
           </v-container>
         </pane>
-        <pane>
+        <pane style="height: 90%">
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
               <v-radio-group
                 v-model="captureMedia"
                 row
-                class="py-0"
+                class="py-0 screen-display screen-display-radio"
                 hide-details
                 v-if="hasDisplayUrl"
-                style="position: absolute; top: 7px; left: 5px"
               >
                 <v-radio
                   :label="message('history-view.image')"
@@ -107,9 +106,12 @@
               </v-radio-group>
               <screencapture-display
                 v-if="captureMedia === 'image'"
-                class="screen-display"
+                class="screen-display screen-display-image"
               />
-              <screencast-display v-else class="screen-display" />
+              <screencast-display
+                v-else
+                class="screen-display screen-display-video"
+              />
             </template>
           </v-container>
         </pane>
@@ -415,5 +417,12 @@ export default class HistoryDisplay extends Vue {
 
 .screen-display
   position: absolute
-  top: 45px
+
+  &-image
+     top: 55px
+  &-video
+     top: 45px
+  &-radio
+     top: 7px
+     left: 5px
 </style>

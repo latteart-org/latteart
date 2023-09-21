@@ -103,6 +103,6 @@ export default class ScreencaptureDisplay extends Vue {
   &-multi
     bottom: 45px
   &-single
-    bottom: 48px
+    bottom: 28px
     left: 2px
 </style>
