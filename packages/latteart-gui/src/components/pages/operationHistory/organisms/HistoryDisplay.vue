@@ -40,7 +40,10 @@
           message("history-view.there-are-updates-on-history")
         }}</span>
       </div>
-      <splitpanes @resized="resize('horizontal', $event)">
+      <splitpanes
+        @resized="resize('horizontal', $event)"
+        :style="{ height: 'calc(100% - 44px)' }"
+      >
         <pane :size="horizontalPaneSize">
           <v-container fluid fill-height class="pa-0 ma-0">
             <v-row no-gutters>
@@ -85,7 +88,7 @@
             </v-row>
           </v-container>
         </pane>
-        <pane style="height: 90%">
+        <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
               <v-radio-group
