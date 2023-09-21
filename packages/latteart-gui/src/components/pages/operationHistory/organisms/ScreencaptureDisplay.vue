@@ -29,15 +29,10 @@
       :download="screenshotName"
       target="_blank"
       rel="noopener noreferrer"
-      class="screenshot-button screenshot-button-single"
+      class="screenshot-button"
       ref="dllink"
     >
-      <v-btn
-        color="white"
-        class="screenshot-button screenshot-button-single"
-        fab
-        small
-      >
+      <v-btn color="white" class="screenshot-button" fab small>
         <v-icon>image</v-icon>
       </v-btn></a
     >
@@ -99,10 +94,6 @@ export default class ScreencaptureDisplay extends Vue {
 .screenshot-button
   position: absolute
   z-index: 6
-
-  &-multi
-    bottom: 45px
-  &-single
-    bottom: 28px
-    left: 2px
+  bottom: 4px
+  left: 2px
 </style>

@@ -91,30 +91,32 @@
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
-              <v-radio-group
-                v-model="captureMedia"
-                row
-                class="py-0 screen-display screen-display-radio"
-                hide-details
-                v-if="hasDisplayUrl"
-              >
-                <v-radio
-                  :label="message('history-view.image')"
-                  value="image"
-                ></v-radio>
-                <v-radio
-                  :label="message('history-view.video')"
-                  value="video"
-                ></v-radio>
-              </v-radio-group>
-              <screencapture-display
-                v-if="captureMedia === 'image'"
-                class="screen-display screen-display-image"
-              />
-              <screencast-display
-                v-else
-                class="screen-display screen-display-video"
-              />
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-radio-group
+                    v-model="captureMedia"
+                    row
+                    class="py-0 pl-2"
+                    hide-details
+                    v-if="hasDisplayUrl"
+                  >
+                    <v-radio
+                      :label="message('history-view.image')"
+                      value="image"
+                    ></v-radio>
+                    <v-radio
+                      :label="message('history-view.video')"
+                      value="video"
+                    ></v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+              <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
+                <v-col cols="12" class="fill-height pl-2">
+                  <screencapture-display v-if="captureMedia === 'image'" />
+                  <screencast-display v-else />
+                </v-col>
+              </v-row>
             </template>
           </v-container>
         </pane>
@@ -417,15 +419,4 @@ export default class HistoryDisplay extends Vue {
   padding-left: 16px
   padding-right: 16px
   background-color: #f2f2f2
-
-.screen-display
-  position: absolute
-
-  &-image
-     top: 55px
-  &-video
-     top: 45px
-  &-radio
-     top: 7px
-     left: 5px
 </style>
