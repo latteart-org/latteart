@@ -45,7 +45,7 @@ export class LinkMultipleTestResultsToSession1694494561042
     await queryRunner.query(`DROP INDEX "IDX_efbdded2c32167debc35d62219"`);
     await queryRunner.query(`DROP INDEX "IDX_5587ef5339b22cb7f5227a1348"`);
     await queryRunner.query(
-      `CREATE TABLE "temporary_TESTRESULT_SESSION_RELATIONS" ("test_result_id" varchar NOT NULL, "session_id" varchar NOT NULL, CONSTRAINT "FK_efbdded2c32167debc35d62219a" FOREIGN KEY ("test_result_id") REFERENCES "TEST_RESULTS" ("test_result_id") ON DELETE CASCADE ON UPDATE CASCADE, CONSTRAINT "FK_5587ef5339b22cb7f5227a1348a" FOREIGN KEY ("session_id") REFERENCES "SESSIONS" ("session_id") ON DELETE NO ACTION ON UPDATE NO ACTION, PRIMARY KEY ("test_result_id", "session_id"))`
+      `CREATE TABLE "temporary_TESTRESULT_SESSION_RELATIONS" ("test_result_id" varchar NOT NULL, "session_id" varchar NOT NULL, CONSTRAINT "FK_efbdded2c32167debc35d62219a" FOREIGN KEY ("test_result_id") REFERENCES "TEST_RESULTS" ("test_result_id") ON DELETE CASCADE ON UPDATE CASCADE, CONSTRAINT "FK_5587ef5339b22cb7f5227a1348a" FOREIGN KEY ("session_id") REFERENCES "SESSIONS" ("session_id") ON DELETE CASCADE ON UPDATE NO ACTION, PRIMARY KEY ("test_result_id", "session_id"))`
     );
     await queryRunner.query(
       `INSERT INTO "temporary_TESTRESULT_SESSION_RELATIONS"("test_result_id", "session_id") SELECT "test_result_id", "session_id" FROM "TESTRESULT_SESSION_RELATIONS"`
