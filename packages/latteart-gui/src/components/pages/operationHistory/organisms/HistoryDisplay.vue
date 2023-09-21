@@ -94,26 +94,30 @@
               <v-row no-gutters>
                 <v-col cols="12">
                   <v-radio-group
-                    v-model="captureMedia"
+                    v-model="displayedMediaType"
                     row
                     class="py-0 pl-2"
                     hide-details
-                    v-if="hasDisplayUrl"
+                    v-if="hasStillImage || hasVideo"
                   >
                     <v-radio
                       :label="message('history-view.image')"
                       value="image"
+                      :disabled="!hasStillImage"
                     ></v-radio>
                     <v-radio
                       :label="message('history-view.video')"
                       value="video"
+                      :disabled="!hasVideo"
                     ></v-radio>
                   </v-radio-group>
                 </v-col>
               </v-row>
               <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
                 <v-col cols="12" class="fill-height pl-2">
-                  <screencapture-display v-if="captureMedia === 'image'" />
+                  <screencapture-display
+                    v-if="displayedMediaType === 'image'"
+                  />
                   <screencast-display v-else />
                 </v-col>
               </v-row>
@@ -214,7 +218,7 @@ export default class HistoryDisplay extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private media: "image" | "video" = "image";
+  private mediaType: "image" | "video" = "image";
 
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
@@ -252,44 +256,51 @@ export default class HistoryDisplay extends Vue {
     return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
   }
 
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
+  }
+
   private get history(): OperationHistory {
     return [...this.rawHistory];
   }
 
   private get selectedOperationSequence(): number {
-    return this.$store.state.operationHistory.selectedOperationSequence;
+    return this.operationHistoryState.selectedOperationSequence;
   }
 
-  private get captureMedia(): "image" | "video" {
-    return this.media;
+  private get displayedMediaType(): "image" | "video" {
+    return this.mediaType;
   }
 
-  private set captureMedia(captureMedia: "image" | "video") {
-    this.media = captureMedia;
+  private set displayedMediaType(mediaType: "image" | "video") {
+    this.mediaType = mediaType;
   }
 
-  private get hasDisplayUrl(): boolean {
-    const screenImage = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).screenImage;
-    if (!screenImage) {
-      return false;
-    }
+  @Watch("selectedOperationSequence")
+  private updateMediaType() {
+    this.displayedMediaType = this.hasStillImage ? "image" : "video";
+  }
 
-    return screenImage.background.image.url !== "" ||
-      screenImage.background.video?.url
-      ? true
-      : false;
+  private get hasStillImage(): boolean {
+    const screenImage = this.operationHistoryState.screenImage;
+
+    return (screenImage?.background.image.url ?? "") !== "";
+  }
+
+  private get hasVideo(): boolean {
+    const screenImage = this.operationHistoryState.screenImage;
+
+    return screenImage?.background.video != null;
   }
 
   private get displayedOperations(): number[] {
-    return this.$store.state.operationHistory.displayedOperations;
+    return this.operationHistoryState.displayedOperations;
   }
 
   private recentImageInfo = "";
 
   private get updating(): boolean {
-    return this.$store.state.operationHistory.isTestResultViewModelUpdating;
+    return this.operationHistoryState.isTestResultViewModelUpdating;
   }
 
   @Watch("diagramType")
@@ -303,23 +314,20 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get canUpdateModels(): boolean {
-    return this.$store.state.operationHistory.canUpdateModels;
+    return this.operationHistoryState.canUpdateModels;
   }
 
   private async updateTestResultViewModel() {
     try {
-      const testResultId = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).testResultInfo.id;
+      const testResultId = this.operationHistoryState.testResultInfo.id;
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
         { testResultId }
       );
 
-      const testResultIds = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).storingTestResultInfos.map(({ id }) => id);
+      const testResultIds =
+        this.operationHistoryState.storingTestResultInfos.map(({ id }) => id);
       await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
         testResultIds:
           testResultIds.length === 0 ? [testResultId] : testResultIds,
