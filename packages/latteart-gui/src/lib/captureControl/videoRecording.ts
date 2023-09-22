@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+import { TestResultAccessor, Video } from "latteart-client";
 import {
-  ServiceResult,
-  ServiceSuccess,
-  TestResultAccessor,
-  Video,
-} from "latteart-client";
+  ActionFailure,
+  ActionResult,
+  ActionSuccess,
+} from "../common/ActionResult";
 
 export type VideoRecorder = {
   readonly recordingVideo?: Video & { startTimestamp: number };
-  startRecording(): Promise<ServiceResult<void>>;
+  startRecording(): Promise<ActionResult<void>>;
   updateVideo(): Promise<void>;
 };
 
@@ -47,8 +47,18 @@ class VideoRecorderImpl implements VideoRecorder {
     return this.videoInfo;
   }
 
-  public async startRecording(): Promise<ServiceResult<void>> {
-    const { startTimestamp, mediaRecorder } = await this.startMediaRecorder();
+  public async startRecording(): Promise<ActionResult<void>> {
+    const { startTimestamp, mediaRecorder } =
+      await this.startMediaRecorder().catch((error) => {
+        console.error(error);
+        return { startTimestamp: 0, mediaRecorder: null };
+      });
+
+    if (!mediaRecorder) {
+      return new ActionFailure({
+        messageKey: "error.capture_control.start_video_recording_failed",
+      });
+    }
 
     const videoTrackSettings = mediaRecorder.stream
       .getVideoTracks()
@@ -61,7 +71,9 @@ class VideoRecorderImpl implements VideoRecorder {
     });
 
     if (createVideoResult.isFailure()) {
-      return createVideoResult;
+      return new ActionFailure({
+        messageKey: `error.operation_history.${createVideoResult.error.errorCode}`,
+      });
     }
 
     this.mediaRecorder = mediaRecorder;
@@ -69,7 +81,7 @@ class VideoRecorderImpl implements VideoRecorder {
 
     await this.updateVideo();
 
-    return new ServiceSuccess(undefined);
+    return new ActionSuccess(undefined);
   }
 
   public updateVideo(): Promise<void> {
