@@ -596,7 +596,8 @@
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
-      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."
+      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
+      "start_video_recording_failed": "Failed to record video. Test capturing is continuing."
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",
@@ -622,7 +623,8 @@
       "compare_test_results_failed": "Failed to compare test results.",
       "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared.",
       "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
-      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage."
+      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage.",
+      "create_video_failed": "Failed to create video."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

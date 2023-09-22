@@ -600,7 +600,8 @@
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
-      "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。"
+      "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
+      "start_video_recording_failed": "動画の記録に失敗しました。テスト記録は継続されています。"
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
@@ -626,7 +627,8 @@
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
       "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。",
       "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
-      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。"
+      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。",
+      "create_video_failed": "動画の作成に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

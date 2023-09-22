@@ -674,12 +674,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
       const session = result.data;
 
+      context.dispatch("stopTimer");
+      context.dispatch("startTimer");
+
+      context.commit("setCapturing", { isCapturing: true });
+      context.commit("setCaptureSession", { session });
+
       if (videoRecorder) {
         const startRecordingResult = await videoRecorder.startRecording();
 
         if (startRecordingResult.isFailure()) {
           const errorMessage = context.rootGetters.message(
-            `error.capture_control.${startRecordingResult.error.errorCode}`
+            startRecordingResult.error.messageKey,
+            startRecordingResult.error.variables
           );
           payload.callbacks.onEnd(new Error(errorMessage));
           return;
@@ -691,12 +698,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           session.setRecordingVideo(recordingVideo);
         }
       }
-
-      context.dispatch("stopTimer");
-      context.dispatch("startTimer");
-
-      context.commit("setCapturing", { isCapturing: true });
-      context.commit("setCaptureSession", { session });
     } catch (error) {
       context.dispatch("endCapture");
     }
