@@ -427,4 +427,7 @@ export default class HistoryDisplay extends Vue {
   padding-left: 16px
   padding-right: 16px
   background-color: #f2f2f2
+
+  ::v-deep .splitpanes__splitter
+    z-index: 5
 </style>
