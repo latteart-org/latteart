@@ -163,7 +163,9 @@ export default class TestMatrixEditor extends Vue {
     this.expandedPanelIndex = -1;
 
     setTimeout(() => {
-      if ((this.testMatrix?.groups.length ?? 0) > (index ?? 0)) {
+      if (!index || !this.testMatrix?.groups) {
+        this.expandedPanelIndex = 0;
+      } else if (this.testMatrix.groups.length > index) {
         this.expandedPanelIndex = index;
       } else {
         this.expandedPanelIndex = 0;
