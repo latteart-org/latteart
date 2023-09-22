@@ -316,9 +316,7 @@
   "note-list-dialog": {
     "note-list": "メモ一覧",
     "note": "メモ",
-    "details": "詳細",
-    "image": "静止画",
-    "video": "動画"
+    "details": "詳細"
   },
   "operation": {
     "search": "検索",
@@ -506,7 +504,9 @@
   "note-details-dialog": {
     "details": "詳細",
     "summary": "概要",
-    "tags": "タグ",
+    "tags": "タグ"
+  },
+  "media-display-group": {
     "image": "静止画",
     "video": "動画"
   },

@@ -89,29 +89,10 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-radio-group
-          v-model="captureMedia"
-          row
-          hide-details
-          class="mt-0 mb-3"
-        >
-          <v-radio
-            :label="$store.getters.message('note-details-dialog.image')"
-            value="image"
-          ></v-radio>
-          <v-radio
-            :label="$store.getters.message('note-details-dialog.video')"
-            value="video"
-          ></v-radio>
-        </v-radio-group>
-
-        <video-display
-          v-if="videoUrl && captureMedia === 'video'"
-          :videoUrl="videoUrl"
-        />
-        <popup-image
-          v-if="imageFilePath && captureMedia === 'image'"
+        <media-display-group
+          v-if="opened"
           :imageFileUrl="imageFilePath"
+          :videoUrl="videoUrl"
         />
       </v-list>
     </template>
@@ -126,20 +107,18 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import PopupImage from "@/components/molecules/PopupImage.vue";
 import {
   NoteTagItem,
   noteTagPreset,
 } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import MediaDisplayGroup from "@/components/pages/common/organisms/MediaDisplayGroup.vue";
 
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
-    "popup-image": PopupImage,
     "error-message-dialog": ErrorMessageDialog,
-    "video-display": VideoDisplay,
+    "media-display-group": MediaDisplayGroup,
   },
 })
 export default class NoteDetailsDialog extends Vue {
@@ -162,16 +141,6 @@ export default class NoteDetailsDialog extends Vue {
   private isViewerMode = (this as any).$isViewerMode
     ? (this as any).$isViewerMode
     : false;
-
-  private media: "image" | "video" = "image";
-
-  private get captureMedia(): "image" | "video" {
-    return this.media;
-  }
-
-  private set captureMedia(captureMedia: "image" | "video") {
-    this.media = captureMedia;
-  }
 
   @Watch("opened")
   private initialize() {
