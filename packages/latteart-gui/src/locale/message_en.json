@@ -182,6 +182,7 @@
     "media-type": "Media Type",
     "still-image": "Still Image",
     "video": "Still Image + Video",
+    "capture-media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
@@ -243,8 +244,9 @@
     "setting-experimental-features": "Experimental Feature Settings",
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",
-    "attention": "*If checked, it may be possible to record elements that could not be recorded without checking, but the overall operation will be unstable.",
-    "attention-video": "*Capture media settings are ignored and only video is recorded"
+    "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded.",
+    "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
   "autofill-register-dialog": {
     "title": "Autofill: Registration",

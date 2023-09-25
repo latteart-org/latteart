@@ -632,11 +632,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           operationHistoryState.testResultInfo.id
         );
 
+      const mediaType =
+        context.rootState.projectSettings.config.captureMediaSetting.mediaType;
+
       const videoRecorder =
-        context.rootState.projectSettings.config.captureMediaSetting
-          .mediaType === "video" ||
-        context.rootState.projectSettings.config.experimentalFeatureSetting
-          .captureArch === "push"
+        (mediaType === "video" || config.captureArch === "push") &&
+        config.platformName === "PC"
           ? createVideoRecorder(testResult)
           : undefined;
 
