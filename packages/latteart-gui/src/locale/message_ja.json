@@ -186,6 +186,7 @@
     "media-type": "メディアタイプ",
     "still-image": "静止画",
     "video": "静止画＋動画",
+    "capture-media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
     "setting-image-compression": "画像圧縮設定",
     "png": "png",
     "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
@@ -247,8 +248,9 @@
     "setting-experimental-features": "実験的機能設定",
     "recording-method": "記録方式",
     "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
-    "attention": "※チェックを入れると、チェック無しでは記録できなかった要素に対して記録できるようになる可能性がありますが、全体的に動作が不安定になります",
-    "attention-video": "※キャプチャメディア設定は無視され、動画のみ記録されます"
+    "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
+    "attention-video": "※キャプチャメディア設定は無視され、動画のみ記録されます。",
+    "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
   },
   "autofill-register-dialog": {
     "title": "自動入力：登録",

@@ -15,13 +15,24 @@
   <v-container class="mt-0 pt-0">
     <v-row>
       <v-col class="pt-0">
+        <span style="display: inline-flex; align-items: center"
+          ><v-icon color="yellow darken-3" left>warning</v-icon
+          >{{
+            $store.getters.message("config-view.experimental-warning")
+          }}</span
+        >
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col class="pt-0">
         <h4>
           {{ $store.getters.message("config-view.recording-method") }}
         </h4>
         <v-checkbox
           v-model="captureArch"
           :label="$store.getters.message('config-view.capture-arch')"
-          :disabled="isCapturing"
+          :disabled="isCapturing || platform !== 'PC'"
           hide-details
           class="py-0 my-0"
           true-value="push"
@@ -41,6 +52,7 @@
 
 <script lang="ts">
 import { ExperimentalFeatureSetting } from "@/lib/common/settings/Settings";
+import { RootState } from "@/store";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class ExperimentalFeatureConfig extends Vue {
@@ -77,6 +89,10 @@ export default class ExperimentalFeatureConfig extends Vue {
       ...this.tempConfig,
       captureArch,
     };
+  }
+
+  private get platform() {
+    return (this.$store.state as RootState).deviceSettings.platformName;
   }
 }
 </script>
