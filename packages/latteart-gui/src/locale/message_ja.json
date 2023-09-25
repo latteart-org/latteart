@@ -25,7 +25,7 @@
     "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
     "record-bug": "バグの記録",
-    "record-notice": "テスト中の気付き",
+    "record-notice": "テスト中の気づき",
     "record-note": "メモを残す",
     "target-tab-window": "対象タブ/ウィンドウ",
     "minimize": "最小化",
@@ -276,7 +276,9 @@
     "details": "操作セット詳細"
   },
   "note-edit": {
-    "take-screenshot": "スクリーンショットも記録する",
+    "take-screenshot": "登録するスクリーンショット",
+    "previous-screen": "直前の操作時のテスト画面",
+    "current-screen": "現在のテスト画面",
     "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。",
     "target-sequence": "対象操作の通番",
     "summary": "概要",
@@ -288,7 +290,8 @@
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
-    "check-video": "動画を確認する"
+    "check-video": "動画を確認する",
+    "check-still-Image": "静止画を確認する"
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",

@@ -78,24 +78,42 @@
             </v-chip>
           </template>
         </v-combobox>
-
-        <v-checkbox
-          v-if="isCapturing && oldIndex === null && mediaType === 'image'"
+        <h4>{{ $store.getters.message("note-edit.take-screenshot") }}</h4>
+        <v-radio-group
+          v-if="isCapturing && oldIndex === null"
           v-model="shouldTakeScreenshot"
-          :disabled="isAlertVisible"
-          :label="$store.getters.message('note-edit.take-screenshot')"
+          row
+          hide-details
+          class="mt-2"
+          :disabled="isAlertVisible || (!screenshot && !video)"
           :error-messages="takeScreenshotErrorMessage"
-        ></v-checkbox>
-
-        <thumbnail-image v-if="screenshot" :imageFileUrl="screenshot" />
-
-        <v-btn
-          v-if="video"
-          class="mt-3"
-          :disabled="isPictureInPictureVideoDisplayed"
-          @click="displayPictureInPictureVideo"
-          >{{ $store.getters.message("note-edit.check-video") }}</v-btn
         >
+          <v-radio
+            :label="$store.getters.message('note-edit.previous-screen')"
+            :value="false"
+          ></v-radio>
+          <v-radio
+            :label="$store.getters.message('note-edit.current-screen')"
+            :value="true"
+          ></v-radio>
+        </v-radio-group>
+
+        <div v-if="!shouldTakeScreenshot">
+          <v-btn
+            class="mx-2 my-3"
+            :disabled="!screenshot"
+            @click="showStillImage"
+            >{{ $store.getters.message("note-edit.check-still-Image") }}</v-btn
+          >
+
+          <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
+            $store.getters.message("note-edit.check-video")
+          }}</v-btn>
+
+          <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
+
+          <video-display v-if="isVideoVisible" :videoUrl="video" />
+        </div>
       </template>
     </execute-dialog>
   </div>
@@ -112,15 +130,15 @@ import {
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
-import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { RootState } from "@/store";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "thumbnail-image": ThumbnailImage,
+    "video-display": VideoDisplay,
+    "popup-image": PopupImage,
   },
 })
 export default class NoteCommonDialog extends Vue {
@@ -147,6 +165,8 @@ export default class NoteCommonDialog extends Vue {
   private shouldTakeScreenshot = false;
 
   private isAlertVisible = false;
+  private isImageVisible = false;
+  private isVideoVisible = false;
 
   private tagsItem = noteTagPreset.items;
 
@@ -183,6 +203,8 @@ export default class NoteCommonDialog extends Vue {
     this.newTargetSequence = this.oldSequence;
     this.maxSequence = this.noteInfo.maxSequence;
     this.shouldTakeScreenshot = false;
+    this.isImageVisible = false;
+    this.isVideoVisible = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -211,20 +233,6 @@ export default class NoteCommonDialog extends Vue {
     return this.isAlertVisible
       ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
       : "";
-  }
-
-  private get mediaType() {
-    return (this.$store.state as RootState).projectSettings.config
-      .captureMediaSetting.mediaType;
-  }
-  private displayPictureInPictureVideo() {
-    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
-      isDisplayed: true,
-    });
-  }
-  private get isPictureInPictureVideoDisplayed() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .isPictureInPictureWindowDisplayed;
   }
 
   private execute(): void {
@@ -285,6 +293,16 @@ export default class NoteCommonDialog extends Vue {
     }
 
     return true;
+  }
+
+  private showStillImage() {
+    this.isImageVisible = true;
+    this.isVideoVisible = false;
+  }
+
+  private showVideo() {
+    this.isVideoVisible = true;
+    this.isImageVisible = false;
   }
 }
 </script>

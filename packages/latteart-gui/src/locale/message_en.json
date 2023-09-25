@@ -272,7 +272,9 @@
     "details": "Operation Set Details"
   },
   "note-edit": {
-    "take-screenshot": "Take Screenshot",
+    "take-screenshot": "Screenshot to register",
+    "previous-screen": "Test screen from the previous operation",
+    "current-screen": "Current test screen",
     "save-warning": "The test purpose has already been noted for the specified operation.",
     "target-sequence": "Target Operation Number",
     "summary": "Summary",
@@ -284,7 +286,8 @@
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
     "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
-    "check-video": "Check the video"
+    "check-video": "Check the video",
+    "check-still-Image": "Check the still image"
   },
   "replay-option": {
     "start-replay": "Replay",
