@@ -78,7 +78,9 @@
             </v-chip>
           </template>
         </v-combobox>
-        <h4>{{ $store.getters.message("note-edit.take-screenshot") }}</h4>
+        <h4 v-if="isCapturing && oldIndex === null">
+          {{ $store.getters.message("note-edit.take-screenshot") }}
+        </h4>
         <v-radio-group
           v-if="isCapturing && oldIndex === null"
           v-model="shouldTakeScreenshot"
