@@ -312,9 +312,7 @@
   "note-list-dialog": {
     "note-list": "Note List",
     "note": "Note",
-    "details": "Details",
-    "image": "Image",
-    "video": "Video"
+    "details": "Details"
   },
   "operation": {
     "search": "Search",
@@ -502,7 +500,9 @@
   "note-details-dialog": {
     "details": "Details",
     "summary": "Summary",
-    "tags": "Tags",
+    "tags": "Tags"
+  },
+  "media-display-group": {
     "image": "Image",
     "video": "Video"
   },

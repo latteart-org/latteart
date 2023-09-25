@@ -46,22 +46,10 @@
             readonly
           >
           </v-textarea>
-          <v-radio-group v-model="captureMedia" row hide-details>
-            <v-radio
-              :label="message('note-list-dialog.image')"
-              value="image"
-            ></v-radio>
-            <v-radio
-              :label="message('note-list-dialog.video')"
-              value="video"
-            ></v-radio>
-          </v-radio-group>
-          <popup-image
-            v-if="note.image.imageFileUrl && captureMedia === 'image'"
+
+          <media-display-group
+            v-if="opened"
             :imageFileUrl="note.image.imageFileUrl"
-          />
-          <video-display
-            v-else-if="note.image.videoFrame && captureMedia === 'video'"
             :videoUrl="note.videoUrl"
           />
         </v-card-text>
@@ -83,16 +71,14 @@ import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import { VideoFrame } from "latteart-client";
-import PopupImage from "@/components/molecules/PopupImage.vue";
+import MediaDisplayGroup from "./MediaDisplayGroup.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
-    "video-display": VideoDisplay,
-    "popup-image": PopupImage,
+    "media-display-group": MediaDisplayGroup,
   },
 })
 export default class NoteListDialog extends Vue {
@@ -100,7 +86,6 @@ export default class NoteListDialog extends Vue {
   @Prop({ type: Array, default: [] }) notes?: {
     sequence: number;
     id: string;
-    imageFileUrl: string;
     tags: string[];
     value: string;
     details: string;
@@ -108,16 +93,6 @@ export default class NoteListDialog extends Vue {
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
-
-  private media: "image" | "video" = "image";
-
-  private get captureMedia(): "image" | "video" {
-    return this.media;
-  }
-
-  private set captureMedia(captureMedia: "image" | "video") {
-    this.media = captureMedia;
-  }
 
   private get noteWithTime() {
     return this.notes
