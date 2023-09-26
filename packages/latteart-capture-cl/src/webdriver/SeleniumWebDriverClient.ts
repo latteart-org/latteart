@@ -618,25 +618,35 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   public async getClientSize(): Promise<{ width: number; height: number }> {
     let rect = await this.driver.manage().window().getRect();
 
-    for (let i = 0; i < 10; i++) {
-      const correctedRect = await this.driver.manage().window().setRect(rect);
-      if (rect.width === correctedRect.width && rect.height === rect.height) {
-        break;
-      }
+    try {
+      for (let i = 0; i < 10; i++) {
+        const correctedRect = await this.driver.manage().window().setRect(rect);
+        if (rect.width === correctedRect.width && rect.height === rect.height) {
+          break;
+        }
 
-      LoggingService.warn(
-        `Correct client size: ${JSON.stringify(rect)} -> ${JSON.stringify(
-          correctedRect
-        )}`
-      );
-      rect = correctedRect;
+        LoggingService.warn(
+          `Correct client size: ${JSON.stringify(rect)} -> ${JSON.stringify(
+            correctedRect
+          )}`
+        );
+        rect = correctedRect;
+      }
+    } catch (error) {
+      LoggingService.debug("correct client size failed.");
+      LoggingService.debug(`${error}`);
     }
 
     return { width: rect.width, height: rect.height };
   }
 
   public async setClientSize(width: number, height: number): Promise<void> {
-    await this.driver.manage().window().setRect({ width, height });
+    try {
+      await this.driver.manage().window().setRect({ width, height });
+    } catch (error) {
+      LoggingService.debug("set client size failed.");
+      LoggingService.debug(`${error}`);
+    }
   }
 
   public async setScrollPosition(x: number, y: number): Promise<void> {
