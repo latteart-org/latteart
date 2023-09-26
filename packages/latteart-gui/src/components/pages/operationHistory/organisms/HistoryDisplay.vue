@@ -276,7 +276,8 @@ export default class HistoryDisplay extends Vue {
     this.mediaType = mediaType;
   }
 
-  @Watch("selectedOperationSequence")
+  @Watch("hasStillImage")
+  @Watch("hasVideo")
   private updateMediaType() {
     this.displayedMediaType = this.hasStillImage ? "image" : "video";
   }
