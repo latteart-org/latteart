@@ -249,7 +249,7 @@
     "recording-method": "記録方式",
     "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
     "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
-    "attention-video": "※キャプチャメディア設定は無視され、動画のみ記録されます。",
+    "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
     "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
   },
   "autofill-register-dialog": {

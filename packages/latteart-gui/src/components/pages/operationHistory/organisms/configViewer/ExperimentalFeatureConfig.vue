@@ -32,7 +32,7 @@
         <v-checkbox
           v-model="captureArch"
           :label="$store.getters.message('config-view.capture-arch')"
-          :disabled="isCapturing || platform !== 'PC'"
+          :disabled="isCapturing"
           hide-details
           class="py-0 my-0"
           true-value="push"

@@ -245,7 +245,7 @@
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",
     "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
-    "attention-video": "*Capture media settings are ignored and only video is recorded.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
     "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
   "autofill-register-dialog": {
