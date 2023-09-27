@@ -586,15 +586,21 @@ class CaptureSessionImpl implements CaptureSession {
 
       const timestamp = new Date().getTime();
 
+      const videoData =
+        option?.screenshot && this.recordingVideo
+          ? {
+              videoId: this.recordingVideo.id,
+              videoTime:
+                (timestamp - this.recordingVideo.startTimestamp) / 1000,
+            }
+          : undefined;
+
       const result = await this.option.testResult.addNoteToTestStep(
         {
           ...note,
           imageData,
           timestamp,
-          videoId: this.recordingVideo?.id,
-          videoTime: this.recordingVideo
-            ? (timestamp - this.recordingVideo.startTimestamp) / 1000
-            : undefined,
+          ...videoData,
         },
         this.lastTestStepId,
         option

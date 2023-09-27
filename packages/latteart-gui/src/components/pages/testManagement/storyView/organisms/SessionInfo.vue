@@ -207,7 +207,7 @@
 
       <template v-slot:content>
         <test-result-list
-          :items="testResults"
+          :items="unrelatedTestResults"
           @click-item="addTestResultToSession"
         />
       </template>
@@ -300,6 +300,14 @@ export default class SessionInfo extends Vue {
     return this.$store.getters["testManagement/findSession"](
       this.storyId,
       this.sessionId
+    );
+  }
+
+  private get unrelatedTestResults(): TestResultSummary[] {
+    const relatedTestResultIds =
+      this.session?.testResultFiles.map((testResult) => testResult.id) ?? [];
+    return this.testResults.filter(
+      (testResult) => !relatedTestResultIds.includes(testResult.id)
     );
   }
 

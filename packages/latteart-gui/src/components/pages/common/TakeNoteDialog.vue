@@ -73,6 +73,11 @@ export default class TakeNoteDialog extends Vue {
       this.$store.state.operationHistory as OperationHistoryState
     ).history[sequence - 1].operation;
 
+    const time = targetOperation.videoFrame?.time ?? 0;
+    const videoUrl = targetOperation.videoFrame?.url
+      ? `${targetOperation.videoFrame.url}#t=${time}`
+      : "";
+
     this.noteInfo = {
       value: "",
       details: "",
@@ -81,7 +86,7 @@ export default class TakeNoteDialog extends Vue {
       imageFilePath: targetOperation.imageFilePath ?? "",
       sequence: sequence,
       maxSequence: this.$store.state.operationHistory.history.length,
-      videoFilePath: targetOperation.videoFrame?.url ?? "",
+      videoFilePath: videoUrl,
     };
   }
 

@@ -139,7 +139,7 @@
           </v-col>
           <v-col cols="12" class="pl-2">
             <number-field
-              :value="testGenerationOption.maxGeneration"
+              :value="testGenerationOption.testData.maxGeneration"
               @updateNumberFieldValue="updateMaxGeneration"
               :label="$store.getters.message('history-view.max-generation')"
               :disabled="

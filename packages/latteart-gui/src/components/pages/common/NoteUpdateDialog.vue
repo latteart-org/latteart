@@ -75,6 +75,16 @@ export default class NoteUpdateDialog extends Vue {
       this.$store.getters["operationHistory/findHistoryItem"](sequence);
 
     if (historyItem.notices && historyItem.notices[index]) {
+      const time =
+        historyItem.notices[index].videoFrame?.time ??
+        historyItem.operation.videoFrame?.time ??
+        0;
+      const videoUrl =
+        historyItem.notices[index].videoFrame?.url ??
+        historyItem.operation.videoFrame?.url ??
+        "";
+      const videoFilePath = videoUrl ? `${videoUrl}#t=${time}` : "";
+
       this.noteInfo = {
         value: historyItem.notices[index].value,
         details: historyItem.notices[index].details,
@@ -86,10 +96,7 @@ export default class NoteUpdateDialog extends Vue {
             : historyItem.operation.imageFilePath,
         sequence: sequence,
         maxSequence: this.$store.state.operationHistory.history.length,
-        videoFilePath:
-          historyItem.notices[index].videoFrame?.url ??
-          historyItem.operation.videoFrame?.url ??
-          "",
+        videoFilePath,
       };
     }
   }

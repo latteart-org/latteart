@@ -32,7 +32,7 @@
         }}</v-btn
       >
       <v-card-text
-        v-for="(displayedItem, index) in displayedItems"
+        v-for="(displayedItem, itemIndex) in displayedItems"
         class="py-0"
         :key="displayedItem.testResultId"
       >
@@ -41,15 +41,19 @@
         </span>
         <v-list expand class="pt-0">
           <v-list-group
-            v-for="(testPurpose, index2) in displayedItem.testPurposes"
-            v-model="selectedItems[index][index2]"
+            v-for="(
+              testPurpose, testPurposeIndex
+            ) in displayedItem.testPurposes"
+            v-model="selectedItems[itemIndex][testPurposeIndex]"
             :key="testPurpose.title"
             value="true"
             no-action
             two-line
-            :id="`testPurposeArea${index2}`"
+            :id="`testPurposeArea${testPurposeIndex}`"
             :prepend-icon="
-              selectedItems[index2] ? 'arrow_drop_up' : 'arrow_drop_down'
+              selectedItems[itemIndex][testPurposeIndex]
+                ? 'arrow_drop_up'
+                : 'arrow_drop_down'
             "
             :append-icon="null"
           >

@@ -182,6 +182,7 @@
     "media-type": "Media Type",
     "still-image": "Still Image",
     "video": "Still Image + Video",
+    "capture-media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
@@ -243,8 +244,9 @@
     "setting-experimental-features": "Experimental Feature Settings",
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",
-    "attention": "*If checked, it may be possible to record elements that could not be recorded without checking, but the overall operation will be unstable.",
-    "attention-video": "*Capture media settings are ignored and only video is recorded"
+    "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
+    "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
   "autofill-register-dialog": {
     "title": "Autofill: Registration",
@@ -272,7 +274,9 @@
     "details": "Operation Set Details"
   },
   "note-edit": {
-    "take-screenshot": "Take Screenshot",
+    "take-screenshot": "Screenshot to register",
+    "previous-screen": "Test screen from the previous operation",
+    "current-screen": "Current test screen",
     "save-warning": "The test purpose has already been noted for the specified operation.",
     "target-sequence": "Target Operation Number",
     "summary": "Summary",
@@ -284,7 +288,8 @@
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
     "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
-    "check-video": "Check the video"
+    "check-video": "Check the video",
+    "check-still-Image": "Check the still image"
   },
   "replay-option": {
     "start-replay": "Replay",
@@ -312,9 +317,7 @@
   "note-list-dialog": {
     "note-list": "Note List",
     "note": "Note",
-    "details": "Details",
-    "image": "Image",
-    "video": "Video"
+    "details": "Details"
   },
   "operation": {
     "search": "Search",
@@ -474,12 +477,12 @@
     "tester-name": "Tester Name",
     "memo": "Memo",
     "report": "Report",
-    "model": "Session Log",
+    "model": "Session Logs",
     "import": "Import Session Log",
     "file": "Attachments",
     "add-file": "Add Attachments",
-    "delete-test-result-confirm": "Are you sure you want to remove the test results from the session?",
-    "delete-test-result-confirm-message": "The test results themselves are not deleted.",
+    "delete-test-result-confirm": "Are you sure you want to remove the test result from the session?",
+    "delete-test-result-confirm-message": "The test result itself is not deleted.",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
     "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
     "file-open-read-error": "Failed to read the attached file.",
@@ -488,9 +491,9 @@
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture-tool": "Start capture tool",
-    "open-capture-tool-title": "Open test results in capture tool.",
+    "open-capture-tool-title": "Open test result in capture tool.",
     "update-test-results-title": "Update test result name and capture time.",
-    "remove-test-results-title": "Remove test results from session."
+    "remove-test-results-title": "Remove test result from session."
   },
   "test-purpose-note-list": {
     "title": "Test Purposes/Bugs",
@@ -502,7 +505,9 @@
   "note-details-dialog": {
     "details": "Details",
     "summary": "Summary",
-    "tags": "Tags",
+    "tags": "Tags"
+  },
+  "media-display-group": {
     "image": "Image",
     "video": "Video"
   },
@@ -596,7 +601,8 @@
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
-      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."
+      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
+      "start_video_recording_failed": "Failed to record video. Test capturing is continuing."
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",
@@ -622,7 +628,8 @@
       "compare_test_results_failed": "Failed to compare test results.",
       "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared.",
       "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
-      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage."
+      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage.",
+      "create_video_failed": "Failed to create video."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

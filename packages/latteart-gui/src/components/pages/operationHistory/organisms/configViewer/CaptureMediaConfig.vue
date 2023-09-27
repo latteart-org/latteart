@@ -14,15 +14,19 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12" class="pb-0">
+      <v-col cols="12">
         <h4>{{ $store.getters.message("config-view.media-type") }}</h4>
 
         <v-radio-group
           :value="tempConfig.mediaType"
-          :disabled="isCapturing || captureArch === 'push'"
+          :disabled="isMediaTypeDisabled"
           @change="changeCaptureMediaType"
           class="py-0 my-0"
           row
+          :hint="
+            $store.getters.message('config-view.capture-media-config-hint')
+          "
+          persistent-hint
         >
           <v-radio
             :label="$store.getters.message('config-view.still-image')"
@@ -35,7 +39,7 @@
         </v-radio-group>
       </v-col>
 
-      <v-col cols="12" class="py-0">
+      <v-col cols="12">
         <h4>
           {{ $store.getters.message("config-view.setting-image-compression") }}
         </h4>
@@ -80,6 +84,16 @@ export default class CaptureMediaConfig extends Vue {
     return (
       (this.$store.state as RootState).projectSettings.config
         .experimentalFeatureSetting.captureArch ?? "polling"
+    );
+  }
+
+  private get platform() {
+    return (this.$store.state as RootState).deviceSettings.platformName;
+  }
+
+  private get isMediaTypeDisabled() {
+    return (
+      this.isCapturing || this.captureArch === "push" || this.platform !== "PC"
     );
   }
 

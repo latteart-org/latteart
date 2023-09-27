@@ -212,7 +212,7 @@ export default class StoryView extends Vue {
 
   private reviewTargetSessionIds = [];
 
-  private sessionPanelExpantionStates: boolean[] = [];
+  private sessionPanelExpantionStates: number[] = [];
 
   async created(): Promise<void> {
     if (!this.isViewerMode) {
@@ -227,9 +227,12 @@ export default class StoryView extends Vue {
 
     const sessionPanelExpantionStatesKey = `latteart-management-sessionPanelExpantionStates_${this.storyId}`;
 
-    this.sessionPanelExpantionStates = JSON.parse(
-      localStorage.getItem(sessionPanelExpantionStatesKey) ?? "[]"
-    );
+    this.sessionPanelExpantionStates =
+      JSON.parse(
+        localStorage.getItem(sessionPanelExpantionStatesKey) as string
+      ) ??
+      this.story?.sessions.map((_, index) => index) ??
+      [];
 
     this.$once("hook:beforeDestroy", () => {
       if (this.sessionPanelExpantionStates.length === 0) {
@@ -438,8 +441,6 @@ export default class StoryView extends Vue {
     this.$store.dispatch("testManagement/addNewSession", {
       storyId: this.storyId,
     });
-
-    this.sessionPanelExpantionStates.push(false);
   }
 
   private changeSessionStatus(sessionId: string, isDone: boolean): void {
