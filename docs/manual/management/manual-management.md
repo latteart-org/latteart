@@ -354,7 +354,7 @@ OK ボタンを押下し、データがエクスポートされます。
     | ------------------------------------------------------------------- | ------------------------ |
     | <div align='center'><img src="images/open-capture-tool.png"/></div> | 記録ツールを起動して表示 |
     | <div align='center'><img src="images/reload.png"/></div>            | 再読込                   |
-    | <div align='center'><img src="images/delete.png"/></div>            | セッションから削除       |
+    | <div align='center'><img src="images/delete.png"/></div>            | セッションから外す       |
 
 - 添付ファイル
   - 任意のファイルを添付することができます。テスト証跡等を添付したい場合に使用してください。
