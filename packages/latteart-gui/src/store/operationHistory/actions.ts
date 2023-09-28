@@ -56,6 +56,7 @@ import {
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
+import { parseHistoryLog } from "@/lib/common/util";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -401,6 +402,23 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   },
 
+  async loadTestResultForSnapshot(context, payload: { testResultId: string }) {
+    const historyLog = Vue.prototype.$historyLogs.find(
+      (historyLog: any) => historyLog.testResultId === payload.testResultId
+    );
+    if (!historyLog) {
+      throw new Error(`historyLog not found. ${payload.testResultId}`);
+    }
+
+    context.commit("resetHistory", {
+      historyItems: parseHistoryLog(historyLog.history),
+    });
+
+    await context.dispatch("updateModelsFromSequenceView", {
+      testResultId: payload.testResultId,
+    });
+  },
+
   /**
    * Load a test result from the repository and restore history in the State.
    * @param context Action context.
@@ -492,7 +510,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   async loadTestResultSummaries(
     context,
     payload: {
-      testResultIds: string;
+      testResultIds: string[];
     }
   ) {
     const testResults = (
@@ -649,6 +667,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         createSequenceDiagramGraphExtender
       )
     ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
+      if (!graph) {
+        return { sequence, testPurpose };
+      }
+
       const svgElement = (() => {
         const element = document.createElement("div");
         element.innerHTML = new MermaidGraphConverter().toSVG(
@@ -796,8 +818,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       };
 
       const sequenceView = await (async () => {
-        if (Vue.prototype.$sequenceView) {
-          return Vue.prototype.$sequenceView as SequenceView;
+        if (Vue.prototype.$sequenceViews) {
+          return (Vue.prototype.$sequenceViews as SequenceView[]).find(
+            (view) => view.testResultId === payload.testResultId
+          );
         }
 
         const testResult =
@@ -1017,7 +1041,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             inputValueTable: InputValueTable;
           }) => {
             if (edge.image) {
-              context.dispatch("changeScreenImage", { image: edge.image });
+              context.dispatch("changeScreenImage", {
+                image: edge.image,
+              });
+            } else {
+              context.commit("clearScreenImage");
             }
             context.commit("setInputValueTable", {
               inputValueTable: edge.inputValueTable,
@@ -1029,6 +1057,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           }) => {
             if (rect.image) {
               context.dispatch("changeScreenImage", { image: rect.image });
+            } else {
+              context.commit("clearScreenImage");
             }
             context.commit("setInputValueTable", {
               inputValueTable: rect.inputValueTable,
@@ -1212,6 +1242,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+
+    if (context.state.testResultInfo.id === payload.testResultId) {
+      context.commit("setTestResultName", { name: result.data });
+    }
   },
 
   async getScreenshots(context, payload: { testResultId: string }) {
@@ -1362,13 +1396,17 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const selectedOperation = selectedItem?.operation ?? null;
 
     if (selectedOperation) {
-      context.dispatch("changeScreenImage", {
-        image: {
-          imageFileUrl: selectedOperation.imageFilePath,
-          videoFrame: selectedOperation.videoFrame,
-        },
-        elementInfo: selectedOperation.elementInfo,
-      });
+      if (selectedOperation.imageFilePath || selectedOperation.videoFrame) {
+        context.dispatch("changeScreenImage", {
+          image: {
+            imageFileUrl: selectedOperation.imageFilePath,
+            videoFrame: selectedOperation.videoFrame,
+          },
+          elementInfo: selectedOperation.elementInfo,
+        });
+      } else {
+        context.commit("clearScreenImage");
+      }
     }
   },
 
@@ -1390,8 +1428,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const { videoFrame, imageFileUrl } = payload.image;
 
     const background = videoFrame
-      ? { videoFileUrl: videoFrame.url, time: videoFrame.time }
-      : { imageFileUrl: imageFileUrl ?? "" };
+      ? {
+          image: { url: imageFileUrl ?? "" },
+          video: { url: videoFrame.url, time: videoFrame.time },
+        }
+      : { image: { url: imageFileUrl ?? "" } };
 
     const overlay = ((element) => {
       if (!element) {

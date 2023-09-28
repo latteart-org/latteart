@@ -20,7 +20,7 @@ import {
   AutoOperationSetting,
   CaptureMediaSetting,
   Coverage,
-  ImageCompression,
+  ExperimentalFeatureSetting,
 } from "../gateways/settings/Settings";
 
 /**
@@ -83,6 +83,7 @@ export type ProjectConfig = {
         values: { tagname: string }[];
       };
     };
+    experimentalFeatureSetting: ExperimentalFeatureSetting;
   };
 };
 
@@ -90,7 +91,10 @@ export type ProjectConfig = {
  * Old style project settings.
  */
 export type OldStyleProjectConfig = Omit<ProjectConfig, "config"> & {
-  config: Omit<ProjectConfig["config"], "captureMediaSetting"> & {
+  config: Omit<
+    ProjectConfig["config"],
+    "captureMediaSetting" | "experimentalFeatureSetting"
+  > & {
     imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
   };
 };

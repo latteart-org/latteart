@@ -122,19 +122,23 @@ export default class ElementCoverage extends Vue {
     outerHeight?: number;
     outerWidth?: number;
   }) {
-    this.$store.dispatch("operationHistory/changeScreenImage", {
-      image: {
-        imageFileUrl: element.imageFileUrl,
-        videoFrame: element.videoFrame,
-      },
-      elementInfo: {
-        boundingRect: element.boundingRect,
-        innerHeight: element.innerHeight,
-        innerWidth: element.innerWidth,
-        outerHeight: element.outerHeight,
-        outerWidth: element.outerWidth,
-      },
-    });
+    if (element.imageFileUrl || element.videoFrame) {
+      this.$store.dispatch("operationHistory/changeScreenImage", {
+        image: {
+          imageFileUrl: element.imageFileUrl,
+          videoFrame: element.videoFrame,
+        },
+        elementInfo: {
+          boundingRect: element.boundingRect,
+          innerHeight: element.innerHeight,
+          innerWidth: element.innerWidth,
+          outerHeight: element.outerHeight,
+          outerWidth: element.outerWidth,
+        },
+      });
+    } else {
+      this.$store.commit("operationHistory/clearScreenImage");
+    }
   }
 }
 </script>

@@ -90,15 +90,6 @@ export default class RecordButton extends Vue {
     this.$store.commit("captureControl/setUrl", { url: value });
   }
 
-  private get mediaType(): "image" | "video" {
-    return (this.$store.state as RootState).projectSettings.config
-      .captureMediaSetting.mediaType;
-  }
-
-  private get config(): DeviceSettings {
-    return this.$store.state.deviceSettings;
-  }
-
   private get isDisabled(): boolean {
     return (
       !this.url ||
@@ -136,7 +127,6 @@ export default class RecordButton extends Vue {
           await this.$store.dispatch("operationHistory/createTestResult", {
             initialUrl: this.url,
             name: this.testResultName,
-            mediaType: this.mediaType,
           });
         }
 
@@ -163,8 +153,6 @@ export default class RecordButton extends Vue {
 
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
-          config: this.config,
-          mediaType: this.mediaType,
           callbacks: {
             onEnd: (error?: Error) => {
               this.preparingForCapture = false;

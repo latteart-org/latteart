@@ -23,6 +23,7 @@
       close();
     "
     @cancel="close()"
+    :acceptButtonDisabled="isViewerMode"
   >
     <template>
       <v-list class="note-details-dialog">
@@ -50,15 +51,18 @@
               $store.getters.message("note-details-dialog.tags")
             }}</v-list-item-title>
             <v-combobox
+              v-model="newTags"
+              :hide-no-data="!search"
               :items="tagsItem"
               :search-input.sync="search"
-              v-model="newTags"
+              hide-selected
+              hide-details
               multiple
               small-chips
-              hide-selected
+              :readonly="isViewerMode"
             >
               <template v-slot:no-data>
-                <v-list-item v-if="search">
+                <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>
                       No results matching "<strong>{{ search }}</strong
@@ -67,12 +71,29 @@
                   </v-list-item-content>
                 </v-list-item>
               </template>
+              <template v-slot:selection="{ attrs, item, parent, selected }">
+                <v-chip
+                  v-if="item === Object(item)"
+                  v-bind="attrs"
+                  :color="item.color"
+                  :input-value="selected"
+                  small
+                >
+                  <span class="pr-2">{{ item.text }} </span>
+                  <v-icon small @click="parent.selectItem(item)"
+                    >$delete</v-icon
+                  >
+                </v-chip>
+              </template>
             </v-combobox>
           </v-list-item-content>
         </v-list-item>
 
-        <video-display v-if="videoUrl" :videoUrl="videoUrl" />
-        <popup-image v-if="imageFilePath" :imageFileUrl="imageFilePath" />
+        <media-display-group
+          v-if="opened"
+          :imageFileUrl="imageFilePath"
+          :videoUrl="videoUrl"
+        />
       </v-list>
     </template>
     <error-message-dialog
@@ -86,17 +107,18 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import PopupImage from "@/components/molecules/PopupImage.vue";
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import {
+  NoteTagItem,
+  noteTagPreset,
+} from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import MediaDisplayGroup from "@/components/pages/common/organisms/MediaDisplayGroup.vue";
 
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
-    "popup-image": PopupImage,
     "error-message-dialog": ErrorMessageDialog,
-    "video-display": VideoDisplay,
+    "media-display-group": MediaDisplayGroup,
   },
 })
 export default class NoteDetailsDialog extends Vue {
@@ -112,18 +134,48 @@ export default class NoteDetailsDialog extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private search = "";
-  private newTags: string[] = [];
-  private tagsItem = noteTagPreset.items.map((item) => {
-    return item.name;
-  });
+  private search = null;
+  private newTags: NoteTagItem[] = [];
+  private tagsItem = noteTagPreset.items;
+
+  private isViewerMode = (this as any).$isViewerMode
+    ? (this as any).$isViewerMode
+    : false;
 
   @Watch("opened")
   private initialize() {
     if (!this.opened) {
       return;
     }
-    this.newTags = [...this.tags];
+    this.newTags = this.tags.map((tag) => {
+      const targetTagItem = this.tagsItem.find((item) => item.text === tag);
+      if (targetTagItem) {
+        return targetTagItem;
+      }
+
+      return {
+        text: tag,
+        color: "#E0E0E0",
+      };
+    });
+  }
+
+  @Watch("newTags")
+  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
+    if (val.length === prev.length) return;
+
+    this.newTags = val.map((v) => {
+      if (typeof v === "string") {
+        v = {
+          text: v,
+          color: "#E0E0E0",
+        };
+
+        this.newTags.push(v);
+      }
+
+      return v;
+    });
   }
 
   private async execute() {
@@ -133,7 +185,7 @@ export default class NoteDetailsDialog extends Vue {
         noteId: this.noteId,
         value: this.summary,
         details: this.details,
-        tags: this.newTags,
+        tags: this.newTags.map((tag) => tag.text),
       });
     } catch (error) {
       if (error instanceof Error) {

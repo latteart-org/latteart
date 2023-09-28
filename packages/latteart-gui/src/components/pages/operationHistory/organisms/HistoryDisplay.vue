@@ -15,8 +15,13 @@
 -->
 
 <template>
-  <splitpanes horizontal class="default-theme">
+  <splitpanes
+    horizontal
+    @resized="resize('vertical', $event)"
+    class="default-theme"
+  >
     <pane
+      :size="verticalPaneSize"
       :class="{
         'disp-coverage': dispCoverage,
         'hidden-coverage': !dispCoverage,
@@ -35,8 +40,11 @@
           message("history-view.there-are-updates-on-history")
         }}</span>
       </div>
-      <splitpanes style="height: calc(100% - 46px)">
-        <pane>
+      <splitpanes
+        @resized="resize('horizontal', $event)"
+        :style="{ height: 'calc(100% - 44px)' }"
+      >
+        <pane :size="horizontalPaneSize">
           <v-container fluid fill-height class="pa-0 ma-0">
             <v-row no-gutters>
               <v-col cols="12">
@@ -83,38 +91,42 @@
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template>
-              <screencast-display />
-
-              <screen-shot-display
-                v-if="screenshotUrl"
-                :imageInfo="imageInfo"
-              ></screen-shot-display>
-
-              <a
-                v-if="screenshotUrl"
-                :href="screenshotUrl"
-                :download="screenshotName"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="screenshot-button screenshot-button-single"
-                ref="dllink"
-              >
-                <v-btn
-                  v-show="screenshotUrl !== ''"
-                  color="white"
-                  class="screenshot-button screenshot-button-single"
-                  fab
-                  small
-                >
-                  <v-icon>image</v-icon>
-                </v-btn></a
-              >
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-radio-group
+                    v-model="displayedMediaType"
+                    row
+                    class="py-0 pl-2"
+                    hide-details
+                    v-if="hasStillImage || hasVideo"
+                  >
+                    <v-radio
+                      :label="message('history-view.image')"
+                      value="image"
+                      :disabled="!hasStillImage"
+                    ></v-radio>
+                    <v-radio
+                      :label="message('history-view.video')"
+                      value="video"
+                      :disabled="!hasVideo"
+                    ></v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+              <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
+                <v-col cols="12" class="fill-height pl-2">
+                  <screencapture-display
+                    v-if="displayedMediaType === 'image'"
+                  />
+                  <screencast-display v-else />
+                </v-col>
+              </v-row>
             </template>
           </v-container>
         </pane>
       </splitpanes>
     </pane>
-    <pane v-if="!dispCoverage">
+    <pane v-if="!dispCoverage" style="z-index: 6">
       <operation-list
         v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
         :displayedOperations="displayedOperations"
@@ -150,21 +162,21 @@ import {
 } from "@/lib/operationHistory/types";
 import HistorySummaryDiagram from "@/components/pages/operationHistory/organisms/HistorySummaryDiagram.vue";
 import OperationList from "@/components/pages/operationHistory/organisms/OperationList.vue";
-import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import ScreencastDisplay from "./ScreencastDisplay.vue";
+import ScreencaptureDisplay from "./ScreencaptureDisplay.vue";
 
 @Component({
   components: {
     "history-summary-diagram": HistorySummaryDiagram,
     "operation-list": OperationList,
-    "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
     "screencast-display": ScreencastDisplay,
+    "screencapture-display": ScreencaptureDisplay,
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
@@ -206,64 +218,90 @@ export default class HistoryDisplay extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
+  private mediaType: "image" | "video" = "image";
+
   private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
   private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
   private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
 
   private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
 
+  private verticalPaneSize: number = 0;
+  private horizontalPaneSize: number = 0;
+
+  private get verticalPaneSizeKey(): string {
+    return "latteart-management-verticalPaneSizeKey";
+  }
+
+  private get horizontalPaneSizeKey(): string {
+    return "latteart-management-horizontalPaneSizeKey";
+  }
+
+  private setPaneSize(key: "vertical" | "horizontal", value: number) {
+    localStorage.setItem(
+      key === "vertical"
+        ? this.verticalPaneSizeKey
+        : this.horizontalPaneSizeKey,
+      value.toString()
+    );
+  }
+
+  private getPaneSize(key: "vertical" | "horizontal"): string | null {
+    return localStorage.getItem(
+      key === "vertical" ? this.verticalPaneSizeKey : this.horizontalPaneSizeKey
+    );
+  }
+
   private get dispCoverage() {
     return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
+  }
+
+  private get operationHistoryState() {
+    return this.$store.state.operationHistory as OperationHistoryState;
   }
 
   private get history(): OperationHistory {
     return [...this.rawHistory];
   }
 
-  private get imageInfo(): { decode: string } {
-    if (this.displayedScreenshotUrl !== "") {
-      return { decode: this.displayedScreenshotUrl };
-    }
-
-    return { decode: "" };
-  }
-
   private get selectedOperationSequence(): number {
-    return this.$store.state.operationHistory.selectedOperationSequence;
+    return this.operationHistoryState.selectedOperationSequence;
   }
 
-  private get displayedScreenshotUrl(): string {
-    const screenImage = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).screenImage;
+  private get displayedMediaType(): "image" | "video" {
+    return this.mediaType;
+  }
 
-    if (!screenImage || !("imageFileUrl" in screenImage.background)) {
-      return "";
-    }
+  private set displayedMediaType(mediaType: "image" | "video") {
+    this.mediaType = mediaType;
+  }
 
-    return screenImage.background.imageFileUrl;
+  @Watch("hasStillImage")
+  @Watch("hasVideo")
+  private updateMediaType() {
+    this.displayedMediaType = this.hasStillImage ? "image" : "video";
+  }
+
+  private get hasStillImage(): boolean {
+    const screenImage = this.operationHistoryState.screenImage;
+
+    return (screenImage?.background.image.url ?? "") !== "";
+  }
+
+  private get hasVideo(): boolean {
+    const screenImage = this.operationHistoryState.screenImage;
+
+    return screenImage?.background.video != null;
   }
 
   private get displayedOperations(): number[] {
-    return this.$store.state.operationHistory.displayedOperations;
+    return this.operationHistoryState.displayedOperations;
   }
 
   private recentImageInfo = "";
 
   private get updating(): boolean {
-    return this.$store.state.operationHistory.isTestResultViewModelUpdating;
-  }
-
-  private get screenshotUrl(): string {
-    return this.imageInfo.decode ?? "";
-  }
-
-  private get screenshotName(): string {
-    const url = this.imageInfo.decode;
-    const ar = url.split(".");
-    const ext = ar[ar.length - 1];
-    const sequence = this.selectedOperationSequence;
-    return `${sequence}.${ext}`;
+    return this.operationHistoryState.isTestResultViewModelUpdating;
   }
 
   @Watch("diagramType")
@@ -277,23 +315,20 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get canUpdateModels(): boolean {
-    return this.$store.state.operationHistory.canUpdateModels;
+    return this.operationHistoryState.canUpdateModels;
   }
 
   private async updateTestResultViewModel() {
     try {
-      const testResultId = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).testResultInfo.id;
+      const testResultId = this.operationHistoryState.testResultInfo.id;
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
         { testResultId }
       );
 
-      const testResultIds = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).storingTestResultInfos.map(({ id }) => id);
+      const testResultIds =
+        this.operationHistoryState.storingTestResultInfos.map(({ id }) => id);
       await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
         testResultIds:
           testResultIds.length === 0 ? [testResultId] : testResultIds,
@@ -330,6 +365,9 @@ export default class HistoryDisplay extends Vue {
   }
 
   private created() {
+    this.verticalPaneSize = Number(this.getPaneSize("vertical") ?? "50");
+    this.horizontalPaneSize = Number(this.getPaneSize("horizontal") ?? "50");
+
     this.selectFirstOperation();
     this.updateWindowTitle();
   }
@@ -375,6 +413,10 @@ export default class HistoryDisplay extends Vue {
       });
     }
   }
+
+  private resize(type: "vertical" | "horizontal", event: any) {
+    this.setPaneSize(type, event[0].size);
+  }
 }
 </script>
 
@@ -387,12 +429,6 @@ export default class HistoryDisplay extends Vue {
   padding-right: 16px
   background-color: #f2f2f2
 
-.screenshot-button
-  position: absolute
-  z-index: 10
-
-  &-multi
-    bottom: 45px
-  &-single
-    bottom: 0px
+  ::v-deep .splitpanes__splitter
+    z-index: 5
 </style>

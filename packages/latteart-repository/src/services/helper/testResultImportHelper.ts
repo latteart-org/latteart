@@ -88,7 +88,9 @@ const validateV3Format = (data: any): TestResultExportDataV3 => {
   throw new Error("ImportData is invalid format.");
 };
 
-const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
+const deserializeTestResultV0 = (
+  formattedData: TestResultExportDataV0
+): DeserializedTestResult => {
   const entries: [string, HistoryItemExportDataV0][] = Object.entries(
     formattedData.history
   );
@@ -158,7 +160,9 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
   return testResult;
 };
 
-const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
+const deserializeTestResultV1 = (
+  formattedData: TestResultExportDataV1
+): DeserializedTestResult => {
   const entries: [string, HistoryItemExportDataV1][] = Object.entries(
     formattedData.history
   );
@@ -218,7 +222,9 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
   return testResult;
 };
 
-const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
+const deserializeTestResultV2 = (
+  formattedData: TestResultExportDataV2
+): DeserializedTestResult => {
   const entries: [string, HistoryItemExportDataV2][] = Object.entries(
     formattedData.history
   );
@@ -273,7 +279,9 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
   return testResult;
 };
 
-const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
+const deserializeTestResultV3 = (
+  formattedData: TestResultExportDataV3
+): DeserializedTestResult => {
   const entries: [string, HistoryItemExportDataV3][] = Object.entries(
     formattedData.history
   );

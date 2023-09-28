@@ -105,7 +105,7 @@ export default class ManageShow extends Vue {
       this.testMatrices[0]?.id ??
       "";
 
-    if (testMatrixId) {
+    if (this.testMatrices.find((tm) => tm.id === testMatrixId)) {
       this.selectTestMatrix(testMatrixId);
     }
   }

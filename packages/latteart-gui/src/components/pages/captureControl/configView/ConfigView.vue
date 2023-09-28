@@ -177,6 +177,25 @@
                 </compare-setting>
               </v-expansion-panel-content>
             </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                {{
+                  $store.getters.message(
+                    "config-view.setting-experimental-features"
+                  )
+                }}
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <experimental-feature-config
+                  :experimentalFeatureSetting="experimentalFeatureSetting"
+                  :opened="experimentalFeatureSettingOpened"
+                  :isCapturing="isCapturing"
+                  @save-config="saveConfig"
+                >
+                </experimental-feature-config>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
           </v-expansion-panels>
         </v-col>
       </v-row>
@@ -205,6 +224,7 @@ import {
   ViewSettings,
   TestResultComparisonSetting,
   CaptureMediaSetting,
+  ExperimentalFeatureSetting,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import {
@@ -214,6 +234,7 @@ import {
 import { default as AutoOperationSettingComponent } from "../../operationHistory/organisms/configViewer/AutoOperationSetting.vue";
 import { RootState } from "@/store";
 import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
+import ExperimentalFeatureConfig from "../../operationHistory/organisms/configViewer/ExperimentalFeatureConfig.vue";
 
 @Component({
   components: {
@@ -224,6 +245,7 @@ import CompareSetting from "../../operationHistory/organisms/configViewer/Compar
     "autofill-setting": AutofillSettingComponent,
     "compare-setting": CompareSetting,
     "auto-operation-setting": AutoOperationSettingComponent,
+    "experimental-feature-config": ExperimentalFeatureConfig,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
@@ -317,6 +339,12 @@ export default class ConfigView extends Vue {
       .testResultComparison;
   }
 
+  private get experimentalFeatureSetting(): ExperimentalFeatureSetting {
+    return (
+      this.config?.experimentalFeatureSetting ?? { captureArch: "polling" }
+    );
+  }
+
   @Watch("locale")
   private updateWindowTitle() {
     this.$store.dispatch("changeWindowTitle", {
@@ -401,6 +429,10 @@ export default class ConfigView extends Vue {
 
   private get autoOperationSettingOpened() {
     return this.panel === 5;
+  }
+
+  private get experimentalFeatureSettingOpened() {
+    return this.panel === 7;
   }
 
   private get otherThanWindows() {
@@ -539,6 +571,7 @@ export default class ConfigView extends Vue {
     coverage?: CoverageSetting;
     captureMediaSetting?: CaptureMediaSetting;
     testResultComparison?: TestResultComparisonSetting;
+    experimentalFeatureSetting?: ExperimentalFeatureSetting;
   }) {
     const projectConfig = {
       ...config,

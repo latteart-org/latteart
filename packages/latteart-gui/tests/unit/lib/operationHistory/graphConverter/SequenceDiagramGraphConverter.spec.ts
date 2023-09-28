@@ -3,6 +3,55 @@
 import { convertToSequenceDiagramGraphs } from "@/lib/operationHistory/graphConverter/SequenceDiagramGraphConverter";
 
 describe("SequenceDiagramGraphConverter", () => {
+  it("sequenceViewのscreensが空の場合はgraphを生成しない", async () => {
+    const view = {
+      windows: [],
+      screens: [],
+      scenarios: [
+        {
+          nodes: [
+            {
+              windowId: "",
+              screenId: "",
+              testSteps: [
+                {
+                  id: "ts0",
+                  type: "type1",
+                  notes: [],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          testPurpose: { id: "p0", value: "intention1" },
+          nodes: [
+            {
+              windowId: "",
+              screenId: "",
+              testSteps: [
+                {
+                  id: "ts1",
+                  type: "type1",
+                  notes: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const scenarios = await convertToSequenceDiagramGraphs(view);
+
+    expect(scenarios[0].sequence).toEqual(1);
+    expect(scenarios[0].testPurpose).toBeUndefined();
+    expect(scenarios[0].graph).toBeUndefined();
+    expect(scenarios[1].sequence).toEqual(2);
+    expect(scenarios[1].testPurpose).toEqual({ value: "intention1" });
+    expect(scenarios[1].graph).toBeUndefined();
+  });
+
   it("先頭のシナリオに目的がなく、2つ目以降のシナリオに目的がある場合", async () => {
     const view = {
       windows: [{ id: "w0", name: "window1-text" }],
@@ -46,7 +95,7 @@ describe("SequenceDiagramGraphConverter", () => {
 
     expect(scenarios[0].sequence).toEqual(1);
     expect(scenarios[0].testPurpose).toEqual(undefined);
-    expect(scenarios[0].graph.graphText).toEqual(
+    expect(scenarios[0].graph?.graphText).toEqual(
       `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -58,7 +107,7 @@ end;
     );
     expect(scenarios[1].sequence).toEqual(2);
     expect(scenarios[1].testPurpose).toEqual({ value: "intention1" });
-    expect(scenarios[1].graph.graphText).toEqual(
+    expect(scenarios[1].graph?.graphText).toEqual(
       `sequenceDiagram;
 participant s0 as screenDef1;
 opt (2)window1-text;
@@ -94,7 +143,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -139,7 +188,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -204,7 +253,7 @@ end;
 
     expect(scenarios[0].sequence).toEqual(1);
     expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-    expect(scenarios[0].graph.graphText).toEqual(
+    expect(scenarios[0].graph?.graphText).toEqual(
       `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -250,7 +299,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -290,7 +339,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -329,7 +378,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -368,7 +417,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -409,7 +458,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -449,7 +498,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -489,7 +538,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -531,7 +580,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -575,7 +624,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -640,7 +689,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -653,7 +702,7 @@ end;
         );
         expect(scenarios[1].sequence).toEqual(2);
         expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
-        expect(scenarios[1].graph.graphText).toEqual(
+        expect(scenarios[1].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (2)window1-text;
@@ -713,7 +762,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -725,7 +774,7 @@ end;
         );
         expect(scenarios[1].sequence).toEqual(2);
         expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
-        expect(scenarios[1].graph.graphText).toEqual(
+        expect(scenarios[1].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (2)window1-text;
@@ -827,7 +876,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -840,7 +889,7 @@ end;
         );
         expect(scenarios[1].sequence).toEqual(2);
         expect(scenarios[1].testPurpose).toEqual({ value: "intention2" });
-        expect(scenarios[1].graph.graphText).toEqual(
+        expect(scenarios[1].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s1 as screenDef2;
 opt (2)window1-text;
@@ -853,7 +902,7 @@ end;
         );
         expect(scenarios[2].sequence).toEqual(3);
         expect(scenarios[2].testPurpose).toEqual({ value: "intention3" });
-        expect(scenarios[2].graph.graphText).toEqual(
+        expect(scenarios[2].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (3)window1-text;
@@ -911,7 +960,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -969,7 +1018,7 @@ end;
 
         expect(scenarios[0].sequence).toEqual(1);
         expect(scenarios[0].testPurpose).toEqual(undefined);
-        expect(scenarios[0].graph.graphText).toEqual(
+        expect(scenarios[0].graph?.graphText).toEqual(
           `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1021,7 +1070,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual({ value: "intention1" });
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as hogehogehugahug<br/>apiyopiyofoobar<br/>hogehogehugahug<br/>...;
 opt (1)window1-text;
@@ -1069,7 +1118,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 opt (1)window1-text;
@@ -1130,7 +1179,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1192,7 +1241,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1254,7 +1303,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1337,7 +1386,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1424,7 +1473,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1516,7 +1565,7 @@ end;
 
       expect(scenarios[0].sequence).toEqual(1);
       expect(scenarios[0].testPurpose).toEqual(undefined);
-      expect(scenarios[0].graph.graphText).toEqual(
+      expect(scenarios[0].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 participant s1 as screenDef2;
@@ -1533,7 +1582,7 @@ end;
 
       expect(scenarios[1].sequence).toEqual(3);
       expect(scenarios[1].testPurpose).toEqual({ value: "intention1" });
-      expect(scenarios[1].graph.graphText).toEqual(
+      expect(scenarios[1].graph?.graphText).toEqual(
         `sequenceDiagram;
 participant s0 as screenDef1;
 opt (3)window2-text;

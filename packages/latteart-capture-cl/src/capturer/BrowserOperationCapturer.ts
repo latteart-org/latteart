@@ -140,7 +140,10 @@ export default class BrowserOperationCapturer {
           screenElements =
             await this.webBrowser.currentWindow?.collectAllFrameScreenElements();
 
-          if (shouldDeleteCapturedData && this.config.mediaType === "image") {
+          if (
+            shouldDeleteCapturedData &&
+            this.config.captureArch === "polling"
+          ) {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
             shouldDeleteCapturedData = false;
           }
@@ -236,13 +239,10 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
-          const captureArch =
-            this.config.mediaType === "image" ? "pull" : "push";
-
-          await currentWindow.getReadyToCapture(captureArch);
+          await currentWindow.getReadyToCapture();
           await currentWindow.captureScreenTransition();
 
-          if (captureArch === "pull") {
+          if (this.config.captureArch === "polling") {
             await currentWindow.captureOperations();
           }
         }

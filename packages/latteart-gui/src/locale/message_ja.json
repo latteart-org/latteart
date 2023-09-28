@@ -16,7 +16,7 @@
     "finish": "テスト終了",
     "pause-capturing": "記録の一時停止",
     "resume-capturing": "記録の再開",
-    "reset": "履歴をリセット",
+    "reset": "履歴のリセット（新規のテストに向けてリセットします。テスト結果は保存されています。）",
     "import": "過去のテスト結果の読み込み",
     "replay": "テスト結果のリプレイ",
     "replay-operations": "操作のリプレイ",
@@ -25,7 +25,7 @@
     "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
     "record-bug": "バグの記録",
-    "record-notice": "テスト中の気付き",
+    "record-notice": "テスト中の気づき",
     "record-note": "メモを残す",
     "target-tab-window": "対象タブ/ウィンドウ",
     "minimize": "最小化",
@@ -117,7 +117,9 @@
     "test-result-name": "テスト結果名",
     "test-purpose": "テスト目的",
     "no-test-purpose": "目的なし",
-    "edit-test-purpose": "テスト目的の編集"
+    "edit-test-purpose": "テスト目的の編集",
+    "image": "静止画",
+    "video": "動画"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -183,7 +185,8 @@
     "setting-capture-media": "キャプチャメディア設定",
     "media-type": "メディアタイプ",
     "still-image": "静止画",
-    "video": "動画",
+    "video": "静止画＋動画",
+    "capture-media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
     "setting-image-compression": "画像圧縮設定",
     "png": "png",
     "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
@@ -241,7 +244,13 @@
       "title": "自動操作：セット内容",
       "details-list": "詳細"
     },
-    "settings": "設定"
+    "settings": "設定",
+    "setting-experimental-features": "実験的機能設定",
+    "recording-method": "記録方式",
+    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
+    "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
+    "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
+    "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
   },
   "autofill-register-dialog": {
     "title": "自動入力：登録",
@@ -269,7 +278,9 @@
     "details": "操作セット詳細"
   },
   "note-edit": {
-    "take-screenshot": "スクリーンショットも記録する",
+    "take-screenshot": "登録するスクリーンショット",
+    "previous-screen": "直前の操作時のテスト画面",
+    "current-screen": "現在のテスト画面",
     "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。",
     "target-sequence": "対象操作の通番",
     "summary": "概要",
@@ -281,7 +292,8 @@
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
-    "check-video": "動画を確認する"
+    "check-video": "動画を確認する",
+    "check-still-Image": "静止画を確認する"
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
@@ -473,7 +485,8 @@
     "import": "実行結果の取り込み",
     "file": "添付ファイル",
     "add-file": "添付ファイルの追加",
-    "delete-test-result-confirm": "テスト結果を削除してもよろしいですか？",
+    "delete-test-result-confirm": "セッションからテスト結果を取り外してもよろしいですか？",
+    "delete-test-result-confirm-message": "テスト結果そのものは削除されません。",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
     "test-result-import-error": "テスト実行モデルファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
     "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
@@ -481,7 +494,10 @@
     "result-list": "実行結果取り込み",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
-    "start-capture-tool": "記録ツール起動"
+    "start-capture-tool": "記録ツール起動",
+    "open-capture-tool-title": "記録ツールでテスト結果を開く",
+    "update-test-results-title": "テスト結果名と記録時間を最新化する",
+    "remove-test-results-title": "セッションからテスト結果を外す"
   },
   "test-purpose-note-list": {
     "title": "テスト目的・気づき",
@@ -494,6 +510,10 @@
     "details": "詳細",
     "summary": "概要",
     "tags": "タグ"
+  },
+  "media-display-group": {
+    "image": "静止画",
+    "video": "動画"
   },
   "session-list": {
     "complete": "セッションを完了にする",
@@ -585,7 +605,8 @@
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
-      "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。"
+      "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
+      "start_video_recording_failed": "動画の記録に失敗しました。テスト記録は継続されています。"
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
@@ -611,7 +632,8 @@
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
       "comparison_targets_not_same_procedures": "異なる操作手順のテスト結果は比較できません。",
       "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
-      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。"
+      "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。",
+      "create_video_failed": "動画の作成に失敗しました。"
     },
     "test_management": {
       "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",

@@ -43,6 +43,8 @@ export function createTestResultFiles(
     return {
       name: testResultFile.name,
       id: testResultFile.id,
+      initialUrl: testResultFile.initialUrl,
+      testingTime: testResultFile.testingTime,
     };
   });
 }
@@ -75,6 +77,7 @@ export function convertNotesForSnapshot(
             height: note.videoFrame.height,
           }
         : undefined,
+      testResultId: note.testResultId,
     };
   });
 }

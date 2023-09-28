@@ -312,6 +312,21 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ExperimentalFeatureSetting: {
+    dataType: "refObject",
+    properties: {
+      captureArch: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["polling"] },
+          { dataType: "enum", enums: ["push"] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectConfig: {
     dataType: "refAlias",
     type: {
@@ -320,6 +335,10 @@ const models: TsoaRoute.Models = {
         config: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            experimentalFeatureSetting: {
+              ref: "ExperimentalFeatureSetting",
+              required: true,
+            },
             testResultComparison: {
               dataType: "nestedObjectLiteral",
               nestedProperties: {
@@ -842,6 +861,7 @@ const models: TsoaRoute.Models = {
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            testResultId: { dataType: "string" },
             videoFrame: { ref: "VideoFrame" },
             imageFileUrl: { dataType: "string", required: true },
           },
@@ -1205,6 +1225,8 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        testingTime: { dataType: "double" },
+        initialUrl: { dataType: "string" },
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
       },
@@ -1238,7 +1260,6 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        testingTime: { dataType: "double", required: true },
         notes: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "GetNoteResponse" },
@@ -1249,7 +1270,6 @@ const models: TsoaRoute.Models = {
           array: { dataType: "refAlias", ref: "GetTestPurposeResponse" },
           required: true,
         },
-        initialUrl: { dataType: "string", required: true },
         testResultFiles: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "TestResultFile" },

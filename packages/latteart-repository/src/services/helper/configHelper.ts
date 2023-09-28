@@ -41,6 +41,10 @@ export function parseProjectConfig(configText: string): ProjectConfig {
               },
             },
       testResultComparison: config.config.testResultComparison,
+      experimentalFeatureSetting:
+        "experimentalFeatureSetting" in config.config
+          ? config.config.experimentalFeatureSetting
+          : { captureArch: "polling" },
     },
   };
 }

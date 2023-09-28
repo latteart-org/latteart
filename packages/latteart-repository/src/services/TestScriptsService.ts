@@ -48,13 +48,15 @@ export class TestScriptsService {
           "testMatrices",
           "testMatrices.stories",
           "testMatrices.stories.sessions",
-          "testMatrices.stories.sessions.testResult",
+          "testMatrices.stories.sessions.testResults",
         ],
       })
     ).testMatrices.flatMap((testMatrix) => {
       return testMatrix.stories.flatMap((story) => {
         return story.sessions.flatMap((session) => {
-          return session.testResult ? [session.testResult.id] : [];
+          return session.testResults
+            ? [session.testResults.map((result) => result.id)].flat()
+            : [];
         });
       });
     });

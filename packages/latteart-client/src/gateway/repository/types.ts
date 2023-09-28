@@ -107,6 +107,7 @@ export type NoteForRepository = {
   tags: string[];
   timestamp: number;
   videoFrame?: VideoFrame;
+  testResultId: string;
 };
 
 type TestPurposeForRepository = {
@@ -115,6 +116,7 @@ type TestPurposeForRepository = {
   value: string;
   details: string;
   notes: NoteForRepository[];
+  testResultId: string;
 };
 
 export type CapturedOperationForRepository = {
@@ -257,6 +259,7 @@ export type SettingsForRepository = {
         values: { tagname: string }[];
       };
     };
+    experimentalFeatureSetting: { captureArch: "polling" | "push" };
   };
 };
 
@@ -294,10 +297,8 @@ export type SessionForRepository = {
   memo: string;
   attachedFiles: { name: string; fileUrl: string }[];
   testResultFiles: TestResultFileForRepository[];
-  initialUrl: string;
   testPurposes: TestPurposeForRepository[];
   notes: NoteForRepository[];
-  testingTime: number;
 };
 
 export type AttachedFileForRepository = {
@@ -309,6 +310,8 @@ export type AttachedFileForRepository = {
 export type TestResultFileForRepository = {
   name: string;
   id: string;
+  initialUrl: string;
+  testingTime: number;
 };
 
 export type StoryForRepository = {

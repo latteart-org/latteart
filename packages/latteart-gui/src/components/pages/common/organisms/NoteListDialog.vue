@@ -46,13 +46,11 @@
             readonly
           >
           </v-textarea>
-          <video-display
-            v-if="note.image.videoFrame"
+
+          <media-display-group
+            v-if="opened"
+            :imageFileUrl="note.image.imageFileUrl"
             :videoUrl="note.videoUrl"
-          />
-          <v-img
-            v-else-if="note.image.imageFileUrl"
-            :src="note.image.imageFileUrl"
           />
         </v-card-text>
         <v-divider v-if="index + 1 !== noteWithTime.length"></v-divider>
@@ -73,14 +71,14 @@ import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import { VideoFrame } from "latteart-client";
+import MediaDisplayGroup from "./MediaDisplayGroup.vue";
 
 @Component({
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
-    "video-display": VideoDisplay,
+    "media-display-group": MediaDisplayGroup,
   },
 })
 export default class NoteListDialog extends Vue {
@@ -88,7 +86,6 @@ export default class NoteListDialog extends Vue {
   @Prop({ type: Array, default: [] }) notes?: {
     sequence: number;
     id: string;
-    imageFileUrl: string;
     tags: string[];
     value: string;
     details: string;

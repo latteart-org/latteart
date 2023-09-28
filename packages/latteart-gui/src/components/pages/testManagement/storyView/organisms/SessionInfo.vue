@@ -69,21 +69,44 @@
                 >
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
-                      millisecondsToHHmmss(session.testingTime)
+                      millisecondsToHHmmss(file.testingTime)
                     }})
+                    <v-btn
+                      text
+                      icon
+                      v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.open-capture-tool-title'
+                        )
+                      "
+                      @click="openCaptureTool(file.id)"
+                      ><v-icon>launch</v-icon></v-btn
+                    >
                     <v-btn
                       class="mr-0"
                       text
                       icon
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.update-test-results-title'
+                        )
+                      "
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
+
                     <v-btn
                       text
                       icon
                       color="error"
                       v-if="!isViewerMode"
+                      :title="
+                        $store.getters.message(
+                          'session-info.remove-test-results-title'
+                        )
+                      "
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
                     >
@@ -95,7 +118,7 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   v-if="!isViewerMode"
-                  @click="openCaptureTool(session.testResultFiles)"
+                  @click="openCaptureTool(undefined)"
                   id="openCaptureToolButton"
                   >{{
                     $store.getters.message("session-info.start-capture-tool")
@@ -184,7 +207,7 @@
 
       <template v-slot:content>
         <test-result-list
-          :items="testResults"
+          :items="unrelatedTestResults"
           @click-item="addTestResultToSession"
         />
       </template>
@@ -280,6 +303,14 @@ export default class SessionInfo extends Vue {
     );
   }
 
+  private get unrelatedTestResults(): TestResultSummary[] {
+    const relatedTestResultIds =
+      this.session?.testResultFiles.map((testResult) => testResult.id) ?? [];
+    return this.testResults.filter(
+      (testResult) => !relatedTestResultIds.includes(testResult.id)
+    );
+  }
+
   private async openTestResultSelectionDialog() {
     this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message("session-info.call-test-results"),
@@ -370,7 +401,11 @@ export default class SessionInfo extends Vue {
       message: this.$store.getters.message("session-info.import-test-result"),
     });
 
-    await this.updateSession({ testResultFiles: [testResult] }).finally(() => {
+    const testResultFiles = [...(this.session?.testResultFiles ?? [])];
+
+    await this.updateSession({
+      testResultFiles: [...testResultFiles, testResult],
+    }).finally(() => {
       this.$store.dispatch("closeProgressDialog");
     });
   }
@@ -414,7 +449,7 @@ export default class SessionInfo extends Vue {
       "session-info.delete-test-result-confirm"
     );
     this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
+      "session-info.delete-test-result-confirm-message"
     );
     this.confirmDialogAccept = () => {
       this.updateSession({
@@ -450,36 +485,33 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async openCaptureTool(testResultFiles: TestResultFile[]) {
+  private async openCaptureTool(testResultId: string) {
     const origin = location.origin;
     const captureClUrl = this.$store.state.captureClService.serviceUrl;
     const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
     const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
 
-    if (testResultFiles.length > 0) {
-      const testResultId = testResultFiles[0].id;
-      window.open(`${url}&testResultId=${testResultId}`, "_blank");
-    } else {
-      const mediaType = (this.$store.state as RootState).projectSettings.config
-        .captureMediaSetting.mediaType;
+    let id = testResultId;
 
+    if (!id) {
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
-        mediaType,
       });
 
       const newTestResult = (
         this.$store.state.operationHistory as OperationHistoryState
       ).testResultInfo;
+      id = newTestResult.id;
 
       this.addTestResultToSession({
         id: newTestResult.id,
         name: newTestResult.name,
+        initialUrl: "",
+        testingTime: 0,
       });
-
-      window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
     }
+    window.open(`${url}&testResultId=${id}`, "_blank");
   }
 
   private get memo(): string {

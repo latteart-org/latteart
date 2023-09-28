@@ -47,58 +47,91 @@
                 :value="true"
               ></v-radio>
             </v-radio-group>
+            <div v-if="shouldRecordAsIssue">
+              <v-text-field
+                :label="$store.getters.message('note-edit.summary')"
+                v-model="newNote"
+              ></v-text-field>
+              <v-textarea
+                :label="$store.getters.message('note-edit.details')"
+                v-model="newNoteDetails"
+              ></v-textarea>
 
-            <v-text-field
-              :disabled="!shouldRecordAsIssue"
-              :label="$store.getters.message('note-edit.summary')"
-              v-model="newNote"
-            ></v-text-field>
-            <v-textarea
-              :disabled="!shouldRecordAsIssue"
-              :label="$store.getters.message('note-edit.details')"
-              v-model="newNoteDetails"
-            ></v-textarea>
+              <v-combobox
+                :label="$store.getters.message('note-edit.tags')"
+                v-model="newTags"
+                :hide-no-data="!search"
+                :items="tagsItem"
+                :search-input.sync="search"
+                multiple
+                small-chips
+                hide-selected
+              >
+                <template v-slot:no-data>
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        No results matching "<strong>{{ search }}</strong
+                        >". Press <kbd>enter</kbd> to create a new one
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+                <template v-slot:selection="{ attrs, item, parent, selected }">
+                  <v-chip
+                    v-if="item === Object(item)"
+                    v-bind="attrs"
+                    :color="item.color"
+                    :input-value="selected"
+                    small
+                  >
+                    <span class="pr-2">{{ item.text }} </span>
+                    <v-icon small @click="parent.selectItem(item)"
+                      >$delete</v-icon
+                    >
+                  </v-chip>
+                </template>
+              </v-combobox>
+              <h4>{{ $store.getters.message("note-edit.take-screenshot") }}</h4>
+              <v-radio-group
+                v-model="shouldTakeScreenshot"
+                row
+                hide-details
+                class="mt-2"
+                :disabled="!screenshot && !video"
+              >
+                <v-radio
+                  :label="$store.getters.message('note-edit.previous-screen')"
+                  :value="false"
+                ></v-radio>
+                <v-radio
+                  :label="$store.getters.message('note-edit.current-screen')"
+                  :value="true"
+                ></v-radio>
+              </v-radio-group>
 
-            <v-combobox
-              :disabled="!shouldRecordAsIssue"
-              :label="$store.getters.message('note-edit.tags')"
-              :items="tagsItem"
-              :search-input.sync="search"
-              v-model="newTags"
-              multiple
-              small-chips
-              hide-selected
-            >
-              <template v-slot:no-data>
-                <v-list-item v-if="search">
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      No results matching "<strong>{{ search }}</strong
-                      >". Press <kbd>enter</kbd> to create a new one
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </v-combobox>
+              <div v-if="!shouldTakeScreenshot">
+                <v-btn
+                  class="mx-2 my-3"
+                  :disabled="!screenshot"
+                  @click="showStillImage"
+                  >{{
+                    $store.getters.message("note-edit.check-still-Image")
+                  }}</v-btn
+                >
 
-            <v-checkbox
-              v-if="mediaType === 'image'"
-              :disabled="!shouldRecordAsIssue"
-              v-model="shouldTakeScreenshot"
-              :label="$store.getters.message('note-edit.take-screenshot')"
-            ></v-checkbox>
+                <v-btn
+                  class="mx-2 my-3"
+                  :disabled="!video"
+                  @click="showVideo"
+                  >{{ $store.getters.message("note-edit.check-video") }}</v-btn
+                >
 
-            <thumbnail-image
-              v-if="isThumbnailVisible && mediaType === 'image'"
-              :imageFileUrl="screenshot"
-            />
+                <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
 
-            <v-btn
-              v-if="mediaType === 'video'"
-              :disabled="isPictureInPictureVideoDisplayed"
-              @click="displayPictureInPictureVideo"
-              >{{ $store.getters.message("note-edit.check-video") }}</v-btn
-            >
+                <video-display v-if="isVideoVisible" :videoUrl="video" />
+              </div>
+            </div>
           </v-card-text>
         </v-card>
 
@@ -140,26 +173,31 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import {
+  NoteTagItem,
+  noteTagPreset,
+} from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
-import { RootState } from "@/store";
+import { OperationHistoryState } from "@/store/operationHistory";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import PopupImage from "@/components/molecules/PopupImage.vue";
 
 @Component({
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "thumbnail-image": ThumbnailImage,
+    "video-display": VideoDisplay,
+    "popup-image": PopupImage,
   },
 })
 export default class TakeNoteWithPurposeDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private search = "";
+  private search = null;
   private newNote = "";
   private newNoteDetails = "";
-  private newTags: string[] = [];
+  private newTags: NoteTagItem[] = [];
   private newTargetSequence: number | null = null;
   private maxSequence: number | null = null;
   private shouldTakeScreenshot = false;
@@ -168,15 +206,15 @@ export default class TakeNoteWithPurposeDialog extends Vue {
   private newTestPurposeDetails = "";
   private shouldContinueSameTestPurpose = false;
   private screenshot = "";
+  private video = "";
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private isThumbnailVisible = false;
+  private isImageVisible = false;
+  private isVideoVisible = false;
 
-  private tagsItem = noteTagPreset.items.map((item) => {
-    return item.name;
-  });
+  private tagsItem = noteTagPreset.items;
 
   @Watch("opened")
   private initialize() {
@@ -186,6 +224,9 @@ export default class TakeNoteWithPurposeDialog extends Vue {
 
     const { sequence } =
       this.$store.state.operationHistory.selectedOperationNote;
+    const targetOperation = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).history[sequence - 1].operation;
 
     this.newNote = "";
     this.newNoteDetails = "";
@@ -197,17 +238,36 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.newTestPurpose = "";
     this.newTestPurposeDetails = "";
     this.shouldContinueSameTestPurpose = false;
-    this.screenshot =
-      this.$store.state.operationHistory.history[sequence - 1].operation
-        .imageFilePath ?? "";
+    this.screenshot = targetOperation.imageFilePath ?? "";
 
-    this.isThumbnailVisible = false;
-    this.$nextTick(() => {
-      this.isThumbnailVisible = true;
-    });
+    const time = targetOperation.videoFrame?.time ?? 0;
+    this.video = targetOperation.videoFrame?.url
+      ? `${targetOperation.videoFrame.url}#t=${time}`
+      : "";
+
+    this.isImageVisible = false;
+    this.isVideoVisible = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
+    });
+  }
+
+  @Watch("newTags")
+  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
+    if (val.length === prev.length) return;
+
+    this.newTags = val.map((v) => {
+      if (typeof v === "string") {
+        v = {
+          text: v,
+          color: "#E0E0E0",
+        };
+
+        this.newTags.push(v);
+      }
+
+      return v;
     });
   }
 
@@ -219,7 +279,7 @@ export default class TakeNoteWithPurposeDialog extends Vue {
           newSequence: this.newTargetSequence,
           note: this.newNote,
           noteDetails: this.newNoteDetails,
-          tags: this.newTags,
+          tags: this.newTags.map((tag) => tag.text),
           shouldTakeScreenshot: this.shouldTakeScreenshot,
         } as NoteEditInfo;
 
@@ -266,19 +326,6 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.newTargetSequence = data.value;
   }
 
-  private get mediaType() {
-    return (this.$store.state as RootState).projectSettings.config
-      .captureMediaSetting.mediaType;
-  }
-  private get isPictureInPictureVideoDisplayed() {
-    return this.$store.state.operationHistory.isPictureInPictureWindowDisplayed;
-  }
-  private displayPictureInPictureVideo() {
-    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
-      isDisplayed: true,
-    });
-  }
-
   private get canSave() {
     if (this.shouldRecordAsIssue && this.newNote === "") {
       return false;
@@ -313,6 +360,16 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     }
 
     return true;
+  }
+
+  private showStillImage() {
+    this.isImageVisible = true;
+    this.isVideoVisible = false;
+  }
+
+  private showVideo() {
+    this.isVideoVisible = true;
+    this.isImageVisible = false;
   }
 }
 </script>

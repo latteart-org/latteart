@@ -76,14 +76,12 @@
                 <v-icon
                   v-if="item.notes.intention"
                   :title="message('app.intention')"
-                  class="mx-1"
                   color="blue"
                   >event_note</v-icon
                 >
                 <v-icon
                   v-if="item.notes.notices.length + item.notes.bugs.length > 0"
                   :title="message('app.note')"
-                  class="mx-1"
                   color="purple lighten-3"
                   >announcement</v-icon
                 >

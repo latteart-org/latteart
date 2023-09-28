@@ -25,6 +25,7 @@ describe("testResultExportHelper", () => {
         tags: [],
         imageFileUrl: "",
         timestamp: 0,
+        testResultId: "",
       };
       const testResult: ExportTestResultResponse = {
         id: "testResultId",

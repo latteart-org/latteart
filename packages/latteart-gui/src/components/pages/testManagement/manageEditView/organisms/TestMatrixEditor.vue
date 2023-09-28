@@ -84,9 +84,21 @@
         </v-expansion-panels> </v-col
     ></v-row>
     <v-row>
-      <v-btn id="createGroupButton" @click="addNewGroup" class="my-4">{{
-        $store.getters.message("group-edit-list.add")
-      }}</v-btn>
+      <v-col cols="2"
+        ><v-text-field
+          v-model="groupName"
+          :label="this.$store.getters.message('group-edit-list.name')"
+      /></v-col>
+
+      <v-col cols="10"
+        ><v-btn
+          id="createGroupButton"
+          @click="addNewGroup"
+          class="my-4"
+          :disabled="groupName === ''"
+          >{{ $store.getters.message("group-edit-list.add") }}</v-btn
+        ></v-col
+      >
     </v-row>
 
     <test-matrix-dialog
@@ -134,6 +146,8 @@ export default class TestMatrixEditor extends Vue {
 
   private expandedPanelIndex: number | undefined | null = null;
 
+  private groupName: string = "";
+
   private get expandedGroupPanelIndexKey(): string {
     return `latteart-management-expandedEditorGroupPanelIndex_${this.testMatrixId}`;
   }
@@ -149,7 +163,13 @@ export default class TestMatrixEditor extends Vue {
     this.expandedPanelIndex = -1;
 
     setTimeout(() => {
-      this.expandedPanelIndex = index ?? null;
+      if (!index || !this.testMatrix?.groups) {
+        this.expandedPanelIndex = 0;
+      } else if (this.testMatrix.groups.length > index) {
+        this.expandedPanelIndex = index;
+      } else {
+        this.expandedPanelIndex = 0;
+      }
     }, 100);
   }
 
@@ -223,7 +243,9 @@ export default class TestMatrixEditor extends Vue {
   private async addNewGroup(): Promise<void> {
     await this.$store.dispatch("testManagement/addNewGroup", {
       testMatrixId: this.testMatrixId,
+      groupName: this.groupName,
     });
+    this.groupName = "";
   }
 
   private renameGroup(id: string, name: string): void {

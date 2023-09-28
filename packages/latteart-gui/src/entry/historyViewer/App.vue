@@ -20,7 +20,7 @@
       <div style="height: 100vh">
         <v-row class="fill-height">
           <history-display
-            :rawHistory="testResult.history"
+            :rawHistory="history"
             :message="messageProvider"
             :screenDefinitionConfig="screenDefinitionConfig"
           ></history-display>
@@ -37,12 +37,12 @@ import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import { NoteForGUI } from "../../lib/operationHistory/NoteForGUI";
-import { OperationForGUI } from "../../lib/operationHistory/OperationForGUI";
 import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
 import ErrorHandler from "../../ErrorHandler.vue";
+import { parseHistoryLog } from "@/lib/common/util";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -59,15 +59,29 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history } = this.testResult;
-
       this.$store.commit("operationHistory/resetHistory", {
-        historyItems: history,
+        historyItems: parseHistoryLog((this as any).$historyLogs[0].history),
+      });
+
+      const testResultInfos = (this as any).$historyLogs.map((history: any) => {
+        return {
+          id: history.testResultId,
+          name: history.testResultName,
+        };
+      });
+      this.$store.commit("operationHistory/setStoringTestResultInfos", {
+        testResultInfos: testResultInfos,
+      });
+      this.$store.commit("operationHistory/setTestResultInfo", {
+        repositoryUrl: "",
+        id: testResultInfos[0].id,
+        name: testResultInfos[0].name,
+        parentTestResultId: "",
       });
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
-        { testResultId: "" }
+        { testResultId: (this as any).$historyLogs[0].testResultId }
       );
       await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
         testResultIds: [],
@@ -79,54 +93,9 @@ export default class App extends Vue {
     })();
   }
 
-  private get testResult(): {
-    history: OperationWithNotes[];
-  } {
-    return {
-      history: ((this as any).$historyLog.history as any[]).map((item) => {
-        return {
-          operation: OperationForGUI.createFromOtherOperation({
-            other: item.operation,
-            overrideParams: {
-              imageFilePath: item.operation.imageFileUrl,
-              keywordSet: new Set(
-                (
-                  item.operation.keywordTexts as (
-                    | string
-                    | { tagname: string; value: string }
-                  )[]
-                )?.map((keywordText) => {
-                  return typeof keywordText === "string"
-                    ? keywordText
-                    : keywordText.value;
-                }) ?? []
-              ),
-            },
-          }),
-          bugs:
-            item.bugs?.map((bug: any) =>
-              NoteForGUI.createFromOtherNote({
-                other: bug,
-                overrideParams: {
-                  imageFilePath: bug.imageFileUrl,
-                },
-              })
-            ) ?? [],
-          notices:
-            item.notices?.map((notice: any) =>
-              NoteForGUI.createFromOtherNote({
-                other: notice,
-                overrideParams: {
-                  imageFilePath: notice.imageFileUrl,
-                },
-              })
-            ) ?? [],
-          intention: item.intention
-            ? NoteForGUI.createFromOtherNote({ other: item.intention })
-            : null,
-        };
-      }),
-    };
+  private get history(): OperationWithNotes[] {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .history;
   }
 
   private get settings() {

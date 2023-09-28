@@ -41,10 +41,8 @@ describe("SessionService", () => {
           memo: "",
           attachedFiles: [],
           testResultFiles: [],
-          initialUrl: "",
           testPurposes: [],
           notes: [],
-          testingTime: 0,
         });
       });
 
@@ -69,7 +67,6 @@ describe("SessionService", () => {
           memo: "memo",
           name: "name",
           testerName: "testerName",
-          testingTime: 0,
         },
       ])(
         "指定のIDのセッションの内容を渡されたパラメータの値に更新する",
@@ -98,7 +95,6 @@ describe("SessionService", () => {
             testItem: "",
             attachedFiles: [],
             testResultFiles: [],
-            initialUrl: "",
             testPurposes: [],
             notes: [],
           });

@@ -70,6 +70,7 @@ describe("ConfigsService", () => {
               values: [],
             },
           },
+          experimentalFeatureSetting: { captureArch: "polling" },
         },
       };
 

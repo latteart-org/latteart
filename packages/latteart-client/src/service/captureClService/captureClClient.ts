@@ -35,10 +35,7 @@ import {
   CaptureEventListeners,
   CaptureSession,
 } from "./types";
-import {
-  CaptureCLServerError,
-  CapturedScreenTransitionForCaptureCl,
-} from "../../gateway/captureCl";
+import { CaptureCLServerError } from "../../gateway/captureCl";
 
 export class CaptureClClientImpl implements CaptureClClient {
   constructor(
@@ -56,18 +53,15 @@ export class CaptureClClientImpl implements CaptureClClient {
     option: {
       compressScreenshots?: boolean;
       firstTestPurpose?: { value: string; details?: string };
-      mediaType?: "image" | "video";
     } = {}
   ): Promise<ServiceResult<CaptureSession>> {
     const compressScreenshots = option?.compressScreenshots ?? false;
-    const mediaType = option?.mediaType ?? "image";
 
     return this.startCaptureSession({
       url,
       option: {
         compressScreenshots,
         firstTestPurpose: option.firstTestPurpose,
-        mediaType,
       },
     });
   }
@@ -77,7 +71,6 @@ export class CaptureClClientImpl implements CaptureClClient {
     option: {
       compressScreenshots: boolean;
       firstTestPurpose?: { value: string; details?: string };
-      mediaType: "image" | "video";
     };
   }) {
     const session = new CaptureSessionImpl(
@@ -254,10 +247,7 @@ class CaptureSessionImpl implements CaptureSession {
           const result = await this.option.testResult.addOperation(
             {
               ...capturedOperation,
-              imageData:
-                payload.config.mediaType === "image"
-                  ? capturedOperation.imageData
-                  : "",
+              imageData: capturedOperation.imageData,
               videoId: this.recordingVideo?.id,
               videoTime: this.recordingVideo
                 ? (parseInt(capturedOperation.timestamp) -
@@ -267,9 +257,7 @@ class CaptureSessionImpl implements CaptureSession {
               isAutomatic: this.isAutomated,
             },
             {
-              compressScreenshot:
-                payload.config.mediaType === "image" &&
-                payload.option.compressScreenshots,
+              compressScreenshot: payload.option.compressScreenshots,
             }
           );
 
@@ -317,10 +305,7 @@ class CaptureSessionImpl implements CaptureSession {
           const result = await this.option.testResult.addOperation(
             {
               ...capturedScreenTransition,
-              imageData:
-                payload.config.mediaType === "image"
-                  ? capturedScreenTransition.imageData
-                  : "",
+              imageData: capturedScreenTransition.imageData,
               type: "screen_transition",
               input: "",
               elementInfo: null,
@@ -601,15 +586,21 @@ class CaptureSessionImpl implements CaptureSession {
 
       const timestamp = new Date().getTime();
 
+      const videoData =
+        option?.screenshot && this.recordingVideo
+          ? {
+              videoId: this.recordingVideo.id,
+              videoTime:
+                (timestamp - this.recordingVideo.startTimestamp) / 1000,
+            }
+          : undefined;
+
       const result = await this.option.testResult.addNoteToTestStep(
         {
           ...note,
           imageData,
           timestamp,
-          videoId: this.recordingVideo?.id,
-          videoTime: this.recordingVideo
-            ? (timestamp - this.recordingVideo.startTimestamp) / 1000
-            : undefined,
+          ...videoData,
         },
         this.lastTestStepId,
         option

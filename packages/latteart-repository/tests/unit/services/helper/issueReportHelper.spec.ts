@@ -44,11 +44,16 @@ describe("issueReportHelper", () => {
     testerName: "testerName",
     memo: "memo",
     attachedFiles: [],
-    testResultFiles: [{ name: "testResultName", id: "testResultId" }],
-    initialUrl: "",
+    testResultFiles: [
+      {
+        name: "testResultName",
+        id: "testResultId",
+        initialUrl: "",
+        testingTime: 0,
+      },
+    ],
     testPurposes: [],
     notes: [],
-    testingTime: 0,
   };
   const stories = [
     {

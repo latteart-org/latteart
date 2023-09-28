@@ -14,15 +14,19 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12" class="pb-0">
+      <v-col cols="12">
         <h4>{{ $store.getters.message("config-view.media-type") }}</h4>
 
         <v-radio-group
           :value="tempConfig.mediaType"
-          :disabled="isCapturing"
+          :disabled="isMediaTypeDisabled"
           @change="changeCaptureMediaType"
           class="py-0 my-0"
           row
+          :hint="
+            $store.getters.message('config-view.capture-media-config-hint')
+          "
+          persistent-hint
         >
           <v-radio
             :label="$store.getters.message('config-view.still-image')"
@@ -35,7 +39,7 @@
         </v-radio-group>
       </v-col>
 
-      <v-col cols="12" class="pt-0">
+      <v-col cols="12">
         <h4>
           {{ $store.getters.message("config-view.setting-image-compression") }}
         </h4>
@@ -44,7 +48,7 @@
           :value="tempConfig.imageCompression.format"
           class="py-0 my-0"
           @change="changeCaptureFormat"
-          :disabled="tempConfig.mediaType === 'video'"
+          :disabled="captureArch === 'push'"
         >
           <v-radio
             :label="$store.getters.message('config-view.png')"
@@ -62,6 +66,7 @@
 
 <script lang="ts">
 import { CaptureMediaSetting } from "@/lib/common/settings/Settings";
+import { RootState } from "@/store";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 @Component
 export default class CaptureMediaConfig extends Vue {
@@ -74,6 +79,24 @@ export default class CaptureMediaConfig extends Vue {
   private tempConfig: CaptureMediaSetting = {
     ...this.captureMediaSetting,
   };
+
+  private get captureArch() {
+    return (
+      (this.$store.state as RootState).projectSettings.config
+        .experimentalFeatureSetting.captureArch ?? "polling"
+    );
+  }
+
+  private get platform() {
+    return (this.$store.state as RootState).deviceSettings.platformName;
+  }
+
+  private get isMediaTypeDisabled() {
+    return (
+      this.isCapturing || this.captureArch === "push" || this.platform !== "PC"
+    );
+  }
+
   @Watch("captureMediaSetting")
   private updateTempConfig() {
     if (!this.opened) {

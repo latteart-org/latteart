@@ -84,7 +84,6 @@ export type CaptureClClient = {
     option?: {
       compressScreenshots?: boolean;
       firstTestPurpose?: { value: string; details?: string };
-      mediaType: "image" | "video";
     }
   ): Promise<ServiceResult<CaptureSession>>;
 };

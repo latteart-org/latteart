@@ -410,6 +410,9 @@ const actions: ActionTree<RootState, RootState> = {
         testResultComparison:
           payload.config.testResultComparison ??
           context.rootState.projectSettings.config.testResultComparison,
+        experimentalFeatureSetting:
+          payload.config.experimentalFeatureSetting ??
+          context.rootState.projectSettings.config.experimentalFeatureSetting,
       },
     };
 
@@ -634,6 +637,7 @@ const store: StoreOptions<RootState> = {
             values: [],
           },
         },
+        experimentalFeatureSetting: { captureArch: "polling" },
       },
     },
     viewSettings: {

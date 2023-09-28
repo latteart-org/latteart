@@ -100,7 +100,7 @@ export type TestResultService = {
   ): Promise<SequenceView>;
 
   generateGraphView(
-    testResultId: string,
+    testResultIds: string[],
     option?: TestResultViewOption
   ): Promise<GetGraphViewResponse>;
 
@@ -742,7 +742,7 @@ export class TestResultServiceImpl implements TestResultService {
 
   private async convertTestResultEntityToTestResult(
     testResultEntity: TestResultEntity
-  ) {
+  ): Promise<ExportTestResultResponse> {
     const testStepService = this.service?.testStep;
 
     const testSteps = testStepService
@@ -773,6 +773,7 @@ export class TestResultServiceImpl implements TestResultService {
                           height: note.video.height,
                         }
                       : undefined,
+                    testResultId: testResultEntity.id,
                   };
                 }) ?? [];
 
@@ -785,6 +786,7 @@ export class TestResultServiceImpl implements TestResultService {
                     tags: [],
                     imageFileUrl: "",
                     timestamp: 0,
+                    testResultId: testResultEntity.id,
                   }
                 : null;
 
@@ -877,7 +879,9 @@ export class TestResultServiceImpl implements TestResultService {
     });
   }
 
-  private convertToTestResult(testResult: ExportTestResultResponse) {
+  private convertToTestResult(
+    testResult: ExportTestResultResponse
+  ): PatchTestResultResponse {
     return {
       id: testResult.id,
       name: testResult.name,

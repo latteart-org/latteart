@@ -42,6 +42,7 @@ export default class Settings {
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     captureMediaSetting: CaptureMediaSetting;
+    experimentalFeatureSetting: ExperimentalFeatureSetting;
   };
   public captureSettings: {
     ignoreTags: string[];
@@ -84,6 +85,7 @@ export default class Settings {
         mediaType: "image",
         imageCompression: { format: "png" },
       },
+      experimentalFeatureSetting: { captureArch: "polling" },
     };
     this.captureSettings = {
       ignoreTags: [],
@@ -181,4 +183,11 @@ export interface ScreenDefinitionConditionGroup {
     definitionType: "url" | "title" | "keyword";
     word: string;
   }>;
+}
+
+/**
+ * Experimental feature setting.
+ */
+export interface ExperimentalFeatureSetting {
+  captureArch: "polling" | "push";
 }

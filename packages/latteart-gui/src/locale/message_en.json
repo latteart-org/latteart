@@ -14,7 +14,7 @@
     "finish": "Finish",
     "pause-capturing": "Pause Capture",
     "resume-capturing": "Resume Capture",
-    "reset": "Reset",
+    "reset": "Reset History (Reset for new test. Current test result has already been saved.)",
     "import": "Load Past Test Results",
     "replay": "Replay Test Result",
     "replay-operations": "Replay Operations",
@@ -113,7 +113,9 @@
     "test-result-name": "Test Result Name",
     "test-purpose": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
-    "edit-test-purpose": "Edit Test Purpose"
+    "edit-test-purpose": "Edit Test Purpose",
+    "image": "Image",
+    "video": "Video"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -179,7 +181,8 @@
     "setting-capture-media": "Capture Media Settings",
     "media-type": "Media Type",
     "still-image": "Still Image",
-    "video": "Video",
+    "video": "Still Image + Video",
+    "capture-media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
     "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
@@ -237,7 +240,13 @@
       "title": "Auto operation: Set Content",
       "details-list": "Details"
     },
-    "settings": "Settings"
+    "settings": "Settings",
+    "setting-experimental-features": "Experimental Feature Settings",
+    "recording-method": "Recording Method",
+    "capture-arch": "Record operations on the test page using PUSH method",
+    "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
+    "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
   "autofill-register-dialog": {
     "title": "Autofill: Registration",
@@ -265,7 +274,9 @@
     "details": "Operation Set Details"
   },
   "note-edit": {
-    "take-screenshot": "Take Screenshot",
+    "take-screenshot": "Screenshot to register",
+    "previous-screen": "Test screen from the previous operation",
+    "current-screen": "Current test screen",
     "save-warning": "The test purpose has already been noted for the specified operation.",
     "target-sequence": "Target Operation Number",
     "summary": "Summary",
@@ -277,7 +288,8 @@
     "next-purpose": "Next test purpose is ...",
     "continue-same-purpose": "Same as Before",
     "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
-    "check-video": "Check the video"
+    "check-video": "Check the video",
+    "check-still-Image": "Check the still image"
   },
   "replay-option": {
     "start-replay": "Replay",
@@ -465,11 +477,12 @@
     "tester-name": "Tester Name",
     "memo": "Memo",
     "report": "Report",
-    "model": "Session Log",
+    "model": "Session Logs",
     "import": "Import Session Log",
     "file": "Attachments",
     "add-file": "Add Attachments",
-    "delete-test-result-confirm": "Are you sure you want to delete the test result?",
+    "delete-test-result-confirm": "Are you sure you want to remove the test result from the session?",
+    "delete-test-result-confirm-message": "The test result itself is not deleted.",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
     "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
     "file-open-read-error": "Failed to read the attached file.",
@@ -477,7 +490,10 @@
     "result-list": "Import Test Result",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
-    "start-capture-tool": "Start capture tool"
+    "start-capture-tool": "Start capture tool",
+    "open-capture-tool-title": "Open test result in capture tool.",
+    "update-test-results-title": "Update test result name and capture time.",
+    "remove-test-results-title": "Remove test result from session."
   },
   "test-purpose-note-list": {
     "title": "Test Purposes/Bugs",
@@ -490,6 +506,10 @@
     "details": "Details",
     "summary": "Summary",
     "tags": "Tags"
+  },
+  "media-display-group": {
+    "image": "Image",
+    "video": "Video"
   },
   "session-list": {
     "complete": "Check as Complete",
@@ -581,7 +601,8 @@
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
-      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file."
+      "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
+      "start_video_recording_failed": "Failed to record video. Test capturing is continuing."
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",
@@ -607,7 +628,8 @@
       "compare_test_results_failed": "Failed to compare test results.",
       "comparison_targets_not_same_procedures": "Test results from different procedures cannot be compared.",
       "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
-      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage."
+      "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage.",
+      "create_video_failed": "Failed to create video."
     },
     "test_management": {
       "delete_story_dirs_failed": "Failed to delete story directories.",

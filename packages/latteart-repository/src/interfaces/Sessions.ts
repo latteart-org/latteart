@@ -62,13 +62,13 @@ export type Session = {
   memo: string;
   attachedFiles: { name: string; fileUrl: string }[];
   testResultFiles: TestResultFile[];
-  initialUrl: string;
   testPurposes: GetTestPurposeResponse[];
   notes: GetNoteResponse[];
-  testingTime: number;
 };
 
 type TestResultFile = {
   name: string;
   id: string;
+  initialUrl?: string;
+  testingTime?: number;
 };

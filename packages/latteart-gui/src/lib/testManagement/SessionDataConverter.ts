@@ -30,10 +30,8 @@ export default class SessionDataConverter {
       memo: target.memo ?? "",
       attachedFiles: target.attachedFiles ?? [],
       testResultFiles: target.testResultFiles ?? [],
-      initialUrl: target.initialUrl ?? "",
       testPurposes: target.testPurposes ?? [],
       notes: target.notes ?? [],
-      testingTime: target.testingTime ?? 0,
     };
   }
 }

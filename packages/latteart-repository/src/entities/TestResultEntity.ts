@@ -17,6 +17,8 @@
 import {
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
@@ -60,7 +62,12 @@ export class TestResultEntity {
   @Column({ name: "creation_timestamp", nullable: true, default: 0 })
   creationTimestamp: number = 0;
 
-  @OneToMany(() => SessionEntity, (session) => session.testResult)
+  @ManyToMany(() => SessionEntity, (session) => session.testResults)
+  @JoinTable({
+    name: "TESTRESULT_SESSION_RELATIONS",
+    joinColumn: { name: "test_result_id" },
+    inverseJoinColumn: { name: "session_id" },
+  })
   sessions?: SessionEntity[];
 
   @OneToMany(() => TestStepEntity, (testStep) => testStep.testResult, {

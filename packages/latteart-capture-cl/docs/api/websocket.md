@@ -43,6 +43,9 @@ Start capturing operations.
           },
           "isHeadlessMode": {
             "type": "boolean"
+          },
+          "captureArch": {
+            "type": "string" // "polling" or "push"
           }
         }
       }
