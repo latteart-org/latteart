@@ -579,7 +579,12 @@ export class TestResultServiceImpl implements TestResultService {
             }
           : undefined;
 
-        return { ...testStep, imageFileUrl, videoFrame };
+        return {
+          ...testStep,
+          testResultId: testStepEntity?.testResultId ?? "",
+          imageFileUrl,
+          videoFrame,
+        };
       });
       return { ...node, testSteps };
     });

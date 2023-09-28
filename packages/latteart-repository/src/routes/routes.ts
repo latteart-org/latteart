@@ -653,6 +653,7 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
+                    testResultId: { dataType: "string" },
                     videoFrame: { ref: "VideoFrame" },
                     imageFileUrl: { dataType: "string" },
                     pageTitle: { dataType: "string", required: true },

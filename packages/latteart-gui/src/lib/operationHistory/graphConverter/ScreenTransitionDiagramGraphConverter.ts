@@ -121,18 +121,27 @@ export async function convertToScreenTransitionDiagramGraph(
 }
 
 function extractGraphSources(view: GraphView): GraphSource {
+  let sequence = 0;
+  let beforeTestResultId = "";
   const testStepIdToSequenceAndImage = new Map(
     view.nodes
       .flatMap(({ testSteps }) =>
-        testSteps.map(({ id, imageFileUrl, videoFrame }) => {
+        testSteps.map(({ id, imageFileUrl, videoFrame, testResultId }) => {
           const image =
             imageFileUrl || videoFrame
               ? { imageFileUrl, videoFrame }
               : undefined;
-          return { id, image };
+          return { id, image, testResultId };
         })
       )
-      .map(({ id, image }, index) => [id, { sequence: index + 1, image }])
+      .map(({ id, image, testResultId }) => {
+        if (testResultId !== beforeTestResultId) {
+          beforeTestResultId = testResultId;
+          sequence = 0;
+        }
+        ++sequence;
+        return [id, { sequence, image }];
+      })
   );
 
   const filteredNodes = view.nodes.map((node) => {
@@ -285,6 +294,7 @@ function extractGraphSources(view: GraphView): GraphSource {
             ...note,
             ...sequenceAndImage,
             tags: note.tags ?? [],
+            testResultId: testStep.testResultId,
           },
         ];
       });

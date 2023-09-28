@@ -115,6 +115,7 @@ export type GetGraphViewResponse = {
       pageTitle: string;
       imageFileUrl?: string;
       videoFrame?: VideoFrame;
+      testResultId?: string;
     }[];
     defaultValues: { elementId: string; value?: string }[];
   }[];

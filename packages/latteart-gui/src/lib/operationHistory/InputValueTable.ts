@@ -24,6 +24,7 @@ export type InputValueTableHeaderColumn = {
   notes: {
     sequence: number;
     id: string;
+    testResultId: string;
     tags: string[];
     value: string;
     details: string;
@@ -111,6 +112,7 @@ export type ScreenTransition = {
   notes: {
     sequence: number;
     id: string;
+    testResultId: string;
     tags: string[];
     value: string;
     details: string;
