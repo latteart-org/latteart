@@ -211,9 +211,12 @@ export default class DecisionTable extends Vue {
     return (this as any).$isViewerMode ?? false;
   }
 
+  private get operationHistoryState(): OperationHistoryState {
+    return this.$store.state.operationHistory;
+  }
+
   private get inputValueTable(): InputValueTable {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .inputValueTable;
+    return this.operationHistoryState.inputValueTable;
   }
 
   private get screenTransitions() {
@@ -281,7 +284,17 @@ export default class DecisionTable extends Vue {
               sourceScreenDef: screenTransition.sourceScreenDef,
               targetScreenDef: screenTransition.targetScreenDef,
               trigger: screenTransition.trigger,
-              notes: screenTransition.notes,
+              notes: screenTransition.notes.map((note) => {
+                const testResultName =
+                  this.operationHistoryState.storingTestResultInfos.find(
+                    (testResult) => testResult.id === note.testResultId
+                  )?.name;
+
+                return {
+                  ...note,
+                  testResultName,
+                };
+              }),
               testPurposes: screenTransition.testPurposes,
               index,
             };

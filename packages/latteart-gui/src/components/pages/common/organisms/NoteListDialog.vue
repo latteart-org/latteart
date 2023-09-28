@@ -32,8 +32,14 @@
           </h3>
           <v-spacer></v-spacer>
           <div>
-            {{ message("note-edit.target-sequence") }}
-            {{ note.sequence }}
+            <span class="label">{{
+              `${message("history-view.test-result-name")}:`
+            }}</span>
+            <span class="value">{{ note.testResultName }}</span>
+            <span class="label">{{
+              `${message("note-edit.target-sequence")}:`
+            }}</span>
+            <span class="label">{{ note.sequence }}</span>
           </div>
         </v-card-title>
         <v-card-text>
@@ -90,6 +96,7 @@ export default class NoteListDialog extends Vue {
     value: string;
     details: string;
     timestamp: number;
+    testResultName: string;
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
@@ -115,3 +122,14 @@ export default class NoteListDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.value
+  font-size: medium
+  font-weight: normal
+  margin-left: 8px
+.label
+  font-size: medium
+  font-weight: normal
+  margin-left: 16px
+</style>

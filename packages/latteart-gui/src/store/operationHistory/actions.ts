@@ -973,6 +973,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
                   timestamp,
                   imageFileUrl,
                   videoFrame,
+                  testResultId,
                 } = testStep;
 
                 return {
@@ -987,6 +988,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
                   timestamp,
                   imageFileUrl,
                   videoFrame,
+                  testResultId,
                 };
               })
             );

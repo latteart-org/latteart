@@ -94,6 +94,7 @@ export type GraphViewNodeForRepository = {
     imageFileUrl?: string;
     timestamp: number;
     videoFrame?: VideoFrame;
+    testResultId: string;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
