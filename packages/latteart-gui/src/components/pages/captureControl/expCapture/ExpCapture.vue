@@ -149,7 +149,13 @@ export default class ExpCapture extends Vue {
   }
 
   private openNoteMenu(
-    note: { id: number; sequence: number; index: number; type: string },
+    note: {
+      id: number;
+      sequence: number;
+      index: number;
+      type: string;
+      value: string;
+    },
     eventInfo: { clientX: number; clientY: number }
   ) {
     const context = this.$store;
@@ -159,7 +165,9 @@ export default class ExpCapture extends Vue {
     this.contextMenuItems = [];
 
     this.contextMenuItems.push({
-      label: context.getters.message("history-view.edit-comment"),
+      label: context.getters.message("history-view.edit-notice", {
+        value: note.value,
+      }),
       onClick: () => {
         if (context.state.operationHistory.tmpNoteInfoForEdit) {
           context.state.operationHistory.openNoteEditDialog(
@@ -176,7 +184,9 @@ export default class ExpCapture extends Vue {
       },
     });
     this.contextMenuItems.push({
-      label: context.getters.message("history-view.delete-comment"),
+      label: context.getters.message("history-view.delete-notice", {
+        value: note.value,
+      }),
       onClick: () => {
         if (context.state.operationHistory.tmpNoteInfoForEdit) {
           context.state.operationHistory.deleteNote(
