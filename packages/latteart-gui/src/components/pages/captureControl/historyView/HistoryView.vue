@@ -17,7 +17,7 @@
 <template>
   <v-row class="fill-height">
     <history-display
-      :locale="$store.state.i18n.locale"
+      :locale="$store.state.i18n?.locale"
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="history"
       :message="messageProvider"

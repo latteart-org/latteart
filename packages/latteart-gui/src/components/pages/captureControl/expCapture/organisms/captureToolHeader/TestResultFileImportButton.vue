@@ -15,123 +15,27 @@
 -->
 
 <template>
-  <v-list-item @click="openTestResultImportDialog" :disabled="isDisabled">
-    <v-list-item-title>{{
-      $store.getters.message("import-export-dialog.test-result-import-title")
-    }}</v-list-item-title>
-
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
-
-    <test-result-import-dialog
-      :opened="testResultImportDialogOpened"
-      @execute="importData"
-      @close="testResultImportDialogOpened = false"
-    />
-
-    <information-message-dialog
-      :opened="informationMessageDialogOpened"
-      :title="informationTitle"
-      :message="informationMessage"
-      @close="informationMessageDialogOpened = false"
-    />
-  </v-list-item>
+  <test-result-import-trigger>
+    <template v-slot:activator="{ on, isDisabled }">
+      <v-list-item @click="on" :disabled="isDisabled">
+        <v-list-item-title>{{
+          $store.getters.message(
+            "import-export-dialog.test-result-import-title"
+          )
+        }}</v-list-item-title>
+      </v-list-item>
+    </template>
+  </test-result-import-trigger>
 </template>
 
 <script lang="ts">
-import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import InformationMessageDialog from "@/components/pages/common/InformationMessageDialog.vue";
-import TestResultImportDialog from "@/components/pages/common/TestResultImportDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
+import TestResultImportTrigger from "../../../../common/organisms/TestResultImportTrigger.vue";
 
 @Component({
   components: {
-    "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
-    "test-result-import-dialog": TestResultImportDialog,
+    "test-result-import-trigger": TestResultImportTrigger,
   },
 })
-export default class TestResultFileImportButton extends Vue {
-  private showImportData = false;
-  private dataX = 0;
-  private dataY = 0;
-  private isImportingTestResults = false;
-  private importTestResults: Array<{ url: string; name: string }> = [];
-
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-
-  private testResultImportDialogOpened = false;
-
-  private informationMessageDialogOpened = false;
-  private informationTitle = "";
-  private informationMessage = "";
-
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.isImportingTestResults
-    );
-  }
-
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
-
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
-
-  private openTestResultImportDialog() {
-    this.testResultImportDialogOpened = true;
-  }
-
-  private importData(testResultImportFile: { data: string; name: string }) {
-    this.isImportingTestResults = true;
-
-    setTimeout(async () => {
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "import-export-dialog.importing-data"
-          ),
-        });
-        await this.$store.dispatch("operationHistory/importData", {
-          source: { testResultFile: testResultImportFile },
-        });
-        this.$store.dispatch("closeProgressDialog");
-
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message(
-          "import-export-dialog.test-result-import-title"
-        );
-        this.informationMessage = this.$store.getters.message(
-          "import-export-dialog.import-data-succeeded",
-          {
-            returnName: testResultImportFile.name,
-          }
-        );
-      } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.isImportingTestResults = false;
-      }
-    }, 300);
-  }
-}
+export default class TestResultFileImportButton extends Vue {}
 </script>

@@ -159,7 +159,7 @@
   },
   "config-view": {
     "window-title": "Capturing Tool [Config]",
-    "target": "Target Platform",
+    "device": "Device",
     "platform": "Platform",
     "browser": "Browser",
     "reload-setting": "Reload browser at startup (disabled when 0) ",
@@ -354,6 +354,37 @@
     "text": "Text",
     "operated": "Operated"
   },
+  "navigation": {
+    "group-label": {
+      "capture": "Test Capturing",
+      "management": "Test Management",
+      "recent-stories": "Recent Stories",
+      "other": "Other"
+    }
+  },
+  "start-capture-view": {
+    "title": "Start Capturing",
+    "execute-button": "Start"
+  },
+  "optional-features": {
+    "title": "Optional features",
+    "snapshot-output": {
+      "title": "Snapshot output",
+      "execute-button": "Output snapshot"
+    },
+    "test-script-generation": {
+      "title": "Test script generation",
+      "execute-button": "Generate test scripts"
+    },
+    "project-import": {
+      "title": "Config/Project import",
+      "execute-button": "Import"
+    },
+    "project-export": {
+      "title": "Config/Project export",
+      "execute-button": "Export"
+    }
+  },
   "manage": {
     "print-html-succeeded": "Snapshot output has finished.",
     "output-html-running": "Snapshot output is running.",
@@ -367,7 +398,7 @@
     "creating-snapshot": "Creating snapshot.",
     "output-html": "Output Snapshot",
     "capture-config": "Settings",
-    "top": "TOP",
+    "top": "Browse Test Matrices",
     "manage-progress": "Progress Management",
     "manage-quality": "Quality Management",
     "generate-script": "Generate Test Script",
@@ -375,7 +406,6 @@
     "generate-script-succeeded": "Test script generation has finished.",
     "import-option": "Import Config/Project",
     "export-option": "Export Config/Project",
-    "optional-function": "Optional function",
     "locale": "locale"
   },
   "manage-show": {
@@ -417,8 +447,9 @@
     "period": "Period:",
     "period-symbol": "-",
     "filter-section": "[Filter]",
-    "group": "Group:",
-    "test-target": "Target Feature:",
+    "test-matrix": "Test Matrix",
+    "group": "Group",
+    "test-target": "Target Feature",
     "all": "All",
     "planned-sessions": "# of Planned Sessions",
     "completed-sessions": "# of Complete Sessions",
@@ -429,6 +460,7 @@
     "title": "Quality Management",
     "attention": "*# of Found Bugs: number of notes with 'bug' tag",
     "filter-section": "[Filter]",
+    "test-matrix": "Test Matrix",
     "group": "Group",
     "test-target": "Target Feature",
     "completed-sessions": "# of Complete Sessions",
@@ -568,7 +600,7 @@
   },
   "manage-edit-view": {
     "window-title": "Management Tool [Edit Test Plan]",
-    "edit-plan": "Edit Test Plan",
+    "edit-plan": "Edit Test Matrices",
     "viewPoint": "Viewpoint",
     "add": "Add",
     "update": "Update",

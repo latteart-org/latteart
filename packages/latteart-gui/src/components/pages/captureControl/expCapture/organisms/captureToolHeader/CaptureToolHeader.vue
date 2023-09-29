@@ -15,63 +15,32 @@
 -->
 
 <template>
-  <v-row
-    justify="start"
-    align="center"
-    @keydown="cancelKeydown"
-    :style="{ height: '64px' }"
-    class="mt-n9"
-  >
+  <v-row justify="start" align="center" @keydown="cancelKeydown">
     <v-col>
-      <url-text-field />
-    </v-col>
-    <v-col class="pl-7">
-      <test-result-name-text-field />
-    </v-col>
-    <v-col>
-      <div>
-        <v-row>
-          <v-col cols="2">
-            <record-button />
-          </v-col>
-          <v-col cols="2">
-            <pause-button />
-          </v-col>
-          <v-col cols="2">
-            <clear-history-button />
-          </v-col>
-          <v-col cols="2">
-            <open-test-result-navigation-drawer-button />
-          </v-col>
-          <v-col cols="2">
-            <menu-button />
-          </v-col>
-        </v-row>
-      </div>
-    </v-col>
+      <v-row justify="start" align="center">
+        <v-col>
+          <url-text-field single-line hide-details />
+        </v-col>
+        <v-col>
+          <test-result-name-text-field single-line hide-details />
+        </v-col>
 
-    <v-col :style="{ 'padding-top': '2px' }">
-      <locale-select-box />
-    </v-col>
-
-    <v-col cols="3">
-      <remote-access-field color="inherit" />
+        <record-button />
+        <pause-button />
+        <menu-button />
+      </v-row>
     </v-col>
   </v-row>
 </template>
 
 <script lang="ts">
-import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessField.vue";
 import { Component, Vue } from "vue-property-decorator";
-import ClearHistoryButton from "./ClearHistoryButton.vue";
 import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
-import LocaleSelectBox from "./LocaleSelectBox.vue";
 import PauseButton from "./PauseButton.vue";
 import RecordButton from "./RecordButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
 import URLTextField from "./URLTextField.vue";
 import MenuButton from "./MenuButton.vue";
-import OpenTestResultNavigationDrawerButton from "./OpenTestResultNavigationDrawerButton.vue";
 
 @Component({
   components: {
@@ -79,13 +48,8 @@ import OpenTestResultNavigationDrawerButton from "./OpenTestResultNavigationDraw
     "test-result-name-text-field": TestResultNameTextField,
     "record-button": RecordButton,
     "pause-button": PauseButton,
-    "clear-history-button": ClearHistoryButton,
     "generate-test-script-button": GenerateTestScriptButton,
-    "locale-select-box": LocaleSelectBox,
-    "remote-access-field": RemoteAccessField,
     "menu-button": MenuButton,
-    "open-test-result-navigation-drawer-button":
-      OpenTestResultNavigationDrawerButton,
   },
 })
 export default class CaptureToolHeader extends Vue {

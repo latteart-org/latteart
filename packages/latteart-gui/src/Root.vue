@@ -16,7 +16,204 @@
 
 <template>
   <v-app>
-    <router-view></router-view>
+    <v-navigation-drawer app :mini-variant.sync="mini" permanent>
+      <v-list-item class="px-2">
+        <v-list-item-avatar>
+          <v-img src="./assets/logo.png"></v-img>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
+        </v-list-item-content>
+
+        <v-btn icon @click.stop="mini = !mini">
+          <v-icon>chevron_left</v-icon>
+        </v-btn>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list dense nav>
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.capture")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item :disabled="isCapturing" to="/manage/view/start" exact>
+            <v-list-item-icon>
+              <v-icon :disabled="isCapturing">video_call</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("start-capture-view.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item v-if="currentTestResultName" to="/capture/history" exact>
+            <v-list-item-icon>
+              <v-badge v-if="isCapturing" color="red" dot
+                ><v-icon>devices</v-icon></v-badge
+              >
+              <v-icon v-else>devices</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ currentTestResultName }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item :disabled="isCapturing" to="/manage/view/results" exact>
+            <v-list-item-icon>
+              <v-icon>folder_open</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("test-result-navigation-drawer.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list dense nav>
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.management")
+        }}</v-subheader>
+
+        <v-list-item-group v-model="displayedPage" color="primary">
+          <v-list-item to="/manage/view/show" exact>
+            <v-list-item-icon>
+              <v-icon>calendar_today</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manage-header.top")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/manage/view/edit" exact>
+            <v-list-item-icon>
+              <v-icon>edit</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manage-edit-view.edit-plan")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/manage/view/stories" exact>
+            <v-list-item-icon>
+              <v-icon>library_books</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("story-list-view.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/manage/view/progress" exact>
+            <v-list-item-icon>
+              <v-icon>waterfall_chart</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manage-progress.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/manage/view/quality" exact>
+            <v-list-item-icon>
+              <v-icon>show_chart</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manage-quality.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item to="/manage/view/features" exact>
+            <v-list-item-icon>
+              <v-icon>apps</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("optional-features.title")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
+      <v-divider v-if="recentStories.length > 0"></v-divider>
+
+      <v-list dense nav v-if="recentStories.length > 0">
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.recent-stories")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item
+            v-for="story in recentStories"
+            :key="story.id"
+            :to="story.path"
+            exact
+          >
+            <v-list-item-icon>
+              <v-icon>assignment</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ story.testTargetName }}</v-list-item-title>
+              <v-list-item-subtitle v-if="!mini">{{
+                story.viewPointName
+              }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
+      <v-divider></v-divider>
+
+      <v-list dense nav>
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.other")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item to="/manage/view/config" exact>
+            <v-list-item-icon>
+              <v-icon>settings</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manage-header.capture-config")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+
     <progress-dialog></progress-dialog>
     <autofill-register-dialog />
     <error-message-dialog
@@ -32,15 +229,25 @@ import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
 import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
 import AutofillRegisterDialog from "@/components/pages/common/AutofillRegisterDialog.vue";
+import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
+import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
+import { TestManagementState } from "./store/testManagement";
+import { TestMatrix } from "./lib/testManagement/types";
+import { OperationHistoryState } from "./store/operationHistory";
+import { CaptureControlState } from "./store/captureControl";
 
 @Component({
   components: {
+    "exp-capture": ExpCapture,
+    "exp-manager": ExpManager,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
 export default class Root extends Vue {
+  private mini = false;
+  private displayedPage = 0;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
@@ -60,12 +267,54 @@ export default class Root extends Vue {
         }
       }
 
-      if (this.$route.query.mode === "manage") {
-        this.$router.push({ name: "manageShowView" });
-      } else {
-        this.$router.push({ name: "configView" });
-      }
+      this.$router.push({ path: "/manage/view/start" });
     })();
+  }
+
+  get recentStories() {
+    return (
+      this.$store.state.testManagement as TestManagementState
+    ).recentStories.flatMap((story) => {
+      const testMatrix: TestMatrix | undefined = this.$store.getters[
+        "testManagement/findTestMatrix"
+      ](story.testMatrixId);
+
+      if (!testMatrix) {
+        return [];
+      }
+
+      const testTarget = testMatrix.groups
+        .flatMap((group) => group.testTargets)
+        .find((testTarget) => story.testTargetId === testTarget.id);
+
+      if (!testTarget) {
+        return [];
+      }
+
+      const viewPoint = testMatrix.viewPoints.find((viewPoint) => {
+        return viewPoint.id === story.viewPointId;
+      });
+
+      if (!viewPoint) {
+        return [];
+      }
+
+      return {
+        path: `/manage/view/story/${story.id}`,
+        testTargetName: testTarget.name,
+        viewPointName: viewPoint.name,
+      };
+    });
+  }
+
+  get currentTestResultName() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo.name;
+  }
+
+  get isCapturing() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isCapturing;
   }
 }
 </script>

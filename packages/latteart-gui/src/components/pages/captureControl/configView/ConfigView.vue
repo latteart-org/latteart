@@ -15,198 +15,165 @@
 -->
 
 <template>
-  <v-row justify="start" class="fill-height">
-    <v-col class="pt-3 px-3">
-      <p class="subtitle-1">
-        {{ $store.getters.message("config-view.target") }}
-      </p>
-      <v-row>
-        <v-col cols="12" class="pb-18 pr-1">
-          <v-select
-            :label="$store.getters.message('config-view.platform')"
-            :items="platformNames"
-            :value="selectedPlatformName"
-            @change="selectPlatform"
-          ></v-select>
-          <v-select
-            :label="$store.getters.message('config-view.browser')"
-            :items="browsers"
-            :value="selectedBrowser"
-            @change="selectBrowser"
-          ></v-select>
-          <number-field
-            arrowOnly
-            @updateNumberFieldValue="
-              ({ value }) => updateWaitTimeForStartupReload(value)
-            "
-            :value="waitTimeForStartupReload"
-            :maxValue="60"
-            :minValue="0"
-            :label="$store.getters.message('config-view.reload-setting')"
-            :suffix="$store.getters.message('config-view.reload-suffix')"
-          ></number-field>
-          <v-expansion-panels v-model="panel" class="py-0">
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{ $store.getters.message("config-view.setting-device") }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-container>
-                  <v-btn
-                    @click="updateDevices"
-                    :disabled="isDisabledDeviceConfig"
-                    >{{
-                      $store.getters.message("config-view.update-device")
-                    }}</v-btn
-                  >
+  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
+    <v-container class="align-self-start">
+      <v-row justify="start" class="fill-height">
+        <v-col>
+          <v-row>
+            <v-col cols="12">
+              <v-card class="pa-6">
+                <v-card-text>
                   <v-select
-                    :label="$store.getters.message('config-view.select-device')"
-                    :value="selectedDevice"
-                    @change="selectDevice"
-                    :items="devices"
-                    item-text="modelNumber"
-                    item-value="deviceName"
-                    :disabled="isDisabledDeviceConfig"
-                    :no-data-text="
-                      $store.getters.message('config-view.no-device')
-                    "
-                    return-object
+                    :label="$store.getters.message('manage-header.locale')"
+                    :items="locales"
+                    :value="initLocale"
+                    v-on:change="changeLocale"
                   ></v-select>
-                  <v-text-field
-                    :label="$store.getters.message('config-view.os-version')"
-                    v-model="selectedDevice.osVersion"
-                    :disabled="isDisabledDeviceConfig"
-                    readonly
-                  ></v-text-field>
-                </v-container>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{
-                  $store.getters.message("config-view.setting-capture-media")
-                }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <capture-media-config
-                  :captureMediaSetting="captureMediaSetting"
-                  :opened="captureMediaSettingOpened"
-                  :isCapturing="isCapturing"
-                  @save-config="saveConfig"
-                >
-                </capture-media-config>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                  <remote-access-field
+                    color="primary"
+                    hide-details
+                  ></remote-access-field>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-expansion-panels multiple v-model="panels" class="py-0">
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{
+                      $store.getters.message(
+                        "config-view.setting-capture-media"
+                      )
+                    }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <capture-media-config
+                      :captureMediaSetting="captureMediaSetting"
+                      :opened="captureMediaSettingOpened"
+                      :isCapturing="isCapturing"
+                      @save-config="saveConfig"
+                    >
+                    </capture-media-config>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{
-                  $store.getters.message("config-view.setting-inclusion-tags")
-                }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <coverage-config
-                  :opened="coverageOpened"
-                  :include-tags="includeTags"
-                  :default-tag-list="defaultTagList"
-                  @save-config="saveConfig"
-                >
-                </coverage-config>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{
+                      $store.getters.message(
+                        "config-view.setting-inclusion-tags"
+                      )
+                    }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <coverage-config
+                      :opened="coverageOpened"
+                      :include-tags="includeTags"
+                      :default-tag-list="defaultTagList"
+                      @save-config="saveConfig"
+                    >
+                    </coverage-config>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{ $store.getters.message("config-view.setting-screen") }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <screen-definition-config
-                  :opened="screenDefinitionSettingOpened"
-                  :screenDefinition="screenDefinition"
-                  @save-config="saveConfig"
-                >
-                </screen-definition-config>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{ $store.getters.message("config-view.setting-screen") }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <screen-definition-config
+                      :opened="screenDefinitionSettingOpened"
+                      :screenDefinition="screenDefinition"
+                      @save-config="saveConfig"
+                    >
+                    </screen-definition-config>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{ $store.getters.message("config-view.setting-autofill") }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <autofill-setting
-                  :opened="autofillSettingOpened"
-                  :autofillSetting="autofillSetting"
-                  @save-config="saveConfig"
-                >
-                </autofill-setting>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{ $store.getters.message("config-view.setting-autofill") }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <autofill-setting
+                      :opened="autofillSettingOpened"
+                      :autofillSetting="autofillSetting"
+                      @save-config="saveConfig"
+                    >
+                    </autofill-setting>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{
-                  $store.getters.message("config-view.setting-auto-operation")
-                }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <auto-operation-setting
-                  :opened="autoOperationSettingOpened"
-                  :autoOperationSetting="autoOperationSetting"
-                  @save-config="saveConfig"
-                >
-                </auto-operation-setting>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{
+                      $store.getters.message(
+                        "config-view.setting-auto-operation"
+                      )
+                    }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <auto-operation-setting
+                      :opened="autoOperationSettingOpened"
+                      :autoOperationSetting="autoOperationSetting"
+                      @save-config="saveConfig"
+                    >
+                    </auto-operation-setting>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{
-                  $store.getters.message(
-                    "config-view.setting-test-result-comparison"
-                  )
-                }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <compare-setting
-                  :tags="defaultTagList"
-                  :setting="testResultComparisonSetting"
-                  @save-config="saveConfig"
-                >
-                </compare-setting>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{
+                      $store.getters.message(
+                        "config-view.setting-test-result-comparison"
+                      )
+                    }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <compare-setting
+                      :tags="defaultTagList"
+                      :setting="testResultComparisonSetting"
+                      @save-config="saveConfig"
+                    >
+                    </compare-setting>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
 
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                {{
-                  $store.getters.message(
-                    "config-view.setting-experimental-features"
-                  )
-                }}
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <experimental-feature-config
-                  :experimentalFeatureSetting="experimentalFeatureSetting"
-                  :opened="experimentalFeatureSettingOpened"
-                  :isCapturing="isCapturing"
-                  @save-config="saveConfig"
-                >
-                </experimental-feature-config>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-header>
+                    {{
+                      $store.getters.message(
+                        "config-view.setting-experimental-features"
+                      )
+                    }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <experimental-feature-config
+                      :experimentalFeatureSetting="experimentalFeatureSetting"
+                      :opened="experimentalFeatureSettingOpened"
+                      :isCapturing="isCapturing"
+                      @save-config="saveConfig"
+                    >
+                    </experimental-feature-config>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-col>
+          </v-row>
         </v-col>
-      </v-row>
-    </v-col>
 
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
-  </v-row>
+        <error-message-dialog
+          :opened="errorMessageDialogOpened"
+          :message="errorMessage"
+          @close="errorMessageDialogOpened = false"
+        />
+      </v-row>
+    </v-container>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -235,6 +202,7 @@ import { default as AutoOperationSettingComponent } from "../../operationHistory
 import { RootState } from "@/store";
 import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
 import ExperimentalFeatureConfig from "../../operationHistory/organisms/configViewer/ExperimentalFeatureConfig.vue";
+import RemoteAccessField from "../../common/organisms/RemoteAccessField.vue";
 
 @Component({
   components: {
@@ -247,12 +215,23 @@ import ExperimentalFeatureConfig from "../../operationHistory/organisms/configVi
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
     "error-message-dialog": ErrorMessageDialog,
+    "remote-access-field": RemoteAccessField,
   },
 })
 export default class ConfigView extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private panel: null | number = null;
+  private panels: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+  public locales: string[] = ["ja", "en"];
+
+  public get initLocale(): string {
+    return this.$store.getters.getLocale();
+  }
+
+  public changeLocale(locale: string): void {
+    this.$store.dispatch("changeLocale", { locale });
+  }
 
   private platformNames: DeviceSettings["platformName"][] = [
     "PC",
@@ -360,79 +339,32 @@ export default class ConfigView extends Vue {
     this.updateWindowTitle();
     this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
 
-    const testResultId = this.$route.query.testResultId as string;
-
-    if (testResultId) {
-      try {
-        if (this.$route.query.repository) {
-          await this.$store.dispatch("connectRepository", {
-            targetUrl: this.$route.query.repository,
-          });
-
-          await this.$store.dispatch("testManagement/readProject");
-        }
-
-        await this.loadTestResults(testResultId);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error);
-          this.errorMessageDialogOpened = true;
-          this.errorMessage = error.message;
-        } else {
-          throw error;
-        }
-      }
-    }
     await this.$store.dispatch("readSettings");
     await this.$store.dispatch("readViewSettings");
   }
 
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
-  }
-
   private get captureMediaSettingOpened() {
-    return this.panel === 1;
+    return this.panels.includes(1);
   }
 
   private get coverageOpened() {
-    return this.panel === 2;
+    return this.panels.includes(2);
   }
 
   private get screenDefinitionSettingOpened() {
-    return this.panel === 3;
+    return this.panels.includes(3);
   }
 
   private get autofillSettingOpened() {
-    return this.panel === 4;
+    return this.panels.includes(4);
   }
 
   private get autoOperationSettingOpened() {
-    return this.panel === 5;
+    return this.panels.includes(5);
   }
 
   private get experimentalFeatureSettingOpened() {
-    return this.panel === 7;
+    return this.panels.includes(7);
   }
 
   private get otherThanWindows() {

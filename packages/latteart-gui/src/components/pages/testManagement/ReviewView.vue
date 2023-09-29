@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <div style="height: calc(100vh - 120px)">
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+  <v-container fluid fill-height pa-0>
+    <v-app-bar color="latteart-main" dark absolute flat>
       <v-toolbar-title>{{
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
@@ -49,21 +49,29 @@
       >
     </v-app-bar>
 
-    <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
-      tempStory
-        ? $store.getters.message("manager-history-view.back")
-        : $store.getters.message("manager-history-view.story-list")
-    }}</v-btn>
+    <v-container
+      fluid
+      pa-0
+      style="margin-top: 64px; height: calc(100vh - 64px)"
+    >
+      <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
+        tempStory
+          ? $store.getters.message("manager-history-view.back")
+          : $store.getters.message("manager-history-view.story-list")
+      }}</v-btn>
 
-    <history-display
-      :changeWindowTitle="changeWindowTitle"
-      :rawHistory="testResult.history"
-      :message="messageProvider"
-      :screenDefinitionConfig="screenDefinitionConfig"
-      :scriptGenerationEnabled="!$isViewerMode"
-      :testResultId="testResultId"
-      operationContextEnabled
-    ></history-display>
+      <v-container fluid pa-0 style="height: calc(100% - 52px)">
+        <history-display
+          :changeWindowTitle="changeWindowTitle"
+          :rawHistory="testResult.history"
+          :message="messageProvider"
+          :screenDefinitionConfig="screenDefinitionConfig"
+          :scriptGenerationEnabled="!$isViewerMode"
+          :testResultId="testResultId"
+          operationContextEnabled
+        ></history-display>
+      </v-container>
+    </v-container>
 
     <execute-dialog
       :opened="dialogOpened"
@@ -101,7 +109,7 @@
       :message="errorMessage"
       @close="errorDialogOpened = false"
     ></error-message-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

@@ -18,6 +18,8 @@ import Vue from "vue";
 import Router from "vue-router";
 import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
 import ConfigView from "@/components/pages/captureControl/configView/ConfigView.vue";
+import StartCaptureView from "@/components/pages/captureControl/startCaptureView/StartCaptureView.vue";
+import TestResultListView from "@/components/pages/captureControl/testResultListView/TestResultListView.vue";
 import HistoryView from "@/components/pages/captureControl/historyView/HistoryView.vue";
 import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
 import ManageView from "@/components/pages/testManagement/ManageView.vue";
@@ -28,6 +30,7 @@ import ReviewView from "@/components/pages/testManagement/ReviewView.vue";
 import ManageShowView from "@/components/pages/testManagement/manageShowView/ManageShowView.vue";
 import ManageProgressView from "@/components/pages/testManagement/manageProgressView/ManageProgressView.vue";
 import ManageQualityView from "@/components/pages/testManagement/manageQualityView/ManageQualityView.vue";
+import OptionalFeaturesView from "@/components/pages/testManagement/optionalFeaturesView/OptionalFeaturesView.vue";
 import Root from "./Root.vue";
 
 Vue.use(Router);
@@ -47,11 +50,6 @@ export default new Router({
           component: ExpCapture,
           children: [
             {
-              path: "config",
-              name: "configView",
-              component: ConfigView,
-            },
-            {
               path: "history",
               name: "historyView",
               component: HistoryView,
@@ -69,41 +67,69 @@ export default new Router({
               component: ManageView,
               children: [
                 {
+                  path: "start",
+                  component: StartCaptureView,
+                  meta: { title: "start-capture-view.title" },
+                },
+                {
+                  path: "results",
+                  component: TestResultListView,
+                  meta: { title: "test-result-navigation-drawer.title" },
+                },
+                {
                   path: "show",
                   name: "manageShowView",
                   component: ManageShowView,
+                  meta: { title: "manage-header.top" },
+                },
+                {
+                  path: "edit",
+                  name: "manageEditView",
+                  component: ManageEditView,
+                  meta: { title: "manage-edit-view.edit-plan" },
+                },
+                {
+                  path: "stories",
+                  name: "storyListView",
+                  component: StoryListView,
+                  meta: { title: "story-list-view.title" },
                 },
                 {
                   path: "progress",
                   name: "manageProgressView",
                   component: ManageProgressView,
+                  meta: { title: "manage-progress.title" },
                 },
                 {
                   path: "quality",
                   name: "manageQualityView",
                   component: ManageQualityView,
+                  meta: { title: "manage-quality.title" },
+                },
+                {
+                  path: "features",
+                  component: OptionalFeaturesView,
+                  meta: { title: "optional-features.title" },
+                },
+                {
+                  path: "story/:id",
+                  name: "storyView",
+                  component: StoryView,
+                  meta: { title: "story-view.story" },
+                },
+                {
+                  path: "history",
+                  name: "reviewView",
+                  component: ReviewView,
+                  meta: { title: "manager-history-view.review" },
+                },
+                {
+                  path: "config",
+                  name: "configView",
+                  component: ConfigView,
+                  meta: { title: "manage-header.capture-config" },
                 },
               ],
-            },
-            {
-              path: "edit",
-              name: "manageEditView",
-              component: ManageEditView,
-            },
-            {
-              path: "story",
-              name: "storyListView",
-              component: StoryListView,
-            },
-            {
-              path: "story/:id",
-              name: "storyView",
-              component: StoryView,
-            },
-            {
-              path: "history",
-              name: "reviewView",
-              component: ReviewView,
             },
           ],
         },

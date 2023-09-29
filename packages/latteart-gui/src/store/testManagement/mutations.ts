@@ -308,6 +308,18 @@ const mutations: MutationTree<TestManagementState> = {
       return testMatrix;
     });
   },
+
+  /**
+   * Add story as recent story.
+   * @param state State.
+   * @param payload.story Story.
+   */
+  addRecentStory(state, payload: { story: Story }) {
+    state.recentStories = [
+      payload.story,
+      ...state.recentStories.filter(({ id }) => id !== payload.story.id),
+    ].filter((_, index) => index < 5);
+  },
 };
 
 export default mutations;

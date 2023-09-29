@@ -35,9 +35,6 @@
 
     <v-divider vertical class="mx-3" />
 
-    <go-config-view-button v-if="$route.name === 'historyView'" />
-    <go-history-view-button v-else />
-
     <span class="px-1"><recording-time /></span>
   </v-row>
 </template>

@@ -15,8 +15,15 @@
 -->
 
 <template>
-  <div>
-    <v-container fluid v-if="hasTestMatrix">
+  <v-container fluid fill-height pa-0>
+    <v-container
+      class="align-self-start"
+      pa-8
+      pt-4
+      fluid
+      v-if="hasTestMatrix"
+      style="height: calc(100% - 148px); overflow-y: scroll"
+    >
       <v-row>
         <v-col cols="4">
           <v-row>
@@ -44,6 +51,7 @@
         </v-col>
         <v-spacer></v-spacer>
       </v-row>
+
       <tab-selector
         :selectedItemId="selectedTestMatrixId"
         :items="testMatrices"
@@ -60,15 +68,15 @@
     </v-container>
 
     <v-footer
-      v-if="$vuetify.breakpoint.width > 800"
-      app
-      height="auto"
+      absolute
+      height="148px"
       color="latteart-main"
       class="responsive-footer"
+      style="overflow-y: hidden"
     >
       <legend-viewer></legend-viewer>
     </v-footer>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

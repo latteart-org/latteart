@@ -15,13 +15,8 @@
 -->
 
 <template>
-  <div>
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("story-view.story")
-      }}</v-toolbar-title>
-    </v-app-bar>
-    <v-container fluid class="pa-4 pt-4">
+  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
+    <v-container fluid pa-0 class="align-self-start">
       <v-row v-if="story">
         <v-col cols="3">
           <v-text-field
@@ -157,23 +152,16 @@
           >
         </v-col>
       </v-row>
-
-      <v-footer app height="auto" color="latteart-main">
-        <v-spacer></v-spacer>
-        <v-btn @click="toIndex">{{
-          $store.getters.message("edit-footer.top")
-        }}</v-btn>
-      </v-footer>
-
-      <confirm-dialog
-        :opened="confirmDialogOpened"
-        :title="confirmDialogTitle"
-        :message="confirmDialogMessage"
-        :onAccept="confirmDialogAccept"
-        @close="confirmDialogOpened = false"
-      />
     </v-container>
-  </div>
+
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
+      :onAccept="confirmDialogAccept"
+      @close="confirmDialogOpened = false"
+    />
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -244,6 +232,10 @@ export default class StoryView extends Vue {
         sessionPanelExpantionStatesKey,
         JSON.stringify(this.sessionPanelExpantionStates)
       );
+    });
+
+    this.$store.commit("testManagement/addRecentStory", {
+      story: this.story,
     });
   }
 

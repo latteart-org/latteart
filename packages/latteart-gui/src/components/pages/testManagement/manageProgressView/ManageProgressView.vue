@@ -15,11 +15,8 @@
 -->
 
 <template>
-  <v-container>
+  <v-container class="align-self-start">
     <v-row class="mt-4">
-      <p class="title">
-        {{ $store.getters.message("manage-progress.title") }}
-      </p>
       <v-spacer></v-spacer>
     </v-row>
     <v-row>
@@ -94,31 +91,36 @@
       {{ $store.getters.message("manage-progress.filter-section") }}
     </v-row>
     <v-row class="mt-0">
-      <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ $store.getters.message("manage-progress.group") }}
+      <v-col>
+        <v-select
+          v-model="selectedTestMatrixId"
+          :items="testMatrices"
+          item-text="name"
+          item-value="id"
+          class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-progress.test-matrix')"
+        ></v-select>
       </v-col>
-      <v-col align-self="center" class="pt-0">
+
+      <v-col>
         <v-select
           v-model="selectedGroupId"
-          single-line
           :items="groups"
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-progress.group')"
         ></v-select>
       </v-col>
 
-      <v-col cols="1" align-self="center" class="pt-0">
-        {{ $store.getters.message("manage-progress.test-target") }}
-      </v-col>
-      <v-col align-self="center" class="pt-0">
+      <v-col>
         <v-select
           v-model="selectedTestTargetId"
-          single-line
           :items="testTargets"
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-progress.test-target')"
         ></v-select>
       </v-col>
     </v-row>
@@ -138,6 +140,7 @@ import { TestMatrix } from "@/lib/testManagement/types";
 import Chart from "chart.js";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { DailyTestProgress } from "@/lib/testManagement/types";
+import { TestManagementState } from "@/store/testManagement";
 
 @Component({
   components: {
@@ -155,25 +158,40 @@ export default class ManageProgress extends Vue {
   private startDate = "";
   private endDate = "";
 
+  private selectedTestMatrixId = "all";
   private selectedGroupId = "all";
   private selectedTestTargetId = "all";
 
   private progressDatas: DailyTestProgress[] = [];
 
-  private testMatrix: TestMatrix = {
-    id: "",
-    name: "",
-    index: 0,
-    viewPoints: [],
-    groups: [],
-  };
+  private get testMatrices() {
+    const testManagementState = this.$store.state
+      .testManagement as TestManagementState;
 
-  private get groups() {
     const all = {
       ...this.unselectedItem,
-      testTargets: this.testMatrix.groups.flatMap((group) => group.testTargets),
+      groups: testManagementState.testMatrices.flatMap(
+        (testMatrix) => testMatrix.groups
+      ),
     };
-    return [all, ...this.testMatrix.groups];
+    return [all, ...testManagementState.testMatrices];
+  }
+
+  private get groups() {
+    const groups =
+      this.testMatrices.find(
+        (testMatrix) => testMatrix.id === this.selectedTestMatrixId
+      )?.groups ?? [];
+
+    if (!groups.find(({ id }) => id === this.selectedGroupId)) {
+      this.selectedGroupId = this.unselectedItem.id;
+    }
+
+    const all = {
+      ...this.unselectedItem,
+      testTargets: groups.flatMap((group) => group.testTargets),
+    };
+    return [all, ...groups];
   }
 
   private get testTargets() {
@@ -199,7 +217,10 @@ export default class ManageProgress extends Vue {
     const filteredDatas = this.progressDatas.map((dailyProgress) => {
       const storyProgresses = dailyProgress.storyProgresses
         .filter(({ testMatrixId }) => {
-          return testMatrixId === this.testMatrix.id;
+          if (this.selectedTestMatrixId === "all") {
+            return true;
+          }
+          return testMatrixId === this.selectedTestMatrixId;
         })
         .filter(({ testTargetGroupId }) => {
           if (this.selectedGroupId === "all") {
@@ -311,15 +332,6 @@ export default class ManageProgress extends Vue {
     await this.$store.dispatch("testManagement/readProject");
 
     this.updateWindowTitle();
-
-    const found = this.$store.state.testManagement.testMatrices.find(
-      (testMatrix: TestMatrix) => {
-        return this.$route.params.testMatrixId === testMatrix.id;
-      }
-    );
-    if (found) {
-      this.testMatrix = found;
-    }
 
     this.progressDatas = await this.collectProgressDatas();
 

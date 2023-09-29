@@ -15,23 +15,26 @@
 -->
 
 <template>
-  <v-row justify="start" align="center">
-    <v-icon class="pr-1">open_in_browser</v-icon>
-    <v-text-field
-      single-line
-      label="URL"
-      v-model="url"
-      :disabled="isDisabled"
-      id="urlTextField"
-    ></v-text-field>
-  </v-row>
+  <v-text-field
+    :single-line="singleLine"
+    :hide-details="hideDetails"
+    label="URL"
+    prepend-icon="open_in_browser"
+    v-model="url"
+    :disabled="isDisabled"
+    id="urlTextField"
+  ></v-text-field>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class URLTextField extends Vue {
+  @Prop({ type: Boolean, default: false }) public readonly singleLine!: boolean;
+  @Prop({ type: Boolean, default: false })
+  public readonly hideDetails!: boolean;
+
   private get isDisabled(): boolean {
     return this.isCapturing || this.isReplaying || this.isResuming;
   }

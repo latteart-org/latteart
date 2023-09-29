@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid v-if="testMatrix">
+  <v-container fluid fill-height v-if="testMatrix">
     <v-row>
       <v-col class="ma-2">{{ testMatrix.name }}</v-col>
     </v-row>

@@ -15,130 +15,136 @@
 -->
 
 <template>
-  <div>
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("story-list-view.title")
-      }}</v-toolbar-title>
-    </v-app-bar>
+  <v-container fluid fill-height pa-4 style="overflow-y: scroll">
+    <v-container fluid pa-0 class="align-self-start">
+      <v-card flat height="100%">
+        <v-card-text>
+          <v-data-table
+            :show-select="!isViewerMode"
+            :headers="headers"
+            :items="storyItems"
+            :items-per-page="10"
+            v-model="checkedItems"
+            item-key="sequence"
+          >
+            <template v-slot:top>
+              <v-card class="mb-4 pa-4" outlined>
+                <v-container fluid>
+                  <span style="color: rgba(0, 0, 0, 0.6)"
+                    ><v-icon>filter_list_alt</v-icon
+                    >{{
+                      $store.getters.message("story-list-view.filter")
+                    }}</span
+                  >
+                  <v-btn @click="filterClear" class="ml-4">{{
+                    $store.getters.message("story-list-view.clear")
+                  }}</v-btn>
+                  <v-row>
+                    <v-col cols="3">
+                      <v-row class="pa-6">
+                        <v-text-field
+                          v-model="testMatrixFilterValue"
+                          type="text"
+                          :label="
+                            $store.getters.message(
+                              'story-list-view.test-matrix'
+                            )
+                          "
+                          hide-details
+                        >
+                        </v-text-field>
+                      </v-row>
+                    </v-col>
 
-    <v-container fluid class="pa-4 pt-4">
-      <v-data-table
-        :show-select="!isViewerMode"
-        :headers="headers"
-        :items="storyItems"
-        :items-per-page="10"
-        v-model="checkedItems"
-        item-key="sequence"
-      >
-        <template v-slot:top>
-          <v-card class="mb-4 pa-4" outlined>
-            <v-container fluid>
-              <span style="color: rgba(0, 0, 0, 0.6)"
-                ><v-icon>filter_list_alt</v-icon
-                >{{ $store.getters.message("story-list-view.filter") }}</span
-              >
-              <v-btn @click="filterClear" class="ml-4">{{
-                $store.getters.message("story-list-view.clear")
-              }}</v-btn>
-              <v-row>
-                <v-col cols="3">
-                  <v-row class="pa-6">
-                    <v-text-field
-                      v-model="testMatrixFilterValue"
-                      type="text"
-                      :label="
-                        $store.getters.message('story-list-view.test-matrix')
-                      "
-                      hide-details
-                    >
-                    </v-text-field>
+                    <v-col cols="3">
+                      <v-row class="pa-6">
+                        <v-text-field
+                          v-model="groupFilterValue"
+                          type="text"
+                          :label="
+                            $store.getters.message('story-list-view.group')
+                          "
+                          hide-details
+                        >
+                        </v-text-field>
+                      </v-row>
+                    </v-col>
+
+                    <v-col cols="3">
+                      <v-row class="pa-6">
+                        <v-text-field
+                          v-model="testTargetFilterValue"
+                          type="text"
+                          :label="
+                            $store.getters.message(
+                              'story-list-view.test-target'
+                            )
+                          "
+                          hide-details
+                        >
+                        </v-text-field>
+                      </v-row>
+                    </v-col>
+
+                    <v-col cols="3">
+                      <v-row class="pa-6">
+                        <v-text-field
+                          v-model="viewPointFilterValue"
+                          type="text"
+                          :label="
+                            $store.getters.message('story-list-view.view-point')
+                          "
+                          hide-details
+                        >
+                        </v-text-field>
+                      </v-row>
+                    </v-col>
                   </v-row>
-                </v-col>
+                </v-container>
+              </v-card>
+            </template>
 
-                <v-col cols="3">
-                  <v-row class="pa-6">
-                    <v-text-field
-                      v-model="groupFilterValue"
-                      type="text"
-                      :label="$store.getters.message('story-list-view.group')"
-                      hide-details
-                    >
-                    </v-text-field>
-                  </v-row>
-                </v-col>
+            <template v-slot:[`item.testMatrix.name`]="{ item }">
+              <td>
+                {{ item.testMatrix.name.substring(0, 60) }}
+              </td>
+            </template>
+            <template v-slot:[`item.group.name`]="{ item }">
+              <td>
+                {{ item.group.name.substring(0, 60) }}
+              </td>
+            </template>
+            <template v-slot:[`item.testTarget.name`]="{ item }">
+              <td>
+                {{ item.testTarget.name.substring(0, 60) }}
+              </td>
+            </template>
+            <template v-slot:[`item.viewPoint.name`]="{ item }">
+              <td>
+                {{ item.viewPoint.name.substring(0, 60) }}
+              </td>
+            </template>
+          </v-data-table>
+        </v-card-text>
 
-                <v-col cols="3">
-                  <v-row class="pa-6">
-                    <v-text-field
-                      v-model="testTargetFilterValue"
-                      type="text"
-                      :label="
-                        $store.getters.message('story-list-view.test-target')
-                      "
-                      hide-details
-                    >
-                    </v-text-field>
-                  </v-row>
-                </v-col>
-
-                <v-col cols="3">
-                  <v-row class="pa-6">
-                    <v-text-field
-                      v-model="viewPointFilterValue"
-                      type="text"
-                      :label="
-                        $store.getters.message('story-list-view.view-point')
-                      "
-                      hide-details
-                    >
-                    </v-text-field>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card>
-        </template>
-
-        <template v-slot:[`item.testMatrix.name`]="{ item }">
-          <td>
-            {{ item.testMatrix.name.substring(0, 60) }}
-          </td>
-        </template>
-        <template v-slot:[`item.group.name`]="{ item }">
-          <td>
-            {{ item.group.name.substring(0, 60) }}
-          </td>
-        </template>
-        <template v-slot:[`item.testTarget.name`]="{ item }">
-          <td>
-            {{ item.testTarget.name.substring(0, 60) }}
-          </td>
-        </template>
-        <template v-slot:[`item.viewPoint.name`]="{ item }">
-          <td>
-            {{ item.viewPoint.name.substring(0, 60) }}
-          </td>
-        </template>
-      </v-data-table>
-
-      <v-footer app height="auto" style="background-color: #ffffff">
-        <v-btn
-          v-if="!isViewerMode"
-          @click="review"
-          :disabled="checkedItems.length === 0"
-          color="primary"
-          class="ma-1"
-          >{{ $store.getters.message("story-list-view.do-review") }}</v-btn
-        >
-      </v-footer>
+        <v-card-actions>
+          <v-btn
+            v-if="!isViewerMode"
+            @click="review"
+            :disabled="checkedItems.length === 0"
+            color="primary"
+            class="ma-1"
+            >{{ $store.getters.message("story-list-view.do-review") }}</v-btn
+          >
+        </v-card-actions>
+      </v-card>
     </v-container>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

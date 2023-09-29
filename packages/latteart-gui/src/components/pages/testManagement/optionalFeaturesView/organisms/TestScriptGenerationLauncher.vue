@@ -15,19 +15,27 @@
 -->
 
 <template>
-  <v-list-item
-    @click="scriptGenerationOptionDialogIsOpened = true"
-    :disabled="isDisabled"
-  >
-    <v-list-item-title>{{
-      $store.getters.message("history-view.generate-testscript")
-    }}</v-list-item-title>
-    <script-generation-option-dialog
-      :opened="scriptGenerationOptionDialogIsOpened"
-      @execute="generateTestScript"
-      @close="scriptGenerationOptionDialogIsOpened = false"
-    >
-    </script-generation-option-dialog>
+  <v-card flat class="pa-2">
+    <v-card-title>{{
+      $store.getters.message("optional-features.test-script-generation.title")
+    }}</v-card-title>
+
+    <v-card-text>
+      <script-generation-option @update="updateOption" />
+    </v-card-text>
+    <v-card-actions>
+      <v-btn
+        :disabled="disabled"
+        :dark="!disabled"
+        color="primary"
+        @click="generateTestScript"
+        >{{
+          $store.getters.message(
+            "optional-features.test-script-generation.execute-button"
+          )
+        }}</v-btn
+      >
+    </v-card-actions>
 
     <download-link-dialog
       :opened="downloadLinkDialogOpened"
@@ -43,71 +51,57 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-  </v-list-item>
+  </v-card>
 </template>
 
 <script lang="ts">
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import ScriptGenerationOptionDialog from "@/components/pages/common/ScriptGenerationOptionDialog.vue";
+import ScriptGenerationOption from "@/components/pages/common/ScriptGenerationOption.vue";
 import { Component, Vue } from "vue-property-decorator";
-import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
-    "error-message-dialog": ErrorMessageDialog,
-    "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
+    "error-message-dialog": ErrorMessageDialog,
+    "script-generation-option": ScriptGenerationOption,
   },
 })
-export default class GenerateTestScriptButton extends Vue {
-  private scriptGenerationOptionDialogIsOpened = false;
-  private isGeneratingTestScripts = false;
-
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-
+export default class ManageEditView extends Vue {
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
   private downloadLinkDialogAlertMessage = "";
   private downloadLinkDialogLinkUrl = "";
+  private errorMessageDialogOpened = false;
+  private errorMessage = "";
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.sequence === 0 ||
-      this.isGeneratingTestScripts
-    );
-  }
+  private option: {
+    testScript: {
+      isSimple: boolean;
+      useMultiLocator: boolean;
+    };
+    testData: {
+      useDataDriven: boolean;
+      maxGeneration: number;
+    };
+    buttonDefinitions: {
+      tagname: string;
+      attribute?: { name: string; value: string };
+    }[];
+  } = {
+    testScript: {
+      isSimple: false,
+      useMultiLocator: false,
+    },
+    testData: {
+      useDataDriven: false,
+      maxGeneration: 0,
+    },
+    buttonDefinitions: [],
+  };
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
-
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
-
-  private get sequence() {
-    const history = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history;
-
-    return history.at(-1)?.operation.sequence ?? 0;
-  }
-
-  private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-
-  private generateTestScript(option: {
+  private updateOption(option: {
     testScript: {
       isSimple: boolean;
       useMultiLocator: boolean;
@@ -121,9 +115,11 @@ export default class GenerateTestScriptButton extends Vue {
       attribute?: { name: string; value: string };
     }[];
   }) {
-    (async () => {
-      this.isGeneratingTestScripts = true;
+    this.option = option;
+  }
 
+  private generateTestScript() {
+    (async () => {
       try {
         this.$store.dispatch("openProgressDialog", {
           message: this.$store.getters.message(
@@ -131,9 +127,9 @@ export default class GenerateTestScriptButton extends Vue {
           ),
         });
         const testScriptInfo = await this.$store.dispatch(
-          "operationHistory/generateTestScripts",
+          "testManagement/generateAllSessionTestScripts",
           {
-            option,
+            option: this.option,
           }
         );
         this.$store.dispatch("closeProgressDialog");
@@ -150,12 +146,8 @@ export default class GenerateTestScriptButton extends Vue {
           this.downloadLinkDialogAlertMessage = "";
         }
         this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
-        this.scriptGenerationOptionDialogIsOpened = false;
         this.downloadLinkDialogOpened = true;
       } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        this.scriptGenerationOptionDialogIsOpened = false;
-
         if (error instanceof Error) {
           this.errorMessage = error.message;
           this.errorMessageDialogOpened = true;
@@ -163,9 +155,25 @@ export default class GenerateTestScriptButton extends Vue {
           throw error;
         }
       } finally {
-        this.isGeneratingTestScripts = false;
+        this.$store.dispatch("closeProgressDialog");
       }
     })();
   }
+
+  private get currentRepositoryUrl() {
+    return this.$store.state.repositoryService.serviceUrl;
+  }
 }
 </script>
+
+<style lang="sass">
+#max-test-data-generation
+  .v-text-field__details
+    display: none
+
+  .v-input--selection-controls
+    margin-top: 0px
+
+  .v-messages
+    display: none
+</style>
