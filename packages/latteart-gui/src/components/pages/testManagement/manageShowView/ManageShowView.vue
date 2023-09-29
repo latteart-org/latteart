@@ -17,6 +17,30 @@
 <template>
   <div>
     <v-container fluid v-if="hasTestMatrix">
+      <v-row>
+        <v-col cols="3">
+          <v-row>
+            <v-col cols="4" style="align-self: center">
+              <span style="color: rgba(0, 0, 0, 0.6)"
+                ><v-icon>search</v-icon
+                >{{ this.$store.getters.message("manage-show.search") }}</span
+              ></v-col
+            >
+            <v-col>
+              <v-text-field
+                v-model="search"
+                :label="this.$store.getters.message('manage-show.tester-name')"
+              ></v-text-field></v-col></v-row
+        ></v-col>
+        <v-col cols="2" style="align-self: center">
+          <v-checkbox
+            :label="this.$store.getters.message('manage-show.status-ng')"
+            v-model="isStatusFilterEnabled"
+            class="mt-2"
+          ></v-checkbox>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
       <tab-selector
         :selectedItemId="selectedTestMatrixId"
         :items="testMatrices"
@@ -26,6 +50,8 @@
       <v-card class="pa-2">
         <test-matrix-viewer
           :testMatrixId="selectedTestMatrixId"
+          :search="search"
+          :statusFilter="isStatusFilterEnabled"
         ></test-matrix-viewer>
       </v-card>
     </v-container>
@@ -58,6 +84,8 @@ import TestMatrixViewer from "./organisms/TestMatrixViewer.vue";
 })
 export default class ManageShow extends Vue {
   private selectedTestMatrixId = "";
+  private search = "";
+  private isStatusFilterEnabled = false;
 
   private get locale() {
     return this.$store.getters.getLocale();
