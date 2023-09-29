@@ -391,7 +391,9 @@
     "status-ongoing": "Ongoing",
     "text-ongoing": "There are ongoing sessions.",
     "status-pending": "Pending",
-    "text-pending": "Pending for bug fixes, etc."
+    "text-pending": "Pending for bug fixes, etc.",
+    "tester-name": "Tester Name",
+    "search": "Story Search"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "Test Matrix Name",

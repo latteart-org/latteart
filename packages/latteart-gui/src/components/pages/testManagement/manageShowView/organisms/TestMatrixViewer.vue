@@ -48,7 +48,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import GroupViewer from "./GroupViewer.vue";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { Story, TestMatrix } from "@/lib/testManagement/types";
 
 @Component({
   components: {
@@ -57,8 +57,12 @@ import { TestMatrix } from "@/lib/testManagement/types";
 })
 export default class TestMatrixViewer extends Vue {
   @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
+  @Prop({ type: String, default: "" }) public readonly search!: string;
+  @Prop({ type: Boolean, default: false })
+  public readonly statusFilter!: boolean;
 
   private expandedPanelIndex: number | undefined | null = null;
+  private testMatrix = this.targetTestMatrix;
 
   private get expandedGroupPanelIndexKey(): string {
     return `latteart-management-expandedGroupPanelIndex_${this.testMatrixId}`;
@@ -73,6 +77,7 @@ export default class TestMatrixViewer extends Vue {
     const index = this.getSavedExpandedPanelIndex();
 
     this.expandedPanelIndex = -1;
+    this.testMatrix = this.targetTestMatrix;
 
     setTimeout(() => {
       if ((this.testMatrix?.groups.length ?? 0) > (index ?? 0)) {
@@ -81,6 +86,8 @@ export default class TestMatrixViewer extends Vue {
         this.expandedPanelIndex = 0;
       }
     }, 100);
+
+    this.filterItems();
   }
 
   @Watch("expandedPanelIndex")
@@ -106,10 +113,79 @@ export default class TestMatrixViewer extends Vue {
     return parseInt(item, 10);
   }
 
-  private get testMatrix(): TestMatrix | undefined {
+  private get targetTestMatrix(): TestMatrix | undefined {
     return this.$store.getters["testManagement/findTestMatrix"](
       this.testMatrixId
     );
+  }
+
+  private get stories(): Story[] {
+    const targetStories: Story[] =
+      this.$store.getters["testManagement/getStories"]();
+    return targetStories.filter(
+      ({ testMatrixId }) => testMatrixId === this.testMatrixId
+    );
+  }
+
+  @Watch("statusFilter")
+  @Watch("search")
+  private filterItems() {
+    if (this.search === "" && !this.statusFilter) {
+      this.testMatrix = this.targetTestMatrix;
+      return;
+    }
+    if (!this.targetTestMatrix) {
+      this.testMatrix = this.targetTestMatrix;
+      return;
+    }
+
+    const filteredStories = this.filterStories();
+
+    const testTargetIds = new Set(
+      filteredStories.map(({ testTargetId }) => testTargetId)
+    );
+
+    const groups = this.targetTestMatrix.groups.map((group) => {
+      const testTargets = group.testTargets.filter(({ id }) =>
+        testTargetIds.has(id)
+      );
+      return { ...group, testTargets };
+    });
+
+    const viewPointIds = new Set(
+      filteredStories.map(({ viewPointId }) => viewPointId)
+    );
+    const viewPoints = this.targetTestMatrix.viewPoints.filter(({ id }) =>
+      viewPointIds.has(id)
+    );
+
+    this.testMatrix = {
+      ...this.targetTestMatrix,
+      groups,
+      viewPoints,
+    };
+  }
+
+  private filterStories() {
+    const filteredStoriesByStatus = this.statusFilter
+      ? this.stories.filter(({ status }) => status === "ng")
+      : this.stories;
+
+    if (this.search !== "") {
+      const filteredStoriesByText: Story[] = [];
+      for (const story of filteredStoriesByStatus) {
+        const sessionIndex = story.sessions.findIndex(({ testerName }) =>
+          testerName.includes(this.search)
+        );
+        if (sessionIndex > -1) {
+          filteredStoriesByText.push({ ...story });
+        }
+      }
+
+      return filteredStoriesByText;
+    }
+
+    return filteredStoriesByStatus;
   }
 }
 </script>

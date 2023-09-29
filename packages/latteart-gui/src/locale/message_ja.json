@@ -395,7 +395,9 @@
     "status-ongoing": "実施中",
     "text-ongoing": "現在セッション実施中",
     "status-pending": "修正待ち",
-    "text-pending": "バグの改修などの対応待ち"
+    "text-pending": "バグの改修などの対応待ち",
+    "tester-name": "テスター名",
+    "search": "ストーリー検索"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "テストマトリクス名",
