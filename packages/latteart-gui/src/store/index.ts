@@ -601,7 +601,7 @@ function setRepositoryUrlsToLocalStorage(urls: string[]) {
   );
 }
 
-const store: StoreOptions<RootState> = {
+const storeOptions: StoreOptions<RootState> = {
   state: {
     i18n: null,
     projectSettings: {
@@ -672,4 +672,6 @@ const store: StoreOptions<RootState> = {
   },
 };
 
-export default new Vuex.Store<RootState>(store);
+const store = new Vuex.Store<RootState>(storeOptions);
+export default store;
+export const useStore = () => store;

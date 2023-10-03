@@ -23,13 +23,13 @@
             <v-col cols="4" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
                 ><v-icon>search</v-icon
-                >{{ this.$store.getters.message("manage-show.search") }}</span
+                >{{ store.getters.message("manage-show.search") }}</span
               ></v-col
             >
             <v-col>
               <v-text-field
                 v-model="search"
-                :label="this.$store.getters.message('manage-show.tester-name')"
+                :label="store.getters.message('manage-show.tester-name')"
               ></v-text-field></v-col></v-row
         ></v-col>
         <v-col cols="2" style="align-self: center">
@@ -71,90 +71,102 @@
 <script lang="ts">
 import { TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
-import { Component, Vue, Watch } from "vue-property-decorator";
 import LegendViewer from "./organisms/LegendViewer.vue";
 import TestMatrixViewer from "./organisms/TestMatrixViewer.vue";
+import { computed, defineComponent, onBeforeMount, ref, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "legend-viewer": LegendViewer,
     "tab-selector": TabSelector,
     "test-matrix-viewer": TestMatrixViewer,
   },
-})
-export default class ManageShow extends Vue {
-  private selectedTestMatrixId = "";
-  private search = "";
-  private isStatusFilterEnabled = false;
+  setup(props, context) {
+    const store = useStore();
 
-  private get locale() {
-    return this.$store.getters.getLocale();
-  }
+    const selectedTestMatrixId = ref("");
+    const search = ref("");
+    const isStatusFilterEnabled = ref(false);
 
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-show.window-title"),
+    const locale = computed(() => {
+      return store.getters.getLocale();
     });
-  }
 
-  @Watch("selectedTestMatrixId")
-  private noticeTestMatrixChanged() {
-    this.$emit("selectTestMatrix", this.selectedTestMatrixId);
-  }
+    const testMatrices = computed((): TestMatrix[] => {
+      const targetTestMatrices =
+        store.getters["testManagement/getTestMatrices"]();
 
-  private get testMatrices(): TestMatrix[] {
-    const targetTestMatrices =
-      this.$store.getters["testManagement/getTestMatrices"]();
+      if (targetTestMatrices.length > 0) {
+        selectedTestMatrixId.value = targetTestMatrices[0].id;
+      } else {
+        selectedTestMatrixId.value = "";
+      }
+      return targetTestMatrices;
+    });
 
-    if (targetTestMatrices.length > 0) {
-      this.selectedTestMatrixId = targetTestMatrices[0].id;
-    } else {
-      this.selectedTestMatrixId = "";
-    }
+    const hasTestMatrix = computed((): boolean => {
+      return testMatrices.value.length >= 1;
+    });
 
-    return targetTestMatrices;
-  }
+    const selectTestMatrix = (id: string): void => {
+      const targetTestMatrix = testMatrices.value.find(
+        (testMatrix) => testMatrix.id === id
+      );
 
-  private get hasTestMatrix(): boolean {
-    return this.testMatrices.length >= 1;
-  }
+      if (!targetTestMatrix) {
+        return;
+      }
 
-  private async created() {
-    if (!this.$store.state.progressDialog.opened) {
-      await this.$store.dispatch("testManagement/readProject");
-    }
-    this.updateWindowTitle();
+      selectedTestMatrixId.value = targetTestMatrix.id;
+    };
 
-    const testMatrixId =
-      localStorage.getItem(
-        "latteart-management-selectedTestMatrixIdOnViewer"
-      ) ??
-      this.testMatrices[0]?.id ??
-      "";
+    const updateWindowTitle = () => {
+      store.dispatch("changeWindowTitle", {
+        title: store.getters.message("manage-show.window-title"),
+      });
+    };
 
-    if (this.testMatrices.find((tm) => tm.id === testMatrixId)) {
-      this.selectTestMatrix(testMatrixId);
-    }
-  }
+    const noticeTestMatrixChanged = () => {
+      context.emit("selectTestMatrix", selectedTestMatrixId.value);
+    };
 
-  private beforeDestroy() {
-    localStorage.setItem(
-      "latteart-management-selectedTestMatrixIdOnViewer",
-      this.selectedTestMatrixId
-    );
-  }
+    onBeforeMount(async () => {
+      localStorage.setItem(
+        "latteart-management-selectedTestMatrixIdOnViewer",
+        selectedTestMatrixId.value
+      );
+    });
 
-  private selectTestMatrix(id: string): void {
-    const targetTestMatrix = this.testMatrices.find(
-      (testMatrix) => testMatrix.id === id
-    );
+    watch(locale, updateWindowTitle);
+    watch(selectedTestMatrixId, noticeTestMatrixChanged);
 
-    if (!targetTestMatrix) {
-      return;
-    }
+    const created = async () => {
+      if (!store.state.progressDialog.opened) {
+        await store.dispatch("testManagement/readProject");
+      }
+      updateWindowTitle();
 
-    this.selectedTestMatrixId = targetTestMatrix.id;
-  }
-}
+      const testMatrixId =
+        localStorage.getItem(
+          "latteart-management-selectedTestMatrixIdOnViewer"
+        ) ??
+        testMatrices.value[0]?.id ??
+        "";
+
+      if (testMatrices.value.find((tm) => tm.id === testMatrixId)) {
+        selectTestMatrix(testMatrixId);
+      }
+    };
+    return {
+      store,
+      selectedTestMatrixId,
+      search,
+      isStatusFilterEnabled,
+      testMatrices,
+      hasTestMatrix,
+      selectTestMatrix,
+    };
+  },
+});
 </script>
