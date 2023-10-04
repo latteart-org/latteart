@@ -20,7 +20,7 @@
       <v-row>
         <v-col cols="3">
           <v-row>
-            <v-col cols="4" style="align-self: center">
+            <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
                 ><v-icon>search</v-icon
                 >{{ this.$store.getters.message("manage-show.search") }}</span
