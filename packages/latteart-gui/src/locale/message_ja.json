@@ -367,6 +367,7 @@
     "tool-name": "管理ツール",
     "report": "詳細レポート出力",
     "edit-plan": "テスト計画編集",
+    "review": "テスト結果レビュー",
     "creating-snapshot": "スナップショット作成中",
     "output-html": "スナップショット出力",
     "capture-config": "設定",
@@ -411,6 +412,13 @@
     "edit-test-matrix": "テストマトリクスの設定",
     "delete-viewPoint-confirm": "テスト観点を削除してよろしいですか？",
     "unselected": "プリセットなし"
+  },
+  "review-option-dialog": {
+    "title": "テスト結果レビュー",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
+    "review-target": "レビュー対象"
   },
   "manage-progress": {
     "window-title": "管理ツール [進捗管理]",
@@ -556,6 +564,7 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
+    "top": "TOPに戻る",
     "output": "HTML出力"
   },
   "manage-edit-view": {
@@ -644,7 +653,8 @@
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",
-      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。"
+      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。",
+      "review_data_not_exist": "レビューするテスト結果が存在しません。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",

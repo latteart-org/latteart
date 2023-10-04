@@ -363,6 +363,7 @@
     "tool-name": "Management Tool",
     "report": "Output Report",
     "edit-plan": "Edit Test Plan",
+    "review": "Test Result Review",
     "creating-snapshot": "Creating snapshot.",
     "output-html": "Output Snapshot",
     "capture-config": "Settings",
@@ -407,6 +408,13 @@
     "edit-test-matrix": "Edit Test Matrix",
     "delete-viewPoint-confirm": "Are you sure you want to delete this view point?",
     "unselected": "No Preset"
+  },
+  "review-option-dialog": {
+    "title": "Test Result Review",
+    "test-matrix": "Test Matrix",
+    "group": "Group",
+    "test-target": "Test Target",
+    "review-target": "Review Target"
   },
   "manage-progress": {
     "window-title": "Management Tool [Progress Management]",
@@ -552,6 +560,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
+    "top": "Go to Top Page",
     "output": "Output as HTML"
   },
   "manage-edit-view": {
@@ -640,7 +649,8 @@
       "update_session_failed": "Failed to update session.",
       "save_project_failed": "Failed to save project data.",
       "write_snapshot_failed": "Failed to write snapshot.",
-      "collect_progress_datas_failed": "Failed to collect progress datas."
+      "collect_progress_datas_failed": "Failed to collect progress datas.",
+      "review_data_not_exist": "There are no test results to review."
     },
     "import_export": {
       "import-data-error": "Data import failed.",

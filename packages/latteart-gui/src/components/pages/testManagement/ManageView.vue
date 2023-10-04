@@ -60,6 +60,15 @@
         >
         <v-btn
           v-if="!isViewerMode"
+          id="reviewButton"
+          color="primary"
+          @click="reviewDialogIsOpened = true"
+          class="mr-4"
+          :disabled="!anySessionHasHistory()"
+          >{{ $store.getters.message("manage-header.review") }}</v-btn
+        >
+        <v-btn
+          v-if="!isViewerMode"
           id="viewerConfigButton"
           color="primary"
           @click="toViewerConfig"
@@ -123,6 +132,11 @@
       @execute="generateTestScript"
       @close="scriptGenerationOptionDialogIsOpened = false"
     />
+    <review-option-dialog
+      :opened="reviewDialogIsOpened"
+      @execute="reviewData"
+      @close="reviewDialogIsOpened = false"
+    />
     <import-option-dialog
       :opened="importOptionDialogIsOpened"
       @execute="importData"
@@ -156,6 +170,9 @@ import ImportOptionDialog from "../common/ImportOptionDialog.vue";
 import ExportOptionDialog from "../common/ExportOptionDialog.vue";
 import InformationMessageDialog from "../common/InformationMessageDialog.vue";
 import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessField.vue";
+import ReviewOptionDialog from "../common/ReviewOptionDialog.vue";
+import { Story, TestMatrix } from "@/lib/testManagement/types";
+import * as StoryService from "@/lib/testManagement/Story";
 
 @Component({
   components: {
@@ -166,6 +183,7 @@ import RemoteAccessField from "@/components/pages/common/organisms/RemoteAccessF
     "export-option-dialog": ExportOptionDialog,
     "information-message-dialog": InformationMessageDialog,
     "remote-access-field": RemoteAccessField,
+    "review-option-dialog": ReviewOptionDialog,
   },
 })
 export default class ManageView extends Vue {
@@ -183,6 +201,7 @@ export default class ManageView extends Vue {
 
   private isGeneratingTestScripts = false;
   private scriptGenerationOptionDialogIsOpened = false;
+  private reviewDialogIsOpened = false;
   private importOptionDialogIsOpened = false;
   private exportOptionDialogIsOpened = false;
 
@@ -340,6 +359,48 @@ export default class ManageView extends Vue {
         }
       }
     })();
+  }
+
+  private reviewData(type: string, ids: string[]) {
+    const targetStories = this.getReviewStories(type, ids);
+    const reviewTarget = StoryService.collectIdsFromSession(targetStories);
+    if (reviewTarget === null) {
+      this.errorMessage = this.$store.getters.message(
+        "error.test_management.review_data_not_exist"
+      );
+      this.errorMessageDialogOpened = true;
+    } else {
+      this.$router.push({
+        path: `../history`,
+        query: {
+          sessionIds: reviewTarget.sessionIds,
+          testResultIds: reviewTarget.testResultIds,
+        },
+      });
+    }
+  }
+
+  private getReviewStories(type: string, ids: string[]) {
+    const stories: Story[] = this.$store.getters["testManagement/getStories"]();
+    if (type === "matrix") {
+      return stories.filter(({ testMatrixId }) => ids.includes(testMatrixId));
+    }
+    if (type === "group") {
+      const testMatrices: TestMatrix[] =
+        this.$store.getters["testManagement/getTestMatrices"]();
+      const testTargetIds = testMatrices
+        .flatMap((testMatrix) => {
+          return testMatrix.groups.filter(({ id }) => ids.includes(id));
+        })
+        .flatMap(({ testTargets }) => {
+          return testTargets.map(({ id }) => id);
+        });
+      return stories.filter(({ testTargetId }) =>
+        testTargetIds.includes(testTargetId)
+      );
+    }
+
+    return stories.filter(({ testTargetId }) => ids.includes(testTargetId));
   }
 
   private importData(

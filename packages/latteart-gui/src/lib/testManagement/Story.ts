@@ -35,3 +35,27 @@ export function getTargetSessions(
   }
   return targetSessions;
 }
+
+/**
+ * Returns test result IDs and session IDs from within stories.
+ * @param stories  Stories information.
+ * @returns test result ids and session ids.
+ */
+export function collectIdsFromSession(
+  stories: Story[]
+): { sessionIds: string[]; testResultIds: string[] } | null {
+  const targetSessions = stories
+    .flatMap(({ sessions }) => sessions)
+    .filter(({ testResultFiles }) => testResultFiles.length > 0);
+
+  const sessionIds = targetSessions.map(({ id }) => id);
+
+  const testResultIds = targetSessions.flatMap((session) =>
+    session.testResultFiles.map((result) => result.id)
+  );
+
+  if (testResultIds.length === 0) {
+    return null;
+  }
+  return { sessionIds, testResultIds };
+}
