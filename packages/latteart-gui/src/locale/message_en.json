@@ -394,7 +394,7 @@
     "text-pending": "Pending for bug fixes, etc.",
     "tester-name": "Tester Name",
     "search": "Story Search",
-    "incomplete-sessions": "Show Only Stories With Incomplete Sessions"
+    "incomplete-sessions": "Show only stories with incomplete sessions"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "Test Matrix Name",
