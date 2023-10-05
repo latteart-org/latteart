@@ -392,8 +392,8 @@
     "text-ongoing": "There are ongoing sessions.",
     "status-pending": "Pending",
     "text-pending": "Pending for bug fixes, etc.",
-    "tester-name": "Tester Name",
-    "search": "Story Search",
+    "tester-name": "Tester Name (Exact match)",
+    "search": "Story Filter",
     "incomplete-sessions": "Show only stories with incomplete sessions"
   },
   "test-matrix-dialog": {
