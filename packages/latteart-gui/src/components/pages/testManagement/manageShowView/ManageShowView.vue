@@ -33,7 +33,7 @@
                 clearable
               ></v-text-field></v-col></v-row
         ></v-col>
-        <v-col cols="4" style="align-self: center">
+        <v-col cols="auto" style="align-self: center">
           <v-checkbox
             :label="
               this.$store.getters.message('manage-show.incomplete-sessions')
