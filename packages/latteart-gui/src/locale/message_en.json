@@ -393,7 +393,8 @@
     "status-pending": "Pending",
     "text-pending": "Pending for bug fixes, etc.",
     "tester-name": "Tester Name",
-    "search": "Story Search"
+    "search": "Story Search",
+    "incomplete-sessions": "Stories With Incomplete Sessions"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "Test Matrix Name",

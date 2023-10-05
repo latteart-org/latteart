@@ -30,12 +30,15 @@
               <v-text-field
                 v-model="search"
                 :label="this.$store.getters.message('manage-show.tester-name')"
+                clearable
               ></v-text-field></v-col></v-row
         ></v-col>
-        <v-col cols="2" style="align-self: center">
+        <v-col cols="4" style="align-self: center">
           <v-checkbox
-            :label="this.$store.getters.message('manage-show.status-ng')"
-            v-model="isStatusFilterEnabled"
+            :label="
+              this.$store.getters.message('manage-show.incomplete-sessions')
+            "
+            v-model="isCompletionFilterEnabled"
             class="mt-2"
           ></v-checkbox>
         </v-col>
@@ -51,7 +54,7 @@
         <test-matrix-viewer
           :testMatrixId="selectedTestMatrixId"
           :search="search"
-          :statusFilter="isStatusFilterEnabled"
+          :completionFilter="isCompletionFilterEnabled"
         ></test-matrix-viewer>
       </v-card>
     </v-container>
@@ -85,7 +88,7 @@ import TestMatrixViewer from "./organisms/TestMatrixViewer.vue";
 export default class ManageShow extends Vue {
   private selectedTestMatrixId = "";
   private search = "";
-  private isStatusFilterEnabled = false;
+  private isCompletionFilterEnabled = false;
 
   private get locale() {
     return this.$store.getters.getLocale();

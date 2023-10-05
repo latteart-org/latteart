@@ -59,7 +59,7 @@ export default class TestMatrixViewer extends Vue {
   @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
   @Prop({ type: String, default: "" }) public readonly search!: string;
   @Prop({ type: Boolean, default: false })
-  public readonly statusFilter!: boolean;
+  public readonly completionFilter!: boolean;
 
   private expandedPanelIndex: number | undefined | null = null;
   private testMatrix = this.targetTestMatrix;
@@ -127,10 +127,10 @@ export default class TestMatrixViewer extends Vue {
     );
   }
 
-  @Watch("statusFilter")
+  @Watch("completionFilter")
   @Watch("search")
   private filterItems() {
-    if (this.search === "" && !this.statusFilter) {
+    if (!this.search && !this.completionFilter) {
       this.testMatrix = this.targetTestMatrix;
       return;
     }
@@ -167,15 +167,17 @@ export default class TestMatrixViewer extends Vue {
   }
 
   private filterStories() {
-    const filteredStoriesByStatus = this.statusFilter
-      ? this.stories.filter(({ status }) => status === "ng")
+    const filteredStoriesByCompleted = this.completionFilter
+      ? this.stories.filter(
+          (story) => story.sessions.findIndex(({ isDone }) => !isDone) > -1
+        )
       : this.stories;
 
-    if (this.search !== "") {
+    if (this.search) {
       const filteredStoriesByText: Story[] = [];
-      for (const story of filteredStoriesByStatus) {
-        const sessionIndex = story.sessions.findIndex(({ testerName }) =>
-          testerName.includes(this.search)
+      for (const story of filteredStoriesByCompleted) {
+        const sessionIndex = story.sessions.findIndex(
+          ({ testerName }) => testerName === this.search
         );
         if (sessionIndex > -1) {
           filteredStoriesByText.push({ ...story });
@@ -185,7 +187,7 @@ export default class TestMatrixViewer extends Vue {
       return filteredStoriesByText;
     }
 
-    return filteredStoriesByStatus;
+    return filteredStoriesByCompleted;
   }
 }
 </script>
