@@ -18,11 +18,11 @@
   <div>
     <v-container fluid v-if="hasTestMatrix">
       <v-row>
-        <v-col cols="3">
+        <v-col cols="4">
           <v-row>
             <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
-                ><v-icon>search</v-icon
+                ><v-icon>filter_list_alt</v-icon
                 >{{ this.$store.getters.message("manage-show.search") }}</span
               ></v-col
             >
@@ -33,7 +33,7 @@
                 clearable
               ></v-text-field></v-col></v-row
         ></v-col>
-        <v-col cols="auto" style="align-self: center">
+        <v-col cols="auto" style="align-self: end">
           <v-checkbox
             :label="
               this.$store.getters.message('manage-show.incomplete-sessions')
