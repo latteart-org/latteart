@@ -413,13 +413,6 @@
     "delete-viewPoint-confirm": "テスト観点を削除してよろしいですか？",
     "unselected": "プリセットなし"
   },
-  "review-option-dialog": {
-    "title": "テスト結果レビュー",
-    "test-matrix": "テストマトリクス",
-    "group": "グループ",
-    "test-target": "テスト対象",
-    "review-target": "レビュー対象"
-  },
   "manage-progress": {
     "window-title": "管理ツール [進捗管理]",
     "title": "進捗管理",
@@ -530,6 +523,16 @@
     "delete-session": "セッションを削除してもよろしいですか？",
     "session-name-base": "セッション"
   },
+  "story-list-view": {
+    "title": "ストーリー一覧",
+    "filter": "ストーリーのフィルタ",
+    "clear": "フィルタクリア",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
+    "view-point": "テスト観点",
+    "do-review": "レビューする"
+  },
   "story-view": {
     "window-title": "管理ツール [ストーリー]",
     "test-matrix": "テストマトリクス",
@@ -564,7 +567,7 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
-    "top": "TOPに戻る",
+    "story-list": "ストーリー一覧へ戻る",
     "output": "HTML出力"
   },
   "manage-edit-view": {

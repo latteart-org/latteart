@@ -409,13 +409,6 @@
     "delete-viewPoint-confirm": "Are you sure you want to delete this view point?",
     "unselected": "No Preset"
   },
-  "review-option-dialog": {
-    "title": "Test Result Review",
-    "test-matrix": "Test Matrix",
-    "group": "Group",
-    "test-target": "Test Target",
-    "review-target": "Review Target"
-  },
   "manage-progress": {
     "window-title": "Management Tool [Progress Management]",
     "title": "Progress Management",
@@ -526,6 +519,16 @@
     "delete-session": "Are you sure you want to delete the delete session?",
     "session-name-base": "Session"
   },
+  "story-list-view": {
+    "title": "Story List",
+    "filter": "Story Filter",
+    "clear": "Filter Clear",
+    "test-matrix": "Test Matrix",
+    "group": "Group",
+    "test-target": "Test Target",
+    "view-point": "View Point",
+    "do-review": "Review"
+  },
   "story-view": {
     "window-title": "Management Tool [Test Story]",
     "test-matrix": "Test Matrix",
@@ -560,7 +563,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
-    "top": "Go to Top Page",
+    "story-list": "Go to Story List",
     "output": "Output as HTML"
   },
   "manage-edit-view": {

@@ -22,6 +22,7 @@ import HistoryView from "@/components/pages/captureControl/historyView/HistoryVi
 import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
 import ManageView from "@/components/pages/testManagement/ManageView.vue";
 import ManageEditView from "@/components/pages/testManagement/manageEditView/ManageEditView.vue";
+import StoryListView from "@/components/pages/testManagement/storyListView/StoryListView.vue";
 import StoryView from "@/components/pages/testManagement/storyView/StoryView.vue";
 import ReviewView from "@/components/pages/testManagement/ReviewView.vue";
 import ManageShowView from "@/components/pages/testManagement/manageShowView/ManageShowView.vue";
@@ -88,6 +89,11 @@ export default new Router({
               path: "edit",
               name: "manageEditView",
               component: ManageEditView,
+            },
+            {
+              path: "story",
+              name: "storyListView",
+              component: StoryListView,
             },
             {
               path: "story/:id",

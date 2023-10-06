@@ -52,7 +52,7 @@
     <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
       tempStory
         ? $store.getters.message("manager-history-view.back")
-        : $store.getters.message("manager-history-view.top")
+        : $store.getters.message("manager-history-view.story-list")
     }}</v-btn>
 
     <history-display
@@ -299,7 +299,7 @@ export default class ReviewView extends Vue {
         query: { status: this.tempStory.status },
       });
     } else {
-      this.$router.push({ name: "manageShowView" });
+      this.$router.push({ name: "storyListView" });
     }
   }
 
