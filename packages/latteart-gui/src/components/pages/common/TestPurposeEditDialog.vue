@@ -36,7 +36,7 @@
           :value="newTargetSequence"
           :minValue="1"
           :maxValue="maxSequence"
-          @realtimeupdateNumberFieldValue="updateNewTargetSequence"
+          @input="updateNewTargetSequence"
           :disabled="oldNote === ''"
         ></number-field>
         <p v-if="isSaveWarning" class="warningMessage">

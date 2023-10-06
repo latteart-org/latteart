@@ -164,7 +164,7 @@ export default class NumberField extends Vue {
 
   @Watch("internalValue")
   private realtimeSend(): void {
-    this.$emit("realtimeupdateNumberFieldValue", {
+    this.$emit("input", {
       id: this.id,
       value: this.internalValue,
     });
