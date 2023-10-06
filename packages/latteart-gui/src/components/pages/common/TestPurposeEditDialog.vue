@@ -36,9 +36,12 @@
           :value="newTargetSequence"
           :minValue="1"
           :maxValue="maxSequence"
-          @updateNumberFieldValue="updateNewTargetSequence"
+          @realtimeupdateNumberFieldValue="updateNewTargetSequence"
           :disabled="oldNote === ''"
         ></number-field>
+        <p v-if="isSaveWarning" class="warningMessage">
+          {{ $store.getters.message("note-edit.save-warning") }}
+        </p>
         <v-text-field
           :label="$store.getters.message('note-edit.summary')"
           v-model="newNote"
@@ -243,4 +246,5 @@ export default class TestPurposeEditDialog extends Vue {
 .warningMessage
   color: red !important
   font-size: 11px
+  margin-top: -28px
 </style>
