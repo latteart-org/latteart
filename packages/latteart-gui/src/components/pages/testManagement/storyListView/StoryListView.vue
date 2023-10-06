@@ -106,7 +106,6 @@
         </template>
       </v-data-table>
       <v-footer app height="auto" style="background-color: #ffffff">
-        <v-spacer></v-spacer>
         <v-btn
           v-if="!isViewerMode"
           @click="review"
