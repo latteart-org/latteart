@@ -367,6 +367,7 @@
     "tool-name": "管理ツール",
     "report": "詳細レポート出力",
     "edit-plan": "テスト計画編集",
+    "review": "テスト結果レビュー",
     "creating-snapshot": "スナップショット作成中",
     "output-html": "スナップショット出力",
     "capture-config": "設定",
@@ -522,6 +523,16 @@
     "delete-session": "セッションを削除してもよろしいですか？",
     "session-name-base": "セッション"
   },
+  "story-list-view": {
+    "title": "ストーリー一覧",
+    "filter": "ストーリーのフィルタ",
+    "clear": "フィルタクリア",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
+    "view-point": "テスト観点",
+    "do-review": "レビューする"
+  },
   "story-view": {
     "window-title": "管理ツール [ストーリー]",
     "test-matrix": "テストマトリクス",
@@ -556,6 +567,7 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
+    "story-list": "ストーリー一覧へ戻る",
     "output": "HTML出力"
   },
   "manage-edit-view": {
@@ -644,7 +656,8 @@
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",
-      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。"
+      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。",
+      "review_data_not_exist": "レビューするテスト結果が存在しません。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",

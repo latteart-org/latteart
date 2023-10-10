@@ -363,6 +363,7 @@
     "tool-name": "Management Tool",
     "report": "Output Report",
     "edit-plan": "Edit Test Plan",
+    "review": "Test Result Review",
     "creating-snapshot": "Creating snapshot.",
     "output-html": "Output Snapshot",
     "capture-config": "Settings",
@@ -518,6 +519,16 @@
     "delete-session": "Are you sure you want to delete the delete session?",
     "session-name-base": "Session"
   },
+  "story-list-view": {
+    "title": "Story List",
+    "filter": "Story Filter",
+    "clear": "Filter Clear",
+    "test-matrix": "Test Matrix",
+    "group": "Group",
+    "test-target": "Test Target",
+    "view-point": "View Point",
+    "do-review": "Review"
+  },
   "story-view": {
     "window-title": "Management Tool [Test Story]",
     "test-matrix": "Test Matrix",
@@ -552,6 +563,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
+    "story-list": "Go to Story List",
     "output": "Output as HTML"
   },
   "manage-edit-view": {
@@ -640,7 +652,8 @@
       "update_session_failed": "Failed to update session.",
       "save_project_failed": "Failed to save project data.",
       "write_snapshot_failed": "Failed to write snapshot.",
-      "collect_progress_datas_failed": "Failed to collect progress datas."
+      "collect_progress_datas_failed": "Failed to collect progress datas.",
+      "review_data_not_exist": "There are no test results to review."
     },
     "import_export": {
       "import-data-error": "Data import failed.",

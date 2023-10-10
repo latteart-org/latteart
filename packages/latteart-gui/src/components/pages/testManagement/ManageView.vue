@@ -60,6 +60,15 @@
         >
         <v-btn
           v-if="!isViewerMode"
+          id="reviewButton"
+          color="primary"
+          @click="toStoryList"
+          class="mr-4"
+          :disabled="!anySessionHasHistory()"
+          >{{ $store.getters.message("manage-header.review") }}</v-btn
+        >
+        <v-btn
+          v-if="!isViewerMode"
           id="viewerConfigButton"
           color="primary"
           @click="toViewerConfig"
@@ -218,6 +227,10 @@ export default class ManageView extends Vue {
 
   public toManageEdit(): void {
     this.$router.push({ name: "manageEditView" });
+  }
+
+  public toStoryList(): void {
+    this.$router.push({ name: "storyListView" });
   }
 
   public changeLocale(locale: string): void {

@@ -50,7 +50,9 @@
     </v-app-bar>
 
     <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
-      $store.getters.message("manager-history-view.back")
+      tempStory
+        ? $store.getters.message("manager-history-view.back")
+        : $store.getters.message("manager-history-view.story-list")
     }}</v-btn>
 
     <history-display
@@ -290,11 +292,15 @@ export default class ReviewView extends Vue {
     this.$store.commit("operationHistory/clearElementCoverages");
     this.$store.commit("operationHistory/clearInputValueTable");
 
-    this.$router.push({
-      name: "storyView",
-      params: { id: this.tempStory.id },
-      query: { status: this.tempStory.status },
-    });
+    if (this.tempStory) {
+      this.$router.push({
+        name: "storyView",
+        params: { id: this.tempStory.id },
+        query: { status: this.tempStory.status },
+      });
+    } else {
+      this.$router.push({ name: "storyListView" });
+    }
   }
 
   private acceptEditDialog() {
