@@ -100,15 +100,28 @@
           </v-card>
         </template>
 
-        <template v-slot:items="props">
-          <tr>
-            <td>{{ props.item.testMatrix.name }}</td>
-            <td>{{ props.item.group.name }}</td>
-            <td>{{ props.item.testTarget.name }}</td>
-            <td>{{ props.item.viewPoint.name }}</td>
-          </tr>
+        <template v-slot:[`item.testMatrix.name`]="{ item }">
+          <td>
+            {{ item.testMatrix.name.substring(0, 60) }}
+          </td>
+        </template>
+        <template v-slot:[`item.group.name`]="{ item }">
+          <td>
+            {{ item.group.name.substring(0, 60) }}
+          </td>
+        </template>
+        <template v-slot:[`item.testTarget.name`]="{ item }">
+          <td>
+            {{ item.testTarget.name.substring(0, 60) }}
+          </td>
+        </template>
+        <template v-slot:[`item.viewPoint.name`]="{ item }">
+          <td>
+            {{ item.viewPoint.name.substring(0, 60) }}
+          </td>
         </template>
       </v-data-table>
+
       <v-footer app height="auto" style="background-color: #ffffff">
         <v-btn
           v-if="!isViewerMode"
@@ -286,3 +299,10 @@ export default class StoryListView extends Vue {
   }
 }
 </script>
+<style lang="sass" scoped>
+.v-data-table td
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space : nowrap
+  max-width: 150px
+</style>
