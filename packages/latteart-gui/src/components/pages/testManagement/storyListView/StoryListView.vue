@@ -32,7 +32,7 @@
         item-key="sequence"
       >
         <template v-slot:top>
-          <v-card class="mb-4">
+          <v-card class="mb-4 pa-4" outlined>
             <v-container fluid>
               <span style="color: rgba(0, 0, 0, 0.6)"
                 ><v-icon>filter_list_alt</v-icon
@@ -50,6 +50,7 @@
                       :label="
                         $store.getters.message('story-list-view.test-matrix')
                       "
+                      hide-details
                     >
                     </v-text-field>
                   </v-row>
@@ -61,6 +62,7 @@
                       v-model="groupFilterValue"
                       type="text"
                       :label="$store.getters.message('story-list-view.group')"
+                      hide-details
                     >
                     </v-text-field>
                   </v-row>
@@ -74,6 +76,7 @@
                       :label="
                         $store.getters.message('story-list-view.test-target')
                       "
+                      hide-details
                     >
                     </v-text-field>
                   </v-row>
@@ -87,6 +90,7 @@
                       :label="
                         $store.getters.message('story-list-view.view-point')
                       "
+                      hide-details
                     >
                     </v-text-field>
                   </v-row>
@@ -224,28 +228,28 @@ export default class StoryListView extends Vue {
     if (!this.testMatrixFilterValue) {
       return true;
     }
-    return testMatrix === this.testMatrixFilterValue;
+    return testMatrix.includes(this.testMatrixFilterValue);
   }
 
   private groupFilter(group: string) {
     if (!this.groupFilterValue) {
       return true;
     }
-    return group === this.groupFilterValue;
+    return group.includes(this.groupFilterValue);
   }
 
   private testTargetFilter(testTarget: string) {
     if (!this.testTargetFilterValue) {
       return true;
     }
-    return testTarget === this.testTargetFilterValue;
+    return testTarget.includes(this.testTargetFilterValue);
   }
 
   private viewPointFilter(viewPoint: string) {
     if (!this.viewPointFilterValue) {
       return true;
     }
-    return viewPoint === this.viewPointFilterValue;
+    return viewPoint.includes(this.viewPointFilterValue);
   }
 
   private filterClear() {
@@ -263,7 +267,8 @@ export default class StoryListView extends Vue {
         ](testTarget.id, viewPoint.id, testMatrix.id);
       }
     );
-    const reviewTarget = StoryService.collectIdsFromSession(targetStories);
+    const reviewTarget =
+      StoryService.collectTestResultIdsFromSession(targetStories);
     if (reviewTarget === null) {
       this.errorMessage = this.$store.getters.message(
         "error.test_management.review_data_not_exist"

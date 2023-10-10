@@ -45,7 +45,7 @@ describe("Storyの", () => {
       expect(StoryService.getTargetSessions(story, ["s002"])).toBeNull();
     });
   });
-  describe("collectIdsFromSessionは", () => {
+  describe("collectTestResultIdsFromSessionは", () => {
     const session1: Session = {
       ...baseSession,
       index: 0,
@@ -73,14 +73,14 @@ describe("Storyの", () => {
     ];
 
     it("stories内にテスト結果が紐づけられているセッションが存在する場合、該当sessionIdsとtestResultIdsを返す", () => {
-      expect(StoryService.collectIdsFromSession(stories1)).toEqual({
+      expect(StoryService.collectTestResultIdsFromSession(stories1)).toEqual({
         sessionIds: ["s001"],
         testResultIds: ["t001"],
       });
     });
 
     it("stories内にテスト結果が紐づけられているセッションが存在しない場合、nullを返す", () => {
-      expect(StoryService.collectIdsFromSession(stories2)).toBeNull();
+      expect(StoryService.collectTestResultIdsFromSession(stories2)).toBeNull();
     });
   });
 });

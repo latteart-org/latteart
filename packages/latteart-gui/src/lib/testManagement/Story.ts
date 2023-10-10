@@ -41,7 +41,7 @@ export function getTargetSessions(
  * @param stories  Stories information.
  * @returns test result ids and session ids.
  */
-export function collectIdsFromSession(
+export function collectTestResultIdsFromSession(
   stories: Story[]
 ): { sessionIds: string[]; testResultIds: string[] } | null {
   const targetSessions = stories
