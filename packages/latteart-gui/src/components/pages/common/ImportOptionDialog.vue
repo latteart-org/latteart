@@ -25,52 +25,7 @@
     :acceptButtonDisabled="okButtonIsDisabled"
   >
     <template>
-      <v-container fluid id="import-option-dialog">
-        <v-row>
-          <v-col cols="12">
-            {{
-              $store.getters.message(
-                "import-export-dialog.select-project-file-label"
-              )
-            }}
-          </v-col>
-
-          <v-col cols="12" class="pl-2 pr-2 pt-2">
-            <select-file-button
-              accept=".zip"
-              :details-message="targetFile ? targetFile.name : ''"
-              @select="selectImportFile"
-            >
-              {{
-                $store.getters.message(
-                  "import-export-dialog.select-project-file-button"
-                )
-              }}
-            </select-file-button>
-          </v-col>
-
-          <v-col class="pt-3">
-            <v-checkbox
-              :label="
-                $store.getters.message('import-export-dialog.project-data')
-              "
-              v-model="importOption.selectedOptionProject"
-            />
-            <v-checkbox
-              :label="
-                $store.getters.message('import-export-dialog.testresult-data')
-              "
-              v-model="importOption.selectedOptionTestresult"
-            />
-            <v-checkbox
-              :label="
-                $store.getters.message('import-export-dialog.config-data')
-              "
-              v-model="importOption.selectedOptionConfig"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
+      <import-option v-if="isOptionDisplayed" @update="updateOption" />
     </template>
   </execute-dialog>
 </template>
@@ -80,33 +35,41 @@ import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { loadFileAsBase64 } from "@/lib/common/util";
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import ImportOption from "./ImportOption.vue";
 
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
     "select-file-button": SelectFileButton,
+    "import-option": ImportOption,
   },
 })
 export default class ImportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private importOption = {
+  private isOptionDisplayed: boolean = false;
+
+  private option: {
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+    selectedOptionConfig: boolean;
+    targetFile: File | null;
+  } = {
     selectedOptionProject: true,
     selectedOptionTestresult: true,
     selectedOptionConfig: true,
+    targetFile: null,
   };
 
-  private targetFile: File | null = null;
-
   private get okButtonIsDisabled() {
-    if (!this.targetFile) {
+    if (!this.option.targetFile) {
       return true;
     }
 
     if (
-      !this.importOption.selectedOptionProject &&
-      !this.importOption.selectedOptionTestresult &&
-      !this.importOption.selectedOptionConfig
+      !this.option.selectedOptionProject &&
+      !this.option.selectedOptionTestresult &&
+      !this.option.selectedOptionConfig
     ) {
       return true;
     }
@@ -114,51 +77,43 @@ export default class ImportOptionDialog extends Vue {
     return false;
   }
 
-  @Watch("opened")
-  private initialize() {
-    if (this.opened) {
-      this.targetFile = null;
-      this.importOption.selectedOptionProject = true;
-      this.importOption.selectedOptionTestresult = true;
-      this.importOption.selectedOptionConfig = true;
-    }
-  }
-
-  private selectImportFile(targetFile: File): void {
-    this.targetFile = targetFile;
+  private updateOption(option: {
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+    selectedOptionConfig: boolean;
+    targetFile: File | null;
+  }) {
+    this.option = option;
   }
 
   private execute(): void {
-    if (!this.targetFile) {
+    if (!this.option.targetFile) {
       return;
     }
 
-    (async (targetFile, importOption) => {
+    (async (targetFile, option) => {
       const file = await loadFileAsBase64(targetFile);
 
-      this.$emit("execute", file, importOption);
-
-      this.close();
-    })(this.targetFile, this.importOption);
+      this.$emit("execute", file, option);
+    })(this.option.targetFile, {
+      selectedOptionProject: this.option.selectedOptionProject,
+      selectedOptionTestresult: this.option.selectedOptionTestresult,
+      selectedOptionConfig: this.option.selectedOptionConfig,
+    });
   }
 
   private close(): void {
     this.$emit("close");
   }
+
+  @Watch("opened")
+  private rerenderOption() {
+    if (this.opened) {
+      this.isOptionDisplayed = false;
+      this.$nextTick(() => {
+        this.isOptionDisplayed = true;
+      });
+    }
+  }
 }
 </script>
-
-<style lang="sass">
-#import-option-dialog
-  .v-text-field__details
-    display: none
-
-  .v-input--selection-controls
-    margin-top: 0px
-
-  .v-messages
-    display: none
-
-  .v-text-field
-    padding-top: 0px
-</style>

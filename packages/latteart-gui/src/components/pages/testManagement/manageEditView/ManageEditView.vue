@@ -15,40 +15,39 @@
 -->
 
 <template>
-  <v-container fluid class="pt-3">
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("manage-edit-view.edit-plan")
-      }}</v-toolbar-title>
-    </v-app-bar>
+  <v-container fluid fill-height pa-0>
+    <v-container
+      fluid
+      pa-8
+      class="align-self-start"
+      style="height: 100%; overflow-y: scroll"
+    >
+      <v-btn @click="openTestMatrixDialogInCreateMode">{{
+        $store.getters.message("manage-edit-view.add-test-matrix")
+      }}</v-btn>
 
-    <v-btn @click="openTestMatrixDialogInCreateMode">{{
-      $store.getters.message("manage-edit-view.add-test-matrix")
-    }}</v-btn>
+      <v-container v-if="hasTestMatrix" pa-0 fluid>
+        <v-row class="mt-2">
+          <v-col class="pb-0">
+            <tab-selector
+              :selectedItemId="selectedTestMatrixId"
+              :items="testMatrices"
+              @select="(id) => selectTestMatrix(id)"
+            ></tab-selector>
+          </v-col>
+        </v-row>
 
-    <template v-if="hasTestMatrix">
-      <v-row class="mt-4">
-        <v-col>
-          <tab-selector
-            :selectedItemId="selectedTestMatrixId"
-            :items="testMatrices"
-            @select="(id) => selectTestMatrix(id)"
-          ></tab-selector>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col>
-          <v-card class="pa-2">
-            <test-matrix-editor
-              :testMatrixId="selectedTestMatrixId"
-            ></test-matrix-editor>
-          </v-card>
-        </v-col>
-      </v-row>
-    </template>
-
-    <manage-edit-footer @cancel="goToTop"> </manage-edit-footer>
+        <v-row>
+          <v-col class="pt-0">
+            <v-card class="pa-2">
+              <test-matrix-editor
+                :testMatrixId="selectedTestMatrixId"
+              ></test-matrix-editor>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-container>
 
     <test-matrix-dialog
       :testMatrixBeingEdited="testMatrixBeingEdited"
@@ -130,7 +129,7 @@ export default class ManageEditView extends Vue {
     await this.$store.dispatch("testManagement/readProject");
 
     this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-edit-view.window-title"),
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
     });
 
     this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());

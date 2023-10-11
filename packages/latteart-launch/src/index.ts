@@ -81,18 +81,9 @@ import path from "path";
     (server) => server.name === "latteart-repository"
   )?.http?.url;
   const latteartServer = config.servers[config.servers.length - 1];
-  const captureUrl = `${latteartServer.http?.url}?capture=${captureClUrl}&repository=${repositoryUrl}`;
-  const manageUrl = `${latteartServer.http?.url}?mode=manage&capture=${captureClUrl}&repository=${repositoryUrl}`;
+  const url = `${latteartServer.http?.url}?capture=${captureClUrl}&repository=${repositoryUrl}`;
 
-  console.info(`\
+  console.info(`LatteArt: ${url}`);
 
-capture: ${captureUrl}
-manage: ${manageUrl}
-`);
-
-  if (process.env.LATTEART_BOOT_MODE === "manage") {
-    openPage(manageUrl, config.browser);
-  } else {
-    openPage(captureUrl, config.browser);
-  }
+  openPage(url, config.browser);
 })();

@@ -57,6 +57,15 @@ const mutations: MutationTree<CaptureControlState> = {
   },
 
   /**
+   * Set test result name to the State.
+   * @param state State.
+   * @param payload.name Test result name.
+   */
+  setTestResultName(state, payload: { name: string }) {
+    state.testResultName = payload.name;
+  },
+
+  /**
    * Sets the status of whether the capture is paused.
    * @param state  State.
    * @param payload  Status of whether capture is suspended.

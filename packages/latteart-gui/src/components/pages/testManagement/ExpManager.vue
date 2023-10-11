@@ -15,11 +15,11 @@
 -->
 
 <template>
-  <v-app>
-    <v-main>
-      <router-view></router-view>
-    </v-main>
+  <v-container fluid fill-height pa-0>
+    <router-view></router-view>
+
     <config-viewer></config-viewer>
+
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -53,7 +53,7 @@
       :onAccept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
-  </v-app>
+  </v-container>
 </template>
 
 <script lang="ts">

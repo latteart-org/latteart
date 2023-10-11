@@ -1,0 +1,2 @@
+.\\launch.exe
+pause

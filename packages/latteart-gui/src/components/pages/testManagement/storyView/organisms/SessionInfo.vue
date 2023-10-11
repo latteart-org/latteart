@@ -485,33 +485,60 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async openCaptureTool(testResultId: string) {
-    const origin = location.origin;
-    const captureClUrl = this.$store.state.captureClService.serviceUrl;
-    const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
-    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
+  private async openCaptureTool(testResultId?: string) {
+    try {
+      const id =
+        testResultId ??
+        (await (async () => {
+          await this.$store.dispatch("operationHistory/createTestResult", {
+            initialUrl: "",
+            name: "",
+          });
 
-    let id = testResultId;
+          const newTestResult = (
+            this.$store.state.operationHistory as OperationHistoryState
+          ).testResultInfo;
 
-    if (!id) {
-      await this.$store.dispatch("operationHistory/createTestResult", {
-        initialUrl: "",
-        name: "",
+          this.addTestResultToSession({
+            id: newTestResult.id,
+            name: newTestResult.name,
+            initialUrl: "",
+            testingTime: 0,
+          });
+
+          return newTestResult.id;
+        })());
+
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "test-result-navigation-drawer.load"
+        ),
       });
 
-      const newTestResult = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).testResultInfo;
-      id = newTestResult.id;
-
-      this.addTestResultToSession({
-        id: newTestResult.id,
-        name: newTestResult.name,
-        initialUrl: "",
-        testingTime: 0,
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds: [id],
       });
+
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: id,
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+
+      this.$router.push({ path: "/capture/history" });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    } finally {
+      this.$store.dispatch("closeProgressDialog");
     }
-    window.open(`${url}&testResultId=${id}`, "_blank");
   }
 
   private get memo(): string {

@@ -17,7 +17,7 @@
 <template>
   <v-row class="fill-height">
     <history-display
-      :locale="$store.state.i18n.locale"
+      :locale="$store.state.i18n?.locale"
       :changeWindowTitle="changeWindowTitle"
       :rawHistory="history"
       :message="messageProvider"
@@ -57,10 +57,11 @@ export default class HistoryView extends Vue {
   }
 
   private changeWindowTitle(windowTitle: string) {
-    const windowTitleCapturePrefix =
-      this.$store.getters.message("app.capture-title");
+    const windowTitlePrefix = this.$store.getters.message(
+      this.$route.meta?.title ?? ""
+    );
     this.$store.dispatch("changeWindowTitle", {
-      title: `${windowTitleCapturePrefix} [${windowTitle}]`,
+      title: `${windowTitlePrefix} [${windowTitle}]`,
     });
   }
 }

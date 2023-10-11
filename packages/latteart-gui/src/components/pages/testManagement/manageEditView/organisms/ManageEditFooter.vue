@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-footer app height="auto" color="latteart-main">
+  <v-footer absolute height="48px" color="latteart-main">
     <v-container fluid>
       <v-row>
         <v-spacer></v-spacer>

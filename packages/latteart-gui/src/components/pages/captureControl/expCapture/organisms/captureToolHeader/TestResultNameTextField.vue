@@ -15,24 +15,27 @@
 -->
 
 <template>
-  <v-row justify="start" align="center">
-    <v-icon>save_alt</v-icon>
-    <v-text-field
-      single-line
-      :label="$store.getters.message('app.test-result-name')"
-      v-model="testResultName"
-      @change="changeCurrentTestResultName"
-      :disabled="isDisabled"
-      id="outputDirectoryTextField"
-    ></v-text-field>
-  </v-row>
+  <v-text-field
+    :single-line="singleLine"
+    :hide-details="hideDetails"
+    :label="$store.getters.message('app.test-result-name')"
+    prepend-icon="save_alt"
+    v-model="testResultName"
+    @change="changeCurrentTestResultName"
+    :disabled="isDisabled"
+    id="outputDirectoryTextField"
+  ></v-text-field>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class TestResultNameTextField extends Vue {
+  @Prop({ type: Boolean, default: false }) public readonly singleLine!: boolean;
+  @Prop({ type: Boolean, default: false })
+  public readonly hideDetails!: boolean;
+
   private get isDisabled(): boolean {
     return this.isCapturing || this.isResuming;
   }

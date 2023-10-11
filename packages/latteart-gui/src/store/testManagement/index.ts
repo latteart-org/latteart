@@ -44,6 +44,11 @@ export interface TestManagementState {
    * Story being edited.
    */
   tempStory: Story | null;
+
+  /**
+   * Recent stories.
+   */
+  recentStories: Story[];
 }
 
 const state: TestManagementState = {
@@ -51,6 +56,7 @@ const state: TestManagementState = {
   testMatrices: Array<TestMatrix>(),
   stories: Array<Story>(),
   tempStory: null,
+  recentStories: [],
 };
 
 export const testManagement: Module<TestManagementState, RootState> = {

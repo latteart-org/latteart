@@ -25,22 +25,7 @@
     :acceptButtonDisabled="okButtonIsDisabled"
   >
     <template>
-      <v-container class="px-0" fluid id="export-option-dialog">
-        <v-checkbox
-          :label="$store.getters.message('import-export-dialog.project-data')"
-          v-model="exporOption.selectedOptionProject"
-        />
-        <v-checkbox
-          :label="
-            $store.getters.message('import-export-dialog.testresult-data')
-          "
-          v-model="exporOption.selectedOptionTestresult"
-        />
-        <v-checkbox
-          :label="$store.getters.message('import-export-dialog.config-data')"
-          v-model="exporOption.selectedOptionConfig"
-        />
-      </v-container>
+      <export-option v-if="isOptionDisplayed" @update="updateOption" />
     </template>
   </execute-dialog>
 </template>
@@ -48,16 +33,20 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import ExportOption from "./ExportOption.vue";
 
 @Component({
   components: {
     "execute-dialog": ExecuteDialog,
+    "export-option": ExportOption,
   },
 })
 export default class ExportOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
-  private exporOption = {
+  private isOptionDisplayed: boolean = false;
+
+  private option = {
     selectedOptionProject: true,
     selectedOptionTestresult: true,
     selectedOptionConfig: true,
@@ -65,40 +54,36 @@ export default class ExportOptionDialog extends Vue {
 
   private get okButtonIsDisabled() {
     return (
-      !this.exporOption.selectedOptionProject &&
-      !this.exporOption.selectedOptionTestresult &&
-      !this.exporOption.selectedOptionConfig
+      !this.option.selectedOptionProject &&
+      !this.option.selectedOptionTestresult &&
+      !this.option.selectedOptionConfig
     );
   }
 
-  @Watch("opened")
-  private initialize() {
-    if (this.opened) {
-      this.exporOption.selectedOptionProject = true;
-      this.exporOption.selectedOptionTestresult = true;
-      this.exporOption.selectedOptionConfig = true;
-    }
+  private updateOption(option: {
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+    selectedOptionConfig: boolean;
+  }) {
+    this.option = option;
   }
 
   private execute(): void {
-    this.$emit("execute", this.exporOption);
-    this.close();
+    this.$emit("execute", this.option);
   }
 
   private close(): void {
     this.$emit("close");
   }
+
+  @Watch("opened")
+  private rerenderOption() {
+    if (this.opened) {
+      this.isOptionDisplayed = false;
+      this.$nextTick(() => {
+        this.isOptionDisplayed = true;
+      });
+    }
+  }
 }
 </script>
-
-<style lang="sass">
-#export-option-dialog
-  .v-text-field__details
-    display: none
-
-  .v-input--selection-controls
-    margin-top: 0px
-
-  .v-messages
-    display: none
-</style>

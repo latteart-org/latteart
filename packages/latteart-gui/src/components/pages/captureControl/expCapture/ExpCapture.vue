@@ -15,26 +15,26 @@
 -->
 
 <template>
-  <v-app>
+  <v-container fluid fill-height pa-0>
     <test-result-navigation-drawer />
 
-    <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
+    <v-app-bar color="white" flat absolute height="64px">
       <capture-tool-header />
     </v-app-bar>
 
-    <v-main>
-      <v-container
-        fluid
-        px-4
-        py-0
-        fill-height
-        :style="{ 'max-height': 'calc(100vh - 64px - 64px)' }"
-      >
-        <router-view />
-      </v-container>
-    </v-main>
+    <v-container
+      fluid
+      fill-height
+      py-0
+      :style="{
+        'margin-top': '4px',
+        'max-height': 'calc(100vh - 64px - 64px)',
+      }"
+    >
+      <router-view />
+    </v-container>
 
-    <v-footer app height="64px">
+    <v-footer absolute height="64px">
       <capture-tool-footer />
     </v-footer>
 
@@ -76,7 +76,7 @@
       :message="errorDialogMessage"
       @close="errorDialogOpened = false"
     />
-  </v-app>
+  </v-container>
 </template>
 
 <script lang="ts">

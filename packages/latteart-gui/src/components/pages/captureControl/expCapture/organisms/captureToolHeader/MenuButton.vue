@@ -30,7 +30,6 @@
         >
       </template>
       <v-list>
-        <test-result-import-button />
         <test-tesult-export-button />
         <config-import-button />
         <config-export-button v-slot:default="slotProps">

@@ -56,7 +56,7 @@
     "forward": "ブラウザフォワードを行う"
   },
   "history-view": {
-    "window-title": "記録ツール [履歴]",
+    "window-title": "テスト結果",
     "edit-intention": "目的の追加・編集",
     "delete-intention": "目的の削除",
     "delete-intention-message": "目的「{value}」を削除してもよろしいですか？",
@@ -163,7 +163,7 @@
   },
   "config-view": {
     "window-title": "記録ツール [設定]",
-    "target": "テスト対象設定",
+    "device": "デバイス",
     "platform": "プラットフォーム",
     "browser": "ブラウザ",
     "reload-setting": "ブラウザ起動時にリロードする(0で無効)",
@@ -358,6 +358,37 @@
     "text": "text",
     "operated": "操作済"
   },
+  "navigation": {
+    "group-label": {
+      "capture": "テスト記録",
+      "management": "テスト管理",
+      "recent-stories": "最近読み込んだストーリー",
+      "other": "その他"
+    }
+  },
+  "start-capture-view": {
+    "title": "テスト記録開始",
+    "execute-button": "記録を開始する"
+  },
+  "optional-features": {
+    "title": "オプション機能",
+    "snapshot-output": {
+      "title": "スナップショット出力",
+      "execute-button": "スナップショットを出力する"
+    },
+    "test-script-generation": {
+      "title": "テストスクリプト生成",
+      "execute-button": "テストスクリプトを生成する"
+    },
+    "project-import": {
+      "title": "設定・プロジェクトのインポート",
+      "execute-button": "インポートを実行する"
+    },
+    "project-export": {
+      "title": "設定・プロジェクトのエクスポート",
+      "execute-button": "エクスポートを実行する"
+    }
+  },
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
     "output-html-running": "スナップショット出力中",
@@ -371,15 +402,12 @@
     "creating-snapshot": "スナップショット作成中",
     "output-html": "スナップショット出力",
     "capture-config": "設定",
-    "top": "TOP",
+    "top": "テストマトリクス確認",
     "manage-progress": "進捗管理",
     "manage-quality": "品質管理",
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "import-option": "設定・プロジェクトのインポート",
-    "export-option": "設定・プロジェクトのエクスポート",
-    "optional-function": "オプション機能",
     "locale": "言語"
   },
   "manage-show": {
@@ -421,8 +449,9 @@
     "period": "集計期間:",
     "period-symbol": "～",
     "filter-section": "[フィルタ]",
-    "group": "グループ:",
-    "test-target": "テスト対象:",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
     "all": "全て",
     "planned-sessions": "予定セッション数",
     "completed-sessions": "完了セッション数",
@@ -433,6 +462,7 @@
     "title": "品質管理",
     "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
     "filter-section": "[フィルタ]",
+    "test-matrix": "テストマトリクス",
     "group": "グループ",
     "test-target": "テスト対象",
     "completed-sessions": "完了セッション数",
@@ -524,7 +554,7 @@
     "session-name-base": "セッション"
   },
   "story-list-view": {
-    "title": "ストーリー一覧",
+    "title": "ストーリー一括レビュー",
     "filter": "ストーリーのフィルタ",
     "clear": "フィルタクリア",
     "test-matrix": "テストマトリクス",
@@ -567,12 +597,12 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
-    "story-list": "ストーリー一覧へ戻る",
+    "story-list": "ストーリー一括レビューへ戻る",
     "output": "HTML出力"
   },
   "manage-edit-view": {
     "window-title": "管理ツール [テスト計画編集]",
-    "edit-plan": "テスト計画編集",
+    "edit-plan": "テストマトリクス編集",
     "viewPoint": "テスト観点",
     "add": "追加",
     "update": "更新",

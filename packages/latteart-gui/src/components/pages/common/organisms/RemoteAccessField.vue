@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-row class="pl-3">
+  <v-row>
     <v-col>
       <v-combobox
         :hide-details="hideDetails"

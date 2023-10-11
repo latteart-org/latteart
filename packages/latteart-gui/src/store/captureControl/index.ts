@@ -58,6 +58,11 @@ export interface CaptureControlState {
   url: string;
 
   /**
+   * Test result name.
+   */
+  testResultName: string;
+
+  /**
    * Test option.
    */
   testOption: {
@@ -113,6 +118,7 @@ const state: CaptureControlState = {
   isResuming: false,
   isPaused: false,
   url: "",
+  testResultName: "",
   testOption: {
     firstTestPurpose: "",
     firstTestPurposeDetails: "",

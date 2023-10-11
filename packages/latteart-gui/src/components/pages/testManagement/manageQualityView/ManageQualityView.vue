@@ -15,47 +15,57 @@
 -->
 
 <template>
-  <v-container>
-    <v-row class="mt-4">
-      <p class="title">
-        {{ $store.getters.message("manage-quality.title") }}
-      </p>
-      <v-spacer></v-spacer>
-      <div>{{ $store.getters.message("manage-quality.attention") }}</div>
+  <v-container class="align-self-start">
+    <v-row class="mt-2">
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.attention") }}
+      </v-col>
     </v-row>
+
     <v-row>
-      {{ $store.getters.message("manage-quality.filter-section") }}
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.filter-section") }}
+      </v-col>
     </v-row>
     <v-row class="mt-0">
-      <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ $store.getters.message("manage-quality.group") }} :
-      </v-col>
-      <v-col align-self="center" class="pt-0">
+      <v-col>
         <v-select
-          single-line
-          v-model="selectedGroup"
+          v-model="selectedTestMatrixId"
+          :items="testMatrixSelectItems"
+          item-text="text"
+          item-value="id"
+          class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-quality.test-matrix')"
+        ></v-select>
+      </v-col>
+
+      <v-col>
+        <v-select
+          v-model="selectedGroupId"
           :items="groups"
           item-text="text"
           item-value="id"
           class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-quality.group')"
         ></v-select>
       </v-col>
-      <v-col align-self="center" cols="1" class="pt-0">
-        {{ $store.getters.message("manage-quality.test-target") }} :
-      </v-col>
-      <v-col align-self="center" class="pt-0">
+
+      <v-col>
         <v-select
-          single-line
-          v-model="selectedTestTarget"
+          v-model="selectedTestTargetId"
           :items="testTargets"
           item-text="text"
           item-value="id"
           class="mx-3 ellipsis"
+          :label="$store.getters.message('manage-quality.test-target')"
         ></v-select>
       </v-col>
     </v-row>
+
     <v-row>
-      {{ $store.getters.message("manage-quality.pb-curve") }}
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.pb-curve") }}
+      </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
@@ -67,26 +77,32 @@
       </v-col>
     </v-row>
     <v-row>
-      {{ $store.getters.message("manage-quality.bug-report") }}
-    </v-row>
-    <v-row class="mt-0">
-      <v-radio-group v-model="displayMode" row>
-        <v-radio
-          :label="$store.getters.message('manage-quality.total-number')"
-          :value="DISPLAYMODE_TOTAL"
-        ></v-radio>
-        <v-radio
-          :label="$store.getters.message('manage-quality.times-per-session')"
-          :value="DISPLAYMODE_TIMES_PER_SESSION"
-        ></v-radio>
-      </v-radio-group>
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.bug-report") }}
+      </v-col>
     </v-row>
     <v-row>
-      {{
-        displayMode === DISPLAYMODE_TOTAL
-          ? $store.getters.message("manage-quality.unit-description-total")
-          : $store.getters.message("manage-quality.unit-description")
-      }}
+      <v-col cols="12" class="pt-0">
+        <v-radio-group v-model="displayMode" row>
+          <v-radio
+            :label="$store.getters.message('manage-quality.total-number')"
+            :value="DISPLAYMODE_TOTAL"
+          ></v-radio>
+          <v-radio
+            :label="$store.getters.message('manage-quality.times-per-session')"
+            :value="DISPLAYMODE_TIMES_PER_SESSION"
+          ></v-radio>
+        </v-radio-group>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        {{
+          displayMode === DISPLAYMODE_TOTAL
+            ? $store.getters.message("manage-quality.unit-description-total")
+            : $store.getters.message("manage-quality.unit-description")
+        }}
+      </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
@@ -118,6 +134,7 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import QualityChart from "./organisms/QualityChart.vue";
 import { TestMatrix, Story } from "@/lib/testManagement/types";
+import { TestManagementState } from "@/store/testManagement";
 
 @Component({
   components: {
@@ -132,19 +149,35 @@ export default class ManageQualityView extends Vue {
   private DISPLAYMODE_TOTAL = "displayModeTotal";
   private DISPLAYMODE_TIMES_PER_SESSION = "displayModeTimesPerSession";
 
-  private selectedGroup = "";
-  private selectedTestTarget = "";
+  private selectedTestMatrixId = "";
+  private selectedGroupId = "";
+  private selectedTestTargetId = "";
   private displayMode = this.DISPLAYMODE_TOTAL;
   private rerender = true;
   private totalBugNum = 0;
 
-  private testMatrix: TestMatrix = {
-    id: "",
-    name: "",
-    index: 0,
-    viewPoints: [],
-    groups: [],
-  };
+  private testMatrices: TestMatrix[] = [];
+
+  private get testMatrixSelectItems() {
+    const testMatrices = [
+      {
+        text: this.$store.getters.message("manage-quality.all"),
+        id: "all",
+      },
+    ];
+    const testManagementState = this.$store.state
+      .testManagement as TestManagementState;
+    for (const testMatrix of testManagementState.testMatrices) {
+      testMatrices.push({
+        text: testMatrix.name,
+        id: testMatrix.id,
+      });
+    }
+    if (this.selectedTestMatrixId === "") {
+      this.selectedTestMatrixId = "all";
+    }
+    return testMatrices;
+  }
 
   private get groups() {
     const groups = [
@@ -153,15 +186,20 @@ export default class ManageQualityView extends Vue {
         id: "all",
       },
     ];
-    for (const group of this.testMatrix.groups) {
-      groups.push({
-        text: group.name,
-        id: group.id,
-      });
+
+    for (const testMatrix of this.testMatrices) {
+      for (const group of testMatrix.groups) {
+        groups.push({
+          text: group.name,
+          id: group.id,
+        });
+      }
     }
-    if (this.selectedGroup === "") {
-      this.selectedGroup = "all";
+
+    if (this.selectedGroupId === "") {
+      this.selectedGroupId = "all";
     }
+
     return groups;
   }
 
@@ -172,22 +210,29 @@ export default class ManageQualityView extends Vue {
         id: "all",
       },
     ];
-    for (const group of this.testMatrix.groups) {
-      if (this.selectedGroup !== "all" && this.selectedGroup !== group.id) {
-        continue;
-      }
-      for (const testTarget of group.testTargets) {
-        testTargets.push({
-          text: testTarget.name,
-          id: `${group.id}_${testTarget.id}`,
-        });
+
+    for (const testMatrix of this.testMatrices) {
+      for (const group of testMatrix.groups) {
+        if (
+          this.selectedGroupId !== "all" &&
+          this.selectedGroupId !== group.id
+        ) {
+          continue;
+        }
+        for (const testTarget of group.testTargets) {
+          testTargets.push({
+            text: testTarget.name,
+            id: `${group.id}_${testTarget.id}`,
+          });
+        }
       }
     }
+
     const enable = testTargets.find((testTarget) => {
-      return this.selectedTestTarget === testTarget.id;
+      return this.selectedTestTargetId === testTarget.id;
     });
     if (!enable) {
-      this.selectedTestTarget = "all";
+      this.selectedTestTargetId = "all";
     }
     return testTargets;
   }
@@ -209,15 +254,19 @@ export default class ManageQualityView extends Vue {
         class: "ellipsis_short",
       },
     ];
-    for (const viewPoint of this.testMatrix.viewPoints) {
-      headers.push({
-        text: viewPoint.name,
-        align: "center",
-        sortable: false,
-        value: viewPoint.id,
-        class: "ellipsis_short",
-      });
+
+    for (const testMatrix of this.testMatrices) {
+      for (const viewPoint of testMatrix.viewPoints) {
+        headers.push({
+          text: viewPoint.name,
+          align: "center",
+          sortable: false,
+          value: viewPoint.id,
+          class: "ellipsis_short",
+        });
+      }
     }
+
     headers.push({
       text: this.$store.getters.message("manage-quality.total"),
       align: "center",
@@ -229,62 +278,73 @@ export default class ManageQualityView extends Vue {
   private get items() {
     const items: any = [];
     const totalValuePerViewPointIdMap = new Map();
-    for (const group of this.testMatrix.groups) {
-      if (this.selectedGroup !== "all" && this.selectedGroup !== group.id) {
-        continue;
-      }
-      for (const testTarget of group.testTargets) {
+
+    for (const testMatrix of this.testMatrices) {
+      for (const group of testMatrix.groups) {
         if (
-          this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget !== `${group.id}_${testTarget.id}`
+          this.selectedGroupId !== "all" &&
+          this.selectedGroupId !== group.id
         ) {
           continue;
         }
-        const row: any = {
-          group: group.name,
-          testTarget: testTarget.name,
-        };
-
-        let rowTotalBugNum = 0;
-        let rowTotalSessionNum = 0;
-        for (const plan of testTarget.plans) {
-          const story: Story = this.$store.getters[
-            "testManagement/findStoryByTestTargetAndViewPointId"
-          ](testTarget.id, plan.viewPointId, this.testMatrix.id);
-          if (!story || !story.sessions) {
+        for (const testTarget of group.testTargets) {
+          if (
+            this.selectedTestTargetId !== "all" &&
+            this.selectedTestTargetId !== `${group.id}_${testTarget.id}`
+          ) {
             continue;
           }
-          let bugNum = 0;
-          let sessionNum = 0;
-          for (const session of story.sessions) {
-            if (!session.isDone) {
+          const row: any = {
+            group: group.name,
+            testTarget: testTarget.name,
+          };
+
+          let rowTotalBugNum = 0;
+          let rowTotalSessionNum = 0;
+          for (const plan of testTarget.plans) {
+            const story: Story = this.$store.getters[
+              "testManagement/findStoryByTestTargetAndViewPointId"
+            ](testTarget.id, plan.viewPointId, testMatrix.id);
+            if (!story || !story.sessions) {
               continue;
             }
-            sessionNum++;
-            rowTotalSessionNum++;
-            bugNum += session.notes.filter((note) =>
-              (note.tags ?? []).includes("bug")
-            ).length;
+            let bugNum = 0;
+            let sessionNum = 0;
+            for (const session of story.sessions) {
+              if (!session.isDone) {
+                continue;
+              }
+              sessionNum++;
+              rowTotalSessionNum++;
+              bugNum += session.notes.filter((note) =>
+                (note.tags ?? []).includes("bug")
+              ).length;
+            }
+
+            const targetCell = totalValuePerViewPointIdMap.get(
+              plan.viewPointId
+            );
+            if (targetCell) {
+              totalValuePerViewPointIdMap.set(plan.viewPointId, {
+                bugNum: targetCell.bugNum + bugNum,
+                sessionNum: targetCell.sessionNum + sessionNum,
+              });
+            } else {
+              totalValuePerViewPointIdMap.set(plan.viewPointId, {
+                bugNum,
+                sessionNum,
+              });
+            }
+            rowTotalBugNum += bugNum;
+            row[plan.viewPointId] = this.displayValue(bugNum, sessionNum);
           }
 
-          const targetCell = totalValuePerViewPointIdMap.get(plan.viewPointId);
-          if (targetCell) {
-            totalValuePerViewPointIdMap.set(plan.viewPointId, {
-              bugNum: targetCell.bugNum + bugNum,
-              sessionNum: targetCell.sessionNum + sessionNum,
-            });
-          } else {
-            totalValuePerViewPointIdMap.set(plan.viewPointId, {
-              bugNum,
-              sessionNum,
-            });
-          }
-          rowTotalBugNum += bugNum;
-          row[plan.viewPointId] = this.displayValue(bugNum, sessionNum);
+          row[this.TOTAL] = this.displayValue(
+            rowTotalBugNum,
+            rowTotalSessionNum
+          );
+          items.push(row);
         }
-
-        row[this.TOTAL] = this.displayValue(rowTotalBugNum, rowTotalSessionNum);
-        items.push(row);
       }
     }
 
@@ -311,27 +371,30 @@ export default class ManageQualityView extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-quality.window-title"),
-    });
-  }
-
-  private async created() {
-    await this.$store.dispatch("testManagement/readProject");
-
-    this.updateWindowTitle();
+  @Watch("selectedTestMatrixId")
+  private updateCurrentTestMatrix() {
+    if (this.selectedTestMatrixId === "all") {
+      this.testMatrices = this.$store.state.testManagement.testMatrices;
+      return;
+    }
 
     const targetTestMatrix = this.$store.state.testManagement.testMatrices.find(
       (testMatrix: TestMatrix) => {
-        return this.$route.params.testMatrixId === testMatrix.id;
+        return this.selectedTestMatrixId === testMatrix.id;
       }
     );
 
     if (targetTestMatrix) {
-      this.testMatrix = targetTestMatrix;
+      this.testMatrices = [targetTestMatrix];
     }
+  }
+
+  private async created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+
+    await this.$store.dispatch("testManagement/readProject");
   }
 
   private displayValue(bugNum: number, sessionNum: number): string {
@@ -355,44 +418,50 @@ export default class ManageQualityView extends Vue {
       doneDate: string;
       foundBugCount: number;
     }> = [];
-    for (const group of this.testMatrix.groups) {
-      if (this.selectedGroup !== "all" && this.selectedGroup !== group.id) {
-        continue;
-      }
-      groupList.push({ name: group.name, id: group.id });
-      for (const testTarget of group.testTargets) {
+    for (const testMatrix of this.testMatrices) {
+      for (const group of testMatrix.groups) {
         if (
-          this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget !== `${group.id}_${testTarget.id}`
+          this.selectedGroupId !== "all" &&
+          this.selectedGroupId !== group.id
         ) {
           continue;
         }
-        for (const plan of testTarget.plans) {
-          const story: Story = this.$store.getters[
-            "testManagement/findStoryByTestTargetAndViewPointId"
-          ](testTarget.id, plan.viewPointId, this.testMatrix.id);
-          if (!story || !story.sessions) {
+        groupList.push({ name: group.name, id: group.id });
+        for (const testTarget of group.testTargets) {
+          if (
+            this.selectedTestTargetId !== "all" &&
+            this.selectedTestTargetId !== `${group.id}_${testTarget.id}`
+          ) {
             continue;
           }
-          for (const session of story.sessions) {
-            if (!session.isDone) {
+          for (const plan of testTarget.plans) {
+            const story: Story = this.$store.getters[
+              "testManagement/findStoryByTestTargetAndViewPointId"
+            ](testTarget.id, plan.viewPointId, testMatrix.id);
+            if (!story || !story.sessions) {
               continue;
             }
-            const foundBugCount = session.notes.filter((note) =>
-              (note.tags ?? []).includes("bug")
-            ).length;
-            sessionsData.push({
-              groupName: group.name,
-              groupId: group.id,
-              testTargetName: testTarget.name,
-              testTargetId: `${group.id}_${testTarget.id}`,
-              doneDate: session.doneDate,
-              foundBugCount,
-            });
+            for (const session of story.sessions) {
+              if (!session.isDone) {
+                continue;
+              }
+              const foundBugCount = session.notes.filter((note) =>
+                (note.tags ?? []).includes("bug")
+              ).length;
+              sessionsData.push({
+                groupName: group.name,
+                groupId: group.id,
+                testTargetName: testTarget.name,
+                testTargetId: `${group.id}_${testTarget.id}`,
+                doneDate: session.doneDate,
+                foundBugCount,
+              });
+            }
           }
         }
       }
     }
+
     sessionsData.sort((a, b) => {
       if (a.doneDate > b.doneDate) {
         return 1;
@@ -411,12 +480,15 @@ export default class ManageQualityView extends Vue {
     for (const [index, value] of sessionsData.entries()) {
       let totalValue = 0;
       for (const group of groupList) {
-        if (this.selectedGroup !== "all" && this.selectedGroup !== group.id) {
+        if (
+          this.selectedGroupId !== "all" &&
+          this.selectedGroupId !== group.id
+        ) {
           continue;
         }
         if (
-          this.selectedTestTarget !== "all" &&
-          this.selectedTestTarget.split("_")[0] !== group.id
+          this.selectedTestTargetId !== "all" &&
+          this.selectedTestTargetId.split("_")[0] !== group.id
         ) {
           continue;
         }
@@ -428,8 +500,8 @@ export default class ManageQualityView extends Vue {
         let setValue = groupData[groupData.length - 1].y;
         if (
           value.groupId === group.id &&
-          (this.selectedTestTarget === "all" ||
-            this.selectedTestTarget === value.testTargetId)
+          (this.selectedTestTargetId === "all" ||
+            this.selectedTestTargetId === value.testTargetId)
         ) {
           setValue += value.foundBugCount;
         }
@@ -454,7 +526,7 @@ export default class ManageQualityView extends Vue {
         lineTension: 0,
       });
     }
-    if (this.selectedGroup === "all" && this.selectedTestTarget === "all") {
+    if (this.selectedGroupId === "all" && this.selectedTestTargetId === "all") {
       datasets.push({
         label: this.$store.getters.message("manage-quality.total"),
         data: totalLine,
