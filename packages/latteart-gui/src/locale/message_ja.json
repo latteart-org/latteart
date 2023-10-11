@@ -554,7 +554,7 @@
     "session-name-base": "セッション"
   },
   "story-list-view": {
-    "title": "ストーリー一覧",
+    "title": "ストーリー一括レビュー",
     "filter": "ストーリーのフィルタ",
     "clear": "フィルタクリア",
     "test-matrix": "テストマトリクス",
@@ -597,7 +597,7 @@
     "window-title": "管理ツール [テスト結果レビュー]",
     "review": "テスト結果レビュー",
     "back": "テストストーリーへ戻る",
-    "story-list": "ストーリー一覧へ戻る",
+    "story-list": "ストーリー一括レビューへ戻る",
     "output": "HTML出力"
   },
   "manage-edit-view": {

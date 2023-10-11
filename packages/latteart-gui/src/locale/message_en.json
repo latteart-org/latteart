@@ -552,7 +552,7 @@
     "session-name-base": "Session"
   },
   "story-list-view": {
-    "title": "Story List",
+    "title": "Review Stories",
     "filter": "Story Filter",
     "clear": "Filter Clear",
     "test-matrix": "Test Matrix",
@@ -595,7 +595,7 @@
     "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
-    "story-list": "Go to Story List",
+    "story-list": "Go to Review Stories",
     "output": "Output as HTML"
   },
   "manage-edit-view": {
