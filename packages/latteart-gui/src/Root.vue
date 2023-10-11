@@ -38,7 +38,12 @@
         }}</v-subheader>
 
         <v-list-item-group color="primary">
-          <v-list-item :disabled="isCapturing" to="/manage/view/start" exact>
+          <v-list-item
+            :disabled="isCapturing"
+            to="/manage/view/start"
+            :title="$store.getters.message('start-capture-view.title')"
+            exact
+          >
             <v-list-item-icon>
               <v-icon :disabled="isCapturing">video_call</v-icon>
             </v-list-item-icon>
@@ -50,7 +55,12 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item v-if="currentTestResultName" to="/capture/history" exact>
+          <v-list-item
+            v-if="currentTestResultName"
+            to="/capture/history"
+            :title="currentTestResultName"
+            exact
+          >
             <v-list-item-icon>
               <v-badge v-if="isCapturing" color="red" dot
                 ><v-icon>devices</v-icon></v-badge
@@ -63,7 +73,14 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item :disabled="isCapturing" to="/manage/view/results" exact>
+          <v-list-item
+            :disabled="isCapturing"
+            to="/manage/view/results"
+            :title="
+              $store.getters.message('test-result-navigation-drawer.title')
+            "
+            exact
+          >
             <v-list-item-icon>
               <v-icon :disabled="isCapturing">folder_open</v-icon>
             </v-list-item-icon>
@@ -85,7 +102,12 @@
         }}</v-subheader>
 
         <v-list-item-group v-model="displayedPage" color="primary">
-          <v-list-item :disabled="!hasTestMatrix" to="/manage/view/show" exact>
+          <v-list-item
+            :disabled="!hasTestMatrix"
+            to="/manage/view/show"
+            :title="$store.getters.message('manage-header.top')"
+            exact
+          >
             <v-list-item-icon>
               <v-icon :disabled="!hasTestMatrix">calendar_today</v-icon>
             </v-list-item-icon>
@@ -97,7 +119,11 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/manage/view/edit" exact>
+          <v-list-item
+            to="/manage/view/edit"
+            :title="$store.getters.message('manage-edit-view.edit-plan')"
+            exact
+          >
             <v-list-item-icon>
               <v-icon>edit</v-icon>
             </v-list-item-icon>
@@ -112,6 +138,7 @@
           <v-list-item
             :disabled="!hasTestMatrix"
             to="/manage/view/stories"
+            :title="$store.getters.message('story-list-view.title')"
             exact
           >
             <v-list-item-icon>
@@ -128,6 +155,7 @@
           <v-list-item
             :disabled="!hasSession"
             to="/manage/view/progress"
+            :title="$store.getters.message('manage-progress.title')"
             exact
           >
             <v-list-item-icon>
@@ -144,6 +172,7 @@
           <v-list-item
             :disabled="!hasSession"
             to="/manage/view/quality"
+            :title="$store.getters.message('manage-quality.title')"
             exact
           >
             <v-list-item-icon>
@@ -157,7 +186,11 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/manage/view/features" exact>
+          <v-list-item
+            to="/manage/view/features"
+            :title="$store.getters.message('optional-features.title')"
+            exact
+          >
             <v-list-item-icon>
               <v-icon>apps</v-icon>
             </v-list-item-icon>
@@ -183,6 +216,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
+            :title="`${story.testTargetName} ${story.viewPointName}`"
             exact
           >
             <v-list-item-icon>
@@ -207,7 +241,11 @@
         }}</v-subheader>
 
         <v-list-item-group color="primary">
-          <v-list-item to="/manage/view/config" exact>
+          <v-list-item
+            to="/manage/view/config"
+            :title="$store.getters.message('manage-header.capture-config')"
+            exact
+          >
             <v-list-item-icon>
               <v-icon>settings</v-icon>
             </v-list-item-icon>
