@@ -44,6 +44,5 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
 });
 
 app.listen(port, () => {
-  console.info(`Capture Tool: http://127.0.0.1:${port}`);
-  console.info(`Test Management Tool: http://127.0.0.1:${port}?mode=manage`);
+  console.info(`LatteArt: http://127.0.0.1:${port}`);
 });
