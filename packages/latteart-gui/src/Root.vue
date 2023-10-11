@@ -65,7 +65,7 @@
 
           <v-list-item :disabled="isCapturing" to="/manage/view/results" exact>
             <v-list-item-icon>
-              <v-icon>folder_open</v-icon>
+              <v-icon :disabled="isCapturing">folder_open</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -85,9 +85,9 @@
         }}</v-subheader>
 
         <v-list-item-group v-model="displayedPage" color="primary">
-          <v-list-item to="/manage/view/show" exact>
+          <v-list-item :disabled="!hasTestMatrix" to="/manage/view/show" exact>
             <v-list-item-icon>
-              <v-icon>calendar_today</v-icon>
+              <v-icon :disabled="!hasTestMatrix">calendar_today</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -109,9 +109,13 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/manage/view/stories" exact>
+          <v-list-item
+            :disabled="!hasTestMatrix"
+            to="/manage/view/stories"
+            exact
+          >
             <v-list-item-icon>
-              <v-icon>library_books</v-icon>
+              <v-icon :disabled="!hasTestMatrix">library_books</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -121,9 +125,13 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/manage/view/progress" exact>
+          <v-list-item
+            :disabled="!hasSession"
+            to="/manage/view/progress"
+            exact
+          >
             <v-list-item-icon>
-              <v-icon>waterfall_chart</v-icon>
+              <v-icon :disabled="!hasSession">waterfall_chart</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -133,9 +141,13 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item to="/manage/view/quality" exact>
+          <v-list-item
+            :disabled="!hasSession"
+            to="/manage/view/quality"
+            exact
+          >
             <v-list-item-icon>
-              <v-icon>show_chart</v-icon>
+              <v-icon :disabled="!hasSession">show_chart</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -315,6 +327,20 @@ export default class Root extends Vue {
   get isCapturing() {
     return (this.$store.state.captureControl as CaptureControlState)
       .isCapturing;
+  }
+
+  private get hasTestMatrix(): boolean {
+    const testMatrices: TestMatrix[] =
+      this.$store.getters["testManagement/getTestMatrices"]();
+
+    return testMatrices.length > 0;
+  }
+
+  private get hasSession(): boolean {
+    const stories = (this.$store.state.testManagement as TestManagementState)
+      .stories;
+
+    return stories.flatMap((story) => story.sessions).length > 0;
   }
 }
 </script>

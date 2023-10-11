@@ -16,11 +16,10 @@
 
 <template>
   <v-container class="align-self-start">
-    <v-row class="mt-4">
-      <v-spacer></v-spacer>
-    </v-row>
-    <v-row>
-      {{ $store.getters.message("manage-progress.display-settings-section") }}
+    <v-row class="mt-2">
+      <v-col cols="12">
+        {{ $store.getters.message("manage-progress.display-settings-section") }}
+      </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col align-self="center" cols="1" class="pt-0 ml-4">
@@ -88,7 +87,9 @@
     </v-row>
 
     <v-row>
-      {{ $store.getters.message("manage-progress.filter-section") }}
+      <v-col cols="12">
+        {{ $store.getters.message("manage-progress.filter-section") }}
+      </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col>

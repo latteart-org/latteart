@@ -16,13 +16,16 @@
 
 <template>
   <v-container class="align-self-start">
-    <v-row class="mt-4">
-      <v-spacer></v-spacer>
-      <div>{{ $store.getters.message("manage-quality.attention") }}</div>
+    <v-row class="mt-2">
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.attention") }}
+      </v-col>
     </v-row>
 
     <v-row>
-      {{ $store.getters.message("manage-quality.filter-section") }}
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.filter-section") }}
+      </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col>
@@ -60,7 +63,9 @@
     </v-row>
 
     <v-row>
-      {{ $store.getters.message("manage-quality.pb-curve") }}
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.pb-curve") }}
+      </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
@@ -72,26 +77,32 @@
       </v-col>
     </v-row>
     <v-row>
-      {{ $store.getters.message("manage-quality.bug-report") }}
-    </v-row>
-    <v-row class="mt-0">
-      <v-radio-group v-model="displayMode" row>
-        <v-radio
-          :label="$store.getters.message('manage-quality.total-number')"
-          :value="DISPLAYMODE_TOTAL"
-        ></v-radio>
-        <v-radio
-          :label="$store.getters.message('manage-quality.times-per-session')"
-          :value="DISPLAYMODE_TIMES_PER_SESSION"
-        ></v-radio>
-      </v-radio-group>
+      <v-col cols="12">
+        {{ $store.getters.message("manage-quality.bug-report") }}
+      </v-col>
     </v-row>
     <v-row>
-      {{
-        displayMode === DISPLAYMODE_TOTAL
-          ? $store.getters.message("manage-quality.unit-description-total")
-          : $store.getters.message("manage-quality.unit-description")
-      }}
+      <v-col cols="12" class="pt-0">
+        <v-radio-group v-model="displayMode" row>
+          <v-radio
+            :label="$store.getters.message('manage-quality.total-number')"
+            :value="DISPLAYMODE_TOTAL"
+          ></v-radio>
+          <v-radio
+            :label="$store.getters.message('manage-quality.times-per-session')"
+            :value="DISPLAYMODE_TIMES_PER_SESSION"
+          ></v-radio>
+        </v-radio-group>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        {{
+          displayMode === DISPLAYMODE_TOTAL
+            ? $store.getters.message("manage-quality.unit-description-total")
+            : $store.getters.message("manage-quality.unit-description")
+        }}
+      </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">

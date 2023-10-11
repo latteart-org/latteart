@@ -54,6 +54,7 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/pages/common/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import { TestMatrix } from "@/lib/testManagement/types";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
@@ -106,6 +107,17 @@ export default class SnapshotOutputLauncher extends Vue {
 
   private get currentRepositoryUrl() {
     return this.$store.state.repositoryService.serviceUrl;
+  }
+
+  private get disabled() {
+    return !this.hasTestMatrix;
+  }
+
+  private get hasTestMatrix(): boolean {
+    const testMatrices: TestMatrix[] =
+      this.$store.getters["testManagement/getTestMatrices"]();
+
+    return testMatrices.length > 0;
   }
 }
 </script>

@@ -22,11 +22,11 @@
       class="align-self-start"
       style="height: 100%; overflow-y: scroll"
     >
-      <v-container v-if="hasTestMatrix" pa-0 fluid>
-        <v-btn @click="openTestMatrixDialogInCreateMode">{{
-          $store.getters.message("manage-edit-view.add-test-matrix")
-        }}</v-btn>
+      <v-btn @click="openTestMatrixDialogInCreateMode">{{
+        $store.getters.message("manage-edit-view.add-test-matrix")
+      }}</v-btn>
 
+      <v-container v-if="hasTestMatrix" pa-0 fluid>
         <v-row class="mt-2">
           <v-col class="pb-0">
             <tab-selector

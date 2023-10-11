@@ -117,6 +117,8 @@ export default class TestResultImportTrigger extends Vue {
             returnName: testResultImportFile.name,
           }
         );
+
+        this.$emit("update", testResultImportFile.name);
       } catch (error) {
         this.$store.dispatch("closeProgressDialog");
         if (error instanceof Error) {

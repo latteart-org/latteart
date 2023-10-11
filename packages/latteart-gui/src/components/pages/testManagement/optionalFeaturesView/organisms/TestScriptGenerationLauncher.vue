@@ -163,6 +163,14 @@ export default class ManageEditView extends Vue {
   private get currentRepositoryUrl() {
     return this.$store.state.repositoryService.serviceUrl;
   }
+
+  private get disabled() {
+    return !this.hasAnySessionHistory;
+  }
+
+  private get hasAnySessionHistory(): boolean {
+    return this.$store.getters["testManagement/anySessionHasHistory"]();
+  }
 }
 </script>
 

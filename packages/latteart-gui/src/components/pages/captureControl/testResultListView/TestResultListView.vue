@@ -19,7 +19,7 @@
     <v-container fluid pa-0 class="align-self-start">
       <v-card flat height="100%">
         <v-card-text>
-          <test-result-import-trigger>
+          <test-result-import-trigger @update="loadTestResultSummaries">
             <template v-slot:activator="{ on, isDisabled }">
               <v-btn @click="on" :disabled="isDisabled">{{
                 $store.getters.message(
@@ -330,6 +330,8 @@ export default class TestResultListView extends Vue {
       });
 
       await this.loadTestResultSummaries();
+
+      this.selectedTestResults = [];
 
       // Clear display information if it contains test results you are viewing.
       if (
