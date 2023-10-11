@@ -129,7 +129,7 @@ export default class ManageEditView extends Vue {
     await this.$store.dispatch("testManagement/readProject");
 
     this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-edit-view.window-title"),
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
     });
 
     this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());

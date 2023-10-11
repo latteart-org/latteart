@@ -53,6 +53,7 @@ export default new Router({
               path: "history",
               name: "historyView",
               component: HistoryView,
+              meta: { title: "history-view.window-title" },
             },
           ],
         },

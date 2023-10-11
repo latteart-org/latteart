@@ -322,17 +322,12 @@ export default class ManageProgress extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-progress.window-title"),
-    });
-  }
-
   private async created() {
-    await this.$store.dispatch("testManagement/readProject");
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
 
-    this.updateWindowTitle();
+    await this.$store.dispatch("testManagement/readProject");
 
     this.progressDatas = await this.collectProgressDatas();
 

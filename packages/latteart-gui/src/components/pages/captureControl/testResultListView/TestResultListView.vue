@@ -275,6 +275,10 @@ export default class TestResultListView extends Vue {
   }
 
   async created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+
     await this.loadTestResultSummaries();
   }
 

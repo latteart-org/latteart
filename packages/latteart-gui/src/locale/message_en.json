@@ -52,7 +52,7 @@
     "forward": "Trigger browser forward"
   },
   "history-view": {
-    "window-title": "Capturing Tool [History]",
+    "window-title": "Test Result",
     "edit-intention": "Add/Edit Test Purpose",
     "delete-intention": "Delete Test Purpose",
     "delete-intention-message": "Are you sure you want to delete this Test Purpose \"{value}\"?",

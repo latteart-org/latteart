@@ -239,6 +239,12 @@ export default class StoryListView extends Vue {
     );
   }
 
+  created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+  }
+
   private getViewPointName(viewPointId: string) {
     return this.viewPoints.find(({ id }) => id === viewPointId)?.name ?? "";
   }

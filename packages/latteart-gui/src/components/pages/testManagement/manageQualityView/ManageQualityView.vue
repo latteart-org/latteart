@@ -371,13 +371,6 @@ export default class ManageQualityView extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-quality.window-title"),
-    });
-  }
-
   @Watch("selectedTestMatrixId")
   private updateCurrentTestMatrix() {
     if (this.selectedTestMatrixId === "all") {
@@ -397,9 +390,11 @@ export default class ManageQualityView extends Vue {
   }
 
   private async created() {
-    await this.$store.dispatch("testManagement/readProject");
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
 
-    this.updateWindowTitle();
+    await this.$store.dispatch("testManagement/readProject");
   }
 
   private displayValue(bugNum: number, sessionNum: number): string {

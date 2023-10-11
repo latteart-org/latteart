@@ -327,7 +327,7 @@ export default class ConfigView extends Vue {
   @Watch("locale")
   private updateWindowTitle() {
     this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("config-view.window-title"),
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
     });
   }
 

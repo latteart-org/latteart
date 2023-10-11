@@ -193,6 +193,10 @@ export default class StartCaptureView extends Vue {
   }
 
   created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+
     this.browsers = [...this.collectBrowsers(this.selectedPlatformName)];
   }
 

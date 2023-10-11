@@ -102,13 +102,6 @@ export default class ManageShow extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-show.window-title"),
-    });
-  }
-
   @Watch("selectedTestMatrixId")
   private noticeTestMatrixChanged() {
     this.$emit("selectTestMatrix", this.selectedTestMatrixId);
@@ -132,10 +125,13 @@ export default class ManageShow extends Vue {
   }
 
   private async created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+
     if (!this.$store.state.progressDialog.opened) {
       await this.$store.dispatch("testManagement/readProject");
     }
-    this.updateWindowTitle();
 
     const testMatrixId =
       localStorage.getItem(

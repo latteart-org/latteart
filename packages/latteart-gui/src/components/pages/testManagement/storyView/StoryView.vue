@@ -210,7 +210,7 @@ export default class StoryView extends Vue {
     }
 
     this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("story-view.window-title"),
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
     });
 
     const sessionPanelExpantionStatesKey = `latteart-management-sessionPanelExpantionStates_${this.storyId}`;

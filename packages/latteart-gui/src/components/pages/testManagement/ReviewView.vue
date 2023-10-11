@@ -49,11 +49,7 @@
       >
     </v-app-bar>
 
-    <v-container
-      fluid
-      pa-0
-      style="margin-top: 64px; height: calc(100vh - 64px)"
-    >
+    <v-container fluid pa-0 style="height: 100%">
       <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
         tempStory
           ? $store.getters.message("manager-history-view.back")
@@ -282,10 +278,11 @@ export default class ReviewView extends Vue {
   }
 
   private changeWindowTitle(windowTitle: string) {
-    const windowTitleManagerPrefix =
-      this.$store.getters.message("app.manage-title");
+    const windowTitlePrefix = this.$store.getters.message(
+      this.$route.meta?.title ?? ""
+    );
     this.$store.dispatch("changeWindowTitle", {
-      title: `${windowTitleManagerPrefix} [${windowTitle}]`,
+      title: `${windowTitlePrefix} [${windowTitle}]`,
     });
   }
 

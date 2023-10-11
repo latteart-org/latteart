@@ -56,7 +56,7 @@
     "forward": "ブラウザフォワードを行う"
   },
   "history-view": {
-    "window-title": "記録ツール [履歴]",
+    "window-title": "テスト結果",
     "edit-intention": "目的の追加・編集",
     "delete-intention": "目的の削除",
     "delete-intention-message": "目的「{value}」を削除してもよろしいですか？",

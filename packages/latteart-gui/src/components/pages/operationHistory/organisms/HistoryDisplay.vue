@@ -310,11 +310,6 @@ export default class HistoryDisplay extends Vue {
     this.updateWindowTitle();
   }
 
-  @Watch("locale")
-  private onChangeLocale() {
-    this.updateWindowTitle();
-  }
-
   private get canUpdateModels(): boolean {
     return this.operationHistoryState.canUpdateModels;
   }
