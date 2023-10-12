@@ -18,8 +18,6 @@
   <v-container fluid fill-height pa-0>
     <router-view></router-view>
 
-    <config-viewer></config-viewer>
-
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -58,7 +56,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ConfigViewer from "@/components/pages/operationHistory/organisms/configViewer/ConfigViewer.vue";
 import AlertDialog from "@/components/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
@@ -70,7 +67,6 @@ import NoteUpdateDialog from "../common/NoteUpdateDialog.vue";
 
 @Component({
   components: {
-    "config-viewer": ConfigViewer,
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
     "test-purpose-edit-dialog": TestPurposeEditDialog,

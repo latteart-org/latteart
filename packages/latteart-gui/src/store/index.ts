@@ -68,11 +68,6 @@ export interface RootState {
    */
   deviceSettings: DeviceSettings;
 
-  /**
-   * Whether the config dialog is opened or not.
-   */
-  openedConfigViewer: boolean;
-
   progressDialog: {
     opened: boolean;
     message?: string;
@@ -174,22 +169,6 @@ const mutations: MutationTree<RootState> = {
 
   setDeviceSettings(state, payload: { deviceSettings: DeviceSettings }) {
     Vue.set(state, "deviceSettings", payload.deviceSettings);
-  },
-
-  /**
-   * Open the config dialog.
-   * @param state State.
-   */
-  openConfigViewer(state) {
-    state.openedConfigViewer = true;
-  },
-
-  /**
-   * Close the config dialog.
-   * @param state State.
-   */
-  closeConfigViewer(state) {
-    state.openedConfigViewer = false;
   },
 
   /**
@@ -651,7 +630,6 @@ const store: StoreOptions<RootState> = {
       browser: "Chrome",
       waitTimeForStartupReload: 0,
     },
-    openedConfigViewer: false,
     progressDialog: {
       opened: false,
       message: "",

@@ -40,13 +40,6 @@
         class="ma-2"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn
-        id="viewerConfigButton"
-        color="primary"
-        @click="toViewerConfig"
-        class="ma-2"
-        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
-      >
     </v-app-bar>
 
     <v-container fluid pa-0 style="height: 100%">
@@ -284,10 +277,6 @@ export default class ReviewView extends Vue {
     this.$store.dispatch("changeWindowTitle", {
       title: `${windowTitlePrefix} [${windowTitle}]`,
     });
-  }
-
-  private toViewerConfig() {
-    this.$store.commit("openConfigViewer");
   }
 
   private toBack(): void {
