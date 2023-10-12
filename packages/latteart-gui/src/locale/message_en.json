@@ -238,7 +238,6 @@
       "title": "Auto operation: Set Content",
       "details-list": "Details"
     },
-    "settings": "Settings",
     "setting-experimental-features": "Experimental Feature Settings",
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",
