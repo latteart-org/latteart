@@ -206,29 +206,37 @@ export default class StoryListView extends Vue {
 
   private get storyItems() {
     let sequence = 0;
-    return this.testMatrices.flatMap((matrix) => {
-      return matrix.groups.flatMap((group) => {
-        return group.testTargets.flatMap((target) => {
-          return target.plans.map((plan) => {
-            sequence = sequence + 1;
-            return {
-              sequence,
-              testMatrix: { id: matrix.id, name: matrix.name },
-              group: { id: group.id, name: group.name },
-              testTarget: { id: target.id, name: target.name },
-              viewPoint: {
-                id: plan.viewPointId,
-                name: this.getViewPointName(plan.viewPointId),
-              },
-            };
+    return this.testMatrices
+      .flatMap((matrix) => {
+        return matrix.groups.flatMap((group) => {
+          return group.testTargets.flatMap((target) => {
+            return target.plans.map((plan) => {
+              sequence = sequence + 1;
+              return {
+                sequence,
+                testMatrix: { id: matrix.id, name: matrix.name },
+                group: { id: group.id, name: group.name },
+                testTarget: { id: target.id, name: target.name },
+                viewPoint: {
+                  id: plan.viewPointId,
+                  name: this.getViewPointName(plan.viewPointId),
+                },
+              };
+            });
           });
         });
-      });
-    });
+      })
+      .filter((story) =>
+        this.hasTestResult(story.viewPoint.id, story.testTarget.id)
+      );
   }
 
   private get testMatrices(): TestMatrix[] {
     return this.$store.getters["testManagement/getTestMatrices"]();
+  }
+
+  private get stories(): Story[] {
+    return this.$store.getters["testManagement/getStories"]();
   }
 
   private get viewPoints() {
@@ -275,6 +283,20 @@ export default class StoryListView extends Vue {
       return true;
     }
     return viewPoint.includes(this.viewPointFilterValue);
+  }
+
+  private hasTestResult(viewPointId: string, testTargetId: string): boolean {
+    const target = this.stories.find((story) => {
+      return (
+        story.viewPointId === viewPointId && story.testTargetId === testTargetId
+      );
+    });
+    if (!target) {
+      return false;
+    }
+    return target.sessions.some((session) =>
+      session.testResultFiles.some((testResult) => testResult.id)
+    );
   }
 
   private filterClear() {
