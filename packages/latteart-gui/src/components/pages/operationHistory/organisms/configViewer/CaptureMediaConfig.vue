@@ -15,10 +15,6 @@
   <v-container class="mt-0 pt-0">
     <v-row>
       <v-col cols="12">
-        <h4>
-          {{ $store.getters.message("config-view.setting-image-compression") }}
-        </h4>
-
         <v-radio-group
           :value="tempConfig.imageCompression.format"
           class="py-0 my-0"

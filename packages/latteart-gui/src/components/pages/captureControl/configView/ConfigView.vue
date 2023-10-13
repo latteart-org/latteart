@@ -45,7 +45,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-capture-media"
+                        "config-view.setting-image-compression"
                       )
                     }}
                   </v-expansion-panel-header>

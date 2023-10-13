@@ -81,11 +81,9 @@
           ></number-field>
         </v-card-text>
         <v-card-subtitle>
-          {{ $store.getters.message("config-view.device") }}
+          {{ $store.getters.message("config-view.media-type") }}
         </v-card-subtitle>
         <v-card-text>
-          <h4>{{ $store.getters.message("config-view.media-type") }}</h4>
-
           <v-radio-group
             :value="captureMediaSetting.mediaType"
             :disabled="isMediaTypeDisabled"
