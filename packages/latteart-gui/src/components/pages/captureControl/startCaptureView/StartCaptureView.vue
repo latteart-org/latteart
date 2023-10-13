@@ -80,6 +80,31 @@
             :suffix="$store.getters.message('config-view.reload-suffix')"
           ></number-field>
         </v-card-text>
+        <v-card-subtitle>
+          {{ $store.getters.message("config-view.media-type") }}
+        </v-card-subtitle>
+        <v-card-text>
+          <v-radio-group
+            :value="captureMediaSetting.mediaType"
+            :disabled="isMediaTypeDisabled"
+            @change="changeCaptureMediaType"
+            class="py-0 my-0"
+            row
+            :hint="
+              $store.getters.message('config-view.capture-media-config-hint')
+            "
+            persistent-hint
+          >
+            <v-radio
+              :label="$store.getters.message('config-view.still-image')"
+              value="image"
+            />
+            <v-radio
+              :label="$store.getters.message('config-view.video')"
+              value="video"
+            />
+          </v-radio-group>
+        </v-card-text>
 
         <v-card-actions>
           <record-start-trigger initial>
@@ -109,7 +134,10 @@
 
 <script lang="ts">
 import NumberField from "@/components/molecules/NumberField.vue";
-import { DeviceSettings } from "@/lib/common/settings/Settings";
+import {
+  CaptureMediaSetting,
+  DeviceSettings,
+} from "@/lib/common/settings/Settings";
 import { RootState } from "@/store";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
@@ -142,6 +170,41 @@ export default class StartCaptureView extends Vue {
     } catch (error) {
       return false;
     }
+  }
+  private get isMediaTypeDisabled() {
+    return (
+      this.isCapturing || this.captureArch === "push" || this.platform !== "PC"
+    );
+  }
+
+  private get config() {
+    return (this.$store.state as RootState).projectSettings.config;
+  }
+
+  private get isCapturing(): boolean {
+    return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get captureMediaSetting() {
+    return this.config.captureMediaSetting;
+  }
+
+  private get captureArch() {
+    return this.config.experimentalFeatureSetting.captureArch ?? "polling";
+  }
+
+  private get platform() {
+    return (this.$store.state as RootState).deviceSettings.platformName;
+  }
+
+  private changeCaptureMediaType(mediaType: "image" | "video") {
+    this.saveCaptureMediaSetting({ ...this.captureMediaSetting, mediaType });
+  }
+
+  private saveCaptureMediaSetting(captureMediaSetting: CaptureMediaSetting) {
+    this.$store.dispatch("writeConfig", {
+      config: { ...this.config, captureMediaSetting },
+    });
   }
 
   private platformNames: DeviceSettings["platformName"][] = [
