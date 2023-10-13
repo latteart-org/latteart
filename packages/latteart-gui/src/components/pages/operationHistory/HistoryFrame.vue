@@ -15,14 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="fill-height">
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("manager-history-view.review")
-      }}</v-toolbar-title>
-      <v-spacer></v-spacer>
-    </v-app-bar>
-
+  <v-container fluid pa-0 class="fill-height">
     <v-btn @click="toBack()" class="ma-2">{{
       $store.getters.message("manager-history-view.back")
     }}</v-btn>
