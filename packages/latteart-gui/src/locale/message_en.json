@@ -149,14 +149,6 @@
     "create-export-data-succeeded": "Data export is complete.",
     "import-data-succeeded": "{returnName} import is complete."
   },
-  "config-io": {
-    "import-config": "Import config.",
-    "export-config": "Export config.",
-    "select-config-file": "Choose a config file.",
-    "completed-export": "Config export is complete.",
-    "completed-import": "Config import is complete.",
-    "please-redisplay": "Please redisplay the setting screen."
-  },
   "config-view": {
     "window-title": "Capturing Tool [Config]",
     "device": "Device",
