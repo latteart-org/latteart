@@ -121,7 +121,7 @@
 
           <v-list-item
             to="/manage/view/edit"
-            :title="$store.getters.message('manage-edit-view.edit-plan')"
+            :title="$store.getters.message('manage-edit-view.title')"
             exact
           >
             <v-list-item-icon>
@@ -130,7 +130,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-edit-view.edit-plan")
+                $store.getters.message("manage-edit-view.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>

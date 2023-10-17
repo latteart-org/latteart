@@ -83,7 +83,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import ManageEditFooter from "./organisms/ManageEditFooter.vue";
 import TestMatrixDialog from "./organisms/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "./ManageEditTypes";
 import { TestMatrix } from "@/lib/testManagement/types";
@@ -95,7 +94,6 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 @Component({
   components: {
     "test-matrix-dialog": TestMatrixDialog,
-    "manage-edit-footer": ManageEditFooter,
     "execute-dialog": ExecuteDialog,
     "confirm-dialog": ConfirmDialog,
     "test-matrix-editor": TestMatrixEditor,
