@@ -87,7 +87,7 @@ export default new Router({
                   path: "edit",
                   name: "manageEditView",
                   component: ManageEditView,
-                  meta: { title: "manage-edit-view.edit-plan" },
+                  meta: { title: "manage-edit-view.title" },
                 },
                 {
                   path: "stories",
@@ -116,7 +116,7 @@ export default new Router({
                   path: "story/:id",
                   name: "storyView",
                   component: StoryView,
-                  meta: { title: "story-view.story" },
+                  meta: { title: "story-view.title" },
                 },
                 {
                   path: "history",

@@ -76,9 +76,7 @@
                       icon
                       v-if="!isViewerMode"
                       :title="
-                        $store.getters.message(
-                          'session-info.open-capture-tool-title'
-                        )
+                        $store.getters.message('session-info.open-test-result')
                       "
                       @click="openCaptureTool(file.id)"
                       ><v-icon>launch</v-icon></v-btn
@@ -121,7 +119,7 @@
                   @click="openCaptureTool(undefined)"
                   id="openCaptureToolButton"
                   >{{
-                    $store.getters.message("session-info.start-capture-tool")
+                    $store.getters.message("session-info.start-capture")
                   }}</v-btn
                 >
                 <v-btn

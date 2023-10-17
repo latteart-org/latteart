@@ -14,22 +14,15 @@
     "finish": "Finish",
     "pause-capturing": "Pause Capture",
     "resume-capturing": "Resume Capture",
-    "reset": "Reset History (Reset for new test. Current test result has already been saved.)",
-    "import": "Load Past Test Results",
     "replay": "Replay Test Result",
-    "replay-operations": "Replay Operations",
     "stop-replay": "Stop Replay",
     "history": "Test History",
     "target": "Test Target",
     "record-intention": "Record Test Purpose",
-    "record-bug": "Record Bug",
     "record-notice": "Record Finding",
     "record-note": "Make Note",
     "target-tab-window": "Target Tab/Window",
-    "minimize": "Minimize",
     "test-result-name": "Test Result Name（Optional）",
-    "capture-title": "Capturing Tool",
-    "manage-title": "Management Tool",
     "intention": "Test Purpose",
     "note": "Note",
     "notice": "Finding",
@@ -66,9 +59,6 @@
     "sequence": "Sequence Diagram Model",
     "screen-transition": "Screen Transition Diagram Model",
     "element-coverage": "Web Element Coverage",
-    "auto-play-to": "Replay up to No.{value}",
-    "auto-play-from": "Replay from No.{value}",
-    "auto-play-from-to": "Replay from No.{value1} to No.{value2}",
     "generate-testscript": "Generate Test Script",
     "generate-testscript-title": "Test Script Generation",
     "custom-button-tags": "Tags considered clickable in addition to the default definition",
@@ -91,7 +81,7 @@
     "export-screenshots": "Screenshots Export",
     "delete-test-result": "Delete Test Result",
     "delete-test-result-title": "Delete Test Result",
-    "delete-test-result-associated-session-message": "This test result is captured in the management tool.\nAre you sure you want to delete this Test Result \"{value}\"?",
+    "delete-test-result-associated-session-message": "This test result is included in the session.\nAre you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
     "delete-test-result-succeeded": "Test Result deletion has finished.",
     "compare-test-result": "Compare Test Result",
@@ -150,7 +140,6 @@
     "import-data-succeeded": "{returnName} import is complete."
   },
   "config-view": {
-    "window-title": "Capturing Tool [Config]",
     "device": "Device",
     "platform": "Platform",
     "browser": "Browser",
@@ -161,14 +150,7 @@
     "no-device": "No Devices Recognized",
     "device-name": "Device Name",
     "os-version": "OS Version",
-    "target-display": "Window to Capture",
-    "screen-width": "Screen Width",
-    "screen-height": "Screen Height",
-    "check-screen": "Check Screen",
-    "browser2": "Capture Browser Window Only",
-    "fullscreen": "Capture Full Screen",
     "setting-inclusion-tags": "Web Element Coverage Settings",
-    "setting-capture-media": "Capture Media Settings",
     "media-type": "Media Type",
     "still-image": "Still Image",
     "video": "Still Image + Video",
@@ -182,7 +164,6 @@
     "comparison-exclude-items-value": "Items to exclude",
     "comparison-exclude-elements-enabled": "Do not detect differences for specified screen elements",
     "comparison-exclude-elements-tagname": "Tags to exclude",
-    "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
     "setting-auto-operation": "Auto Operation Setting",
@@ -382,25 +363,16 @@
     "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}"
   },
   "manage-header": {
-    "tool-name": "Management Tool",
-    "report": "Output Report",
-    "edit-plan": "Edit Test Plan",
-    "review": "Test Result Review",
     "creating-snapshot": "Creating snapshot.",
     "output-html": "Output Snapshot",
     "capture-config": "Settings",
     "top": "Browse Test Matrices",
-    "manage-progress": "Progress Management",
-    "manage-quality": "Quality Management",
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
     "generate-script-succeeded": "Test script generation has finished.",
-    "import-option": "Import Config/Project",
-    "export-option": "Export Config/Project",
     "locale": "locale"
   },
   "manage-show": {
-    "window-title": "Management Tool [top]",
     "legend1": "( X / Y )",
     "legend2": "X: # of complete session",
     "legend3": "Y: # of planned session",
@@ -431,9 +403,7 @@
     "unselected": "No Preset"
   },
   "manage-progress": {
-    "window-title": "Management Tool [Progress Management]",
     "title": "Progress Management",
-    "export": "Export",
     "display-settings-section": "[Display Settings]",
     "period": "Period:",
     "period-symbol": "-",
@@ -447,19 +417,16 @@
     "incompleted-sessions": "# Incomplete Sessions"
   },
   "manage-quality": {
-    "window-title": "Management Tool [Quality Management]",
     "title": "Quality Management",
     "attention": "*# of Found Bugs: number of notes with 'bug' tag",
     "filter-section": "[Filter]",
     "test-matrix": "Test Matrix",
     "group": "Group",
     "test-target": "Target Feature",
-    "completed-sessions": "# of Complete Sessions",
     "bug-report": "[# of Found Bugs]",
     "pb-curve": "[Reliability Growth Curve]",
     "total-number": "Total Number",
     "times-per-session": "# of Bugs per Session",
-    "target-of-aggregation": "Aggregation Target",
     "total": "All",
     "all": "All",
     "unit-description-total": "unit: # of Found Bugs",
@@ -486,16 +453,6 @@
     "delete": "Delete",
     "add": "Add Group"
   },
-  "edit-footer": {
-    "top": "Go to Top Page"
-  },
-  "detailed-report-dialog": {
-    "dailog-title": "Export Test Report",
-    "dialog-text": "This outputs a list of \"performed tests\" and \"findings\" for each session.",
-    "filter": "[Filter]",
-    "group": "Group",
-    "test-target": "Target Feature"
-  },
   "session-info": {
     "charter": "Charter",
     "test-item": "Test Items",
@@ -509,14 +466,12 @@
     "delete-test-result-confirm": "Are you sure you want to remove the test result from the session?",
     "delete-test-result-confirm-message": "The test result itself is not deleted.",
     "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
-    "test-result-import-error": "An error occurred when importing the test result.\n[Error]\n {error}",
     "file-open-read-error": "Failed to read the attached file.",
-    "file-open-copy-error": "Failed to save the attached file.",
     "result-list": "Import Test Result",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
-    "start-capture-tool": "Start capture tool",
-    "open-capture-tool-title": "Open test result in capture tool.",
+    "start-capture": "Start capture",
+    "open-test-result": "Open test result.",
     "update-test-results-title": "Update test result name and capture time.",
     "remove-test-results-title": "Remove test result from session."
   },
@@ -553,10 +508,9 @@
     "do-review": "Review"
   },
   "story-view": {
-    "window-title": "Management Tool [Test Story]",
+    "title": "Story",
     "test-matrix": "Test Matrix",
     "group": "Group",
-    "story": "Test Story",
     "test-target": "Target Feature",
     "viewPoint": "Viewpoint",
     "status": "Status",
@@ -566,14 +520,7 @@
     "bug-count": "# of Found Bugs",
     "review-target": "Review Target",
     "do-review": "Review",
-    "add-session": "Add Session",
-    "save-error-saveDir": "Failed to get destination directory.\n[Error]\n {error}",
-    "save-error-testResultFile": "Failed to save test results.\n[Error]\n {error}",
-    "save-error-attachedFile": "Failed to save attached files.\n[Error]\n {error}",
-    "save-error-dispatch": "Failed to dispatch.\n[Error]\n {error}",
-    "save-canceled": "Save Canceled.",
-    "save-failed": "Save Failed. Please check permissions of destination directory or disk capacity. \n[Output Dir]\n {dirPath}",
-    "save-rollback-failed": "Save Failed. Please check permissions of 'Output Dir' or disk capacity. \nTest management datas may be corrupted, please restore it by copying files in 'Backup Dir' to 'Output Dir'. \n[Output Dir]\n {dirPath}\n[Backup Dir]\n {backupPath}"
+    "add-session": "Add Session"
   },
   "viewPoint-status": {
     "out-of-scope": "-",
@@ -583,21 +530,13 @@
     "pending": "Pending"
   },
   "manager-history-view": {
-    "window-title": "Management Tool [Review]",
     "review": "Review Test Result",
     "back": "Return to Test Story",
-    "story-list": "Go to Review Stories",
-    "output": "Output as HTML"
+    "story-list": "Go to Review Stories"
   },
   "manage-edit-view": {
-    "window-title": "Management Tool [Edit Test Plan]",
-    "edit-plan": "Edit Test Matrices",
-    "viewPoint": "Viewpoint",
-    "add": "Add",
-    "update": "Update",
-    "delete": "Delete",
+    "title": "Edit Test Matrices",
     "edit-viewPoint": "Edit Viewpoint Name",
-    "save": "Save",
     "add-test-matrix": "Add Test Matrix",
     "delete-test-matrix-confirm": "Are you sure you want to delete the test matrix?",
     "settings": "Settings"
@@ -632,8 +571,6 @@
       "web_driver_not_ready": "Failed to start WebDriver. Please check if a correct path to WebDriver is set.",
       "appium_not_started": "Appium is not started.",
       "device_not_connected": "Device is not connected.",
-      "create_test_result_directory_failed": "Failed to make test result directory . Please check if a correct path to the directory is set.",
-      "test_result_directory_already_exists": "A directory with the same name as the test result directory has already exists. Please specify a different directory.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
@@ -668,8 +605,6 @@
       "create_video_failed": "Failed to create video."
     },
     "test_management": {
-      "delete_story_dirs_failed": "Failed to delete story directories.",
-      "illegal_test_management_data": "Illegal format of test management data.",
       "read_project_data_failed": "Failed to read project data.",
       "read_story_data_failed": "Failed to read story data.",
       "update_session_failed": "Failed to update session.",
@@ -682,6 +617,7 @@
       "import-data-error": "Data import failed.",
       "import-project-not-exist": "Project information does not exist.",
       "import-test-result-not-exist": "Test result information does not exist.",
+      "import-config-not-exist": "Setting information does not exist.",
       "create-export-data-error": "Data export failed."
     }
   }
