@@ -22,8 +22,7 @@ GitHub の [Releases](https://github.com/latteart-org/latteart/releases) から�
 
 ```bash
 latteart
-      ├─ capture.bat
-      ├─ manage.bat
+      ├─ latteart.bat
       ├─ launch.config.json
       ├─ launch.exe
       ├─ latteart
@@ -33,23 +32,23 @@ latteart
 
 # ツール構成
 
-LatteArt は以下の 2 つのツールで構成されています。
+LatteArt は大きく分けて以下の 2 つの機能から構成されています。
 
-- **記録ツール（capture.bat）**: テスターの操作・気付きの記録
+- **テスト記録**: テスターの操作・気付きの記録
 
 <div align="center">
    <img src="./images/capture-tool.png" width="480"/> 
 </div><br>
 
-- **管理ツール（manage.bat）**: テストの計画・結果の管理
+- **テスト管理**: テストの計画・結果の管理
 
 <div align="center">
    <img src="./images/management-tool.png" width="480"/> 
 </div><br>
 
 以下の図は LatteArt の全体像を表したものです。
-管理者（テスト管理者）は、管理ツールを用いてテストの品質や進捗のチェックを行います。
-試験者（テスト実施者）は、記録ツールを用いてテスト対象 Web アプリケーションのテストを実行します。テスト結果は、管理ツールへインポートします。
+管理者（テスト管理者）は、テスト管理機能を用いてテストの品質や進捗のチェックを行います。
+試験者（テスト実施者）は、テスト記録機能を用いてテスト対象 Web アプリケーションのテストを実行します。テスト結果は、テスト管理機能でセッションへ紐づけを行います。
 
 <div class="column">
   <img src="./images/system.png" width="650"/>
@@ -59,20 +58,17 @@ LatteArt は以下の 2 つのツールで構成されています。
 
 解凍したディレクトリの中の起動用スクリプトを実行します。
 
-- 記録ツール: `capture.bat`
-- 管理ツール: `manage.bat`
+- LatteArt: `latteart.bat`
 
-すると、以下のメッセージが表示されたコマンドプロンプトと共に LatteArt を動作させるための Web サーバが立ち上がり、ブラウザ上でツールの画面が表示されます。
+すると、以下のメッセージが表示されたコマンドプロンプトと共に LatteArt を動作させるための Web サーバが立ち上がり、ブラウザ上で LatteArt の画面が表示されます。
 
 ```
-capture: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
-manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
+LatteArt: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
 ```
 
 :bulb: サーバが起動していれば、以下 URL をブラウザで直接開いても利用できます。
 
-- 記録ツール: http://127.0.0.1:3000
-- 管理ツール: http://127.0.0.1:3000?mode=manage
+- LatteArt: http://127.0.0.1:3000
 
 すぐにテストを開始する場合は「[LatteArt チュートリアル （操作記録編）](/docs/tutorial/capture/tutorial-capture.md)」をご参照ください。
 
@@ -80,10 +76,10 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
 ## 起動スクリプトの設定
 
-- LatteArt(記録ツール、管理ツール)を表示するブラウザの変更
+- LatteArt を表示するブラウザの変更
 
   `launch.config.json` の `browser` を変更してください。
-  `null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで Latteart が起動します。
+  `null` もしくは未設定の場合、OS に設定されているデフォルトのブラウザで LatteArt が起動します。
 
   指定可能なブラウザは以下です。
 
@@ -136,8 +132,7 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
 ```bash
 latteart/
-      ├─ capture.command
-      ├─ manage.command
+      ├─ latteart.command
       ├─ launch.config.json
       ├─ launch
       ├─ latteart/
@@ -148,8 +143,7 @@ latteart/
 以下のファイルに実行権限を付与します。
 
 ```bash
-chmod +x ./capture.command
-chmod +x ./manage.command
+chmod +x ./latteart.command
 chmod +x ./launch
 chmod +x latteart/latteart
 chmod +x latteart-capture-cl/latteart-capture-cl
@@ -158,8 +152,7 @@ chmod +x latteart-repository/latteart-repository
 
 以下起動用スクリプトを実行すると LatteArt が起動し、Windows 版と同様に利用できます。
 
-- 記録ツール: `capture.command`
-- 管理ツール: `manage.command`
+- LatteArt: `latteart.command`
 
 :bulb: 「ダウンロードしたアプリケーションの実行許可」を求められた場合は、「システム環境設定の」の「セキュリティとプライバシー」から許可してください。
 :bulb: `開発元を検証できないため開けません`というメッセージのダイアログが表示された場合は、一旦「キャンセル」を選択し、「システム環境設定の」の「セキュリティとプライバシー」から許可してください。
