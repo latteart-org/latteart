@@ -50,6 +50,10 @@ import WindowSelectorDialog from "../WindowSelectorDialog.vue";
 export default class SelectWindowButton extends Vue {
   private windowSelectorOpened = false;
 
+  mounted() {
+    this.openWindowSelectorDialog();
+  }
+
   private get config(): DeviceSettings {
     return this.$store.state.deviceSettings;
   }

@@ -54,6 +54,7 @@
     />
 
     <autofill-select-dialog />
+    <autofill-register-dialog />
 
     <context-menu
       :opened="contextMenuOpened"
@@ -89,6 +90,7 @@ import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.v
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
+import AutofillRegisterDialog from "../../common/AutofillRegisterDialog.vue";
 import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
 import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigationDrawer.vue";
@@ -105,6 +107,7 @@ import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigat
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
     "test-result-navigation-drawer": TestResultNavigationDrawer,
+    "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
 export default class ExpCapture extends Vue {

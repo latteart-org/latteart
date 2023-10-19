@@ -178,6 +178,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       isAutomatic,
       imageFileUrl,
       videoFrame,
+      inputElements,
     } = registerOperationResult.data.operation;
 
     if (!option.compressScreenshot || !imageFileUrl) {
@@ -197,6 +198,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
           isAutomatic,
           imageFileUrl,
           videoFrame,
+          inputElements,
         },
       });
     }
@@ -232,6 +234,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         isAutomatic,
         imageFileUrl: compressImageResult.data.imageFileUrl,
         videoFrame,
+        inputElements,
       },
     });
   }
@@ -334,6 +337,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         clientSize: linkTestStepResult.data.operation.clientSize,
         isAutomatic: linkTestStepResult.data.operation.isAutomatic,
         videoFrame: linkTestStepResult.data.operation.videoFrame,
+        inputElements: linkTestStepResult.data.operation.inputElements,
       },
     };
 

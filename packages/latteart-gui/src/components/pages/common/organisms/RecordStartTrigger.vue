@@ -137,11 +137,13 @@ export default class RecordStartTrigger extends Vue {
         await this.$store.dispatch("captureControl/startCapture", {
           url: this.url,
           callbacks: {
-            onEnd: (error?: Error) => {
-              this.preparingForCapture = false;
+            onEnd: async (error?: Error) => {
               if (error) {
-                this.errorMessage = error.message;
-                this.errorMessageDialogOpened = true;
+                const targetPath = "/capture/history";
+                if (this.$router.currentRoute.path !== targetPath) {
+                  await this.$router.push({ path: targetPath });
+                }
+                throw error;
               }
             },
           },
@@ -149,8 +151,10 @@ export default class RecordStartTrigger extends Vue {
         this.preparingForCapture = false;
       } catch (error) {
         if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
+          const targetPath = "/capture/history";
+          if (this.$router.currentRoute.path !== targetPath) {
+            await this.$router.push({ path: targetPath });
+          }
         } else {
           throw error;
         }

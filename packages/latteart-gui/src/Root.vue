@@ -294,7 +294,6 @@
     </v-main>
 
     <progress-dialog></progress-dialog>
-    <autofill-register-dialog />
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -304,10 +303,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
 import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
-import AutofillRegisterDialog from "@/components/pages/common/AutofillRegisterDialog.vue";
 import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
 import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
 import { TestManagementState } from "./store/testManagement";
@@ -321,7 +319,6 @@ import { CaptureControlState } from "./store/captureControl";
     "exp-manager": ExpManager,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
 export default class Root extends Vue {
@@ -396,14 +393,16 @@ export default class Root extends Vue {
       .recentReviewQuery;
   }
 
+  get captureControlState(): CaptureControlState {
+    return this.$store.state.captureControl as CaptureControlState;
+  }
+
   get isCapturing() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isCapturing;
+    return this.captureControlState.isCapturing;
   }
 
   get isReplaying() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isReplaying;
+    return this.captureControlState.isReplaying;
   }
 
   private get hasTestMatrix(): boolean {
@@ -418,6 +417,34 @@ export default class Root extends Vue {
       .stories;
 
     return stories.flatMap((story) => story.sessions).length > 0;
+  }
+
+  private get isCurrentWindowHostNameChanged(): boolean {
+    const result =
+      this.captureControlState.captureSession?.currentWindowHostNameChanged ??
+      false;
+    return result;
+  }
+
+  private get isAutofillRegisterDialogDataChange(): boolean {
+    const result = !!this.captureControlState.autofillRegisterDialogData;
+    return result;
+  }
+
+  private get toHistoryViewForFillSelectDialog(): boolean {
+    const data = this.captureControlState?.autofillSelectDialogData;
+    const result = !!data?.autofillConditionGroups;
+    return result;
+  }
+
+  @Watch("isCurrentWindowHostNameChanged")
+  @Watch("isAutofillRegisterDialogDataChange")
+  @Watch("isAutofillConditionGroupsChanged")
+  private async toHistoryView() {
+    const targetPath = "/capture/history";
+    if (this.$router.currentRoute.path !== targetPath) {
+      await this.$router.push({ path: targetPath });
+    }
   }
 }
 </script>
