@@ -24,6 +24,7 @@ import ManageShowView from "./components/pages/testManagement/manageShowView/Man
 import ManageProgressView from "./components/pages/testManagement/manageProgressView/ManageProgressView.vue";
 import ManageQualityView from "./components/pages/testManagement/manageQualityView/ManageQualityView.vue";
 import Root from "./ViewerRoot.vue";
+import store from "@/store/index";
 
 Vue.use(Router);
 
@@ -73,6 +74,12 @@ export default new Router({
                   name: "historyFrame",
                   component: HistoryFrame,
                   meta: { title: "manager-history-view.review" },
+                  beforeEnter: (to, from, next) => {
+                    store.commit("testManagement/setRecentReviewQuery", {
+                      query: to.query,
+                    });
+                    next();
+                  },
                 },
               ],
             },

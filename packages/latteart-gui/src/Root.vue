@@ -39,13 +39,13 @@
 
         <v-list-item-group color="primary">
           <v-list-item
-            :disabled="isCapturing"
+            :disabled="isCapturing || isReplaying"
             to="/manage/view/start"
             :title="$store.getters.message('start-capture-view.title')"
             exact
           >
             <v-list-item-icon>
-              <v-icon :disabled="isCapturing">video_call</v-icon>
+              <v-icon :disabled="isCapturing || isReplaying">video_call</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -56,7 +56,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="currentTestResultName"
+            v-if="currentTestResultName && !recentReviewQuery"
             to="/capture/history"
             :title="currentTestResultName"
             exact
@@ -74,7 +74,7 @@
           </v-list-item>
 
           <v-list-item
-            :disabled="isCapturing"
+            :disabled="isCapturing || isReplaying"
             to="/manage/view/results"
             :title="
               $store.getters.message('test-result-navigation-drawer.title')
@@ -82,7 +82,9 @@
             exact
           >
             <v-list-item-icon>
-              <v-icon :disabled="isCapturing">folder_open</v-icon>
+              <v-icon :disabled="isCapturing || isReplaying"
+                >folder_open</v-icon
+              >
             </v-list-item-icon>
 
             <v-list-item-content>
@@ -120,6 +122,7 @@
           </v-list-item>
 
           <v-list-item
+            :disabled="isCapturing || isReplaying"
             to="/manage/view/edit"
             :title="$store.getters.message('manage-edit-view.title')"
             exact
@@ -136,7 +139,7 @@
           </v-list-item>
 
           <v-list-item
-            :disabled="!hasTestMatrix"
+            :disabled="!hasTestMatrix || isCapturing || isReplaying"
             to="/manage/view/stories"
             :title="$store.getters.message('story-list-view.title')"
             exact
@@ -153,7 +156,7 @@
           </v-list-item>
 
           <v-list-item
-            :disabled="!hasSession"
+            :disabled="!hasSession || isCapturing || isReplaying"
             to="/manage/view/progress"
             :title="$store.getters.message('manage-progress.title')"
             exact
@@ -170,7 +173,7 @@
           </v-list-item>
 
           <v-list-item
-            :disabled="!hasSession"
+            :disabled="!hasSession || isCapturing || isReplaying"
             to="/manage/view/quality"
             :title="$store.getters.message('manage-quality.title')"
             exact
@@ -187,6 +190,7 @@
           </v-list-item>
 
           <v-list-item
+            :disabled="isCapturing || isReplaying"
             to="/manage/view/features"
             :title="$store.getters.message('optional-features.title')"
             exact
@@ -228,6 +232,31 @@
               <v-list-item-subtitle v-if="!mini">{{
                 story.viewPointName
               }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
+      <v-divider v-if="recentReviewQuery"></v-divider>
+
+      <v-list dense nav v-if="recentReviewQuery">
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.current-review")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item
+            v-if="currentTestResultName && recentReviewQuery"
+            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :title="currentTestResultName"
+            exact
+          >
+            <v-list-item-icon>
+              <v-icon>pageview</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ currentTestResultName }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -362,9 +391,19 @@ export default class Root extends Vue {
       .testResultInfo.name;
   }
 
+  get recentReviewQuery() {
+    return (this.$store.state.testManagement as TestManagementState)
+      .recentReviewQuery;
+  }
+
   get isCapturing() {
     return (this.$store.state.captureControl as CaptureControlState)
       .isCapturing;
+  }
+
+  get isReplaying() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isReplaying;
   }
 
   private get hasTestMatrix(): boolean {

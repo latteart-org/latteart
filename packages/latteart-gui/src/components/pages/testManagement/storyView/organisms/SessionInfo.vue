@@ -57,7 +57,7 @@
       <v-card-text v-show="reportSectionDisplayed" class="pa-2">
         <v-row>
           <v-col cols="6">
-            <v-card class="ma-2">
+            <v-card class="ma-2" :disabled="isCapturing || isReplaying">
               <v-card-title>{{
                 $store.getters.message("session-info.model")
               }}</v-card-title>
@@ -252,8 +252,8 @@ import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
-import { RootState } from "@/store";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
 
 @Component({
   components: {
@@ -545,6 +545,16 @@ export default class SessionInfo extends Vue {
       : [];
     const memos = this.session?.memo ? [this.session.memo] : [];
     return [...testItems, ...memos].join("\n");
+  }
+
+  private get isCapturing() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isCapturing;
+  }
+
+  private get isReplaying() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isReplaying;
   }
 }
 </script>

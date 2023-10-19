@@ -43,23 +43,15 @@
     </v-app-bar>
 
     <v-container fluid pa-0 style="height: 100%">
-      <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
-        tempStory
-          ? $store.getters.message("manager-history-view.back")
-          : $store.getters.message("manager-history-view.story-list")
-      }}</v-btn>
-
-      <v-container fluid pa-0 style="height: calc(100% - 52px)">
-        <history-display
-          :changeWindowTitle="changeWindowTitle"
-          :rawHistory="testResult.history"
-          :message="messageProvider"
-          :screenDefinitionConfig="screenDefinitionConfig"
-          :scriptGenerationEnabled="!$isViewerMode"
-          :testResultId="testResultId"
-          operationContextEnabled
-        ></history-display>
-      </v-container>
+      <history-display
+        :changeWindowTitle="changeWindowTitle"
+        :rawHistory="testResult.history"
+        :message="messageProvider"
+        :screenDefinitionConfig="screenDefinitionConfig"
+        :scriptGenerationEnabled="!$isViewerMode"
+        :testResultId="testResultId"
+        operationContextEnabled
+      ></history-display>
     </v-container>
 
     <execute-dialog
@@ -277,24 +269,6 @@ export default class ReviewView extends Vue {
     this.$store.dispatch("changeWindowTitle", {
       title: `${windowTitlePrefix} [${windowTitle}]`,
     });
-  }
-
-  private toBack(): void {
-    this.$store.dispatch("operationHistory/clearTestResult");
-    this.$store.commit("operationHistory/clearStoringTestResultInfos");
-    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-    this.$store.commit("operationHistory/clearElementCoverages");
-    this.$store.commit("operationHistory/clearInputValueTable");
-
-    if (this.tempStory) {
-      this.$router.push({
-        name: "storyView",
-        params: { id: this.tempStory.id },
-        query: { status: this.tempStory.status },
-      });
-    } else {
-      this.$router.push({ name: "storyListView" });
-    }
   }
 
   private acceptEditDialog() {
