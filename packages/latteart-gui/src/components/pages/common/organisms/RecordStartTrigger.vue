@@ -16,13 +16,7 @@
 
 <template>
   <div style="display: inline">
-    <slot name="activator" v-bind="{ on: openOptionDialog, isDisabled }" />
-
-    <test-option-dialog
-      :opened="testOptionDialogOpened"
-      @close="testOptionDialogOpened = false"
-      @ok="startCapture"
-    />
+    <slot name="activator" v-bind="{ on: startCapture, isDisabled }" />
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -35,20 +29,17 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import TestOptionDialog from "../../captureControl/testOptionDialog/TestOptionDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { CaptureControlState } from "@/store/captureControl";
 
 @Component({
   components: {
-    "test-option-dialog": TestOptionDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
 export default class RecordStartTrigger extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly initial!: boolean;
 
-  private testOptionDialogOpened = false;
   private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -90,10 +81,6 @@ export default class RecordStartTrigger extends Vue {
 
   private get urlIsValid(): boolean {
     return this.$store.getters["captureControl/urlIsValid"]();
-  }
-
-  private openOptionDialog() {
-    this.testOptionDialogOpened = true;
   }
 
   private startCapture(): void {

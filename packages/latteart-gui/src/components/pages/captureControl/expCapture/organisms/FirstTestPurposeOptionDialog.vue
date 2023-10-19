@@ -82,7 +82,7 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class TestOptionDialog extends Vue {
+export default class FirstTestPurposeOptionDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private firstTestPurpose = "";

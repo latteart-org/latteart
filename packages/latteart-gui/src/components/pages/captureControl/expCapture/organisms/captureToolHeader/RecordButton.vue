@@ -24,13 +24,19 @@
           text
           large
           color="grey darken-3"
-          @click="on"
+          @click="openOptionDialog"
           :title="$store.getters.message('app.start')"
           id="startButton"
           class="mx-1"
         >
           <v-icon>fiber_manual_record</v-icon>
         </v-btn>
+
+        <first-test-purpose-option-dialog
+          :opened="optionDialogOpened"
+          @close="optionDialogOpened = false"
+          @ok="on"
+        />
       </template>
     </record-start-trigger>
 
@@ -53,15 +59,23 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import RecordStartTrigger from "../../../../common/organisms/RecordStartTrigger.vue";
+import FirstTestPurposeOptionDialog from "../FirstTestPurposeOptionDialog.vue";
 
 @Component({
   components: {
+    "first-test-purpose-option-dialog": FirstTestPurposeOptionDialog,
     "record-start-trigger": RecordStartTrigger,
   },
 })
 export default class RecordButton extends Vue {
+  private optionDialogOpened = false;
+
   private get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
+  }
+
+  private openOptionDialog() {
+    this.optionDialogOpened = true;
   }
 
   private endCapture(): void {

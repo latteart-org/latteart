@@ -22,7 +22,8 @@
     "record-notice": "テスト中の気づき",
     "record-note": "メモを残す",
     "target-tab-window": "対象タブ/ウィンドウ",
-    "test-result-name": "テスト結果名（省略可）",
+    "url": "URL (必須)",
+    "test-result-name": "テスト結果名",
     "intention": "テストの目的",
     "note": "メモ",
     "notice": "気づき",
@@ -270,9 +271,10 @@
     "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
   },
   "test-option": {
+    "title": "テスト目的",
     "start-testing": "テストを始める",
     "use-test-purpose": "テスト目的を使用してテストする",
-    "first-test-purpose": "最初のテスト目的は..."
+    "first-test-purpose": "最初のテスト目的"
   },
   "input-value": {
     "times": "回目",

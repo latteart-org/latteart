@@ -114,14 +114,25 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn
-                  v-if="!isViewerMode"
-                  @click="openCaptureTool(undefined)"
-                  id="openCaptureToolButton"
-                  >{{
-                    $store.getters.message("session-info.start-capture")
-                  }}</v-btn
-                >
+                <record-start-trigger v-if="!isViewerMode">
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      id="openCaptureToolButton"
+                      @click="openCaptureOptionDialog"
+                      >{{
+                        $store.getters.message("session-info.start-capture")
+                      }}</v-btn
+                    >
+
+                    <capture-option-dialog
+                      :opened="captureOptionDialogOpened"
+                      @execute="(option) => startCapture(on, option)"
+                      @close="captureOptionDialogOpened = false"
+                    >
+                    </capture-option-dialog>
+                  </template>
+                </record-start-trigger>
+
                 <v-btn
                   v-if="!isViewerMode"
                   @click="openTestResultSelectionDialog"
@@ -254,6 +265,10 @@ import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { CaptureControlState } from "@/store/captureControl";
+import { RootState } from "@/store";
+import CaptureOptionDialog from "@/components/pages/common/CaptureOptionDialog.vue";
+import RecordStartTrigger from "@/components/pages/common/organisms/RecordStartTrigger.vue";
+import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
 
 @Component({
   components: {
@@ -262,6 +277,8 @@ import { CaptureControlState } from "@/store/captureControl";
     "confirm-dialog": ConfirmDialog,
     "test-purpose-note-list": TestPurposeNoteList,
     "test-result-list": TestResultList,
+    "record-start-trigger": RecordStartTrigger,
+    "capture-option-dialog": CaptureOptionDialog,
   },
 })
 export default class SessionInfo extends Vue {
@@ -269,6 +286,8 @@ export default class SessionInfo extends Vue {
   @Prop({ type: String, default: "" }) public readonly sessionId!: string;
 
   private reportSectionDisplayed = false;
+
+  private captureOptionDialogOpened = false;
 
   private testResultSelectionDialogOpened = false;
   private testResults: TestResultSummary[] = [];
@@ -307,6 +326,10 @@ export default class SessionInfo extends Vue {
     return this.testResults.filter(
       (testResult) => !relatedTestResultIds.includes(testResult.id)
     );
+  }
+
+  private openCaptureOptionDialog() {
+    this.captureOptionDialogOpened = true;
   }
 
   private async openTestResultSelectionDialog() {
@@ -483,47 +506,29 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async openCaptureTool(testResultId?: string) {
+  private async loadTestResultForCapture(testResultId: string) {
+    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+      testResultIds: [testResultId],
+    });
+
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId,
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
+    });
+  }
+
+  private async openCaptureTool(testResultId: string) {
     try {
-      const id =
-        testResultId ??
-        (await (async () => {
-          await this.$store.dispatch("operationHistory/createTestResult", {
-            initialUrl: "",
-            name: "",
-          });
-
-          const newTestResult = (
-            this.$store.state.operationHistory as OperationHistoryState
-          ).testResultInfo;
-
-          this.addTestResultToSession({
-            id: newTestResult.id,
-            name: newTestResult.name,
-            initialUrl: "",
-            testingTime: 0,
-          });
-
-          return newTestResult.id;
-        })());
-
       this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
           "test-result-navigation-drawer.load"
         ),
       });
 
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds: [id],
-      });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: id,
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
+      await this.loadTestResultForCapture(testResultId);
 
       this.$router.push({ path: "/capture/history" });
     } catch (error) {
@@ -537,6 +542,60 @@ export default class SessionInfo extends Vue {
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }
+  }
+
+  private async startCapture(onStart: () => void, option: CaptureOptionParams) {
+    this.$store.commit("captureControl/setUrl", {
+      url: option.url,
+    });
+    this.$store.commit("captureControl/setTestResultName", {
+      name: option.testResultName,
+    });
+    await this.$store.dispatch("writeDeviceSettings", {
+      config: {
+        platformName: option.platform,
+        device: option.device,
+        browser: option.browser,
+        waitTimeForStartupReload: option.waitTimeForStartupReload,
+      },
+    });
+    const config = (this.$store.state as RootState).projectSettings.config;
+    await this.$store.dispatch("writeConfig", {
+      config: {
+        ...config,
+        captureMediaSetting: {
+          ...config.captureMediaSetting,
+          mediaType: option.mediaType,
+        },
+      },
+    });
+    this.$store.commit("captureControl/setTestOption", {
+      testOption: {
+        firstTestPurpose: option.firstTestPurpose,
+        firstTestPurposeDetails: option.firstTestPurposeDetails,
+        shouldRecordTestPurpose: option.shouldRecordTestPurpose,
+      },
+    });
+
+    await this.$store.dispatch("operationHistory/createTestResult", {
+      initialUrl: option.url,
+      name: option.testResultName,
+    });
+
+    const newTestResult = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).testResultInfo;
+
+    this.addTestResultToSession({
+      id: newTestResult.id,
+      name: option.testResultName,
+      initialUrl: option.url,
+      testingTime: 0,
+    });
+
+    await this.loadTestResultForCapture(newTestResult.id);
+
+    onStart();
   }
 
   private get memo(): string {

@@ -22,7 +22,8 @@
     "record-notice": "Record Finding",
     "record-note": "Make Note",
     "target-tab-window": "Target Tab/Window",
-    "test-result-name": "Test Result Name（Optional）",
+    "url": "URL (required)",
+    "test-result-name": "Test Result Name",
     "intention": "Test Purpose",
     "note": "Note",
     "notice": "Finding",
@@ -270,9 +271,10 @@
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {
+    "title": "Test Purpose",
     "start-testing": "Start Session",
-    "use-test-purpose": "Use test purpose in this session",
-    "first-test-purpose": "The first test purpose is ..."
+    "use-test-purpose": "Use Test Purpose in this session",
+    "first-test-purpose": "First Test Purpose"
   },
   "input-value": {
     "times": " times",
