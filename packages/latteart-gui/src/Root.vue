@@ -419,14 +419,14 @@ export default class Root extends Vue {
     return stories.flatMap((story) => story.sessions).length > 0;
   }
 
-  private get toHistoryViewForSelectWindowDialog(): boolean {
+  private get isCurrentWindowHostNameChanged(): boolean {
     const result =
       this.captureControlState.captureSession?.currentWindowHostNameChanged ??
       false;
     return result;
   }
 
-  private get toHistoryViewForAutofillRegisterDialog(): boolean {
+  private get isAutofillRegisterDialogDataChange(): boolean {
     const result = !!this.captureControlState.autofillRegisterDialogData;
     return result;
   }
@@ -437,9 +437,9 @@ export default class Root extends Vue {
     return result;
   }
 
-  @Watch("toHistoryViewForSelectWindowDialog")
-  @Watch("toHistoryViewForAutofillRegisterDialog")
-  @Watch("toHistoryViewForFillSelectDialog")
+  @Watch("isCurrentWindowHostNameChanged")
+  @Watch("isAutofillRegisterDialogDataChange")
+  @Watch("isAutofillConditionGroupsChanged")
   private async toHistoryView() {
     const targetPath = "/capture/history";
     if (this.$router.currentRoute.path !== targetPath) {
