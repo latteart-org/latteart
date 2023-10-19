@@ -320,6 +320,18 @@ const mutations: MutationTree<TestManagementState> = {
       ...state.recentStories.filter(({ id }) => id !== payload.story.id),
     ].filter((_, index) => index < 5);
   },
+
+  /**
+   * Set recent review query.
+   * @param state State.
+   * @param payload.query Query.
+   */
+  setRecentReviewQuery(
+    state,
+    payload: { query: { sessionIds: string[]; testResultIds: string[] } | null }
+  ) {
+    state.recentReviewQuery = payload.query;
+  },
 };
 
 export default mutations;

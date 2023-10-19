@@ -90,6 +90,62 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+
+      <v-divider v-if="recentStories.length > 0"></v-divider>
+
+      <v-list dense nav v-if="recentStories.length > 0">
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.recent-stories")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item
+            v-for="story in recentStories"
+            :key="story.id"
+            :to="story.path"
+            :title="`${story.testTargetName} ${story.viewPointName}`"
+            exact
+          >
+            <v-list-item-icon>
+              <v-icon>assignment</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ story.testTargetName }}</v-list-item-title>
+              <v-list-item-subtitle v-if="!mini">{{
+                story.viewPointName
+              }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+
+      <v-divider v-if="recentReviewQuery"></v-divider>
+
+      <v-list dense nav v-if="recentReviewQuery">
+        <v-subheader v-if="!mini">{{
+          $store.getters.message("navigation.group-label.current-review")
+        }}</v-subheader>
+
+        <v-list-item-group color="primary">
+          <v-list-item
+            v-if="recentReviewQuery"
+            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :title="$store.getters.message('manager-history-view.review')"
+            exact
+          >
+            <v-list-item-icon>
+              <v-icon>pageview</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{
+                $store.getters.message("manager-history-view.review")
+              }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
     </v-navigation-drawer>
 
     <v-main>
@@ -124,6 +180,47 @@ export default class Root extends Vue {
       .stories;
 
     return stories.flatMap((story) => story.sessions).length > 0;
+  }
+
+  get recentStories() {
+    return (
+      this.$store.state.testManagement as TestManagementState
+    ).recentStories.flatMap((story) => {
+      const testMatrix: TestMatrix | undefined = this.$store.getters[
+        "testManagement/findTestMatrix"
+      ](story.testMatrixId);
+
+      if (!testMatrix) {
+        return [];
+      }
+
+      const testTarget = testMatrix.groups
+        .flatMap((group) => group.testTargets)
+        .find((testTarget) => story.testTargetId === testTarget.id);
+
+      if (!testTarget) {
+        return [];
+      }
+
+      const viewPoint = testMatrix.viewPoints.find((viewPoint) => {
+        return viewPoint.id === story.viewPointId;
+      });
+
+      if (!viewPoint) {
+        return [];
+      }
+
+      return {
+        path: `/manage/view/story/${story.id}`,
+        testTargetName: testTarget.name,
+        viewPointName: viewPoint.name,
+      };
+    });
+  }
+
+  get recentReviewQuery() {
+    return (this.$store.state.testManagement as TestManagementState)
+      .recentReviewQuery;
   }
 }
 </script>

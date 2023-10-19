@@ -331,6 +331,7 @@
       "capture": "Test Capturing",
       "management": "Test Management",
       "recent-stories": "Recent Stories",
+      "current-review": "Current Review",
       "other": "Other"
     }
   },
@@ -530,9 +531,7 @@
     "pending": "Pending"
   },
   "manager-history-view": {
-    "review": "Review Test Result",
-    "back": "Return to Test Story",
-    "story-list": "Go to Review Stories"
+    "review": "Review Test Result"
   },
   "manage-edit-view": {
     "title": "Edit Test Matrices",

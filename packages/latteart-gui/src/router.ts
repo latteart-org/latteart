@@ -32,6 +32,7 @@ import ManageProgressView from "@/components/pages/testManagement/manageProgress
 import ManageQualityView from "@/components/pages/testManagement/manageQualityView/ManageQualityView.vue";
 import OptionalFeaturesView from "@/components/pages/testManagement/optionalFeaturesView/OptionalFeaturesView.vue";
 import Root from "./Root.vue";
+import store from "@/store/index";
 
 Vue.use(Router);
 
@@ -54,6 +55,12 @@ export default new Router({
               name: "historyView",
               component: HistoryView,
               meta: { title: "history-view.window-title" },
+              beforeEnter: (to, from, next) => {
+                store.commit("testManagement/setRecentReviewQuery", {
+                  query: null,
+                });
+                next();
+              },
             },
           ],
         },
@@ -123,6 +130,12 @@ export default new Router({
                   name: "reviewView",
                   component: ReviewView,
                   meta: { title: "manager-history-view.review" },
+                  beforeEnter: (to, from, next) => {
+                    store.commit("testManagement/setRecentReviewQuery", {
+                      query: to.query,
+                    });
+                    next();
+                  },
                 },
                 {
                   path: "config",

@@ -84,6 +84,7 @@
           ></review-button>
 
           <v-select
+            :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
             :label="this.$store.getters.message('story-view.review-target')"
             item-text="displayName"
@@ -123,6 +124,7 @@
                   ></v-checkbox>
                 </div>
                 <v-btn
+                  :disabled="isCapturing || isReplaying"
                   v-if="!isViewerMode"
                   @click="
                     $event.stopPropagation();
@@ -145,6 +147,7 @@
       <v-row>
         <v-col>
           <v-btn
+            :disabled="isCapturing || isReplaying"
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
@@ -178,6 +181,7 @@ import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import ReviewButton from "./organisms/ReviewButton.vue";
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import SessionInfo from "./organisms/SessionInfo.vue";
+import { CaptureControlState } from "@/store/captureControl";
 
 @Component({
   components: {
@@ -405,7 +409,21 @@ export default class StoryView extends Vue {
   }
 
   private get canReviewSession(): boolean {
+    if (this.isCapturing || this.isReplaying) {
+      return false;
+    }
+
     return this.reviewTargetSessionIds.length >= 1;
+  }
+
+  private get isCapturing() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isCapturing;
+  }
+
+  private get isReplaying() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isReplaying;
   }
 
   private toIndex(): void {

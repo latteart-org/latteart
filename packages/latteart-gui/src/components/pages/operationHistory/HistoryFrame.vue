@@ -15,13 +15,9 @@
 -->
 
 <template>
-  <v-container fluid pa-0 class="fill-height">
-    <v-btn @click="toBack()" class="ma-2">{{
-      $store.getters.message("manager-history-view.back")
-    }}</v-btn>
-
+  <v-container fluid fill-height pa-0>
     <iframe
-      style="width: 100%; height: calc(100% - 36px)"
+      style="width: 100%; height: 100%"
       :src="historyPageUrl"
       frameborder="0"
     ></iframe>
@@ -34,10 +30,6 @@ import { Story } from "@/lib/testManagement/types";
 
 @Component
 export default class HistoryFrame extends Vue {
-  private toBack(): void {
-    this.$router.back();
-  }
-
   private get sessionId() {
     const sessionId = this.$route.query.sessionIds[0] as string;
     return sessionId;

@@ -331,6 +331,7 @@
       "capture": "テスト記録",
       "management": "テスト管理",
       "recent-stories": "最近読み込んだストーリー",
+      "current-review": "現在のレビュー",
       "other": "その他"
     }
   },
@@ -530,9 +531,7 @@
     "pending": "修正待ち"
   },
   "manager-history-view": {
-    "review": "テスト結果レビュー",
-    "back": "テストストーリーへ戻る",
-    "story-list": "ストーリー一括レビューへ戻る"
+    "review": "テスト結果レビュー"
   },
   "manage-edit-view": {
     "title": "テストマトリクス編集",

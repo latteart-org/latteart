@@ -49,6 +49,11 @@ export interface TestManagementState {
    * Recent stories.
    */
   recentStories: Story[];
+
+  /**
+   * Recent review query.
+   */
+  recentReviewQuery: { sessionIds: string[]; testResultIds: string[] } | null;
 }
 
 const state: TestManagementState = {
@@ -57,6 +62,7 @@ const state: TestManagementState = {
   stories: Array<Story>(),
   tempStory: null,
   recentStories: [],
+  recentReviewQuery: null,
 };
 
 export const testManagement: Module<TestManagementState, RootState> = {
