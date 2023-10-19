@@ -150,6 +150,7 @@ export type OperationForRepository = {
   input: string;
   type: string;
   elementInfo: ElementInfoForRepository | null;
+  inputElements: ElementInfoForRepository[];
   title: string;
   url: string;
   imageFileUrl: string;

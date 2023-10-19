@@ -54,29 +54,35 @@ export default class ErrorHandler extends Vue {
   }
 
   private errorHandler(event: ErrorEvent) {
-    console.error(event.error);
+    console.error(event);
 
-    this.openErrorDialog(event.error.code);
+    this.openErrorDialog({
+      code: event.error?.code,
+      message: event.error?.message,
+    });
   }
 
   private asyncErrorhandler(event: PromiseRejectionEvent) {
-    console.error(event.reason);
+    console.error(event);
 
-    this.openErrorDialog(event.reason.code);
+    this.openErrorDialog({
+      code: event.reason?.code,
+      message: event.reason?.message,
+    });
   }
 
   private errorCaptured(error: ExtendError) {
     console.error(error);
 
-    this.openErrorDialog(error.code);
+    this.openErrorDialog({ code: error.code, message: error.message });
 
     return false;
   }
 
-  private openErrorDialog(code?: string) {
-    this.errorMessage = this.$store.getters.message(
-      code ?? "error.common.fatal"
-    );
+  private openErrorDialog(args: { code?: string; message?: string }) {
+    this.errorMessage = args.message
+      ? args.message
+      : this.$store.getters.message(args.code ?? "error.common.fatal");
     this.errorMessageDialogOpened = true;
   }
 }

@@ -67,6 +67,7 @@ export type Operation = {
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
   videoFrame?: VideoFrame;
+  inputElements: ElementInfo[];
 };
 
 export type RunnableOperation = Pick<
