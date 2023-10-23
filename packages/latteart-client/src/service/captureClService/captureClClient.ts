@@ -152,6 +152,10 @@ class CaptureSessionImpl implements CaptureSession {
     return this.browserState.currentWindowHostNameChanged;
   }
 
+  public set currentWindowHostNameChanged(state: boolean) {
+    this.browserState.currentWindowHostNameChanged = state;
+  }
+
   async startCapture(payload: {
     url: string;
     config: CaptureConfig;
