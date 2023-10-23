@@ -294,6 +294,7 @@
     </v-main>
 
     <progress-dialog></progress-dialog>
+    <autofill-register-dialog />
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -312,6 +313,7 @@ import { TestManagementState } from "./store/testManagement";
 import { TestMatrix } from "./lib/testManagement/types";
 import { OperationHistoryState } from "./store/operationHistory";
 import { CaptureControlState } from "./store/captureControl";
+import AutofillRegisterDialog from "./components/pages/common/AutofillRegisterDialog.vue";
 
 @Component({
   components: {
@@ -319,6 +321,7 @@ import { CaptureControlState } from "./store/captureControl";
     "exp-manager": ExpManager,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
+    "autofill-register-dialog": AutofillRegisterDialog,
   },
 })
 export default class Root extends Vue {
@@ -427,8 +430,9 @@ export default class Root extends Vue {
   }
 
   private get isAutofillRegisterDialogDataChange(): boolean {
+    const isReviewing = this.recentReviewQuery !== null;
     const result = !!this.captureControlState.autofillRegisterDialogData;
-    return result;
+    return result && !isReviewing;
   }
 
   private get isAutofillConditionGroupsChanged(): boolean {
