@@ -431,7 +431,7 @@ export default class Root extends Vue {
     return result;
   }
 
-  private get toHistoryViewForFillSelectDialog(): boolean {
+  private get isAutofillConditionGroupsChanged(): boolean {
     const data = this.captureControlState?.autofillSelectDialogData;
     const result = !!data?.autofillConditionGroups;
     return result;
