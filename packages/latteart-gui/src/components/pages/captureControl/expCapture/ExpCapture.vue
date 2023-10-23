@@ -54,6 +54,7 @@
     />
 
     <autofill-select-dialog />
+    <completion-dialog />
 
     <context-menu
       :opened="contextMenuOpened"
@@ -92,6 +93,7 @@ import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog
 import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
 import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigationDrawer.vue";
+import CompletionDialog from "../../common/CompletionDialog.vue";
 
 @Component({
   components: {
@@ -105,6 +107,7 @@ import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigat
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
     "test-result-navigation-drawer": TestResultNavigationDrawer,
+    "completion-dialog": CompletionDialog,
   },
 })
 export default class ExpCapture extends Vue {

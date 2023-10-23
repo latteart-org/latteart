@@ -441,9 +441,15 @@ export default class Root extends Vue {
     return result;
   }
 
+  private get isCompletionDialogDataChanged(): boolean {
+    const result = !!this.captureControlState.completionDialogData;
+    return result;
+  }
+
   @Watch("isCurrentWindowHostNameChanged")
   @Watch("isAutofillRegisterDialogDataChange")
   @Watch("isAutofillConditionGroupsChanged")
+  @Watch("isCompletionDialogDataChanged")
   private async toHistoryView(newState: boolean) {
     if (!newState) {
       return;
