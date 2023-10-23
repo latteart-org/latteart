@@ -172,9 +172,9 @@ export default class WindowContainer {
    * Update the container to be the same as the specified windows.
    * @param windowHandles Window handles.
    */
-  public async update(windowHandles: string[]): Promise<void> {
+  public async update(windowHandles: string[]): Promise<string[]> {
     if (this.equalsTo(windowHandles)) {
-      return;
+      return [];
     }
 
     // Remove.
@@ -188,6 +188,7 @@ export default class WindowContainer {
       return !this.windowHandles.includes(windowHandle);
     });
     await this.add(...newWindowHandles);
+    return newWindowHandles;
   }
 
   private get windowHandles(): string[] {

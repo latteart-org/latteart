@@ -444,7 +444,10 @@ export default class Root extends Vue {
   @Watch("isCurrentWindowHostNameChanged")
   @Watch("isAutofillRegisterDialogDataChange")
   @Watch("isAutofillConditionGroupsChanged")
-  private async toHistoryView() {
+  private async toHistoryView(newState: boolean) {
+    if (!newState) {
+      return;
+    }
     const targetPath = "/capture/history";
     if (this.$router.currentRoute.path !== targetPath) {
       await this.$router.push({ path: targetPath });

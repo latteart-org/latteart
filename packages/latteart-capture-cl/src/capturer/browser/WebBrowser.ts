@@ -161,7 +161,9 @@ export default class WebBrowser {
     const beforeContainerLength = this.windowContainer.length;
 
     // Update the container to be the same as actual windows.
-    await this.windowContainer.update(await this.client.getAllWindowHandles());
+    const addedWindowHandles = await this.windowContainer.update(
+      await this.client.getAllWindowHandles()
+    );
 
     if (this.windowContainer.length === 0) {
       return;
@@ -169,7 +171,7 @@ export default class WebBrowser {
 
     // Update current window of the container to be the same as actual current window.
     await this.windowContainer.changeCurrentWindowTo(
-      (await this.getBrowsingWindowHandle()) ?? ""
+      addedWindowHandles[0] ?? (await this.getBrowsingWindowHandle()) ?? ""
     );
 
     // If the number of windows in the container, notice it.
@@ -181,7 +183,7 @@ export default class WebBrowser {
       this.option.onWindowsChanged(
         this.windowContainer.windows,
         this.windowContainer.currentWindowHandle,
-        currentWindowHostNameChanged
+        addedWindowHandles.length > 0 ? currentWindowHostNameChanged : false
       );
     }
 

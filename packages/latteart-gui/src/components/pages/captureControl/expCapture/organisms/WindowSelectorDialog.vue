@@ -90,6 +90,9 @@ export default class WindowSelectorDialog extends Vue {
 
   private onCancelWindowSelector(): void {
     (async () => {
+      await this.$store.commit(
+        "captureControl/clearCurrentWindowhostNameChanged"
+      );
       this.$emit("close");
     })();
   }
