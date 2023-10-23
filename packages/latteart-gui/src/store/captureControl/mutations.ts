@@ -156,6 +156,13 @@ const mutations: MutationTree<CaptureControlState> = {
       state.captureSession.currentWindowHostNameChanged = false;
     }
   },
+
+  setCompletionDialog(
+    state,
+    payload: { title: string; message: string } | null
+  ) {
+    state.completionDialogData = payload;
+  },
 };
 
 export default mutations;

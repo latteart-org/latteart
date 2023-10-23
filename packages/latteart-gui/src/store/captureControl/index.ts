@@ -110,6 +110,11 @@ export interface CaptureControlState {
    * Whether test result navigation drawer is opened or not.
    */
   isTestResultNavigationDrawerOpened: boolean;
+
+  /**
+   * Dialog to display completion message.
+   */
+  completionDialogData: { title: string; message: string } | null;
 }
 
 const state: CaptureControlState = {
@@ -134,6 +139,7 @@ const state: CaptureControlState = {
   timer: new Timer(),
   captureSession: null,
   isTestResultNavigationDrawerOpened: false,
+  completionDialogData: null,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {
