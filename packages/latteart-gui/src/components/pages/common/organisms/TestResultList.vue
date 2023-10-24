@@ -110,7 +110,7 @@
                     <v-list-item-title>{{
                       $store.getters.message("test-result-list.url")
                     }}</v-list-item-title>
-                    <v-list-item-subtitle>
+                    <v-list-item-subtitle :title="item.initialUrl">
                       {{ item.initialUrl }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
