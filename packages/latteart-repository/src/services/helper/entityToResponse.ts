@@ -472,3 +472,18 @@ export const coverageSourceEntityToResponse = (
       : [],
   };
 };
+
+export const convertToDownloadUrl = (text: string): string => {
+  return text
+    .replace(/:/g, "")
+    .replace(/"/g, "")
+    .replace(/</g, "")
+    .replace(/>/g, "")
+    .replace(/#/g, "")
+    .replace(/%/g, "")
+    .replace(/\*/g, "")
+    .replace(/\|/g, "")
+    .replace(/\?/g, "")
+    .replace(/\\/g, "")
+    .replace(/\//g, "");
+};

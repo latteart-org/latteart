@@ -19,6 +19,7 @@ import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import path from "path";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { convertToDownloadUrl } from "./helper/entityToResponse";
 
 export class ScreenshotsService {
   public async getScreenshots(
@@ -63,9 +64,11 @@ export class ScreenshotsService {
 
     const tmpZipFilePath = await workingFileRepository.outputZip(dirName, true);
 
-    const zipFileName = `screenshots_${
-      testResult.name
-    }_${timestampService.format("YYYYMMDD_HHmmss")}.zip`;
+    const testResultName = convertToDownloadUrl(testResult.name);
+
+    const zipFileName = `screenshots_${testResultName}_${timestampService.format(
+      "YYYYMMDD_HHmmss"
+    )}.zip`;
     await fileRepository.moveFile(tmpZipFilePath, zipFileName);
 
     return fileRepository.getFileUrl(zipFileName);
