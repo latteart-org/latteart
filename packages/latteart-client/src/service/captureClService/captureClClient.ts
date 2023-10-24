@@ -116,14 +116,12 @@ class CaptureSessionImpl implements CaptureSession {
     canNavigateBack: boolean;
     canNavigateForward: boolean;
     isAlertVisible: boolean;
-    currentWindowHostNameChanged: boolean;
   } = {
     windowHandles: [],
     currentWindowHandle: "",
     canNavigateBack: false,
     canNavigateForward: false,
     isAlertVisible: false,
-    currentWindowHostNameChanged: false,
   };
 
   private isAutomated = false;
@@ -146,14 +144,6 @@ class CaptureSessionImpl implements CaptureSession {
 
   public get isAlertVisible(): boolean {
     return this.browserState.isAlertVisible;
-  }
-
-  public get currentWindowHostNameChanged(): boolean {
-    return this.browserState.currentWindowHostNameChanged;
-  }
-
-  public set currentWindowHostNameChanged(state: boolean) {
-    this.browserState.currentWindowHostNameChanged = state;
   }
 
   async startCapture(payload: {
@@ -394,9 +384,14 @@ class CaptureSessionImpl implements CaptureSession {
               ({ windowHandle }) => windowHandle
             ),
             currentWindowHandle: updateInfo.currentWindowHandle,
-            currentWindowHostNameChanged:
-              updateInfo.currentWindowHostNameChanged,
           };
+
+          if (
+            this.eventListeners.onCurrentWindowHostNameChanged &&
+            updateInfo.currentWindowHostNameChanged
+          ) {
+            this.eventListeners.onCurrentWindowHostNameChanged();
+          }
 
           if (!newWindow) {
             return;
@@ -551,7 +546,6 @@ class CaptureSessionImpl implements CaptureSession {
       canNavigateBack: false,
       canNavigateForward: false,
       isAlertVisible: false,
-      currentWindowHostNameChanged: false,
     };
     this.isAutomated = false;
     this.recordingVideo = undefined;

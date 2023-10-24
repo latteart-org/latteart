@@ -422,11 +422,8 @@ export default class Root extends Vue {
     return stories.flatMap((story) => story.sessions).length > 0;
   }
 
-  private get isCurrentWindowHostNameChanged(): boolean {
-    const result =
-      this.captureControlState.captureSession?.currentWindowHostNameChanged ??
-      false;
-    return result;
+  private get isWindowSelectorDialogOpened(): boolean {
+    return this.captureControlState.isWindowSelectorDialogOpened;
   }
 
   private get isAutofillRegisterDialogDataChange(): boolean {
@@ -446,7 +443,7 @@ export default class Root extends Vue {
     return result;
   }
 
-  @Watch("isCurrentWindowHostNameChanged")
+  @Watch("isWindowSelectorDialogOpened")
   @Watch("isAutofillRegisterDialogDataChange")
   @Watch("isAutofillConditionGroupsChanged")
   @Watch("isCompletionDialogDataChanged")

@@ -169,16 +169,25 @@ export default class WebBrowser {
       return;
     }
 
-    // Update current window of the container to be the same as actual current window.
-    await this.windowContainer.changeCurrentWindowTo(
-      addedWindowHandles[0] ?? (await this.getBrowsingWindowHandle()) ?? ""
-    );
-
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
-      const currentWindowHostNameChanged = await this.isCurrentHostNameChanged(
-        beforeWindow
-      );
+      const currentWindowHostNameChanged = addedWindowHandles
+        .flatMap((newWindowHandle) => {
+          const newWindow = this.windowContainer.windows.find(
+            ({ windowHandle }) => windowHandle === newWindowHandle
+          );
+          return newWindow ? [newWindow] : [];
+        })
+        .some(({ url }) => {
+          if (!beforeWindow) {
+            return false;
+          }
+
+          const oldHostname = new URL(beforeWindow.currentUrl).hostname;
+          const newHostname = new URL(url).hostname;
+
+          return oldHostname !== newHostname;
+        });
 
       this.option.onWindowsChanged(
         this.windowContainer.windows,
@@ -234,11 +243,10 @@ export default class WebBrowser {
    * @returns Created windows.
    */
   private async createWindows(...newWindowHandles: string[]) {
-    const currentWindow = this.currentWindow;
     const currentWindowIsFocused =
       (await this.getBrowsingWindowHandle()) !== "";
 
-    return Promise.all(
+    const newWindows = await Promise.all(
       newWindowHandles.map(async (windowHandle) => {
         console.log(`-> createWindow: ${windowHandle}`);
         // Switch the current window to a new one temporarily to add callback to the new one.
@@ -264,21 +272,22 @@ export default class WebBrowser {
             this.option
           );
         })();
-        await window.focus();
 
-        if (currentWindow) {
-          await this.client.switchWindowTo(currentWindow.windowHandle);
-        }
-
-        if (!currentWindowIsFocused) {
-          await this.switchWindow(window, currentWindow);
-        }
         return window;
       })
     ).catch((e) => {
       console.error(e);
       throw new Error("Create windows error.");
     });
+
+    if (this.currentWindow && currentWindowIsFocused) {
+      await this.client.switchWindowTo(this.currentWindow.windowHandle);
+    }
+
+    return {
+      newWindows,
+      newFocusedWindow: currentWindowIsFocused ? undefined : newWindows.at(0),
+    };
   }
 
   /**
@@ -296,9 +305,9 @@ export default class WebBrowser {
     }
 
     await this.client.switchWindowTo(to.windowHandle);
+    await to.focus();
 
     await this.client.execute(captureScript.detachShield, {
-      windowHandle: to.windowHandle,
       shieldId: WebBrowser.SHIELD_ID,
     });
 
@@ -336,19 +345,5 @@ export default class WebBrowser {
       opacity: "0.6",
       backgroundColor: "#333",
     };
-  }
-
-  /**
-   * Check host name difference.
-   * @param beforeWindow Before window.
-   * @returns Host name diff flag.
-   */
-  private async isCurrentHostNameChanged(beforeWindow?: WebBrowserWindow) {
-    if (!beforeWindow || !this.currentWindow) {
-      return false;
-    }
-    const beforeHostName = new URL(beforeWindow.currentUrl).hostname;
-    const currentHostName = new URL(this.currentWindow.currentUrl).hostname;
-    return beforeHostName !== currentHostName;
   }
 }
