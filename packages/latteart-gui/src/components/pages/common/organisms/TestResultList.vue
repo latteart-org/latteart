@@ -67,11 +67,11 @@
               </div>
             </template>
 
-            <v-card>
+            <v-card :style="{ 'max-width': '420px' }">
               <v-list>
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-title v-if="!isEditing">{{
+                    <v-list-item-title v-if="!isEditing" :title="item.name">{{
                       item.name
                     }}</v-list-item-title>
                     <v-list-item-title v-else
@@ -110,7 +110,7 @@
                     <v-list-item-title>{{
                       $store.getters.message("test-result-list.url")
                     }}</v-list-item-title>
-                    <v-list-item-subtitle>
+                    <v-list-item-subtitle :title="item.initialUrl">
                       {{ item.initialUrl }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
@@ -136,7 +136,9 @@
                       v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
                       :key="i"
                     >
-                      <li>{{ testPurpose.value }}</li>
+                      <li :title="testPurpose.value" class="ellipsis">
+                        {{ testPurpose.value }}
+                      </li>
                     </v-list-item-subtitle>
                     <v-list-item-subtitle
                       class="pl-5"
