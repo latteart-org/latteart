@@ -546,7 +546,7 @@ export default class OperationList extends Vue {
   private contextmenu(itemIndex: number, event: MouseEvent) {
     event.preventDefault();
     this.openOperationContextMenu({
-      itemIndex,
+      itemIndex: (this.page - 1) * this.itemsPerPage + itemIndex,
       x: event.clientX,
       y: event.clientY,
     });
