@@ -156,6 +156,7 @@
                       :experimentalFeatureSetting="experimentalFeatureSetting"
                       :opened="experimentalFeatureSettingOpened"
                       :isCapturing="isCapturing"
+                      :isReplaying="isReplaying"
                       @save-config="saveConfig"
                     >
                     </experimental-feature-config>
@@ -261,6 +262,10 @@ export default class ConfigView extends Vue {
 
   private get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
   }
 
   private get locale() {
