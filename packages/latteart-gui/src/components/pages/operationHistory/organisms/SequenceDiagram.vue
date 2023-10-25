@@ -16,8 +16,12 @@
 
 <template>
   <v-container fluid class="ma-0 fill-height align-start">
-    <v-row no-gutters align="center" :style="{ height: '70px' }">
-      <v-col v-if="testResults.length > 1">
+    <v-row
+      no-gutters
+      align="center"
+      :style="{ height: '70px', 'max-width': '100%' }"
+    >
+      <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
           class="mr-3"
           :label="message('history-view.test-result-name')"
@@ -29,7 +33,7 @@
           hide-details
           dense
       /></v-col>
-      <v-col>
+      <v-col :style="buildStyle">
         <v-select
           class="mr-3"
           :label="message('history-view.test-purpose')"
@@ -180,6 +184,14 @@ export default class SequenceDiagram extends Vue {
       "intention",
       this.graph.sequence
     );
+  }
+
+  private get buildStyle() {
+    const buttonWidth = this.isViewerMode ? "0px" : "160px";
+    const selectBoxNum = this.testResults.length > 1 ? 2 : 1;
+    return {
+      "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`,
+    };
   }
 }
 </script>
