@@ -116,7 +116,6 @@ import { OperationHistoryState } from "@/store/operationHistory";
   },
 })
 export default class ReviewView extends Vue {
-  private isResuming = false;
   private dialogOpened = false;
   private dialogTitle = "";
   private dialogMessage = "";
@@ -187,50 +186,6 @@ export default class ReviewView extends Vue {
         this.isGeneratingTestScripts = false;
       }
     })();
-  }
-
-  private created() {
-    (async () => {
-      this.isResuming = true;
-
-      try {
-        await this.loadTestResults(...this.testResultIds);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error);
-          this.errorDialogOpened = true;
-          this.errorMessage = error.message;
-        } else {
-          throw error;
-        }
-      }
-
-      this.isResuming = false;
-    })();
-  }
-
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
   }
 
   private get testResultIds(): string[] {
