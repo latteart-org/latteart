@@ -112,6 +112,11 @@ export interface CaptureControlState {
   isTestResultNavigationDrawerOpened: boolean;
 
   /**
+   * Whether window selector dialog is opened or not.
+   */
+  isWindowSelectorDialogOpened: boolean;
+
+  /**
    * Dialog to display completion message.
    */
   completionDialogData: { title: string; message: string } | null;
@@ -139,6 +144,7 @@ const state: CaptureControlState = {
   timer: new Timer(),
   captureSession: null,
   isTestResultNavigationDrawerOpened: false,
+  isWindowSelectorDialogOpened: false,
   completionDialogData: null,
 };
 

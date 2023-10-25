@@ -151,10 +151,8 @@ const mutations: MutationTree<CaptureControlState> = {
     state.isTestResultNavigationDrawerOpened = payload.isOpened;
   },
 
-  clearCurrentWindowhostNameChanged(state) {
-    if (state.captureSession !== null) {
-      state.captureSession.currentWindowHostNameChanged = false;
-    }
+  setWindowSelectorDialogOpened(state, payload: { isOpened: boolean }) {
+    state.isWindowSelectorDialogOpened = payload.isOpened;
   },
 
   setCompletionDialog(

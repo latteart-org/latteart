@@ -70,6 +70,7 @@ export type CaptureEventListeners = {
   onPause?: () => void;
   onResume?: () => void;
   onUpdateWindowTitle?: (windowHandle: string, title: string) => Promise<void>;
+  onCurrentWindowHostNameChanged?: () => Promise<void>;
 };
 
 export type CaptureClClient = {
@@ -101,8 +102,6 @@ export type CaptureSession = {
   readonly canNavigateForward: boolean;
 
   readonly isAlertVisible: boolean;
-
-  currentWindowHostNameChanged: boolean;
 
   /**
    * end capture

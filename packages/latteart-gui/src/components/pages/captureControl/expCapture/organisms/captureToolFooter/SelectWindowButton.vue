@@ -20,7 +20,7 @@
       :disabled="!windowSelectorIsEnabled"
       fab
       small
-      @click="windowSelectorOpened = true"
+      @click="isWindowSelectorDialogOpened = true"
       :title="$store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
       class="mx-2"
@@ -29,8 +29,8 @@
     </v-btn>
 
     <window-selector-dialog
-      :opened="windowSelectorOpened"
-      @close="windowSelectorOpened = false"
+      :opened="!isReplaying && isWindowSelectorDialogOpened"
+      @close="isWindowSelectorDialogOpened = false"
     >
     </window-selector-dialog>
   </div>
@@ -39,7 +39,7 @@
 <script lang="ts">
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { CaptureControlState } from "@/store/captureControl";
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import WindowSelectorDialog from "../WindowSelectorDialog.vue";
 
 @Component({
@@ -48,12 +48,6 @@ import WindowSelectorDialog from "../WindowSelectorDialog.vue";
   },
 })
 export default class SelectWindowButton extends Vue {
-  private windowSelectorOpened = false;
-
-  mounted() {
-    this.openWindowSelectorDialog();
-  }
-
   private get config(): DeviceSettings {
     return this.$store.state.deviceSettings;
   }
@@ -80,18 +74,14 @@ export default class SelectWindowButton extends Vue {
     return true;
   }
 
-  private get currentWindowHostNameChanged() {
-    return (
-      this.captureControlState.captureSession?.currentWindowHostNameChanged ??
-      false
-    );
+  private get isWindowSelectorDialogOpened() {
+    return this.captureControlState.isWindowSelectorDialogOpened;
   }
 
-  @Watch("currentWindowHostNameChanged")
-  private openWindowSelectorDialog() {
-    if (this.currentWindowHostNameChanged && !this.isReplaying) {
-      this.windowSelectorOpened = true;
-    }
+  private set isWindowSelectorDialogOpened(isOpened: boolean) {
+    this.$store.commit("captureControl/setWindowSelectorDialogOpened", {
+      isOpened,
+    });
   }
 }
 </script>
