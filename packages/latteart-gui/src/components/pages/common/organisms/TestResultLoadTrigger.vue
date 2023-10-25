@@ -77,9 +77,7 @@ export default class TestResultLoadTrigger extends Vue {
           ),
         });
 
-        await this.loadTestResults(this.testResultId);
-
-        this.goToHistoryView();
+        this.goToHistoryView(this.testResultId);
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -93,36 +91,17 @@ export default class TestResultLoadTrigger extends Vue {
     }, 300);
   }
 
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
+  private goToHistoryView(testResultId: string) {
+    this.$router
+      .push({
+        path: "/capture/history",
+        query: { testResultIds: [testResultId] },
+      })
+      .catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
       });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  private goToHistoryView() {
-    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
   }
 }
 </script>

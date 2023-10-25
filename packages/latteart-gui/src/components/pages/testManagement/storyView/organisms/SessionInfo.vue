@@ -506,20 +506,6 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async loadTestResultForCapture(testResultId: string) {
-    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-      testResultIds: [testResultId],
-    });
-
-    await this.$store.dispatch("operationHistory/loadTestResult", {
-      testResultId,
-    });
-
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      setCanUpdateModels: false,
-    });
-  }
-
   private async openCaptureTool(testResultId: string) {
     try {
       this.$store.dispatch("openProgressDialog", {
@@ -528,9 +514,10 @@ export default class SessionInfo extends Vue {
         ),
       });
 
-      await this.loadTestResultForCapture(testResultId);
-
-      this.$router.push({ path: "/capture/history" });
+      this.$router.push({
+        path: "/capture/history",
+        query: { testResultIds: [testResultId] },
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.error(error);
@@ -544,7 +531,10 @@ export default class SessionInfo extends Vue {
     }
   }
 
-  private async startCapture(onStart: () => void, option: CaptureOptionParams) {
+  private async startCapture(
+    onStart: () => Promise<void>,
+    option: CaptureOptionParams
+  ) {
     this.$store.commit("captureControl/setUrl", {
       url: option.url,
     });
@@ -593,9 +583,7 @@ export default class SessionInfo extends Vue {
       testingTime: 0,
     });
 
-    await this.loadTestResultForCapture(newTestResult.id);
-
-    onStart();
+    await onStart();
   }
 
   private get memo(): string {

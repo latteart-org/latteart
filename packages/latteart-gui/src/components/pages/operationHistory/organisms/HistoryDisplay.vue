@@ -149,6 +149,36 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
+
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
+      :onAccept="confirmDialogAccept"
+      @close="confirmDialogOpened = false"
+    />
+
+    <test-purpose-edit-dialog
+      :opened="testPurposeEditDialogOpened"
+      @close="testPurposeEditDialogOpened = false"
+    />
+    <note-register-dialog
+      :opened="noteRegisterDialogOpened"
+      @close="noteRegisterDialogOpened = false"
+    />
+
+    <note-update-dialog
+      :opened="noteUpdateDialogOpened"
+      @close="noteUpdateDialogOpened = false"
+    />
+
+    <context-menu
+      :opened="contextMenuOpened"
+      :x="contextMenuX"
+      :y="contextMenuY"
+      :items="contextMenuItems"
+      @contextMenuClose="contextMenuOpened = false"
+    />
   </v-container>
 </template>
 
@@ -160,6 +190,7 @@ import {
   OperationHistory,
   ScreenDef,
   MessageProvider,
+  OperationWithNotes,
 } from "@/lib/operationHistory/types";
 import HistorySummaryDiagram from "@/components/pages/operationHistory/organisms/HistorySummaryDiagram.vue";
 import OperationList from "@/components/pages/operationHistory/organisms/OperationList.vue";
@@ -167,8 +198,13 @@ import ElementCoverage from "@/components/pages/operationHistory/organisms/Eleme
 import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import ConfirmDialog from "../../common/ConfirmDialog.vue";
 import ScreencastDisplay from "./ScreencastDisplay.vue";
 import ScreencaptureDisplay from "./ScreencaptureDisplay.vue";
+import TestPurposeEditDialog from "@/components/pages/common/TestPurposeEditDialog.vue";
+import ContextMenu from "@/components/molecules/ContextMenu.vue";
+import NoteRegisterDialog from "@/components/pages/common/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "@/components/pages/common/NoteUpdateDialog.vue";
 
 @Component({
   components: {
@@ -181,6 +217,11 @@ import ScreencaptureDisplay from "./ScreencaptureDisplay.vue";
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
+    "test-purpose-edit-dialog": TestPurposeEditDialog,
+    "confirm-dialog": ConfirmDialog,
+    "context-menu": ContextMenu,
+    "note-register-dialog": NoteRegisterDialog,
+    "note-update-dialog": NoteUpdateDialog,
   },
 })
 export default class HistoryDisplay extends Vue {
@@ -230,6 +271,256 @@ export default class HistoryDisplay extends Vue {
   private verticalPaneSize: number = 0;
   private horizontalPaneSize: number = 0;
 
+  private testPurposeEditDialogOpened = false;
+  private noteUpdateDialogOpened = false;
+  private noteRegisterDialogOpened = false;
+
+  private contextMenuOpened = false;
+  private contextMenuX = -1;
+  private contextMenuY = -1;
+  private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
+
+  private confirmDialogOpened = false;
+  private confirmDialogTitle = "";
+  private confirmDialogMessage = "";
+  private confirmDialogAccept() {
+    /* Do nothing */
+  }
+
+  private created() {
+    this.verticalPaneSize = Number(this.getPaneSize("vertical") ?? "50");
+    this.horizontalPaneSize = Number(this.getPaneSize("horizontal") ?? "50");
+
+    this.selectFirstOperation();
+    this.updateWindowTitle();
+  }
+
+  private async mounted() {
+    this.$store.dispatch("openProgressDialog");
+
+    this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
+      openNoteEditDialog: this.openNoteEditDialog,
+    });
+    this.$store.commit(
+      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
+      {
+        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
+      }
+    );
+    this.$store.commit("operationHistory/setOpenNoteMenu", {
+      menu: this.openNoteMenu,
+    });
+
+    this.$store.commit("operationHistory/setDeleteNoteFunction", {
+      deleteNote: this.deleteNote,
+    });
+
+    await this.loadTestResults(
+      this.testResultIds ??
+        this.operationHistoryState.storingTestResultInfos?.map((info) => {
+          return info.id;
+        }) ?? [this.operationHistoryState.testResultInfo.id]
+    );
+
+    this.$store.dispatch("closeProgressDialog");
+  }
+
+  private get testResultIds(): string[] {
+    return this.$route.query.testResultIds as string[];
+  }
+
+  private async loadTestResults(testResultIds: string[]) {
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds,
+      });
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: testResultIds[0],
+      });
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  private openNoteMenu(
+    note: {
+      id: number;
+      sequence: number;
+      index: number;
+      type: string;
+      value: string;
+    },
+    eventInfo: { clientX: number; clientY: number }
+  ) {
+    if ((this as any).$isViewerMode) {
+      console.log("isViewerMode");
+      return;
+    }
+
+    const context = this.$store;
+
+    this.contextMenuX = eventInfo.clientX;
+    this.contextMenuY = eventInfo.clientY;
+    this.contextMenuItems = [];
+
+    this.contextMenuItems.push({
+      label: context.getters.message("history-view.edit-notice", {
+        value: note.value,
+      }),
+      onClick: () => {
+        if (context.state.operationHistory.tmpNoteInfoForEdit) {
+          context.state.operationHistory.openNoteEditDialog(
+            note.type,
+            note.sequence,
+            note.index
+          );
+        }
+
+        this.contextMenuOpened = false;
+        context.commit("operationHistory/setTmpNoteInfoForEdit", {
+          tmpNoteInfoForEdit: null,
+        });
+      },
+    });
+    this.contextMenuItems.push({
+      label: context.getters.message("history-view.delete-notice", {
+        value: note.value,
+      }),
+      onClick: () => {
+        if (context.state.operationHistory.tmpNoteInfoForEdit) {
+          context.state.operationHistory.deleteNote(
+            note.type,
+            note.sequence,
+            note.index
+          );
+        }
+
+        this.contextMenuOpened = false;
+        context.commit("operationHistory/setTmpNoteInfoForEdit", {
+          tmpNoteInfoForEdit: null,
+        });
+      },
+    });
+
+    context.commit("operationHistory/setTmpNoteInfoForEdit", {
+      tmpNoteInfoForEdit: {
+        noteType: note.type,
+        sequence: note.sequence,
+        index: note.index,
+      },
+    });
+    this.contextMenuOpened = true;
+  }
+
+  private openNoteEditDialog(
+    noteType: string,
+    sequence: number,
+    index?: number
+  ) {
+    const historyItem: OperationWithNotes =
+      this.$store.getters["operationHistory/findHistoryItem"](sequence);
+    if (historyItem === undefined) {
+      return;
+    }
+    switch (noteType) {
+      case "intention":
+        this.$store.commit("operationHistory/selectOperationNote", {
+          selectedOperationNote: {
+            sequence: sequence ?? null,
+            index: index ?? null,
+          },
+        });
+        this.testPurposeEditDialogOpened = true;
+        return;
+      case "bug":
+      case "notice":
+        this.$store.commit("operationHistory/selectOperationNote", {
+          selectedOperationNote: {
+            sequence: sequence ?? null,
+            index: index ?? null,
+          },
+        });
+
+        if (index !== undefined) {
+          this.noteUpdateDialogOpened = true;
+        } else {
+          this.noteRegisterDialogOpened = true;
+        }
+
+        return;
+      default:
+        return;
+    }
+  }
+
+  private openNoteDeleteConfirmDialog(
+    noteType: string,
+    title: string,
+    sequence: number,
+    index?: number
+  ) {
+    if (noteType === "intention") {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-intention"
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-intention-message",
+        { value: title }
+      );
+    } else {
+      this.confirmDialogTitle = this.$store.getters.message(
+        "history-view.delete-notice-title"
+      );
+      this.confirmDialogMessage = this.$store.getters.message(
+        "history-view.delete-notice-message",
+        { value: title }
+      );
+    }
+
+    this.confirmDialogAccept = () => {
+      this.deleteNote(noteType, sequence, index ?? 0);
+    };
+    this.confirmDialogOpened = true;
+  }
+
+  private deleteNote(noteType: string, sequence: number, index: number) {
+    (async () => {
+      try {
+        switch (noteType) {
+          case "intention":
+            this.$store.dispatch("operationHistory/deleteTestPurpose", {
+              sequence,
+            });
+            return;
+          case "bug":
+          case "notice":
+            this.$store.dispatch("operationHistory/deleteNotice", {
+              sequence,
+              index,
+            });
+            return;
+          default:
+            return;
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          this.errorMessageDialogOpened = true;
+          this.errorMessage = error.message;
+        } else {
+          throw error;
+        }
+      }
+    })();
+  }
   private get verticalPaneSizeKey(): string {
     return "latteart-management-verticalPaneSizeKey";
   }
@@ -358,14 +649,6 @@ export default class HistoryDisplay extends Vue {
       default:
         return;
     }
-  }
-
-  private created() {
-    this.verticalPaneSize = Number(this.getPaneSize("vertical") ?? "50");
-    this.horizontalPaneSize = Number(this.getPaneSize("horizontal") ?? "50");
-
-    this.selectFirstOperation();
-    this.updateWindowTitle();
   }
 
   @Watch("history")
