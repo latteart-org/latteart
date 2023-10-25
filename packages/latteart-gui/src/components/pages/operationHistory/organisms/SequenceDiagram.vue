@@ -16,8 +16,15 @@
 
 <template>
   <v-container fluid class="ma-0 fill-height align-start">
-    <v-row no-gutters align="center" :style="{ height: '70px' }">
-      <v-col v-if="testResults.length > 1">
+    <v-row
+      no-gutters
+      align="center"
+      :style="{ height: '70px', 'max-width': '100%' }"
+    >
+      <v-col
+        v-if="testResults.length > 1"
+        :style="{ 'max-width': 'calc((100% - 160px) / 2)' }"
+      >
         <v-select
           class="mr-3"
           :label="message('history-view.test-result-name')"
@@ -29,7 +36,13 @@
           hide-details
           dense
       /></v-col>
-      <v-col>
+      <v-col
+        :style="
+          testResults.length > 1
+            ? { 'max-width': 'calc((100% - 160px) / 2)' }
+            : { 'max-width': 'calc(100% - 160px)' }
+        "
+      >
         <v-select
           class="mr-3"
           :label="message('history-view.test-purpose')"
