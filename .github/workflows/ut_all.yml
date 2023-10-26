@@ -6,6 +6,8 @@ on:
       - "release/**"
     tags:
       - "v*"
+    paths-ignore:
+      - "docs/**"
   workflow_dispatch:
 
 jobs:
