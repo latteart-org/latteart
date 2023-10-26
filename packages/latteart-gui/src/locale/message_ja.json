@@ -576,7 +576,7 @@
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "start_video_recording_failed": "動画の記録に失敗しました。テスト記録は継続されています。"
+      "start_video_recording_failed": "動画の記録に失敗しました。"
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
