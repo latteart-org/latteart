@@ -54,7 +54,7 @@
           </v-textarea>
 
           <media-display-group
-            v-if="opened"
+            v-if="isMediaDisplayed"
             :imageFileUrl="note.image.imageFileUrl"
             :videoUrl="note.videoUrl"
           />
@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
@@ -100,6 +100,18 @@ export default class NoteListDialog extends Vue {
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
+
+  private isMediaDisplayed: boolean = false;
+
+  @Watch("opened")
+  private rerenderMediaDisplay() {
+    if (this.opened) {
+      this.isMediaDisplayed = false;
+      this.$nextTick(() => {
+        this.isMediaDisplayed = true;
+      });
+    }
+  }
 
   private get noteWithTime() {
     return this.notes
