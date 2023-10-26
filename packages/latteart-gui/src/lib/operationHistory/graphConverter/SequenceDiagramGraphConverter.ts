@@ -381,7 +381,7 @@ function buildCommentTexts(
       testStep.notes?.map((note, index) => {
         const tags = TextUtil.lineBreak(
           `(${sequence}-${index})${note.tags
-            .map((tag) => `[${tag}]`)
+            .map((tag) => `[${TextUtil.escapeSpecialCharacters(tag)}]`)
             .join("")}`,
           16
         );
