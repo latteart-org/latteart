@@ -88,6 +88,7 @@
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="item.name"
                 >
                   {{ item.name }}
                 </div>
@@ -99,6 +100,7 @@
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="item.initialUrl"
                 >
                   {{ item.initialUrl }}
                 </div>
@@ -134,6 +136,7 @@
                   :key="testPurpose.creationTimestamp"
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="testPurpose.value"
                 >
                   {{ testPurpose.value }}
                 </li>

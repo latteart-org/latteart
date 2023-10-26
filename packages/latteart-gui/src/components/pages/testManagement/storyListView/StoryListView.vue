@@ -105,22 +105,22 @@
             </template>
 
             <template v-slot:[`item.testMatrix.name`]="{ item }">
-              <td>
+              <td :title="item.testMatrix.name">
                 {{ item.testMatrix.name.substring(0, 60) }}
               </td>
             </template>
             <template v-slot:[`item.group.name`]="{ item }">
-              <td>
+              <td :title="item.group.name">
                 {{ item.group.name.substring(0, 60) }}
               </td>
             </template>
             <template v-slot:[`item.testTarget.name`]="{ item }">
-              <td>
+              <td :title="item.testTarget.name">
                 {{ item.testTarget.name.substring(0, 60) }}
               </td>
             </template>
             <template v-slot:[`item.viewPoint.name`]="{ item }">
-              <td>
+              <td :title="item.viewPoint.name">
                 {{ item.viewPoint.name.substring(0, 60) }}
               </td>
             </template>
