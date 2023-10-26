@@ -499,13 +499,13 @@ USB で接続されているデバイスを選択することができます。
 
 ## テスト結果名編集ボタン
 
-<img src="./images/edit.png"/>　　
+<img src="./images/edit.png"/>
 
 押下するとテスト結果名編集ダイアログが表示され、テスト結果名を編集することができます。
 
 ## テスト結果の削除ボタン
 
-<img src="./images/test-result-delete.png"/>　　
+<img src="./images/test-result-delete.png"/>
 
 チェックボックスでテスト結果を選択し、一覧下部の「テスト結果の削除」ボタンを押下するとテスト結果を削除することができます。
 
