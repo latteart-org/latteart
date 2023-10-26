@@ -88,6 +88,12 @@ export default class StartCaptureView extends Vue {
     return (this.$store.state as RootState).projectSettings.config;
   }
 
+  created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+  }
+
   private async execute(onStart: () => Promise<void>) {
     this.$store.dispatch("openProgressDialog");
 
