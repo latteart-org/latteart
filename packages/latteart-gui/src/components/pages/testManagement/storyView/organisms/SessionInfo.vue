@@ -113,32 +113,38 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <record-start-trigger v-if="!isViewerMode">
-                  <template v-slot:activator="{ on }">
+                <v-row dense justify="end">
+                  <v-col cols="auto">
+                    <record-start-trigger v-if="!isViewerMode">
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          id="openCaptureToolButton"
+                          @click="openCaptureOptionDialog"
+                          >{{
+                            $store.getters.message("session-info.start-capture")
+                          }}</v-btn
+                        >
+
+                        <capture-option-dialog
+                          :opened="captureOptionDialogOpened"
+                          @execute="(option) => startCapture(on, option)"
+                          @close="captureOptionDialogOpened = false"
+                        >
+                        </capture-option-dialog>
+                      </template>
+                    </record-start-trigger>
+                  </v-col>
+                  <v-col cols="auto">
                     <v-btn
-                      id="openCaptureToolButton"
-                      @click="openCaptureOptionDialog"
+                      v-if="!isViewerMode"
+                      @click="openTestResultSelectionDialog"
+                      id="resultLogFileInputButton"
                       >{{
-                        $store.getters.message("session-info.start-capture")
+                        $store.getters.message("session-info.import")
                       }}</v-btn
                     >
-
-                    <capture-option-dialog
-                      :opened="captureOptionDialogOpened"
-                      @execute="(option) => startCapture(on, option)"
-                      @close="captureOptionDialogOpened = false"
-                    >
-                    </capture-option-dialog>
-                  </template>
-                </record-start-trigger>
-
-                <v-btn
-                  v-if="!isViewerMode"
-                  @click="openTestResultSelectionDialog"
-                  id="resultLogFileInputButton"
-                  >{{ $store.getters.message("session-info.import") }}</v-btn
-                >
+                  </v-col>
+                </v-row>
               </v-card-actions>
             </v-card>
           </v-col>
