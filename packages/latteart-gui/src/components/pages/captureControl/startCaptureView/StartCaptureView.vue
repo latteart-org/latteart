@@ -95,43 +95,37 @@ export default class StartCaptureView extends Vue {
   }
 
   private async execute(onStart: () => Promise<void>) {
-    this.$store.dispatch("openProgressDialog");
+    this.$store.commit("captureControl/setUrl", {
+      url: this.captureOption.url,
+    });
+    this.$store.commit("captureControl/setTestResultName", {
+      name: this.captureOption.testResultName,
+    });
+    await this.$store.dispatch("writeDeviceSettings", {
+      config: {
+        platformName: this.captureOption.platform,
+        device: this.captureOption.device,
+        browser: this.captureOption.browser,
+        waitTimeForStartupReload: this.captureOption.waitTimeForStartupReload,
+      },
+    });
+    await this.$store.dispatch("writeConfig", {
+      config: {
+        ...this.config,
+        captureMediaSetting: {
+          ...this.config.captureMediaSetting,
+          mediaType: this.captureOption.mediaType,
+        },
+      },
+    });
+    this.$store.commit("captureControl/setTestOption", {
+      testOption: {
+        firstTestPurpose: this.captureOption.firstTestPurpose,
+        firstTestPurposeDetails: this.captureOption.firstTestPurposeDetails,
+        shouldRecordTestPurpose: this.captureOption.shouldRecordTestPurpose,
+      },
+    });
 
-    try {
-      this.$store.commit("captureControl/setUrl", {
-        url: this.captureOption.url,
-      });
-      this.$store.commit("captureControl/setTestResultName", {
-        name: this.captureOption.testResultName,
-      });
-      await this.$store.dispatch("writeDeviceSettings", {
-        config: {
-          platformName: this.captureOption.platform,
-          device: this.captureOption.device,
-          browser: this.captureOption.browser,
-          waitTimeForStartupReload: this.captureOption.waitTimeForStartupReload,
-        },
-      });
-      await this.$store.dispatch("writeConfig", {
-        config: {
-          ...this.config,
-          captureMediaSetting: {
-            ...this.config.captureMediaSetting,
-            mediaType: this.captureOption.mediaType,
-          },
-        },
-      });
-      this.$store.commit("captureControl/setTestOption", {
-        testOption: {
-          firstTestPurpose: this.captureOption.firstTestPurpose,
-          firstTestPurposeDetails: this.captureOption.firstTestPurposeDetails,
-          shouldRecordTestPurpose: this.captureOption.shouldRecordTestPurpose,
-        },
-      });
-    } catch (error) {
-      this.$store.dispatch("closeProgressDialog");
-      throw error;
-    }
     await onStart();
   }
 }

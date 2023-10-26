@@ -104,7 +104,8 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
-    "video": "動画"
+    "video": "動画",
+    "loading-test-results": "テスト結果読込中"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -363,7 +364,8 @@
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
     "output-html-running": "スナップショット出力中",
-    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}"
+    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
+    "loading-project": "プロジェクトデータ読込中"
   },
   "manage-header": {
     "creating-snapshot": "スナップショット作成中",
