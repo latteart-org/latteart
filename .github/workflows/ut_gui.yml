@@ -11,7 +11,7 @@ on:
       - .github/workflows/ut_gui.yml
 
 jobs:
-  ut:
+  ut_gui:
     runs-on: ubuntu-latest
 
     strategy:
