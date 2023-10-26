@@ -57,7 +57,9 @@ export default class Manager extends Vue {
   public created(): void {
     (async () => {
       try {
-        this.$store.dispatch("openProgressDialog");
+        this.$store.dispatch("openProgressDialog", {
+          message: this.$store.getters.message("manage.loading-project"),
+        });
         await this.$store.dispatch("testManagement/initialize");
       } catch (error) {
         console.error(error);

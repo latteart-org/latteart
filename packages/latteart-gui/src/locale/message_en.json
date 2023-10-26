@@ -104,7 +104,8 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose",
     "image": "Image",
-    "video": "Video"
+    "video": "Video",
+    "loading-test-results": "Loading Test Results."
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -363,7 +364,8 @@
   "manage": {
     "print-html-succeeded": "Snapshot output has finished.",
     "output-html-running": "Snapshot output is running.",
-    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}"
+    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}",
+    "loading-project": "Loading Project data."
   },
   "manage-header": {
     "creating-snapshot": "Creating snapshot.",
