@@ -342,21 +342,21 @@
     "execute-button": "Start"
   },
   "optional-features": {
-    "title": "Optional features",
+    "title": "Optional Features",
     "snapshot-output": {
-      "title": "Snapshot output",
-      "execute-button": "Output snapshot"
+      "title": "Snapshot Output",
+      "execute-button": "Output Snapshot"
     },
     "test-script-generation": {
-      "title": "Test script generation",
-      "execute-button": "Generate test scripts"
+      "title": "Test Script Generation",
+      "execute-button": "Generate Test Scripts"
     },
     "project-import": {
-      "title": "Config/Project import",
+      "title": "Config/Project Import",
       "execute-button": "Import"
     },
     "project-export": {
-      "title": "Config/Project export",
+      "title": "Config/Project Export",
       "execute-button": "Export"
     }
   },
