@@ -11,7 +11,7 @@ on:
       - .github/workflows/ut_capture_cl.yml
 
 jobs:
-  ut:
+  ut_capture_cl:
     runs-on: ubuntu-latest
 
     strategy:
