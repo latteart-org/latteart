@@ -90,9 +90,14 @@ export default class RecordStartTrigger extends Vue {
   }
 
   private async startCapture(): Promise<void> {
-    this.preparingForCapture = true;
-
     try {
+      await this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "start-capture-view.starting-capture"
+        ),
+      });
+      this.preparingForCapture = true;
+
       if (this.initial) {
         await this.resetHistory();
       }
@@ -151,6 +156,8 @@ export default class RecordStartTrigger extends Vue {
       }
     } finally {
       this.preparingForCapture = false;
+      await this.$store.dispatch("closeProgressDialog");
+
       this.goToHistoryView();
     }
   }

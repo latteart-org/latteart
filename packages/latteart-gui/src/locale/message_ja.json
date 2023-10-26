@@ -340,7 +340,8 @@
   },
   "start-capture-view": {
     "title": "テスト記録開始",
-    "execute-button": "記録を開始する"
+    "execute-button": "記録を開始する",
+    "starting-capture": "記録開始中"
   },
   "optional-features": {
     "title": "オプション機能",
