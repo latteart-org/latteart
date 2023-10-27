@@ -296,28 +296,28 @@ export default class HistoryDisplay extends Vue {
   }
 
   private async mounted() {
+    this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
+      openNoteEditDialog: this.openNoteEditDialog,
+    });
+    this.$store.commit(
+      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
+      {
+        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
+      }
+    );
+    this.$store.commit("operationHistory/setOpenNoteMenu", {
+      menu: this.openNoteMenu,
+    });
+
+    this.$store.commit("operationHistory/setDeleteNoteFunction", {
+      deleteNote: this.deleteNote,
+    });
+
     try {
       await this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
           "history-view.loading-test-results"
         ),
-      });
-
-      this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
-        openNoteEditDialog: this.openNoteEditDialog,
-      });
-      this.$store.commit(
-        "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
-        {
-          openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
-        }
-      );
-      this.$store.commit("operationHistory/setOpenNoteMenu", {
-        menu: this.openNoteMenu,
-      });
-
-      this.$store.commit("operationHistory/setDeleteNoteFunction", {
-        deleteNote: this.deleteNote,
       });
 
       await this.loadTestResults(

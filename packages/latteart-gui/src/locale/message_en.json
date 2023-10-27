@@ -340,7 +340,8 @@
   },
   "start-capture-view": {
     "title": "Start Capturing",
-    "execute-button": "Start"
+    "execute-button": "Start",
+    "starting-capture": "Starting capture."
   },
   "optional-features": {
     "title": "Optional Features",

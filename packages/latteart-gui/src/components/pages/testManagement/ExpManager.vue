@@ -23,14 +23,6 @@
       :message="errorMessage"
       @close="errorMessageDialogOpened = false"
     />
-
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
   </v-container>
 </template>
 
@@ -39,18 +31,13 @@ import { Component, Vue } from "vue-property-decorator";
 import AlertDialog from "@/components/pages/common/AlertDialog.vue";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 
-import ConfirmDialog from "../common/ConfirmDialog.vue";
-
 @Component({
   components: {
     "alert-dialog": AlertDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "confirm-dialog": ConfirmDialog,
   },
 })
 export default class Manager extends Vue {
-  private isConfirmButtonDisabled = false;
-
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
