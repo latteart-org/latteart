@@ -370,7 +370,6 @@ export default class OperationList extends Vue {
 
     // for close and  open animation.
     this.$nextTick(() => {
-      this.resetPosition();
       setTimeout(() => {
         this.contextMenuX = target.x;
         this.contextMenuY = target.y;
