@@ -188,10 +188,6 @@ export default class ReviewView extends Vue {
     })();
   }
 
-  private get testResultIds(): string[] {
-    return this.$route.query.testResultIds as string[];
-  }
-
   private get testResultId(): string {
     return (this.$store.state.operationHistory as OperationHistoryState)
       .testResultInfo.id;

@@ -16,13 +16,17 @@
 
 <template>
   <div>
-    <v-btn
-      v-if="story.sessions.length > 0"
-      :disabled="disabled"
-      color="info"
-      @click="toReviewPage"
-      >{{ $store.getters.message("story-view.do-review") }}</v-btn
-    >
+    <test-result-load-trigger :testResultIds="testResultIds">
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-if="story.sessions.length > 0"
+          :disabled="disabled"
+          color="info"
+          @click="toReviewPage(on)"
+          >{{ $store.getters.message("story-view.do-review") }}</v-btn
+        >
+      </template>
+    </test-result-load-trigger>
   </div>
 </template>
 
@@ -30,9 +34,12 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Story } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
+import TestResultLoadTrigger from "@/components/pages/common/organisms/TestResultLoadTrigger.vue";
 
 @Component({
-  components: {},
+  components: {
+    "test-result-load-trigger": TestResultLoadTrigger,
+  },
 })
 export default class ReviewButton extends Vue {
   @Prop({ type: Object, default: () => ({ sessions: [] }) })
@@ -45,21 +52,29 @@ export default class ReviewButton extends Vue {
   private alertDialogTitle = "";
   private alertDialogMessage = "";
 
-  public toReviewPage(): void {
-    (async () => {
-      this.$store.commit("testManagement/setTempStory", { story: this.story });
-      const sessions = StoryService.getTargetSessions(
-        this.story,
-        this.sessionIds
-      );
-      const testResultIds = sessions!
-        .map((session) => session.testResultFiles.map((result) => result.id))
-        .flat();
-      this.$router.push({
-        path: `../history`,
-        query: { sessionIds: this.sessionIds, testResultIds },
-      });
-    })();
+  public async toReviewPage(
+    loadTestResults: () => Promise<void>
+  ): Promise<void> {
+    await loadTestResults();
+
+    this.$store.commit("testManagement/setTempStory", { story: this.story });
+
+    this.$router.push({
+      path: `../history`,
+      query: { sessionIds: this.sessionIds },
+    });
+  }
+
+  private get testResultIds() {
+    const sessions = StoryService.getTargetSessions(
+      this.story,
+      this.sessionIds
+    );
+    return (
+      sessions
+        ?.map((session) => session.testResultFiles.map((result) => result.id))
+        .flat() ?? []
+    );
   }
 }
 </script>

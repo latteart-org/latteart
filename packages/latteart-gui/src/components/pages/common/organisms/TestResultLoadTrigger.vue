@@ -36,7 +36,7 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
   },
 })
 export default class TestResultLoadTrigger extends Vue {
-  @Prop({ type: String, default: "" }) testResultId!: string;
+  @Prop({ type: Array, default: () => [] }) testResultIds!: string[];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -58,50 +58,56 @@ export default class TestResultLoadTrigger extends Vue {
   }
 
   private async loadHistory() {
-    if (!this.testResultId) {
+    if (this.testResultIds.length === 0) {
       return;
     }
 
-    setTimeout(async () => {
-      try {
-        this.$store.commit(
-          "captureControl/setTestResultNavigationDrawerOpened",
-          {
-            isOpened: false,
-          }
-        );
+    try {
+      this.$store.commit("captureControl/setTestResultNavigationDrawerOpened", {
+        isOpened: false,
+      });
 
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "test-result-navigation-drawer.load"
-          ),
-        });
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "history-view.loading-test-results"
+        ),
+      });
 
-        this.goToHistoryView(this.testResultId);
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
+      await this.loadTestResults(...this.testResultIds);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      } else {
+        throw error;
       }
-    }, 300);
+    } finally {
+      this.$store.dispatch("closeProgressDialog");
+    }
   }
 
-  private goToHistoryView(testResultId: string) {
-    this.$router
-      .push({
-        path: "/capture/history",
-        query: { testResultIds: [testResultId] },
-      })
-      .catch((err: Error) => {
-        if (err.name !== "NavigationDuplicated") {
-          throw err;
-        }
+  private async loadTestResults(...testResultIds: string[]) {
+    try {
+      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds,
       });
+
+      await this.$store.dispatch("operationHistory/loadTestResult", {
+        testResultId: testResultIds[0],
+      });
+
+      this.$store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        this.errorMessageDialogOpened = true;
+        this.errorMessage = error.message;
+      } else {
+        throw error;
+      }
+    }
   }
 }
 </script>
