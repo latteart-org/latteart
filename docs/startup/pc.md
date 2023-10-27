@@ -32,7 +32,12 @@ latteart
 
 # ツール構成
 
-LatteArt は大きく分けて以下の 2 つの機能から構成されています。
+LatteArt は大きく分けて 2 つの機能から構成され、サイドバーのメニューより切り替えが可能です。  
+:bulb:また、サイドメニューは開閉可能です。
+
+<div align="center">
+   <img src="./images/side-menu.png" width="480"/> 
+</div><br>
 
 - **テスト記録**: テスターの操作・気付きの記録
 
