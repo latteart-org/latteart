@@ -169,6 +169,12 @@ export default class WebBrowser {
       return;
     }
 
+    // Update current window of the container to be the same as actual current window.
+    const browsingWindowHandle = await this.getBrowsingWindowHandle();
+    if (browsingWindowHandle) {
+      await this.windowContainer.changeCurrentWindowTo(browsingWindowHandle);
+    }
+
     // If the number of windows in the container, notice it.
     if (this.windowContainer.length !== beforeContainerLength) {
       const currentWindowHostNameChanged = addedWindowHandles
