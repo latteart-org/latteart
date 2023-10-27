@@ -171,7 +171,8 @@ export default class WebBrowser {
 
     // Update current window of the container to be the same as actual current window.
     const browsingWindowHandle = await this.getBrowsingWindowHandle();
-    if (browsingWindowHandle) {
+
+    if (addedWindowHandles.length === 0 && browsingWindowHandle) {
       await this.windowContainer.changeCurrentWindowTo(browsingWindowHandle);
     }
 
@@ -286,7 +287,7 @@ export default class WebBrowser {
       throw new Error("Create windows error.");
     });
 
-    if (this.currentWindow && currentWindowIsFocused) {
+    if (this.currentWindow) {
       await this.client.switchWindowTo(this.currentWindow.windowHandle);
     }
 
