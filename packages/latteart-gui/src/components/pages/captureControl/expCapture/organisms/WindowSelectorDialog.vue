@@ -54,6 +54,12 @@ export default class WindowSelectorDialog extends Vue {
     windows: [],
   };
 
+  created() {
+    if (this.opened) {
+      this.openWindowSelector();
+    }
+  }
+
   @Watch("opened")
   private openWindowSelector(): void {
     const captureControlState = this.$store.state
