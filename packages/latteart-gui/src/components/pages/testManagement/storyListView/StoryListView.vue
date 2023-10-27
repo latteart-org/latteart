@@ -128,14 +128,22 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn
+          <test-result-load-trigger
             v-if="!isViewerMode"
-            @click="review"
-            :disabled="checkedItems.length === 0"
-            color="primary"
-            class="ma-1"
-            >{{ $store.getters.message("story-list-view.do-review") }}</v-btn
+            :testResultIds="targetTestResultIds"
           >
+            <template v-slot:activator="{ on }">
+              <v-btn
+                @click="review(on)"
+                :disabled="checkedItems.length === 0"
+                color="primary"
+                class="ma-1"
+                >{{
+                  $store.getters.message("story-list-view.do-review")
+                }}</v-btn
+              >
+            </template>
+          </test-result-load-trigger>
         </v-card-actions>
       </v-card>
     </v-container>
@@ -152,10 +160,12 @@ import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
+import TestResultLoadTrigger from "../../common/organisms/TestResultLoadTrigger.vue";
 
 @Component({
   components: {
     "error-message-dialog": ErrorMessageDialog,
+    "test-result-load-trigger": TestResultLoadTrigger,
   },
 })
 export default class StoryListView extends Vue {
@@ -306,7 +316,7 @@ export default class StoryListView extends Vue {
     this.viewPointFilterValue = "";
   }
 
-  private review() {
+  private get targetTestResultIds() {
     const targetStories: Story[] = this.checkedItems.map(
       ({ testTarget, viewPoint, testMatrix }) => {
         return this.$store.getters[
@@ -314,22 +324,21 @@ export default class StoryListView extends Vue {
         ](testTarget.id, viewPoint.id, testMatrix.id);
       }
     );
-    const reviewTarget =
-      StoryService.collectTestResultIdsFromSession(targetStories);
-    if (reviewTarget === null) {
-      this.errorMessage = this.$store.getters.message(
-        "error.test_management.review_data_not_exist"
-      );
-      this.errorMessageDialogOpened = true;
-    } else {
-      this.$router.push({
-        name: "reviewView",
-        query: {
-          sessionIds: reviewTarget.sessionIds,
-          testResultIds: reviewTarget.testResultIds,
-        },
-      });
-    }
+
+    return (
+      StoryService.collectTestResultIdsFromSession(targetStories)
+        ?.testResultIds ?? []
+    );
+  }
+
+  private async review(loadTestResults: () => Promise<void>) {
+    await loadTestResults();
+
+    this.$router.push({ name: "reviewView" }).catch((err: Error) => {
+      if (err.name !== "NavigationDuplicated") {
+        throw err;
+      }
+    });
   }
 }
 </script>

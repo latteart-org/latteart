@@ -312,49 +312,10 @@ export default class HistoryDisplay extends Vue {
     this.$store.commit("operationHistory/setDeleteNoteFunction", {
       deleteNote: this.deleteNote,
     });
-
-    try {
-      await this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "history-view.loading-test-results"
-        ),
-      });
-
-      await this.loadTestResults(
-        this.testResultIds ??
-          this.operationHistoryState.storingTestResultInfos?.map((info) => {
-            return info.id;
-          }) ?? [this.operationHistoryState.testResultInfo.id]
-      );
-    } finally {
-      await this.$store.dispatch("closeProgressDialog");
-    }
   }
 
   private get testResultIds(): string[] {
     return this.$route.query.testResultIds as string[];
-  }
-
-  private async loadTestResults(testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
   }
 
   private openNoteMenu(

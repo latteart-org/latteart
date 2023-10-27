@@ -47,13 +47,13 @@
           >
             <template v-slot:[`item.actions`]="{ item }">
               <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
-                <test-result-load-trigger :testResultId="item.id">
+                <test-result-load-trigger :testResultIds="[item.id]">
                   <template v-slot:activator="{ on, disabled }">
                     <v-btn
                       icon
                       large
                       color="primary"
-                      @click="on"
+                      @click="goToHistoryView(on)"
                       :disabled="disabled"
                       :title="$store.getters.message('test-result-list.load')"
                     >
@@ -373,6 +373,16 @@ export default class TestResultListView extends Vue {
     } finally {
       await this.$store.dispatch("closeProgressDialog");
     }
+  }
+
+  private async goToHistoryView(loadTestResults: () => Promise<void>) {
+    await loadTestResults();
+
+    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+      if (err.name !== "NavigationDuplicated") {
+        throw err;
+      }
+    });
   }
 }
 </script>

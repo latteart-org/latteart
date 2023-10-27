@@ -90,6 +90,8 @@ export default class RecordStartTrigger extends Vue {
   }
 
   private async startCapture(): Promise<void> {
+    this.goToHistoryView();
+
     try {
       await this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
@@ -129,36 +131,21 @@ export default class RecordStartTrigger extends Vue {
         callbacks: {
           onEnd: async (error?: Error) => {
             if (error) {
-              const targetPath = "/capture/history";
-              if (this.$router.currentRoute.path !== targetPath) {
-                await this.$router.push({
-                  path: targetPath,
-                  query: { testResultIds: [this.testResultId] },
-                });
-              }
+              this.goToHistoryView();
               throw error;
             }
           },
         },
       });
-      this.preparingForCapture = false;
     } catch (error) {
       if (error instanceof Error) {
-        const targetPath = "/capture/history";
-        if (this.$router.currentRoute.path !== targetPath) {
-          await this.$router.push({
-            path: targetPath,
-            query: { testResultIds: [this.testResultId] },
-          });
-        }
+        this.goToHistoryView();
       } else {
         throw error;
       }
     } finally {
       this.preparingForCapture = false;
       await this.$store.dispatch("closeProgressDialog");
-
-      this.goToHistoryView();
     }
   }
 
@@ -172,16 +159,15 @@ export default class RecordStartTrigger extends Vue {
   }
 
   private goToHistoryView() {
-    this.$router
-      .push({
-        path: "/capture/history",
-        query: { testResultIds: [this.testResultId] },
-      })
-      .catch((err: Error) => {
+    const targetPath = "/capture/history";
+
+    if (this.$router.currentRoute.path !== targetPath) {
+      this.$router.push({ path: targetPath }).catch((err: Error) => {
         if (err.name !== "NavigationDuplicated") {
           throw err;
         }
       });
+    }
   }
 }
 </script>
