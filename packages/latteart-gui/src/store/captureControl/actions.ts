@@ -581,6 +581,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           { root: true }
         );
       },
+      onCurrentWindowHostNameChanged: async () => {
+        context.commit("setWindowSelectorDialogOpened", { isOpened: true });
+      },
       onEnd: async (result: ServiceResult<void>) => {
         context.dispatch("postEndCapture");
 
@@ -723,6 +726,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   postEndCapture(context) {
     context.dispatch("stopTimer");
     context.commit("setCapturing", { isCapturing: false });
+    context.commit("setWindowSelectorDialogOpened", { isOpened: false });
     context.commit("setPaused", { isPaused: false });
     context.commit("deleteCaptureSession");
   },

@@ -32,8 +32,14 @@
           </h3>
           <v-spacer></v-spacer>
           <div>
-            {{ message("note-edit.target-sequence") }}
-            {{ note.sequence }}
+            <span class="label">{{
+              `${message("history-view.test-result-name")}:`
+            }}</span>
+            <span class="value">{{ note.testResultName }}</span>
+            <span class="label">{{
+              `${message("note-edit.target-sequence")}:`
+            }}</span>
+            <span class="label">{{ note.sequence }}</span>
           </div>
         </v-card-title>
         <v-card-text>
@@ -48,7 +54,7 @@
           </v-textarea>
 
           <media-display-group
-            v-if="opened"
+            v-if="isMediaDisplayed"
             :imageFileUrl="note.image.imageFileUrl"
             :videoUrl="note.videoUrl"
           />
@@ -66,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "./NoteTagChipGroup.vue";
@@ -90,9 +96,22 @@ export default class NoteListDialog extends Vue {
     value: string;
     details: string;
     timestamp: number;
+    testResultName: string;
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
+
+  private isMediaDisplayed: boolean = false;
+
+  @Watch("opened")
+  private rerenderMediaDisplay() {
+    if (this.opened) {
+      this.isMediaDisplayed = false;
+      this.$nextTick(() => {
+        this.isMediaDisplayed = true;
+      });
+    }
+  }
 
   private get noteWithTime() {
     return this.notes
@@ -115,3 +134,14 @@ export default class NoteListDialog extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.value
+  font-size: medium
+  font-weight: normal
+  margin-left: 8px
+.label
+  font-size: medium
+  font-weight: normal
+  margin-left: 16px
+</style>

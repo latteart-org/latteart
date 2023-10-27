@@ -17,6 +17,7 @@ describe("getCoverages", () => {
               pageUrl: "",
               pageTitle: "",
               imageFileUrl: "e1.png",
+              testResultId: "",
             },
             {
               id: "",
@@ -25,6 +26,7 @@ describe("getCoverages", () => {
               pageUrl: "",
               pageTitle: "",
               imageFileUrl: "",
+              testResultId: "",
             },
           ],
           defaultValues: [],

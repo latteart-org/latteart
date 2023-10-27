@@ -15,13 +15,8 @@
 -->
 
 <template>
-  <div>
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("story-view.story")
-      }}</v-toolbar-title>
-    </v-app-bar>
-    <v-container fluid class="pa-4 pt-4">
+  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
+    <v-container fluid pa-0 class="align-self-start">
       <v-row v-if="story">
         <v-col cols="3">
           <v-text-field
@@ -89,6 +84,7 @@
           ></review-button>
 
           <v-select
+            :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
             :label="this.$store.getters.message('story-view.review-target')"
             item-text="displayName"
@@ -128,6 +124,7 @@
                   ></v-checkbox>
                 </div>
                 <v-btn
+                  :disabled="isCapturing || isReplaying"
                   v-if="!isViewerMode"
                   @click="
                     $event.stopPropagation();
@@ -150,6 +147,7 @@
       <v-row>
         <v-col>
           <v-btn
+            :disabled="isCapturing || isReplaying"
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
@@ -157,23 +155,16 @@
           >
         </v-col>
       </v-row>
-
-      <v-footer app height="auto" color="latteart-main">
-        <v-spacer></v-spacer>
-        <v-btn @click="toIndex">{{
-          $store.getters.message("edit-footer.top")
-        }}</v-btn>
-      </v-footer>
-
-      <confirm-dialog
-        :opened="confirmDialogOpened"
-        :title="confirmDialogTitle"
-        :message="confirmDialogMessage"
-        :onAccept="confirmDialogAccept"
-        @close="confirmDialogOpened = false"
-      />
     </v-container>
-  </div>
+
+    <confirm-dialog
+      :opened="confirmDialogOpened"
+      :title="confirmDialogTitle"
+      :message="confirmDialogMessage"
+      :onAccept="confirmDialogAccept"
+      @close="confirmDialogOpened = false"
+    />
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -190,6 +181,7 @@ import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import ReviewButton from "./organisms/ReviewButton.vue";
 import ConfirmDialog from "@/components/pages/common/ConfirmDialog.vue";
 import SessionInfo from "./organisms/SessionInfo.vue";
+import { CaptureControlState } from "@/store/captureControl";
 
 @Component({
   components: {
@@ -222,7 +214,7 @@ export default class StoryView extends Vue {
     }
 
     this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("story-view.window-title"),
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
     });
 
     const sessionPanelExpantionStatesKey = `latteart-management-sessionPanelExpantionStates_${this.storyId}`;
@@ -244,6 +236,10 @@ export default class StoryView extends Vue {
         sessionPanelExpantionStatesKey,
         JSON.stringify(this.sessionPanelExpantionStates)
       );
+    });
+
+    this.$store.commit("testManagement/addRecentStory", {
+      story: this.story,
     });
   }
 
@@ -413,7 +409,21 @@ export default class StoryView extends Vue {
   }
 
   private get canReviewSession(): boolean {
+    if (this.isCapturing || this.isReplaying) {
+      return false;
+    }
+
     return this.reviewTargetSessionIds.length >= 1;
+  }
+
+  private get isCapturing() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isCapturing;
+  }
+
+  private get isReplaying() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isReplaying;
   }
 
   private toIndex(): void {

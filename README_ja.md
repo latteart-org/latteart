@@ -11,10 +11,10 @@ LatteArt は End-to-End テストの記録・可視化・分析を支援する�
 - バグの再現手順を共有したい
 - 保守性の高い E2E テストスクリプトを自動生成したい
 
-LatteArt は以下の 2 つのツールで構成されています。
+LatteArt は大きく分けて 2 つ機能から構成されています。
 
-- **記録ツール**: テスト中の操作・気付きの記録
-- **管理ツール**: 探索的テストの計画・テスト結果の管理・集計結果の可視化
+- **テスト記録**: テスト中の操作・気付きの記録
+- **テスト管理**: 探索的テストの計画・テスト結果の管理・集計結果の可視化
 
 ## 主な機能
 
@@ -29,9 +29,10 @@ LatteArt は以下の 2 つのツールで構成されています。
 - [LatteArt 導入手順書](./docs/startup/pc.md): LatteArt のインストール・起動方法
 - [LatteArt チュートリアル（操作記録編）](./docs/tutorial/capture/tutorial-capture.md) : LatteArt を用いたテストの記録方法
 - [LatteArt チュートリアル（テスト実践編）](./docs/tutorial/management/tutorial-management.md) : LatteArt を用いたテストの考え方、およびテストの実践
-- [記録ツール 操作説明書](./docs/manual/capture/manual-capture.md): 記録ツールの各機能の詳細
-- [管理ツール 操作説明書](./docs/manual/management/manual-management.md): 管理ツールの各機能の詳細
+- [テスト記録 操作説明書](./docs/manual/capture/manual-capture.md): テスト記録の各機能の詳細
+- [テスト管理 操作説明書](./docs/manual/management/manual-management.md): テスト管理の各機能の詳細
 - [テストスクリプト自動生成](./docs/manual/common/test-script-generation.md): テストスクリプト自動生成機能の詳細
+- [設定 操作説明書](./docs/manual/others/manual-config.md): テスト管理の各機能の詳細
 
 # インストール
 

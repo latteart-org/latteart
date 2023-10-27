@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <div style="height: calc(100vh - 120px)">
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
+  <v-container fluid fill-height pa-0>
+    <v-app-bar color="latteart-main" dark absolute flat>
       <v-toolbar-title>{{
         $store.getters.message("manager-history-view.review")
       }}</v-toolbar-title>
@@ -40,28 +40,19 @@
         class="ma-2"
         >{{ $store.getters.message("manage-header.generate-script") }}</v-btn
       >
-      <v-btn
-        id="viewerConfigButton"
-        color="primary"
-        @click="toViewerConfig"
-        class="ma-2"
-        >{{ $store.getters.message("manage-header.capture-config") }}</v-btn
-      >
     </v-app-bar>
 
-    <v-btn :disabled="isResuming" @click="toBack()" class="ma-2">{{
-      $store.getters.message("manager-history-view.back")
-    }}</v-btn>
-
-    <history-display
-      :changeWindowTitle="changeWindowTitle"
-      :rawHistory="testResult.history"
-      :message="messageProvider"
-      :screenDefinitionConfig="screenDefinitionConfig"
-      :scriptGenerationEnabled="!$isViewerMode"
-      :testResultId="testResultId"
-      operationContextEnabled
-    ></history-display>
+    <v-container fluid pa-0 style="height: 100%">
+      <history-display
+        :changeWindowTitle="changeWindowTitle"
+        :rawHistory="testResult.history"
+        :message="messageProvider"
+        :screenDefinitionConfig="screenDefinitionConfig"
+        :scriptGenerationEnabled="!$isViewerMode"
+        :testResultId="testResultId"
+        operationContextEnabled
+      ></history-display>
+    </v-container>
 
     <execute-dialog
       :opened="dialogOpened"
@@ -99,7 +90,7 @@
       :message="errorMessage"
       @close="errorDialogOpened = false"
     ></error-message-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -125,7 +116,6 @@ import { OperationHistoryState } from "@/store/operationHistory";
   },
 })
 export default class ReviewView extends Vue {
-  private isResuming = false;
   private dialogOpened = false;
   private dialogTitle = "";
   private dialogMessage = "";
@@ -198,54 +188,6 @@ export default class ReviewView extends Vue {
     })();
   }
 
-  private created() {
-    (async () => {
-      this.isResuming = true;
-
-      try {
-        await this.loadTestResults(...this.testResultIds);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error);
-          this.errorDialogOpened = true;
-          this.errorMessage = error.message;
-        } else {
-          throw error;
-        }
-      }
-
-      this.isResuming = false;
-    })();
-  }
-
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
-
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  private get testResultIds(): string[] {
-    return this.$route.query.testResultIds as string[];
-  }
-
   private get testResultId(): string {
     return (this.$store.state.operationHistory as OperationHistoryState)
       .testResultInfo.id;
@@ -272,28 +214,11 @@ export default class ReviewView extends Vue {
   }
 
   private changeWindowTitle(windowTitle: string) {
-    const windowTitleManagerPrefix =
-      this.$store.getters.message("app.manage-title");
+    const windowTitlePrefix = this.$store.getters.message(
+      this.$route.meta?.title ?? ""
+    );
     this.$store.dispatch("changeWindowTitle", {
-      title: `${windowTitleManagerPrefix} [${windowTitle}]`,
-    });
-  }
-
-  private toViewerConfig() {
-    this.$store.commit("openConfigViewer");
-  }
-
-  private toBack(): void {
-    this.$store.dispatch("operationHistory/clearTestResult");
-    this.$store.commit("operationHistory/clearStoringTestResultInfos");
-    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-    this.$store.commit("operationHistory/clearElementCoverages");
-    this.$store.commit("operationHistory/clearInputValueTable");
-
-    this.$router.push({
-      name: "storyView",
-      params: { id: this.tempStory.id },
-      query: { status: this.tempStory.status },
+      title: `${windowTitlePrefix} [${windowTitle}]`,
     });
   }
 

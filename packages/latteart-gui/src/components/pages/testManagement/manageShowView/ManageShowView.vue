@@ -15,8 +15,43 @@
 -->
 
 <template>
-  <div>
-    <v-container fluid v-if="hasTestMatrix">
+  <v-container fluid fill-height pa-0>
+    <v-container
+      class="align-self-start"
+      pa-8
+      pt-4
+      fluid
+      v-if="hasTestMatrix"
+      style="height: calc(100% - 148px); overflow-y: scroll"
+    >
+      <v-row>
+        <v-col cols="4">
+          <v-row>
+            <v-col cols="auto" style="align-self: center">
+              <span style="color: rgba(0, 0, 0, 0.6)"
+                ><v-icon>filter_list_alt</v-icon
+                >{{ this.$store.getters.message("manage-show.search") }}</span
+              ></v-col
+            >
+            <v-col>
+              <v-text-field
+                v-model="search"
+                :label="this.$store.getters.message('manage-show.tester-name')"
+                clearable
+              ></v-text-field></v-col></v-row
+        ></v-col>
+        <v-col cols="auto" style="align-self: end">
+          <v-checkbox
+            :label="
+              this.$store.getters.message('manage-show.incomplete-sessions')
+            "
+            v-model="isCompletionFilterEnabled"
+            class="mt-2"
+          ></v-checkbox>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
+
       <tab-selector
         :selectedItemId="selectedTestMatrixId"
         :items="testMatrices"
@@ -26,20 +61,22 @@
       <v-card class="pa-2">
         <test-matrix-viewer
           :testMatrixId="selectedTestMatrixId"
+          :search="search"
+          :completionFilter="isCompletionFilterEnabled"
         ></test-matrix-viewer>
       </v-card>
     </v-container>
 
     <v-footer
-      v-if="$vuetify.breakpoint.width > 800"
-      app
-      height="auto"
+      absolute
+      height="148px"
       color="latteart-main"
       class="responsive-footer"
+      style="overflow-y: hidden"
     >
       <legend-viewer></legend-viewer>
     </v-footer>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -58,16 +95,11 @@ import TestMatrixViewer from "./organisms/TestMatrixViewer.vue";
 })
 export default class ManageShow extends Vue {
   private selectedTestMatrixId = "";
+  private search = "";
+  private isCompletionFilterEnabled = false;
 
   private get locale() {
     return this.$store.getters.getLocale();
-  }
-
-  @Watch("locale")
-  private updateWindowTitle() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message("manage-show.window-title"),
-    });
   }
 
   @Watch("selectedTestMatrixId")
@@ -93,10 +125,13 @@ export default class ManageShow extends Vue {
   }
 
   private async created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+
     if (!this.$store.state.progressDialog.opened) {
       await this.$store.dispatch("testManagement/readProject");
     }
-    this.updateWindowTitle();
 
     const testMatrixId =
       localStorage.getItem(

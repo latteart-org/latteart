@@ -62,6 +62,7 @@ export type SequenceDiagramGraphExtenderSource = {
     sequence: number;
     index: number;
     type: string;
+    value: string;
     details: string;
   }[];
   screens: {
@@ -171,6 +172,7 @@ function createGraphBuilder(
               index,
               type: note.tags.includes("bug") ? "bug" : "notice",
               details: note.details ?? "",
+              value: note.value,
             };
           });
         });
@@ -379,7 +381,7 @@ function buildCommentTexts(
       testStep.notes?.map((note, index) => {
         const tags = TextUtil.lineBreak(
           `(${sequence}-${index})${note.tags
-            .map((tag) => `[${tag}]`)
+            .map((tag) => `[${TextUtil.escapeSpecialCharacters(tag)}]`)
             .join("")}`,
           16
         );

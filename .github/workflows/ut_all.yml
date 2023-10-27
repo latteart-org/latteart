@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ut:
+  ut_all:
     runs-on: ubuntu-latest
 
     strategy:

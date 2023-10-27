@@ -32,7 +32,7 @@
         <v-checkbox
           v-model="captureArch"
           :label="$store.getters.message('config-view.capture-arch')"
-          :disabled="isCapturing"
+          :disabled="isCapturing || isReplaying"
           hide-details
           class="py-0 my-0"
           true-value="push"
@@ -62,6 +62,8 @@ export default class ExperimentalFeatureConfig extends Vue {
   public readonly experimentalFeatureSetting!: ExperimentalFeatureSetting;
   @Prop({ type: Boolean, default: true })
   public readonly isCapturing!: boolean;
+  @Prop({ type: Boolean, default: true })
+  public readonly isReplaying!: boolean;
   private tempConfig: ExperimentalFeatureSetting = {
     ...this.experimentalFeatureSetting,
   };

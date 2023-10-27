@@ -308,6 +308,30 @@ const mutations: MutationTree<TestManagementState> = {
       return testMatrix;
     });
   },
+
+  /**
+   * Add story as recent story.
+   * @param state State.
+   * @param payload.story Story.
+   */
+  addRecentStory(state, payload: { story: Story }) {
+    state.recentStories = [
+      payload.story,
+      ...state.recentStories.filter(({ id }) => id !== payload.story.id),
+    ].filter((_, index) => index < 5);
+  },
+
+  /**
+   * Set recent review query.
+   * @param state State.
+   * @param payload.query Query.
+   */
+  setRecentReviewQuery(
+    state,
+    payload: { query: { sessionIds: string[]; testResultIds: string[] } | null }
+  ) {
+    state.recentReviewQuery = payload.query;
+  },
 };
 
 export default mutations;

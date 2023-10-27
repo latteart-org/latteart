@@ -24,6 +24,7 @@ import ManageShowView from "./components/pages/testManagement/manageShowView/Man
 import ManageProgressView from "./components/pages/testManagement/manageProgressView/ManageProgressView.vue";
 import ManageQualityView from "./components/pages/testManagement/manageQualityView/ManageQualityView.vue";
 import Root from "./ViewerRoot.vue";
+import store from "@/store/index";
 
 Vue.use(Router);
 
@@ -48,28 +49,39 @@ export default new Router({
                   path: "show",
                   name: "manageShowView",
                   component: ManageShowView,
+                  meta: { title: "manage-header.top" },
                 },
                 {
                   path: "progress",
                   name: "manageProgressView",
                   component: ManageProgressView,
+                  meta: { title: "manage-progress.title" },
                 },
                 {
                   path: "quality",
                   name: "manageQualityView",
                   component: ManageQualityView,
+                  meta: { title: "manage-quality.title" },
+                },
+                {
+                  path: "story/:id",
+                  name: "storyView",
+                  component: StoryView,
+                  meta: { title: "story-view.title" },
+                },
+                {
+                  path: "history",
+                  name: "historyFrame",
+                  component: HistoryFrame,
+                  meta: { title: "manager-history-view.review" },
+                  beforeEnter: (to, from, next) => {
+                    store.commit("testManagement/setRecentReviewQuery", {
+                      query: to.query,
+                    });
+                    next();
+                  },
                 },
               ],
-            },
-            {
-              path: "story/:id",
-              name: "storyView",
-              component: StoryView,
-            },
-            {
-              path: "history",
-              name: "historyFrame",
-              component: HistoryFrame,
             },
           ],
         },

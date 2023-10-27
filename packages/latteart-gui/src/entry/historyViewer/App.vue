@@ -18,13 +18,11 @@
   <v-app>
     <error-handler>
       <div style="height: 100vh">
-        <v-row class="fill-height">
-          <history-display
-            :rawHistory="history"
-            :message="messageProvider"
-            :screenDefinitionConfig="screenDefinitionConfig"
-          ></history-display>
-        </v-row>
+        <history-display
+          :rawHistory="history"
+          :message="messageProvider"
+          :screenDefinitionConfig="screenDefinitionConfig"
+        ></history-display>
       </div>
     </error-handler>
   </v-app>

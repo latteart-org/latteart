@@ -30,19 +30,7 @@
         >
       </template>
       <v-list>
-        <test-result-import-button />
         <test-tesult-export-button />
-        <config-import-button />
-        <config-export-button v-slot:default="slotProps">
-          <v-list-item
-            @click="slotProps.obj.execute"
-            :disabled="slotProps.obj.isDisabled"
-          >
-            <v-list-item-title>{{
-              $store.getters.message("config-io.export-config")
-            }}</v-list-item-title>
-          </v-list-item>
-        </config-export-button>
         <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
@@ -71,8 +59,6 @@ import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import TestResultFileImportButton from "./TestResultFileImportButton.vue";
 import ScreenshotsDownloadButton from "@/components/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
-import ConfigImportButton from "@/components/pages/common/ConfigImportButton.vue";
-import ConfigExportButton from "@/components/pages/common/ConfigExportButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
 
 @Component({
@@ -83,8 +69,6 @@ import CompareHistoryButton from "./CompareHistoryButton.vue";
     "test-result-import-button": TestResultFileImportButton,
     "screenshots-download-button": ScreenshotsDownloadButton,
     "delete-test-result-button": DeleteTestResultButton,
-    "config-import-button": ConfigImportButton,
-    "config-export-button": ConfigExportButton,
     "compare-history-button": CompareHistoryButton,
   },
 })

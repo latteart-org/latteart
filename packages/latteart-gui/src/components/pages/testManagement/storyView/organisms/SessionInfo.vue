@@ -57,7 +57,7 @@
       <v-card-text v-show="reportSectionDisplayed" class="pa-2">
         <v-row>
           <v-col cols="6">
-            <v-card class="ma-2">
+            <v-card class="ma-2" :disabled="isCapturing || isReplaying">
               <v-card-title>{{
                 $store.getters.message("session-info.model")
               }}</v-card-title>
@@ -71,18 +71,24 @@
                     <span class="break-all">{{ file.name }}</span> ({{
                       millisecondsToHHmmss(file.testingTime)
                     }})
-                    <v-btn
-                      text
-                      icon
-                      v-if="!isViewerMode"
-                      :title="
-                        $store.getters.message(
-                          'session-info.open-capture-tool-title'
-                        )
-                      "
-                      @click="openCaptureTool(file.id)"
-                      ><v-icon>launch</v-icon></v-btn
-                    >
+
+                    <test-result-load-trigger :testResultIds="[file.id]">
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          text
+                          icon
+                          v-if="!isViewerMode"
+                          :title="
+                            $store.getters.message(
+                              'session-info.open-test-result'
+                            )
+                          "
+                          @click="openCaptureTool(on)"
+                          ><v-icon>launch</v-icon></v-btn
+                        >
+                      </template>
+                    </test-result-load-trigger>
+
                     <v-btn
                       class="mr-0"
                       text
@@ -115,21 +121,38 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  v-if="!isViewerMode"
-                  @click="openCaptureTool(undefined)"
-                  id="openCaptureToolButton"
-                  >{{
-                    $store.getters.message("session-info.start-capture-tool")
-                  }}</v-btn
-                >
-                <v-btn
-                  v-if="!isViewerMode"
-                  @click="openTestResultSelectionDialog"
-                  id="resultLogFileInputButton"
-                  >{{ $store.getters.message("session-info.import") }}</v-btn
-                >
+                <v-row dense justify="end">
+                  <v-col cols="auto">
+                    <record-start-trigger v-if="!isViewerMode">
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          id="openCaptureToolButton"
+                          @click="openCaptureOptionDialog"
+                          >{{
+                            $store.getters.message("session-info.start-capture")
+                          }}</v-btn
+                        >
+
+                        <capture-option-dialog
+                          :opened="captureOptionDialogOpened"
+                          @execute="(option) => startCapture(on, option)"
+                          @close="captureOptionDialogOpened = false"
+                        >
+                        </capture-option-dialog>
+                      </template>
+                    </record-start-trigger>
+                  </v-col>
+                  <v-col cols="auto">
+                    <v-btn
+                      v-if="!isViewerMode"
+                      @click="openTestResultSelectionDialog"
+                      id="resultLogFileInputButton"
+                      >{{
+                        $store.getters.message("session-info.import")
+                      }}</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -254,8 +277,13 @@ import { formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "@/components/pages/common/organisms/TestResultList.vue";
-import { RootState } from "@/store";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
+import { RootState } from "@/store";
+import CaptureOptionDialog from "@/components/pages/common/CaptureOptionDialog.vue";
+import RecordStartTrigger from "@/components/pages/common/organisms/RecordStartTrigger.vue";
+import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import TestResultLoadTrigger from "@/components/pages/common/organisms/TestResultLoadTrigger.vue";
 
 @Component({
   components: {
@@ -264,6 +292,9 @@ import { OperationHistoryState } from "@/store/operationHistory";
     "confirm-dialog": ConfirmDialog,
     "test-purpose-note-list": TestPurposeNoteList,
     "test-result-list": TestResultList,
+    "record-start-trigger": RecordStartTrigger,
+    "capture-option-dialog": CaptureOptionDialog,
+    "test-result-load-trigger": TestResultLoadTrigger,
   },
 })
 export default class SessionInfo extends Vue {
@@ -271,6 +302,8 @@ export default class SessionInfo extends Vue {
   @Prop({ type: String, default: "" }) public readonly sessionId!: string;
 
   private reportSectionDisplayed = false;
+
+  private captureOptionDialogOpened = false;
 
   private testResultSelectionDialogOpened = false;
   private testResults: TestResultSummary[] = [];
@@ -309,6 +342,10 @@ export default class SessionInfo extends Vue {
     return this.testResults.filter(
       (testResult) => !relatedTestResultIds.includes(testResult.id)
     );
+  }
+
+  private openCaptureOptionDialog() {
+    this.captureOptionDialogOpened = true;
   }
 
   private async openTestResultSelectionDialog() {
@@ -485,33 +522,85 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async openCaptureTool(testResultId: string) {
-    const origin = location.origin;
-    const captureClUrl = this.$store.state.captureClService.serviceUrl;
-    const repositoryUrl = this.$store.state.repositoryService.serviceUrl;
-    const url = `${origin}/capture/config/?capture=${captureClUrl}&repository=${repositoryUrl}`;
+  private async openCaptureTool(loadTestResults: () => Promise<void>) {
+    await loadTestResults();
 
-    let id = testResultId;
+    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+      if (err.name !== "NavigationDuplicated") {
+        throw err;
+      }
+    });
+  }
 
-    if (!id) {
-      await this.$store.dispatch("operationHistory/createTestResult", {
-        initialUrl: "",
-        name: "",
-      });
+  private async startCapture(
+    onStart: () => Promise<void>,
+    option: CaptureOptionParams
+  ) {
+    this.$store.commit("captureControl/setUrl", {
+      url: option.url,
+    });
+    this.$store.commit("captureControl/setTestResultName", {
+      name: option.testResultName,
+    });
+    await this.$store.dispatch("writeDeviceSettings", {
+      config: {
+        platformName: option.platform,
+        device: option.device,
+        browser: option.browser,
+        waitTimeForStartupReload: option.waitTimeForStartupReload,
+      },
+    });
+    const config = (this.$store.state as RootState).projectSettings.config;
+    await this.$store.dispatch("writeConfig", {
+      config: {
+        ...config,
+        captureMediaSetting: {
+          ...config.captureMediaSetting,
+          mediaType: option.mediaType,
+        },
+      },
+    });
+    this.$store.commit("captureControl/setTestOption", {
+      testOption: {
+        firstTestPurpose: option.firstTestPurpose,
+        firstTestPurposeDetails: option.firstTestPurposeDetails,
+        shouldRecordTestPurpose: option.shouldRecordTestPurpose,
+      },
+    });
 
-      const newTestResult = (
-        this.$store.state.operationHistory as OperationHistoryState
-      ).testResultInfo;
-      id = newTestResult.id;
+    await this.$store.dispatch("operationHistory/createTestResult", {
+      initialUrl: option.url,
+      name: option.testResultName,
+    });
 
-      this.addTestResultToSession({
-        id: newTestResult.id,
-        name: newTestResult.name,
-        initialUrl: "",
-        testingTime: 0,
-      });
-    }
-    window.open(`${url}&testResultId=${id}`, "_blank");
+    const newTestResult = (
+      this.$store.state.operationHistory as OperationHistoryState
+    ).testResultInfo;
+
+    this.addTestResultToSession({
+      id: newTestResult.id,
+      name: option.testResultName,
+      initialUrl: option.url,
+      testingTime: 0,
+    });
+
+    await this.loadTestResultForCapture(newTestResult.id);
+
+    await onStart();
+  }
+
+  private async loadTestResultForCapture(testResultId: string) {
+    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+      testResultIds: [testResultId],
+    });
+
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId,
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
+    });
   }
 
   private get memo(): string {
@@ -520,6 +609,16 @@ export default class SessionInfo extends Vue {
       : [];
     const memos = this.session?.memo ? [this.session.memo] : [];
     return [...testItems, ...memos].join("\n");
+  }
+
+  private get isCapturing() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isCapturing;
+  }
+
+  private get isReplaying() {
+    return (this.$store.state.captureControl as CaptureControlState)
+      .isReplaying;
   }
 }
 </script>

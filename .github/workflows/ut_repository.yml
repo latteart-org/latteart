@@ -11,7 +11,7 @@ on:
       - .github/workflows/ut_repository.yml
 
 jobs:
-  ut:
+  ut_repository:
     runs-on: ubuntu-latest
 
     strategy:

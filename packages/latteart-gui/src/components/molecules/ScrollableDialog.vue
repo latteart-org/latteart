@@ -59,6 +59,12 @@ export default class ScrollableDialog extends Vue {
 
   private openedDialog = false;
 
+  created() {
+    if (this.opened) {
+      this.changeOpenedDialog(this.opened);
+    }
+  }
+
   @Watch("opened")
   private changeOpenedDialog(newValue: boolean) {
     setTimeout(() => {

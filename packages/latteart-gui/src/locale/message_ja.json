@@ -4,10 +4,8 @@
     "ok": "OK",
     "cancel": "キャンセル",
     "delete": "削除",
-    "delete-confirm": "削除してよろしいですか？",
     "delete-warning": "削除すると元に戻せません",
     "confirm": "確認",
-    "error": "エラー",
     "error-dialog-title": "エラーが発生しました",
     "download-link": "ダウンロードする"
   },
@@ -16,26 +14,18 @@
     "finish": "テスト終了",
     "pause-capturing": "記録の一時停止",
     "resume-capturing": "記録の再開",
-    "reset": "履歴のリセット（新規のテストに向けてリセットします。テスト結果は保存されています。）",
-    "import": "過去のテスト結果の読み込み",
     "replay": "テスト結果のリプレイ",
-    "replay-operations": "操作のリプレイ",
     "stop-replay": "リプレイの中止",
     "history": "テスト履歴",
     "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
-    "record-bug": "バグの記録",
     "record-notice": "テスト中の気づき",
     "record-note": "メモを残す",
     "target-tab-window": "対象タブ/ウィンドウ",
-    "minimize": "最小化",
-    "display-restore": "画面を元に戻す",
-    "test-result-name": "テスト結果名（省略可）",
-    "capture-title": "記録ツール",
-    "manage-title": "管理ツール",
+    "url": "URL (必須)",
+    "test-result-name": "テスト結果名",
     "intention": "テストの目的",
     "note": "メモ",
-    "bug": "バグ",
     "notice": "気づき",
     "register-operation": "操作の登録",
     "select-operation": "操作の選択",
@@ -56,9 +46,7 @@
     "forward": "ブラウザフォワードを行う"
   },
   "history-view": {
-    "window-title": "記録ツール [履歴]",
-    "edit-comment": "コメントの編集",
-    "delete-comment": "コメントの削除",
+    "window-title": "テスト結果",
     "edit-intention": "目的の追加・編集",
     "delete-intention": "目的の削除",
     "delete-intention-message": "目的「{value}」を削除してもよろしいですか？",
@@ -72,9 +60,6 @@
     "sequence": "シーケンス図モデル",
     "screen-transition": "画面遷移図モデル",
     "element-coverage": "画面部品カバレッジ",
-    "auto-play-to": "通番 {value} までリプレイ",
-    "auto-play-from": "通番 {value} からリプレイ",
-    "auto-play-from-to": "通番 {value1} から {value2} までリプレイ",
     "generate-testscript": "テストスクリプト生成",
     "generate-testscript-title": "テストスクリプト生成",
     "custom-button-tags": "デフォルト定義に加えてクリック対象とするタグ",
@@ -97,7 +82,7 @@
     "export-screenshots": "スクリーンショット出力",
     "delete-test-result": "テスト結果の削除",
     "delete-test-result-title": "テスト結果の削除",
-    "delete-test-result-associated-session-message": "管理ツールで本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
+    "delete-test-result-associated-session-message": "セッションに本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
     "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
     "compare-test-result": "テスト結果の比較",
@@ -119,7 +104,8 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
-    "video": "動画"
+    "video": "動画",
+    "loading-test-results": "テスト結果読込中"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -155,17 +141,8 @@
     "create-export-data-succeeded": "データエクスポートが完了しました。",
     "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
-  "config-io": {
-    "import-config": "設定のインポート",
-    "export-config": "設定のエクスポート",
-    "select-config-file": "設定ファイルを選択してください。",
-    "completed-export": "設定ファイルのエクスポートが完了しました。",
-    "completed-import": "設定ファイルのインポートが完了しました。",
-    "please-redisplay": "設定画面を再表示してください。"
-  },
   "config-view": {
-    "window-title": "記録ツール [設定]",
-    "target": "テスト対象設定",
+    "device": "デバイス",
     "platform": "プラットフォーム",
     "browser": "ブラウザ",
     "reload-setting": "ブラウザ起動時にリロードする(0で無効)",
@@ -175,14 +152,7 @@
     "no-device": "認識できたデバイスがありません",
     "device-name": "デバイス名",
     "os-version": "OSバージョン",
-    "target-display": "キャプチャー対象のウィンドウ",
-    "screen-width": "キャプチャーする画像の横幅",
-    "screen-height": "キャプチャーする画像の高さ",
-    "check-screen": "画面を確認",
-    "browser2": "ブラウザのみキャプチャ",
-    "fullscreen": "画面全体をキャプチャ",
     "setting-inclusion-tags": "画面要素カバレッジの設定",
-    "setting-capture-media": "キャプチャメディア設定",
     "media-type": "メディアタイプ",
     "still-image": "静止画",
     "video": "静止画＋動画",
@@ -196,7 +166,6 @@
     "comparison-exclude-items-value": "除外する項目",
     "comparison-exclude-elements-enabled": "指定した画面要素の差分を検出しない",
     "comparison-exclude-elements-tagname": "除外するタグ",
-    "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
     "setting-auto-operation": "自動操作設定",
@@ -244,7 +213,6 @@
       "title": "自動操作：セット内容",
       "details-list": "詳細"
     },
-    "settings": "設定",
     "setting-experimental-features": "実験的機能設定",
     "recording-method": "記録方式",
     "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
@@ -304,9 +272,10 @@
     "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
   },
   "test-option": {
+    "title": "テスト目的",
     "start-testing": "テストを始める",
     "use-test-purpose": "テスト目的を使用してテストする",
-    "first-test-purpose": "最初のテスト目的は..."
+    "first-test-purpose": "最初のテスト目的"
   },
   "input-value": {
     "times": "回目",
@@ -360,31 +329,56 @@
     "text": "text",
     "operated": "操作済"
   },
+  "navigation": {
+    "group-label": {
+      "capture": "テスト記録",
+      "management": "テスト管理",
+      "recent-stories": "最近読み込んだストーリー",
+      "current-review": "現在のレビュー",
+      "other": "その他"
+    }
+  },
+  "start-capture-view": {
+    "title": "テスト記録開始",
+    "execute-button": "記録を開始する",
+    "starting-capture": "記録開始中"
+  },
+  "optional-features": {
+    "title": "オプション機能",
+    "snapshot-output": {
+      "title": "スナップショット出力",
+      "execute-button": "スナップショットを出力する"
+    },
+    "test-script-generation": {
+      "title": "テストスクリプト生成",
+      "execute-button": "テストスクリプトを生成する"
+    },
+    "project-import": {
+      "title": "設定・プロジェクトのインポート",
+      "execute-button": "インポートを実行する"
+    },
+    "project-export": {
+      "title": "設定・プロジェクトのエクスポート",
+      "execute-button": "エクスポートを実行する"
+    }
+  },
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
     "output-html-running": "スナップショット出力中",
-    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}"
+    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
+    "loading-project": "プロジェクトデータ読込中"
   },
   "manage-header": {
-    "tool-name": "管理ツール",
-    "report": "詳細レポート出力",
-    "edit-plan": "テスト計画編集",
     "creating-snapshot": "スナップショット作成中",
     "output-html": "スナップショット出力",
     "capture-config": "設定",
-    "top": "TOP",
-    "manage-progress": "進捗管理",
-    "manage-quality": "品質管理",
+    "top": "テストマトリクス確認",
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "import-option": "設定・プロジェクトのインポート",
-    "export-option": "設定・プロジェクトのエクスポート",
-    "optional-function": "オプション機能",
     "locale": "言語"
   },
   "manage-show": {
-    "window-title": "管理ツール [トップ]",
     "legend1": "( X / Y )",
     "legend2": "X: 完了セッション数",
     "legend3": "Y: 予定セッション数",
@@ -397,7 +391,10 @@
     "status-ongoing": "実施中",
     "text-ongoing": "現在セッション実施中",
     "status-pending": "修正待ち",
-    "text-pending": "バグの改修などの対応待ち"
+    "text-pending": "バグの改修などの対応待ち",
+    "tester-name": "テスター名（完全一致）",
+    "search": "ストーリーのフィルタ",
+    "incomplete-sessions": "未完了セッションを含むストーリーのみを表示"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "テストマトリクス名",
@@ -412,33 +409,30 @@
     "unselected": "プリセットなし"
   },
   "manage-progress": {
-    "window-title": "管理ツール [進捗管理]",
     "title": "進捗管理",
-    "export": "エクスポート",
     "display-settings-section": "[表示設定]",
     "period": "集計期間:",
     "period-symbol": "～",
     "filter-section": "[フィルタ]",
-    "group": "グループ:",
-    "test-target": "テスト対象:",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
     "all": "全て",
     "planned-sessions": "予定セッション数",
     "completed-sessions": "完了セッション数",
     "incompleted-sessions": "未完了セッション数"
   },
   "manage-quality": {
-    "window-title": "管理ツール [品質管理]",
     "title": "品質管理",
     "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
     "filter-section": "[フィルタ]",
+    "test-matrix": "テストマトリクス",
     "group": "グループ",
     "test-target": "テスト対象",
-    "completed-sessions": "完了セッション数",
     "bug-report": "[バグ検出数]",
     "pb-curve": "[PB曲線]",
     "total-number": "全件数",
     "times-per-session": "1セッションあたりの件数",
-    "target-of-aggregation": "集計対象",
     "total": "全体",
     "all": "全て",
     "unit-description-total": "単位: バグ検出数",
@@ -465,16 +459,6 @@
     "delete": "削除",
     "add": "グループを追加"
   },
-  "edit-footer": {
-    "top": "TOPに戻る"
-  },
-  "detailed-report-dialog": {
-    "dailog-title": "詳細レポート出力",
-    "dialog-text": "各セッションの「実施されたテスト」及び「見つけたバグ」の一覧を出力します。",
-    "filter": "[filter]",
-    "group": "グループ",
-    "test-target": "テスト対象"
-  },
   "session-info": {
     "charter": "チャーター部",
     "test-item": "テストアイテム",
@@ -488,14 +472,12 @@
     "delete-test-result-confirm": "セッションからテスト結果を取り外してもよろしいですか？",
     "delete-test-result-confirm-message": "テスト結果そのものは削除されません。",
     "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
-    "test-result-import-error": "テスト実行モデルファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
     "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
-    "file-open-copy-error": "添付ファイルの保存に失敗しました。",
     "result-list": "実行結果取り込み",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
-    "start-capture-tool": "記録ツール起動",
-    "open-capture-tool-title": "記録ツールでテスト結果を開く",
+    "start-capture": "新規テストを開始",
+    "open-test-result": "テスト結果を開く",
     "update-test-results-title": "テスト結果名と記録時間を最新化する",
     "remove-test-results-title": "セッションからテスト結果を外す"
   },
@@ -521,11 +503,20 @@
     "delete-session": "セッションを削除してもよろしいですか？",
     "session-name-base": "セッション"
   },
-  "story-view": {
-    "window-title": "管理ツール [ストーリー]",
+  "story-list-view": {
+    "title": "ストーリー一括レビュー",
+    "filter": "ストーリーのフィルタ",
+    "clear": "フィルタクリア",
     "test-matrix": "テストマトリクス",
     "group": "グループ",
-    "story": "ストーリー",
+    "test-target": "テスト対象",
+    "view-point": "テスト観点",
+    "do-review": "レビューする"
+  },
+  "story-view": {
+    "title": "ストーリー",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
     "test-target": "テスト対象",
     "viewPoint": "テスト観点",
     "status": "ステータス",
@@ -535,14 +526,7 @@
     "bug-count": "バグ検出数",
     "review-target": "レビュー対象",
     "do-review": "レビューする",
-    "add-session": "セッションを追加する",
-    "save-error-saveDir": "保存先ディレクトリの取得に失敗しました。\n[エラー]\n {error}",
-    "save-error-testResultFile": "テスト結果モデルファイルの保存に失敗しました。\n[エラー]\n {error}",
-    "save-error-attachedFile": "添付ファイルの保存に失敗しました。\n[エラー]\n {error}",
-    "save-error-dispatch": "ディスパッチに失敗しました。\n[エラー]\n {error}",
-    "save-canceled": "保存がキャンセルされました。",
-    "save-failed": "保存に失敗しました。保存先の書き込み権限もしくはディスク容量をご確認ください。 \n[保存先]\n {dirPath}",
-    "save-rollback-failed": "保存に失敗しました。保存先の書き込み権限もしくはディスク容量をご確認ください。\nまた、テスト管理データが破損した可能性があるため、バックアップディレクトリ配下のファイル・ディレクトリを保存先ディレクトリに手動でコピーして復元してください。\n[保存先]\n {dirPath}\n[バックアップ]\n {backupPath}"
+    "add-session": "セッションを追加する"
   },
   "viewPoint-status": {
     "out-of-scope": "-",
@@ -552,20 +536,11 @@
     "pending": "修正待ち"
   },
   "manager-history-view": {
-    "window-title": "管理ツール [テスト結果レビュー]",
-    "review": "テスト結果レビュー",
-    "back": "テストストーリーへ戻る",
-    "output": "HTML出力"
+    "review": "テスト結果レビュー"
   },
   "manage-edit-view": {
-    "window-title": "管理ツール [テスト計画編集]",
-    "edit-plan": "テスト計画編集",
-    "viewPoint": "テスト観点",
-    "add": "追加",
-    "update": "更新",
-    "delete": "削除",
+    "title": "テストマトリクス編集",
     "edit-viewPoint": "テスト観点名変更",
-    "save": "保存",
     "add-test-matrix": "テストマトリクスを追加",
     "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
     "settings": "設定"
@@ -600,13 +575,11 @@
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
-      "create_test_result_directory_failed": "テスト結果ディレクトリの作成に失敗しました。保存先ディレクトリパスが有効かご確認ください。",
-      "test_result_directory_already_exists": "保存先ディレクトリと同名のディレクトリが既に存在します。ご指定の保存先ディレクトリを変更してください。",
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "start_video_recording_failed": "動画の記録に失敗しました。テスト記録は継続されています。"
+      "start_video_recording_failed": "動画の記録に失敗しました。"
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
@@ -636,14 +609,13 @@
       "create_video_failed": "動画の作成に失敗しました。"
     },
     "test_management": {
-      "delete_story_dirs_failed": "ストーリーディレクトリの削除に失敗しました。",
-      "illegal_test_management_data": "テスト管理データのフォーマットが不正です。",
       "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
       "read_story_data_failed": "ストーリー情報の読み込みに失敗しました。",
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",
-      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。"
+      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。",
+      "review_data_not_exist": "レビューするテスト結果が存在しません。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",

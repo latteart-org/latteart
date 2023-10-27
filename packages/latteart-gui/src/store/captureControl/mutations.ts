@@ -57,6 +57,15 @@ const mutations: MutationTree<CaptureControlState> = {
   },
 
   /**
+   * Set test result name to the State.
+   * @param state State.
+   * @param payload.name Test result name.
+   */
+  setTestResultName(state, payload: { name: string }) {
+    state.testResultName = payload.name;
+  },
+
+  /**
    * Sets the status of whether the capture is paused.
    * @param state  State.
    * @param payload  Status of whether capture is suspended.
@@ -140,6 +149,17 @@ const mutations: MutationTree<CaptureControlState> = {
 
   setTestResultNavigationDrawerOpened(state, payload: { isOpened: boolean }) {
     state.isTestResultNavigationDrawerOpened = payload.isOpened;
+  },
+
+  setWindowSelectorDialogOpened(state, payload: { isOpened: boolean }) {
+    state.isWindowSelectorDialogOpened = payload.isOpened;
+  },
+
+  setCompletionDialog(
+    state,
+    payload: { title: string; message: string } | null
+  ) {
+    state.completionDialogData = payload;
   },
 };
 

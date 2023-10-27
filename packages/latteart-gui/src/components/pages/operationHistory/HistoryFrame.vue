@@ -15,20 +15,9 @@
 -->
 
 <template>
-  <v-container fluid class="fill-height">
-    <v-app-bar color="latteart-main" dark fixed app clipped-right>
-      <v-toolbar-title>{{
-        $store.getters.message("manager-history-view.review")
-      }}</v-toolbar-title>
-      <v-spacer></v-spacer>
-    </v-app-bar>
-
-    <v-btn @click="toBack()" class="ma-2">{{
-      $store.getters.message("manager-history-view.back")
-    }}</v-btn>
-
+  <v-container fluid fill-height pa-0>
     <iframe
-      style="width: 100%; height: calc(100% - 36px)"
+      style="width: 100%; height: 100%"
       :src="historyPageUrl"
       frameborder="0"
     ></iframe>
@@ -41,10 +30,6 @@ import { Story } from "@/lib/testManagement/types";
 
 @Component
 export default class HistoryFrame extends Vue {
-  private toBack(): void {
-    this.$router.back();
-  }
-
   private get sessionId() {
     const sessionId = this.$route.query.sessionIds[0] as string;
     return sessionId;

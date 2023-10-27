@@ -17,6 +17,7 @@
 import path from "path";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { convertToDownloadUrl } from "./helper/entityToResponse";
 
 type ExportProjectData = {
   projectId: string;
@@ -220,7 +221,9 @@ export class ExportFileRepositoryServiceImpl
 
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
 
-    const exportFileName = `${testResult.name}_${timestamp}.zip`;
+    const testResultName = convertToDownloadUrl(testResult.name);
+
+    const exportFileName = `${testResultName}_${timestamp}.zip`;
 
     await this.service.exportFileRepository.moveFile(
       zipFilePath,

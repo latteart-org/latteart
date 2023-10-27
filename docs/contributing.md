@@ -122,8 +122,7 @@ dist/
   └─ package/
       └─ win/
           └─ latteart/
-              ├─ capture.bat
-              ├─ manage.bat
+              ├─ latteart.bat
               ├─ launch.config.json
               ├─ launch.exe
               ├─ latteart/
@@ -142,8 +141,7 @@ dist/
   └─ package/
       └─ mac/
           └─ latteart/
-              ├─ capture.command
-              ├─ manage.command
+              ├─ latteart.command
               ├─ launch.config.json
               ├─ launch
               ├─ latteart/

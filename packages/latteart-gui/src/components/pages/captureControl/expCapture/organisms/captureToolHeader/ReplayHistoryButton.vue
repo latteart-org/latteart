@@ -17,13 +17,6 @@
 <template>
   <v-list-item @click="execute" :disabled="isDisabled">
     <v-list-item-title>{{ title }}</v-list-item-title>
-    <information-message-dialog
-      :opened="informationMessageDialogOpened"
-      :title="$store.getters.message('replay.done-title')"
-      :message="informationMessage"
-      @close="informationMessageDialogOpened = false"
-    />
-
     <error-message-dialog
       :opened="errorDialogOpened"
       :message="errorDialogMessage"
@@ -63,14 +56,12 @@ import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../../../common/ErrorMessageDialog.vue";
-import InformationMessageDialog from "../../../../common/InformationMessageDialog.vue";
 import ComparisonResultDialog from "../ComparisonResultDialog.vue";
 import ReplayOptionDialog from "../ReplayOptionDialog.vue";
 
 @Component({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "replay-option-dialog": ReplayOptionDialog,
     "comparison-result-dialog": ComparisonResultDialog,
@@ -79,9 +70,6 @@ import ReplayOptionDialog from "../ReplayOptionDialog.vue";
 export default class ReplayHistoryButton extends Vue {
   private errorDialogOpened = false;
   private errorDialogMessage = "";
-
-  private informationMessageDialogOpened = false;
-  private informationMessage = "";
 
   private confirmDialogOpened = false;
   private confirmDialogTitle = "";
@@ -164,10 +152,10 @@ export default class ReplayHistoryButton extends Vue {
         ) {
           await this.compareHistory();
         } else {
-          this.informationMessageDialogOpened = true;
-          this.informationMessage = this.$store.getters.message(
-            `replay.done-run-operations`
-          );
+          this.$store.commit("captureControl/setCompletionDialog", {
+            title: this.$store.getters.message("replay.done-title"),
+            message: this.$store.getters.message("replay.done-run-operations"),
+          });
         }
       } catch (error) {
         if (error instanceof Error) {

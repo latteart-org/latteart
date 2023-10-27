@@ -98,20 +98,6 @@ export const loadFileAsBase64 = (
 };
 
 /**
- * Load file as text.
- * @param targetFile  target file.
- */
-export const loadFileAsText = (targetFile: File): Promise<string> => {
-  return new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result as string);
-    };
-    reader.readAsText(targetFile);
-  });
-};
-
-/**
  * Search for values recursively.
  * @param keyPath  Key you want to search.
  * @param target  Search target.

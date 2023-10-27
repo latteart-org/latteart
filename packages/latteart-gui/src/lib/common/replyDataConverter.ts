@@ -41,6 +41,7 @@ export function convertTestStepOperation(
     sequence,
     isAutomatic: testStepOperation.isAutomatic,
     videoFrame: testStepOperation.videoFrame,
+    inputElements: testStepOperation.inputElements,
   });
 
   return operation;

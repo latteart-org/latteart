@@ -82,7 +82,6 @@ export default class SessionsStatus extends Vue {
     this.$router.push({
       name: "storyView",
       params: { id: this.id },
-      query: { status: this.status },
     });
   }
 }

@@ -94,6 +94,7 @@ export type GraphViewNodeForRepository = {
     imageFileUrl?: string;
     timestamp: number;
     videoFrame?: VideoFrame;
+    testResultId: string;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -149,6 +150,7 @@ export type OperationForRepository = {
   input: string;
   type: string;
   elementInfo: ElementInfoForRepository | null;
+  inputElements: ElementInfoForRepository[];
   title: string;
   url: string;
   imageFileUrl: string;

@@ -19,6 +19,7 @@
     class="navigation-drawer"
     absolute
     temporary
+    right
     width="360"
     v-model="isTestResultNavigationDrawerOpened"
   >

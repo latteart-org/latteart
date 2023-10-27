@@ -58,6 +58,11 @@ export interface CaptureControlState {
   url: string;
 
   /**
+   * Test result name.
+   */
+  testResultName: string;
+
+  /**
    * Test option.
    */
   testOption: {
@@ -105,6 +110,16 @@ export interface CaptureControlState {
    * Whether test result navigation drawer is opened or not.
    */
   isTestResultNavigationDrawerOpened: boolean;
+
+  /**
+   * Whether window selector dialog is opened or not.
+   */
+  isWindowSelectorDialogOpened: boolean;
+
+  /**
+   * Dialog to display completion message.
+   */
+  completionDialogData: { title: string; message: string } | null;
 }
 
 const state: CaptureControlState = {
@@ -113,6 +128,7 @@ const state: CaptureControlState = {
   isResuming: false,
   isPaused: false,
   url: "",
+  testResultName: "",
   testOption: {
     firstTestPurpose: "",
     firstTestPurposeDetails: "",
@@ -128,6 +144,8 @@ const state: CaptureControlState = {
   timer: new Timer(),
   captureSession: null,
   isTestResultNavigationDrawerOpened: false,
+  isWindowSelectorDialogOpened: false,
+  completionDialogData: null,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

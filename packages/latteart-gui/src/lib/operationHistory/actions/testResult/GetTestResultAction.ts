@@ -64,6 +64,7 @@ export class GetTestResultAction {
           isAutomatic,
           videoFrame,
           imageFileUrl,
+          inputElements,
         } = testStep.operation;
 
         const operation = {
@@ -80,6 +81,7 @@ export class GetTestResultAction {
           isAutomatic,
           imageFileUrl,
           videoFrame,
+          inputElements,
         };
 
         return {

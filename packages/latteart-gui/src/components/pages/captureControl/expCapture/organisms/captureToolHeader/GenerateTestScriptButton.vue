@@ -29,12 +29,6 @@
     >
     </script-generation-option-dialog>
 
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
-
     <download-link-dialog
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
@@ -42,6 +36,12 @@
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
+    />
+
+    <error-message-dialog
+      :opened="errorMessageDialogOpened"
+      :message="errorMessage"
+      @close="errorMessageDialogOpened = false"
     />
   </v-list-item>
 </template>

@@ -15,75 +15,36 @@
 -->
 
 <template>
-  <v-app>
+  <v-container fluid fill-height pa-0>
     <test-result-navigation-drawer />
 
-    <v-app-bar color="white" fixed flat app height="64px" class="pa-4">
+    <v-app-bar color="white" flat absolute height="64px">
       <capture-tool-header />
     </v-app-bar>
 
-    <v-main>
-      <v-container
-        fluid
-        px-4
-        py-0
-        fill-height
-        :style="{ 'max-height': 'calc(100vh - 64px - 64px)' }"
-      >
-        <router-view />
-      </v-container>
-    </v-main>
+    <v-container
+      fluid
+      fill-height
+      py-0
+      :style="{
+        'margin-top': '4px',
+        'max-height': 'calc(100vh - 64px - 64px)',
+      }"
+    >
+      <router-view />
+    </v-container>
 
-    <v-footer app height="64px">
+    <v-footer absolute height="64px">
       <capture-tool-footer />
     </v-footer>
 
-    <test-purpose-edit-dialog
-      :opened="testPurposeEditDialogOpened"
-      @close="testPurposeEditDialogOpened = false"
-    />
-
-    <note-register-dialog
-      :opened="noteRegisterDialogOpened"
-      @close="noteRegisterDialogOpened = false"
-    />
-
-    <note-update-dialog
-      :opened="noteUpdateDialogOpened"
-      @close="noteUpdateDialogOpened = false"
-    />
-
     <autofill-select-dialog />
-
-    <context-menu
-      :opened="contextMenuOpened"
-      :x="contextMenuX"
-      :y="contextMenuY"
-      :items="contextMenuItems"
-      @contextMenuClose="contextMenuOpened = false"
-    />
-
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
-
-    <error-message-dialog
-      :opened="errorDialogOpened"
-      :message="errorDialogMessage"
-      @close="errorDialogOpened = false"
-    />
-  </v-app>
+    <completion-dialog />
+  </v-container>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { OperationWithNotes } from "@/lib/operationHistory/types";
-import TestPurposeEditDialog from "@/components/pages/common/TestPurposeEditDialog.vue";
-import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import CaptureToolHeader from "./organisms/captureToolHeader/CaptureToolHeader.vue";
 import CaptureToolFooter from "./organisms/captureToolFooter/CaptureToolFooter.vue";
 import ConfirmDialog from "../../common/ConfirmDialog.vue";
@@ -92,220 +53,22 @@ import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog
 import NoteRegisterDialog from "../../common/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "../../common/NoteUpdateDialog.vue";
 import TestResultNavigationDrawer from "../../common/organisms/TestResultNavigationDrawer.vue";
+import CompletionDialog from "../../common/CompletionDialog.vue";
 
 @Component({
   components: {
     "capture-tool-header": CaptureToolHeader,
     "capture-tool-footer": CaptureToolFooter,
-    "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "context-menu": ContextMenu,
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-select-dialog": AutofillSelectDialog,
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
     "test-result-navigation-drawer": TestResultNavigationDrawer,
+    "completion-dialog": CompletionDialog,
   },
 })
-export default class ExpCapture extends Vue {
-  private testPurposeEditDialogOpened = false;
-  private noteUpdateDialogOpened = false;
-  private noteRegisterDialogOpened = false;
-
-  private contextMenuOpened = false;
-  private contextMenuX = -1;
-  private contextMenuY = -1;
-  private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
-
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-
-  private errorDialogOpened = false;
-  private errorDialogMessage = "";
-
-  private mounted() {
-    this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
-      openNoteEditDialog: this.openNoteEditDialog,
-    });
-
-    this.$store.commit(
-      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
-      {
-        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
-      }
-    );
-
-    this.$store.commit("operationHistory/setOpenNoteMenu", {
-      menu: this.openNoteMenu,
-    });
-
-    this.$store.commit("operationHistory/setDeleteNoteFunction", {
-      deleteNote: this.deleteNote,
-    });
-  }
-
-  private openNoteMenu(
-    note: { id: number; sequence: number; index: number; type: string },
-    eventInfo: { clientX: number; clientY: number }
-  ) {
-    const context = this.$store;
-
-    this.contextMenuX = eventInfo.clientX;
-    this.contextMenuY = eventInfo.clientY;
-    this.contextMenuItems = [];
-
-    this.contextMenuItems.push({
-      label: context.getters.message("history-view.edit-comment"),
-      onClick: () => {
-        if (context.state.operationHistory.tmpNoteInfoForEdit) {
-          context.state.operationHistory.openNoteEditDialog(
-            note.type,
-            note.sequence,
-            note.index
-          );
-        }
-
-        this.contextMenuOpened = false;
-        context.commit("operationHistory/setTmpNoteInfoForEdit", {
-          tmpNoteInfoForEdit: null,
-        });
-      },
-    });
-    this.contextMenuItems.push({
-      label: context.getters.message("history-view.delete-comment"),
-      onClick: () => {
-        if (context.state.operationHistory.tmpNoteInfoForEdit) {
-          context.state.operationHistory.deleteNote(
-            note.type,
-            note.sequence,
-            note.index
-          );
-        }
-
-        this.contextMenuOpened = false;
-        context.commit("operationHistory/setTmpNoteInfoForEdit", {
-          tmpNoteInfoForEdit: null,
-        });
-      },
-    });
-
-    context.commit("operationHistory/setTmpNoteInfoForEdit", {
-      tmpNoteInfoForEdit: {
-        noteType: note.type,
-        sequence: note.sequence,
-        index: note.index,
-      },
-    });
-    this.contextMenuOpened = true;
-  }
-
-  private openNoteDeleteConfirmDialog(
-    noteType: string,
-    title: string,
-    sequence: number,
-    index?: number
-  ) {
-    if (noteType === "intention") {
-      this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-intention"
-      );
-      this.confirmDialogMessage = this.$store.getters.message(
-        "history-view.delete-intention-message",
-        { value: title }
-      );
-    } else {
-      this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-notice-title",
-        { value: title }
-      );
-      this.confirmDialogMessage = this.$store.getters.message(
-        "history-view.delete-notice-message",
-        { value: title }
-      );
-    }
-    this.confirmDialogAccept = () => {
-      this.deleteNote(noteType, sequence, index ?? 0);
-    };
-    this.confirmDialogOpened = true;
-  }
-
-  private openNoteEditDialog(
-    noteType: string,
-    sequence: number,
-    index?: number
-  ) {
-    const historyItem: OperationWithNotes =
-      this.$store.getters["operationHistory/findHistoryItem"](sequence);
-    if (historyItem === undefined) {
-      return;
-    }
-    switch (noteType) {
-      case "intention":
-        this.$store.commit("operationHistory/selectOperationNote", {
-          selectedOperationNote: {
-            sequence: sequence ?? null,
-            index: index ?? null,
-          },
-        });
-        this.testPurposeEditDialogOpened = true;
-        return;
-      case "bug":
-      case "notice":
-        this.$store.commit("operationHistory/selectOperationNote", {
-          selectedOperationNote: {
-            sequence: sequence ?? null,
-            index: index ?? null,
-          },
-        });
-
-        if (index !== undefined) {
-          this.noteUpdateDialogOpened = true;
-        } else {
-          this.noteRegisterDialogOpened = true;
-        }
-
-        return;
-      default:
-        return;
-    }
-  }
-
-  private deleteNote(noteType: string, sequence: number, index: number) {
-    (async () => {
-      try {
-        switch (noteType) {
-          case "intention":
-            await this.$store.dispatch("operationHistory/deleteTestPurpose", {
-              sequence,
-            });
-
-            return;
-          case "bug":
-          case "notice":
-            await this.$store.dispatch("operationHistory/deleteNotice", {
-              sequence,
-              index,
-            });
-
-            return;
-          default:
-            return;
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorDialogOpened = true;
-          this.errorDialogMessage = error.message;
-        } else {
-          throw error;
-        }
-      }
-    })();
-  }
-}
+export default class ExpCapture extends Vue {}
 </script>
 
 <style lang="sass" scoped>
