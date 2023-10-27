@@ -90,7 +90,7 @@
         </v-list-item>
 
         <media-display-group
-          v-if="opened"
+          v-if="isMediaDisplayed"
           :imageFileUrl="imageFilePath"
           :videoUrl="videoUrl"
         />
@@ -142,6 +142,8 @@ export default class NoteDetailsDialog extends Vue {
     ? (this as any).$isViewerMode
     : false;
 
+  private isMediaDisplayed: boolean = false;
+
   @Watch("opened")
   private initialize() {
     if (!this.opened) {
@@ -157,6 +159,11 @@ export default class NoteDetailsDialog extends Vue {
         text: tag,
         color: "#E0E0E0",
       };
+    });
+
+    this.isMediaDisplayed = false;
+    this.$nextTick(() => {
+      this.isMediaDisplayed = true;
     });
   }
 
