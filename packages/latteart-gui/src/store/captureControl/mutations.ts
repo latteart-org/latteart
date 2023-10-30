@@ -147,10 +147,6 @@ const mutations: MutationTree<CaptureControlState> = {
     state.autofillRegisterDialogData = payload;
   },
 
-  setTestResultNavigationDrawerOpened(state, payload: { isOpened: boolean }) {
-    state.isTestResultNavigationDrawerOpened = payload.isOpened;
-  },
-
   setWindowSelectorDialogOpened(state, payload: { isOpened: boolean }) {
     state.isWindowSelectorDialogOpened = payload.isOpened;
   },

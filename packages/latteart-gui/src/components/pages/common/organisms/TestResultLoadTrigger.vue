@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 
 @Component({
   components: {
@@ -63,10 +63,6 @@ export default class TestResultLoadTrigger extends Vue {
     }
 
     try {
-      this.$store.commit("captureControl/setTestResultNavigationDrawerOpened", {
-        isOpened: false,
-      });
-
       this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
           "history-view.loading-test-results"

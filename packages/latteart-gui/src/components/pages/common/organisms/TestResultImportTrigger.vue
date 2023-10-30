@@ -44,9 +44,9 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
-import InformationMessageDialog from "@/components/pages/common/InformationMessageDialog.vue";
-import TestResultImportDialog from "@/components/pages/common/TestResultImportDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
+import TestResultImportDialog from "@/components/pages/common/organisms/TestResultImportDialog.vue";
 
 @Component({
   components: {

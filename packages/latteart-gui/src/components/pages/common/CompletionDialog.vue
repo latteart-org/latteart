@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import AlertDialog from "./AlertDialog.vue";
+import AlertDialog from "../../molecules/AlertDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 
 @Component({

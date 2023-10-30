@@ -305,10 +305,10 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "./components/molecules/ErrorMessageDialog.vue";
 import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
-import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
-import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
+import ExpCapture from "@/ExpCapture.vue";
+import ExpManager from "@/ExpManager.vue";
 import { TestManagementState } from "./store/testManagement";
 import { TestMatrix } from "./lib/testManagement/types";
 import { OperationHistoryState } from "./store/operationHistory";
