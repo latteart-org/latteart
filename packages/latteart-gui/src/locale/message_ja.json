@@ -104,7 +104,8 @@
     "no-test-purpose": "目的なし",
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
-    "video": "動画"
+    "video": "動画",
+    "loading-test-results": "テスト結果読込中"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -339,7 +340,8 @@
   },
   "start-capture-view": {
     "title": "テスト記録開始",
-    "execute-button": "記録を開始する"
+    "execute-button": "記録を開始する",
+    "starting-capture": "記録開始中"
   },
   "optional-features": {
     "title": "オプション機能",
@@ -363,7 +365,8 @@
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
     "output-html-running": "スナップショット出力中",
-    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}"
+    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
+    "loading-project": "プロジェクトデータ読込中"
   },
   "manage-header": {
     "creating-snapshot": "スナップショット作成中",
@@ -576,7 +579,7 @@
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",
-      "start_video_recording_failed": "動画の記録に失敗しました。テスト記録は継続されています。"
+      "start_video_recording_failed": "動画の記録に失敗しました。"
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",

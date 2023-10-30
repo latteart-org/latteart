@@ -36,7 +36,7 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
   },
 })
 export default class TestResultLoadTrigger extends Vue {
-  @Prop({ type: String, default: "" }) testResultId!: string;
+  @Prop({ type: Array, default: () => [] }) testResultIds!: string[];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -58,39 +58,32 @@ export default class TestResultLoadTrigger extends Vue {
   }
 
   private async loadHistory() {
-    if (!this.testResultId) {
+    if (this.testResultIds.length === 0) {
       return;
     }
 
-    setTimeout(async () => {
-      try {
-        this.$store.commit(
-          "captureControl/setTestResultNavigationDrawerOpened",
-          {
-            isOpened: false,
-          }
-        );
+    try {
+      this.$store.commit("captureControl/setTestResultNavigationDrawerOpened", {
+        isOpened: false,
+      });
 
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "test-result-navigation-drawer.load"
-          ),
-        });
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "history-view.loading-test-results"
+        ),
+      });
 
-        await this.loadTestResults(this.testResultId);
-
-        this.goToHistoryView();
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
+      await this.loadTestResults(...this.testResultIds);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.errorMessage = error.message;
+        this.errorMessageDialogOpened = true;
+      } else {
+        throw error;
       }
-    }, 300);
+    } finally {
+      this.$store.dispatch("closeProgressDialog");
+    }
   }
 
   private async loadTestResults(...testResultIds: string[]) {
@@ -115,14 +108,6 @@ export default class TestResultLoadTrigger extends Vue {
         throw error;
       }
     }
-  }
-
-  private goToHistoryView() {
-    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
   }
 }
 </script>

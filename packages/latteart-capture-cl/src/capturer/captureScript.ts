@@ -179,13 +179,7 @@ export type CaptureScript = {
     };
   }) => void;
   refireEvent: (eventInfo: EventInfo) => void;
-  detachShield: ({
-    windowHandle,
-    shieldId,
-  }: {
-    windowHandle: string | undefined;
-    shieldId: string;
-  }) => void;
+  detachShield: ({ shieldId }: { shieldId: string }) => void;
   getBrowsingWindowHandle: () => string;
   markRect: ({
     rect,
@@ -1069,22 +1063,14 @@ function refireEvent(eventInfo: EventInfo) {
   }
 }
 
-function detachShield({
-  windowHandle,
-  shieldId,
-}: {
-  windowHandle: string | undefined;
-  shieldId: string;
-}) {
+function detachShield({ shieldId }: { shieldId: string }) {
   const extendedDocument: ExtendedDocument = document;
   const target = extendedDocument.getElementById(shieldId);
   if (!target || !target.parentNode) {
     return;
   }
 
-  if (localStorage.currentWindowHandle === windowHandle) {
-    target.parentNode.removeChild(target);
-  }
+  target.parentNode.removeChild(target);
 }
 
 function getBrowsingWindowHandle() {

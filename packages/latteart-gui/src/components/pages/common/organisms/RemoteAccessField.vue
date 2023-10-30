@@ -24,7 +24,7 @@
         :label="$store.getters.message('remote-access.remote-connection-url')"
         id="connectUrlTextField"
         ref="urlField"
-        :disabled="isCapturing"
+        :disabled="isCapturing || isReplaying"
         :style="{ 'padding-top': '10px' }"
       ></v-combobox>
     </v-col>
@@ -33,7 +33,7 @@
         :color="color"
         id="connecttButton"
         @click="connect()"
-        :disabled="isCapturing || targetUrl === url"
+        :disabled="isCapturing || isReplaying || targetUrl === url"
         class="ma-2"
         >{{ $store.getters.message("remote-access.connect") }}</v-btn
       >
@@ -89,6 +89,10 @@ export default class RemoteAccessField extends Vue {
 
   private get isCapturing(): boolean {
     return this.$store.state.captureControl.isCapturing;
+  }
+
+  private get isReplaying(): boolean {
+    return this.$store.state.captureControl.isReplaying;
   }
 
   @Watch("url")

@@ -150,6 +150,17 @@ const mutations: MutationTree<CaptureControlState> = {
   setTestResultNavigationDrawerOpened(state, payload: { isOpened: boolean }) {
     state.isTestResultNavigationDrawerOpened = payload.isOpened;
   },
+
+  setWindowSelectorDialogOpened(state, payload: { isOpened: boolean }) {
+    state.isWindowSelectorDialogOpened = payload.isOpened;
+  },
+
+  setCompletionDialog(
+    state,
+    payload: { title: string; message: string } | null
+  ) {
+    state.completionDialogData = payload;
+  },
 };
 
 export default mutations;

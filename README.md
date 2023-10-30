@@ -42,8 +42,7 @@ After extracting the downloaded ZIP file, the following directory structure will
 
 ```bash
 latteart
-      ├─ capture.bat
-      ├─ manage.bat
+      ├─ latteart.bat
       ├─ launch.config.json
       ├─ launch.exe
       ├─ latteart
@@ -55,20 +54,17 @@ latteart
 
 Execute the startup script in the extracted directory.
 
-- Recording tool: `capture.bat`
-- Management tool: `manage.bat`
+- `latteart.bat`
 
 Then, a web server for running LatteArt will be started with the displayed command prompt, and the tool screen will be displayed on the browser.
 
 ```
-capture: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
-manage: http://127.0.0.1:3000?mode=manage&capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
+LatteArt: http://127.0.0.1:3000?capture=http://127.0.0.1:3001&repository=http://127.0.0.1:3002
 ```
 
 :bulb: If the server is running, you can also use the following URLs to access the tools directly from your browser.
 
-- Recording tool: http://127.0.0.1:3000
-- Management tool: http://127.0.0.1:3000?mode=manage
+- http://127.0.0.1:3000
 
 ## Launch Script Setting
 
@@ -102,7 +98,7 @@ Close the command prompt window that was launched when starting to end the tool.
 
 :warning: Simply closing the LatteArt tab on your browser will not shut down the server.
 
-# How to Use the Recording Tool
+# How to Use the Recording Feature
 
 ## on Windows or Mac
 

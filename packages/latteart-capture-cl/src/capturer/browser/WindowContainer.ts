@@ -23,9 +23,10 @@ export default class WindowContainer {
   private windowHandleToManagedWindow: Map<string, WebBrowserWindow> =
     new Map();
   private _currentWindowHandle = "";
-  private createWindows: (
-    ...newWindowHandles: string[]
-  ) => Promise<WebBrowserWindow[]>;
+  private createWindows: (...newWindowHandles: string[]) => Promise<{
+    newWindows: WebBrowserWindow[];
+    newFocusedWindow?: WebBrowserWindow;
+  }>;
   private switchWindow: (
     to: WebBrowserWindow,
     from?: WebBrowserWindow
@@ -37,9 +38,10 @@ export default class WindowContainer {
    * @param switchWindow Callback function that is called when a window is switched.
    */
   constructor(
-    createWindows: (
-      ...newWindowHandles: string[]
-    ) => Promise<WebBrowserWindow[]>,
+    createWindows: (...newWindowHandles: string[]) => Promise<{
+      newWindows: WebBrowserWindow[];
+      newFocusedWindow?: WebBrowserWindow;
+    }>,
     switchWindow: (
       to: WebBrowserWindow,
       from?: WebBrowserWindow
@@ -119,28 +121,20 @@ export default class WindowContainer {
   }
 
   /**
-   * Switch current window to specified window by index.
-   * @param index Destination window index.
-   */
-  public changeCurrentWindowByIndexTo(index: number): Promise<void> {
-    return this.changeCurrentWindowTo(this.windowHandles[index]);
-  }
-
-  /**
    * Create new windows and add to the container.
    * @param newWindowHandles New window handles.
    */
   public async add(...newWindowHandles: string[]): Promise<void> {
-    const newWindows = await this.createWindows(...newWindowHandles);
-
-    const isFirstTime = this.windowHandleToManagedWindow.size === 0;
+    const { newWindows, newFocusedWindow } = await this.createWindows(
+      ...newWindowHandles
+    );
 
     for (const newWindow of newWindows) {
       this.windowHandleToManagedWindow.set(newWindow.windowHandle, newWindow);
+    }
 
-      if (isFirstTime) {
-        this._currentWindowHandle = newWindow.windowHandle;
-      }
+    if (newFocusedWindow) {
+      await this.changeCurrentWindowTo(newFocusedWindow.windowHandle);
     }
   }
 
@@ -150,21 +144,36 @@ export default class WindowContainer {
    */
   public async remove(...windowHandles: string[]): Promise<void> {
     for (const windowHandle of windowHandles) {
-      if (this.currentWindowHandle !== windowHandle) {
-        console.log(`delete: ${windowHandle}`);
-        this.windowHandleToManagedWindow.delete(windowHandle);
+      const currentWindowHandle = this.currentWindowHandle;
+      const currentUrl = this.currentWindow?.currentUrl;
+      const sameDomainWindows = currentUrl
+        ? this.collectSameDomainWindows(currentUrl)
+        : [];
+      const windows =
+        sameDomainWindows.length > 1 ? sameDomainWindows : [...this.windows];
+
+      this.windowHandleToManagedWindow.delete(windowHandle);
+
+      if (currentWindowHandle !== windowHandle) {
         continue;
       }
 
       // If current window will be deleted, shift current window handle and delete it.
-      const currentIndex = this.windowHandles.indexOf(this.currentWindowHandle);
-      if (currentIndex !== -1) {
-        const nextIndex =
-          currentIndex === 0 ? currentIndex + 1 : currentIndex - 1;
+      const currentIdx = windows.findIndex(
+        ({ windowHandle }) => windowHandle === this.currentWindowHandle
+      );
 
-        await this.changeCurrentWindowByIndexTo(nextIndex);
-        this.windowHandleToManagedWindow.delete(windowHandle);
+      if (currentIdx === -1) {
+        continue;
       }
+
+      const nextIdx = currentIdx === 0 ? currentIdx + 1 : currentIdx - 1;
+      const nextWindow = windows.at(nextIdx);
+      if (!nextWindow) {
+        continue;
+      }
+
+      await this.changeCurrentWindowTo(nextWindow.windowHandle);
     }
   }
 
@@ -172,9 +181,9 @@ export default class WindowContainer {
    * Update the container to be the same as the specified windows.
    * @param windowHandles Window handles.
    */
-  public async update(windowHandles: string[]): Promise<void> {
+  public async update(windowHandles: string[]): Promise<string[]> {
     if (this.equalsTo(windowHandles)) {
-      return;
+      return [];
     }
 
     // Remove.
@@ -188,6 +197,7 @@ export default class WindowContainer {
       return !this.windowHandles.includes(windowHandle);
     });
     await this.add(...newWindowHandles);
+    return newWindowHandles;
   }
 
   private get windowHandles(): string[] {
@@ -200,6 +210,12 @@ export default class WindowContainer {
     }
     return !lhs.find((item, index) => {
       return item !== rhs[index];
+    });
+  }
+
+  private collectSameDomainWindows(url: string) {
+    return this.windows.filter((window) => {
+      return new URL(window.url).hostname === new URL(url).hostname;
     });
   }
 }

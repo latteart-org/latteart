@@ -370,7 +370,6 @@ export default class OperationList extends Vue {
 
     // for close and  open animation.
     this.$nextTick(() => {
-      this.resetPosition();
       setTimeout(() => {
         this.contextMenuX = target.x;
         this.contextMenuY = target.y;
@@ -546,7 +545,7 @@ export default class OperationList extends Vue {
   private contextmenu(itemIndex: number, event: MouseEvent) {
     event.preventDefault();
     this.openOperationContextMenu({
-      itemIndex,
+      itemIndex: (this.page - 1) * this.itemsPerPage + itemIndex,
       x: event.clientX,
       y: event.clientY,
     });
@@ -575,6 +574,7 @@ export default class OperationList extends Vue {
     if (destItem) {
       this.onSelectOperations(destItem.index);
       this.switchTablePage(destItem.index);
+      this.resetPosition();
     }
   }
 
@@ -584,6 +584,7 @@ export default class OperationList extends Vue {
     if (destItem) {
       this.onSelectOperations(destItem.index);
       this.switchTablePage(destItem.index);
+      this.resetPosition();
     }
   }
 
@@ -601,10 +602,25 @@ export default class OperationList extends Vue {
       this.itemsPerPage > 0
         ? this.itemsPerPage
         : this.displayedHistoryItems.length;
-
+    const rowIndex = Math.floor(itemIndex % itemsPerPage);
     const rowHeight = 29;
+    const rowTop = rowIndex * rowHeight;
+    const rowBottom = rowTop + rowHeight;
+    const container = document.querySelector(
+      ".v-data-table__wrapper:first-child"
+    );
+    const scrollTop = container?.scrollTop ?? 0;
+    const clientHeight = container?.clientHeight ?? 0;
+    const scrollBottom = scrollTop + (clientHeight - 32);
 
-    this.$vuetify.goTo(rowHeight * Math.floor(itemIndex % itemsPerPage), {
+    const destScrollTop =
+      rowTop < scrollTop
+        ? rowTop
+        : rowBottom > scrollBottom
+        ? scrollTop + rowBottom - scrollBottom
+        : scrollTop;
+
+    this.$vuetify.goTo(destScrollTop, {
       container: ".v-data-table__wrapper:first-child",
       duration: 100,
     });
@@ -622,6 +638,9 @@ export default class OperationList extends Vue {
     if (destItem) {
       this.onSelectOperations(destItem.index);
       this.page++;
+      this.$nextTick(() => {
+        this.resetPosition();
+      });
     }
   }
 
@@ -632,6 +651,9 @@ export default class OperationList extends Vue {
     if (destItem) {
       this.onSelectOperations(destItem.index);
       this.page--;
+      this.$nextTick(() => {
+        this.resetPosition();
+      });
     }
   }
 
@@ -646,7 +668,6 @@ export default class OperationList extends Vue {
   }
 
   @Watch("itemsPerPage")
-  @Watch("selectedOperationIndexes")
   @Watch("displayedHistoryStr")
   private resetPosition() {
     const currentItemIndex = this.selectedOperationIndexes[0];

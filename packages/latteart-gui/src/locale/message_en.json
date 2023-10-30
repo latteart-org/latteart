@@ -104,7 +104,8 @@
     "no-test-purpose": "No Test Purpose",
     "edit-test-purpose": "Edit Test Purpose",
     "image": "Image",
-    "video": "Video"
+    "video": "Video",
+    "loading-test-results": "Loading Test Results."
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -339,31 +340,33 @@
   },
   "start-capture-view": {
     "title": "Start Capturing",
-    "execute-button": "Start"
+    "execute-button": "Start",
+    "starting-capture": "Starting capture."
   },
   "optional-features": {
-    "title": "Optional features",
+    "title": "Optional Features",
     "snapshot-output": {
-      "title": "Snapshot output",
-      "execute-button": "Output snapshot"
+      "title": "Snapshot Output",
+      "execute-button": "Output Snapshot"
     },
     "test-script-generation": {
-      "title": "Test script generation",
-      "execute-button": "Generate test scripts"
+      "title": "Test Script Generation",
+      "execute-button": "Generate Test Scripts"
     },
     "project-import": {
-      "title": "Config/Project import",
+      "title": "Config/Project Import",
       "execute-button": "Import"
     },
     "project-export": {
-      "title": "Config/Project export",
+      "title": "Config/Project Export",
       "execute-button": "Export"
     }
   },
   "manage": {
     "print-html-succeeded": "Snapshot output has finished.",
     "output-html-running": "Snapshot output is running.",
-    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}"
+    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}",
+    "loading-project": "Loading Project data."
   },
   "manage-header": {
     "creating-snapshot": "Creating snapshot.",
@@ -576,7 +579,7 @@
       "add_test_step_failed": "Failed to register operation.",
       "compress_test_step_screenshot_failed": "Failed to compress a screenshot while capturing an operation. Please check the compression command in the config file. If you don't need compression, please turn it off in image compression settings.",
       "compress_note_screenshot_failed": "Failed to compress screenshot while capturing a note. Please check the compression command in the config file.",
-      "start_video_recording_failed": "Failed to record video. Test capturing is continuing."
+      "start_video_recording_failed": "Failed to record video."
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",

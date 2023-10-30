@@ -47,13 +47,13 @@
           >
             <template v-slot:[`item.actions`]="{ item }">
               <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
-                <test-result-load-trigger :testResultId="item.id">
+                <test-result-load-trigger :testResultIds="[item.id]">
                   <template v-slot:activator="{ on, disabled }">
                     <v-btn
                       icon
                       large
                       color="primary"
-                      @click="on"
+                      @click="goToHistoryView(on)"
                       :disabled="disabled"
                       :title="$store.getters.message('test-result-list.load')"
                     >
@@ -88,6 +88,7 @@
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="item.name"
                 >
                   {{ item.name }}
                 </div>
@@ -99,6 +100,7 @@
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="item.initialUrl"
                 >
                   {{ item.initialUrl }}
                 </div>
@@ -134,6 +136,7 @@
                   :key="testPurpose.creationTimestamp"
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
+                  :title="testPurpose.value"
                 >
                   {{ testPurpose.value }}
                 </li>
@@ -370,6 +373,16 @@ export default class TestResultListView extends Vue {
     } finally {
       await this.$store.dispatch("closeProgressDialog");
     }
+  }
+
+  private async goToHistoryView(loadTestResults: () => Promise<void>) {
+    await loadTestResults();
+
+    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+      if (err.name !== "NavigationDuplicated") {
+        throw err;
+      }
+    });
   }
 }
 </script>

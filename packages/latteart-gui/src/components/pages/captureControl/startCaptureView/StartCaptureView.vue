@@ -88,7 +88,13 @@ export default class StartCaptureView extends Vue {
     return (this.$store.state as RootState).projectSettings.config;
   }
 
-  private async execute(onStart: () => void) {
+  created() {
+    this.$store.dispatch("changeWindowTitle", {
+      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    });
+  }
+
+  private async execute(onStart: () => Promise<void>) {
     this.$store.commit("captureControl/setUrl", {
       url: this.captureOption.url,
     });
@@ -120,7 +126,7 @@ export default class StartCaptureView extends Vue {
       },
     });
 
-    onStart();
+    await onStart();
   }
 }
 </script>

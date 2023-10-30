@@ -11,7 +11,7 @@ on:
       - .github/workflows/ut_client.yml
 
 jobs:
-  ut:
+  ut_client:
     runs-on: ubuntu-latest
 
     strategy:

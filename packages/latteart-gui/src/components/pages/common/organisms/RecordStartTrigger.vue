@@ -31,6 +31,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { CaptureControlState } from "@/store/captureControl";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -59,6 +60,11 @@ export default class RecordStartTrigger extends Vue {
     return this.$store.state.captureControl as CaptureControlState;
   }
 
+  private get testResultId() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo.id;
+  }
+
   private get url(): string {
     return this.captureControlState.url;
   }
@@ -83,72 +89,64 @@ export default class RecordStartTrigger extends Vue {
     return this.$store.getters["captureControl/urlIsValid"]();
   }
 
-  private startCapture(): void {
-    this.preparingForCapture = true;
+  private async startCapture(): Promise<void> {
     this.goToHistoryView();
 
-    (async () => {
-      try {
-        if (this.initial) {
-          await this.resetHistory();
-        }
+    try {
+      await this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "start-capture-view.starting-capture"
+        ),
+      });
+      this.preparingForCapture = true;
 
-        if (this.$store.state.operationHistory.testResultInfo.id === "") {
-          await this.$store.dispatch("operationHistory/createTestResult", {
-            initialUrl: this.url,
-            name: this.testResultName,
-          });
-        }
-
-        const history = this.$store.state.operationHistory.history;
-        const startTime = new TimestampImpl().epochMilliseconds();
-
-        if (history.length === 0) {
-          await this.$store.dispatch(
-            "operationHistory/changeCurrentTestResult",
-            {
-              startTime,
-              initialUrl: this.url,
-            }
-          );
-        } else if (history.length > 0) {
-          await this.$store.dispatch(
-            "operationHistory/changeCurrentTestResult",
-            {
-              startTime,
-              initialUrl: "",
-            }
-          );
-        }
-
-        await this.$store.dispatch("captureControl/startCapture", {
-          url: this.url,
-          callbacks: {
-            onEnd: async (error?: Error) => {
-              if (error) {
-                const targetPath = "/capture/history";
-                if (this.$router.currentRoute.path !== targetPath) {
-                  await this.$router.push({ path: targetPath });
-                }
-                throw error;
-              }
-            },
-          },
-        });
-        this.preparingForCapture = false;
-      } catch (error) {
-        if (error instanceof Error) {
-          const targetPath = "/capture/history";
-          if (this.$router.currentRoute.path !== targetPath) {
-            await this.$router.push({ path: targetPath });
-          }
-        } else {
-          throw error;
-        }
-      } finally {
-        this.preparingForCapture = false;
+      if (this.initial) {
+        await this.resetHistory();
       }
-    })();
+
+      if (this.$store.state.operationHistory.testResultInfo.id === "") {
+        await this.$store.dispatch("operationHistory/createTestResult", {
+          initialUrl: this.url,
+          name: this.testResultName,
+        });
+      }
+
+      const history = this.$store.state.operationHistory.history;
+      const startTime = new TimestampImpl().epochMilliseconds();
+
+      if (history.length === 0) {
+        await this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+          startTime,
+          initialUrl: this.url,
+        });
+      } else if (history.length > 0) {
+        await this.$store.dispatch("operationHistory/changeCurrentTestResult", {
+          startTime,
+          initialUrl: "",
+        });
+      }
+
+      await this.$store.dispatch("captureControl/startCapture", {
+        url: this.url,
+        callbacks: {
+          onEnd: async (error?: Error) => {
+            if (error) {
+              this.goToHistoryView();
+              throw error;
+            }
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        this.goToHistoryView();
+      } else {
+        throw error;
+      }
+    } finally {
+      this.preparingForCapture = false;
+      await this.$store.dispatch("closeProgressDialog");
+    }
   }
 
   private async resetHistory() {
@@ -161,11 +159,15 @@ export default class RecordStartTrigger extends Vue {
   }
 
   private goToHistoryView() {
-    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
+    const targetPath = "/capture/history";
+
+    if (this.$router.currentRoute.path !== targetPath) {
+      this.$router.push({ path: targetPath }).catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
+    }
   }
 }
 </script>

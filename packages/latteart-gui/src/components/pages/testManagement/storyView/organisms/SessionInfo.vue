@@ -71,16 +71,24 @@
                     <span class="break-all">{{ file.name }}</span> ({{
                       millisecondsToHHmmss(file.testingTime)
                     }})
-                    <v-btn
-                      text
-                      icon
-                      v-if="!isViewerMode"
-                      :title="
-                        $store.getters.message('session-info.open-test-result')
-                      "
-                      @click="openCaptureTool(file.id)"
-                      ><v-icon>launch</v-icon></v-btn
-                    >
+
+                    <test-result-load-trigger :testResultIds="[file.id]">
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          text
+                          icon
+                          v-if="!isViewerMode"
+                          :title="
+                            $store.getters.message(
+                              'session-info.open-test-result'
+                            )
+                          "
+                          @click="openCaptureTool(on)"
+                          ><v-icon>launch</v-icon></v-btn
+                        >
+                      </template>
+                    </test-result-load-trigger>
+
                     <v-btn
                       class="mr-0"
                       text
@@ -113,32 +121,38 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-spacer></v-spacer>
-                <record-start-trigger v-if="!isViewerMode">
-                  <template v-slot:activator="{ on }">
+                <v-row dense justify="end">
+                  <v-col cols="auto">
+                    <record-start-trigger v-if="!isViewerMode">
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          id="openCaptureToolButton"
+                          @click="openCaptureOptionDialog"
+                          >{{
+                            $store.getters.message("session-info.start-capture")
+                          }}</v-btn
+                        >
+
+                        <capture-option-dialog
+                          :opened="captureOptionDialogOpened"
+                          @execute="(option) => startCapture(on, option)"
+                          @close="captureOptionDialogOpened = false"
+                        >
+                        </capture-option-dialog>
+                      </template>
+                    </record-start-trigger>
+                  </v-col>
+                  <v-col cols="auto">
                     <v-btn
-                      id="openCaptureToolButton"
-                      @click="openCaptureOptionDialog"
+                      v-if="!isViewerMode"
+                      @click="openTestResultSelectionDialog"
+                      id="resultLogFileInputButton"
                       >{{
-                        $store.getters.message("session-info.start-capture")
+                        $store.getters.message("session-info.import")
                       }}</v-btn
                     >
-
-                    <capture-option-dialog
-                      :opened="captureOptionDialogOpened"
-                      @execute="(option) => startCapture(on, option)"
-                      @close="captureOptionDialogOpened = false"
-                    >
-                    </capture-option-dialog>
-                  </template>
-                </record-start-trigger>
-
-                <v-btn
-                  v-if="!isViewerMode"
-                  @click="openTestResultSelectionDialog"
-                  id="resultLogFileInputButton"
-                  >{{ $store.getters.message("session-info.import") }}</v-btn
-                >
+                  </v-col>
+                </v-row>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -269,6 +283,7 @@ import { RootState } from "@/store";
 import CaptureOptionDialog from "@/components/pages/common/CaptureOptionDialog.vue";
 import RecordStartTrigger from "@/components/pages/common/organisms/RecordStartTrigger.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import TestResultLoadTrigger from "@/components/pages/common/organisms/TestResultLoadTrigger.vue";
 
 @Component({
   components: {
@@ -279,6 +294,7 @@ import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
     "test-result-list": TestResultList,
     "record-start-trigger": RecordStartTrigger,
     "capture-option-dialog": CaptureOptionDialog,
+    "test-result-load-trigger": TestResultLoadTrigger,
   },
 })
 export default class SessionInfo extends Vue {
@@ -506,45 +522,20 @@ export default class SessionInfo extends Vue {
     });
   }
 
-  private async loadTestResultForCapture(testResultId: string) {
-    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-      testResultIds: [testResultId],
-    });
+  private async openCaptureTool(loadTestResults: () => Promise<void>) {
+    await loadTestResults();
 
-    await this.$store.dispatch("operationHistory/loadTestResult", {
-      testResultId,
-    });
-
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      setCanUpdateModels: false,
-    });
-  }
-
-  private async openCaptureTool(testResultId: string) {
-    try {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "test-result-navigation-drawer.load"
-        ),
-      });
-
-      await this.loadTestResultForCapture(testResultId);
-
-      this.$router.push({ path: "/capture/history" });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
+    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+      if (err.name !== "NavigationDuplicated") {
+        throw err;
       }
-    } finally {
-      this.$store.dispatch("closeProgressDialog");
-    }
+    });
   }
 
-  private async startCapture(onStart: () => void, option: CaptureOptionParams) {
+  private async startCapture(
+    onStart: () => Promise<void>,
+    option: CaptureOptionParams
+  ) {
     this.$store.commit("captureControl/setUrl", {
       url: option.url,
     });
@@ -595,7 +586,21 @@ export default class SessionInfo extends Vue {
 
     await this.loadTestResultForCapture(newTestResult.id);
 
-    onStart();
+    await onStart();
+  }
+
+  private async loadTestResultForCapture(testResultId: string) {
+    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
+      testResultIds: [testResultId],
+    });
+
+    await this.$store.dispatch("operationHistory/loadTestResult", {
+      testResultId,
+    });
+
+    this.$store.commit("operationHistory/setCanUpdateModels", {
+      setCanUpdateModels: false,
+    });
   }
 
   private get memo(): string {
