@@ -34,7 +34,7 @@ import {
   OperationHistory,
   MessageProvider,
 } from "@/lib/operationHistory/types";
-import HistoryDisplay from "@/components/pages/history/HistoryDisplay.vue";
+import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({

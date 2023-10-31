@@ -97,7 +97,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import { Story } from "@/lib/testManagement/types";
-import HistoryDisplay from "@/components/pages/history/HistoryDisplay.vue";
+import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/components/organisms/dialog/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
