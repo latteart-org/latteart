@@ -59,7 +59,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
-import FirstTestPurposeOptionDialog from "./FirstTestPurposeOptionDialog.vue";
+import FirstTestPurposeOptionDialog from "../../dialog/FirstTestPurposeOptionDialog.vue";
 
 @Component({
   components: {

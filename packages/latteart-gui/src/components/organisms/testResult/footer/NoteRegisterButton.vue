@@ -42,8 +42,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import TakeNoteWithPurposeDialog from "@/components/pages/common/TakeNoteWithPurposeDialog.vue";
-import TakeNoteDialog from "@/components/pages/common/TakeNoteDialog.vue";
+import TakeNoteWithPurposeDialog from "@/components/organisms/dialog/TakeNoteWithPurposeDialog.vue";
+import TakeNoteDialog from "@/components/organisms/dialog/TakeNoteDialog.vue";
 
 @Component({
   components: {

@@ -201,10 +201,10 @@ import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
 import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
-import TestPurposeEditDialog from "@/components/pages/common/TestPurposeEditDialog.vue";
+import TestPurposeEditDialog from "@/components/organisms/dialog/TestPurposeEditDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
-import NoteRegisterDialog from "@/components/pages/common/NoteRegisterDialog.vue";
-import NoteUpdateDialog from "@/components/pages/common/NoteUpdateDialog.vue";
+import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
 
 @Component({
   components: {

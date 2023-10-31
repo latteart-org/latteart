@@ -46,7 +46,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
-import TestResultImportDialog from "@/components/organisms/common/TestResultImportDialog.vue";
+import TestResultImportDialog from "@/components/organisms/dialog/TestResultImportDialog.vue";
 
 @Component({
   components: {

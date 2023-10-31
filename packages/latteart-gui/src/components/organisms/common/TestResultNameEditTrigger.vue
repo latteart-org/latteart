@@ -37,7 +37,7 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
-import TestResultNameEditDialog from "./TestResultNameEditDialog.vue";
+import TestResultNameEditDialog from "../dialog/TestResultNameEditDialog.vue";
 
 @Component({
   components: {

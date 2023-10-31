@@ -40,7 +40,7 @@
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { CaptureControlState } from "@/store/captureControl";
 import { Component, Vue } from "vue-property-decorator";
-import WindowSelectorDialog from "./WindowSelectorDialog.vue";
+import WindowSelectorDialog from "../../dialog/WindowSelectorDialog.vue";
 
 @Component({
   components: {

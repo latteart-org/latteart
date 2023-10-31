@@ -18,9 +18,8 @@
   <div>
     <note-common-dialog
       :opened="opened"
-      :isCapturing="true"
       :noteInfo="noteInfo"
-      @execute="takeNote"
+      @execute="addNote"
       @close="close()"
     />
     <error-message-dialog
@@ -37,7 +36,7 @@ import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import NoteCommonDialog from "@/components/organisms/common/NoteCommonDialog.vue";
+import NoteCommonDialog from "@/components/organisms/dialog/NoteCommonDialog.vue";
 
 @Component({
   components: {
@@ -45,7 +44,7 @@ import NoteCommonDialog from "@/components/organisms/common/NoteCommonDialog.vue
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class TakeNoteDialog extends Vue {
+export default class NoteRegisterDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private errorMessageDialogOpened = false;
@@ -90,11 +89,11 @@ export default class TakeNoteDialog extends Vue {
     };
   }
 
-  private takeNote(noteEditInfo: NoteEditInfo) {
+  private addNote(noteEditInfo: NoteEditInfo) {
     (async () => {
       this.close();
       try {
-        await this.$store.dispatch("captureControl/takeNote", {
+        await this.$store.dispatch("operationHistory/addNote", {
           noteEditInfo,
         });
       } catch (error) {

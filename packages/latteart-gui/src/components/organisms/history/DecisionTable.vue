@@ -169,7 +169,7 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
-import NoteListDialog from "./NoteListDialog.vue";
+import NoteListDialog from "../dialog/NoteListDialog.vue";
 import { ElementInfo, VideoFrame } from "latteart-client";
 import { OperationHistoryState } from "@/store/operationHistory";
 

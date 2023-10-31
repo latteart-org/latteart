@@ -83,7 +83,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import TestMatrixDialog from "@/components/organisms/testMatrixEdit/TestMatrixDialog.vue";
+import TestMatrixDialog from "@/components/organisms/dialog/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
 import { TestMatrix } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";

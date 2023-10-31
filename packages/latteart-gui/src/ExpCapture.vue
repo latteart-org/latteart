@@ -47,10 +47,10 @@ import CaptureToolHeader from "@/components/organisms/testResult/header/CaptureT
 import CaptureToolFooter from "@/components/organisms/testResult/footer/CaptureToolFooter.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
-import NoteRegisterDialog from "@/components/pages/common/NoteRegisterDialog.vue";
-import NoteUpdateDialog from "@/components/pages/common/NoteUpdateDialog.vue";
-import CompletionDialog from "@/components/pages/common/CompletionDialog.vue";
+import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";
+import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
+import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue";
 
 @Component({
   components: {

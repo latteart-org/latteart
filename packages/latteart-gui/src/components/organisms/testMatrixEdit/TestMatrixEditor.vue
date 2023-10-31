@@ -121,7 +121,7 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { TestMatrix } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-import TestMatrixDialog from "./TestMatrixDialog.vue";
+import TestMatrixDialog from "../dialog/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "./ManageEditTypes";
 import GroupEditor from "./GroupEditor.vue";
 

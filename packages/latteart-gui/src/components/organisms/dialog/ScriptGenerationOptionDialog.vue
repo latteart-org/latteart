@@ -35,7 +35,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import ScriptGenerationOption from "./ScriptGenerationOption.vue";
+import ScriptGenerationOption from "../common/ScriptGenerationOption.vue";
 
 @Component({
   components: {

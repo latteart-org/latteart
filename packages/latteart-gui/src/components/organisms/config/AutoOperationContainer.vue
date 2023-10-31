@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
-import AutoOperationDialog from "./AutoOperationDialog.vue";
+import AutoOperationDialog from "../dialog/AutoOperationDialog.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 
