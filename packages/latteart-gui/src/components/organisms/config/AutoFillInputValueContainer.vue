@@ -153,7 +153,7 @@ import NumberField from "@/components/molecules/NumberField.vue";
     "number-field": NumberField,
   },
 })
-export default class AutoFillInputValueContainer extends Vue {
+export default class AutofillInputValueContainer extends Vue {
   @Prop({
     type: Object,
     default: null,

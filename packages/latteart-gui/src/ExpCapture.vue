@@ -17,7 +17,7 @@
 <template>
   <v-container fluid fill-height pa-0>
     <v-app-bar color="white" flat absolute height="64px">
-      <capture-tool-header />
+      <test-result-header />
     </v-app-bar>
 
     <v-container
@@ -33,7 +33,7 @@
     </v-container>
 
     <v-footer absolute height="64px">
-      <capture-tool-footer />
+      <test-result-footer />
     </v-footer>
 
     <autofill-select-dialog />
@@ -43,8 +43,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import CaptureToolHeader from "@/components/organisms/testResult/CaptureToolHeader.vue";
-import CaptureToolFooter from "@/components/organisms/testResult/CaptureToolFooter.vue";
+import TestResultHeader from "@/components/organisms/testResult/TestResultHeader.vue";
+import TestResultFooter from "@/components/organisms/testResult/TestResultFooter.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";
@@ -54,8 +54,8 @@ import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue
 
 @Component({
   components: {
-    "capture-tool-header": CaptureToolHeader,
-    "capture-tool-footer": CaptureToolFooter,
+    "test-result-header": TestResultHeader,
+    "test-result-footer": TestResultFooter,
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-select-dialog": AutofillSelectDialog,

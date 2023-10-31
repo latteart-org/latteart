@@ -67,14 +67,14 @@ import {
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import AutoFillInputValueContainer from "./AutoFillInputValueContainer.vue";
+import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
 
 @Component({
   components: {
-    "autofill-input-value-container": AutoFillInputValueContainer,
+    "autofill-input-value-container": AutofillInputValueContainer,
   },
 })
-export default class AutofillSetting extends Vue {
+export default class AutofillConfig extends Vue {
   @Prop({ type: Boolean, required: true })
   public readonly opened!: boolean;
   @Prop({

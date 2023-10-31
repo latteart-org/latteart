@@ -28,11 +28,11 @@
       <v-icon dark>tab</v-icon>
     </v-btn>
 
-    <window-selector-dialog
+    <window-select-dialog
       :opened="!isReplaying && isWindowSelectorDialogOpened"
       @close="isWindowSelectorDialogOpened = false"
     >
-    </window-selector-dialog>
+    </window-select-dialog>
   </div>
 </template>
 
@@ -40,11 +40,11 @@
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { CaptureControlState } from "@/store/captureControl";
 import { Component, Vue } from "vue-property-decorator";
-import WindowSelectorDialog from "@/components/organisms/dialog/WindowSelectorDialog.vue";
+import WindowSelectDialog from "@/components/organisms/dialog/WindowSelectDialog.vue";
 
 @Component({
   components: {
-    "window-selector-dialog": WindowSelectorDialog,
+    "window-select-dialog": WindowSelectDialog,
   },
 })
 export default class SelectWindowButton extends Vue {

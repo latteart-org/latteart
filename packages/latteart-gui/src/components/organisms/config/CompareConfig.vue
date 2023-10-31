@@ -82,7 +82,7 @@ import { TestResultComparisonSetting } from "@/lib/common/settings/Settings";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
-export default class CompareSetting extends Vue {
+export default class CompareConfig extends Vue {
   @Prop({ type: Array, default: () => [] }) public readonly tags!: string[];
   @Prop({
     type: Object,

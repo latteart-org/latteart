@@ -52,7 +52,7 @@ import MenuButton from "./MenuButton.vue";
     "menu-button": MenuButton,
   },
 })
-export default class CaptureToolHeader extends Vue {
+export default class TestResultHeader extends Vue {
   private cancelKeydown(event: Event) {
     event.stopPropagation();
   }

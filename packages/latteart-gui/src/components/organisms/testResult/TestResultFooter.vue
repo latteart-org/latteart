@@ -62,5 +62,5 @@ import RunAutoOperationButton from "./RunAutoOperationButton.vue";
     "run-auto-operation-button": RunAutoOperationButton,
   },
 })
-export default class CaptureToolFooter extends Vue {}
+export default class TestResultFooter extends Vue {}
 </script>

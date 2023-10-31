@@ -134,12 +134,12 @@
                     }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
-                    <compare-setting
+                    <compare-config
                       :tags="defaultTagList"
                       :setting="testResultComparisonSetting"
                       @save-config="saveConfig"
                     >
-                    </compare-setting>
+                    </compare-config>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
 
@@ -194,14 +194,14 @@ import {
   CaptureMediaSetting,
   ExperimentalFeatureSetting,
 } from "@/lib/common/settings/Settings";
-import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillSetting.vue";
+import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
 import {
   AutofillSetting,
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
-import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationSetting.vue";
+import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationConfig.vue";
 import { RootState } from "@/store";
-import CompareSetting from "@/components/organisms/config/CompareSetting.vue";
+import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
 import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.vue";
 
@@ -212,7 +212,7 @@ import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.v
     "screen-definition-config": ScreenDefinitionConfig,
     "capture-media-config": CaptureMediaConfig,
     "autofill-setting": AutofillSettingComponent,
-    "compare-setting": CompareSetting,
+    "compare-config": CompareConfig,
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
     "error-message-dialog": ErrorMessageDialog,
