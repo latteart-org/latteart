@@ -192,15 +192,15 @@ import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import HistorySummaryDiagram from "./organisms/HistorySummaryDiagram.vue";
-import OperationList from "./organisms/OperationList.vue";
-import ElementCoverage from "./organisms/ElementCoverage.vue";
-import DecisionTable from "./organisms/DecisionTable.vue";
+import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
+import OperationList from "@/components/organisms/history/OperationList.vue";
+import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
+import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import ErrorMessageDialog from "../../molecules/ErrorMessageDialog.vue";
-import ConfirmDialog from "../../molecules/ConfirmDialog.vue";
-import ScreencastDisplay from "./organisms/ScreencastDisplay.vue";
-import ScreencaptureDisplay from "./organisms/ScreencaptureDisplay.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
+import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
+import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
 import TestPurposeEditDialog from "@/components/pages/common/TestPurposeEditDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import NoteRegisterDialog from "@/components/pages/common/NoteRegisterDialog.vue";

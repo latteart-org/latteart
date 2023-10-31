@@ -280,10 +280,10 @@ import TestResultList from "./TestResultList.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { CaptureControlState } from "@/store/captureControl";
 import { RootState } from "@/store";
-import CaptureOptionDialog from "@/components/pages/story/organisms/CaptureOptionDialog.vue";
-import RecordStartTrigger from "@/components/pages/common/organisms/RecordStartTrigger.vue";
+import CaptureOptionDialog from "./CaptureOptionDialog.vue";
+import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
-import TestResultLoadTrigger from "@/components/pages/common/organisms/TestResultLoadTrigger.vue";
+import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 
 @Component({
   components: {

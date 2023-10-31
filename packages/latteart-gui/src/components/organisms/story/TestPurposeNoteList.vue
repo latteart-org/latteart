@@ -173,9 +173,8 @@
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
+import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
 import { Session } from "@/lib/testManagement/types";
-import { VideoFrame } from "latteart-client";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "./NoteDetailsDialog.vue";
 

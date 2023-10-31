@@ -74,9 +74,9 @@
 
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
-import MermaidGraphRenderer from "../../../molecules/MermaidGraphRenderer.vue";
+import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import ErrorMessageDialog from "../../../molecules/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 
 @Component({
   components: {

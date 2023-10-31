@@ -127,7 +127,7 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import UpDownArrows from "@/components/molecules/UpDownArrows.vue";
-import { UpdateTestMatrixObject } from "../ManageEditTypes";
+import { UpdateTestMatrixObject } from "./ManageEditTypes";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { RootState } from "@/store";
 

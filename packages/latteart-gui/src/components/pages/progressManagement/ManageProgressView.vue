@@ -136,7 +136,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ProgressChart from "./organisms/ProgressChart.vue";
+import ProgressChart from "@/components/organisms/progressManagement/ProgressChart.vue";
 import Chart from "chart.js";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { DailyTestProgress } from "@/lib/testManagement/types";

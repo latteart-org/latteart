@@ -157,10 +157,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "../../molecules/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
-import TestResultLoadTrigger from "../common/organisms/TestResultLoadTrigger.vue";
+import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 
 @Component({
   components: {

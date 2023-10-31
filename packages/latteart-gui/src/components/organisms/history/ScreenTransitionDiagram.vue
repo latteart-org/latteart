@@ -32,7 +32,7 @@
 
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Edge, MessageProvider } from "@/lib/operationHistory/types";
-import MermaidGraphRenderer from "../../../molecules/MermaidGraphRenderer.vue";
+import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
 import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
 
 @Component({

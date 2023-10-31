@@ -112,7 +112,7 @@ import {
   noteTagPreset,
 } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import MediaDisplayGroup from "@/components/pages/common/organisms/MediaDisplayGroup.vue";
+import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
 
 @Component({
   components: {

@@ -36,9 +36,9 @@ import {
   NoteDialogInfo,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import ErrorMessageDialog from "../../molecules/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { NoteEditInfo } from "@/lib/captureControl/types";
-import NoteCommonDialog from "./organisms/NoteCommonDialog.vue";
+import NoteCommonDialog from "@/components/organisms/common/NoteCommonDialog.vue";
 
 @Component({
   components: {

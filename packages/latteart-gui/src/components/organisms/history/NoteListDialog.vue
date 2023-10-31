@@ -75,10 +75,10 @@
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
-import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
+import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { VideoFrame } from "latteart-client";
-import MediaDisplayGroup from "@/components/pages/common/organisms/MediaDisplayGroup.vue";
+import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
 
 @Component({
   components: {

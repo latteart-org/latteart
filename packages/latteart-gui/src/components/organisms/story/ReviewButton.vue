@@ -34,7 +34,7 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { Story } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
-import TestResultLoadTrigger from "@/components/pages/common/organisms/TestResultLoadTrigger.vue";
+import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 
 @Component({
   components: {

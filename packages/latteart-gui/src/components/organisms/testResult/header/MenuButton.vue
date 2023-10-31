@@ -56,7 +56,7 @@ import { Component, Vue } from "vue-property-decorator";
 import TestResultFileExportButton from "./TestResultFileExportButton.vue";
 import ReplayHistoryButton from "./ReplayHistoryButton.vue";
 import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
-import ScreenshotsDownloadButton from "@/components/pages/common/organisms/ScreenshotsDownloadButton.vue";
+import ScreenshotsDownloadButton from "@/components/organisms/common/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
 

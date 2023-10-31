@@ -178,9 +178,9 @@ import {
   Session,
 } from "@/lib/testManagement/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
-import ReviewButton from "./organisms/ReviewButton.vue";
+import ReviewButton from "@/components/organisms/story/ReviewButton.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-import SessionInfo from "./organisms/SessionInfo.vue";
+import SessionInfo from "@/components/organisms/story/SessionInfo.vue";
 import { CaptureControlState } from "@/store/captureControl";
 
 @Component({

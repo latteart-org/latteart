@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import ImportOption from "@/components/pages/common/organisms/ImportOption.vue";
+import ImportOption from "@/components/organisms/common/ImportOption.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import { loadFileAsBase64 } from "@/lib/common/util";
 import { Component, Vue } from "vue-property-decorator";

@@ -200,7 +200,7 @@ import {
   OperationHistory,
   MessageProvider,
 } from "@/lib/operationHistory/types";
-import OperationContextMenu from "@/components/pages/history/organisms/OperationContextMenu.vue";
+import OperationContextMenu from "./OperationContextMenu.vue";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { TimestampImpl } from "@/lib/common/Timestamp";

@@ -51,10 +51,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ProjectExportLauncher from "./organisms/ProjectExportLauncher.vue";
-import ProjectImportLauncher from "./organisms/ProjectImportLauncher.vue";
-import SnapshotOutputLauncher from "./organisms/SnapshotOutputLauncher.vue";
-import TestScriptGenerationlauncher from "./organisms/TestScriptGenerationLauncher.vue";
+import ProjectExportLauncher from "@/components/organisms/optionalFeatures/ProjectExportLauncher.vue";
+import ProjectImportLauncher from "@/components/organisms/optionalFeatures/ProjectImportLauncher.vue";
+import SnapshotOutputLauncher from "@/components/organisms/optionalFeatures/SnapshotOutputLauncher.vue";
+import TestScriptGenerationlauncher from "@/components/organisms/optionalFeatures/TestScriptGenerationLauncher.vue";
 
 @Component({
   components: {

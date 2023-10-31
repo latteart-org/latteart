@@ -33,7 +33,7 @@
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import CaptureOption from "../../common/organisms/CaptureOption.vue";
+import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 
 @Component({
   components: {

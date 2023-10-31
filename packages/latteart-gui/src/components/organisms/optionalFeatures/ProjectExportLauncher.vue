@@ -17,21 +17,22 @@
 <template>
   <v-card flat class="pa-2">
     <v-card-title>{{
-      $store.getters.message("optional-features.test-script-generation.title")
+      $store.getters.message("optional-features.project-export.title")
     }}</v-card-title>
 
     <v-card-text>
-      <script-generation-option @update="updateOption" />
+      <export-option @update="updateOption" />
     </v-card-text>
+
     <v-card-actions>
       <v-btn
         :disabled="disabled"
         :dark="!disabled"
         color="primary"
-        @click="generateTestScript"
+        @click="exportData"
         >{{
           $store.getters.message(
-            "optional-features.test-script-generation.execute-button"
+            "optional-features.project-export.execute-button"
           )
         }}</v-btn
       >
@@ -57,17 +58,17 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import ScriptGenerationOption from "@/components/pages/common/organisms/ScriptGenerationOption.vue";
+import ExportOption from "@/components/organisms/common/ExportOption.vue";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "script-generation-option": ScriptGenerationOption,
+    "export-option": ExportOption,
   },
 })
-export default class ManageEditView extends Vue {
+export default class ProjectExportLauncher extends Vue {
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
@@ -76,77 +77,51 @@ export default class ManageEditView extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
-  private option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
-    };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
-    };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  } = {
-    testScript: {
-      isSimple: false,
-      useMultiLocator: false,
-    },
-    testData: {
-      useDataDriven: false,
-      maxGeneration: 0,
-    },
-    buttonDefinitions: [],
+  private option = {
+    selectedOptionProject: true,
+    selectedOptionTestresult: true,
+    selectedOptionConfig: true,
   };
 
+  private get disabled() {
+    return (
+      !this.option.selectedOptionProject &&
+      !this.option.selectedOptionTestresult &&
+      !this.option.selectedOptionConfig
+    );
+  }
+
   private updateOption(option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
-    };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
-    };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
+    selectedOptionProject: boolean;
+    selectedOptionTestresult: boolean;
+    selectedOptionConfig: boolean;
   }) {
     this.option = option;
   }
 
-  private generateTestScript() {
+  private exportData() {
     (async () => {
+      this.$store.dispatch("openProgressDialog", {
+        message: this.$store.getters.message(
+          "import-export-dialog.creating-export-data"
+        ),
+      });
+
       try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "manage-header.generating-test-script"
-          ),
-        });
-        const testScriptInfo = await this.$store.dispatch(
-          "testManagement/generateAllSessionTestScripts",
-          {
-            option: this.option,
-          }
+        const exportDataUrl = await this.$store.dispatch(
+          "testManagement/exportData",
+          { option: this.option }
         );
-        this.$store.dispatch("closeProgressDialog");
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "history-view.generate-testscript-succeeded"
-        );
-        if (testScriptInfo.invalidOperationTypeExists) {
-          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
-          );
-        } else {
-          this.downloadLinkDialogAlertMessage = "";
-        }
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
+
         this.downloadLinkDialogOpened = true;
+        this.downloadLinkDialogTitle = this.$store.getters.message(
+          "import-export-dialog.project-export-title"
+        );
+        this.downloadLinkDialogMessage = this.$store.getters.message(
+          "import-export-dialog.create-export-data-succeeded"
+        );
+        this.downloadLinkDialogAlertMessage = "";
+        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
       } catch (error) {
         if (error instanceof Error) {
           this.errorMessage = error.message;
@@ -163,25 +138,5 @@ export default class ManageEditView extends Vue {
   private get currentRepositoryUrl() {
     return this.$store.state.repositoryService.serviceUrl;
   }
-
-  private get disabled() {
-    return !this.hasAnySessionHistory;
-  }
-
-  private get hasAnySessionHistory(): boolean {
-    return this.$store.getters["testManagement/anySessionHasHistory"]();
-  }
 }
 </script>
-
-<style lang="sass">
-#max-test-data-generation
-  .v-text-field__details
-    display: none
-
-  .v-input--selection-controls
-    margin-top: 0px
-
-  .v-messages
-    display: none
-</style>

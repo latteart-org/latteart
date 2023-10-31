@@ -180,9 +180,9 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
-import CoverageConfig from "./organisms/CoverageConfig.vue";
-import ScreenDefinitionConfig from "./organisms/ScreenDefinitionConfig.vue";
-import CaptureMediaConfig from "./organisms/CaptureMediaConfig.vue";
+import CoverageConfig from "@/components/organisms/config/CoverageConfig.vue";
+import ScreenDefinitionConfig from "@/components/organisms/config/ScreenDefinitionConfig.vue";
+import CaptureMediaConfig from "@/components/organisms/config/CaptureMediaConfig.vue";
 import ErrorMessageDialog from "../../molecules/ErrorMessageDialog.vue";
 import {
   CoverageSetting,
@@ -194,16 +194,16 @@ import {
   CaptureMediaSetting,
   ExperimentalFeatureSetting,
 } from "@/lib/common/settings/Settings";
-import { default as AutofillSettingComponent } from "./organisms/AutofillSetting.vue";
+import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillSetting.vue";
 import {
   AutofillSetting,
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
-import { default as AutoOperationSettingComponent } from "./organisms/AutoOperationSetting.vue";
+import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationSetting.vue";
 import { RootState } from "@/store";
-import CompareSetting from "./organisms/CompareSetting.vue";
-import ExperimentalFeatureConfig from "./organisms/ExperimentalFeatureConfig.vue";
-import RemoteAccessField from "./organisms/RemoteAccessField.vue";
+import CompareSetting from "@/components/organisms/config/CompareSetting.vue";
+import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
+import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.vue";
 
 @Component({
   components: {

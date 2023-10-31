@@ -43,8 +43,8 @@
 <script lang="ts">
 import { RootState } from "@/store";
 import { Component, Vue } from "vue-property-decorator";
-import RecordStartTrigger from "../common/organisms/RecordStartTrigger.vue";
-import CaptureOption from "@/components/pages/common/organisms/CaptureOption.vue";
+import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
+import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
 
 @Component({

@@ -83,8 +83,8 @@
 import { TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
 import { Component, Vue, Watch } from "vue-property-decorator";
-import LegendViewer from "./organisms/LegendViewer.vue";
-import TestMatrixViewer from "./organisms/TestMatrixViewer.vue";
+import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
+import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
 
 @Component({
   components: {

@@ -43,14 +43,14 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import CaptureToolHeader from "@/components/pages/testResult/organisms/header/CaptureToolHeader.vue";
-import CaptureToolFooter from "./components/pages/testResult/organisms/footer/CaptureToolFooter.vue";
-import ConfirmDialog from "./components/molecules/ConfirmDialog.vue";
-import ErrorMessageDialog from "./components/molecules/ErrorMessageDialog.vue";
+import CaptureToolHeader from "@/components/organisms/testResult/header/CaptureToolHeader.vue";
+import CaptureToolFooter from "@/components/organisms/testResult/footer/CaptureToolFooter.vue";
+import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/pages/common/AutofillSelectDialog.vue";
-import NoteRegisterDialog from "./components/pages/common/NoteRegisterDialog.vue";
-import NoteUpdateDialog from "./components/pages/common/NoteUpdateDialog.vue";
-import CompletionDialog from "./components/pages/common/CompletionDialog.vue";
+import NoteRegisterDialog from "@/components/pages/common/NoteRegisterDialog.vue";
+import NoteUpdateDialog from "@/components/pages/common/NoteUpdateDialog.vue";
+import CompletionDialog from "@/components/pages/common/CompletionDialog.vue";
 
 @Component({
   components: {

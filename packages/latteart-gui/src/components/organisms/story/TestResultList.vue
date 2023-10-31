@@ -173,7 +173,7 @@
 import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import ErrorMessageDialog from "../../../molecules/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 
 @Component({
   components: {

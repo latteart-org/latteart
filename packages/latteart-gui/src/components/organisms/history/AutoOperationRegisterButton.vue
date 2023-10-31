@@ -46,7 +46,7 @@
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import AutoOperationRegisterDialog from "@/components/pages/common/AutoOperationRegisterDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "../../../molecules/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 
 @Component({
   components: {

@@ -49,7 +49,7 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import ScriptGenerationOptionDialog from "@/components/pages/common/organisms/ScriptGenerationOptionDialog.vue";
+import ScriptGenerationOptionDialog from "@/components/organisms/common/ScriptGenerationOptionDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 import { OperationHistoryState } from "@/store/operationHistory";
 

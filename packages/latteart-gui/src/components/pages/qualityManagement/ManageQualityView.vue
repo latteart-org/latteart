@@ -132,7 +132,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import QualityChart from "./organisms/QualityChart.vue";
+import QualityChart from "@/components/organisms/qualityManagement/QualityChart.vue";
 import { TestMatrix, Story } from "@/lib/testManagement/types";
 import { TestManagementState } from "@/store/testManagement";
 

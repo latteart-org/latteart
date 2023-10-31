@@ -201,12 +201,12 @@ import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
-import ConfirmDialog from "../../molecules/ConfirmDialog.vue";
-import ErrorMessageDialog from "../../molecules/ErrorMessageDialog.vue";
-import InformationMessageDialog from "../../molecules/InformationMessageDialog.vue";
-import TestResultImportTrigger from "../common/organisms/TestResultImportTrigger.vue";
-import TestResultLoadTrigger from "../common/organisms/TestResultLoadTrigger.vue";
-import TestResultNameEditTrigger from "../common/organisms/TestResultNameEditTrigger.vue";
+import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
+import TestResultImportTrigger from "@/components/organisms/common/TestResultImportTrigger.vue";
+import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
+import TestResultNameEditTrigger from "@/components/organisms/common/TestResultNameEditTrigger.vue";
 
 @Component({
   components: {
