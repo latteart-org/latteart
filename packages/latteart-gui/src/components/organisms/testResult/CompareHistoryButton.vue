@@ -57,7 +57,7 @@ import {
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
-import ComparisonResultDialog from "../../dialog/ComparisonResultDialog.vue";
+import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
 
 @Component({
   components: {

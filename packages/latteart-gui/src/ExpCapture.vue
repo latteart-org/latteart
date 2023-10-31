@@ -43,8 +43,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import CaptureToolHeader from "@/components/organisms/testResult/header/CaptureToolHeader.vue";
-import CaptureToolFooter from "@/components/organisms/testResult/footer/CaptureToolFooter.vue";
+import CaptureToolHeader from "@/components/organisms/testResult/CaptureToolHeader.vue";
+import CaptureToolFooter from "@/components/organisms/testResult/CaptureToolFooter.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";

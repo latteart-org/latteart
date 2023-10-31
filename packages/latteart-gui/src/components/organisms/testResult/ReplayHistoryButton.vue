@@ -56,8 +56,8 @@ import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import ComparisonResultDialog from "../../dialog/ComparisonResultDialog.vue";
-import ReplayOptionDialog from "../../dialog/ReplayOptionDialog.vue";
+import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
+import ReplayOptionDialog from "@/components/organisms/dialog/ReplayOptionDialog.vue";
 
 @Component({
   components: {

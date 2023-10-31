@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
-import AutoOperationSelectDialog from "../../dialog/AutoOperationSelectDialog.vue";
+import AutoOperationSelectDialog from "@/components/organisms/dialog/AutoOperationSelectDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 
