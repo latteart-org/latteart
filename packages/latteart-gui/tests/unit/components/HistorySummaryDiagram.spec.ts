@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue } from "@vue/test-utils";
 import Vuetify from "vuetify";
-import HistorySummaryDiagram from "@/components/pages/history/organisms/HistorySummaryDiagram.vue";
+import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
 
 const localVue = createLocalVue();
 localVue.use(Vuetify);
