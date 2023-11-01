@@ -57,7 +57,7 @@
 
           <v-list-item
             v-if="currentTestResultName && !recentReviewQuery"
-            to="/capture/history"
+            to="/testresult"
             :title="currentTestResultName"
             exact
           >
@@ -307,17 +307,17 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ProgressDialog from "@/components/organisms/dialog/ProgressDialog.vue";
-import ExpCapture from "@/ExpCapture.vue";
 import ExpManager from "@/ExpManager.vue";
 import { TestManagementState } from "@/store/testManagement";
 import { TestMatrix } from "@/lib/testManagement/types";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { CaptureControlState } from "@/store/captureControl";
 import AutofillRegisterDialog from "@/components/organisms/dialog/AutofillRegisterDialog.vue";
+import TestResultPage from "./components/pages/testResult/TestResultPage.vue";
 
 @Component({
   components: {
-    "exp-capture": ExpCapture,
+    "test-result-page": TestResultPage,
     "exp-manager": ExpManager,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
@@ -451,7 +451,7 @@ export default class Root extends Vue {
     if (!newState) {
       return;
     }
-    const targetPath = "/capture/history";
+    const targetPath = "/testresult";
     if (this.$router.currentRoute.path !== targetPath) {
       await this.$router.push({ path: targetPath });
     }

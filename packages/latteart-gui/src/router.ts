@@ -16,7 +16,6 @@
 
 import Vue from "vue";
 import Router from "vue-router";
-import ExpCapture from "@/ExpCapture.vue";
 import ConfigPage from "@/components/pages/config/ConfigPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
 import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
@@ -46,23 +45,16 @@ export default new Router({
       component: Root,
       children: [
         {
-          path: "capture",
-          name: "expcapture",
-          component: ExpCapture,
-          children: [
-            {
-              path: "history",
-              name: "historyView",
-              component: TestResultPage,
-              meta: { title: "test-result-page.window-title" },
-              beforeEnter: (to, from, next) => {
-                store.commit("testManagement/setRecentReviewQuery", {
-                  query: null,
-                });
-                next();
-              },
-            },
-          ],
+          path: "testresult",
+          name: "testResultPage",
+          component: TestResultPage,
+          meta: { title: "test-result-page.window-title" },
+          beforeEnter: (to, from, next) => {
+            store.commit("testManagement/setRecentReviewQuery", {
+              query: null,
+            });
+            next();
+          },
         },
         {
           path: "manage",

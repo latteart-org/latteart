@@ -525,7 +525,7 @@ export default class SessionInfo extends Vue {
   private async openCaptureTool(loadTestResults: () => Promise<void>) {
     await loadTestResults();
 
-    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+    this.$router.push({ path: "/testresult" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;
       }
