@@ -48,7 +48,7 @@ import AutoOperationContainer from "./AutoOperationContainer.vue";
     "auto-operation-container": AutoOperationContainer,
   },
 })
-export default class AutoOperationSetting extends Vue {
+export default class AutoOperationConfig extends Vue {
   @Prop({ type: Boolean, required: true })
   public readonly opened!: boolean;
   @Prop({
