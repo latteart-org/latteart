@@ -30,7 +30,7 @@
           @click="slotProps.obj.execute"
           class="ma-2"
         >
-          {{ $store.getters.message("history-view.export-screenshots") }}
+          {{ $store.getters.message("test-result-page.export-screenshots") }}
         </v-btn>
       </screenshots-download-button>
       <v-btn

@@ -426,11 +426,6 @@ export default class StoryPage extends Vue {
       .isReplaying;
   }
 
-  private toIndex(): void {
-    this.$store.commit("testManagement/clearTempStory");
-    this.$router.push({ name: "manageShowView" });
-  }
-
   private countPlannedSessions(): number {
     if (!this.plan) {
       return 0;

@@ -238,7 +238,7 @@ describe("QualityManagementPage.vueは", () => {
     const routes = [
       {
         path: "progress",
-        name: "manageQualityView",
+        name: "qualityManagementPage",
         component: QualityManagementPage,
       },
     ];

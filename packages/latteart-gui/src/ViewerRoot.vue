@@ -40,7 +40,7 @@
         <v-list-item-group v-model="displayedPage" color="primary">
           <v-list-item
             :disabled="!hasTestMatrix"
-            to="/manage/view/show"
+            to="/view/show"
             :title="$store.getters.message('manage-header.top')"
             exact
           >
@@ -57,7 +57,7 @@
 
           <v-list-item
             :disabled="!hasSession"
-            to="/manage/view/progress"
+            to="/view/progress"
             :title="$store.getters.message('progress-management.title')"
             exact
           >
@@ -74,7 +74,7 @@
 
           <v-list-item
             :disabled="!hasSession"
-            to="/manage/view/quality"
+            to="/view/quality"
             :title="$store.getters.message('quality-management.title')"
             exact
           >
@@ -130,7 +130,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             v-if="recentReviewQuery"
-            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :to="{ path: '/view/history', query: recentReviewQuery }"
             :title="$store.getters.message('manager-history-view.review')"
             exact
           >
@@ -165,7 +165,7 @@ export default class Root extends Vue {
   private displayedPage = 0;
 
   private mounted(): void {
-    this.$router.push({ name: "manageShowView" });
+    this.$router.push({ name: "testMatrixPage" });
   }
 
   private get hasTestMatrix(): boolean {
@@ -211,7 +211,7 @@ export default class Root extends Vue {
       }
 
       return {
-        path: `/manage/view/story/${story.id}`,
+        path: `/view/story/${story.id}`,
         testTargetName: testTarget.name,
         viewPointName: viewPoint.name,
       };

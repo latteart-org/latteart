@@ -336,7 +336,7 @@ export default class StoriesReviewPage extends Vue {
   private async review(loadTestResults: () => Promise<void>) {
     await loadTestResults();
 
-    this.$router.push({ name: "reviewView" }).catch((err: Error) => {
+    this.$router.push({ name: "reviewPage" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;
       }

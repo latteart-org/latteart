@@ -156,10 +156,6 @@ export default class TestMatrixEditPage extends Vue {
     this.selectedTestMatrixId = selectTestMatrixId;
   }
 
-  private goToTop() {
-    this.$router.push({ name: "manageShowView" });
-  }
-
   private openTestMatrixDialogInCreateMode(): void {
     this.testMatrixBeingEdited = {
       name: "",

@@ -40,7 +40,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/start"
+            to="/view/start"
             :title="$store.getters.message('start-capture-page.title')"
             exact
           >
@@ -75,7 +75,7 @@
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/results"
+            to="/view/results"
             :title="
               $store.getters.message('test-result-navigation-drawer.title')
             "
@@ -106,7 +106,7 @@
         <v-list-item-group v-model="displayedPage" color="primary">
           <v-list-item
             :disabled="!hasTestMatrix"
-            to="/manage/view/show"
+            to="/view/show"
             :title="$store.getters.message('manage-header.top')"
             exact
           >
@@ -123,7 +123,7 @@
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/edit"
+            to="/view/edit"
             :title="$store.getters.message('test-matrix-edit-page.title')"
             exact
           >
@@ -140,7 +140,7 @@
 
           <v-list-item
             :disabled="!hasTestMatrix || isCapturing || isReplaying"
-            to="/manage/view/stories"
+            to="/view/stories"
             :title="$store.getters.message('stories-review-page.title')"
             exact
           >
@@ -157,7 +157,7 @@
 
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
-            to="/manage/view/progress"
+            to="/view/progress"
             :title="$store.getters.message('progress-management.title')"
             exact
           >
@@ -174,7 +174,7 @@
 
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
-            to="/manage/view/quality"
+            to="/view/quality"
             :title="$store.getters.message('quality-management.title')"
             exact
           >
@@ -191,7 +191,7 @@
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/features"
+            to="/view/features"
             :title="$store.getters.message('optional-features.title')"
             exact
           >
@@ -247,7 +247,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             v-if="currentTestResultName && recentReviewQuery"
-            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :to="{ path: '/view/history', query: recentReviewQuery }"
             :title="currentTestResultName"
             exact
           >
@@ -271,7 +271,7 @@
 
         <v-list-item-group color="primary">
           <v-list-item
-            to="/manage/view/config"
+            to="/view/config"
             :title="$store.getters.message('manage-header.capture-config')"
             exact
           >
@@ -307,18 +307,18 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ProgressDialog from "@/components/organisms/dialog/ProgressDialog.vue";
-import ExpManager from "@/ExpManager.vue";
 import { TestManagementState } from "@/store/testManagement";
 import { TestMatrix } from "@/lib/testManagement/types";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { CaptureControlState } from "@/store/captureControl";
 import AutofillRegisterDialog from "@/components/organisms/dialog/AutofillRegisterDialog.vue";
 import TestResultPage from "./components/pages/testResult/TestResultPage.vue";
+import PageFrame from "./PageFrame.vue";
 
 @Component({
   components: {
     "test-result-page": TestResultPage,
-    "exp-manager": ExpManager,
+    "page-frame": PageFrame,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-register-dialog": AutofillRegisterDialog,
@@ -346,7 +346,7 @@ export default class Root extends Vue {
         }
       }
 
-      this.$router.push({ path: "/manage/view/start" });
+      this.$router.push({ path: "/view/start" });
     })();
   }
 
@@ -379,7 +379,7 @@ export default class Root extends Vue {
       }
 
       return {
-        path: `/manage/view/story/${story.id}`,
+        path: `/view/story/${story.id}`,
         testTargetName: testTarget.name,
         viewPointName: viewPoint.name,
       };

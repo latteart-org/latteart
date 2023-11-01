@@ -49,17 +49,6 @@
     <autofill-select-dialog />
     <completion-dialog />
   </v-container>
-  <!-- <v-row class="fill-height">
-    <history-display
-      :locale="$store.state.i18n?.locale"
-      :changeWindowTitle="changeWindowTitle"
-      :rawHistory="history"
-      :message="messageProvider"
-      :screenDefinitionConfig="screenDefinitionConfig"
-      scriptGenerationEnabled
-      operationContextEnabled
-    ></history-display>
-  </v-row> -->
 </template>
 
 <script lang="ts">

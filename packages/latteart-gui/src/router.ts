@@ -20,8 +20,7 @@ import ConfigPage from "@/components/pages/config/ConfigPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
 import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
 import TestResultPage from "@/components/pages/testResult/TestResultPage.vue";
-import ExpManager from "@/ExpManager.vue";
-import ManageView from "@/ManageView.vue";
+import PageFrame from "@/PageFrame.vue";
 import TestMatrixEditPage from "@/components/pages/testMatrixEdit/TestMatrixEditPage.vue";
 import StoriesReviewPage from "@/components/pages/storiesReview/StoriesReviewPage.vue";
 import StoryPage from "@/components/pages/story/StoryPage.vue";
@@ -57,85 +56,78 @@ export default new Router({
           },
         },
         {
-          path: "manage",
-          name: "expmanager",
-          component: ExpManager,
+          path: "view",
+          name: "pageFrame",
+          component: PageFrame,
           children: [
             {
-              path: "view",
-              name: "manageView",
-              component: ManageView,
-              children: [
-                {
-                  path: "start",
-                  component: StartCapturePage,
-                  meta: { title: "start-capture-page.title" },
-                },
-                {
-                  path: "results",
-                  component: TestResultListPage,
-                  meta: { title: "test-result-navigation-drawer.title" },
-                },
-                {
-                  path: "show",
-                  name: "manageShowView",
-                  component: TestMatrixPage,
-                  meta: { title: "manage-header.top" },
-                },
-                {
-                  path: "edit",
-                  name: "manageEditView",
-                  component: TestMatrixEditPage,
-                  meta: { title: "test-matrix-edit-page.title" },
-                },
-                {
-                  path: "stories",
-                  name: "storyListView",
-                  component: StoriesReviewPage,
-                  meta: { title: "stories-review-page.title" },
-                },
-                {
-                  path: "progress",
-                  name: "manageProgressView",
-                  component: ProgressManagementPage,
-                  meta: { title: "progress-management.title" },
-                },
-                {
-                  path: "quality",
-                  name: "manageQualityView",
-                  component: QualityManagementPage,
-                  meta: { title: "quality-management.title" },
-                },
-                {
-                  path: "features",
-                  component: OptionalFeaturesPage,
-                  meta: { title: "optional-features.title" },
-                },
-                {
-                  path: "story/:id",
-                  name: "storyView",
-                  component: StoryPage,
-                  meta: { title: "story-page.title" },
-                },
-                {
-                  path: "history",
-                  name: "reviewView",
-                  component: ReviewPage,
-                  meta: { title: "manager-history-view.review" },
-                  beforeEnter: (to, from, next) => {
-                    store.commit("testManagement/setRecentReviewQuery", {
-                      query: to.query,
-                    });
-                    next();
-                  },
-                },
-                {
-                  path: "config",
-                  name: "configView",
-                  component: ConfigPage,
-                  meta: { title: "manage-header.capture-config" },
-                },
-              ],
+              path: "start",
+              component: StartCapturePage,
+              meta: { title: "start-capture-page.title" },
+            },
+            {
+              path: "results",
+              component: TestResultListPage,
+              meta: { title: "test-result-navigation-drawer.title" },
+            },
+            {
+              path: "show",
+              name: "testMatrixPage",
+              component: TestMatrixPage,
+              meta: { title: "manage-header.top" },
+            },
+            {
+              path: "edit",
+              name: "testMatrixEditPage",
+              component: TestMatrixEditPage,
+              meta: { title: "test-matrix-edit-page.title" },
+            },
+            {
+              path: "stories",
+              name: "storiesReviewPage",
+              component: StoriesReviewPage,
+              meta: { title: "stories-review-page.title" },
+            },
+            {
+              path: "progress",
+              name: "progressManagementPage",
+              component: ProgressManagementPage,
+              meta: { title: "progress-management.title" },
+            },
+            {
+              path: "quality",
+              name: "qualityManagementPage",
+              component: QualityManagementPage,
+              meta: { title: "quality-management.title" },
+            },
+            {
+              path: "features",
+              component: OptionalFeaturesPage,
+              meta: { title: "optional-features.title" },
+            },
+            {
+              path: "story/:id",
+              name: "storyPage",
+              component: StoryPage,
+              meta: { title: "story-page.title" },
+            },
+            {
+              path: "history",
+              name: "reviewPage",
+              component: ReviewPage,
+              meta: { title: "manager-history-view.review" },
+              beforeEnter: (to, from, next) => {
+                store.commit("testManagement/setRecentReviewQuery", {
+                  query: to.query,
+                });
+                next();
+              },
+            },
+            {
+              path: "config",
+              name: "configPage",
+              component: ConfigPage,
+              meta: { title: "manage-header.capture-config" },
             },
           ],
         },

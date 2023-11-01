@@ -80,7 +80,7 @@ export default class SessionsStatus extends Vue {
 
   public toStory(): void {
     this.$router.push({
-      name: "storyView",
+      name: "storyPage",
       params: { id: this.id },
     });
   }
