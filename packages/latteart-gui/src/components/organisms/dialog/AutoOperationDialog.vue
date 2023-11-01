@@ -17,7 +17,7 @@
 <template>
   <scrollable-dialog :opened="opened" :maxWidth="2000">
     <template v-slot:title>{{
-      $store.getters.message("config-view.autoOperation.title")
+      $store.getters.message("config-page.autoOperation.title")
     }}</template>
     <template v-slot:content>
       <v-data-table

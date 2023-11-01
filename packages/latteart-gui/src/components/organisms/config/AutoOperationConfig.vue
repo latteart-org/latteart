@@ -19,7 +19,7 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <p v-if="conditionGroups < 1">
-          {{ $store.getters.message("config-view.no-data") }}
+          {{ $store.getters.message("config-page.no-data") }}
         </p>
         <auto-operation-container
           v-for="(group, index) in conditionGroups"

@@ -27,12 +27,12 @@
     </v-card-text>
 
     <v-card-subtitle>
-      {{ $store.getters.message("config-view.device") }}
+      {{ $store.getters.message("config-page.device") }}
     </v-card-subtitle>
 
     <v-card-text>
       <v-select
-        :label="$store.getters.message('config-view.platform')"
+        :label="$store.getters.message('config-page.platform')"
         :items="platforms"
         v-model="captureOption.platform"
       ></v-select>
@@ -40,19 +40,19 @@
       <v-card class="pa-2 mb-4" outlined v-show="isMobileSelected">
         <v-card-text>
           <v-btn @click="updateDevices">{{
-            $store.getters.message("config-view.update-device")
+            $store.getters.message("config-page.update-device")
           }}</v-btn>
           <v-select
-            :label="$store.getters.message('config-view.select-device')"
+            :label="$store.getters.message('config-page.select-device')"
             v-model="captureOption.device"
             :items="devices"
             item-text="modelNumber"
             item-value="deviceName"
-            :no-data-text="$store.getters.message('config-view.no-device')"
+            :no-data-text="$store.getters.message('config-page.no-device')"
             return-object
           ></v-select>
           <v-text-field
-            :label="$store.getters.message('config-view.os-version')"
+            :label="$store.getters.message('config-page.os-version')"
             v-model="captureOption.device.osVersion"
             readonly
           ></v-text-field>
@@ -60,7 +60,7 @@
       </v-card>
 
       <v-select
-        :label="$store.getters.message('config-view.browser')"
+        :label="$store.getters.message('config-page.browser')"
         :items="browsers"
         v-model="captureOption.browser"
       ></v-select>
@@ -76,13 +76,13 @@
         :value="captureOption.waitTimeForStartupReload"
         :maxValue="60"
         :minValue="0"
-        :label="$store.getters.message('config-view.reload-setting')"
-        :suffix="$store.getters.message('config-view.reload-suffix')"
+        :label="$store.getters.message('config-page.reload-setting')"
+        :suffix="$store.getters.message('config-page.reload-suffix')"
       ></number-field>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ $store.getters.message("config-view.media-type") }}
+      {{ $store.getters.message("config-page.media-type") }}
     </v-card-subtitle>
 
     <v-card-text class="mb-3">
@@ -91,15 +91,15 @@
         :disabled="isMediaTypeDisabled"
         class="py-0 my-0"
         row
-        :hint="$store.getters.message('config-view.capture-media-config-hint')"
+        :hint="$store.getters.message('config-page.capture-media-config-hint')"
         persistent-hint
       >
         <v-radio
-          :label="$store.getters.message('config-view.still-image')"
+          :label="$store.getters.message('config-page.still-image')"
           value="image"
         />
         <v-radio
-          :label="$store.getters.message('config-view.video')"
+          :label="$store.getters.message('config-page.video')"
           value="video"
         />
       </v-radio-group>

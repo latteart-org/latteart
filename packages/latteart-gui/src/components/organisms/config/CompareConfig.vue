@@ -22,7 +22,7 @@
           v-model="isExcludeItemsEnabled"
           :label="
             $store.getters.message(
-              'config-view.comparison-exclude-items-enabled'
+              'config-page.comparison-exclude-items-enabled'
             )
           "
           hide-details
@@ -37,7 +37,7 @@
           item-value="value"
           :menu-props="{ maxHeight: '400' }"
           :label="
-            $store.getters.message('config-view.comparison-exclude-items-value')
+            $store.getters.message('config-page.comparison-exclude-items-value')
           "
           multiple
           @change="changeExcludeItems"
@@ -50,7 +50,7 @@
           v-model="isExcludeElementsEnabled"
           :label="
             $store.getters.message(
-              'config-view.comparison-exclude-elements-enabled'
+              'config-page.comparison-exclude-elements-enabled'
             )
           "
           hide-details
@@ -64,7 +64,7 @@
           :menu-props="{ maxHeight: '400' }"
           :label="
             $store.getters.message(
-              'config-view.comparison-exclude-elements-tagname'
+              'config-page.comparison-exclude-elements-tagname'
             )
           "
           multiple

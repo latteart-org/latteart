@@ -18,12 +18,14 @@
   <v-container class="align-self-start">
     <v-row class="mt-2">
       <v-col cols="12">
-        {{ $store.getters.message("manage-progress.display-settings-section") }}
+        {{
+          $store.getters.message("progress-management.display-settings-section")
+        }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ $store.getters.message("manage-progress.period") }}
+        {{ $store.getters.message("progress-management.period") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -54,7 +56,7 @@
         </v-menu>
       </v-col>
       <v-col align-self="center" cols="1" class="pt-0">
-        {{ $store.getters.message("manage-progress.period-symbol") }}
+        {{ $store.getters.message("progress-management.period-symbol") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -88,7 +90,7 @@
 
     <v-row>
       <v-col cols="12">
-        {{ $store.getters.message("manage-progress.filter-section") }}
+        {{ $store.getters.message("progress-management.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -99,7 +101,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-progress.test-matrix')"
+          :label="$store.getters.message('progress-management.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -110,7 +112,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-progress.group')"
+          :label="$store.getters.message('progress-management.group')"
         ></v-select>
       </v-col>
 
@@ -121,7 +123,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-progress.test-target')"
+          :label="$store.getters.message('progress-management.test-target')"
         ></v-select>
       </v-col>
     </v-row>
@@ -147,7 +149,7 @@ import { TestManagementState } from "@/store/testManagement";
     "progress-chart": ProgressChart,
   },
 })
-export default class ManageProgress extends Vue {
+export default class ProgressManagementPage extends Vue {
   private isViewerMode = (this as any).$isViewerMode
     ? (this as any).$isViewerMode
     : false;
@@ -209,7 +211,7 @@ export default class ManageProgress extends Vue {
   private get unselectedItem(): { id: string; name: string } {
     return {
       id: "all",
-      name: this.$store.getters.message("manage-progress.all"),
+      name: this.$store.getters.message("progress-management.all"),
     };
   }
 
@@ -287,7 +289,7 @@ export default class ManageProgress extends Vue {
         [
           {
             label: this.$store.getters.message(
-              "manage-progress.planned-sessions"
+              "progress-management.planned-sessions"
             ),
             borderColor: "#0077ff",
             data: [] as number[],
@@ -296,7 +298,7 @@ export default class ManageProgress extends Vue {
           },
           {
             label: this.$store.getters.message(
-              "manage-progress.completed-sessions"
+              "progress-management.completed-sessions"
             ),
             borderColor: "#00ff77",
             data: [] as number[],
@@ -305,7 +307,7 @@ export default class ManageProgress extends Vue {
           },
           {
             label: this.$store.getters.message(
-              "manage-progress.incompleted-sessions"
+              "progress-management.incompleted-sessions"
             ),
             borderColor: "#ff5555",
             data: [] as number[],

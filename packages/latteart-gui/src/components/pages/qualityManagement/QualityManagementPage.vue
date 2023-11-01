@@ -18,13 +18,13 @@
   <v-container class="align-self-start">
     <v-row class="mt-2">
       <v-col cols="12">
-        {{ $store.getters.message("manage-quality.attention") }}
+        {{ $store.getters.message("quality-management.attention") }}
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ $store.getters.message("manage-quality.filter-section") }}
+        {{ $store.getters.message("quality-management.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -35,7 +35,7 @@
           item-text="text"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-quality.test-matrix')"
+          :label="$store.getters.message('quality-management.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -46,7 +46,7 @@
           item-text="text"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-quality.group')"
+          :label="$store.getters.message('quality-management.group')"
         ></v-select>
       </v-col>
 
@@ -57,14 +57,14 @@
           item-text="text"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('manage-quality.test-target')"
+          :label="$store.getters.message('quality-management.test-target')"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ $store.getters.message("manage-quality.pb-curve") }}
+        {{ $store.getters.message("quality-management.pb-curve") }}
       </v-col>
     </v-row>
     <v-row>
@@ -78,18 +78,20 @@
     </v-row>
     <v-row>
       <v-col cols="12">
-        {{ $store.getters.message("manage-quality.bug-report") }}
+        {{ $store.getters.message("quality-management.bug-report") }}
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12" class="pt-0">
         <v-radio-group v-model="displayMode" row>
           <v-radio
-            :label="$store.getters.message('manage-quality.total-number')"
+            :label="$store.getters.message('quality-management.total-number')"
             :value="DISPLAYMODE_TOTAL"
           ></v-radio>
           <v-radio
-            :label="$store.getters.message('manage-quality.times-per-session')"
+            :label="
+              $store.getters.message('quality-management.times-per-session')
+            "
             :value="DISPLAYMODE_TIMES_PER_SESSION"
           ></v-radio>
         </v-radio-group>
@@ -99,8 +101,10 @@
       <v-col cols="12">
         {{
           displayMode === DISPLAYMODE_TOTAL
-            ? $store.getters.message("manage-quality.unit-description-total")
-            : $store.getters.message("manage-quality.unit-description")
+            ? $store.getters.message(
+                "quality-management.unit-description-total"
+              )
+            : $store.getters.message("quality-management.unit-description")
         }}
       </v-col>
     </v-row>
@@ -141,7 +145,7 @@ import { TestManagementState } from "@/store/testManagement";
     "quality-chart": QualityChart,
   },
 })
-export default class ManageQualityView extends Vue {
+export default class QualityManagementPage extends Vue {
   private isViewerMode = (this as any).$isViewerMode
     ? (this as any).$isViewerMode
     : false;
@@ -161,7 +165,7 @@ export default class ManageQualityView extends Vue {
   private get testMatrixSelectItems() {
     const testMatrices = [
       {
-        text: this.$store.getters.message("manage-quality.all"),
+        text: this.$store.getters.message("quality-management.all"),
         id: "all",
       },
     ];
@@ -182,7 +186,7 @@ export default class ManageQualityView extends Vue {
   private get groups() {
     const groups = [
       {
-        text: this.$store.getters.message("manage-quality.all"),
+        text: this.$store.getters.message("quality-management.all"),
         id: "all",
       },
     ];
@@ -206,7 +210,7 @@ export default class ManageQualityView extends Vue {
   private get testTargets() {
     const testTargets = [
       {
-        text: this.$store.getters.message("manage-quality.all"),
+        text: this.$store.getters.message("quality-management.all"),
         id: "all",
       },
     ];
@@ -240,14 +244,14 @@ export default class ManageQualityView extends Vue {
   private get headers() {
     const headers: any = [
       {
-        text: this.$store.getters.message("manage-quality.group"),
+        text: this.$store.getters.message("quality-management.group"),
         align: "center",
         sortable: false,
         value: "group",
         class: "ellipsis_short",
       },
       {
-        text: this.$store.getters.message("manage-quality.test-target"),
+        text: this.$store.getters.message("quality-management.test-target"),
         align: "center",
         sortable: false,
         value: "testTarget",
@@ -268,7 +272,7 @@ export default class ManageQualityView extends Vue {
     }
 
     headers.push({
-      text: this.$store.getters.message("manage-quality.total"),
+      text: this.$store.getters.message("quality-management.total"),
       align: "center",
       sortable: false,
       value: this.TOTAL,
@@ -349,7 +353,7 @@ export default class ManageQualityView extends Vue {
     }
 
     const totalRow: any = {
-      group: this.$store.getters.message("manage-quality.total"),
+      group: this.$store.getters.message("quality-management.total"),
       testTarget: " ",
     };
 
@@ -528,7 +532,7 @@ export default class ManageQualityView extends Vue {
     }
     if (this.selectedGroupId === "all" && this.selectedTestTargetId === "all") {
       datasets.push({
-        label: this.$store.getters.message("manage-quality.total"),
+        label: this.$store.getters.message("quality-management.total"),
         data: totalLine,
         fill: false,
         lineTension: 0,

@@ -18,7 +18,7 @@
   <v-card class="py-0 my-3" @click="toStory">
     <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
       <p class="card-center">
-        {{ $store.getters.message(`manage-show.status-${status}`) }}
+        {{ $store.getters.message(`test-matrix-page.status-${status}`) }}
       </p>
     </v-card-title>
     <v-divider light></v-divider>

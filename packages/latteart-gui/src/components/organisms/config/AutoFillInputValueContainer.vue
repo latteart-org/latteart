@@ -27,7 +27,7 @@
       </v-col>
       <v-col cols="9">
         <v-text-field
-          :label="$store.getters.message('config-view.autofill.setting-name')"
+          :label="$store.getters.message('config-page.autofill.setting-name')"
           :value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
@@ -71,7 +71,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
-            :label="$store.getters.message('config-view.autofill.locator-type')"
+            :label="$store.getters.message('config-page.autofill.locator-type')"
             :value="item.locatorType"
             @change="(locatorType) => updateCondition(index, { locatorType })"
             :items="locatorTypeList"
@@ -81,7 +81,7 @@
         <v-col cols="2">
           <v-select
             :label="
-              $store.getters.message('config-view.autofill.locator-match-type')
+              $store.getters.message('config-page.autofill.locator-match-type')
             "
             :value="item.locatorMatchType"
             @change="
@@ -93,7 +93,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            :label="$store.getters.message('config-view.autofill.locator')"
+            :label="$store.getters.message('config-page.autofill.locator')"
             :value="item.locator"
             @change="(locator) => updateCondition(index, { locator })"
             class="px-1"
@@ -101,7 +101,7 @@
         </v-col>
         <v-col cols="2">
           <number-field
-            :label="$store.getters.message('config-view.autofill.iframe-index')"
+            :label="$store.getters.message('config-page.autofill.iframe-index')"
             :item="item.iframeIndex"
             :value="item.iframeIndex"
             :allowBlank="true"
@@ -119,7 +119,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            :label="$store.getters.message('config-view.autofill.input-value')"
+            :label="$store.getters.message('config-page.autofill.input-value')"
             :value="item.inputValue"
             @change="(value) => updateCondition(index, { inputValue: value })"
             class="px-1"
@@ -133,7 +133,7 @@
       </v-row>
     </div>
     <v-btn @click="addCondition">{{
-      $store.getters.message("config-view.autofill.adding-autofill-values")
+      $store.getters.message("config-page.autofill.adding-autofill-values")
     }}</v-btn>
   </v-container>
 </template>

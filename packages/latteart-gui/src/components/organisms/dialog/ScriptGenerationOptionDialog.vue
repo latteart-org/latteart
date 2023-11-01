@@ -16,7 +16,9 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('history-view.generate-testscript-title')"
+    :title="
+      $store.getters.message('test-result-page.generate-testscript-title')
+    "
     @accept="
       execute();
       close();

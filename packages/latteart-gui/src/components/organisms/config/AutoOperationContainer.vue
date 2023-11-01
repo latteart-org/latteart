@@ -28,14 +28,14 @@
       </v-col>
       <v-col cols="8">
         <v-text-field
-          :label="$store.getters.message('config-view.autoOperation.name')"
+          :label="$store.getters.message('config-page.autoOperation.name')"
           :value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
       </v-col>
       <v-col cols="3" class="d-flex align-center pt-0">
         <v-btn @click="dialogOpened = true">{{
-          $store.getters.message("config-view.autoOperation.details-list")
+          $store.getters.message("config-page.autoOperation.details-list")
         }}</v-btn>
         <v-btn @click="deleteConditionGroup" color="error" class="ml-4">{{
           $store.getters.message("common.delete")
@@ -48,7 +48,7 @@
       <v-col cols="9">
         <v-textarea
           hide-details
-          :label="$store.getters.message('config-view.autoOperation.details')"
+          :label="$store.getters.message('config-page.autoOperation.details')"
           :value="conditionGroup.details"
           @change="(details) => updateconditionGroup({ details })"
           class="px-1"

@@ -18,13 +18,15 @@
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
       <v-list-item-title>{{
-        $store.getters.message("history-view.delete-test-result")
+        $store.getters.message("test-result-page.delete-test-result")
       }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="$store.getters.message('history-view.delete-test-result-title')"
+      :title="
+        $store.getters.message('test-result-page.delete-test-result-title')
+      "
       :message="confirmMessage"
       :onAccept="deleteTestResult"
       @close="confirmDialogOpened = false"
@@ -34,7 +36,7 @@
       :opened="informationMessageDialogOpened"
       :title="$store.getters.message('common.confirm')"
       :message="
-        $store.getters.message('history-view.delete-test-result-succeeded')
+        $store.getters.message('test-result-page.delete-test-result-succeeded')
       "
       @close="informationMessageDialogOpened = false"
     ></information-message-dialog>
@@ -112,11 +114,11 @@ export default class DeleteTestResultButton extends Vue {
     this.confirmMessage =
       sessions.length > 0
         ? this.$store.getters.message(
-            "history-view.delete-test-result-associated-session-message",
+            "test-result-page.delete-test-result-associated-session-message",
             { value: this.testResultInfo.name }
           )
         : this.$store.getters.message(
-            "history-view.delete-test-result-message",
+            "test-result-page.delete-test-result-message",
             { value: this.testResultInfo.name }
           );
     this.confirmDialogOpened = true;

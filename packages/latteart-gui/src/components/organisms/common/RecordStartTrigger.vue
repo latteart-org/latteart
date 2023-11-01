@@ -95,7 +95,7 @@ export default class RecordStartTrigger extends Vue {
     try {
       await this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
-          "start-capture-view.starting-capture"
+          "start-capture-page.starting-capture"
         ),
       });
       this.preparingForCapture = true;

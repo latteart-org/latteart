@@ -218,7 +218,7 @@ import TestResultNameEditTrigger from "@/components/organisms/common/TestResultN
     "test-result-name-edit-trigger": TestResultNameEditTrigger,
   },
 })
-export default class TestResultListView extends Vue {
+export default class TestResultListPage extends Vue {
   private confirmDialogOpened = false;
   private informationDialogOpened = false;
 

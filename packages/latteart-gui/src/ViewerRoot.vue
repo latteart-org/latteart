@@ -58,7 +58,7 @@
           <v-list-item
             :disabled="!hasSession"
             to="/manage/view/progress"
-            :title="$store.getters.message('manage-progress.title')"
+            :title="$store.getters.message('progress-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -67,7 +67,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-progress.title")
+                $store.getters.message("progress-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -75,7 +75,7 @@
           <v-list-item
             :disabled="!hasSession"
             to="/manage/view/quality"
-            :title="$store.getters.message('manage-quality.title')"
+            :title="$store.getters.message('quality-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -84,7 +84,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-quality.title")
+                $store.getters.message("quality-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>

@@ -29,7 +29,7 @@ import { Component, Vue } from "vue-property-decorator";
 import { Story } from "@/lib/testManagement/types";
 
 @Component
-export default class HistoryFrame extends Vue {
+export default class SnapshotReviewPage extends Vue {
   private get sessionId() {
     const sessionId = this.$route.query.sessionIds[0] as string;
     return sessionId;

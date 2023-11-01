@@ -93,7 +93,7 @@ export default class OperationContextMenu extends Vue {
     this.intentionItems = [];
 
     this.intentionItems.push({
-      label: this.$store.getters.message("history-view.edit-intention"),
+      label: this.$store.getters.message("test-result-page.edit-intention"),
       onClick: () => {
         this.$store.state.operationHistory.openNoteEditDialog(
           "intention",
@@ -103,7 +103,7 @@ export default class OperationContextMenu extends Vue {
     });
     if (this.currentHistoryItem?.intention) {
       this.intentionItems.push({
-        label: this.$store.getters.message("history-view.delete-intention"),
+        label: this.$store.getters.message("test-result-page.delete-intention"),
         onClick: () => {
           this.$store.state.operationHistory.openNoteDeleteConfirmDialog(
             "intention",
@@ -119,7 +119,7 @@ export default class OperationContextMenu extends Vue {
     this.noticeItems = [];
 
     this.noticeItems.push({
-      label: this.$store.getters.message("history-view.add-notice"),
+      label: this.$store.getters.message("test-result-page.add-notice"),
       onClick: () => {
         this.$store.state.operationHistory.openNoteEditDialog(
           "notice",
@@ -132,7 +132,7 @@ export default class OperationContextMenu extends Vue {
       (bug: NoteForGUI, i: number) => {
         const value = bug.value;
         this.noticeItems.push({
-          label: this.$store.getters.message("history-view.edit-bug", {
+          label: this.$store.getters.message("test-result-page.edit-bug", {
             value,
           }),
           onClick: () => {
@@ -144,7 +144,7 @@ export default class OperationContextMenu extends Vue {
           },
         });
         this.noticeItems.push({
-          label: this.$store.getters.message("history-view.delete-notice", {
+          label: this.$store.getters.message("test-result-page.delete-notice", {
             value,
           }),
           onClick: () => {
@@ -163,7 +163,7 @@ export default class OperationContextMenu extends Vue {
       (notice: NoteForGUI, i: number) => {
         const value = notice.value;
         this.noticeItems.push({
-          label: this.$store.getters.message("history-view.edit-notice", {
+          label: this.$store.getters.message("test-result-page.edit-notice", {
             value,
           }),
           onClick: () => {
@@ -175,7 +175,7 @@ export default class OperationContextMenu extends Vue {
           },
         });
         this.noticeItems.push({
-          label: this.$store.getters.message("history-view.delete-notice", {
+          label: this.$store.getters.message("test-result-page.delete-notice", {
             value,
           }),
           onClick: () => {

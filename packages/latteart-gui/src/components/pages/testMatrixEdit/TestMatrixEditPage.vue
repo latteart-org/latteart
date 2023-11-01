@@ -23,7 +23,7 @@
       style="height: 100%; overflow-y: scroll"
     >
       <v-btn @click="openTestMatrixDialogInCreateMode">{{
-        $store.getters.message("manage-edit-view.add-test-matrix")
+        $store.getters.message("test-matrix-edit-page.add-test-matrix")
       }}</v-btn>
 
       <v-container v-if="hasTestMatrix" pa-0 fluid>
@@ -58,7 +58,7 @@
 
     <execute-dialog
       :opened="editDialogOpened"
-      :title="$store.getters.message('manage-edit-view.edit-viewPoint')"
+      :title="$store.getters.message('test-matrix-edit-page.edit-viewPoint')"
       @accept="
         acceptEditDialog();
         editDialogOpened = false;
@@ -100,7 +100,7 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
     "tab-selector": TabSelector,
   },
 })
-export default class ManageEditView extends Vue {
+export default class TestMatrixEditPage extends Vue {
   private selectedTestMatrixId = "";
 
   private editDialogOpened = false;

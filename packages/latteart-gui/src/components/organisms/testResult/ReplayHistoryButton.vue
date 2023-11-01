@@ -171,7 +171,7 @@ export default class ReplayHistoryButton extends Vue {
   private async compareHistory() {
     this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message(
-        "history-view.comparing-test-result"
+        "test-result-page.comparing-test-result"
       ),
     });
 
@@ -183,7 +183,7 @@ export default class ReplayHistoryButton extends Vue {
       if (testResults.length === 0) {
         throw new Error(
           this.$store.getters.message(
-            "history-view.compare-test-result-not-exist"
+            "test-result-page.compare-test-result-not-exist"
           )
         );
       }
@@ -194,7 +194,7 @@ export default class ReplayHistoryButton extends Vue {
       if (!expectedTestResultId) {
         throw new Error(
           this.$store.getters.message(
-            "history-view.compare-test-result-not-exist"
+            "test-result-page.compare-test-result-not-exist"
           )
         );
       }

@@ -115,7 +115,7 @@ import { OperationHistoryState } from "@/store/operationHistory";
     "screenshots-download-button": ScreenshotsDownloadButton,
   },
 })
-export default class ReviewView extends Vue {
+export default class ReviewPage extends Vue {
   private dialogOpened = false;
   private dialogTitle = "";
   private dialogMessage = "";
@@ -162,11 +162,11 @@ export default class ReviewView extends Vue {
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
-          "history-view.generate-testscript-succeeded"
+          "test-result-page.generate-testscript-succeeded"
         );
         if (testScriptInfo.invalidOperationTypeExists) {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
+            "test-result-page.generate-alert-info"
           );
         }
 

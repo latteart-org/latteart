@@ -18,11 +18,11 @@ import Vue from "vue";
 import Router from "vue-router";
 import ExpManager from "./ExpManager.vue";
 import ManageView from "./ManageView.vue";
-import StoryView from "./components/pages/story/StoryView.vue";
-import HistoryFrame from "./components/pages/review/HistoryFrame.vue";
-import ManageShowView from "./components/pages/testMatrix/ManageShowView.vue";
-import ManageProgressView from "./components/pages/progressManagement/ManageProgressView.vue";
-import ManageQualityView from "./components/pages/qualityManagement/ManageQualityView.vue";
+import StoryPage from "./components/pages/story/StoryPage.vue";
+import SnapshotReviewPage from "./components/pages/review/SnapshotReviewPage.vue";
+import TestMatrixPage from "./components/pages/testMatrix/TestMatrixPage.vue";
+import ProgressManagementPage from "./components/pages/progressManagement/ProgressManagementPage.vue";
+import QualityManagementPage from "./components/pages/qualityManagement/QualityManagementPage.vue";
 import Root from "./ViewerRoot.vue";
 import store from "@/store/index";
 
@@ -48,31 +48,31 @@ export default new Router({
                 {
                   path: "show",
                   name: "manageShowView",
-                  component: ManageShowView,
+                  component: TestMatrixPage,
                   meta: { title: "manage-header.top" },
                 },
                 {
                   path: "progress",
                   name: "manageProgressView",
-                  component: ManageProgressView,
-                  meta: { title: "manage-progress.title" },
+                  component: ProgressManagementPage,
+                  meta: { title: "progress-management.title" },
                 },
                 {
                   path: "quality",
                   name: "manageQualityView",
-                  component: ManageQualityView,
-                  meta: { title: "manage-quality.title" },
+                  component: QualityManagementPage,
+                  meta: { title: "quality-management.title" },
                 },
                 {
                   path: "story/:id",
                   name: "storyView",
-                  component: StoryView,
-                  meta: { title: "story-view.title" },
+                  component: StoryPage,
+                  meta: { title: "story-page.title" },
                 },
                 {
                   path: "history",
                   name: "historyFrame",
-                  component: HistoryFrame,
+                  component: SnapshotReviewPage,
                   meta: { title: "manager-history-view.review" },
                   beforeEnter: (to, from, next) => {
                     store.commit("testManagement/setRecentReviewQuery", {

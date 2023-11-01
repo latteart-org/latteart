@@ -22,13 +22,13 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.test-matrix')"
+            :label="this.$store.getters.message('story-page.test-matrix')"
             :value="testMatrixName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.group')"
+            :label="this.$store.getters.message('story-page.group')"
             :value="groupName"
           ></v-text-field>
         </v-col>
@@ -36,13 +36,13 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.test-target')"
+            :label="this.$store.getters.message('story-page.test-target')"
             :value="testTargetName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.viewPoint')"
+            :label="this.$store.getters.message('story-page.viewPoint')"
             :value="viewPointName"
           ></v-text-field>
           <v-select
@@ -51,7 +51,7 @@
             item-text="text"
             item-value="value"
             :value="story.status"
-            :label="this.$store.getters.message('story-view.status')"
+            :label="this.$store.getters.message('story-page.status')"
             :readonly="isViewerMode"
             @change="updateStatus"
           ></v-select>
@@ -60,19 +60,19 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.planned-session')"
+            :label="this.$store.getters.message('story-page.planned-session')"
             :value="countPlannedSessions()"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.completed-session')"
+            :label="this.$store.getters.message('story-page.completed-session')"
             v-model="doneSessionNum"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-view.bug-count')"
+            :label="this.$store.getters.message('story-page.bug-count')"
             v-model="extractionBugNum"
           ></v-text-field>
         </v-col>
@@ -86,7 +86,7 @@
           <v-select
             :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
-            :label="this.$store.getters.message('story-view.review-target')"
+            :label="this.$store.getters.message('story-page.review-target')"
             item-text="displayName"
             item-value="id"
             :multiple="!isViewerMode"
@@ -151,7 +151,7 @@
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
-            >{{ $store.getters.message("story-view.add-session") }}</v-btn
+            >{{ $store.getters.message("story-page.add-session") }}</v-btn
           >
         </v-col>
       </v-row>
@@ -190,7 +190,7 @@ import { CaptureControlState } from "@/store/captureControl";
     "confirm-dialog": ConfirmDialog,
   },
 })
-export default class StoryView extends Vue {
+export default class StoryPage extends Vue {
   private isViewerMode = (this as any).$isViewerMode
     ? (this as any).$isViewerMode
     : false;
@@ -273,7 +273,7 @@ export default class StoryView extends Vue {
 
       return {
         id: session.id,
-        displayName: `${this.$store.getters.message("story-view.session")}${
+        displayName: `${this.$store.getters.message("story-page.session")}${
           sessionNameSuffix + 1
         }${testResultName ? ` (${testResultName})` : ""}`,
       };

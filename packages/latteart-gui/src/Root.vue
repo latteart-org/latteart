@@ -41,7 +41,7 @@
           <v-list-item
             :disabled="isCapturing || isReplaying"
             to="/manage/view/start"
-            :title="$store.getters.message('start-capture-view.title')"
+            :title="$store.getters.message('start-capture-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -50,7 +50,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("start-capture-view.title")
+                $store.getters.message("start-capture-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -124,7 +124,7 @@
           <v-list-item
             :disabled="isCapturing || isReplaying"
             to="/manage/view/edit"
-            :title="$store.getters.message('manage-edit-view.title')"
+            :title="$store.getters.message('test-matrix-edit-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -133,7 +133,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-edit-view.title")
+                $store.getters.message("test-matrix-edit-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -141,7 +141,7 @@
           <v-list-item
             :disabled="!hasTestMatrix || isCapturing || isReplaying"
             to="/manage/view/stories"
-            :title="$store.getters.message('story-list-view.title')"
+            :title="$store.getters.message('stories-review-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -150,7 +150,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("story-list-view.title")
+                $store.getters.message("stories-review-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -158,7 +158,7 @@
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
             to="/manage/view/progress"
-            :title="$store.getters.message('manage-progress.title')"
+            :title="$store.getters.message('progress-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -167,7 +167,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-progress.title")
+                $store.getters.message("progress-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -175,7 +175,7 @@
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
             to="/manage/view/quality"
-            :title="$store.getters.message('manage-quality.title')"
+            :title="$store.getters.message('quality-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -184,7 +184,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-quality.title")
+                $store.getters.message("quality-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>

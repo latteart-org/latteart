@@ -21,7 +21,7 @@
         <h4>
           {{
             $store.getters.message(
-              "config-view.screen-def.default-screen-definition"
+              "config-page.screen-def.default-screen-definition"
             )
           }}
         </h4>
@@ -33,13 +33,13 @@
         >
           <v-radio
             :label="
-              $store.getters.message('config-view.screen-def.judgement-title')
+              $store.getters.message('config-page.screen-def.judgement-title')
             "
             value="title"
           ></v-radio>
           <v-radio
             :label="
-              $store.getters.message('config-view.screen-def.judgement-url')
+              $store.getters.message('config-page.screen-def.judgement-url')
             "
             value="url"
           ></v-radio>
@@ -48,7 +48,7 @@
       <v-col cols="12">
         <h4>
           {{
-            $store.getters.message("config-view.screen-def.priority-condition")
+            $store.getters.message("config-page.screen-def.priority-condition")
           }}
         </h4>
         <screen-def-unit-container

@@ -45,7 +45,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-image-compression"
+                        "config-page.setting-image-compression"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -64,7 +64,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-inclusion-tags"
+                        "config-page.setting-inclusion-tags"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -81,7 +81,7 @@
 
                 <v-expansion-panel>
                   <v-expansion-panel-header>
-                    {{ $store.getters.message("config-view.setting-screen") }}
+                    {{ $store.getters.message("config-page.setting-screen") }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <screen-definition-config
@@ -95,7 +95,7 @@
 
                 <v-expansion-panel>
                   <v-expansion-panel-header>
-                    {{ $store.getters.message("config-view.setting-autofill") }}
+                    {{ $store.getters.message("config-page.setting-autofill") }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <autofill-setting
@@ -111,7 +111,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-auto-operation"
+                        "config-page.setting-auto-operation"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -129,7 +129,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-test-result-comparison"
+                        "config-page.setting-test-result-comparison"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -147,7 +147,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-experimental-features"
+                        "config-page.setting-experimental-features"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -219,7 +219,7 @@ import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.v
     "remote-access-field": RemoteAccessField,
   },
 })
-export default class ConfigView extends Vue {
+export default class ConfigPage extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private panels: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];

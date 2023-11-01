@@ -32,7 +32,7 @@
                 </v-checkbox>
                 <v-text-field
                   :label="
-                    $store.getters.message('config-view.screen-def.screen-name')
+                    $store.getters.message('config-page.screen-def.screen-name')
                   "
                   :value="conditionGroup.screenName"
                   @change="
@@ -42,7 +42,7 @@
                 <v-btn @click="deleteConditionGroup" color="error"
                   >{{
                     $store.getters.message(
-                      "config-view.screen-def.delete-definition"
+                      "config-page.screen-def.delete-definition"
                     )
                   }}
                 </v-btn>
@@ -50,10 +50,10 @@
 
               <v-row class="mb-2">
                 <v-btn small class="mt-3" @click="addCondition">{{
-                  $store.getters.message("config-view.screen-def.add-condition")
+                  $store.getters.message("config-page.screen-def.add-condition")
                 }}</v-btn
                 ><span class="description">{{
-                  $store.getters.message("config-view.screen-def.description")
+                  $store.getters.message("config-page.screen-def.description")
                 }}</span>
               </v-row>
 
@@ -65,7 +65,7 @@
               >
                 <v-col cols="1" style="text-align: right">
                   <span v-if="index > 0">{{
-                    $store.getters.message("config-view.screen-def.and")
+                    $store.getters.message("config-page.screen-def.and")
                   }}</span>
                   <span v-else>　　</span>
                 </v-col>
@@ -199,15 +199,15 @@ export default class ScreenDefUnit extends Vue {
     return [
       {
         value: "url",
-        label: this.$store.getters.message("config-view.screen-def.url"),
+        label: this.$store.getters.message("config-page.screen-def.url"),
       },
       {
         value: "title",
-        label: this.$store.getters.message("config-view.screen-def.title"),
+        label: this.$store.getters.message("config-page.screen-def.title"),
       },
       {
         value: "keyword",
-        label: this.$store.getters.message("config-view.screen-def.keyword"),
+        label: this.$store.getters.message("config-page.screen-def.keyword"),
       },
     ];
   }
@@ -216,15 +216,15 @@ export default class ScreenDefUnit extends Vue {
     return [
       {
         value: "contains",
-        label: this.$store.getters.message("config-view.screen-def.contains"),
+        label: this.$store.getters.message("config-page.screen-def.contains"),
       },
       {
         value: "equals",
-        label: this.$store.getters.message("config-view.screen-def.equals"),
+        label: this.$store.getters.message("config-page.screen-def.equals"),
       },
       {
         value: "regex",
-        label: this.$store.getters.message("config-view.screen-def.regex"),
+        label: this.$store.getters.message("config-page.screen-def.regex"),
       },
     ];
   }

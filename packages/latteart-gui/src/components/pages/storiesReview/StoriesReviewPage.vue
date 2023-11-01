@@ -33,11 +33,11 @@
                   <span style="color: rgba(0, 0, 0, 0.6)"
                     ><v-icon>filter_list_alt</v-icon
                     >{{
-                      $store.getters.message("story-list-view.filter")
+                      $store.getters.message("stories-review-page.filter")
                     }}</span
                   >
                   <v-btn @click="filterClear" class="ml-4">{{
-                    $store.getters.message("story-list-view.clear")
+                    $store.getters.message("stories-review-page.clear")
                   }}</v-btn>
                   <v-row>
                     <v-col cols="3">
@@ -47,7 +47,7 @@
                           type="text"
                           :label="
                             $store.getters.message(
-                              'story-list-view.test-matrix'
+                              'stories-review-page.test-matrix'
                             )
                           "
                           hide-details
@@ -62,7 +62,7 @@
                           v-model="groupFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message('story-list-view.group')
+                            $store.getters.message('stories-review-page.group')
                           "
                           hide-details
                         >
@@ -77,7 +77,7 @@
                           type="text"
                           :label="
                             $store.getters.message(
-                              'story-list-view.test-target'
+                              'stories-review-page.test-target'
                             )
                           "
                           hide-details
@@ -92,7 +92,9 @@
                           v-model="viewPointFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message('story-list-view.view-point')
+                            $store.getters.message(
+                              'stories-review-page.view-point'
+                            )
                           "
                           hide-details
                         >
@@ -139,7 +141,7 @@
                 color="primary"
                 class="ma-1"
                 >{{
-                  $store.getters.message("story-list-view.do-review")
+                  $store.getters.message("stories-review-page.do-review")
                 }}</v-btn
               >
             </template>
@@ -168,7 +170,7 @@ import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadT
     "test-result-load-trigger": TestResultLoadTrigger,
   },
 })
-export default class StoryListView extends Vue {
+export default class StoriesReviewPage extends Vue {
   private testMatrixFilterValue = "";
   private groupFilterValue = "";
   private testTargetFilterValue = "";
@@ -192,22 +194,22 @@ export default class StoryListView extends Vue {
   private get headers() {
     return [
       {
-        text: this.$store.getters.message("story-list-view.test-matrix"),
+        text: this.$store.getters.message("stories-review-page.test-matrix"),
         value: "testMatrix.name",
         filter: this.testMatrixFilter,
       },
       {
-        text: this.$store.getters.message("story-list-view.group"),
+        text: this.$store.getters.message("stories-review-page.group"),
         value: "group.name",
         filter: this.groupFilter,
       },
       {
-        text: this.$store.getters.message("story-list-view.test-target"),
+        text: this.$store.getters.message("stories-review-page.test-target"),
         value: "testTarget.name",
         filter: this.testTargetFilter,
       },
       {
-        text: this.$store.getters.message("story-list-view.view-point"),
+        text: this.$store.getters.message("stories-review-page.view-point"),
         value: "viewPoint.name",
         filter: this.viewPointFilter,
       },

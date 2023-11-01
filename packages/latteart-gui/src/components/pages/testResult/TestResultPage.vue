@@ -42,7 +42,7 @@ import { OperationHistoryState } from "@/store/operationHistory";
     "history-display": HistoryDisplay,
   },
 })
-export default class HistoryView extends Vue {
+export default class TestResultPage extends Vue {
   private get screenDefinitionConfig() {
     return this.$store.state.projectSettings.config.screenDefinition;
   }

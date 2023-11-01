@@ -67,7 +67,7 @@ import { Component, Vue } from "vue-property-decorator";
     "script-generation-option": ScriptGenerationOption,
   },
 })
-export default class ManageEditView extends Vue {
+export default class TestScriptGenerationLauncher extends Vue {
   private downloadLinkDialogOpened = false;
   private downloadLinkDialogTitle = "";
   private downloadLinkDialogMessage = "";
@@ -136,11 +136,11 @@ export default class ManageEditView extends Vue {
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
-          "history-view.generate-testscript-succeeded"
+          "test-result-page.generate-testscript-succeeded"
         );
         if (testScriptInfo.invalidOperationTypeExists) {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
+            "test-result-page.generate-alert-info"
           );
         } else {
           this.downloadLinkDialogAlertMessage = "";

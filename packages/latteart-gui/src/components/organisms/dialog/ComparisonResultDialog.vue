@@ -28,7 +28,7 @@
       >
       <br />
       <span class="pre-wrap break-word">{{
-        $store.getters.message("history-view.compare-test-result-download")
+        $store.getters.message("test-result-page.compare-test-result-download")
       }}</span>
       <a :href="downloadLinkUrl" class="px-2" download>{{
         $store.getters.message("common.download-link")
@@ -90,21 +90,21 @@ export default class ComparisonResultDialog extends Vue {
     return [
       {
         text: `${this.$store.getters.message(
-          "history-view.compare-diffs-sequence"
+          "test-result-page.compare-diffs-sequence"
         )}`,
         value: "sequence",
         sortable: false,
       },
       {
         text: `${this.$store.getters.message(
-          "history-view.compare-diffs-items"
+          "test-result-page.compare-diffs-items"
         )}`,
         value: "ngItemNames",
         sortable: false,
       },
       {
         text: `${this.$store.getters.message(
-          "history-view.compare-diffs-remarks"
+          "test-result-page.compare-diffs-remarks"
         )}`,
         value: "remarks",
         sortable: false,
@@ -123,15 +123,15 @@ export default class ComparisonResultDialog extends Vue {
 
     return [
       this.$store.getters.message(
-        "history-view.compare-test-result-completed",
+        "test-result-page.compare-test-result-completed",
         this.comparisonResult.targetNames
       ),
       isSame
         ? this.$store.getters.message(
-            "history-view.compare-test-result-is-same"
+            "test-result-page.compare-test-result-is-same"
           )
         : this.$store.getters.message(
-            "history-view.compare-test-result-is-different",
+            "test-result-page.compare-test-result-is-different",
             { diffCount }
           ),
     ];
@@ -189,14 +189,14 @@ export default class ComparisonResultDialog extends Vue {
             if (error === "invalid_screenshot") {
               return [
                 this.$store.getters.message(
-                  "history-view.compare-remarks-invalid-screenshot"
+                  "test-result-page.compare-remarks-invalid-screenshot"
                 ),
               ];
             }
             if (error === "image_sizes_do_not_match") {
               return [
                 this.$store.getters.message(
-                  "history-view.compare-remarks-image-sizes-do-not-match"
+                  "test-result-page.compare-remarks-image-sizes-do-not-match"
                 ),
               ];
             }
