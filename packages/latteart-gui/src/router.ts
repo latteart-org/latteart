@@ -44,7 +44,7 @@ export default new Router({
       component: Root,
       children: [
         {
-          path: "testresult",
+          path: "test-result",
           name: "testResultPage",
           component: TestResultPage,
           meta: { title: "test-result-page.window-title" },
@@ -56,7 +56,7 @@ export default new Router({
           },
         },
         {
-          path: "view",
+          path: "page",
           name: "pageFrame",
           component: PageFrame,
           children: [
@@ -66,42 +66,42 @@ export default new Router({
               meta: { title: "start-capture-page.title" },
             },
             {
-              path: "results",
+              path: "test-result-list",
               component: TestResultListPage,
               meta: { title: "test-result-navigation-drawer.title" },
             },
             {
-              path: "show",
+              path: "test-matrix",
               name: "testMatrixPage",
               component: TestMatrixPage,
               meta: { title: "manage-header.top" },
             },
             {
-              path: "edit",
+              path: "test-matrix-edit",
               name: "testMatrixEditPage",
               component: TestMatrixEditPage,
               meta: { title: "test-matrix-edit-page.title" },
             },
             {
-              path: "stories",
+              path: "stories-review",
               name: "storiesReviewPage",
               component: StoriesReviewPage,
               meta: { title: "stories-review-page.title" },
             },
             {
-              path: "progress",
+              path: "progress-management",
               name: "progressManagementPage",
               component: ProgressManagementPage,
               meta: { title: "progress-management.title" },
             },
             {
-              path: "quality",
+              path: "quality-management",
               name: "qualityManagementPage",
               component: QualityManagementPage,
               meta: { title: "quality-management.title" },
             },
             {
-              path: "features",
+              path: "optional-features",
               component: OptionalFeaturesPage,
               meta: { title: "optional-features.title" },
             },
@@ -112,7 +112,7 @@ export default new Router({
               meta: { title: "story-page.title" },
             },
             {
-              path: "history",
+              path: "review",
               name: "reviewPage",
               component: ReviewPage,
               meta: { title: "manager-history-view.review" },

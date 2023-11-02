@@ -40,7 +40,7 @@
         <v-list-item-group v-model="displayedPage" color="primary">
           <v-list-item
             :disabled="!hasTestMatrix"
-            to="/view/show"
+            to="/page/test-matrix"
             :title="$store.getters.message('manage-header.top')"
             exact
           >
@@ -57,7 +57,7 @@
 
           <v-list-item
             :disabled="!hasSession"
-            to="/view/progress"
+            to="/page/progress-management"
             :title="$store.getters.message('progress-management.title')"
             exact
           >
@@ -74,7 +74,7 @@
 
           <v-list-item
             :disabled="!hasSession"
-            to="/view/quality"
+            to="/page/quality-management"
             :title="$store.getters.message('quality-management.title')"
             exact
           >
@@ -130,7 +130,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             v-if="recentReviewQuery"
-            :to="{ path: '/view/history', query: recentReviewQuery }"
+            :to="{ path: '/page/review', query: recentReviewQuery }"
             :title="$store.getters.message('manager-history-view.review')"
             exact
           >
@@ -211,7 +211,7 @@ export default class Root extends Vue {
       }
 
       return {
-        path: `/view/story/${story.id}`,
+        path: `/page/story/${story.id}`,
         testTargetName: testTarget.name,
         viewPointName: viewPoint.name,
       };

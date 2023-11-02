@@ -244,7 +244,7 @@ export default class ReplayHistoryButton extends Vue {
   }
 
   private goToHistoryView() {
-    this.$router.push({ path: "/testresult" }).catch((err: Error) => {
+    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;
       }

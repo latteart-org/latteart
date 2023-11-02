@@ -35,24 +35,24 @@ export default new Router({
       component: Root,
       children: [
         {
-          path: "view",
+          path: "page",
           name: "pageFrame",
           component: PageFrame,
           children: [
             {
-              path: "show",
+              path: "test-matrix",
               name: "testMatrixPage",
               component: TestMatrixPage,
               meta: { title: "manage-header.top" },
             },
             {
-              path: "progress",
+              path: "progress-management",
               name: "progressManagementPage",
               component: ProgressManagementPage,
               meta: { title: "progress-management.title" },
             },
             {
-              path: "quality",
+              path: "quality-management",
               name: "qualityManagementPage",
               component: QualityManagementPage,
               meta: { title: "quality-management.title" },
@@ -64,8 +64,8 @@ export default new Router({
               meta: { title: "story-page.title" },
             },
             {
-              path: "history",
-              name: "historyFrame",
+              path: "review",
+              name: "reviewPage",
               component: SnapshotReviewPage,
               meta: { title: "manager-history-view.review" },
               beforeEnter: (to, from, next) => {

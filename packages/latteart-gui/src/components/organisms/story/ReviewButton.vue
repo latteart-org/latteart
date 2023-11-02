@@ -60,7 +60,7 @@ export default class ReviewButton extends Vue {
     this.$store.commit("testManagement/setTempStory", { story: this.story });
 
     this.$router.push({
-      path: `../history`,
+      path: `../review`,
       query: { sessionIds: this.sessionIds },
     });
   }

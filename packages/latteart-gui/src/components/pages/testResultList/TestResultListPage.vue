@@ -376,7 +376,7 @@ export default class TestResultListPage extends Vue {
   private async goToHistoryView(loadTestResults: () => Promise<void>) {
     await loadTestResults();
 
-    this.$router.push({ path: "/testresult" }).catch((err: Error) => {
+    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;
       }

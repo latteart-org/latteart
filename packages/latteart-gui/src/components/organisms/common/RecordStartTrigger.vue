@@ -159,7 +159,7 @@ export default class RecordStartTrigger extends Vue {
   }
 
   private goToHistoryView() {
-    const targetPath = "/testresult";
+    const targetPath = "/test-result";
 
     if (this.$router.currentRoute.path !== targetPath) {
       this.$router.push({ path: targetPath }).catch((err: Error) => {

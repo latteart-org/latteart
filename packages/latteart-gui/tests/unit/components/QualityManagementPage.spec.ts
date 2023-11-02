@@ -237,7 +237,7 @@ describe("QualityManagementPage.vueは", () => {
   beforeEach(() => {
     const routes = [
       {
-        path: "progress",
+        path: "quality-management",
         name: "qualityManagementPage",
         component: QualityManagementPage,
       },
