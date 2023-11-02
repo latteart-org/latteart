@@ -30,26 +30,20 @@
             <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
                 ><v-icon>filter_list_alt</v-icon
-                >{{
-                  this.$store.getters.message("test-matrix-page.search")
-                }}</span
+                >{{ store.getters.message("test-matrix-page.search") }}</span
               ></v-col
             >
             <v-col>
               <v-text-field
                 v-model="search"
-                :label="
-                  this.$store.getters.message('test-matrix-page.tester-name')
-                "
+                :label="store.getters.message('test-matrix-page.tester-name')"
                 clearable
               ></v-text-field></v-col></v-row
         ></v-col>
         <v-col cols="auto" style="align-self: end">
           <v-checkbox
             :label="
-              this.$store.getters.message(
-                'test-matrix-page.incomplete-sessions'
-              )
+              store.getters.message('test-matrix-page.incomplete-sessions')
             "
             v-model="isCompletionFilterEnabled"
             class="mt-2"
@@ -88,86 +82,92 @@
 <script lang="ts">
 import { TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
-import { Component, Vue, Watch } from "vue-property-decorator";
 import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
 import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
+import { computed, defineComponent, onBeforeMount, ref, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "legend-viewer": LegendViewer,
     "tab-selector": TabSelector,
     "test-matrix-viewer": TestMatrixViewer,
   },
-})
-export default class TestMatrixPage extends Vue {
-  private selectedTestMatrixId = "";
-  private search = "";
-  private isCompletionFilterEnabled = false;
+  setup(props, context) {
+    const store = useStore();
 
-  private get locale() {
-    return this.$store.getters.getLocale();
-  }
+    const selectedTestMatrixId = ref("");
+    const search = ref("");
+    const isCompletionFilterEnabled = ref(false);
 
-  @Watch("selectedTestMatrixId")
-  private noticeTestMatrixChanged() {
-    this.$emit("selectTestMatrix", this.selectedTestMatrixId);
-  }
+    const testMatrices = computed((): TestMatrix[] => {
+      const targetTestMatrices =
+        store.getters["testManagement/getTestMatrices"]();
 
-  private get testMatrices(): TestMatrix[] {
-    const targetTestMatrices =
-      this.$store.getters["testManagement/getTestMatrices"]();
+      if (targetTestMatrices.length > 0) {
+        selectedTestMatrixId.value = targetTestMatrices[0].id;
+      } else {
+        selectedTestMatrixId.value = "";
+      }
 
-    if (targetTestMatrices.length > 0) {
-      this.selectedTestMatrixId = targetTestMatrices[0].id;
-    } else {
-      this.selectedTestMatrixId = "";
-    }
-
-    return targetTestMatrices;
-  }
-
-  private get hasTestMatrix(): boolean {
-    return this.testMatrices.length >= 1;
-  }
-
-  private async created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+      return targetTestMatrices;
     });
 
-    if (!this.$store.state.progressDialog.opened) {
-      await this.$store.dispatch("testManagement/readProject");
-    }
+    const hasTestMatrix = computed((): boolean => {
+      return testMatrices.value.length >= 1;
+    });
 
-    const testMatrixId =
-      localStorage.getItem(
-        "latteart-management-selectedTestMatrixIdOnViewer"
-      ) ??
-      this.testMatrices[0]?.id ??
-      "";
+    const selectTestMatrix = (id: string): void => {
+      const targetTestMatrix = testMatrices.value.find(
+        (testMatrix) => testMatrix.id === id
+      );
+      if (!targetTestMatrix) {
+        return;
+      }
+      selectedTestMatrixId.value = targetTestMatrix.id;
+    };
 
-    if (this.testMatrices.find((tm) => tm.id === testMatrixId)) {
-      this.selectTestMatrix(testMatrixId);
-    }
-  }
+    const noticeTestMatrixChanged = () => {
+      context.emit("selectTestMatrix", selectedTestMatrixId.value);
+    };
 
-  private beforeDestroy() {
-    localStorage.setItem(
-      "latteart-management-selectedTestMatrixIdOnViewer",
-      this.selectedTestMatrixId
-    );
-  }
+    onBeforeMount(async () => {
+      localStorage.setItem(
+        "latteart-management-selectedTestMatrixIdOnViewer",
+        selectedTestMatrixId.value
+      );
+    });
 
-  private selectTestMatrix(id: string): void {
-    const targetTestMatrix = this.testMatrices.find(
-      (testMatrix) => testMatrix.id === id
-    );
+    watch(selectedTestMatrixId, noticeTestMatrixChanged);
 
-    if (!targetTestMatrix) {
-      return;
-    }
+    const created = async () => {
+      store.dispatch("changeWindowTitle", {
+        title: store.getters.message("manage-header.top"),
+      });
 
-    this.selectedTestMatrixId = targetTestMatrix.id;
-  }
-}
+      if (!store.state.progressDialog.opened) {
+        await store.dispatch("testManagement/readProject");
+      }
+
+      const testMatrixId =
+        localStorage.getItem(
+          "latteart-management-selectedTestMatrixIdOnViewer"
+        ) ??
+        testMatrices.value[0]?.id ??
+        "";
+      if (testMatrices.value.find((tm) => tm.id === testMatrixId)) {
+        selectTestMatrix(testMatrixId);
+      }
+    };
+    return {
+      store,
+      selectedTestMatrixId,
+      search,
+      isCompletionFilterEnabled,
+      testMatrices,
+      hasTestMatrix,
+      selectTestMatrix,
+    };
+  },
+});
 </script>
