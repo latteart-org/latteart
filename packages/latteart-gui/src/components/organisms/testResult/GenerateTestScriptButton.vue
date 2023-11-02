@@ -20,7 +20,7 @@
     :disabled="isDisabled"
   >
     <v-list-item-title>{{
-      $store.getters.message("history-view.generate-testscript")
+      $store.getters.message("test-result-page.generate-testscript")
     }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
@@ -140,11 +140,11 @@ export default class GenerateTestScriptButton extends Vue {
         this.downloadLinkDialogTitle =
           this.$store.getters.message("common.confirm");
         this.downloadLinkDialogMessage = this.$store.getters.message(
-          "history-view.generate-testscript-succeeded"
+          "test-result-page.generate-testscript-succeeded"
         );
         if (testScriptInfo.invalidOperationTypeExists) {
           this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "history-view.generate-alert-info"
+            "test-result-page.generate-alert-info"
           );
         } else {
           this.downloadLinkDialogAlertMessage = "";

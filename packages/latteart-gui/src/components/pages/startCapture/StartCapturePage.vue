@@ -29,7 +29,7 @@
                 color="primary"
                 @click="execute(on)"
                 >{{
-                  $store.getters.message("start-capture-view.execute-button")
+                  $store.getters.message("start-capture-page.execute-button")
                 }}</v-btn
               >
             </template>
@@ -53,7 +53,7 @@ import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
     "capture-option": CaptureOption,
   },
 })
-export default class StartCaptureView extends Vue {
+export default class StartCapturePage extends Vue {
   private captureOption: CaptureOptionParams = {
     url: "",
     testResultName: "",

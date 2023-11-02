@@ -34,9 +34,9 @@
     </div>
 
     <div class="manage-show-legend mt-4">
-      {{ $store.getters.message("manage-show.legend1") }}<br />
-      {{ $store.getters.message("manage-show.legend2") }}<br />
-      {{ $store.getters.message("manage-show.legend3") }}<br />
+      {{ $store.getters.message("test-matrix-page.legend1") }}<br />
+      {{ $store.getters.message("test-matrix-page.legend2") }}<br />
+      {{ $store.getters.message("test-matrix-page.legend3") }}<br />
     </div>
   </v-row>
 </template>
@@ -53,28 +53,30 @@ export default class LegendViewer extends Vue {
   }[] {
     return [
       {
-        status: this.$store.getters.message("manage-show.status-ok"),
-        text: this.$store.getters.message("manage-show.text-ok"),
+        status: this.$store.getters.message("test-matrix-page.status-ok"),
+        text: this.$store.getters.message("test-matrix-page.text-ok"),
         class: "status-fine",
       },
       {
-        status: this.$store.getters.message("manage-show.status-out-of-scope"),
-        text: this.$store.getters.message("manage-show.text-out-of-scope"),
+        status: this.$store.getters.message(
+          "test-matrix-page.status-out-of-scope"
+        ),
+        text: this.$store.getters.message("test-matrix-page.text-out-of-scope"),
         class: "status-fine",
       },
       {
-        status: this.$store.getters.message("manage-show.status-ng"),
-        text: this.$store.getters.message("manage-show.text-ng"),
+        status: this.$store.getters.message("test-matrix-page.status-ng"),
+        text: this.$store.getters.message("test-matrix-page.text-ng"),
         class: "status-ng",
       },
       {
-        status: this.$store.getters.message("manage-show.status-ongoing"),
-        text: this.$store.getters.message("manage-show.text-ongoing"),
+        status: this.$store.getters.message("test-matrix-page.status-ongoing"),
+        text: this.$store.getters.message("test-matrix-page.text-ongoing"),
         class: "status-warn",
       },
       {
-        status: this.$store.getters.message("manage-show.status-pending"),
-        text: this.$store.getters.message("manage-show.text-pending"),
+        status: this.$store.getters.message("test-matrix-page.status-pending"),
+        text: this.$store.getters.message("test-matrix-page.text-pending"),
         class: "status-warn",
       },
     ];

@@ -24,7 +24,7 @@
       <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
           class="mr-3"
-          :label="message('history-view.test-result-name')"
+          :label="message('test-result-page.test-result-name')"
           :items="testResults"
           item-text="name"
           item-value="id"
@@ -36,7 +36,7 @@
       <v-col :style="buildStyle">
         <v-select
           class="mr-3"
-          :label="message('history-view.test-purpose')"
+          :label="message('test-result-page.test-purpose')"
           :items="testPurposes"
           item-text="text"
           item-value="value"
@@ -46,7 +46,7 @@
       /></v-col>
       <v-col cols="auto" v-if="!isViewerMode">
         <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
-          message("history-view.edit-test-purpose")
+          message("test-result-page.edit-test-purpose")
         }}</v-btn></v-col
       >
     </v-row>
@@ -112,7 +112,8 @@ export default class SequenceDiagram extends Vue {
       ({ testPurpose }, index) => {
         return {
           text:
-            testPurpose?.value ?? this.message("history-view.no-test-purpose"),
+            testPurpose?.value ??
+            this.message("test-result-page.no-test-purpose"),
           value: index,
         };
       }

@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('start-capture-view.title')"
+    :title="$store.getters.message('start-capture-page.title')"
     @accept="
       execute();
       close();

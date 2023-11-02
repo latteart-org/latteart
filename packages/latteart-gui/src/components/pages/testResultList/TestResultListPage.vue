@@ -218,7 +218,7 @@ import TestResultNameEditTrigger from "@/components/organisms/common/TestResultN
     "test-result-name-edit-trigger": TestResultNameEditTrigger,
   },
 })
-export default class TestResultListView extends Vue {
+export default class TestResultListPage extends Vue {
   private confirmDialogOpened = false;
   private informationDialogOpened = false;
 
@@ -376,7 +376,7 @@ export default class TestResultListView extends Vue {
   private async goToHistoryView(loadTestResults: () => Promise<void>) {
     await loadTestResults();
 
-    this.$router.push({ path: "/capture/history" }).catch((err: Error) => {
+    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
       if (err.name !== "NavigationDuplicated") {
         throw err;
       }

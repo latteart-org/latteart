@@ -16,21 +16,19 @@
 
 import Vue from "vue";
 import Router from "vue-router";
-import ExpCapture from "@/ExpCapture.vue";
-import ConfigView from "@/components/pages/config/ConfigView.vue";
-import StartCaptureView from "@/components/pages/startCapture/StartCaptureView.vue";
-import TestResultListView from "@/components/pages/testResultList/TestResultListView.vue";
-import HistoryView from "@/components/pages/testResult/HistoryView.vue";
-import ExpManager from "@/ExpManager.vue";
-import ManageView from "@/ManageView.vue";
-import ManageEditView from "@/components/pages/testMatrixEdit/ManageEditView.vue";
-import StoryListView from "@/components/pages/storiesReview/StoryListView.vue";
-import StoryView from "@/components/pages/story/StoryView.vue";
-import ReviewView from "@/components/pages/review/ReviewView.vue";
-import ManageShowView from "@/components/pages/testMatrix/ManageShowView.vue";
-import ManageProgressView from "@/components/pages/progressManagement/ManageProgressView.vue";
-import ManageQualityView from "@/components/pages/qualityManagement/ManageQualityView.vue";
-import OptionalFeaturesView from "@/components/pages/optionalFeatures/OptionalFeaturesView.vue";
+import ConfigPage from "@/components/pages/config/ConfigPage.vue";
+import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
+import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
+import TestResultPage from "@/components/pages/testResult/TestResultPage.vue";
+import PageFrame from "@/PageFrame.vue";
+import TestMatrixEditPage from "@/components/pages/testMatrixEdit/TestMatrixEditPage.vue";
+import StoriesReviewPage from "@/components/pages/storiesReview/StoriesReviewPage.vue";
+import StoryPage from "@/components/pages/story/StoryPage.vue";
+import ReviewPage from "@/components/pages/review/ReviewPage.vue";
+import TestMatrixPage from "@/components/pages/testMatrix/TestMatrixPage.vue";
+import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
+import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
+import OptionalFeaturesPage from "@/components/pages/optionalFeatures/OptionalFeaturesPage.vue";
 import Root from "./Root.vue";
 import store from "@/store/index";
 
@@ -46,104 +44,90 @@ export default new Router({
       component: Root,
       children: [
         {
-          path: "capture",
-          name: "expcapture",
-          component: ExpCapture,
+          path: "test-result",
+          name: "testResultPage",
+          component: TestResultPage,
+          meta: { title: "test-result-page.window-title" },
+          beforeEnter: (to, from, next) => {
+            store.commit("testManagement/setRecentReviewQuery", {
+              query: null,
+            });
+            next();
+          },
+        },
+        {
+          path: "page",
+          name: "pageFrame",
+          component: PageFrame,
           children: [
             {
-              path: "history",
-              name: "historyView",
-              component: HistoryView,
-              meta: { title: "history-view.window-title" },
+              path: "start",
+              component: StartCapturePage,
+              meta: { title: "start-capture-page.title" },
+            },
+            {
+              path: "test-result-list",
+              component: TestResultListPage,
+              meta: { title: "test-result-navigation-drawer.title" },
+            },
+            {
+              path: "test-matrix",
+              name: "testMatrixPage",
+              component: TestMatrixPage,
+              meta: { title: "manage-header.top" },
+            },
+            {
+              path: "test-matrix-edit",
+              name: "testMatrixEditPage",
+              component: TestMatrixEditPage,
+              meta: { title: "test-matrix-edit-page.title" },
+            },
+            {
+              path: "stories-review",
+              name: "storiesReviewPage",
+              component: StoriesReviewPage,
+              meta: { title: "stories-review-page.title" },
+            },
+            {
+              path: "progress-management",
+              name: "progressManagementPage",
+              component: ProgressManagementPage,
+              meta: { title: "progress-management.title" },
+            },
+            {
+              path: "quality-management",
+              name: "qualityManagementPage",
+              component: QualityManagementPage,
+              meta: { title: "quality-management.title" },
+            },
+            {
+              path: "optional-features",
+              component: OptionalFeaturesPage,
+              meta: { title: "optional-features.title" },
+            },
+            {
+              path: "story/:id",
+              name: "storyPage",
+              component: StoryPage,
+              meta: { title: "story-page.title" },
+            },
+            {
+              path: "review",
+              name: "reviewPage",
+              component: ReviewPage,
+              meta: { title: "manager-history-view.review" },
               beforeEnter: (to, from, next) => {
                 store.commit("testManagement/setRecentReviewQuery", {
-                  query: null,
+                  query: to.query,
                 });
                 next();
               },
             },
-          ],
-        },
-        {
-          path: "manage",
-          name: "expmanager",
-          component: ExpManager,
-          children: [
             {
-              path: "view",
-              name: "manageView",
-              component: ManageView,
-              children: [
-                {
-                  path: "start",
-                  component: StartCaptureView,
-                  meta: { title: "start-capture-view.title" },
-                },
-                {
-                  path: "results",
-                  component: TestResultListView,
-                  meta: { title: "test-result-navigation-drawer.title" },
-                },
-                {
-                  path: "show",
-                  name: "manageShowView",
-                  component: ManageShowView,
-                  meta: { title: "manage-header.top" },
-                },
-                {
-                  path: "edit",
-                  name: "manageEditView",
-                  component: ManageEditView,
-                  meta: { title: "manage-edit-view.title" },
-                },
-                {
-                  path: "stories",
-                  name: "storyListView",
-                  component: StoryListView,
-                  meta: { title: "story-list-view.title" },
-                },
-                {
-                  path: "progress",
-                  name: "manageProgressView",
-                  component: ManageProgressView,
-                  meta: { title: "manage-progress.title" },
-                },
-                {
-                  path: "quality",
-                  name: "manageQualityView",
-                  component: ManageQualityView,
-                  meta: { title: "manage-quality.title" },
-                },
-                {
-                  path: "features",
-                  component: OptionalFeaturesView,
-                  meta: { title: "optional-features.title" },
-                },
-                {
-                  path: "story/:id",
-                  name: "storyView",
-                  component: StoryView,
-                  meta: { title: "story-view.title" },
-                },
-                {
-                  path: "history",
-                  name: "reviewView",
-                  component: ReviewView,
-                  meta: { title: "manager-history-view.review" },
-                  beforeEnter: (to, from, next) => {
-                    store.commit("testManagement/setRecentReviewQuery", {
-                      query: to.query,
-                    });
-                    next();
-                  },
-                },
-                {
-                  path: "config",
-                  name: "configView",
-                  component: ConfigView,
-                  meta: { title: "manage-header.capture-config" },
-                },
-              ],
+              path: "config",
+              name: "configPage",
+              component: ConfigPage,
+              meta: { title: "manage-header.capture-config" },
             },
           ],
         },

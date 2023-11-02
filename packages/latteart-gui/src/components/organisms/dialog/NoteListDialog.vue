@@ -33,7 +33,7 @@
           <v-spacer></v-spacer>
           <div>
             <span class="label">{{
-              `${message("history-view.test-result-name")}:`
+              `${message("test-result-page.test-result-name")}:`
             }}</span>
             <span class="value">{{ note.testResultName }}</span>
             <span class="label">{{

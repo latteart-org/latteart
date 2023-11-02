@@ -19,7 +19,7 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <p v-if="conditionGroups < 1">
-          {{ $store.getters.message("config-view.no-data") }}
+          {{ $store.getters.message("config-page.no-data") }}
         </p>
         <auto-operation-container
           v-for="(group, index) in conditionGroups"
@@ -48,7 +48,7 @@ import AutoOperationContainer from "./AutoOperationContainer.vue";
     "auto-operation-container": AutoOperationContainer,
   },
 })
-export default class AutoOperationSetting extends Vue {
+export default class AutoOperationConfig extends Vue {
   @Prop({ type: Boolean, required: true })
   public readonly opened!: boolean;
   @Prop({

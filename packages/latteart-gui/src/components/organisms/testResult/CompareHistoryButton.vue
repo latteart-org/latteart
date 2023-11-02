@@ -18,15 +18,17 @@
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
       <v-list-item-title>{{
-        $store.getters.message("history-view.compare-test-result")
+        $store.getters.message("test-result-page.compare-test-result")
       }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="$store.getters.message('history-view.compare-test-result-title')"
+      :title="
+        $store.getters.message('test-result-page.compare-test-result-title')
+      "
       :message="
-        $store.getters.message('history-view.compare-test-result-message')
+        $store.getters.message('test-result-page.compare-test-result-message')
       "
       :onAccept="compareHistory"
       @close="confirmDialogOpened = false"
@@ -118,7 +120,7 @@ export default class CompareHistoryButton extends Vue {
   private async compareHistory(): Promise<void> {
     await this.$store.dispatch("openProgressDialog", {
       message: this.$store.getters.message(
-        "history-view.comparing-test-result"
+        "test-result-page.comparing-test-result"
       ),
     });
 
@@ -129,7 +131,7 @@ export default class CompareHistoryButton extends Vue {
       if (testResults.length === 0) {
         throw new Error(
           this.$store.getters.message(
-            "history-view.compare-test-result-not-exist"
+            "test-result-page.compare-test-result-not-exist"
           )
         );
       }
@@ -140,7 +142,7 @@ export default class CompareHistoryButton extends Vue {
       if (!expectedTestResultId) {
         throw new Error(
           this.$store.getters.message(
-            "history-view.compare-test-result-not-exist"
+            "test-result-page.compare-test-result-not-exist"
           )
         );
       }

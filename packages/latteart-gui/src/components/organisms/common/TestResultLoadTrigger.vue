@@ -65,7 +65,7 @@ export default class TestResultLoadTrigger extends Vue {
     try {
       this.$store.dispatch("openProgressDialog", {
         message: this.$store.getters.message(
-          "history-view.loading-test-results"
+          "test-result-page.loading-test-results"
         ),
       });
 

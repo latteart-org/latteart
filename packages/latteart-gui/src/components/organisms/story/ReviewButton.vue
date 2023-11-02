@@ -23,7 +23,7 @@
           :disabled="disabled"
           color="info"
           @click="toReviewPage(on)"
-          >{{ $store.getters.message("story-view.do-review") }}</v-btn
+          >{{ $store.getters.message("story-page.do-review") }}</v-btn
         >
       </template>
     </test-result-load-trigger>
@@ -60,7 +60,7 @@ export default class ReviewButton extends Vue {
     this.$store.commit("testManagement/setTempStory", { story: this.story });
 
     this.$router.push({
-      path: `../history`,
+      path: `../review`,
       query: { sessionIds: this.sessionIds },
     });
   }

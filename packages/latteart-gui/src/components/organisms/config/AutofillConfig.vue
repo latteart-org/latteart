@@ -22,7 +22,7 @@
           v-model="autoPopupRegistrationDialog"
           :label="
             $store.getters.message(
-              'config-view.autofill.auto-popup-registration'
+              'config-page.autofill.auto-popup-registration'
             )
           "
         >
@@ -32,14 +32,14 @@
         <v-checkbox
           v-model="autoPopupSelectionDialog"
           :label="
-            $store.getters.message('config-view.autofill.auto-popup-selection')
+            $store.getters.message('config-page.autofill.auto-popup-selection')
           "
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <v-btn @click="addConditionGroup">{{
-          $store.getters.message("config-view.autofill.add-setting")
+          $store.getters.message("config-page.autofill.add-setting")
         }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
@@ -67,14 +67,14 @@ import {
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import AutoFillInputValueContainer from "./AutoFillInputValueContainer.vue";
+import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
 
 @Component({
   components: {
-    "autofill-input-value-container": AutoFillInputValueContainer,
+    "autofill-input-value-container": AutofillInputValueContainer,
   },
 })
-export default class AutofillSetting extends Vue {
+export default class AutofillConfig extends Vue {
   @Prop({ type: Boolean, required: true })
   public readonly opened!: boolean;
   @Prop({

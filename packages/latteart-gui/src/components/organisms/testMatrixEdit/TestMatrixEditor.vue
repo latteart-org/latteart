@@ -22,7 +22,7 @@
       </v-col>
       <v-col cols="2" style="text-align: right">
         <v-btn small @click="testMatrixBeingEdited = testMatrix">
-          {{ $store.getters.message("manage-edit-view.settings") }}
+          {{ $store.getters.message("test-matrix-edit-page.settings") }}
         </v-btn>
         <v-btn
           small
@@ -201,7 +201,7 @@ export default class TestMatrixEditor extends Vue {
 
   private openConfirmDialogToDeleteTestMatrix() {
     this.confirmDialogTitle = this.$store.getters.message(
-      "manage-edit-view.delete-test-matrix-confirm"
+      "test-matrix-edit-page.delete-test-matrix-confirm"
     );
     this.confirmDialogMessage = this.$store.getters.message(
       "common.delete-warning"

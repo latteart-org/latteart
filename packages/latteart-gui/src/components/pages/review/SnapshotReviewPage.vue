@@ -16,38 +16,34 @@
 
 <template>
   <v-container fluid fill-height pa-0>
-    <v-app-bar color="latteart-main" dark absolute flat>
-      <v-toolbar-title>{{
-        $store.getters.message($route.meta.title)
-      }}</v-toolbar-title>
-    </v-app-bar>
-
-    <v-container
-      fluid
-      fill-height
-      pa-0
-      style="margin-top: 64px; height: calc(100vh - 64px)"
-    >
-      <router-view @selectTestMatrix="changeMatrixId"></router-view>
-    </v-container>
+    <iframe
+      style="width: 100%; height: 100%"
+      :src="historyPageUrl"
+      frameborder="0"
+    ></iframe>
   </v-container>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { Story } from "@/lib/testManagement/types";
 
 @Component
-export default class ManageView extends Vue {
-  private selectedTestMatrixId = "";
+export default class SnapshotReviewPage extends Vue {
+  private get sessionId() {
+    const sessionId = this.$route.query.sessionIds[0] as string;
+    return sessionId;
+  }
 
-  private changeMatrixId(testMatrixId: string): void {
-    this.selectedTestMatrixId = testMatrixId;
+  private get tempStory() {
+    return this.$store.state.testManagement.tempStory as Story;
+  }
+
+  private get historyPageUrl() {
+    const storyId = this.tempStory.id;
+    const sessionId = this.sessionId;
+
+    return `data/${storyId}/${sessionId}/index.html`;
   }
 }
 </script>
-
-<style lang="sass" scoped>
-@media print
-  .no-print
-    display: none
-</style>

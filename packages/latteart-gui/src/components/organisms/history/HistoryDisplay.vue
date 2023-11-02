@@ -35,10 +35,10 @@
             :dark="canUpdateModels"
             :disabled="!canUpdateModels"
             @click="updateTestResultViewModel"
-            >{{ message("history-view.update-model-and-coverage") }}</v-btn
+            >{{ message("test-result-page.update-model-and-coverage") }}</v-btn
           >
           <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
-            message("history-view.there-are-updates-on-history")
+            message("test-result-page.there-are-updates-on-history")
           }}</span>
         </div>
         <splitpanes
@@ -56,15 +56,15 @@
                     hide-details
                   >
                     <v-radio
-                      :label="message('history-view.sequence')"
+                      :label="message('test-result-page.sequence')"
                       :value="DIAGRAM_TYPE_SEQUENCE"
                     ></v-radio>
                     <v-radio
-                      :label="message('history-view.screen-transition')"
+                      :label="message('test-result-page.screen-transition')"
                       :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
                     ></v-radio>
                     <v-radio
-                      :label="message('history-view.element-coverage')"
+                      :label="message('test-result-page.element-coverage')"
                       :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     ></v-radio>
                   </v-radio-group>
@@ -102,12 +102,12 @@
                       v-if="hasStillImage || hasVideo"
                     >
                       <v-radio
-                        :label="message('history-view.image')"
+                        :label="message('test-result-page.image')"
                         value="image"
                         :disabled="!hasStillImage"
                       ></v-radio>
                       <v-radio
-                        :label="message('history-view.video')"
+                        :label="message('test-result-page.video')"
                         value="video"
                         :disabled="!hasVideo"
                       ></v-radio>
@@ -340,7 +340,7 @@ export default class HistoryDisplay extends Vue {
     this.contextMenuItems = [];
 
     this.contextMenuItems.push({
-      label: context.getters.message("history-view.edit-notice", {
+      label: context.getters.message("test-result-page.edit-notice", {
         value: note.value,
       }),
       onClick: () => {
@@ -359,7 +359,7 @@ export default class HistoryDisplay extends Vue {
       },
     });
     this.contextMenuItems.push({
-      label: context.getters.message("history-view.delete-notice", {
+      label: context.getters.message("test-result-page.delete-notice", {
         value: note.value,
       }),
       onClick: () => {
@@ -437,18 +437,18 @@ export default class HistoryDisplay extends Vue {
   ) {
     if (noteType === "intention") {
       this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-intention"
+        "test-result-page.delete-intention"
       );
       this.confirmDialogMessage = this.$store.getters.message(
-        "history-view.delete-intention-message",
+        "test-result-page.delete-intention-message",
         { value: title }
       );
     } else {
       this.confirmDialogTitle = this.$store.getters.message(
-        "history-view.delete-notice-title"
+        "test-result-page.delete-notice-title"
       );
       this.confirmDialogMessage = this.$store.getters.message(
-        "history-view.delete-notice-message",
+        "test-result-page.delete-notice-message",
         { value: title }
       );
     }

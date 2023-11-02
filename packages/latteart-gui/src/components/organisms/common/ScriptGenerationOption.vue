@@ -16,7 +16,9 @@
 <template>
   <v-card flat class="pa-0">
     <v-checkbox
-      :label="$store.getters.message('history-view.generate-simple-testscript')"
+      :label="
+        $store.getters.message('test-result-page.generate-simple-testscript')
+      "
       v-model="testGenerationOption.testScript.isSimple"
     >
     </v-checkbox>
@@ -26,13 +28,13 @@
     >
       <template v-slot:label>
         <div>
-          {{ $store.getters.message("history-view.use-multi-locator1") }}
+          {{ $store.getters.message("test-result-page.use-multi-locator1") }}
           <a
             href="https://github.com/latteart-org/multi-locator"
             target="_blank"
             @click.stop
             >multi-locator</a
-          >{{ $store.getters.message("history-view.use-multi-locator2") }}
+          >{{ $store.getters.message("test-result-page.use-multi-locator2") }}
         </div>
       </template>
     </v-checkbox>
@@ -46,7 +48,9 @@
             }"
           >
             {{
-              $store.getters.message("history-view.custom-button-definition")
+              $store.getters.message(
+                "test-result-page.custom-button-definition"
+              )
             }}
           </p>
         </v-col>
@@ -59,7 +63,7 @@
               'text--disabled': testGenerationOption.testScript.isSimple,
             }"
           >
-            {{ $store.getters.message("history-view.custom-button-tags") }}
+            {{ $store.getters.message("test-result-page.custom-button-tags") }}
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-icon
@@ -71,7 +75,7 @@
                 >
               </template>
               <span>{{
-                $store.getters.message("history-view.default-button-tags", {
+                $store.getters.message("test-result-page.default-button-tags", {
                   value: standardButtontags.join(", "),
                 })
               }}</span>
@@ -115,12 +119,14 @@
               'text--disabled': testGenerationOption.testScript.isSimple,
             }"
           >
-            {{ $store.getters.message("history-view.testdata") }}
+            {{ $store.getters.message("test-result-page.testdata") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
           <v-checkbox
-            :label="$store.getters.message('history-view.method-data-driven')"
+            :label="
+              $store.getters.message('test-result-page.method-data-driven')
+            "
             :disabled="testGenerationOption.testScript.isSimple"
             v-model="testGenerationOption.testData.useDataDriven"
           >
@@ -130,7 +136,7 @@
           <number-field
             :value="testGenerationOption.testData.maxGeneration"
             @updateNumberFieldValue="updateMaxGeneration"
-            :label="$store.getters.message('history-view.max-generation')"
+            :label="$store.getters.message('test-result-page.max-generation')"
             :disabled="
               !testGenerationOption.testData.useDataDriven ||
               testGenerationOption.testScript.isSimple
@@ -147,7 +153,7 @@
                 testGenerationOption.testScript.isSimple,
             }"
             >{{
-              $store.getters.message("history-view.generate-only-template")
+              $store.getters.message("test-result-page.generate-only-template")
             }}</span
           >
         </v-col>

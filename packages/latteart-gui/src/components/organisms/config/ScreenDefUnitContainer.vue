@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-4 pt-0">
     <v-btn @click="addConditionGroup">{{
-      $store.getters.message("config-view.screen-def.advanced-add")
+      $store.getters.message("config-page.screen-def.advanced-add")
     }}</v-btn>
     <draggable
       :list="conditionGroups"

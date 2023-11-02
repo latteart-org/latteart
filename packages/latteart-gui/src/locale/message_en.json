@@ -45,7 +45,7 @@
     "back": "Trigger browser back",
     "forward": "Trigger browser forward"
   },
-  "history-view": {
+  "test-result-page": {
     "window-title": "Test Result",
     "edit-intention": "Add/Edit Test Purpose",
     "delete-intention": "Delete Test Purpose",
@@ -141,7 +141,7 @@
     "create-export-data-succeeded": "Data export is complete.",
     "import-data-succeeded": "{returnName} import is complete."
   },
-  "config-view": {
+  "config-page": {
     "device": "Device",
     "platform": "Platform",
     "browser": "Browser",
@@ -338,7 +338,7 @@
       "other": "Other"
     }
   },
-  "start-capture-view": {
+  "start-capture-page": {
     "title": "Start Capturing",
     "execute-button": "Start",
     "starting-capture": "Starting capture."
@@ -378,7 +378,7 @@
     "generate-script-succeeded": "Test script generation has finished.",
     "locale": "locale"
   },
-  "manage-show": {
+  "test-matrix-page": {
     "legend1": "( X / Y )",
     "legend2": "X: # of complete session",
     "legend3": "Y: # of planned session",
@@ -408,7 +408,7 @@
     "delete-viewPoint-confirm": "Are you sure you want to delete this view point?",
     "unselected": "No Preset"
   },
-  "manage-progress": {
+  "progress-management": {
     "title": "Progress Management",
     "display-settings-section": "[Display Settings]",
     "period": "Period:",
@@ -422,7 +422,7 @@
     "completed-sessions": "# of Complete Sessions",
     "incompleted-sessions": "# Incomplete Sessions"
   },
-  "manage-quality": {
+  "quality-management": {
     "title": "Quality Management",
     "attention": "*# of Found Bugs: number of notes with 'bug' tag",
     "filter-section": "[Filter]",
@@ -503,7 +503,7 @@
     "delete-session": "Are you sure you want to delete the delete session?",
     "session-name-base": "Session"
   },
-  "story-list-view": {
+  "stories-review-page": {
     "title": "Review Stories",
     "filter": "Story Filter",
     "clear": "Filter Clear",
@@ -513,7 +513,7 @@
     "view-point": "View Point",
     "do-review": "Review"
   },
-  "story-view": {
+  "story-page": {
     "title": "Story",
     "test-matrix": "Test Matrix",
     "group": "Group",
@@ -538,7 +538,7 @@
   "manager-history-view": {
     "review": "Review Test Result"
   },
-  "manage-edit-view": {
+  "test-matrix-edit-page": {
     "title": "Edit Test Matrices",
     "edit-viewPoint": "Edit Viewpoint Name",
     "add-test-matrix": "Add Test Matrix",

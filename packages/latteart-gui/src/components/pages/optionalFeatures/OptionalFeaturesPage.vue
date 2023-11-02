@@ -64,7 +64,7 @@ import TestScriptGenerationlauncher from "@/components/organisms/optionalFeature
     "project-export-launcher": ProjectExportLauncher,
   },
 })
-export default class OptionalFeaturesView extends Vue {
+export default class OptionalFeaturesPage extends Vue {
   created() {
     this.$store.dispatch("changeWindowTitle", {
       title: this.$store.getters.message(this.$route.meta?.title ?? ""),

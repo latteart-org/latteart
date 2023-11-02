@@ -45,7 +45,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-image-compression"
+                        "config-page.setting-image-compression"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -64,7 +64,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-inclusion-tags"
+                        "config-page.setting-inclusion-tags"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -81,7 +81,7 @@
 
                 <v-expansion-panel>
                   <v-expansion-panel-header>
-                    {{ $store.getters.message("config-view.setting-screen") }}
+                    {{ $store.getters.message("config-page.setting-screen") }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <screen-definition-config
@@ -95,7 +95,7 @@
 
                 <v-expansion-panel>
                   <v-expansion-panel-header>
-                    {{ $store.getters.message("config-view.setting-autofill") }}
+                    {{ $store.getters.message("config-page.setting-autofill") }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <autofill-setting
@@ -111,7 +111,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-auto-operation"
+                        "config-page.setting-auto-operation"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -129,17 +129,17 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-test-result-comparison"
+                        "config-page.setting-test-result-comparison"
                       )
                     }}
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
-                    <compare-setting
+                    <compare-config
                       :tags="defaultTagList"
                       :setting="testResultComparisonSetting"
                       @save-config="saveConfig"
                     >
-                    </compare-setting>
+                    </compare-config>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
 
@@ -147,7 +147,7 @@
                   <v-expansion-panel-header>
                     {{
                       $store.getters.message(
-                        "config-view.setting-experimental-features"
+                        "config-page.setting-experimental-features"
                       )
                     }}
                   </v-expansion-panel-header>
@@ -194,14 +194,14 @@ import {
   CaptureMediaSetting,
   ExperimentalFeatureSetting,
 } from "@/lib/common/settings/Settings";
-import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillSetting.vue";
+import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
 import {
   AutofillSetting,
   AutoOperationSetting,
 } from "@/lib/operationHistory/types";
-import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationSetting.vue";
+import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationConfig.vue";
 import { RootState } from "@/store";
-import CompareSetting from "@/components/organisms/config/CompareSetting.vue";
+import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
 import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.vue";
 
@@ -212,14 +212,14 @@ import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.v
     "screen-definition-config": ScreenDefinitionConfig,
     "capture-media-config": CaptureMediaConfig,
     "autofill-setting": AutofillSettingComponent,
-    "compare-setting": CompareSetting,
+    "compare-config": CompareConfig,
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
     "error-message-dialog": ErrorMessageDialog,
     "remote-access-field": RemoteAccessField,
   },
 })
-export default class ConfigView extends Vue {
+export default class ConfigPage extends Vue {
   private errorMessageDialogOpened = false;
   private errorMessage = "";
   private panels: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];

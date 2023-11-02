@@ -17,7 +17,7 @@
 <template>
   <v-container fluid fill-height pa-0>
     <v-app-bar color="white" flat absolute height="64px">
-      <capture-tool-header />
+      <test-result-header />
     </v-app-bar>
 
     <v-container
@@ -29,11 +29,21 @@
         'max-height': 'calc(100vh - 64px - 64px)',
       }"
     >
-      <router-view />
+      <v-row class="fill-height">
+        <history-display
+          :locale="$store.state.i18n?.locale"
+          :changeWindowTitle="changeWindowTitle"
+          :rawHistory="history"
+          :message="messageProvider"
+          :screenDefinitionConfig="screenDefinitionConfig"
+          scriptGenerationEnabled
+          operationContextEnabled
+        ></history-display>
+      </v-row>
     </v-container>
 
     <v-footer absolute height="64px">
-      <capture-tool-footer />
+      <test-result-footer />
     </v-footer>
 
     <autofill-select-dialog />
@@ -43,8 +53,14 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import CaptureToolHeader from "@/components/organisms/testResult/CaptureToolHeader.vue";
-import CaptureToolFooter from "@/components/organisms/testResult/CaptureToolFooter.vue";
+import {
+  OperationHistory,
+  MessageProvider,
+} from "@/lib/operationHistory/types";
+import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import TestResultHeader from "@/components/organisms/testResult/TestResultHeader.vue";
+import TestResultFooter from "@/components/organisms/testResult/TestResultFooter.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";
@@ -54,8 +70,9 @@ import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue
 
 @Component({
   components: {
-    "capture-tool-header": CaptureToolHeader,
-    "capture-tool-footer": CaptureToolFooter,
+    "test-result-header": TestResultHeader,
+    "test-result-footer": TestResultFooter,
+    "history-display": HistoryDisplay,
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-select-dialog": AutofillSelectDialog,
@@ -64,9 +81,30 @@ import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue
     "completion-dialog": CompletionDialog,
   },
 })
-export default class ExpCapture extends Vue {}
-</script>
+export default class TestResultPage extends Vue {
+  private get screenDefinitionConfig() {
+    return this.$store.state.projectSettings.config.screenDefinition;
+  }
 
+  private get messageProvider(): MessageProvider {
+    return this.$store.getters.message;
+  }
+
+  private get history(): OperationHistory {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .history;
+  }
+
+  private changeWindowTitle(windowTitle: string) {
+    const windowTitlePrefix = this.$store.getters.message(
+      this.$route.meta?.title ?? ""
+    );
+    this.$store.dispatch("changeWindowTitle", {
+      title: `${windowTitlePrefix} [${windowTitle}]`,
+    });
+  }
+}
+</script>
 <style lang="sass" scoped>
 html
   overflow: hidden

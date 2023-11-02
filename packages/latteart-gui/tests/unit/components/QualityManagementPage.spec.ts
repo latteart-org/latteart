@@ -2,13 +2,13 @@ import { shallowMount, createLocalVue } from "@vue/test-utils";
 import Vuex from "vuex";
 import Vuetify from "vuetify";
 import VueRouter from "vue-router";
-import ManageQualityView from "@/components/pages/qualityManagement/ManageQualityView.vue";
+import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(Vuetify);
 
-describe("ManageQualityView.vueは", () => {
+describe("QualityManagementPage.vueは", () => {
   let store: any;
   let router: any;
 
@@ -237,9 +237,9 @@ describe("ManageQualityView.vueは", () => {
   beforeEach(() => {
     const routes = [
       {
-        path: "progress",
-        name: "manageQualityView",
-        component: ManageQualityView,
+        path: "quality-management",
+        name: "qualityManagementPage",
+        component: QualityManagementPage,
       },
     ];
     router = new VueRouter({
@@ -289,7 +289,7 @@ describe("ManageQualityView.vueは", () => {
     it("グループフィルタを掛けていない場合、全てのgroupが取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -301,7 +301,7 @@ describe("ManageQualityView.vueは", () => {
         vm.selectedTestTarget = "all";
 
         expect(vm.groups).toEqual([
-          { id: "all", text: "manage-quality.all" },
+          { id: "all", text: "quality-management.all" },
           { id: "g000", text: "group0" },
           { id: "g001", text: "group1" },
         ]);
@@ -312,7 +312,7 @@ describe("ManageQualityView.vueは", () => {
     it("グループフィルタを掛けていない場合、全てのtestTargetが取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -324,7 +324,7 @@ describe("ManageQualityView.vueは", () => {
         vm.selectedTestTarget = "all";
 
         expect(vm.testTargets).toEqual([
-          { id: "all", text: "manage-quality.all" },
+          { id: "all", text: "quality-management.all" },
           { id: "g000_t000", text: "g0-testTarget0" },
           { id: "g000_t001", text: "g0-testTarget1" },
           { id: "g000_t002", text: "g0-testTarget2" },
@@ -338,7 +338,7 @@ describe("ManageQualityView.vueは", () => {
     it("グループフィルタを掛けている場合、対象のgroupに紐づいているtestTargetのみが取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -350,7 +350,7 @@ describe("ManageQualityView.vueは", () => {
         vm.selectedTestTarget = "all";
 
         expect(vm.testTargets).toEqual([
-          { id: "all", text: "manage-quality.all" },
+          { id: "all", text: "quality-management.all" },
           { id: "g001_t003", text: "g1-testTarget3" },
           { id: "g001_t004", text: "g1-testTarget4" },
           { id: "g001_t005", text: "g1-testTarget5" },
@@ -363,7 +363,7 @@ describe("ManageQualityView.vueは", () => {
     it("テスト観点数分カラムが表示されること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -375,12 +375,12 @@ describe("ManageQualityView.vueは", () => {
         vm.selectedTestTarget = "all";
 
         const headers = vm.headers;
-        expect(headers[0].text).toEqual("manage-quality.group");
-        expect(headers[1].text).toEqual("manage-quality.test-target");
+        expect(headers[0].text).toEqual("quality-management.group");
+        expect(headers[1].text).toEqual("quality-management.test-target");
         expect(headers[2].text).toEqual("story0");
         expect(headers[3].text).toEqual("story1");
         expect(headers[4].text).toEqual("story2");
-        expect(headers[5].text).toEqual("manage-quality.total");
+        expect(headers[5].text).toEqual("quality-management.total");
       });
     });
   });
@@ -388,7 +388,7 @@ describe("ManageQualityView.vueは", () => {
     it("全件数が選択されている場合、全てのバグ検出件数が取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -442,7 +442,7 @@ describe("ManageQualityView.vueは", () => {
         });
 
         expect(items[6]).toEqual({
-          group: "manage-quality.total",
+          group: "quality-management.total",
           testTarget: " ",
           s000: "4",
           s001: "2",
@@ -453,7 +453,7 @@ describe("ManageQualityView.vueは", () => {
     it("1セッションあたりの件数が選択されている場合、バグ検出件数/完了済みセッション数の形式で取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -507,7 +507,7 @@ describe("ManageQualityView.vueは", () => {
         });
 
         expect(items[6]).toEqual({
-          group: "manage-quality.total",
+          group: "quality-management.total",
           testTarget: " ",
           s000: "4/3",
           s001: "2/3",
@@ -518,7 +518,7 @@ describe("ManageQualityView.vueは", () => {
     it("グループフィルタを掛けている場合、対象のグループのみの値が取得出来ること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -553,7 +553,7 @@ describe("ManageQualityView.vueは", () => {
         });
 
         expect(items[3]).toEqual({
-          group: "manage-quality.total",
+          group: "quality-management.total",
           testTarget: " ",
           s000: "4/3",
           s001: "1/1",
@@ -565,7 +565,7 @@ describe("ManageQualityView.vueは", () => {
     it("テスト対象フィルタをかけている場合、対象のテスト対象のみの値が取得できること", async () => {
       const testMatrixId = "m000";
       const $route = { params: { testMatrixId } };
-      const vm = (await shallowMount(ManageQualityView, {
+      const vm = (await shallowMount(QualityManagementPage, {
         localVue,
         router,
         store,
@@ -587,7 +587,7 @@ describe("ManageQualityView.vueは", () => {
         });
 
         expect(items[1]).toEqual({
-          group: "manage-quality.total",
+          group: "quality-management.total",
           testTarget: " ",
           s001: "1/2",
           TOTAL: "1/2",
@@ -598,7 +598,7 @@ describe("ManageQualityView.vueは", () => {
       it("全件数が選択されている場合、全てのバグ検出件数が取得できること", async () => {
         const testMatrixId = "m000";
         const $route = { params: { testMatrixId } };
-        const vm = (await shallowMount(ManageQualityView, {
+        const vm = (await shallowMount(QualityManagementPage, {
           localVue,
           router,
           store,
@@ -653,7 +653,7 @@ describe("ManageQualityView.vueは", () => {
                   { x: 6, y: 6 },
                 ],
                 fill: false,
-                label: "manage-quality.total",
+                label: "quality-management.total",
                 lineTension: 0,
               },
             ],

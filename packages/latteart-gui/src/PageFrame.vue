@@ -16,7 +16,22 @@
 
 <template>
   <v-container fluid fill-height pa-0>
-    <router-view></router-view>
+    <v-container fluid fill-height pa-0>
+      <v-app-bar color="latteart-main" dark absolute flat>
+        <v-toolbar-title>{{
+          $store.getters.message($route.meta.title)
+        }}</v-toolbar-title>
+      </v-app-bar>
+
+      <v-container
+        fluid
+        fill-height
+        pa-0
+        style="margin-top: 64px; height: calc(100vh - 64px)"
+      >
+        <router-view @selectTestMatrix="changeMatrixId"></router-view>
+      </v-container>
+    </v-container>
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -28,8 +43,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import AlertDialog from "@/components/molecules/AlertDialog.vue";
-import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import AlertDialog from "./components/molecules/AlertDialog.vue";
+import ErrorMessageDialog from "./components/molecules/ErrorMessageDialog.vue";
 
 @Component({
   components: {
@@ -37,7 +52,9 @@ import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
     "error-message-dialog": ErrorMessageDialog,
   },
 })
-export default class Manager extends Vue {
+export default class PageFrame extends Vue {
+  private selectedTestMatrixId = "";
+
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
@@ -62,6 +79,10 @@ export default class Manager extends Vue {
       }
     })();
   }
+
+  private changeMatrixId(testMatrixId: string): void {
+    this.selectedTestMatrixId = testMatrixId;
+  }
 }
 </script>
 
@@ -82,4 +103,10 @@ export default class Manager extends Vue {
 .ellipsis_short
   @include ellipsis
   max-width: 200px
+</style>
+
+<style lang="sass" scoped>
+@media print
+  .no-print
+    display: none
 </style>

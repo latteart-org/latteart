@@ -30,20 +30,26 @@
             <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
                 ><v-icon>filter_list_alt</v-icon
-                >{{ this.$store.getters.message("manage-show.search") }}</span
+                >{{
+                  this.$store.getters.message("test-matrix-page.search")
+                }}</span
               ></v-col
             >
             <v-col>
               <v-text-field
                 v-model="search"
-                :label="this.$store.getters.message('manage-show.tester-name')"
+                :label="
+                  this.$store.getters.message('test-matrix-page.tester-name')
+                "
                 clearable
               ></v-text-field></v-col></v-row
         ></v-col>
         <v-col cols="auto" style="align-self: end">
           <v-checkbox
             :label="
-              this.$store.getters.message('manage-show.incomplete-sessions')
+              this.$store.getters.message(
+                'test-matrix-page.incomplete-sessions'
+              )
             "
             v-model="isCompletionFilterEnabled"
             class="mt-2"
@@ -93,7 +99,7 @@ import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer
     "test-matrix-viewer": TestMatrixViewer,
   },
 })
-export default class ManageShow extends Vue {
+export default class TestMatrixPage extends Vue {
   private selectedTestMatrixId = "";
   private search = "";
   private isCompletionFilterEnabled = false;

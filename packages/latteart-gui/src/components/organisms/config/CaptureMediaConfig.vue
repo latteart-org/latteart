@@ -22,11 +22,11 @@
           :disabled="captureArch === 'push'"
         >
           <v-radio
-            :label="$store.getters.message('config-view.png')"
+            :label="$store.getters.message('config-page.png')"
             value="png"
           ></v-radio>
           <v-radio
-            :label="$store.getters.message('config-view.webp')"
+            :label="$store.getters.message('config-page.webp')"
             value="webp"
           ></v-radio>
         </v-radio-group>

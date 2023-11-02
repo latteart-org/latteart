@@ -43,7 +43,7 @@ import { OperationHistoryState } from "@/store/operationHistory";
     "execute-dialog": ExecuteDialog,
   },
 })
-export default class WindowSelectorDialog extends Vue {
+export default class WindowSelectDialog extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
 
   private capturingWindowInfo: {

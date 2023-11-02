@@ -18,7 +18,7 @@
         <span style="display: inline-flex; align-items: center"
           ><v-icon color="yellow darken-3" left>warning</v-icon
           >{{
-            $store.getters.message("config-view.experimental-warning")
+            $store.getters.message("config-page.experimental-warning")
           }}</span
         >
       </v-col>
@@ -27,11 +27,11 @@
     <v-row>
       <v-col class="pt-0">
         <h4>
-          {{ $store.getters.message("config-view.recording-method") }}
+          {{ $store.getters.message("config-page.recording-method") }}
         </h4>
         <v-checkbox
           v-model="captureArch"
-          :label="$store.getters.message('config-view.capture-arch')"
+          :label="$store.getters.message('config-page.capture-arch')"
           :disabled="isCapturing || isReplaying"
           hide-details
           class="py-0 my-0"
@@ -40,10 +40,10 @@
         >
         </v-checkbox>
         <span class="pl-8">{{
-          $store.getters.message("config-view.attention")
+          $store.getters.message("config-page.attention")
         }}</span>
         <p class="pl-8">
-          {{ $store.getters.message("config-view.attention-video") }}
+          {{ $store.getters.message("config-page.attention-video") }}
         </p>
       </v-col>
     </v-row>

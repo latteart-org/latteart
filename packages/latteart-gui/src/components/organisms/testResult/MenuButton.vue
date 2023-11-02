@@ -39,7 +39,7 @@
             :disabled="slotProps.obj.isDisabled"
           >
             <v-list-item-title>{{
-              $store.getters.message("history-view.export-screenshots")
+              $store.getters.message("test-result-page.export-screenshots")
             }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>

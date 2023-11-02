@@ -21,7 +21,7 @@
     <download-link-dialog
       :opened="dialogOpened"
       :title="$store.getters.message('common.confirm')"
-      :message="$store.getters.message('history-view.generate-screenshots')"
+      :message="$store.getters.message('test-result-page.generate-screenshots')"
       :linkUrl="linkUrl"
       @close="dialogOpened = false"
     />
@@ -92,7 +92,9 @@ export default class ScreenshotsDownloadButton extends Vue {
     this.processing = true;
     try {
       this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message("history-view.export-screenshots"),
+        message: this.$store.getters.message(
+          "test-result-page.export-screenshots"
+        ),
       });
       const url = await this.$store.dispatch(
         "operationHistory/getScreenshots",
