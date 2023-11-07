@@ -86,6 +86,7 @@ import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
 import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
 import { computed, defineComponent, onBeforeMount, ref, watch } from "vue";
 import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
 export default defineComponent({
   components: {
@@ -95,6 +96,7 @@ export default defineComponent({
   },
   setup(props, context) {
     const store = useStore();
+    const route = useRoute();
 
     const selectedTestMatrixId = ref("");
     const search = ref("");
@@ -142,7 +144,7 @@ export default defineComponent({
 
     const created = async () => {
       store.dispatch("changeWindowTitle", {
-        title: store.getters.message("manage-header.top"),
+        title: store.getters.message(route.meta?.title ?? ""),
       });
 
       if (!store.state.progressDialog.opened) {
