@@ -624,86 +624,81 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           .captureArch,
     };
 
-    try {
-      const operationHistoryState: OperationHistoryState = (
-        context.rootState as any
-      ).operationHistory;
+    const operationHistoryState: OperationHistoryState = (
+      context.rootState as any
+    ).operationHistory;
 
-      const captureCl = context.rootState.captureClService;
-      const testResult =
-        context.rootState.repositoryService.createTestResultAccessor(
-          operationHistoryState.testResultInfo.id
-        );
+    const testResult =
+      context.rootState.repositoryService.createTestResultAccessor(
+        operationHistoryState.testResultInfo.id
+      );
+    const mediaType =
+      context.rootState.projectSettings.config.captureMediaSetting.mediaType;
 
-      const mediaType =
-        context.rootState.projectSettings.config.captureMediaSetting.mediaType;
-
-      const videoRecorder =
-        (mediaType === "video" || config.captureArch === "push") &&
-        config.platformName === "PC"
-          ? createVideoRecorder(testResult)
-          : undefined;
-
-      const client = captureCl.createCaptureClient({
-        testResult,
-        config,
-        eventListeners: await context.dispatch("createCaptureEventListeners", {
-          callbacks: payload.callbacks,
-          videoRecorder,
-        }),
-      });
-
-      const testOption = (context.rootState as any).captureControl.testOption;
-      const firstTestPurpose = testOption.shouldRecordTestPurpose
-        ? {
-            value: testOption.firstTestPurpose,
-            details: testOption.firstTestPurposeDetails,
-          }
+    const videoRecorder =
+      (mediaType === "video" || config.captureArch === "push") &&
+      config.platformName === "PC"
+        ? createVideoRecorder(testResult)
         : undefined;
 
-      const result = await client.startCapture(payload.url, {
-        compressScreenshots:
-          context.rootState.projectSettings.config.captureMediaSetting
-            .imageCompression.format === "webp",
-        firstTestPurpose,
-      });
+    const captureCl = context.rootState.captureClService;
+    const client = captureCl.createCaptureClient({
+      testResult,
+      config,
+      eventListeners: await context.dispatch("createCaptureEventListeners", {
+        callbacks: payload.callbacks,
+        videoRecorder,
+      }),
+    });
 
-      if (result.isFailure()) {
+    const testOption = (context.rootState as any).captureControl.testOption;
+    const firstTestPurpose = testOption.shouldRecordTestPurpose
+      ? {
+          value: testOption.firstTestPurpose,
+          details: testOption.firstTestPurposeDetails,
+        }
+      : undefined;
+
+    const result = await client.startCapture(payload.url, {
+      compressScreenshots:
+        context.rootState.projectSettings.config.captureMediaSetting
+          .imageCompression.format === "webp",
+      firstTestPurpose,
+    });
+
+    if (result.isFailure()) {
+      const errorMessage = context.rootGetters.message(
+        `error.capture_control.${result.error.errorCode}`
+      );
+      payload.callbacks.onEnd(new Error(errorMessage));
+      return;
+    }
+
+    const session = result.data;
+
+    context.dispatch("stopTimer");
+    context.dispatch("startTimer");
+
+    context.commit("setCapturing", { isCapturing: true });
+    context.commit("setCaptureSession", { session });
+
+    if (videoRecorder) {
+      const startRecordingResult = await videoRecorder.startRecording();
+
+      if (startRecordingResult.isFailure()) {
         const errorMessage = context.rootGetters.message(
-          `error.capture_control.${result.error.errorCode}`
+          startRecordingResult.error.messageKey,
+          startRecordingResult.error.variables
         );
         payload.callbacks.onEnd(new Error(errorMessage));
         return;
       }
 
-      const session = result.data;
+      const recordingVideo = videoRecorder.recordingVideo;
 
-      context.dispatch("stopTimer");
-      context.dispatch("startTimer");
-
-      context.commit("setCapturing", { isCapturing: true });
-      context.commit("setCaptureSession", { session });
-
-      if (videoRecorder) {
-        const startRecordingResult = await videoRecorder.startRecording();
-
-        if (startRecordingResult.isFailure()) {
-          const errorMessage = context.rootGetters.message(
-            startRecordingResult.error.messageKey,
-            startRecordingResult.error.variables
-          );
-          payload.callbacks.onEnd(new Error(errorMessage));
-          return;
-        }
-
-        const recordingVideo = videoRecorder.recordingVideo;
-
-        if (recordingVideo) {
-          session.setRecordingVideo(recordingVideo);
-        }
+      if (recordingVideo) {
+        session.setRecordingVideo(recordingVideo);
       }
-    } catch (error) {
-      context.dispatch("endCapture");
     }
   },
 

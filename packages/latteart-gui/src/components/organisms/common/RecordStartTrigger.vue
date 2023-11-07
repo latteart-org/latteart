@@ -41,7 +41,6 @@ import { OperationHistoryState } from "@/store/operationHistory";
 export default class RecordStartTrigger extends Vue {
   @Prop({ type: Boolean, default: false }) public readonly initial!: boolean;
 
-  private preparingForCapture = false;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
 
@@ -51,8 +50,7 @@ export default class RecordStartTrigger extends Vue {
       this.isReplaying ||
       this.isResuming ||
       !this.urlIsValid ||
-      this.isCapturing ||
-      this.preparingForCapture
+      this.isCapturing
     );
   }
 
@@ -98,7 +96,6 @@ export default class RecordStartTrigger extends Vue {
           "start-capture-page.starting-capture"
         ),
       });
-      this.preparingForCapture = true;
 
       if (this.initial) {
         await this.resetHistory();
@@ -130,6 +127,8 @@ export default class RecordStartTrigger extends Vue {
         url: this.url,
         callbacks: {
           onEnd: async (error?: Error) => {
+            await this.$store.dispatch("closeProgressDialog");
+
             if (error) {
               this.goToHistoryView();
               throw error;
@@ -144,7 +143,6 @@ export default class RecordStartTrigger extends Vue {
         throw error;
       }
     } finally {
-      this.preparingForCapture = false;
       await this.$store.dispatch("closeProgressDialog");
     }
   }
