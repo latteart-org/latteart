@@ -22,6 +22,7 @@
       close();
     "
     @cancel="close()"
+    :acceptButtonDisabled="isOkButtonDisabled"
   >
     <template>
       <capture-option v-if="isOptionDisplayed" @update="updateOption" />
@@ -61,6 +62,19 @@ export default class CaptureOptionDialog extends Vue {
 
   private updateOption(option: CaptureOptionParams) {
     this.captureOption = option;
+  }
+
+  private get isOkButtonDisabled() {
+    return !this.captureOption.url || !this.isUrlValid;
+  }
+
+  private get isUrlValid(): boolean {
+    try {
+      new URL(this.captureOption.url);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   private execute(): void {
