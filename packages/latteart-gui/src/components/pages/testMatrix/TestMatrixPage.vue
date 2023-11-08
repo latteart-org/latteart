@@ -84,7 +84,7 @@ import { TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
 import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
 import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
-import { computed, defineComponent, onBeforeMount, ref, watch } from "vue";
+import { computed, defineComponent, onBeforeUnmount, ref, watch } from "vue";
 import { useStore } from "@/store";
 import { useRoute } from "vue-router/composables";
 
@@ -94,7 +94,7 @@ export default defineComponent({
     "tab-selector": TabSelector,
     "test-matrix-viewer": TestMatrixViewer,
   },
-  setup(props, context) {
+  setup(_, context) {
     const store = useStore();
     const route = useRoute();
 
@@ -133,7 +133,7 @@ export default defineComponent({
       context.emit("selectTestMatrix", selectedTestMatrixId.value);
     };
 
-    onBeforeMount(async () => {
+    onBeforeUnmount(async () => {
       localStorage.setItem(
         "latteart-management-selectedTestMatrixIdOnViewer",
         selectedTestMatrixId.value
@@ -142,8 +142,8 @@ export default defineComponent({
 
     watch(selectedTestMatrixId, noticeTestMatrixChanged);
 
-    const created = async () => {
-      store.dispatch("changeWindowTitle", {
+    (async () => {
+      await store.dispatch("changeWindowTitle", {
         title: store.getters.message(route.meta?.title ?? ""),
       });
 
@@ -160,7 +160,8 @@ export default defineComponent({
       if (testMatrices.value.find((tm) => tm.id === testMatrixId)) {
         selectTestMatrix(testMatrixId);
       }
-    };
+    })();
+
     return {
       store,
       selectedTestMatrixId,
