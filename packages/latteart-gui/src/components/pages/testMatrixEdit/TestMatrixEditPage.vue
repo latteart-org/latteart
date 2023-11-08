@@ -23,7 +23,7 @@
       style="height: 100%; overflow-y: scroll"
     >
       <v-btn @click="openTestMatrixDialogInCreateMode">{{
-        $store.getters.message("test-matrix-edit-page.add-test-matrix")
+        store.getters.message("test-matrix-edit-page.add-test-matrix")
       }}</v-btn>
 
       <v-container v-if="hasTestMatrix" pa-0 fluid>
@@ -55,142 +55,131 @@
       @updateTestMatrix="addNewTestMatrix"
     >
     </test-matrix-dialog>
-
-    <execute-dialog
-      :opened="editDialogOpened"
-      :title="$store.getters.message('test-matrix-edit-page.edit-viewPoint')"
-      @accept="
-        acceptEditDialog();
-        editDialogOpened = false;
-      "
-      @cancel="editDialogOpened = false"
-      :acceptButtonDisabled="editDialogValue === ''"
-    >
-      <template>
-        <v-text-field v-model="editDialogValue" class="pt-0"></v-text-field>
-      </template>
-    </execute-dialog>
-
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
 import TestMatrixDialog from "@/components/organisms/dialog/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
 import { TestMatrix } from "@/lib/testManagement/types";
-import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import TestMatrixEditor from "@/components/organisms/testMatrixEdit/TestMatrixEditor.vue";
 import TabSelector from "@/components/molecules/TabSelector.vue";
-import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import {
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  ref,
+  watch,
+  nextTick,
+} from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "test-matrix-dialog": TestMatrixDialog,
-    "execute-dialog": ExecuteDialog,
-    "confirm-dialog": ConfirmDialog,
     "test-matrix-editor": TestMatrixEditor,
     "tab-selector": TabSelector,
   },
-})
-export default class TestMatrixEditPage extends Vue {
-  private selectedTestMatrixId = "";
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private editDialogOpened = false;
-  private editDialogMessage = "";
-  private editDialogValue = "";
-  private testMatrixBeingEdited: TestMatrix | null = null;
+    const selectedTestMatrixId = ref("");
+    const testMatrixBeingEdited = ref<TestMatrix | null>(null);
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-
-  private get testMatrices(): TestMatrix[] {
-    return this.$store.getters["testManagement/getTestMatrices"]();
-  }
-
-  private get hasTestMatrix(): boolean {
-    return this.testMatrices.length >= 1;
-  }
-
-  private async created() {
-    await this.$store.dispatch("testManagement/readProject");
-
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    const testMatrices = computed((): TestMatrix[] => {
+      return store.getters["testManagement/getTestMatrices"]();
     });
 
-    this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());
-  }
+    const hasTestMatrix = computed((): boolean => {
+      return testMatrices.value.length >= 1;
+    });
 
-  @Watch("testMatrices")
-  private chantSelectedTestMatrix(
-    newTestMatrices: TestMatrix[],
-    oldTestMatrices: TestMatrix[]
-  ) {
-    if (oldTestMatrices.length > newTestMatrices.length) {
-      this.$nextTick(() => {
-        this.selectTestMatrix(this.readTestMatrixIdFromLocalStorage());
-      });
-    }
-  }
-
-  private beforeDestroy() {
-    localStorage.setItem(
-      "latteart-management-selectedTestMatrixIdOnEditor",
-      this.selectedTestMatrixId
-    );
-  }
-
-  private selectTestMatrix(selectTestMatrixId: string): void {
-    this.selectedTestMatrixId = selectTestMatrixId;
-  }
-
-  private openTestMatrixDialogInCreateMode(): void {
-    this.testMatrixBeingEdited = {
-      name: "",
-      id: "",
-      index: 0,
-      groups: [],
-      viewPoints: [],
+    const selectTestMatrix = (selectTestMatrixId: string): void => {
+      selectedTestMatrixId.value = selectTestMatrixId;
     };
-  }
 
-  private closeTestMatrixDialog(): void {
-    this.testMatrixBeingEdited = null;
-  }
+    const chantSelectedTestMatrix = (
+      newTestMatrices: TestMatrix[],
+      oldTestMatrices: TestMatrix[]
+    ) => {
+      if (oldTestMatrices.length > newTestMatrices.length) {
+        nextTick(() => {
+          selectTestMatrix(readTestMatrixIdFromLocalStorage());
+        });
+      }
+    };
 
-  private async addNewTestMatrix(obj: UpdateTestMatrixObject): Promise<void> {
+    const openTestMatrixDialogInCreateMode = (): void => {
+      testMatrixBeingEdited.value = {
+        name: "",
+        id: "",
+        index: 0,
+        groups: [],
+        viewPoints: [],
+      };
+    };
+
+    const closeTestMatrixDialog = (): void => {
+      testMatrixBeingEdited.value = null;
+    };
+
+    const addNewTestMatrix = async (
+      obj: UpdateTestMatrixObject
+    ): Promise<void> => {
+      (async () => {
+        await store.dispatch("testManagement/addNewTestMatrix", {
+          name: obj.testMatrix.name,
+          viewPoints: obj.viewPoints,
+        });
+        selectTestMatrix(testMatrices.value[testMatrices.value.length - 1].id);
+      })();
+    };
+
+    const readTestMatrixIdFromLocalStorage = (): string => {
+      const testMatrixId =
+        localStorage.getItem(
+          "latteart-management-selectedTestMatrixIdOnEditor"
+        ) ??
+        testMatrices.value[0]?.id ??
+        "";
+
+      return testMatrices.value.find((tm) => tm.id === testMatrixId)
+        ? testMatrixId
+        : testMatrices.value[0]?.id;
+    };
+
+    onBeforeUnmount(async () => {
+      localStorage.setItem(
+        "latteart-management-selectedTestMatrixIdOnEditor",
+        selectedTestMatrixId.value
+      );
+    });
+
+    watch(testMatrices, chantSelectedTestMatrix);
+
     (async () => {
-      await this.$store.dispatch("testManagement/addNewTestMatrix", {
-        name: obj.testMatrix.name,
-        viewPoints: obj.viewPoints,
+      await store.dispatch("testManagement/readProject");
+
+      await store.dispatch("changeWindowTitle", {
+        title: store.getters.message(route.meta?.title ?? ""),
       });
-      this.selectTestMatrix(this.testMatrices[this.testMatrices.length - 1].id);
+
+      selectTestMatrix(readTestMatrixIdFromLocalStorage());
     })();
-  }
 
-  private readTestMatrixIdFromLocalStorage() {
-    const testMatrixId =
-      localStorage.getItem(
-        "latteart-management-selectedTestMatrixIdOnEditor"
-      ) ??
-      this.testMatrices[0]?.id ??
-      "";
-
-    return this.testMatrices.find((tm) => tm.id === testMatrixId)
-      ? testMatrixId
-      : this.testMatrices[0]?.id;
-  }
-}
+    return {
+      store,
+      selectedTestMatrixId,
+      testMatrixBeingEdited,
+      testMatrices,
+      hasTestMatrix,
+      selectTestMatrix,
+      openTestMatrixDialogInCreateMode,
+      closeTestMatrixDialog,
+      addNewTestMatrix,
+    };
+  },
+});
 </script>
