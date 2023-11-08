@@ -112,12 +112,7 @@ export default class BrowserOperationCapturer {
       await browser.open(url);
       onStart();
     } catch (error) {
-      if (error instanceof Error) {
-        this.onError(error);
-        this.onBrowserClosed();
-
-        return;
-      }
+      await browser.close();
       throw error;
     }
 
