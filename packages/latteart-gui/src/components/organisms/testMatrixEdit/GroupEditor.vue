@@ -115,7 +115,7 @@
         ><v-text-field
           :id="`newTestTargetNameTextField${group.id}`"
           v-model="newTestTargetName"
-          :label="this.$store.getters.message('group-edit-info.target')"
+          :label="store.getters.message('group-edit-info.target')"
           height="24"
         ></v-text-field
       ></v-col>
@@ -125,7 +125,7 @@
           small
           @click="addNewTestTarget"
           v-bind:disabled="newTestTargetName === ''"
-          >{{ $store.getters.message("group-edit-info.add") }}</v-btn
+          >{{ store.getters.message("group-edit-info.add") }}</v-btn
         ></v-col
       >
     </v-row>
@@ -149,231 +149,259 @@ import {
   ViewPoint,
 } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-import { Component, Vue, Prop } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    testMatrixId: { type: String, default: "", required: true },
+    groupId: { type: String, default: "", required: true },
+  },
   components: {
     "number-field": NumberField,
     "confirm-dialog": ConfirmDialog,
     "fixed-data-table": FixedDataTable,
     "label-with-tooltip": LabelWithTooltip,
   },
-})
-export default class GroupEditor extends Vue {
-  @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
-  @Prop({ type: String, default: "" }) public readonly groupId!: string;
+  setup(props) {
+    const store = useStore();
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
+    const confirmDialogOpened = ref(false);
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAccept = ref(() => {
+      /* Do nothing */
+    });
 
-  private options = {
-    itemsPerPage: -1,
-  };
+    const options = ref({ itemsPerPage: -1 });
 
-  private newTestTargetName = "";
+    const newTestTargetName = ref("");
 
-  private get group(): Group | undefined {
-    return this.$store.getters["testManagement/findGroup"](
-      this.testMatrixId,
-      this.groupId
+    const group = computed((): Group | undefined => {
+      return store.getters["testManagement/findGroup"](
+        props.testMatrixId,
+        props.groupId
+      );
+    });
+
+    const viewPoints = computed((): ViewPoint[] => {
+      const testMatrix: TestMatrix | undefined = store.getters[
+        "testManagement/findTestMatrix"
+      ](props.testMatrixId, props.groupId);
+
+      return testMatrix?.viewPoints ?? [];
+    });
+
+    const headers = computed(
+      (): {
+        value?: string;
+        align?: string;
+        sortable?: boolean;
+        class?: string[];
+        text?: string;
+        description?: string;
+        width?: string;
+      }[] => {
+        const headers = [];
+
+        headers.push({
+          value: "delete",
+          align: "center",
+          sortable: false,
+          class: ["text-xs-center", "py-1"],
+        });
+
+        headers.push({
+          value: "name",
+          align: "center",
+          sortable: false,
+          text: store.getters.message("group-edit-info.target"),
+          class: ["text-xs-center", "py-1"],
+          width: "250",
+        });
+
+        viewPoints.value.forEach((viewPoint: ViewPoint) => {
+          headers.push({
+            text: viewPoint.name,
+            tooltip: viewPoint.description,
+            value: viewPoint.id,
+            sortable: false,
+            align: "center",
+            width: "180",
+            class: ["text-xs-center", "py-1", "ellipsis_short"],
+          });
+        });
+        return headers;
+      }
     );
-  }
 
-  private get viewPoints(): ViewPoint[] {
-    const testMatrix: TestMatrix | undefined = this.$store.getters[
-      "testManagement/findTestMatrix"
-    ](this.testMatrixId, this.groupId);
+    const items = computed((): { [key: string]: string | number }[] => {
+      if (!group.value) {
+        return [];
+      }
 
-    return testMatrix?.viewPoints ?? [];
-  }
+      return group.value.testTargets.map((testTarget: TestTarget) => {
+        const item: { [key: string]: string | number } = {
+          name: testTarget.name,
+          id: testTarget.id,
+        };
 
-  private get headers(): {
-    value?: string;
-    align?: string;
-    sortable?: boolean;
-    class?: string[];
-    text?: string;
-    description?: string;
-    width?: string;
-  }[] {
-    const headers = [];
+        testTarget.plans.forEach((plan: Plan) => {
+          item[plan.viewPointId] = plan.value;
+        });
 
-    headers.push({
-      value: "delete",
-      align: "center",
-      sortable: false,
-      class: ["text-xs-center", "py-1"],
-    });
-
-    headers.push({
-      value: "name",
-      align: "center",
-      sortable: false,
-      text: this.$store.getters.message("group-edit-info.target"),
-      class: ["text-xs-center", "py-1"],
-      width: "250",
-    });
-
-    this.viewPoints.forEach((viewPoint: ViewPoint) => {
-      headers.push({
-        text: viewPoint.name,
-        tooltip: viewPoint.description,
-        value: viewPoint.id,
-        sortable: false,
-        align: "center",
-        width: "180",
-        class: ["text-xs-center", "py-1", "ellipsis_short"],
+        return item;
       });
     });
-    return headers;
-  }
 
-  private get items(): { [key: string]: string | number }[] {
-    if (!this.group) {
-      return [];
-    }
-
-    return this.group.testTargets.map((testTarget: TestTarget) => {
-      const item: { [key: string]: string | number } = {
-        name: testTarget.name,
-        id: testTarget.id,
+    const openConfirmDialogToDeleteTestTarget = (
+      testTargetId: string
+    ): void => {
+      confirmDialogTitle.value = store.getters.message(
+        "group-edit-info.delete-target-confirm"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "common.delete-warning"
+      );
+      confirmDialogAccept.value = () => {
+        store.dispatch("testManagement/deleteTestTarget", {
+          testMatrixId: props.testMatrixId,
+          groupId: props.groupId,
+          testTargetId: testTargetId,
+        });
       };
 
-      testTarget.plans.forEach((plan: Plan) => {
-        item[plan.viewPointId] = plan.value;
+      confirmDialogOpened.value = true;
+    };
+
+    const addNewTestTarget = async (): Promise<void> => {
+      await store.dispatch("testManagement/addNewTestTarget", {
+        testMatrixId: props.testMatrixId,
+        groupId: props.groupId,
+        testTargetName: newTestTargetName.value,
       });
 
-      return item;
-    });
-  }
+      newTestTargetName.value = "";
+    };
 
-  private openConfirmDialogToDeleteTestTarget(testTargetId: string): void {
-    this.confirmDialogTitle = this.$store.getters.message(
-      "group-edit-info.delete-target-confirm"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
-    );
-    this.confirmDialogAccept = () => {
-      this.$store.dispatch("testManagement/deleteTestTarget", {
-        testMatrixId: this.testMatrixId,
-        groupId: this.groupId,
-        testTargetId: testTargetId,
+    const spinButtonToChangeOrderIsDisabled = (
+      testTargetId: string,
+      type: "up" | "down"
+    ): boolean => {
+      if (!group.value) {
+        return false;
+      }
+
+      const index = group.value.testTargets.findIndex(
+        (testTarget: TestTarget) => {
+          return testTarget.id === testTargetId;
+        }
+      );
+
+      if (index === -1) {
+        return false;
+      }
+
+      if (type === "up") {
+        return index === 0;
+      } else {
+        return index === group.value.testTargets.length - 1;
+      }
+    };
+
+    const changeTestTargetOrder = async (
+      testTargetId: string,
+      type: "up" | "down"
+    ) => {
+      if (!group.value) {
+        return;
+      }
+      const index = group.value.testTargets.findIndex(
+        (testTarget) => testTarget.id === testTargetId
+      );
+
+      const t1 = group.value.testTargets[index];
+      const t2 = group.value.testTargets[type === "up" ? index - 1 : index + 1];
+
+      await store.dispatch("testManagement/updateTestTargets", {
+        testMatrixId: props.testMatrixId,
+        groupId: props.groupId,
+        testTargets: [
+          { id: t1.id, index: type === "up" ? t1.index - 1 : t1.index + 1 },
+          { id: t2.id, index: type === "up" ? t2.index + 1 : t1.index - 1 },
+        ],
       });
     };
 
-    this.confirmDialogOpened = true;
-  }
-
-  private async addNewTestTarget(): Promise<void> {
-    await this.$store.dispatch("testManagement/addNewTestTarget", {
-      testMatrixId: this.testMatrixId,
-      groupId: this.groupId,
-      testTargetName: this.newTestTargetName,
-    });
-
-    this.newTestTargetName = "";
-  }
-
-  private spinButtonToChangeOrderIsDisabled(
-    testTargetId: string,
-    type: "up" | "down"
-  ): boolean {
-    if (!this.group) {
-      return false;
-    }
-
-    const index = this.group.testTargets.findIndex((testTarget: TestTarget) => {
-      return testTarget.id === testTargetId;
-    });
-
-    if (index === -1) {
-      return false;
-    }
-
-    if (type === "up") {
-      return index === 0;
-    } else {
-      return index === this.group.testTargets.length - 1;
-    }
-  }
-
-  private async changeTestTargetOrder(
-    testTargetId: string,
-    type: "up" | "down"
-  ) {
-    if (!this.group) {
-      return;
-    }
-    const index = this.group.testTargets.findIndex(
-      (testTarget) => testTarget.id === testTargetId
-    );
-
-    const t1 = this.group.testTargets[index];
-    const t2 = this.group.testTargets[type === "up" ? index - 1 : index + 1];
-
-    await this.$store.dispatch("testManagement/updateTestTargets", {
-      testMatrixId: this.testMatrixId,
-      groupId: this.groupId,
-      testTargets: [
-        { id: t1.id, index: type === "up" ? t1.index - 1 : t1.index + 1 },
-        { id: t2.id, index: type === "up" ? t2.index + 1 : t1.index - 1 },
-      ],
-    });
-  }
-
-  private async renameTestTarget(
-    testTargetName: string,
-    testTargetId: string
-  ): Promise<void> {
-    await this.$store.dispatch("testManagement/updateTestTargets", {
-      testMatrixId: this.testMatrixId,
-      groupId: this.groupId,
-      testTargets: [{ id: testTargetId, name: testTargetName }],
-    });
-  }
-
-  private updatePlan(args: {
-    testTargetId: string;
-    viewPointId: string;
-    newValue: number;
-  }): void {
-    (async () => {
-      const newPlans = this.group?.testTargets
-        .find((testTarget) => testTarget.id === args.testTargetId)
-        ?.plans.map((plan) => {
-          if (plan.viewPointId !== args.viewPointId) {
-            return plan;
-          }
-
-          return {
-            viewPointId: plan.viewPointId,
-            value: args.newValue,
-          };
-        });
-
-      if (!newPlans) {
-        return;
-      }
-
-      await this.$store.dispatch("testManagement/updateTestTargets", {
-        testMatrixId: this.testMatrixId,
-        groupId: this.groupId,
-        testTargets: [
-          {
-            id: args.testTargetId,
-            plans: newPlans,
-          },
-        ],
+    const renameTestTarget = async (
+      testTargetName: string,
+      testTargetId: string
+    ): Promise<void> => {
+      await store.dispatch("testManagement/updateTestTargets", {
+        testMatrixId: props.testMatrixId,
+        groupId: props.groupId,
+        testTargets: [{ id: testTargetId, name: testTargetName }],
       });
-    })();
-  }
-}
+    };
+
+    const updatePlan = (args: {
+      testTargetId: string;
+      viewPointId: string;
+      newValue: number;
+    }): void => {
+      (async () => {
+        const newPlans = group.value?.testTargets
+          .find((testTarget) => testTarget.id === args.testTargetId)
+          ?.plans.map((plan) => {
+            if (plan.viewPointId !== args.viewPointId) {
+              return plan;
+            }
+
+            return {
+              viewPointId: plan.viewPointId,
+              value: args.newValue,
+            };
+          });
+
+        if (!newPlans) {
+          return;
+        }
+
+        await store.dispatch("testManagement/updateTestTargets", {
+          testMatrixId: props.testMatrixId,
+          groupId: props.groupId,
+          testTargets: [
+            {
+              id: args.testTargetId,
+              plans: newPlans,
+            },
+          ],
+        });
+      })();
+    };
+
+    return {
+      store,
+      confirmDialogOpened,
+      confirmDialogTitle,
+      confirmDialogMessage,
+      confirmDialogAccept,
+      options,
+      newTestTargetName,
+      group,
+      viewPoints,
+      headers,
+      items,
+      openConfirmDialogToDeleteTestTarget,
+      addNewTestTarget,
+      spinButtonToChangeOrderIsDisabled,
+      changeTestTargetOrder,
+      renameTestTarget,
+      updatePlan,
+    };
+  },
+});
 </script>

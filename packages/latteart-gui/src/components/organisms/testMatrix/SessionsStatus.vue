@@ -18,7 +18,7 @@
   <v-card class="py-0 my-3" @click="toStory">
     <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
       <p class="card-center">
-        {{ $store.getters.message(`test-matrix-page.status-${status}`) }}
+        {{ store.getters.message(`test-matrix-page.status-${status}`) }}
       </p>
     </v-card-title>
     <v-divider light></v-divider>
@@ -29,62 +29,78 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import { Story, Session } from "@/lib/testManagement/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import { useRouter } from "vue-router/composables";
 
-@Component({
-  components: {},
-})
-export default class SessionsStatus extends Vue {
-  @Prop({ type: Number, default: -1 }) public readonly plan!: number;
-  @Prop({ type: String, default: "" }) public readonly id!: string;
+export default defineComponent({
+  props: {
+    plan: { type: Number, default: -1, required: true },
+    id: { type: String, default: "", required: true },
+  },
+  setup(props) {
+    const store = useStore();
+    const router = useRouter();
 
-  public get story(): Story {
-    return this.$store.getters["testManagement/findStory"](this.id);
-  }
-  public get cardStyle(): "" | "status-fine" | "status-ng" | "status-warn" {
-    switch (this.status) {
-      case CHARTER_STATUS.OUT_OF_SCOPE.id:
-      case CHARTER_STATUS.OK.id:
-        return "status-fine";
-      case CHARTER_STATUS.NG.id:
-        return "status-ng";
-      case CHARTER_STATUS.ONGOING.id:
-      case CHARTER_STATUS.PENDING.id:
-        return "status-warn";
-    }
-    return "";
-  }
+    const story = computed((): Story => {
+      return store.getters["testManagement/findStory"](props.id);
+    });
 
-  public get status(): any {
-    if (this.story) {
-      return this.story.status;
-    }
-
-    return CHARTER_STATUS.OUT_OF_SCOPE.id;
-  }
-
-  public get done(): number {
-    if (!this.story) {
-      return 0;
-    }
-    let doneNum = 0;
-    this.story.sessions.forEach((session: Session) => {
-      if (session.isDone) {
-        doneNum++;
+    const cardStyle = computed(
+      (): "" | "status-fine" | "status-ng" | "status-warn" => {
+        switch (status.value) {
+          case CHARTER_STATUS.OUT_OF_SCOPE.id:
+          case CHARTER_STATUS.OK.id:
+            return "status-fine";
+          case CHARTER_STATUS.NG.id:
+            return "status-ng";
+          case CHARTER_STATUS.ONGOING.id:
+          case CHARTER_STATUS.PENDING.id:
+            return "status-warn";
+        }
+        return "";
       }
-    });
-    return doneNum;
-  }
+    );
 
-  public toStory(): void {
-    this.$router.push({
-      name: "storyPage",
-      params: { id: this.id },
+    const status = computed(() => {
+      if (story.value) {
+        return story.value.status;
+      }
+
+      return CHARTER_STATUS.OUT_OF_SCOPE.id;
     });
-  }
-}
+
+    const done = computed((): number => {
+      if (!story.value) {
+        return 0;
+      }
+      let doneNum = 0;
+      story.value.sessions.forEach((session: Session) => {
+        if (session.isDone) {
+          doneNum++;
+        }
+      });
+      return doneNum;
+    });
+
+    const toStory = (): void => {
+      router.push({
+        name: "storyPage",
+        params: { id: props.id },
+      });
+    };
+
+    return {
+      store,
+      cardStyle,
+      status,
+      done,
+      toStory,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

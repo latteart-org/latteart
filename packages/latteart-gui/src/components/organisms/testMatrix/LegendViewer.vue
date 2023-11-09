@@ -34,54 +34,65 @@
     </div>
 
     <div class="manage-show-legend mt-4">
-      {{ $store.getters.message("test-matrix-page.legend1") }}<br />
-      {{ $store.getters.message("test-matrix-page.legend2") }}<br />
-      {{ $store.getters.message("test-matrix-page.legend3") }}<br />
+      {{ store.getters.message("test-matrix-page.legend1") }}<br />
+      {{ store.getters.message("test-matrix-page.legend2") }}<br />
+      {{ store.getters.message("test-matrix-page.legend3") }}<br />
     </div>
   </v-row>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class LegendViewer extends Vue {
-  private get legendInfos(): {
-    status: string;
-    text: string;
-    class: string;
-  }[] {
-    return [
-      {
-        status: this.$store.getters.message("test-matrix-page.status-ok"),
-        text: this.$store.getters.message("test-matrix-page.text-ok"),
-        class: "status-fine",
-      },
-      {
-        status: this.$store.getters.message(
-          "test-matrix-page.status-out-of-scope"
-        ),
-        text: this.$store.getters.message("test-matrix-page.text-out-of-scope"),
-        class: "status-fine",
-      },
-      {
-        status: this.$store.getters.message("test-matrix-page.status-ng"),
-        text: this.$store.getters.message("test-matrix-page.text-ng"),
-        class: "status-ng",
-      },
-      {
-        status: this.$store.getters.message("test-matrix-page.status-ongoing"),
-        text: this.$store.getters.message("test-matrix-page.text-ongoing"),
-        class: "status-warn",
-      },
-      {
-        status: this.$store.getters.message("test-matrix-page.status-pending"),
-        text: this.$store.getters.message("test-matrix-page.text-pending"),
-        class: "status-warn",
-      },
-    ];
-  }
-}
+export default defineComponent({
+  setup() {
+    const store = useStore();
+
+    const legendInfos = computed(
+      (): {
+        status: string;
+        text: string;
+        class: string;
+      }[] => {
+        return [
+          {
+            status: store.getters.message("test-matrix-page.status-ok"),
+            text: store.getters.message("test-matrix-page.text-ok"),
+            class: "status-fine",
+          },
+          {
+            status: store.getters.message(
+              "test-matrix-page.status-out-of-scope"
+            ),
+            text: store.getters.message("test-matrix-page.text-out-of-scope"),
+            class: "status-fine",
+          },
+          {
+            status: store.getters.message("test-matrix-page.status-ng"),
+            text: store.getters.message("test-matrix-page.text-ng"),
+            class: "status-ng",
+          },
+          {
+            status: store.getters.message("test-matrix-page.status-ongoing"),
+            text: store.getters.message("test-matrix-page.text-ongoing"),
+            class: "status-warn",
+          },
+          {
+            status: store.getters.message("test-matrix-page.status-pending"),
+            text: store.getters.message("test-matrix-page.text-pending"),
+            class: "status-warn",
+          },
+        ];
+      }
+    );
+
+    return {
+      store,
+      legendInfos,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

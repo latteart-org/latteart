@@ -69,7 +69,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import SessionsStatus from "./SessionsStatus.vue";
 import {
   Group,
@@ -81,129 +80,147 @@ import {
 } from "@/lib/testManagement/types";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    group: { type: Object as PropType<Group>, default: {}, required: true },
+    viewPoints: {
+      type: Array as PropType<ViewPoint[]>,
+      default: [],
+      required: true,
+    },
+    testMatrixId: { type: String, default: "", required: true },
+  },
   components: {
     "sessions-status": SessionsStatus,
     "fixed-data-table": FixedDataTable,
     "label-with-tooltip": LabelWithTooltip,
   },
-})
-export default class GroupViewer extends Vue {
-  @Prop({ type: Object, default: {} }) public readonly group!: Group;
-  @Prop({ type: Array, default: [] }) public readonly viewPoints!: ViewPoint[];
-  @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
+  setup(props) {
+    const store = useStore();
 
-  private get headers(): any[] {
-    const headers: any = [];
-    headers.push({
-      value: "name",
-      sortable: false,
-      text: this.$store.getters.message("group-info.target"),
-      align: "center",
-      width: "200",
-    });
-    this.viewPoints.forEach((viewPoint: ViewPoint) => {
+    const options = ref({ itemsPerPage: -1 });
+
+    const headers = computed(() => {
+      const headers = [];
       headers.push({
-        text: viewPoint.name,
-        tooltip: viewPoint.description,
-        value: viewPoint.id,
+        value: "name",
         sortable: false,
+        text: store.getters.message("group-info.target"),
         align: "center",
-        width: "150",
-        class: "ellipsis_short",
+        width: "200",
       });
+      props.viewPoints.forEach((viewPoint: ViewPoint) => {
+        headers.push({
+          text: viewPoint.name,
+          tooltip: viewPoint.description,
+          value: viewPoint.id,
+          sortable: false,
+          align: "center",
+          width: "150",
+          class: "ellipsis_short",
+        });
+      });
+      return headers;
     });
-    return headers;
-  }
 
-  private options: any = {
-    itemsPerPage: -1,
-  };
-
-  private get items(): any[] {
-    const items: any[] = [];
-    this.group.testTargets.forEach((testTarget: TestTarget) => {
-      const item: any = {
-        name: testTarget.name,
-        id: testTarget.id,
-      };
-      testTarget.plans.forEach((plan: Plan) => {
-        item[plan.viewPointId] = Number(plan.value);
+    const items = computed(() => {
+      const items: any[] = [];
+      props.group.testTargets.forEach((testTarget: TestTarget) => {
+        const item: any = {
+          name: testTarget.name,
+          id: testTarget.id,
+        };
+        testTarget.plans.forEach((plan: Plan) => {
+          item[plan.viewPointId] = Number(plan.value);
+        });
+        items.push(item);
       });
-      items.push(item);
+      return items;
     });
-    return items;
-  }
 
-  private getTestTarget(item: any): TestTarget {
-    const targetTestTarget = this.group.testTargets.find(
-      (testTarget: TestTarget) => {
-        return item.id === testTarget.id;
-      }
-    );
-    if (!targetTestTarget) {
-      return {
-        id: "",
-        name: "",
-        index: 0,
-        plans: [],
-      };
-    }
-    return targetTestTarget;
-  }
-
-  private getNameText(item: any): string {
-    return this.getTestTarget(item).name;
-  }
-
-  private getDoneAndPlan(item: any): string {
-    let planNum = 0;
-    let done = 0;
-    const targetTestTarget = this.getTestTarget(item);
-    if (!targetTestTarget) {
-      return done + " / " + planNum;
-    }
-    targetTestTarget.plans.forEach((plan: Plan) => {
-      planNum += Number(plan.value);
-
-      const targetStory = this.findStory({
-        testMatrixId: this.testMatrixId,
-        testTargetId: targetTestTarget.id,
-        viewPointId: plan.viewPointId,
-      });
-
-      if (!targetStory) {
-        return;
-      }
-
-      targetStory.sessions.forEach((session: Session) => {
-        if (session.isDone) {
-          done++;
+    const getTestTarget = (item: any): TestTarget => {
+      const targetTestTarget = props.group.testTargets.find(
+        (testTarget: TestTarget) => {
+          return item.id === testTarget.id;
         }
+      );
+      if (!targetTestTarget) {
+        return {
+          id: "",
+          name: "",
+          index: 0,
+          plans: [],
+        };
+      }
+      return targetTestTarget;
+    };
+
+    const getNameText = (item: any): string => {
+      return getTestTarget(item).name;
+    };
+
+    const getDoneAndPlan = (item: any): string => {
+      let planNum = 0;
+      let done = 0;
+      const targetTestTarget = getTestTarget(item);
+      if (!targetTestTarget) {
+        return done + " / " + planNum;
+      }
+      targetTestTarget.plans.forEach((plan: Plan) => {
+        planNum += Number(plan.value);
+
+        const targetStory = findStory({
+          testMatrixId: props.testMatrixId,
+          testTargetId: targetTestTarget.id,
+          viewPointId: plan.viewPointId,
+        });
+
+        if (!targetStory) {
+          return;
+        }
+
+        targetStory.sessions.forEach((session: Session) => {
+          if (session.isDone) {
+            done++;
+          }
+        });
       });
-    });
-    return done + " / " + planNum;
-  }
+      return done + " / " + planNum;
+    };
 
-  private findStory(key: {
-    testMatrixId: string;
-    testTargetId: string;
-    viewPointId: string;
-  }): Story | undefined {
-    return this.$store.getters[
-      "testManagement/findStoryByTestTargetAndViewPointId"
-    ](key.testTargetId, key.viewPointId, key.testMatrixId);
-  }
+    const findStory = (key: {
+      testMatrixId: string;
+      testTargetId: string;
+      viewPointId: string;
+    }): Story | undefined => {
+      return store.getters[
+        "testManagement/findStoryByTestTargetAndViewPointId"
+      ](key.testTargetId, key.viewPointId, key.testMatrixId);
+    };
 
-  private findStoryId(key: {
-    testMatrixId: string;
-    testTargetId: string;
-    viewPointId: string;
-  }): string {
-    return this.findStory(key)?.id ?? "";
-  }
-}
+    const findStoryId = (key: {
+      testMatrixId: string;
+      testTargetId: string;
+      viewPointId: string;
+    }): string => {
+      return findStory(key)?.id ?? "";
+    };
+
+    return {
+      store,
+      options,
+      headers,
+      items,
+      getNameText,
+      getDoneAndPlan,
+      findStoryId,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
