@@ -118,142 +118,163 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { TestMatrix } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import TestMatrixDialog from "../dialog/TestMatrixDialog.vue";
 import { UpdateTestMatrixObject } from "./ManageEditTypes";
 import GroupEditor from "./GroupEditor.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    testMatrixId: { type: String, default: "", required: true },
+  },
   components: {
     "group-editor": GroupEditor,
     "test-matrix-dialog": TestMatrixDialog,
     "confirm-dialog": ConfirmDialog,
   },
-})
-export default class TestMatrixEditor extends Vue {
-  @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
+  setup(props) {
+    const store = useStore();
 
-  private testMatrixBeingEdited: TestMatrix | null = null;
+    const testMatrixBeingEdited = ref<TestMatrix | null>(null);
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept = () => {
-    /* Do nothing */
-  };
+    const confirmDialogOpened = ref(false);
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAccept = ref(() => {
+      /* Do nothing */
+    });
 
-  private expandedPanelIndex: number | undefined | null = null;
+    const expandedPanelIndex = ref<number | undefined | null>(null);
 
-  private groupName: string = "";
+    const groupName = ref("");
 
-  private get expandedGroupPanelIndexKey(): string {
-    return `latteart-management-expandedEditorGroupPanelIndex_${this.testMatrixId}`;
-  }
+    const expandedGroupPanelIndexKey = computed((): string => {
+      return `latteart-management-expandedEditorGroupPanelIndex_${props.testMatrixId}`;
+    });
 
-  created(): void {
-    this.initializePanels();
-  }
+    const testMatrix = computed((): TestMatrix | undefined => {
+      return store.getters["testManagement/findTestMatrix"](props.testMatrixId);
+    });
 
-  @Watch("testMatrixId")
-  private initializePanels() {
-    const index = this.getSavedExpandedPanelIndex();
+    const initializePanels = () => {
+      const index = getSavedExpandedPanelIndex();
 
-    this.expandedPanelIndex = -1;
+      expandedPanelIndex.value = -1;
 
-    setTimeout(() => {
-      if (!index || !this.testMatrix?.groups) {
-        this.expandedPanelIndex = 0;
-      } else if (this.testMatrix.groups.length > index) {
-        this.expandedPanelIndex = index;
-      } else {
-        this.expandedPanelIndex = 0;
+      setTimeout(() => {
+        if (!index || !testMatrix.value?.groups) {
+          expandedPanelIndex.value = 0;
+        } else if (testMatrix.value.groups.length > index) {
+          expandedPanelIndex.value = index;
+        } else {
+          expandedPanelIndex.value = 0;
+        }
+      }, 100);
+    };
+
+    const saveExpandedPanelIndex = (value: number | null | undefined) => {
+      if (value === null || value === undefined) {
+        localStorage.removeItem(expandedGroupPanelIndexKey.value);
+        return;
       }
-    }, 100);
-  }
 
-  @Watch("expandedPanelIndex")
-  private saveExpandedPanelIndex(value: number | null | undefined) {
-    if (value === null || value === undefined) {
-      localStorage.removeItem(this.expandedGroupPanelIndexKey);
-      return;
-    }
+      localStorage.setItem(expandedGroupPanelIndexKey.value, value.toString());
+    };
 
-    localStorage.setItem(this.expandedGroupPanelIndexKey, value.toString());
-  }
+    const getSavedExpandedPanelIndex = (): number | undefined => {
+      const item = localStorage.getItem(expandedGroupPanelIndexKey.value);
 
-  private getSavedExpandedPanelIndex(): number | undefined {
-    const item = localStorage.getItem(this.expandedGroupPanelIndexKey);
+      if (item === null) {
+        return undefined;
+      }
 
-    if (item === null) {
-      return undefined;
-    }
+      return parseInt(item, 10);
+    };
 
-    return parseInt(item, 10);
-  }
+    const openConfirmDialogToDeleteTestMatrix = () => {
+      confirmDialogTitle.value = store.getters.message(
+        "test-matrix-edit-page.delete-test-matrix-confirm"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "common.delete-warning"
+      );
+      confirmDialogAccept.value = () => {
+        store.dispatch("testManagement/deleteTestMatrix", {
+          testMatrixId: props.testMatrixId,
+        });
+      };
 
-  private get testMatrix(): TestMatrix | undefined {
-    return this.$store.getters["testManagement/findTestMatrix"](
-      this.testMatrixId
-    );
-  }
+      confirmDialogOpened.value = true;
+    };
 
-  private openConfirmDialogToDeleteTestMatrix() {
-    this.confirmDialogTitle = this.$store.getters.message(
-      "test-matrix-edit-page.delete-test-matrix-confirm"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
-    );
-    this.confirmDialogAccept = () => {
-      this.$store.dispatch("testManagement/deleteTestMatrix", {
-        testMatrixId: this.testMatrixId,
+    const updateTestMatrix = async (
+      obj: UpdateTestMatrixObject
+    ): Promise<void> => {
+      store.dispatch("testManagement/updateTestMatrix", {
+        id: obj.testMatrix.id,
+        name: obj.testMatrix.name,
+        viewPoints: obj.viewPoints,
       });
     };
 
-    this.confirmDialogOpened = true;
-  }
+    const openConfirmDialogToDeleteGroup = (groupId: string): void => {
+      confirmDialogTitle.value = store.getters.message(
+        "group-edit-list.delete-group-confirm"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "common.delete-warning"
+      );
+      confirmDialogAccept.value = () => {
+        store.dispatch("testManagement/deleteGroup", {
+          testMatrixId: props.testMatrixId,
+          groupId,
+        });
+      };
 
-  private async updateTestMatrix(obj: UpdateTestMatrixObject): Promise<void> {
-    this.$store.dispatch("testManagement/updateTestMatrix", {
-      id: obj.testMatrix.id,
-      name: obj.testMatrix.name,
-      viewPoints: obj.viewPoints,
-    });
-  }
+      confirmDialogOpened.value = true;
+    };
 
-  private openConfirmDialogToDeleteGroup(groupId: string): void {
-    this.confirmDialogTitle = this.$store.getters.message(
-      "group-edit-list.delete-group-confirm"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
-    );
-    this.confirmDialogAccept = () => {
-      this.$store.dispatch("testManagement/deleteGroup", {
-        testMatrixId: this.testMatrixId,
-        groupId,
+    const addNewGroup = async (): Promise<void> => {
+      await store.dispatch("testManagement/addNewGroup", {
+        testMatrixId: props.testMatrixId,
+        groupName: groupName.value,
+      });
+      groupName.value = "";
+    };
+
+    const renameGroup = (id: string, name: string): void => {
+      store.dispatch("testManagement/updateGroup", {
+        testMatrixId: props.testMatrixId,
+        groupId: id,
+        name,
       });
     };
 
-    this.confirmDialogOpened = true;
-  }
+    const { testMatrixId } = toRefs(props);
+    watch(testMatrixId, initializePanels);
+    watch(expandedPanelIndex, saveExpandedPanelIndex);
 
-  private async addNewGroup(): Promise<void> {
-    await this.$store.dispatch("testManagement/addNewGroup", {
-      testMatrixId: this.testMatrixId,
-      groupName: this.groupName,
-    });
-    this.groupName = "";
-  }
+    initializePanels();
 
-  private renameGroup(id: string, name: string): void {
-    this.$store.dispatch("testManagement/updateGroup", {
-      testMatrixId: this.testMatrixId,
-      groupId: id,
-      name,
-    });
-  }
-}
+    return {
+      store,
+      testMatrixBeingEdited,
+      confirmDialogOpened,
+      confirmDialogTitle,
+      confirmDialogMessage,
+      confirmDialogAccept,
+      expandedPanelIndex,
+      groupName,
+      testMatrix,
+      openConfirmDialogToDeleteTestMatrix,
+      updateTestMatrix,
+      openConfirmDialogToDeleteGroup,
+      addNewGroup,
+      renameGroup,
+    };
+  },
+});
 </script>

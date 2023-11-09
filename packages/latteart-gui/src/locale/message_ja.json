@@ -540,7 +540,6 @@
   },
   "test-matrix-edit-page": {
     "title": "テストマトリクス編集",
-    "edit-viewPoint": "テスト観点名変更",
     "add-test-matrix": "テストマトリクスを追加",
     "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
     "settings": "設定"

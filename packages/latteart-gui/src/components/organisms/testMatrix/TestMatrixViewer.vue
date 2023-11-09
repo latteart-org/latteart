@@ -46,150 +46,158 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import GroupViewer from "./GroupViewer.vue";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    testMatrixId: { type: String, default: "", required: true },
+    search: { type: String, default: "", required: false },
+    completionFilter: { type: Boolean, default: false, required: true },
+  },
   components: {
     "group-viewer": GroupViewer,
   },
-})
-export default class TestMatrixViewer extends Vue {
-  @Prop({ type: String, default: "" }) public readonly testMatrixId!: string;
-  @Prop({ type: String, default: "" }) public readonly search!: string;
-  @Prop({ type: Boolean, default: false })
-  public readonly completionFilter!: boolean;
+  setup(props) {
+    const store = useStore();
 
-  private expandedPanelIndex: number | undefined | null = null;
-  private testMatrix = this.targetTestMatrix;
+    const expandedPanelIndex = ref<number | undefined | null>(null);
 
-  private get expandedGroupPanelIndexKey(): string {
-    return `latteart-management-expandedGroupPanelIndex_${this.testMatrixId}`;
-  }
-
-  created(): void {
-    this.initializePanels();
-  }
-
-  @Watch("testMatrixId")
-  private initializePanels() {
-    const index = this.getSavedExpandedPanelIndex();
-
-    this.expandedPanelIndex = -1;
-    this.testMatrix = this.targetTestMatrix;
-
-    setTimeout(() => {
-      if ((this.testMatrix?.groups.length ?? 0) > (index ?? 0)) {
-        this.expandedPanelIndex = index;
-      } else {
-        this.expandedPanelIndex = 0;
-      }
-    }, 100);
-
-    this.filterItems();
-  }
-
-  @Watch("expandedPanelIndex")
-  private saveExpandedPanelIndex(value: number | null | undefined) {
-    if (value === null || value === undefined) {
-      localStorage.removeItem(this.expandedGroupPanelIndexKey);
-      return;
-    }
-
-    localStorage.setItem(this.expandedGroupPanelIndexKey, value.toString());
-  }
-
-  private getSavedExpandedPanelIndex(): number | undefined {
-    const item = localStorage.getItem(this.expandedGroupPanelIndexKey);
-
-    if (item === null) {
-      if (this.testMatrix?.groups.length ?? 0 > 0) {
-        return 0;
-      }
-      return undefined;
-    }
-
-    return parseInt(item, 10);
-  }
-
-  private get targetTestMatrix(): TestMatrix | undefined {
-    return this.$store.getters["testManagement/findTestMatrix"](
-      this.testMatrixId
-    );
-  }
-
-  private get stories(): Story[] {
-    const targetStories: Story[] =
-      this.$store.getters["testManagement/getStories"]();
-    return targetStories.filter(
-      ({ testMatrixId }) => testMatrixId === this.testMatrixId
-    );
-  }
-
-  @Watch("completionFilter")
-  @Watch("search")
-  private filterItems() {
-    if (!this.search && !this.completionFilter) {
-      this.testMatrix = this.targetTestMatrix;
-      return;
-    }
-    if (!this.targetTestMatrix) {
-      this.testMatrix = this.targetTestMatrix;
-      return;
-    }
-
-    const filteredStories = this.filterStories();
-
-    const testTargetIds = new Set(
-      filteredStories.map(({ testTargetId }) => testTargetId)
-    );
-
-    const groups = this.targetTestMatrix.groups.map((group) => {
-      const testTargets = group.testTargets.filter(({ id }) =>
-        testTargetIds.has(id)
-      );
-      return { ...group, testTargets };
+    const expandedGroupPanelIndexKey = computed((): string => {
+      return `latteart-management-expandedGroupPanelIndex_${props.testMatrixId}`;
     });
 
-    const viewPointIds = new Set(
-      filteredStories.map(({ viewPointId }) => viewPointId)
-    );
-    const viewPoints = this.targetTestMatrix.viewPoints.filter(({ id }) =>
-      viewPointIds.has(id)
-    );
+    const targetTestMatrix = computed((): TestMatrix | undefined => {
+      return store.getters["testManagement/findTestMatrix"](props.testMatrixId);
+    });
 
-    this.testMatrix = {
-      ...this.targetTestMatrix,
-      groups,
-      viewPoints,
-    };
-  }
+    const stories = computed((): Story[] => {
+      const targetStories: Story[] =
+        store.getters["testManagement/getStories"]();
+      return targetStories.filter(
+        ({ testMatrixId }) => testMatrixId === props.testMatrixId
+      );
+    });
 
-  private filterStories() {
-    const filteredStoriesByCompleted = this.completionFilter
-      ? this.stories.filter(
-          (story) => story.sessions.findIndex(({ isDone }) => !isDone) > -1
-        )
-      : this.stories;
+    const testMatrix = ref<TestMatrix | undefined>(targetTestMatrix.value);
 
-    if (this.search) {
-      const filteredStoriesByText: Story[] = [];
-      for (const story of filteredStoriesByCompleted) {
-        const sessionIndex = story.sessions.findIndex(
-          ({ testerName }) => testerName === this.search
-        );
-        if (sessionIndex > -1) {
-          filteredStoriesByText.push({ ...story });
+    const initializePanels = () => {
+      const index = getSavedExpandedPanelIndex();
+
+      expandedPanelIndex.value = -1;
+      testMatrix.value = targetTestMatrix.value;
+
+      setTimeout(() => {
+        if ((testMatrix.value?.groups.length ?? 0) > (index ?? 0)) {
+          expandedPanelIndex.value = index;
+        } else {
+          expandedPanelIndex.value = 0;
         }
+      }, 100);
+
+      filterItems();
+    };
+
+    const saveExpandedPanelIndex = (value: number | null | undefined) => {
+      if (value === null || value === undefined) {
+        localStorage.removeItem(expandedGroupPanelIndexKey.value);
+        return;
       }
 
-      return filteredStoriesByText;
-    }
+      localStorage.setItem(expandedGroupPanelIndexKey.value, value.toString());
+    };
 
-    return filteredStoriesByCompleted;
-  }
-}
+    const getSavedExpandedPanelIndex = (): number | undefined => {
+      const item = localStorage.getItem(expandedGroupPanelIndexKey.value);
+
+      if (item === null) {
+        if (testMatrix.value?.groups.length ?? 0 > 0) {
+          return 0;
+        }
+        return undefined;
+      }
+
+      return parseInt(item, 10);
+    };
+
+    const filterItems = () => {
+      if (!props.search && !props.completionFilter) {
+        testMatrix.value = targetTestMatrix.value;
+        return;
+      }
+      if (!targetTestMatrix.value) {
+        testMatrix.value = targetTestMatrix.value;
+        return;
+      }
+
+      const filteredStories = filterStories();
+
+      const testTargetIds = new Set(
+        filteredStories.map(({ testTargetId }) => testTargetId)
+      );
+
+      const groups = targetTestMatrix.value.groups.map((group) => {
+        const testTargets = group.testTargets.filter(({ id }) =>
+          testTargetIds.has(id)
+        );
+        return { ...group, testTargets };
+      });
+
+      const viewPointIds = new Set(
+        filteredStories.map(({ viewPointId }) => viewPointId)
+      );
+      const viewPoints = targetTestMatrix.value.viewPoints.filter(({ id }) =>
+        viewPointIds.has(id)
+      );
+
+      testMatrix.value = {
+        ...targetTestMatrix.value,
+        groups,
+        viewPoints,
+      };
+    };
+
+    const filterStories = () => {
+      const filteredStoriesByCompleted = props.completionFilter
+        ? stories.value.filter(
+            (story) => story.sessions.findIndex(({ isDone }) => !isDone) > -1
+          )
+        : stories.value;
+
+      if (props.search) {
+        const filteredStoriesByText: Story[] = [];
+        for (const story of filteredStoriesByCompleted) {
+          const sessionIndex = story.sessions.findIndex(
+            ({ testerName }) => testerName === props.search
+          );
+          if (sessionIndex > -1) {
+            filteredStoriesByText.push({ ...story });
+          }
+        }
+
+        return filteredStoriesByText;
+      }
+
+      return filteredStoriesByCompleted;
+    };
+
+    const { testMatrixId, search, completionFilter } = toRefs(props);
+    watch(testMatrixId, initializePanels);
+    watch(expandedPanelIndex, saveExpandedPanelIndex);
+    watch(search, filterItems);
+    watch(completionFilter, filterItems);
+
+    initializePanels();
+
+    return {
+      store,
+      expandedPanelIndex,
+      testMatrix,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

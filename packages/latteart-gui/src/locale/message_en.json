@@ -540,7 +540,6 @@
   },
   "test-matrix-edit-page": {
     "title": "Edit Test Matrices",
-    "edit-viewPoint": "Edit Viewpoint Name",
     "add-test-matrix": "Add Test Matrix",
     "delete-test-matrix-confirm": "Are you sure you want to delete the test matrix?",
     "settings": "Settings"
