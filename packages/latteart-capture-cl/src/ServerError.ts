@@ -23,6 +23,7 @@ export type ServerErrorCode =
   | "unknown_error"
   | "invalid_url"
   | "web_driver_version_mismatch"
+  | "connection_refused"
   | "web_driver_not_ready"
   | "appium_not_started"
   | "device_not_connected"

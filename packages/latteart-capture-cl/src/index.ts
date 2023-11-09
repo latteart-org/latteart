@@ -433,6 +433,25 @@ io.on("connection", (socket) => {
           return;
         }
 
+        if (
+          error.name === "WebDriverError" &&
+          error.message.includes("net::ERR_CONNECTION_REFUSED")
+        ) {
+          LoggingService.error(`Connection refused.: ${url}`);
+
+          const serverError: ServerError = {
+            code: "connection_refused",
+            message: "Connection refused.",
+          };
+
+          socket.emit(
+            ServerToClientSocketIOEvent.ERROR_OCCURRED,
+            JSON.stringify(serverError)
+          );
+
+          return;
+        }
+
         // Other errors.
         LoggingService.error("An unknown error has occurred.", error);
 
