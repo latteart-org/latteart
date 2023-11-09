@@ -175,6 +175,12 @@ class CaptureSessionImpl implements CaptureSession {
           message: "Web Driver version mismatched.",
         };
       }
+      if (serverError.code === "connection_refused") {
+        return {
+          errorCode: serverError.code,
+          message: "Connection refused.",
+        };
+      }
       if (serverError.code === "web_driver_not_ready") {
         return {
           errorCode: serverError.code,
