@@ -64,7 +64,7 @@ export default defineComponent({
       }
     );
 
-    const status = computed((): any => {
+    const status = computed(() => {
       if (story.value) {
         return story.value.status;
       }

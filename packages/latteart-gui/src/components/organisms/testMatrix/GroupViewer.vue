@@ -102,10 +102,10 @@ export default defineComponent({
   setup(props) {
     const store = useStore();
 
-    const options = ref<any>({ itemsPerPage: -1 });
+    const options = ref({ itemsPerPage: -1 });
 
-    const headers = computed((): any[] => {
-      const headers: any = [];
+    const headers = computed(() => {
+      const headers = [];
       headers.push({
         value: "name",
         sortable: false,
@@ -127,7 +127,7 @@ export default defineComponent({
       return headers;
     });
 
-    const items = computed((): any[] => {
+    const items = computed(() => {
       const items: any[] = [];
       props.group.testTargets.forEach((testTarget: TestTarget) => {
         const item: any = {
