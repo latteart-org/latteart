@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
+import { operationCapturingScripts } from "./operationCapturing";
+import { pauseScripts } from "./pause";
+import { screenTransitionDetectionScripts } from "./screenTransitionDetection";
+import { shieldScripts } from "./shield";
+import { CaptureScripts } from "./types";
+import { windowSwitchingScripts } from "./windowSwitching";
+
+export * from "./types";
+
 /**
- * Operation summary.
+ * Capture scripts.
  */
-export default class OperationSummary {
-  /**
-   * The screenshot of the operation.(base64)
-   */
-  public screenshotBase64 = "";
-
-  /**
-   * The XPath of the element that is operated.
-   */
-  public elementXPath = "";
-
-  /**
-   * Operation type.
-   */
-  public type = "";
-}
+export const captureScripts: CaptureScripts = {
+  ...pauseScripts,
+  ...shieldScripts,
+  ...windowSwitchingScripts,
+  ...screenTransitionDetectionScripts,
+  ...operationCapturingScripts,
+};

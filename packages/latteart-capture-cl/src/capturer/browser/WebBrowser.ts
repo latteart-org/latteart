@@ -21,7 +21,7 @@ import WebDriverClient from "@/webdriver/WebDriverClient";
 import WindowContainer from "./WindowContainer";
 import ScreenTransition from "../../ScreenTransition";
 import { SpecialOperationType } from "../../SpecialOperationType";
-import { captureScript } from "../captureScript";
+import { captureScripts } from "../captureScripts";
 
 /**
  * Class for operating browser.
@@ -258,10 +258,10 @@ export default class WebBrowser {
         console.log(`-> createWindow: ${windowHandle}`);
         // Switch the current window to a new one temporarily to add callback to the new one.
         await this.client.switchWindowTo(windowHandle);
-        await this.client.execute(captureScript.initGuard, {
+        await this.client.execute(captureScripts.initGuard, {
           shieldStyle: this.createShieldStyle(),
         });
-        await this.client.execute(captureScript.attachShield, {
+        await this.client.execute(captureScripts.attachShield, {
           shieldId: WebBrowser.SHIELD_ID,
         });
 
@@ -306,7 +306,7 @@ export default class WebBrowser {
     if (from) {
       from.lockScreenTransitionHistory();
 
-      await this.client.execute(captureScript.attachShield, {
+      await this.client.execute(captureScripts.attachShield, {
         shieldId: WebBrowser.SHIELD_ID,
       });
     }
@@ -314,7 +314,7 @@ export default class WebBrowser {
     await this.client.switchWindowTo(to.windowHandle);
     await to.focus();
 
-    await this.client.execute(captureScript.detachShield, {
+    await this.client.execute(captureScripts.detachShield, {
       shieldId: WebBrowser.SHIELD_ID,
     });
 
@@ -323,14 +323,14 @@ export default class WebBrowser {
 
   private async getBrowsingWindowHandle(): Promise<string> {
     return (
-      (await this.client.execute(captureScript.getBrowsingWindowHandle)) ?? ""
+      (await this.client.execute(captureScripts.getBrowsingWindowHandle)) ?? ""
     );
   }
 
   private async injectFunctionToDetectWindowSwitch(
     windowHandle: string
   ): Promise<void> {
-    await this.client.execute(captureScript.setFunctionToDetectWindowSwitch, {
+    await this.client.execute(captureScripts.setFunctionToDetectWindowSwitch, {
       windowHandle,
       shieldStyle: this.createShieldStyle(),
     });

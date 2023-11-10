@@ -160,9 +160,9 @@ export default interface WebDriverClient extends ScriptExecutor {
   dismissAlert(): Promise<void>;
 
   /**
-   * Get loading status of the current page document.
+   * Whether current page document loading is completed or not.
    */
-  getDocumentReadyState(): Promise<string>;
+  isCurrentDocumentLoadingCompleted(): Promise<boolean>;
 
   /**
    * Select item in select box.
