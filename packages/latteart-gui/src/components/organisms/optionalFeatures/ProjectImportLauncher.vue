@@ -17,7 +17,7 @@
 <template>
   <v-card flat class="pa-2">
     <v-card-title>{{
-      $store.getters.message("optional-features.project-import.title")
+      store.getters.message("optional-features.project-import.title")
     }}</v-card-title>
 
     <v-card-text>
@@ -31,7 +31,7 @@
         color="primary"
         @click="importData"
         >{{
-          $store.getters.message(
+          store.getters.message(
             "optional-features.project-import.execute-button"
           )
         }}</v-btn
@@ -58,119 +58,132 @@ import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ImportOption from "@/components/organisms/common/ImportOption.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import { loadFileAsBase64 } from "@/lib/common/util";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "information-message-dialog": InformationMessageDialog,
     "error-message-dialog": ErrorMessageDialog,
     "import-option": ImportOption,
   },
-})
-export default class ProjectImportLauncher extends Vue {
-  private informationMessageDialogOpened = false;
-  private informationTitle = "";
-  private informationMessage = "";
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private option: {
-    selectedOptionProject: boolean;
-    selectedOptionTestresult: boolean;
-    selectedOptionConfig: boolean;
-    targetFile: File | null;
-  } = {
-    selectedOptionProject: true,
-    selectedOptionTestresult: true,
-    selectedOptionConfig: true,
-    targetFile: null,
-  };
+    const informationMessageDialogOpened = ref(false);
+    const informationTitle = ref("");
+    const informationMessage = ref("");
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get disabled() {
-    if (!this.option.targetFile) {
-      return true;
-    }
-
-    if (
-      !this.option.selectedOptionProject &&
-      !this.option.selectedOptionTestresult &&
-      !this.option.selectedOptionConfig
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
-  private updateOption(option: {
-    selectedOptionProject: boolean;
-    selectedOptionTestresult: boolean;
-    selectedOptionConfig: boolean;
-    targetFile: File | null;
-  }) {
-    this.option = option;
-  }
-
-  private importData(): void {
-    if (!this.option.targetFile) {
-      return;
-    }
-
-    this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message(
-        "import-export-dialog.importing-data"
-      ),
+    const option = ref<{
+      selectedOptionProject: boolean;
+      selectedOptionTestresult: boolean;
+      selectedOptionConfig: boolean;
+      targetFile: File | null;
+    }>({
+      selectedOptionProject: true,
+      selectedOptionTestresult: true,
+      selectedOptionConfig: true,
+      targetFile: null,
     });
 
-    const targetFile = this.option.targetFile;
-    const option = {
-      selectedOptionProject: this.option.selectedOptionProject,
-      selectedOptionTestresult: this.option.selectedOptionTestresult,
-      selectedOptionConfig: this.option.selectedOptionConfig,
+    const disabled = computed(() => {
+      if (!option.value.targetFile) {
+        return true;
+      }
+
+      if (
+        !option.value.selectedOptionProject &&
+        !option.value.selectedOptionTestresult &&
+        !option.value.selectedOptionConfig
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+
+    const updateOption = (updateOption: {
+      selectedOptionProject: boolean;
+      selectedOptionTestresult: boolean;
+      selectedOptionConfig: boolean;
+      targetFile: File | null;
+    }) => {
+      option.value = updateOption;
     };
 
-    setTimeout(async () => {
-      try {
-        const projectFile = await loadFileAsBase64(targetFile);
-
-        const source = { projectFile };
-        const { projectId, config } = await this.$store.dispatch(
-          "testManagement/importData",
-          { source, option }
-        );
-
-        if (projectId) {
-          await this.$store.dispatch("testManagement/readProject");
-        }
-        if (config) {
-          this.$store.commit(
-            "setProjectSettings",
-            { settings: config },
-            { root: true }
-          );
-        }
-
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message(
-          "import-export-dialog.project-import-title"
-        );
-        this.informationMessage = this.$store.getters.message(
-          "import-export-dialog.import-data-succeeded",
-          {
-            returnName: projectFile.name,
-          }
-        );
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
+    const importData = (): void => {
+      if (!option.value.targetFile) {
+        return;
       }
-    }, 300);
-  }
-}
+
+      store.dispatch("openProgressDialog", {
+        message: store.getters.message("import-export-dialog.importing-data"),
+      });
+
+      const targetFile = option.value.targetFile;
+      const importOption = {
+        selectedOptionProject: option.value.selectedOptionProject,
+        selectedOptionTestresult: option.value.selectedOptionTestresult,
+        selectedOptionConfig: option.value.selectedOptionConfig,
+      };
+
+      setTimeout(async () => {
+        try {
+          const projectFile = await loadFileAsBase64(targetFile);
+
+          const source = { projectFile };
+          const { projectId, config } = await store.dispatch(
+            "testManagement/importData",
+            { source, option: importOption }
+          );
+
+          if (projectId) {
+            await store.dispatch("testManagement/readProject");
+          }
+          if (config) {
+            store.commit(
+              "setProjectSettings",
+              { settings: config },
+              { root: true }
+            );
+          }
+
+          informationMessageDialogOpened.value = true;
+          informationTitle.value = store.getters.message(
+            "import-export-dialog.project-import-title"
+          );
+          informationMessage.value = store.getters.message(
+            "import-export-dialog.import-data-succeeded",
+            {
+              returnName: projectFile.name,
+            }
+          );
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          store.dispatch("closeProgressDialog");
+        }
+      }, 300);
+    };
+
+    return {
+      store,
+      informationMessageDialogOpened,
+      informationTitle,
+      informationMessage,
+      errorMessageDialogOpened,
+      errorMessage,
+      disabled,
+      updateOption,
+      importData,
+    };
+  },
+});
 </script>

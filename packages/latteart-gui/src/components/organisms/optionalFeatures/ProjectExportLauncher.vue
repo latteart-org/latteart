@@ -17,7 +17,7 @@
 <template>
   <v-card flat class="pa-2">
     <v-card-title>{{
-      $store.getters.message("optional-features.project-export.title")
+      store.getters.message("optional-features.project-export.title")
     }}</v-card-title>
 
     <v-card-text>
@@ -31,7 +31,7 @@
         color="primary"
         @click="exportData"
         >{{
-          $store.getters.message(
+          store.getters.message(
             "optional-features.project-export.execute-button"
           )
         }}</v-btn
@@ -59,84 +59,101 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExportOption from "@/components/organisms/common/ExportOption.vue";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
     "export-option": ExportOption,
   },
-})
-export default class ProjectExportLauncher extends Vue {
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private option = {
-    selectedOptionProject: true,
-    selectedOptionTestresult: true,
-    selectedOptionConfig: true,
-  };
+    const downloadLinkDialogOpened = ref(false);
+    const downloadLinkDialogTitle = ref("");
+    const downloadLinkDialogMessage = ref("");
+    const downloadLinkDialogAlertMessage = ref("");
+    const downloadLinkDialogLinkUrl = ref("");
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get disabled() {
-    return (
-      !this.option.selectedOptionProject &&
-      !this.option.selectedOptionTestresult &&
-      !this.option.selectedOptionConfig
-    );
-  }
+    const option = ref({
+      selectedOptionProject: true,
+      selectedOptionTestresult: true,
+      selectedOptionConfig: true,
+    });
 
-  private updateOption(option: {
-    selectedOptionProject: boolean;
-    selectedOptionTestresult: boolean;
-    selectedOptionConfig: boolean;
-  }) {
-    this.option = option;
-  }
+    const disabled = computed(() => {
+      return (
+        !option.value.selectedOptionProject &&
+        !option.value.selectedOptionTestresult &&
+        !option.value.selectedOptionConfig
+      );
+    });
 
-  private exportData() {
-    (async () => {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "import-export-dialog.creating-export-data"
-        ),
-      });
+    const currentRepositoryUrl = computed(() => {
+      return store.state.repositoryService.serviceUrl;
+    });
 
-      try {
-        const exportDataUrl = await this.$store.dispatch(
-          "testManagement/exportData",
-          { option: this.option }
-        );
+    const updateOption = (updateOption: {
+      selectedOptionProject: boolean;
+      selectedOptionTestresult: boolean;
+      selectedOptionConfig: boolean;
+    }) => {
+      option.value = updateOption;
+    };
 
-        this.downloadLinkDialogOpened = true;
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "import-export-dialog.project-export-title"
-        );
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "import-export-dialog.create-export-data-succeeded"
-        );
-        this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataUrl}`;
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+    const exportData = () => {
+      (async () => {
+        store.dispatch("openProgressDialog", {
+          message: store.getters.message(
+            "import-export-dialog.creating-export-data"
+          ),
+        });
+
+        try {
+          const exportDataUrl = await store.dispatch(
+            "testManagement/exportData",
+            { option: option.value }
+          );
+
+          downloadLinkDialogOpened.value = true;
+          downloadLinkDialogTitle.value = store.getters.message(
+            "import-export-dialog.project-export-title"
+          );
+          downloadLinkDialogMessage.value = store.getters.message(
+            "import-export-dialog.create-export-data-succeeded"
+          );
+          downloadLinkDialogAlertMessage.value = "";
+          downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${exportDataUrl}`;
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          store.dispatch("closeProgressDialog");
         }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    })();
-  }
+      })();
+    };
 
-  private get currentRepositoryUrl() {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-}
+    return {
+      store,
+      downloadLinkDialogOpened,
+      downloadLinkDialogTitle,
+      downloadLinkDialogMessage,
+      downloadLinkDialogAlertMessage,
+      downloadLinkDialogLinkUrl,
+      errorMessageDialogOpened,
+      errorMessage,
+      disabled,
+      updateOption,
+      exportData,
+    };
+  },
+});
 </script>

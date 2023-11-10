@@ -50,25 +50,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import ProjectExportLauncher from "@/components/organisms/optionalFeatures/ProjectExportLauncher.vue";
 import ProjectImportLauncher from "@/components/organisms/optionalFeatures/ProjectImportLauncher.vue";
 import SnapshotOutputLauncher from "@/components/organisms/optionalFeatures/SnapshotOutputLauncher.vue";
 import TestScriptGenerationlauncher from "@/components/organisms/optionalFeatures/TestScriptGenerationLauncher.vue";
+import { defineComponent } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "snapshot-output-launcher": SnapshotOutputLauncher,
     "test-script-generation-launcher": TestScriptGenerationlauncher,
     "project-import-launcher": ProjectImportLauncher,
     "project-export-launcher": ProjectExportLauncher,
   },
-})
-export default class OptionalFeaturesPage extends Vue {
-  created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+
+    store.dispatch("changeWindowTitle", {
+      title: store.getters.message(route.meta?.title ?? ""),
     });
-  }
-}
+
+    return {
+      store,
+    };
+  },
+});
 </script>

@@ -17,7 +17,7 @@
 <template>
   <v-card flat class="pa-2">
     <v-card-title>{{
-      $store.getters.message("optional-features.snapshot-output.title")
+      store.getters.message("optional-features.snapshot-output.title")
     }}</v-card-title>
 
     <v-card-actions>
@@ -27,7 +27,7 @@
         color="primary"
         @click="outputSnapshot"
         >{{
-          $store.getters.message(
+          store.getters.message(
             "optional-features.snapshot-output.execute-button"
           )
         }}</v-btn
@@ -40,7 +40,7 @@
       :message="downloadLinkDialogMessage"
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
-      :downloadMessage="$store.getters.message('common.download-link')"
+      :downloadMessage="store.getters.message('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
     <error-message-dialog
@@ -55,69 +55,85 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { TestMatrix } from "@/lib/testManagement/types";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class SnapshotOutputLauncher extends Vue {
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private outputSnapshot() {
-    (async () => {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message("manage-header.creating-snapshot"),
-      });
+    const downloadLinkDialogOpened = ref(false);
+    const downloadLinkDialogTitle = ref("");
+    const downloadLinkDialogMessage = ref("");
+    const downloadLinkDialogAlertMessage = ref("");
+    const downloadLinkDialogLinkUrl = ref("");
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-      try {
-        const snapshotUrl = await this.$store.dispatch(
-          "testManagement/writeSnapshot"
-        );
+    const currentRepositoryUrl = computed(() => {
+      return store.state.repositoryService.serviceUrl;
+    });
 
-        this.downloadLinkDialogOpened = true;
-        this.downloadLinkDialogTitle = this.$store.getters.message(
-          "manage-header.output-html"
-        );
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "manage.print-html-succeeded"
-        );
-        this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${snapshotUrl}`;
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+    const disabled = computed(() => {
+      return !hasTestMatrix.value;
+    });
+
+    const hasTestMatrix = computed((): boolean => {
+      const testMatrices: TestMatrix[] =
+        store.getters["testManagement/getTestMatrices"]();
+
+      return testMatrices.length > 0;
+    });
+
+    const outputSnapshot = () => {
+      (async () => {
+        store.dispatch("openProgressDialog", {
+          message: store.getters.message("manage-header.creating-snapshot"),
+        });
+
+        try {
+          const snapshotUrl = await store.dispatch(
+            "testManagement/writeSnapshot"
+          );
+
+          downloadLinkDialogOpened.value = true;
+          downloadLinkDialogTitle.value = store.getters.message(
+            "manage-header.output-html"
+          );
+          downloadLinkDialogMessage.value = store.getters.message(
+            "manage.print-html-succeeded"
+          );
+          downloadLinkDialogAlertMessage.value = "";
+          downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${snapshotUrl}`;
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          store.dispatch("closeProgressDialog");
         }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    })();
-  }
+      })();
+    };
 
-  private get currentRepositoryUrl() {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-
-  private get disabled() {
-    return !this.hasTestMatrix;
-  }
-
-  private get hasTestMatrix(): boolean {
-    const testMatrices: TestMatrix[] =
-      this.$store.getters["testManagement/getTestMatrices"]();
-
-    return testMatrices.length > 0;
-  }
-}
+    return {
+      store,
+      downloadLinkDialogOpened,
+      downloadLinkDialogTitle,
+      downloadLinkDialogMessage,
+      downloadLinkDialogAlertMessage,
+      downloadLinkDialogLinkUrl,
+      errorMessageDialogOpened,
+      errorMessage,
+      disabled,
+      outputSnapshot,
+    };
+  },
+});
 </script>

@@ -17,7 +17,7 @@
 <template>
   <v-card flat class="pa-2">
     <v-card-title>{{
-      $store.getters.message("optional-features.test-script-generation.title")
+      store.getters.message("optional-features.test-script-generation.title")
     }}</v-card-title>
 
     <v-card-text>
@@ -30,7 +30,7 @@
         color="primary"
         @click="generateTestScript"
         >{{
-          $store.getters.message(
+          store.getters.message(
             "optional-features.test-script-generation.execute-button"
           )
         }}</v-btn
@@ -58,120 +58,117 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOption from "@/components/organisms/common/ScriptGenerationOption.vue";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option": ScriptGenerationOption,
   },
-})
-export default class TestScriptGenerationLauncher extends Vue {
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
-    };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
-    };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  } = {
-    testScript: {
-      isSimple: false,
-      useMultiLocator: false,
-    },
-    testData: {
-      useDataDriven: false,
-      maxGeneration: 0,
-    },
-    buttonDefinitions: [],
-  };
+    const downloadLinkDialogOpened = ref(false);
+    const downloadLinkDialogTitle = ref("");
+    const downloadLinkDialogMessage = ref("");
+    const downloadLinkDialogAlertMessage = ref("");
+    const downloadLinkDialogLinkUrl = ref("");
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private updateOption(option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
-    };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
-    };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  }) {
-    this.option = option;
-  }
+    const option = ref<{
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
+      testData: { useDataDriven: boolean; maxGeneration: number };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
+    }>({
+      testScript: { isSimple: false, useMultiLocator: false },
+      testData: { useDataDriven: false, maxGeneration: 0 },
+      buttonDefinitions: [],
+    });
 
-  private generateTestScript() {
-    (async () => {
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "manage-header.generating-test-script"
-          ),
-        });
-        const testScriptInfo = await this.$store.dispatch(
-          "testManagement/generateAllSessionTestScripts",
-          {
-            option: this.option,
-          }
-        );
-        this.$store.dispatch("closeProgressDialog");
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "test-result-page.generate-testscript-succeeded"
-        );
-        if (testScriptInfo.invalidOperationTypeExists) {
-          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "test-result-page.generate-alert-info"
+    const currentRepositoryUrl = computed(() => {
+      return store.state.repositoryService.serviceUrl;
+    });
+
+    const disabled = computed(() => {
+      return !hasAnySessionHistory.value;
+    });
+
+    const hasAnySessionHistory = computed((): boolean => {
+      return store.getters["testManagement/anySessionHasHistory"]();
+    });
+
+    const updateOption = (updateOption: {
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
+      testData: { useDataDriven: boolean; maxGeneration: number };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
+    }) => {
+      option.value = updateOption;
+    };
+
+    const generateTestScript = () => {
+      (async () => {
+        try {
+          store.dispatch("openProgressDialog", {
+            message: store.getters.message(
+              "manage-header.generating-test-script"
+            ),
+          });
+          const testScriptInfo = await store.dispatch(
+            "testManagement/generateAllSessionTestScripts",
+            { option: option.value }
           );
-        } else {
-          this.downloadLinkDialogAlertMessage = "";
+          store.dispatch("closeProgressDialog");
+          downloadLinkDialogTitle.value =
+            store.getters.message("common.confirm");
+          downloadLinkDialogMessage.value = store.getters.message(
+            "test-result-page.generate-testscript-succeeded"
+          );
+          if (testScriptInfo.invalidOperationTypeExists) {
+            downloadLinkDialogAlertMessage.value = store.getters.message(
+              "test-result-page.generate-alert-info"
+            );
+          } else {
+            downloadLinkDialogAlertMessage.value = "";
+          }
+          downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${testScriptInfo.outputUrl}`;
+          downloadLinkDialogOpened.value = true;
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          store.dispatch("closeProgressDialog");
         }
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
-        this.downloadLinkDialogOpened = true;
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    })();
-  }
+      })();
+    };
 
-  private get currentRepositoryUrl() {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-
-  private get disabled() {
-    return !this.hasAnySessionHistory;
-  }
-
-  private get hasAnySessionHistory(): boolean {
-    return this.$store.getters["testManagement/anySessionHasHistory"]();
-  }
-}
+    return {
+      store,
+      downloadLinkDialogOpened,
+      downloadLinkDialogTitle,
+      downloadLinkDialogMessage,
+      downloadLinkDialogAlertMessage,
+      downloadLinkDialogLinkUrl,
+      errorMessageDialogOpened,
+      errorMessage,
+      disabled,
+      updateOption,
+      generateTestScript,
+    };
+  },
+});
 </script>
 
 <style lang="sass">
