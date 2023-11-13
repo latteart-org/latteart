@@ -20,7 +20,7 @@
       <v-col cols="12" class="py-0 my-0">
         <h4>
           {{
-            $store.getters.message(
+            store.getters.message(
               "config-page.screen-def.default-screen-definition"
             )
           }}
@@ -33,13 +33,13 @@
         >
           <v-radio
             :label="
-              $store.getters.message('config-page.screen-def.judgement-title')
+              store.getters.message('config-page.screen-def.judgement-title')
             "
             value="title"
           ></v-radio>
           <v-radio
             :label="
-              $store.getters.message('config-page.screen-def.judgement-url')
+              store.getters.message('config-page.screen-def.judgement-url')
             "
             value="url"
           ></v-radio>
@@ -48,7 +48,7 @@
       <v-col cols="12">
         <h4>
           {{
-            $store.getters.message("config-page.screen-def.priority-condition")
+            store.getters.message("config-page.screen-def.priority-condition")
           }}
         </h4>
         <screen-def-unit-container
@@ -63,50 +63,62 @@
 <script lang="ts">
 import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    screenDefinition: {
+      type: Object as PropType<ScreenDefinitionSetting>,
+      default: null,
+      required: true,
+    },
+  },
   components: {
     "screen-def-unit-container": ScreenDefUnitContainer,
   },
-})
-export default class ScreenDefinitionConfig extends Vue {
-  @Prop({ type: Boolean, required: true })
-  public readonly opened!: boolean;
-  @Prop({ type: Object, default: null })
-  public readonly screenDefinition!: ScreenDefinitionSetting;
+  setup(props, context) {
+    const store = useStore();
 
-  private tempConfig: ScreenDefinitionSetting = { ...this.screenDefinition };
+    const tempConfig = ref<ScreenDefinitionSetting>({
+      ...props.screenDefinition,
+    });
 
-  @Watch("screenDefinition")
-  private updateTempConfig() {
-    if (!this.opened) {
-      this.tempConfig = { ...this.screenDefinition };
-    }
-  }
-
-  @Watch("tempConfig")
-  saveConfig(): void {
-    if (this.opened) {
-      this.$emit("save-config", { screenDefinition: this.tempConfig });
-    }
-  }
-
-  private updateConditionGroups(
-    conditionGroups: ScreenDefinitionConditionGroup[]
-  ) {
-    this.tempConfig = {
-      ...this.tempConfig,
-      conditionGroups,
+    const updateTempConfig = () => {
+      if (!props.opened) {
+        tempConfig.value = { ...props.screenDefinition };
+      }
     };
-  }
 
-  private changeScreenDefType(screenDefType: "title" | "url"): void {
-    this.tempConfig = {
-      ...this.tempConfig,
-      screenDefType,
+    const saveConfig = (): void => {
+      if (props.opened) {
+        context.emit("save-config", { screenDefinition: tempConfig.value });
+      }
     };
-  }
-}
+
+    const updateConditionGroups = (
+      conditionGroups: ScreenDefinitionConditionGroup[]
+    ) => {
+      tempConfig.value = { ...tempConfig.value, conditionGroups };
+    };
+
+    const changeScreenDefType = (screenDefType: "title" | "url"): void => {
+      tempConfig.value = { ...tempConfig.value, screenDefType };
+    };
+
+    const { screenDefinition } = toRefs(props);
+    watch(screenDefinition, updateTempConfig);
+    watch(tempConfig, saveConfig);
+
+    return {
+      store,
+      tempConfig,
+      updateConditionGroups,
+      changeScreenDefType,
+    };
+  },
+});
 </script>

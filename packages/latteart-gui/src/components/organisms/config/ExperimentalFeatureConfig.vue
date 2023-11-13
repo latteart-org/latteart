@@ -17,9 +17,7 @@
       <v-col class="pt-0">
         <span style="display: inline-flex; align-items: center"
           ><v-icon color="yellow darken-3" left>warning</v-icon
-          >{{
-            $store.getters.message("config-page.experimental-warning")
-          }}</span
+          >{{ store.getters.message("config-page.experimental-warning") }}</span
         >
       </v-col>
     </v-row>
@@ -27,11 +25,11 @@
     <v-row>
       <v-col class="pt-0">
         <h4>
-          {{ $store.getters.message("config-page.recording-method") }}
+          {{ store.getters.message("config-page.recording-method") }}
         </h4>
         <v-checkbox
           v-model="captureArch"
-          :label="$store.getters.message('config-page.capture-arch')"
+          :label="store.getters.message('config-page.capture-arch')"
           :disabled="isCapturing || isReplaying"
           hide-details
           class="py-0 my-0"
@@ -40,10 +38,10 @@
         >
         </v-checkbox>
         <span class="pl-8">{{
-          $store.getters.message("config-page.attention")
+          store.getters.message("config-page.attention")
         }}</span>
         <p class="pl-8">
-          {{ $store.getters.message("config-page.attention-video") }}
+          {{ store.getters.message("config-page.attention-video") }}
         </p>
       </v-col>
     </v-row>
@@ -52,49 +50,57 @@
 
 <script lang="ts">
 import { ExperimentalFeatureSetting } from "@/lib/common/settings/Settings";
-import { RootState } from "@/store";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-@Component
-export default class ExperimentalFeatureConfig extends Vue {
-  @Prop({ type: Boolean, required: true })
-  public readonly opened!: boolean;
-  @Prop({ type: Object, default: null })
-  public readonly experimentalFeatureSetting!: ExperimentalFeatureSetting;
-  @Prop({ type: Boolean, default: true })
-  public readonly isCapturing!: boolean;
-  @Prop({ type: Boolean, default: true })
-  public readonly isReplaying!: boolean;
-  private tempConfig: ExperimentalFeatureSetting = {
-    ...this.experimentalFeatureSetting,
-  };
-  @Watch("experimentalFeatureSetting")
-  private updateTempConfig() {
-    if (!this.opened) {
-      this.tempConfig = { ...this.experimentalFeatureSetting };
-    }
-  }
-  @Watch("tempConfig")
-  private saveConfig() {
-    if (this.opened) {
-      this.$emit("save-config", {
-        experimentalFeatureSetting: this.tempConfig,
-      });
-    }
-  }
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-  private get captureArch(): "polling" | "push" {
-    return this.tempConfig.captureArch;
-  }
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    experimentalFeatureSetting: {
+      type: Object as PropType<ExperimentalFeatureSetting>,
+      default: null,
+      required: true,
+    },
+    isCapturing: { type: Boolean, default: true, required: true },
+    isReplaying: { type: Boolean, default: true, required: true },
+  },
+  setup(props, context) {
+    const store = useStore();
 
-  private set captureArch(captureArch: "polling" | "push") {
-    this.tempConfig = {
-      ...this.tempConfig,
+    const tempConfig = ref<ExperimentalFeatureSetting>({
+      ...props.experimentalFeatureSetting,
+    });
+
+    const updateTempConfig = () => {
+      if (!props.opened) {
+        tempConfig.value = { ...props.experimentalFeatureSetting };
+      }
+    };
+
+    const saveConfig = () => {
+      if (props.opened) {
+        context.emit("save-config", {
+          experimentalFeatureSetting: tempConfig.value,
+        });
+      }
+    };
+
+    const captureArch = computed({
+      get: (): "polling" | "push" => tempConfig.value.captureArch,
+      set: (captureArch: "polling" | "push") => {
+        tempConfig.value = { ...tempConfig.value, captureArch };
+      },
+    });
+
+    const { experimentalFeatureSetting } = toRefs(props);
+    watch(experimentalFeatureSetting, updateTempConfig);
+    watch(tempConfig, saveConfig);
+
+    return {
+      store,
       captureArch,
     };
-  }
-
-  private get platform() {
-    return (this.$store.state as RootState).deviceSettings.platformName;
-  }
-}
+  },
+});
 </script>

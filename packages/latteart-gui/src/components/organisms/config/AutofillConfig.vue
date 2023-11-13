@@ -21,7 +21,7 @@
         <v-checkbox
           v-model="autoPopupRegistrationDialog"
           :label="
-            $store.getters.message(
+            store.getters.message(
               'config-page.autofill.auto-popup-registration'
             )
           "
@@ -32,14 +32,14 @@
         <v-checkbox
           v-model="autoPopupSelectionDialog"
           :label="
-            $store.getters.message('config-page.autofill.auto-popup-selection')
+            store.getters.message('config-page.autofill.auto-popup-selection')
           "
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <v-btn @click="addConditionGroup">{{
-          $store.getters.message("config-page.autofill.add-setting")
+          store.getters.message("config-page.autofill.add-setting")
         }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
@@ -66,149 +66,158 @@ import {
   AutofillCondition,
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    autofillSetting: {
+      type: Object as PropType<AutofillSettingConfig>,
+      default: null,
+      required: true,
+    },
+  },
   components: {
     "autofill-input-value-container": AutofillInputValueContainer,
   },
-})
-export default class AutofillConfig extends Vue {
-  @Prop({ type: Boolean, required: true })
-  public readonly opened!: boolean;
-  @Prop({
-    type: Object,
-    default: null,
-  })
-  public readonly autofillSetting!: AutofillSettingConfig;
+  setup(props, context) {
+    const store = useStore();
 
-  private tempConfig: AutofillSettingConfig = { ...this.autofillSetting };
+    const tempConfig = ref<AutofillSettingConfig>({ ...props.autofillSetting });
 
-  @Watch("autofillSetting")
-  updateTempConfig(): void {
-    if (!this.opened) {
-      this.tempConfig = { ...this.autofillSetting };
-    }
-  }
+    const updateTempConfig = (): void => {
+      if (!props.opened) {
+        tempConfig.value = { ...props.autofillSetting };
+      }
+    };
 
-  @Watch("tempConfig")
-  saveConfig(): void {
-    if (this.opened) {
-      this.$emit("save-config", { autofillSetting: this.tempConfig });
-    }
-  }
+    const saveConfig = (): void => {
+      if (props.opened) {
+        context.emit("save-config", { autofillSetting: tempConfig.value });
+      }
+    };
 
-  private get conditionGroups(): AutofillConditionGroup[] {
-    return this.tempConfig.conditionGroups;
-  }
+    const conditionGroups = computed((): AutofillConditionGroup[] => {
+      return tempConfig.value.conditionGroups;
+    });
 
-  private get autoPopupRegistrationDialog(): boolean {
-    return this.tempConfig.autoPopupRegistrationDialog;
-  }
+    const autoPopupRegistrationDialog = computed({
+      get: (): boolean => tempConfig.value.autoPopupRegistrationDialog,
+      set: (autoPopupRegistrationDialog: boolean) => {
+        tempConfig.value = { ...tempConfig.value, autoPopupRegistrationDialog };
+      },
+    });
 
-  private set autoPopupRegistrationDialog(
-    autoPopupRegistrationDialog: boolean
-  ) {
-    this.tempConfig = {
-      ...this.tempConfig,
+    const autoPopupSelectionDialog = computed({
+      get: (): boolean => tempConfig.value.autoPopupSelectionDialog,
+      set: (autoPopupSelectionDialog: boolean) => {
+        tempConfig.value = { ...tempConfig.value, autoPopupSelectionDialog };
+      },
+    });
+
+    const addConditionGroup = () => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups.push({
+        isEnabled: true,
+        settingName: "",
+        url: "",
+        title: "",
+        inputValueConditions: [],
+      });
+      tempConfig.value = config;
+    };
+
+    const updateConditionGroup = (
+      conditionGroup: Partial<AutofillConditionGroup>,
+      index: number
+    ) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.map((group, i) => {
+        if (index === i) {
+          return { ...group, ...conditionGroup };
+        }
+        return group;
+      });
+      tempConfig.value = config;
+    };
+
+    const addCondition = (index: number) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.map((g, i) => {
+        if (index === i) {
+          g.inputValueConditions.push({
+            isEnabled: true,
+            locatorType: "id",
+            locator: "",
+            locatorMatchType: "equals",
+            inputValue: "",
+          });
+        }
+        return g;
+      });
+      tempConfig.value = config;
+    };
+
+    const updateCondition = (
+      condition: Partial<AutofillCondition>,
+      conditionIndex: number,
+      conditionGroupIndex: number
+    ) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.map((g, i) => {
+        if (conditionGroupIndex === i) {
+          g.inputValueConditions = g.inputValueConditions.map((c, j) => {
+            return conditionIndex === j ? { ...c, ...condition } : c;
+          });
+        }
+        return g;
+      });
+      tempConfig.value = config;
+    };
+
+    const deleteConditionGroup = (index: number) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.filter(
+        (c, i) => index !== i
+      );
+      tempConfig.value = config;
+    };
+
+    const deleteCondition = (
+      conditionIndex: number,
+      conditionGroupIndex: number
+    ) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.map((g, i) => {
+        if (conditionGroupIndex === i) {
+          g.inputValueConditions = g.inputValueConditions.filter(
+            (c, j) => conditionIndex !== j
+          );
+        }
+        return g;
+      });
+      tempConfig.value = config;
+    };
+
+    const { autofillSetting } = toRefs(props);
+    watch(autofillSetting, updateTempConfig);
+    watch(tempConfig, saveConfig);
+
+    return {
+      store,
+      conditionGroups,
       autoPopupRegistrationDialog,
-    };
-  }
-
-  private get autoPopupSelectionDialog(): boolean {
-    return this.tempConfig.autoPopupSelectionDialog;
-  }
-
-  private set autoPopupSelectionDialog(autoPopupSelectionDialog: boolean) {
-    this.tempConfig = {
-      ...this.tempConfig,
       autoPopupSelectionDialog,
+      addConditionGroup,
+      updateConditionGroup,
+      addCondition,
+      updateCondition,
+      deleteConditionGroup,
+      deleteCondition,
     };
-  }
-
-  private addConditionGroup() {
-    const config = { ...this.tempConfig };
-    config.conditionGroups.push({
-      isEnabled: true,
-      settingName: "",
-      url: "",
-      title: "",
-      inputValueConditions: [],
-    });
-    this.tempConfig = config;
-  }
-
-  private updateConditionGroup(
-    conditionGroup: Partial<AutofillConditionGroup>,
-    index: number
-  ) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.map((group, i) => {
-      if (index === i) {
-        return {
-          ...group,
-          ...conditionGroup,
-        };
-      }
-      return group;
-    });
-    this.tempConfig = config;
-  }
-
-  private addCondition(index: number) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.map((g, i) => {
-      if (index === i) {
-        g.inputValueConditions.push({
-          isEnabled: true,
-          locatorType: "id",
-          locator: "",
-          locatorMatchType: "equals",
-          inputValue: "",
-        });
-      }
-      return g;
-    });
-    this.tempConfig = config;
-  }
-
-  private updateCondition(
-    condition: Partial<AutofillCondition>,
-    conditionIndex: number,
-    conditionGroupIndex: number
-  ) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.map((g, i) => {
-      if (conditionGroupIndex === i) {
-        g.inputValueConditions = g.inputValueConditions.map((c, j) => {
-          return conditionIndex === j ? { ...c, ...condition } : c;
-        });
-      }
-      return g;
-    });
-    this.tempConfig = config;
-  }
-
-  private deleteConditionGroup(index: number) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.filter(
-      (c, i) => index !== i
-    );
-    this.tempConfig = config;
-  }
-
-  private deleteCondition(conditionIndex: number, conditionGroupIndex: number) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.map((g, i) => {
-      if (conditionGroupIndex === i) {
-        g.inputValueConditions = g.inputValueConditions.filter(
-          (c, j) => conditionIndex !== j
-        );
-      }
-      return g;
-    });
-    this.tempConfig = config;
-  }
-}
+  },
+});
 </script>

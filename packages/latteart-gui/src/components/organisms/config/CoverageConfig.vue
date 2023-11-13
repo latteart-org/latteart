@@ -17,7 +17,7 @@
 <template>
   <v-row class="px-4">
     <div class="head-label">
-      {{ $store.getters.message("config-page.include-coverage") }}
+      {{ store.getters.message("config-page.include-coverage") }}
     </div>
     <v-col v-if="displayedTagList <= 0">
       <v-card color="#EEE">
@@ -57,48 +57,58 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component
-export default class CoverageConfig extends Vue {
-  @Prop({ type: Boolean, required: true }) public readonly opened!: boolean;
-  @Prop({ type: Array, required: true })
-  public readonly includeTags!: string[];
-  @Prop({ type: Array, required: true }) public defaultTagList!: string[];
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    includeTags: { type: Array as PropType<string[]>, required: true },
+    defaultTagList: { type: Array as PropType<string[]>, required: true },
+  },
+  setup(props, context) {
+    const store = useStore();
 
-  private tempIncludeTags = this.includeTags;
+    const tempIncludeTags = ref(props.includeTags);
 
-  get displayedTagList() {
-    const sortFunc = (a: string, b: string) => {
-      if (a < b) {
-        return -1;
-      } else if (a > b) {
-        return 1;
+    const displayedTagList = computed(() => {
+      const sortFunc = (a: string, b: string) => {
+        if (a < b) {
+          return -1;
+        } else if (a > b) {
+          return 1;
+        }
+        return 0;
+      };
+
+      return [
+        ...tempIncludeTags.value.sort(sortFunc),
+        ...props.defaultTagList
+          .filter((defaultTag) => !tempIncludeTags.value.includes(defaultTag))
+          .sort(sortFunc),
+      ];
+    });
+
+    const changeValue = (tag: string): void => {
+      if (props.opened) {
+        const hasTag = tempIncludeTags.value.includes(tag);
+        const tags = hasTag
+          ? tempIncludeTags.value.filter((t) => t !== tag)
+          : [...tempIncludeTags.value, tag];
+        context.emit("save-config", { coverage: { include: { tags } } });
+        tempIncludeTags.value = tags;
       }
-      return 0;
     };
 
-    return [
-      ...this.tempIncludeTags.sort(sortFunc),
-      ...this.defaultTagList
-        .filter((defaultTag) => !this.tempIncludeTags.includes(defaultTag))
-        .sort(sortFunc),
-    ];
-  }
-
-  private changeValue(tag: string): void {
-    if (this.opened) {
-      const hasTag = this.tempIncludeTags.includes(tag);
-      const tags = hasTag
-        ? this.tempIncludeTags.filter((t) => t !== tag)
-        : [...this.tempIncludeTags, tag];
-      this.$emit("save-config", {
-        coverage: { include: { tags } },
-      });
-      this.tempIncludeTags = tags;
-    }
-  }
-}
+    return {
+      store,
+      tempIncludeTags,
+      displayedTagList,
+      changeValue,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
