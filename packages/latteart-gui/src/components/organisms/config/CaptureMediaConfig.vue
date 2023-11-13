@@ -22,11 +22,11 @@
           :disabled="captureArch === 'push'"
         >
           <v-radio
-            :label="$store.getters.message('config-page.png')"
+            :label="store.getters.message('config-page.png')"
             value="png"
           ></v-radio>
           <v-radio
-            :label="$store.getters.message('config-page.webp')"
+            :label="store.getters.message('config-page.webp')"
             value="webp"
           ></v-radio>
         </v-radio-group>
@@ -37,46 +37,60 @@
 
 <script lang="ts">
 import { CaptureMediaSetting } from "@/lib/common/settings/Settings";
-import { RootState } from "@/store";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-@Component
-export default class CaptureMediaConfig extends Vue {
-  @Prop({ type: Boolean, required: true })
-  public readonly opened!: boolean;
-  @Prop({ type: Object, default: null })
-  public readonly captureMediaSetting!: CaptureMediaSetting;
-  @Prop({ type: Boolean, default: true })
-  public readonly isCapturing!: boolean;
-  private tempConfig: CaptureMediaSetting = {
-    ...this.captureMediaSetting,
-  };
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-  private get captureArch() {
-    return (
-      (this.$store.state as RootState).projectSettings.config
-        .experimentalFeatureSetting.captureArch ?? "polling"
-    );
-  }
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    captureMediaSetting: {
+      type: Object as PropType<CaptureMediaSetting>,
+      default: null,
+      required: true,
+    },
+    isCapturing: { type: Boolean, required: true },
+  },
+  setup(props, context) {
+    const store = useStore();
 
-  private get platform() {
-    return (this.$store.state as RootState).deviceSettings.platformName;
-  }
+    const tempConfig = ref<CaptureMediaSetting>({
+      ...props.captureMediaSetting,
+    });
 
-  @Watch("captureMediaSetting")
-  private updateTempConfig() {
-    if (!this.opened) {
-      this.tempConfig = { ...this.captureMediaSetting };
-    }
-  }
-  @Watch("tempConfig")
-  private saveConfig() {
-    if (this.opened) {
-      this.$emit("save-config", { captureMediaSetting: this.tempConfig });
-    }
-  }
+    const captureArch = computed(() => {
+      return (
+        store.state.projectSettings.config.experimentalFeatureSetting
+          .captureArch ?? "polling"
+      );
+    });
 
-  private changeCaptureFormat(format: "png" | "webp") {
-    this.tempConfig = { ...this.tempConfig, imageCompression: { format } };
-  }
-}
+    const updateTempConfig = () => {
+      if (!props.opened) {
+        tempConfig.value = { ...props.captureMediaSetting };
+      }
+    };
+
+    const saveConfig = () => {
+      if (props.opened) {
+        context.emit("save-config", { captureMediaSetting: tempConfig.value });
+      }
+    };
+
+    const changeCaptureFormat = (format: "png" | "webp") => {
+      tempConfig.value = { ...tempConfig.value, imageCompression: { format } };
+    };
+
+    const { captureMediaSetting } = toRefs(props);
+    watch(captureMediaSetting, updateTempConfig);
+    watch(tempConfig, saveConfig);
+
+    return {
+      store,
+      tempConfig,
+      captureArch,
+      changeCaptureFormat,
+    };
+  },
+});
 </script>

@@ -19,7 +19,7 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <p v-if="conditionGroups < 1">
-          {{ $store.getters.message("config-page.no-data") }}
+          {{ store.getters.message("config-page.no-data") }}
         </p>
         <auto-operation-container
           v-for="(group, index) in conditionGroups"
@@ -40,68 +40,81 @@ import {
   AutoOperationSetting as AutoOperationSettingConfig,
   AutoOperationConditionGroup,
 } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import AutoOperationContainer from "./AutoOperationContainer.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, required: true },
+    autoOperationSetting: {
+      type: Object as PropType<AutoOperationSettingConfig>,
+      default: null,
+      required: true,
+    },
+  },
   components: {
     "auto-operation-container": AutoOperationContainer,
   },
-})
-export default class AutoOperationConfig extends Vue {
-  @Prop({ type: Boolean, required: true })
-  public readonly opened!: boolean;
-  @Prop({
-    type: Object,
-    default: null,
-  })
-  public readonly autoOperationSetting!: AutoOperationSettingConfig;
+  setup(props, context) {
+    const store = useStore();
 
-  private tempConfig: AutoOperationSettingConfig = {
-    ...this.autoOperationSetting,
-  };
-
-  @Watch("autoOperationSetting")
-  updateTempConfig(): void {
-    if (!this.opened) {
-      this.tempConfig = { ...this.autoOperationSetting };
-    }
-  }
-
-  @Watch("tempConfig")
-  saveConfig(): void {
-    if (this.opened) {
-      this.$emit("save-config", { autoOperationSetting: this.tempConfig });
-    }
-  }
-
-  private get conditionGroups(): AutoOperationConditionGroup[] {
-    return this.tempConfig.conditionGroups;
-  }
-
-  private updateConditionGroup(
-    conditionGroup: Partial<AutoOperationConditionGroup>,
-    index: number
-  ) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.map((group, i) => {
-      if (index === i) {
-        return {
-          ...group,
-          ...conditionGroup,
-        };
-      }
-      return group;
+    const tempConfig = ref<AutoOperationSettingConfig>({
+      ...props.autoOperationSetting,
     });
-    this.tempConfig = config;
-  }
 
-  private deleteConditionGroup(index: number) {
-    const config = { ...this.tempConfig };
-    config.conditionGroups = config.conditionGroups.filter(
-      (c, i) => index !== i
-    );
-    this.tempConfig = config;
-  }
-}
+    const updateTempConfig = (): void => {
+      if (!props.opened) {
+        tempConfig.value = { ...props.autoOperationSetting };
+      }
+    };
+
+    const saveConfig = (): void => {
+      if (props.opened) {
+        context.emit("save-config", { autoOperationSetting: tempConfig.value });
+      }
+    };
+
+    const conditionGroups = computed((): AutoOperationConditionGroup[] => {
+      return tempConfig.value.conditionGroups;
+    });
+
+    const updateConditionGroup = (
+      conditionGroup: Partial<AutoOperationConditionGroup>,
+      index: number
+    ) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.map((group, i) => {
+        if (index === i) {
+          return {
+            ...group,
+            ...conditionGroup,
+          };
+        }
+        return group;
+      });
+      tempConfig.value = config;
+    };
+
+    const deleteConditionGroup = (index: number) => {
+      const config = { ...tempConfig.value };
+      config.conditionGroups = config.conditionGroups.filter(
+        (c, i) => index !== i
+      );
+      tempConfig.value = config;
+    };
+
+    const { autoOperationSetting } = toRefs(props);
+    watch(autoOperationSetting, updateTempConfig);
+    watch(tempConfig, saveConfig);
+
+    return {
+      store,
+      conditionGroups,
+      updateConditionGroup,
+      deleteConditionGroup,
+    };
+  },
+});
 </script>

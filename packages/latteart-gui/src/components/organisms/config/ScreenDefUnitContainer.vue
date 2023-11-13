@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-4 pt-0">
     <v-btn @click="addConditionGroup">{{
-      $store.getters.message("config-page.screen-def.advanced-add")
+      store.getters.message("config-page.screen-def.advanced-add")
     }}</v-btn>
     <draggable
       :list="conditionGroups"
@@ -38,70 +38,85 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import draggable from "vuedraggable";
 import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    screenDefinition: {
+      type: Object as PropType<ScreenDefinitionSetting>,
+      default: null,
+      required: true,
+    },
+  },
   components: {
     "screen-def-unit": ScreenDefUnit,
     draggable: draggable,
   },
-})
-export default class ScreenDefUnitContainer extends Vue {
-  @Prop({ type: Object, default: null })
-  public readonly screenDefinition!: ScreenDefinitionSetting;
+  setup(props, context) {
+    const store = useStore();
 
-  private get conditionGroups(): Array<ScreenDefinitionConditionGroup> {
-    return this.screenDefinition?.conditionGroups ?? [];
-  }
-
-  private set conditionGroups(
-    conditionGroups: Array<ScreenDefinitionConditionGroup>
-  ) {
-    this.$emit("update-condition-groups", conditionGroups);
-  }
-
-  private changeOrder() {
-    this.conditionGroups = [...this.conditionGroups];
-  }
-
-  private addConditionGroup() {
-    const conditionGroups = this.conditionGroups;
-    conditionGroups.push({
-      isEnabled: true,
-      screenName: "",
-      conditions: [
-        {
-          isEnabled: true,
-          definitionType: "url",
-          matchType: "contains",
-          word: "",
-        },
-      ],
+    const conditionGroups = computed({
+      get: (): ScreenDefinitionConditionGroup[] =>
+        props.screenDefinition?.conditionGroups ?? [],
+      set: (conditionGroups: ScreenDefinitionConditionGroup[]) => {
+        context.emit("update-condition-groups", conditionGroups);
+      },
     });
-    this.conditionGroups = conditionGroups;
-  }
 
-  private deleteConditionGroup(groupIndex: number) {
-    this.conditionGroups = this.conditionGroups.filter(
-      (g, i) => i !== groupIndex
-    );
-  }
+    const changeOrder = () => {
+      conditionGroups.value = [...conditionGroups.value];
+    };
 
-  private updateConditionGroup(conditionGroupWithindex: {
-    conditionGroup: ScreenDefinitionConditionGroup;
-    index: number;
-  }) {
-    this.conditionGroups = this.conditionGroups.map((c, i) => {
-      return conditionGroupWithindex.index !== i
-        ? c
-        : conditionGroupWithindex.conditionGroup;
-    });
-  }
-}
+    const addConditionGroup = () => {
+      const targetConditionGroups = conditionGroups.value;
+      targetConditionGroups.push({
+        isEnabled: true,
+        screenName: "",
+        conditions: [
+          {
+            isEnabled: true,
+            definitionType: "url",
+            matchType: "contains",
+            word: "",
+          },
+        ],
+      });
+      conditionGroups.value = targetConditionGroups;
+    };
+
+    const deleteConditionGroup = (groupIndex: number) => {
+      conditionGroups.value = conditionGroups.value.filter(
+        (g, i) => i !== groupIndex
+      );
+    };
+
+    const updateConditionGroup = (conditionGroupWithindex: {
+      conditionGroup: ScreenDefinitionConditionGroup;
+      index: number;
+    }) => {
+      conditionGroups.value = conditionGroups.value.map((c, i) => {
+        return conditionGroupWithindex.index !== i
+          ? c
+          : conditionGroupWithindex.conditionGroup;
+      });
+    };
+
+    return {
+      store,
+      conditionGroups,
+      changeOrder,
+      addConditionGroup,
+      deleteConditionGroup,
+      updateConditionGroup,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

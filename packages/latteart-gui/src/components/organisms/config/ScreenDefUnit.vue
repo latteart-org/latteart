@@ -32,7 +32,7 @@
                 </v-checkbox>
                 <v-text-field
                   :label="
-                    $store.getters.message('config-page.screen-def.screen-name')
+                    store.getters.message('config-page.screen-def.screen-name')
                   "
                   :value="conditionGroup.screenName"
                   @change="
@@ -41,7 +41,7 @@
                 ></v-text-field>
                 <v-btn @click="deleteConditionGroup" color="error"
                   >{{
-                    $store.getters.message(
+                    store.getters.message(
                       "config-page.screen-def.delete-definition"
                     )
                   }}
@@ -50,10 +50,10 @@
 
               <v-row class="mb-2">
                 <v-btn small class="mt-3" @click="addCondition">{{
-                  $store.getters.message("config-page.screen-def.add-condition")
+                  store.getters.message("config-page.screen-def.add-condition")
                 }}</v-btn
                 ><span class="description">{{
-                  $store.getters.message("config-page.screen-def.description")
+                  store.getters.message("config-page.screen-def.description")
                 }}</span>
               </v-row>
 
@@ -65,7 +65,7 @@
               >
                 <v-col cols="1" style="text-align: right">
                   <span v-if="index > 0">{{
-                    $store.getters.message("config-page.screen-def.and")
+                    store.getters.message("config-page.screen-def.and")
                   }}</span>
                   <span v-else>　　</span>
                 </v-col>
@@ -80,7 +80,7 @@
                   ></v-checkbox>
                 </v-col>
 
-                <template v-if="$store.getters.getLocale() === 'ja'">
+                <template v-if="store.getters.getLocale() === 'ja'">
                   <v-col cols="2">
                     <v-select
                       :value="item.definitionType"
@@ -120,7 +120,7 @@
                   </v-col>
                 </template>
 
-                <template v-if="$store.getters.getLocale() === 'en'">
+                <template v-if="store.getters.getLocale() === 'en'">
                   <v-col cols="2">
                     <v-select
                       :value="item.definitionType"
@@ -177,117 +177,133 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import {
   ScreenDefinitionConditionGroup,
   ScreenDefinitionType,
   ScreenMatchType,
 } from "@/lib/operationHistory/types";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component
-export default class ScreenDefUnit extends Vue {
-  @Prop({
-    type: Object,
-    default: { isEnabled: false, screenName: "", conditions: [] },
-  })
-  public readonly conditionGroup!: ScreenDefinitionConditionGroup;
+export default defineComponent({
+  props: {
+    conditionGroup: {
+      type: Object as PropType<ScreenDefinitionConditionGroup>,
+      default: { isEnabled: false, screenName: "", conditions: [] },
+      required: true,
+    },
+    index: { type: Number, default: -1, required: true },
+  },
+  setup(props, context) {
+    const store = useStore();
 
-  @Prop({ type: Number, default: -1 })
-  public readonly index!: number;
+    const definitionTypeList = computed(
+      (): { value: string; label: string }[] => {
+        return [
+          {
+            value: "url",
+            label: store.getters.message("config-page.screen-def.url"),
+          },
+          {
+            value: "title",
+            label: store.getters.message("config-page.screen-def.title"),
+          },
+          {
+            value: "keyword",
+            label: store.getters.message("config-page.screen-def.keyword"),
+          },
+        ];
+      }
+    );
 
-  private get definitionTypeList(): { value: string; label: string }[] {
-    return [
-      {
-        value: "url",
-        label: this.$store.getters.message("config-page.screen-def.url"),
-      },
-      {
-        value: "title",
-        label: this.$store.getters.message("config-page.screen-def.title"),
-      },
-      {
-        value: "keyword",
-        label: this.$store.getters.message("config-page.screen-def.keyword"),
-      },
-    ];
-  }
-
-  private get matchType(): { value: string; label: string }[] {
-    return [
-      {
-        value: "contains",
-        label: this.$store.getters.message("config-page.screen-def.contains"),
-      },
-      {
-        value: "equals",
-        label: this.$store.getters.message("config-page.screen-def.equals"),
-      },
-      {
-        value: "regex",
-        label: this.$store.getters.message("config-page.screen-def.regex"),
-      },
-    ];
-  }
-
-  private updateConditionGroup(group: Partial<ScreenDefinitionConditionGroup>) {
-    const conditionGroup = {
-      ...this.conditionGroup,
-      ...group,
-    };
-    this.$emit("update-condition-group", {
-      conditionGroup,
-      index: this.index,
-    });
-  }
-
-  private updateCondition(
-    index: number,
-    condition: {
-      isEnabled?: boolean;
-      definitionType?: ScreenDefinitionType;
-      matchType?: ScreenMatchType;
-      word?: string;
-    }
-  ): void {
-    const conditionGroup = {
-      ...this.conditionGroup,
-      conditions: this.conditionGroup.conditions.map((c, i) => {
-        return i !== index ? c : { ...c, ...condition };
-      }),
-    };
-    this.updateConditionGroup(conditionGroup);
-  }
-
-  private addCondition(): void {
-    const conditionGroup: ScreenDefinitionConditionGroup = {
-      ...this.conditionGroup,
-      conditions: [
-        ...this.conditionGroup.conditions,
+    const matchType = computed((): { value: string; label: string }[] => {
+      return [
         {
-          isEnabled: true,
-          definitionType: "url",
-          matchType: "contains",
-          word: "",
+          value: "contains",
+          label: store.getters.message("config-page.screen-def.contains"),
         },
-      ],
-    };
-    this.updateConditionGroup(conditionGroup);
-  }
+        {
+          value: "equals",
+          label: store.getters.message("config-page.screen-def.equals"),
+        },
+        {
+          value: "regex",
+          label: store.getters.message("config-page.screen-def.regex"),
+        },
+      ];
+    });
 
-  private deleteCondition(conditionIndex: number): void {
-    const conditionGroup = {
-      ...this.conditionGroup,
-      conditions: this.conditionGroup.conditions.filter(
-        (c, i) => i !== conditionIndex
-      ),
+    const updateConditionGroup = (
+      group: Partial<ScreenDefinitionConditionGroup>
+    ) => {
+      const conditionGroup = { ...props.conditionGroup, ...group };
+      context.emit("update-condition-group", {
+        conditionGroup,
+        index: props.index,
+      });
     };
-    this.updateConditionGroup(conditionGroup);
-  }
 
-  private deleteConditionGroup(): void {
-    this.$emit("delete-condition-group", this.index);
-  }
-}
+    const updateCondition = (
+      index: number,
+      condition: {
+        isEnabled?: boolean;
+        definitionType?: ScreenDefinitionType;
+        matchType?: ScreenMatchType;
+        word?: string;
+      }
+    ): void => {
+      const conditionGroup = {
+        ...props.conditionGroup,
+        conditions: props.conditionGroup.conditions.map((c, i) => {
+          return i !== index ? c : { ...c, ...condition };
+        }),
+      };
+      updateConditionGroup(conditionGroup);
+    };
+
+    const addCondition = (): void => {
+      const conditionGroup: ScreenDefinitionConditionGroup = {
+        ...props.conditionGroup,
+        conditions: [
+          ...props.conditionGroup.conditions,
+          {
+            isEnabled: true,
+            definitionType: "url",
+            matchType: "contains",
+            word: "",
+          },
+        ],
+      };
+      updateConditionGroup(conditionGroup);
+    };
+
+    const deleteCondition = (conditionIndex: number): void => {
+      const conditionGroup = {
+        ...props.conditionGroup,
+        conditions: props.conditionGroup.conditions.filter(
+          (c, i) => i !== conditionIndex
+        ),
+      };
+      updateConditionGroup(conditionGroup);
+    };
+
+    const deleteConditionGroup = (): void => {
+      context.emit("delete-condition-group", props.index);
+    };
+
+    return {
+      store,
+      definitionTypeList,
+      matchType,
+      updateConditionGroup,
+      updateCondition,
+      addCondition,
+      deleteCondition,
+      deleteConditionGroup,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

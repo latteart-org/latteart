@@ -21,7 +21,7 @@
         :hide-details="hideDetails"
         v-model="targetUrl"
         :items="urls"
-        :label="$store.getters.message('remote-access.remote-connection-url')"
+        :label="store.getters.message('remote-access.remote-connection-url')"
         id="connectUrlTextField"
         ref="urlField"
         :disabled="isCapturing || isReplaying"
@@ -35,7 +35,7 @@
         @click="connect()"
         :disabled="isCapturing || isReplaying || targetUrl === url"
         class="ma-2"
-        >{{ $store.getters.message("remote-access.connect") }}</v-btn
+        >{{ store.getters.message("remote-access.connect") }}</v-btn
       >
     </v-col>
     <information-message-dialog
@@ -54,111 +54,134 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
+import { computed, defineComponent, ref, nextTick, watch } from "vue";
+import { useStore } from "@/store";
+import { CaptureControlState } from "@/store/captureControl";
 
-@Component({
+export default defineComponent({
+  props: {
+    color: { type: String, default: "", required: true },
+    hideDetails: { type: Boolean, default: false, required: true },
+  },
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "information-message-dialog": InformationMessageDialog,
   },
-})
-export default class RemoteAccessField extends Vue {
-  @Prop({ type: String, default: "" }) public readonly color!: string;
-  @Prop({ type: Boolean, default: false })
-  public readonly hideDetails!: boolean;
+  setup() {
+    const store = useStore();
+    const urlField = ref(null);
 
-  private informationMessageDialogOpened = false;
-  private informationTitle = "";
-  private informationMessage = "";
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-  private remoteUrl = "";
-  private targetUrl = this.url;
+    const informationMessageDialogOpened = ref(false);
+    const informationTitle = ref("");
+    const informationMessage = ref("");
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
+    const remoteUrl = ref("");
 
-  private get urls(): string[] {
-    const localUrl = this.$store.state.repositoryService.serviceUrl;
-    const remoteUrls = this.$store.state.repositoryUrls;
-    return [localUrl, ...remoteUrls];
-  }
-
-  private get url(): string {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
-
-  @Watch("url")
-  private updateUrl() {
-    this.targetUrl = this.url;
-  }
-
-  private connect(): void {
-    (this.$refs.urlField as any).blur();
-    this.$nextTick(() => {
-      if (this.targetUrl) {
-        this.startRemoteConnection(this.targetUrl);
-      } else {
-        console.warn("Target URL is empty.");
-      }
+    const urls = computed((): string[] => {
+      const localUrl = store.state.repositoryService.serviceUrl;
+      const remoteUrls = store.state.repositoryUrls;
+      return [localUrl, ...remoteUrls];
     });
-  }
 
-  private async initialize(): Promise<void> {
-    await this.$store.dispatch("loadLocaleFromSettings");
-    await this.$store.dispatch("readSettings");
-    await this.$store.dispatch("readViewSettings");
-    await this.$store.dispatch("operationHistory/clearTestResult");
-    this.$store.commit("operationHistory/clearStoringTestResultInfos");
-    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-    this.$store.commit("operationHistory/clearElementCoverages");
-    this.$store.commit("operationHistory/clearInputValueTable");
-    await this.$store.dispatch("captureControl/resetTimer");
-    await this.$store.dispatch("testManagement/readProject");
-  }
+    const url = computed((): string => {
+      return store.state.repositoryService.serviceUrl;
+    });
 
-  private startRemoteConnection(targetUrl: string) {
-    (async () => {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "remote-access.connecting-remote-url"
-        ),
+    const targetUrl = ref(url.value);
+
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
+
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const updateUrl = () => {
+      targetUrl.value = url.value;
+    };
+
+    const connect = (): void => {
+      (urlField.value as any).blur();
+      nextTick(() => {
+        if (targetUrl.value) {
+          startRemoteConnection(targetUrl.value);
+        } else {
+          console.warn("Target URL is empty.");
+        }
       });
+    };
 
-      try {
-        const url = await this.$store.dispatch("connectRepository", {
-          targetUrl,
+    const initialize = async (): Promise<void> => {
+      await store.dispatch("loadLocaleFromSettings");
+      await store.dispatch("readSettings");
+      await store.dispatch("readViewSettings");
+      await store.dispatch("operationHistory/clearTestResult");
+      store.commit("operationHistory/clearStoringTestResultInfos");
+      store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+      store.commit("operationHistory/clearElementCoverages");
+      store.commit("operationHistory/clearInputValueTable");
+      await store.dispatch("captureControl/resetTimer");
+      await store.dispatch("testManagement/readProject");
+    };
+
+    const startRemoteConnection = (targetUrl: string) => {
+      (async () => {
+        store.dispatch("openProgressDialog", {
+          message: store.getters.message("remote-access.connecting-remote-url"),
         });
 
-        await this.initialize();
+        try {
+          const url = await store.dispatch("connectRepository", {
+            targetUrl,
+          });
 
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message("common.confirm");
-        this.informationMessage = this.$store.getters.message(
-          "remote-access.connect-remote-url-succeeded",
-          {
-            url,
+          await initialize();
+
+          informationMessageDialogOpened.value = true;
+          informationTitle.value = store.getters.message("common.confirm");
+          informationMessage.value = store.getters.message(
+            "remote-access.connect-remote-url-succeeded",
+            {
+              url,
+            }
+          );
+          remoteUrl.value = url;
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
           }
-        );
-        this.remoteUrl = url;
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+        } finally {
+          store.dispatch("closeProgressDialog");
         }
-      } finally {
-        this.$store.dispatch("closeProgressDialog");
-      }
-    })();
-  }
-}
+      })();
+    };
+
+    watch(url, updateUrl);
+
+    return {
+      store,
+      urlField,
+      informationMessageDialogOpened,
+      informationTitle,
+      informationMessage,
+      errorMessageDialogOpened,
+      errorMessage,
+      urls,
+      url,
+      targetUrl,
+      isCapturing,
+      isReplaying,
+      connect,
+    };
+  },
+});
 </script>

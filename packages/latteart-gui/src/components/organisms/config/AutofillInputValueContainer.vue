@@ -27,14 +27,14 @@
       </v-col>
       <v-col cols="9">
         <v-text-field
-          :label="$store.getters.message('config-page.autofill.setting-name')"
+          :label="store.getters.message('config-page.autofill.setting-name')"
           :value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
         <v-btn @click="deleteConditionGroup" color="error">{{
-          $store.getters.message("common.delete")
+          store.getters.message("common.delete")
         }}</v-btn>
       </v-col>
     </v-row>
@@ -71,7 +71,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
-            :label="$store.getters.message('config-page.autofill.locator-type')"
+            :label="store.getters.message('config-page.autofill.locator-type')"
             :value="item.locatorType"
             @change="(locatorType) => updateCondition(index, { locatorType })"
             :items="locatorTypeList"
@@ -81,7 +81,7 @@
         <v-col cols="2">
           <v-select
             :label="
-              $store.getters.message('config-page.autofill.locator-match-type')
+              store.getters.message('config-page.autofill.locator-match-type')
             "
             :value="item.locatorMatchType"
             @change="
@@ -93,7 +93,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            :label="$store.getters.message('config-page.autofill.locator')"
+            :label="store.getters.message('config-page.autofill.locator')"
             :value="item.locator"
             @change="(locator) => updateCondition(index, { locator })"
             class="px-1"
@@ -101,7 +101,7 @@
         </v-col>
         <v-col cols="2">
           <number-field
-            :label="$store.getters.message('config-page.autofill.iframe-index')"
+            :label="store.getters.message('config-page.autofill.iframe-index')"
             :item="item.iframeIndex"
             :value="item.iframeIndex"
             :allowBlank="true"
@@ -119,7 +119,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
-            :label="$store.getters.message('config-page.autofill.input-value')"
+            :label="store.getters.message('config-page.autofill.input-value')"
             :value="item.inputValue"
             @change="(value) => updateCondition(index, { inputValue: value })"
             class="px-1"
@@ -133,74 +133,88 @@
       </v-row>
     </div>
     <v-btn @click="addCondition">{{
-      $store.getters.message("config-page.autofill.adding-autofill-values")
+      store.getters.message("config-page.autofill.adding-autofill-values")
     }}</v-btn>
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ScreenDefUnit from "./ScreenDefUnit.vue";
 import {
   AutofillCondition,
   AutofillConditionGroup,
 } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    conditionGroup: {
+      type: Object as PropType<AutofillConditionGroup>,
+      default: null,
+      required: true,
+    },
+    index: { type: Number, default: null, required: true },
+  },
   components: {
     "screen-def-unit": ScreenDefUnit,
     "number-field": NumberField,
   },
-})
-export default class AutofillInputValueContainer extends Vue {
-  @Prop({
-    type: Object,
-    default: null,
-  })
-  public readonly conditionGroup!: AutofillConditionGroup;
+  setup(props, context) {
+    const store = useStore();
 
-  @Prop({ type: Number, default: null })
-  public readonly index!: number;
+    const locatorTypeList = computed(() => {
+      return ["id", "xpath"];
+    });
 
-  private get locatorTypeList() {
-    return ["id", "xpath"];
-  }
+    const locatorMatchType = computed(() => {
+      return (locatorType: "id" | "xpath") => {
+        return locatorType === "id" ? ["equals", "contains"] : ["equals"];
+      };
+    });
 
-  private get locatorMatchType() {
-    return (locatorType: "id" | "xpath") => {
-      return locatorType === "id" ? ["equals", "contains"] : ["equals"];
+    const addCondition = () => {
+      context.emit("add-condition", props.index);
     };
-  }
 
-  private addCondition() {
-    this.$emit("add-condition", this.index);
-  }
+    const updateconditionGroup = (
+      conditionGroup: Partial<AutofillConditionGroup>
+    ) => {
+      context.emit("update-condition-group", conditionGroup, props.index);
+    };
 
-  private updateconditionGroup(
-    conditionGroup: Partial<AutofillConditionGroup>
-  ) {
-    this.$emit("update-condition-group", conditionGroup, this.index);
-  }
+    const updateCondition = (
+      index: number,
+      condition: Partial<AutofillCondition>
+    ) => {
+      if (condition.locatorType === "xpath") {
+        condition.locatorMatchType = "equals";
+      }
+      context.emit("update-condition", condition, index, props.index);
+    };
 
-  private updateCondition(
-    index: number,
-    condition: Partial<AutofillCondition>
-  ) {
-    if (condition.locatorType === "xpath") {
-      condition.locatorMatchType = "equals";
-    }
-    this.$emit("update-condition", condition, index, this.index);
-  }
+    const deleteConditionGroup = () => {
+      context.emit("delete-condition-group", props.index);
+    };
 
-  private deleteConditionGroup() {
-    this.$emit("delete-condition-group", this.index);
-  }
+    const deleteCondition = (index: number) => {
+      context.emit("delete-condition", index, props.index);
+    };
 
-  private deleteCondition(index: number) {
-    this.$emit("delete-condition", index, this.index);
-  }
-}
+    return {
+      store,
+      locatorTypeList,
+      locatorMatchType,
+      addCondition,
+      updateconditionGroup,
+      updateCondition,
+      deleteConditionGroup,
+      deleteCondition,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

@@ -21,7 +21,7 @@
         <v-checkbox
           v-model="isExcludeItemsEnabled"
           :label="
-            $store.getters.message(
+            store.getters.message(
               'config-page.comparison-exclude-items-enabled'
             )
           "
@@ -37,7 +37,7 @@
           item-value="value"
           :menu-props="{ maxHeight: '400' }"
           :label="
-            $store.getters.message('config-page.comparison-exclude-items-value')
+            store.getters.message('config-page.comparison-exclude-items-value')
           "
           multiple
           @change="changeExcludeItems"
@@ -49,7 +49,7 @@
         <v-checkbox
           v-model="isExcludeElementsEnabled"
           :label="
-            $store.getters.message(
+            store.getters.message(
               'config-page.comparison-exclude-elements-enabled'
             )
           "
@@ -63,7 +63,7 @@
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
           :label="
-            $store.getters.message(
+            store.getters.message(
               'config-page.comparison-exclude-elements-tagname'
             )
           "
@@ -79,165 +79,179 @@
 
 <script lang="ts">
 import { TestResultComparisonSetting } from "@/lib/common/settings/Settings";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component
-export default class CompareConfig extends Vue {
-  @Prop({ type: Array, default: () => [] }) public readonly tags!: string[];
-  @Prop({
-    type: Object,
-    default: () => {
-      /** nothing */
+export default defineComponent({
+  props: {
+    tags: {
+      type: Array as PropType<string[]>,
+      default: () => [],
+      required: true,
     },
-  })
-  public readonly setting!: TestResultComparisonSetting;
-  private excludeItemValues: string[] = [];
-  private excludeElementTags: string[] = [];
-  private tempSetting: TestResultComparisonSetting = {
-    excludeItems: {
-      isEnabled: false,
-      values: [],
+    setting: {
+      type: Object as PropType<TestResultComparisonSetting>,
+      default: () => {
+        /** nothing */
+      },
+      required: true,
     },
-    excludeElements: {
-      isEnabled: false,
-      values: [],
-    },
-  };
+  },
+  setup(props, context) {
+    const store = useStore();
 
-  @Watch("setting")
-  private updateTempSetting() {
-    this.tempSetting = { ...this.setting };
-  }
-
-  private get tempTags() {
-    return this.tags.sort();
-  }
-
-  private get tempExcludeItems(): { text: string; value: string }[] {
-    return [
-      {
-        text: `${this.$store.getters.message(
-          "test-result-comparison-items.title"
-        )}`,
-        value: "title",
-      },
-      {
-        text: `${this.$store.getters.message(
-          "test-result-comparison-items.url"
-        )}`,
-        value: "url",
-      },
-      {
-        text: `${this.$store.getters.message(
-          "test-result-comparison-items.elementTexts"
-        )}`,
-        value: "elementTexts",
-      },
-      {
-        text: `${this.$store.getters.message(
-          "test-result-comparison-items.screenshot"
-        )}`,
-        value: "screenshot",
-      },
-    ];
-  }
-
-  private get isExcludeItemsEnabled(): boolean {
-    return this.setting.excludeItems.isEnabled;
-  }
-
-  private set isExcludeItemsEnabled(isEnabled: boolean) {
-    this.$emit("save-config", {
-      testResultComparison: {
-        excludeItems: {
-          isEnabled,
-          values: this.setting.excludeItems.values,
-        },
-        excludeElements: {
-          isEnabled: this.setting.excludeElements.isEnabled,
-          values: this.setting.excludeElements.values,
-        },
-      },
-    });
-  }
-
-  private get isExcludeElementsEnabled(): boolean {
-    return this.setting.excludeElements.isEnabled;
-  }
-
-  private set isExcludeElementsEnabled(isEnabled: boolean) {
-    this.$emit("save-config", {
-      testResultComparison: {
-        excludeItems: {
-          isEnabled: this.setting.excludeItems.isEnabled,
-          values: this.setting.excludeItems.values,
-        },
-        excludeElements: {
-          isEnabled,
-          values: this.setting.excludeElements.values,
-        },
-      },
-    });
-  }
-
-  private get excludeItems(): string[] {
-    return this.setting.excludeItems.values;
-  }
-
-  private set excludeItems(excludeItemValues: string[]) {
-    this.excludeItemValues = excludeItemValues;
-  }
-
-  private get excludeElements(): string[] {
-    return this.setting.excludeElements.values.map(({ tagname }) => tagname);
-  }
-
-  private set excludeElements(excludeElementTags: string[]) {
-    this.excludeElementTags = excludeElementTags;
-  }
-
-  private changeExcludeItems() {
-    const tmpList = this.excludeItemValues.filter((tag) => {
-      return tag !== "";
+    const excludeItemValues = ref<string[]>([]);
+    const excludeElementTags = ref<string[]>([]);
+    const tempSetting = ref<TestResultComparisonSetting>({
+      excludeItems: { isEnabled: false, values: [] },
+      excludeElements: { isEnabled: false, values: [] },
     });
 
-    this.$emit("save-config", {
-      testResultComparison: {
-        excludeItems: {
-          isEnabled: this.setting.excludeItems.isEnabled,
-          values: tmpList,
+    const updateTempSetting = () => {
+      tempSetting.value = { ...props.setting };
+    };
+
+    const tempTags = computed(() => {
+      return props.tags.sort();
+    });
+
+    const tempExcludeItems = computed((): { text: string; value: string }[] => {
+      return [
+        {
+          text: `${store.getters.message(
+            "test-result-comparison-items.title"
+          )}`,
+          value: "title",
         },
-        excludeElements: {
-          isEnabled: this.setting.excludeElements.isEnabled,
-          values: this.setting.excludeElements.values,
+        {
+          text: `${store.getters.message("test-result-comparison-items.url")}`,
+          value: "url",
         },
+        {
+          text: `${store.getters.message(
+            "test-result-comparison-items.elementTexts"
+          )}`,
+          value: "elementTexts",
+        },
+        {
+          text: `${store.getters.message(
+            "test-result-comparison-items.screenshot"
+          )}`,
+          value: "screenshot",
+        },
+      ];
+    });
+
+    const isExcludeItemsEnabled = computed({
+      get: (): boolean => props.setting.excludeItems.isEnabled,
+      set: (isEnabled: boolean) => {
+        context.emit("save-config", {
+          testResultComparison: {
+            excludeItems: {
+              isEnabled,
+              values: props.setting.excludeItems.values,
+            },
+            excludeElements: {
+              isEnabled: props.setting.excludeElements.isEnabled,
+              values: props.setting.excludeElements.values,
+            },
+          },
+        });
       },
     });
-  }
 
-  private changeExcludeElements() {
-    const tmpList = this.excludeElementTags
-      .filter((tag) => {
+    const isExcludeElementsEnabled = computed({
+      get: (): boolean => props.setting.excludeElements.isEnabled,
+      set: (isEnabled: boolean) => {
+        context.emit("save-config", {
+          testResultComparison: {
+            excludeItems: {
+              isEnabled: props.setting.excludeItems.isEnabled,
+              values: props.setting.excludeItems.values,
+            },
+            excludeElements: {
+              isEnabled,
+              values: props.setting.excludeElements.values,
+            },
+          },
+        });
+      },
+    });
+
+    const excludeItems = computed({
+      get: (): string[] => props.setting.excludeItems.values,
+      set: (items: string[]) => {
+        excludeItemValues.value = items;
+      },
+    });
+
+    const excludeElements = computed({
+      get: (): string[] =>
+        props.setting.excludeElements.values.map(({ tagname }) => tagname),
+      set: (tags: string[]) => {
+        excludeElementTags.value = tags;
+      },
+    });
+
+    const changeExcludeItems = () => {
+      const tmpList = excludeItemValues.value.filter((tag) => {
         return tag !== "";
-      })
-      .map((tag) => {
-        return { tagname: tag };
       });
 
-    this.$emit("save-config", {
-      testResultComparison: {
-        excludeItems: {
-          isEnabled: this.setting.excludeItems.isEnabled,
-          values: this.setting.excludeItems.values,
+      context.emit("save-config", {
+        testResultComparison: {
+          excludeItems: {
+            isEnabled: props.setting.excludeItems.isEnabled,
+            values: tmpList,
+          },
+          excludeElements: {
+            isEnabled: props.setting.excludeElements.isEnabled,
+            values: props.setting.excludeElements.values,
+          },
         },
-        excludeElements: {
-          isEnabled: this.setting.excludeElements.isEnabled,
-          values: tmpList,
+      });
+    };
+
+    const changeExcludeElements = () => {
+      const tmpList = excludeElementTags.value
+        .filter((tag) => {
+          return tag !== "";
+        })
+        .map((tag) => {
+          return { tagname: tag };
+        });
+
+      context.emit("save-config", {
+        testResultComparison: {
+          excludeItems: {
+            isEnabled: props.setting.excludeItems.isEnabled,
+            values: props.setting.excludeItems.values,
+          },
+          excludeElements: {
+            isEnabled: props.setting.excludeElements.isEnabled,
+            values: tmpList,
+          },
         },
-      },
-    });
-  }
-}
+      });
+    };
+
+    const { setting } = toRefs(props);
+    watch(setting, updateTempSetting);
+
+    return {
+      store,
+      tempTags,
+      tempExcludeItems,
+      isExcludeItemsEnabled,
+      isExcludeElementsEnabled,
+      excludeItems,
+      excludeElements,
+      changeExcludeItems,
+      changeExcludeElements,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
