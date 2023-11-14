@@ -19,96 +19,106 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
 import LineChart from "@/components/molecules/LineChart.vue";
 import { abbreviatedCharLength } from "@/lib/common/util";
 import "chartjs-plugin-colorschemes/src/plugins/plugin.colorschemes";
 import Chart from "chart.js";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 const {
   Aspect6,
   // eslint-disable-next-line @typescript-eslint/no-var-requires
 } = require("chartjs-plugin-colorschemes/src/colorschemes/colorschemes.office");
 
-@Component({
+export default defineComponent({
+  props: {
+    qualityDatas: { type: Object as PropType<any>, required: true },
+    totalBugNum: { type: Number, required: true },
+  },
   components: {
     "line-chart": LineChart,
   },
-})
-export default class QualityChart extends Vue {
-  @Prop({ type: Object }) public readonly qualityDatas!: any;
-  @Prop({ type: Number }) public readonly totalBugNum!: number;
+  setup(props) {
+    const store = useStore();
 
-  private get chartData() {
-    return {
-      labels: this.getLabels(),
-      datasets: this.qualityDatas.datasets.map((data: any) => {
-        data.label = abbreviatedCharLength(data.label, 20);
-        return data;
-      }),
-    };
-  }
-
-  private get chartOptions(): Chart.ChartOptions {
-    return {
-      maintainAspectRatio: false,
-      responsive: true,
-      title: {
-        display: false,
-      },
-      legend: {
-        position: "right",
-        labels: {
-          boxWidth: 30,
-        },
-      },
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              min: 0,
-              stepSize: this.totalBugNum > 10 ? 5 : 1,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: this.$store.getters.message(
-                "quality-chart.bug-report-number"
-              ),
-            },
-          },
-        ],
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: this.$store.getters.message(
-                "quality-chart.number-session"
-              ),
-            },
-          },
-        ],
-      },
-      plugins: {
-        colorschemes: {
-          scheme: Aspect6,
-        },
-      },
-    };
-  }
-
-  private getLabels() {
-    let maxLen = 0;
-    this.qualityDatas.datasets.forEach((dataset: any) => {
-      if (maxLen < dataset.data.length) {
-        maxLen = dataset.data.length;
-      }
+    const chartData = computed(() => {
+      return {
+        labels: getLabels(),
+        datasets: props.qualityDatas.datasets.map((data: any) => {
+          data.label = abbreviatedCharLength(data.label, 20);
+          return data;
+        }),
+      };
     });
-    if (maxLen <= 10) {
-      maxLen = 10;
-    }
-    return [...Array(maxLen).keys()].map((i) => String(i++));
-  }
-}
+
+    const chartOptions = computed((): Chart.ChartOptions => {
+      return {
+        maintainAspectRatio: false,
+        responsive: true,
+        title: {
+          display: false,
+        },
+        legend: {
+          position: "right",
+          labels: {
+            boxWidth: 30,
+          },
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                min: 0,
+                stepSize: props.totalBugNum > 10 ? 5 : 1,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: store.getters.message(
+                  "quality-chart.bug-report-number"
+                ),
+              },
+            },
+          ],
+          xAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: store.getters.message(
+                  "quality-chart.number-session"
+                ),
+              },
+            },
+          ],
+        },
+        plugins: {
+          colorschemes: {
+            scheme: Aspect6,
+          },
+        },
+      };
+    });
+
+    const getLabels = () => {
+      let maxLen = 0;
+      props.qualityDatas.datasets.forEach((dataset: any) => {
+        if (maxLen < dataset.data.length) {
+          maxLen = dataset.data.length;
+        }
+      });
+      if (maxLen <= 10) {
+        maxLen = 10;
+      }
+      return [...Array(maxLen).keys()].map((i) => String(i++));
+    };
+
+    return {
+      store,
+      chartData,
+      chartOptions,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

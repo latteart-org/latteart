@@ -19,13 +19,13 @@
     <v-row class="mt-2">
       <v-col cols="12">
         {{
-          $store.getters.message("progress-management.display-settings-section")
+          store.getters.message("progress-management.display-settings-section")
         }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ $store.getters.message("progress-management.period") }}
+        {{ store.getters.message("progress-management.period") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -56,7 +56,7 @@
         </v-menu>
       </v-col>
       <v-col align-self="center" cols="1" class="pt-0">
-        {{ $store.getters.message("progress-management.period-symbol") }}
+        {{ store.getters.message("progress-management.period-symbol") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -90,7 +90,7 @@
 
     <v-row>
       <v-col cols="12">
-        {{ $store.getters.message("progress-management.filter-section") }}
+        {{ store.getters.message("progress-management.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -101,7 +101,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('progress-management.test-matrix')"
+          :label="store.getters.message('progress-management.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -112,7 +112,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('progress-management.group')"
+          :label="store.getters.message('progress-management.group')"
         ></v-select>
       </v-col>
 
@@ -123,7 +123,7 @@
           item-text="name"
           item-value="id"
           class="mx-3 ellipsis"
-          :label="$store.getters.message('progress-management.test-target')"
+          :label="store.getters.message('progress-management.test-target')"
         ></v-select>
       </v-col>
     </v-row>
@@ -137,236 +137,255 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import ProgressChart from "@/components/organisms/progressManagement/ProgressChart.vue";
 import Chart from "chart.js";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { DailyTestProgress } from "@/lib/testManagement/types";
 import { TestManagementState } from "@/store/testManagement";
+import { computed, defineComponent, ref, nextTick } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "progress-chart": ProgressChart,
   },
-})
-export default class ProgressManagementPage extends Vue {
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
-  private rerender = true;
-  private startDateMenu = false;
-  private endDateMenu = false;
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private startDate = "";
-  private endDate = "";
+    const rerender = ref(true);
+    const startDateMenu = ref(false);
+    const endDateMenu = ref(false);
 
-  private selectedTestMatrixId = "all";
-  private selectedGroupId = "all";
-  private selectedTestTargetId = "all";
+    const startDate = ref("");
+    const endDate = ref("");
 
-  private progressDatas: DailyTestProgress[] = [];
+    const selectedTestMatrixId = ref("all");
+    const selectedGroupId = ref("all");
+    const selectedTestTargetId = ref("all");
 
-  private get testMatrices() {
-    const testManagementState = this.$store.state
-      .testManagement as TestManagementState;
+    const progressDatas = ref<DailyTestProgress[]>([]);
 
-    const all = {
-      ...this.unselectedItem,
-      groups: testManagementState.testMatrices.flatMap(
-        (testMatrix) => testMatrix.groups
-      ),
-    };
-    return [all, ...testManagementState.testMatrices];
-  }
+    const testMatrices = computed(() => {
+      const testManagementState = (store.state as any)
+        .testManagement as TestManagementState;
 
-  private get groups() {
-    const groups =
-      this.testMatrices.find(
-        (testMatrix) => testMatrix.id === this.selectedTestMatrixId
-      )?.groups ?? [];
+      const all = {
+        ...unselectedItem.value,
+        groups: testManagementState.testMatrices.flatMap(
+          (testMatrix) => testMatrix.groups
+        ),
+      };
+      return [all, ...testManagementState.testMatrices];
+    });
 
-    if (!groups.find(({ id }) => id === this.selectedGroupId)) {
-      this.selectedGroupId = this.unselectedItem.id;
-    }
+    const groups = computed(() => {
+      const groups =
+        testMatrices.value.find(
+          (testMatrix) => testMatrix.id === selectedTestMatrixId.value
+        )?.groups ?? [];
 
-    const all = {
-      ...this.unselectedItem,
-      testTargets: groups.flatMap((group) => group.testTargets),
-    };
-    return [all, ...groups];
-  }
+      if (!groups.find(({ id }) => id === selectedGroupId.value)) {
+        selectedGroupId.value = unselectedItem.value.id;
+      }
 
-  private get testTargets() {
-    const testTargets =
-      this.groups.find((group) => group.id === this.selectedGroupId)
-        ?.testTargets ?? [];
+      const all = {
+        ...unselectedItem.value,
+        testTargets: groups.flatMap((group) => group.testTargets),
+      };
+      return [all, ...groups];
+    });
 
-    if (!testTargets.find(({ id }) => id === this.selectedTestTargetId)) {
-      this.selectedTestTargetId = this.unselectedItem.id;
-    }
+    const testTargets = computed(() => {
+      const testTargets =
+        groups.value.find((group) => group.id === selectedGroupId.value)
+          ?.testTargets ?? [];
 
-    return [this.unselectedItem, ...testTargets];
-  }
+      if (!testTargets.find(({ id }) => id === selectedTestTargetId.value)) {
+        selectedTestTargetId.value = unselectedItem.value.id;
+      }
 
-  private get unselectedItem(): { id: string; name: string } {
-    return {
-      id: "all",
-      name: this.$store.getters.message("progress-management.all"),
-    };
-  }
+      return [unselectedItem.value, ...testTargets];
+    });
 
-  private get filteredProgressDatas() {
-    const filteredDatas = this.progressDatas.map((dailyProgress) => {
-      const storyProgresses = dailyProgress.storyProgresses
-        .filter(({ testMatrixId }) => {
-          if (this.selectedTestMatrixId === "all") {
-            return true;
-          }
-          return testMatrixId === this.selectedTestMatrixId;
-        })
-        .filter(({ testTargetGroupId }) => {
-          if (this.selectedGroupId === "all") {
-            return true;
-          }
-          return testTargetGroupId === this.selectedGroupId;
-        })
-        .filter(({ testTargetId }) => {
-          if (this.selectedTestTargetId === "all") {
-            return true;
-          }
-          return testTargetId === this.selectedTestTargetId;
-        });
-
+    const unselectedItem = computed((): { id: string; name: string } => {
       return {
-        date: dailyProgress.date,
-        storyProgresses,
+        id: "all",
+        name: store.getters.message("progress-management.all"),
       };
     });
 
-    return filteredDatas.map((dailyProgress) => {
-      return dailyProgress.storyProgresses.reduce(
-        (
-          acc,
+    const filteredProgressDatas = computed(() => {
+      const filteredDatas = progressDatas.value.map((dailyProgress) => {
+        const storyProgresses = dailyProgress.storyProgresses
+          .filter(({ testMatrixId }) => {
+            if (selectedTestMatrixId.value === "all") {
+              return true;
+            }
+            return testMatrixId === selectedTestMatrixId.value;
+          })
+          .filter(({ testTargetGroupId }) => {
+            if (selectedGroupId.value === "all") {
+              return true;
+            }
+            return testTargetGroupId === selectedGroupId.value;
+          })
+          .filter(({ testTargetId }) => {
+            if (selectedTestTargetId.value === "all") {
+              return true;
+            }
+            return testTargetId === selectedTestTargetId.value;
+          });
+
+        return {
+          date: dailyProgress.date,
+          storyProgresses,
+        };
+      });
+
+      return filteredDatas.map((dailyProgress) => {
+        return dailyProgress.storyProgresses.reduce(
+          (
+            acc,
+            {
+              plannedSessionNumber,
+              completedSessionNumber,
+              incompletedSessionNumber,
+            }
+          ) => {
+            acc.planNumber += plannedSessionNumber;
+            acc.completedNumber += completedSessionNumber;
+            acc.incompletedNumber += incompletedSessionNumber;
+            return acc;
+          },
           {
-            plannedSessionNumber,
-            completedSessionNumber,
-            incompletedSessionNumber,
+            date: new TimestampImpl(dailyProgress.date).format("YYYY-MM-DD"),
+            planNumber: 0,
+            completedNumber: 0,
+            incompletedNumber: 0,
           }
-        ) => {
-          acc.planNumber += plannedSessionNumber;
-          acc.completedNumber += completedSessionNumber;
-          acc.incompletedNumber += incompletedSessionNumber;
-          return acc;
-        },
-        {
-          date: new TimestampImpl(dailyProgress.date).format("YYYY-MM-DD"),
-          planNumber: 0,
-          completedNumber: 0,
-          incompletedNumber: 0,
+        );
+      });
+    });
+
+    const chartData = computed((): Chart.ChartData => {
+      rerender.value = false;
+
+      nextTick(() => {
+        rerender.value = true;
+      });
+
+      return {
+        labels: filteredProgressDatas.value.map(
+          (progressData) => progressData.date
+        ),
+        datasets: filteredProgressDatas.value.reduce(
+          (acc, current) => {
+            acc[0].data.push(current.planNumber);
+            acc[1].data.push(current.completedNumber);
+            acc[2].data.push(current.incompletedNumber);
+            return acc;
+          },
+          [
+            {
+              label: store.getters.message(
+                "progress-management.planned-sessions"
+              ),
+              borderColor: "#0077ff",
+              data: [] as number[],
+              fill: false,
+              lineTension: 0,
+            },
+            {
+              label: store.getters.message(
+                "progress-management.completed-sessions"
+              ),
+              borderColor: "#00ff77",
+              data: [] as number[],
+              fill: false,
+              lineTension: 0,
+            },
+            {
+              label: store.getters.message(
+                "progress-management.incompleted-sessions"
+              ),
+              borderColor: "#ff5555",
+              data: [] as number[],
+              fill: false,
+              lineTension: 0,
+            },
+          ]
+        ),
+      };
+    });
+
+    const updatePeriod = (value: { start?: string; end?: string }) => {
+      (async () => {
+        if (value.start) {
+          startDate.value = new TimestampImpl(value.start).format("YYYY-MM-DD");
         }
+
+        if (value.end) {
+          endDate.value = new TimestampImpl(value.end).format("YYYY-MM-DD");
+        }
+
+        progressDatas.value = await collectProgressDatas();
+      })();
+    };
+
+    const collectProgressDatas = async (): Promise<DailyTestProgress[]> => {
+      const filter = {
+        period:
+          startDate.value && endDate.value
+            ? {
+                since: new TimestampImpl(startDate.value),
+                until: new TimestampImpl(endDate.value),
+              }
+            : undefined,
+      };
+
+      return store.dispatch("testManagement/collectProgressDatas", filter);
+    };
+
+    (async () => {
+      await store.dispatch("changeWindowTitle", {
+        title: store.getters.message(route.meta?.title ?? ""),
+      });
+
+      await store.dispatch("testManagement/readProject");
+
+      progressDatas.value = await collectProgressDatas();
+
+      const dates = progressDatas.value.map((data) => {
+        return new TimestampImpl(data.date).unix();
+      });
+      startDate.value = new TimestampImpl(Math.min(...dates)).format(
+        "YYYY-MM-DD"
       );
-    });
-  }
-
-  private get chartData(): Chart.ChartData {
-    this.rerender = false;
-
-    Vue.nextTick(() => {
-      this.rerender = true;
-    });
+      endDate.value = new TimestampImpl(Math.max(...dates)).format(
+        "YYYY-MM-DD"
+      );
+    })();
 
     return {
-      labels: this.filteredProgressDatas.map(
-        (progressData) => progressData.date
-      ),
-      datasets: this.filteredProgressDatas.reduce(
-        (acc, current) => {
-          acc[0].data.push(current.planNumber);
-          acc[1].data.push(current.completedNumber);
-          acc[2].data.push(current.incompletedNumber);
-          return acc;
-        },
-        [
-          {
-            label: this.$store.getters.message(
-              "progress-management.planned-sessions"
-            ),
-            borderColor: "#0077ff",
-            data: [] as number[],
-            fill: false,
-            lineTension: 0,
-          },
-          {
-            label: this.$store.getters.message(
-              "progress-management.completed-sessions"
-            ),
-            borderColor: "#00ff77",
-            data: [] as number[],
-            fill: false,
-            lineTension: 0,
-          },
-          {
-            label: this.$store.getters.message(
-              "progress-management.incompleted-sessions"
-            ),
-            borderColor: "#ff5555",
-            data: [] as number[],
-            fill: false,
-            lineTension: 0,
-          },
-        ]
-      ),
+      store,
+      rerender,
+      startDateMenu,
+      endDateMenu,
+      startDate,
+      endDate,
+      selectedTestMatrixId,
+      selectedGroupId,
+      selectedTestTargetId,
+      testMatrices,
+      groups,
+      testTargets,
+      chartData,
+      updatePeriod,
     };
-  }
-
-  private get locale() {
-    return this.$store.getters.getLocale();
-  }
-
-  private async created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
-    });
-
-    await this.$store.dispatch("testManagement/readProject");
-
-    this.progressDatas = await this.collectProgressDatas();
-
-    const dates = this.progressDatas.map((data) => {
-      return new TimestampImpl(data.date).unix();
-    });
-    this.startDate = new TimestampImpl(Math.min(...dates)).format("YYYY-MM-DD");
-    this.endDate = new TimestampImpl(Math.max(...dates)).format("YYYY-MM-DD");
-  }
-
-  private updatePeriod(value: { start?: string; end?: string }) {
-    (async () => {
-      if (value.start) {
-        this.startDate = new TimestampImpl(value.start).format("YYYY-MM-DD");
-      }
-
-      if (value.end) {
-        this.endDate = new TimestampImpl(value.end).format("YYYY-MM-DD");
-      }
-
-      this.progressDatas = await this.collectProgressDatas();
-    })();
-  }
-
-  private async collectProgressDatas(): Promise<DailyTestProgress[]> {
-    const filter = {
-      period:
-        this.startDate && this.endDate
-          ? {
-              since: new TimestampImpl(this.startDate),
-              until: new TimestampImpl(this.endDate),
-            }
-          : undefined,
-    };
-
-    return this.$store.dispatch("testManagement/collectProgressDatas", filter);
-  }
-}
+  },
+});
 </script>
 
 <style lang="sass" scoped>
