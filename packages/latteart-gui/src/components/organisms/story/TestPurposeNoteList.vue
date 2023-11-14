@@ -18,7 +18,7 @@
   <div class="mt-0 pt-0">
     <v-card class="ma-2">
       <v-card-title>{{
-        $store.getters.message("test-purpose-note-list.title")
+        store.getters.message("test-purpose-note-list.title")
       }}</v-card-title>
       <v-btn
         v-if="displayedItems.length > 0"
@@ -27,8 +27,8 @@
         @click="openAllTestPurposes()"
         >{{
           isAllSelect
-            ? $store.getters.message("test-purpose-note-list.close")
-            : $store.getters.message("test-purpose-note-list.open")
+            ? store.getters.message("test-purpose-note-list.close")
+            : store.getters.message("test-purpose-note-list.open")
         }}</v-btn
       >
       <v-card-text
@@ -77,7 +77,7 @@
                     )
                   "
                   >{{
-                    $store.getters.message("test-purpose-note-list.details")
+                    store.getters.message("test-purpose-note-list.details")
                   }}</v-btn
                 >
               </v-list-item-action>
@@ -110,7 +110,7 @@
                     )
                   "
                   >{{
-                    $store.getters.message("test-purpose-note-list.details")
+                    store.getters.message("test-purpose-note-list.details")
                   }}</v-btn
                 >
               </v-list-item-action>
@@ -136,7 +136,7 @@
 
     <scrollable-dialog :opened="testPurposeOpened">
       <template v-slot:title>{{
-        $store.getters.message("note-details-dialog.details")
+        store.getters.message("note-details-dialog.details")
       }}</template>
 
       <template v-slot:content>
@@ -144,7 +144,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("note-details-dialog.summary")
+                store.getters.message("note-details-dialog.summary")
               }}</v-list-item-title>
               <p class="break-all">{{ summary }}</p>
             </v-list-item-content>
@@ -153,7 +153,7 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("note-details-dialog.details")
+                store.getters.message("note-details-dialog.details")
               }}</v-list-item-title>
               <p class="break-all pre-wrap">{{ details }}</p>
             </v-list-item-content>
@@ -164,7 +164,7 @@
       <template v-slot:footer>
         <v-spacer></v-spacer>
         <v-btn color="primary" text @click="testPurposeOpened = false">{{
-          $store.getters.message("common.close")
+          store.getters.message("common.close")
         }}</v-btn>
       </template>
     </scrollable-dialog>
@@ -175,8 +175,10 @@
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
 import { Session } from "@/lib/testManagement/types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NoteDetailsDialog from "../dialog/NoteDetailsDialog.vue";
+import { computed, defineComponent, onMounted, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
 type DisplayedItem = {
   testResultId: string;
@@ -197,143 +199,175 @@ type DisplayedItem = {
   }[];
 };
 
-@Component({
+export default defineComponent({
+  props: {
+    testPurposes: {
+      type: Array as PropType<Session["testPurposes"]>,
+      default: [],
+    },
+    testResult: {
+      type: Array as PropType<Session["testResultFiles"]>,
+      default: [],
+    },
+  },
   components: {
     "note-details-dialog": NoteDetailsDialog,
     "note-tag-chip-group": NoteTagChipGroup,
     "scrollable-dialog": ScrollableDialog,
   },
-})
-export default class TestPurposeNoteList extends Vue {
-  @Prop({ type: Array, default: [] })
-  public readonly testPurposes?: Session["testPurposes"];
-  @Prop({ type: Array, default: [] })
-  public readonly testResult?: Session["testResultFiles"];
+  setup(props, context) {
+    const store = useStore();
 
-  private opened = false;
-  private testPurposeOpened = false;
+    const opened = ref(false);
+    const testPurposeOpened = ref(false);
 
-  private testResultId = "";
-  private noteId = "";
-  private summary = "";
-  private details = "";
-  private imagePath = "";
-  private videoUrl = "";
-  private tags: string[] = [];
-  private selectedItems: boolean[][] = [];
-  private displayedItems: DisplayedItem[] = [];
+    const testResultId = ref("");
+    const noteId = ref("");
+    const summary = ref("");
+    const details = ref("");
+    const imagePath = ref("");
+    const videoUrl = ref("");
+    const tags = ref<string[]>([]);
+    const selectedItems = ref<boolean[][]>([]);
+    const displayedItems = ref<DisplayedItem[]>([]);
 
-  private mounted() {
-    if (!this.testPurposes) {
-      return;
-    }
-
-    this.createDisplayedTestPurposes(this.testPurposes);
-  }
-
-  @Watch("testPurposes")
-  private changeTestPurposes() {
-    if (this.testPurposes) {
-      this.createDisplayedTestPurposes(this.testPurposes);
-    } else {
-      this.displayedItems = [];
-    }
-  }
-
-  private get isAllSelect() {
-    console.log(this.selectedItems);
-    return this.selectedItems.every((items) => {
-      return items.every((opened) => opened === true);
+    const isAllSelect = computed(() => {
+      console.log(selectedItems.value);
+      return selectedItems.value.every((items) => {
+        return items.every((opened) => opened === true);
+      });
     });
-  }
 
-  private testResultName(id: string): string {
-    return this.testResult?.find((result) => result.id === id)?.name ?? "";
-  }
+    const changeTestPurposes = () => {
+      if (props.testPurposes) {
+        createDisplayedTestPurposes(props.testPurposes);
+      } else {
+        displayedItems.value = [];
+      }
+    };
 
-  private openTestPurposeDetails(value: string, details: string) {
-    this.summary = value;
-    this.details = details;
-    this.testPurposeOpened = true;
-  }
+    const testResultName = (id: string): string => {
+      return props.testResult?.find((result) => result.id === id)?.name ?? "";
+    };
 
-  private openNoteDetails(
-    id: string,
-    summary: string,
-    text: string,
-    imageFilePath: string,
-    videoUrl: string,
-    tags: string[]
-  ) {
-    this.testResultId = this.testResult?.at(0)?.id ?? "";
-    this.noteId = id;
-    this.summary = summary;
-    this.details = text;
-    this.imagePath = imageFilePath;
-    this.videoUrl = videoUrl;
-    this.tags = tags ?? [];
-    this.opened = true;
-  }
+    const openTestPurposeDetails = (value: string, text: string) => {
+      summary.value = value;
+      details.value = text;
+      testPurposeOpened.value = true;
+    };
 
-  private openAllTestPurposes() {
-    this.selectedItems = this.displayedItems.map((item) => {
-      return item.testPurposes.map(() => !this.isAllSelect);
-    });
-  }
+    const openNoteDetails = (
+      id: string,
+      value: string,
+      text: string,
+      imageFilePath: string,
+      videoFileUrl: string,
+      noteTags: string[]
+    ) => {
+      testResultId.value = props.testResult?.at(0)?.id ?? "";
+      noteId.value = id;
+      summary.value = value;
+      details.value = text;
+      imagePath.value = imageFilePath;
+      videoUrl.value = videoFileUrl;
+      tags.value = noteTags ?? [];
+      opened.value = true;
+    };
 
-  private createDisplayedTestPurposes(testPurposes: Session["testPurposes"]) {
-    this.displayedItems = testPurposes
-      .map((testPurpose) => {
-        const value =
-          testPurpose.value !== ""
-            ? testPurpose.value
-            : (this.$store.getters.message(
-                "test-purpose-note-list.no-test-purpose"
-              ) as string);
-        const notes = testPurpose.notes.map((note) => {
-          const { id, type, value, details, tags, imageFileUrl } = note;
+    const openAllTestPurposes = () => {
+      selectedItems.value = displayedItems.value.map((item) => {
+        return item.testPurposes.map(() => !isAllSelect.value);
+      });
+    };
+
+    const createDisplayedTestPurposes = (
+      testPurposes: Session["testPurposes"]
+    ) => {
+      displayedItems.value = testPurposes
+        .map((testPurpose) => {
+          const value =
+            testPurpose.value !== ""
+              ? testPurpose.value
+              : (store.getters.message(
+                  "test-purpose-note-list.no-test-purpose"
+                ) as string);
+          const notes = testPurpose.notes.map((note) => {
+            const { id, type, value, details, tags, imageFileUrl } = note;
+
+            return {
+              id,
+              type,
+              value,
+              details,
+              tags,
+              imageFileUrl,
+              videoUrl: note.videoFrame
+                ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
+                : "",
+            };
+          });
 
           return {
-            id,
-            type,
-            value,
-            details,
-            tags,
-            imageFileUrl,
-            videoUrl: note.videoFrame
-              ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
-              : "",
+            testPurpose: { ...testPurpose, value, notes },
           };
-        });
+        })
+        .reduce((acu, cur) => {
+          const displayedItem = acu.find(
+            (testPurpose) =>
+              testPurpose.testResultId === cur.testPurpose.testResultId
+          );
+          if (displayedItem) {
+            displayedItem.testPurposes.push(cur.testPurpose);
+          } else {
+            acu.push({
+              testResultId: cur.testPurpose.testResultId,
+              testPurposes: [cur.testPurpose],
+            });
+          }
+          return acu;
+        }, [] as DisplayedItem[]);
+      selectedItems.value = displayedItems.value.map((item) => {
+        return item.testPurposes.map(() => true);
+      });
+    };
 
-        return {
-          testPurpose: { ...testPurpose, value, notes },
-        };
-      })
-      .reduce((acu, cur) => {
-        const displayedItem = acu.find(
-          (testPurpose) =>
-            testPurpose.testResultId === cur.testPurpose.testResultId
-        );
-        if (displayedItem) {
-          displayedItem.testPurposes.push(cur.testPurpose);
-        } else {
-          acu.push({
-            testResultId: cur.testPurpose.testResultId,
-            testPurposes: [cur.testPurpose],
-          });
-        }
-        return acu;
-      }, [] as DisplayedItem[]);
-    this.selectedItems = this.displayedItems.map((item) => {
-      return item.testPurposes.map(() => true);
+    const reload = () => {
+      context.emit("reload");
+    };
+
+    onMounted(() => {
+      if (!props.testPurposes) {
+        return;
+      }
+
+      createDisplayedTestPurposes(props.testPurposes);
     });
-  }
 
-  private reload() {
-    this.$emit("reload");
-  }
-}
+    const { testPurposes } = toRefs(props);
+    watch(testPurposes, changeTestPurposes);
+
+    return {
+      store,
+      opened,
+      testPurposeOpened,
+      testResultId,
+      noteId,
+      summary,
+      details,
+      imagePath,
+      videoUrl,
+      tags,
+      selectedItems,
+      displayedItems,
+      isAllSelect,
+      testResultName,
+      openTestPurposeDetails,
+      openNoteDetails,
+      openAllTestPurposes,
+      reload,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

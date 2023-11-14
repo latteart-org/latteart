@@ -18,21 +18,21 @@
   <v-container fluid class="pt-0" v-if="session">
     <v-card class="ma-2" color="blue-grey lighten-4">
       <v-card-title>{{
-        $store.getters.message("session-info.charter")
+        store.getters.message("session-info.charter")
       }}</v-card-title>
 
       <v-form>
         <v-card-text class="pt-0">
           <v-text-field
             class="pt-0"
-            :label="this.$store.getters.message('session-info.tester-name')"
+            :label="store.getters.message('session-info.tester-name')"
             :value="session.testerName"
             @change="(value) => updateSession({ testerName: value })"
             :readonly="isViewerMode"
           ></v-text-field>
           <v-textarea
             class="pt-0"
-            :label="this.$store.getters.message('session-info.memo')"
+            :label="store.getters.message('session-info.memo')"
             :value="memo"
             @change="(value) => updateSession({ memo: value, testItem: '' })"
             :readonly="isViewerMode"
@@ -43,7 +43,7 @@
 
     <v-card class="ma-2" color="blue-grey lighten-4">
       <v-card-title class="pb-0">{{
-        $store.getters.message("session-info.report")
+        store.getters.message("session-info.report")
       }}</v-card-title>
 
       <v-card-text
@@ -59,7 +59,7 @@
           <v-col cols="6">
             <v-card class="ma-2" :disabled="isCapturing || isReplaying">
               <v-card-title>{{
-                $store.getters.message("session-info.model")
+                store.getters.message("session-info.model")
               }}</v-card-title>
 
               <v-card-text class="py-0">
@@ -79,7 +79,7 @@
                           icon
                           v-if="!isViewerMode"
                           :title="
-                            $store.getters.message(
+                            store.getters.message(
                               'session-info.open-test-result'
                             )
                           "
@@ -95,7 +95,7 @@
                       icon
                       v-if="!isViewerMode"
                       :title="
-                        $store.getters.message(
+                        store.getters.message(
                           'session-info.update-test-results-title'
                         )
                       "
@@ -109,7 +109,7 @@
                       color="error"
                       v-if="!isViewerMode"
                       :title="
-                        $store.getters.message(
+                        store.getters.message(
                           'session-info.remove-test-results-title'
                         )
                       "
@@ -129,7 +129,7 @@
                           id="openCaptureToolButton"
                           @click="openCaptureOptionDialog"
                           >{{
-                            $store.getters.message("session-info.start-capture")
+                            store.getters.message("session-info.start-capture")
                           }}</v-btn
                         >
 
@@ -147,9 +147,7 @@
                       v-if="!isViewerMode"
                       @click="openTestResultSelectionDialog"
                       id="resultLogFileInputButton"
-                      >{{
-                        $store.getters.message("session-info.import")
-                      }}</v-btn
+                      >{{ store.getters.message("session-info.import") }}</v-btn
                     >
                   </v-col>
                 </v-row>
@@ -160,7 +158,7 @@
           <v-col cols="6">
             <v-card class="ma-2">
               <v-card-title>{{
-                $store.getters.message("session-info.file")
+                store.getters.message("session-info.file")
               }}</v-card-title>
 
               <v-card-text class="py-0">
@@ -192,7 +190,7 @@
                 <v-btn
                   v-if="!isViewerMode"
                   @click="$refs.attachedFile.click()"
-                  >{{ $store.getters.message("session-info.add-file") }}</v-btn
+                  >{{ store.getters.message("session-info.add-file") }}</v-btn
                 >
                 <input
                   type="file"
@@ -225,7 +223,7 @@
 
     <scrollable-dialog :opened="testResultSelectionDialogOpened">
       <template v-slot:title>{{
-        $store.getters.message("session-info.result-list")
+        store.getters.message("session-info.result-list")
       }}</template>
 
       <template v-slot:content>
@@ -241,7 +239,7 @@
           color="primary"
           text
           @click="testResultSelectionDialogOpened = false"
-          >{{ $store.getters.message("common.close") }}</v-btn
+          >{{ store.getters.message("common.close") }}</v-btn
         >
       </template>
     </scrollable-dialog>
@@ -263,7 +261,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import {
   Session,
   AttachedFile,
@@ -279,13 +276,19 @@ import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "./TestResultList.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { CaptureControlState } from "@/store/captureControl";
-import { RootState } from "@/store";
 import CaptureOptionDialog from "../dialog/CaptureOptionDialog.vue";
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
+import { computed, defineComponent, ref, inject } from "vue";
+import { useStore } from "@/store";
+import { useRouter } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
+  props: {
+    storyId: { type: String, default: "", required: true },
+    sessionId: { type: String, default: "", required: true },
+  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
@@ -296,331 +299,360 @@ import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadT
     "capture-option-dialog": CaptureOptionDialog,
     "test-result-load-trigger": TestResultLoadTrigger,
   },
-})
-export default class SessionInfo extends Vue {
-  @Prop({ type: String, default: "" }) public readonly storyId!: string;
-  @Prop({ type: String, default: "" }) public readonly sessionId!: string;
+  setup(props) {
+    const store = useStore();
+    const router = useRouter();
 
-  private reportSectionDisplayed = false;
+    const reportSectionDisplayed = ref(false);
 
-  private captureOptionDialogOpened = false;
+    const captureOptionDialogOpened = ref(false);
 
-  private testResultSelectionDialogOpened = false;
-  private testResults: TestResultSummary[] = [];
+    const testResultSelectionDialogOpened = ref(false);
+    const testResults = ref<TestResultSummary[]>([]);
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-
-  private attachedFileOpened = false;
-  private attachedImageFileSource = "";
-
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
-
-  async created(): Promise<void> {
-    this.reportSectionDisplayed = true;
-  }
-
-  private get session(): Session | undefined {
-    return this.$store.getters["testManagement/findSession"](
-      this.storyId,
-      this.sessionId
-    );
-  }
-
-  private get unrelatedTestResults(): TestResultSummary[] {
-    const relatedTestResultIds =
-      this.session?.testResultFiles.map((testResult) => testResult.id) ?? [];
-    return this.testResults.filter(
-      (testResult) => !relatedTestResultIds.includes(testResult.id)
-    );
-  }
-
-  private openCaptureOptionDialog() {
-    this.captureOptionDialogOpened = true;
-  }
-
-  private async openTestResultSelectionDialog() {
-    this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message("session-info.call-test-results"),
+    const confirmDialogOpened = ref(false);
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAccept = ref(() => {
+      /* Do nothing */
     });
-    try {
-      this.testResults = await this.$store.dispatch(
-        "testManagement/getTestResults"
+
+    const attachedFileOpened = ref(false);
+    const attachedImageFileSource = ref("");
+
+    const isViewerMode = inject("isViewerMode") ?? false;
+
+    const session = computed((): Session | undefined => {
+      return store.getters["testManagement/findSession"](
+        props.storyId,
+        props.sessionId
       );
-    } finally {
-      this.$store.dispatch("closeProgressDialog");
-    }
+    });
 
-    this.testResultSelectionDialogOpened = true;
-  }
-
-  private openAttachedFile(file: AttachedFile): boolean {
-    const extension = SessionInfoService.getImageExtensionFrom(file.name);
-    if (!file.fileUrl && !file.fileData) {
-      this.errorMessage = this.$store.getters.message(
-        "session-info.file-open-read-error"
+    const unrelatedTestResults = computed((): TestResultSummary[] => {
+      const relatedTestResultIds =
+        session.value?.testResultFiles.map((testResult) => testResult.id) ?? [];
+      return testResults.value.filter(
+        (testResult) => !relatedTestResultIds.includes(testResult.id)
       );
-      this.errorMessageDialogOpened = true;
-      return false;
-    }
+    });
 
-    if (extension !== "") {
-      const source = file.fileUrl
-        ? `${this.$store.state.repositoryService.serviceUrl}/${file.fileUrl}`
-        : `data:image/${extension};base64, ${file.fileData}`;
-      if (source === "") {
+    const openCaptureOptionDialog = () => {
+      captureOptionDialogOpened.value = true;
+    };
+
+    const openTestResultSelectionDialog = async () => {
+      store.dispatch("openProgressDialog", {
+        message: store.getters.message("session-info.call-test-results"),
+      });
+      try {
+        testResults.value = await store.dispatch(
+          "testManagement/getTestResults"
+        );
+      } finally {
+        store.dispatch("closeProgressDialog");
+      }
+
+      testResultSelectionDialogOpened.value = true;
+    };
+
+    const openAttachedFile = (file: AttachedFile): boolean => {
+      const extension = SessionInfoService.getImageExtensionFrom(file.name);
+      if (!file.fileUrl && !file.fileData) {
+        errorMessage.value = store.getters.message(
+          "session-info.file-open-read-error"
+        );
+        errorMessageDialogOpened.value = true;
         return false;
       }
-      this.attachedImageFileSource = source;
-      this.attachedFileOpened = true;
-      return true;
-    }
 
-    // no extention
-    const a = document.createElement("a");
-    a.href = file.fileUrl
-      ? `${this.$store.state.repositoryService.serviceUrl}/${file.fileUrl}`
-      : (`data:text/plain;base64,${file.fileData}` as string);
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.click();
-    return false;
-  }
-
-  private addAttachedFile(event: any): void {
-    const filename = event.target.files[0].name;
-    const srcFilepath = event.target.files[0];
-
-    const reader = new FileReader();
-    reader.readAsDataURL(srcFilepath);
-
-    event.target.value = "";
-
-    reader.onload = () => {
-      const result = reader.result ? reader.result.toString() : "";
-      const keyword = "base64,";
-      const fileData = result.substring(
-        result.indexOf(keyword) + keyword.length
-      );
-
-      this.updateSession({
-        attachedFiles: [
-          ...(this.session?.attachedFiles ?? []),
-          {
-            name: filename,
-            fileData,
-          },
-        ],
-      });
-    };
-  }
-
-  private async reload() {
-    await this.$store.dispatch("testManagement/readStory", {
-      storyId: this.storyId,
-    });
-  }
-
-  private async addTestResultToSession(
-    testResult: TestResultFile
-  ): Promise<void> {
-    this.testResultSelectionDialogOpened = false;
-    this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message("session-info.import-test-result"),
-    });
-
-    const testResultFiles = [...(this.session?.testResultFiles ?? [])];
-
-    await this.updateSession({
-      testResultFiles: [...testResultFiles, testResult],
-    }).finally(() => {
-      this.$store.dispatch("closeProgressDialog");
-    });
-  }
-
-  private openConfirmDialogToDeleteAttachedFile(
-    attachedFileUrl: string,
-    event?: any
-  ) {
-    if (event) {
-      event.stopPropagation();
-    }
-
-    this.confirmDialogTitle = this.$store.getters.message(
-      "session-info.delete-attached-file-confirm"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
-    );
-    this.confirmDialogAccept = () => {
-      this.updateSession({
-        attachedFiles: this.session?.attachedFiles.filter((attachedFile) => {
-          return attachedFile.fileUrl !== attachedFileUrl;
-        }),
-      });
-
-      this.confirmDialogOpened = false;
-    };
-
-    this.confirmDialogOpened = true;
-  }
-
-  private openConfirmDialogToDeleteTestResultFile(
-    testResultId: string,
-    event?: any
-  ) {
-    if (event) {
-      event.stopPropagation();
-    }
-
-    this.confirmDialogTitle = this.$store.getters.message(
-      "session-info.delete-test-result-confirm"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "session-info.delete-test-result-confirm-message"
-    );
-    this.confirmDialogAccept = () => {
-      this.updateSession({
-        testResultFiles: this.session?.testResultFiles?.filter(
-          (testResultFile) => {
-            return testResultFile.id !== testResultId;
-          }
-        ),
-      });
-
-      this.confirmDialogOpened = false;
-    };
-
-    this.confirmDialogOpened = true;
-  }
-
-  private millisecondsToHHmmss(millisecondsTime: number) {
-    return formatTime(millisecondsTime);
-  }
-
-  private async updateSession(params: {
-    isDone?: boolean;
-    testItem?: string;
-    testerName?: string;
-    memo?: string;
-    attachedFiles?: AttachedFile[];
-    testResultFiles?: TestResultFile[];
-  }) {
-    await this.$store.dispatch("testManagement/updateSession", {
-      storyId: this.storyId,
-      sessionId: this.sessionId,
-      params,
-    });
-  }
-
-  private async openCaptureTool(loadTestResults: () => Promise<void>) {
-    await loadTestResults();
-
-    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
+      if (extension !== "") {
+        const source = file.fileUrl
+          ? `${store.state.repositoryService.serviceUrl}/${file.fileUrl}`
+          : `data:image/${extension};base64, ${file.fileData}`;
+        if (source === "") {
+          return false;
+        }
+        attachedImageFileSource.value = source;
+        attachedFileOpened.value = true;
+        return true;
       }
-    });
-  }
 
-  private async startCapture(
-    onStart: () => Promise<void>,
-    option: CaptureOptionParams
-  ) {
-    this.$store.commit("captureControl/setUrl", {
-      url: option.url,
-    });
-    this.$store.commit("captureControl/setTestResultName", {
-      name: option.testResultName,
-    });
-    await this.$store.dispatch("writeDeviceSettings", {
-      config: {
-        platformName: option.platform,
-        device: option.device,
-        browser: option.browser,
-        waitTimeForStartupReload: option.waitTimeForStartupReload,
-      },
-    });
-    const config = (this.$store.state as RootState).projectSettings.config;
-    await this.$store.dispatch("writeConfig", {
-      config: {
-        ...config,
-        captureMediaSetting: {
-          ...config.captureMediaSetting,
-          mediaType: option.mediaType,
+      // no extention
+      const a = document.createElement("a");
+      a.href = file.fileUrl
+        ? `${store.state.repositoryService.serviceUrl}/${file.fileUrl}`
+        : (`data:text/plain;base64,${file.fileData}` as string);
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.click();
+      return false;
+    };
+
+    const addAttachedFile = (event: any): void => {
+      const filename = event.target.files[0].name;
+      const srcFilepath = event.target.files[0];
+
+      const reader = new FileReader();
+      reader.readAsDataURL(srcFilepath);
+
+      event.target.value = "";
+
+      reader.onload = () => {
+        const result = reader.result ? reader.result.toString() : "";
+        const keyword = "base64,";
+        const fileData = result.substring(
+          result.indexOf(keyword) + keyword.length
+        );
+
+        updateSession({
+          attachedFiles: [
+            ...(session.value?.attachedFiles ?? []),
+            {
+              name: filename,
+              fileData,
+            },
+          ],
+        });
+      };
+    };
+
+    const reload = async () => {
+      await store.dispatch("testManagement/readStory", {
+        storyId: props.storyId,
+      });
+    };
+
+    const addTestResultToSession = async (
+      testResult: TestResultFile
+    ): Promise<void> => {
+      testResultSelectionDialogOpened.value = false;
+      store.dispatch("openProgressDialog", {
+        message: store.getters.message("session-info.import-test-result"),
+      });
+
+      const testResultFiles = [...(session.value?.testResultFiles ?? [])];
+
+      await updateSession({
+        testResultFiles: [...testResultFiles, testResult],
+      }).finally(() => {
+        store.dispatch("closeProgressDialog");
+      });
+    };
+
+    const openConfirmDialogToDeleteAttachedFile = (
+      attachedFileUrl: string,
+      event?: any
+    ) => {
+      if (event) {
+        event.stopPropagation();
+      }
+
+      confirmDialogTitle.value = store.getters.message(
+        "session-info.delete-attached-file-confirm"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "common.delete-warning"
+      );
+      confirmDialogAccept.value = () => {
+        updateSession({
+          attachedFiles: session.value?.attachedFiles.filter((attachedFile) => {
+            return attachedFile.fileUrl !== attachedFileUrl;
+          }),
+        });
+
+        confirmDialogOpened.value = false;
+      };
+
+      confirmDialogOpened.value = true;
+    };
+
+    const openConfirmDialogToDeleteTestResultFile = (
+      testResultId: string,
+      event?: any
+    ) => {
+      if (event) {
+        event.stopPropagation();
+      }
+
+      confirmDialogTitle.value = store.getters.message(
+        "session-info.delete-test-result-confirm"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "session-info.delete-test-result-confirm-message"
+      );
+      confirmDialogAccept.value = () => {
+        updateSession({
+          testResultFiles: session.value?.testResultFiles?.filter(
+            (testResultFile) => {
+              return testResultFile.id !== testResultId;
+            }
+          ),
+        });
+
+        confirmDialogOpened.value = false;
+      };
+
+      confirmDialogOpened.value = true;
+    };
+
+    const millisecondsToHHmmss = (millisecondsTime: number) => {
+      return formatTime(millisecondsTime);
+    };
+
+    const updateSession = async (params: {
+      isDone?: boolean;
+      testItem?: string;
+      testerName?: string;
+      memo?: string;
+      attachedFiles?: AttachedFile[];
+      testResultFiles?: TestResultFile[];
+    }) => {
+      await store.dispatch("testManagement/updateSession", {
+        storyId: props.storyId,
+        sessionId: props.sessionId,
+        params,
+      });
+    };
+
+    const openCaptureTool = async (loadTestResults: () => Promise<void>) => {
+      await loadTestResults();
+
+      router.push({ path: "/test-result" }).catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
+    };
+
+    const startCapture = async (
+      onStart: () => Promise<void>,
+      option: CaptureOptionParams
+    ) => {
+      store.commit("captureControl/setUrl", {
+        url: option.url,
+      });
+      store.commit("captureControl/setTestResultName", {
+        name: option.testResultName,
+      });
+      await store.dispatch("writeDeviceSettings", {
+        config: {
+          platformName: option.platform,
+          device: option.device,
+          browser: option.browser,
+          waitTimeForStartupReload: option.waitTimeForStartupReload,
         },
-      },
+      });
+      const config = store.state.projectSettings.config;
+      await store.dispatch("writeConfig", {
+        config: {
+          ...config,
+          captureMediaSetting: {
+            ...config.captureMediaSetting,
+            mediaType: option.mediaType,
+          },
+        },
+      });
+      store.commit("captureControl/setTestOption", {
+        testOption: {
+          firstTestPurpose: option.firstTestPurpose,
+          firstTestPurposeDetails: option.firstTestPurposeDetails,
+          shouldRecordTestPurpose: option.shouldRecordTestPurpose,
+        },
+      });
+
+      await store.dispatch("operationHistory/createTestResult", {
+        initialUrl: option.url,
+        name: option.testResultName,
+      });
+
+      const newTestResult = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).testResultInfo;
+
+      addTestResultToSession({
+        id: newTestResult.id,
+        name: option.testResultName,
+        initialUrl: option.url,
+        testingTime: 0,
+      });
+
+      await loadTestResultForCapture(newTestResult.id);
+
+      await onStart();
+    };
+
+    const loadTestResultForCapture = async (testResultId: string) => {
+      await store.dispatch("operationHistory/loadTestResultSummaries", {
+        testResultIds: [testResultId],
+      });
+
+      await store.dispatch("operationHistory/loadTestResult", {
+        testResultId,
+      });
+
+      store.commit("operationHistory/setCanUpdateModels", {
+        setCanUpdateModels: false,
+      });
+    };
+
+    const memo = computed((): string => {
+      const testItems = session.value?.testItem
+        ? [`Test Item: ${session.value.testItem}`]
+        : [];
+      const memos = session.value?.memo ? [session.value.memo] : [];
+      return [...testItems, ...memos].join("\n");
     });
-    this.$store.commit("captureControl/setTestOption", {
-      testOption: {
-        firstTestPurpose: option.firstTestPurpose,
-        firstTestPurposeDetails: option.firstTestPurposeDetails,
-        shouldRecordTestPurpose: option.shouldRecordTestPurpose,
-      },
+
+    const isCapturing = computed(() => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
     });
 
-    await this.$store.dispatch("operationHistory/createTestResult", {
-      initialUrl: option.url,
-      name: option.testResultName,
+    const isReplaying = computed(() => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
     });
 
-    const newTestResult = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).testResultInfo;
+    reportSectionDisplayed.value = true;
 
-    this.addTestResultToSession({
-      id: newTestResult.id,
-      name: option.testResultName,
-      initialUrl: option.url,
-      testingTime: 0,
-    });
-
-    await this.loadTestResultForCapture(newTestResult.id);
-
-    await onStart();
-  }
-
-  private async loadTestResultForCapture(testResultId: string) {
-    await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-      testResultIds: [testResultId],
-    });
-
-    await this.$store.dispatch("operationHistory/loadTestResult", {
-      testResultId,
-    });
-
-    this.$store.commit("operationHistory/setCanUpdateModels", {
-      setCanUpdateModels: false,
-    });
-  }
-
-  private get memo(): string {
-    const testItems = this.session?.testItem
-      ? [`Test Item: ${this.session.testItem}`]
-      : [];
-    const memos = this.session?.memo ? [this.session.memo] : [];
-    return [...testItems, ...memos].join("\n");
-  }
-
-  private get isCapturing() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isCapturing;
-  }
-
-  private get isReplaying() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isReplaying;
-  }
-}
+    return {
+      store,
+      reportSectionDisplayed,
+      captureOptionDialogOpened,
+      testResultSelectionDialogOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      confirmDialogOpened,
+      confirmDialogTitle,
+      confirmDialogMessage,
+      confirmDialogAccept,
+      attachedFileOpened,
+      attachedImageFileSource,
+      isViewerMode,
+      session,
+      unrelatedTestResults,
+      openCaptureOptionDialog,
+      openTestResultSelectionDialog,
+      openAttachedFile,
+      addAttachedFile,
+      reload,
+      addTestResultToSession,
+      openConfirmDialogToDeleteAttachedFile,
+      openConfirmDialogToDeleteTestResultFile,
+      millisecondsToHHmmss,
+      updateSession,
+      openCaptureTool,
+      startCapture,
+      memo,
+      isCapturing,
+      isReplaying,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

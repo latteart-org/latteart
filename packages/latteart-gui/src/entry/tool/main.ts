@@ -30,5 +30,6 @@ new Vue({
   router,
   vuetify,
   store,
+  provide: { isViewerMode: false },
   render: (h) => h(App),
 }).$mount("#app");

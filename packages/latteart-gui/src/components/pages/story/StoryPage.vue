@@ -22,13 +22,13 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.test-matrix')"
+            :label="store.getters.message('story-page.test-matrix')"
             :value="testMatrixName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.group')"
+            :label="store.getters.message('story-page.group')"
             :value="groupName"
           ></v-text-field>
         </v-col>
@@ -36,13 +36,13 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.test-target')"
+            :label="store.getters.message('story-page.test-target')"
             :value="testTargetName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.viewPoint')"
+            :label="store.getters.message('story-page.viewPoint')"
             :value="viewPointName"
           ></v-text-field>
           <v-select
@@ -51,7 +51,7 @@
             item-text="text"
             item-value="value"
             :value="story.status"
-            :label="this.$store.getters.message('story-page.status')"
+            :label="store.getters.message('story-page.status')"
             :readonly="isViewerMode"
             @change="updateStatus"
           ></v-select>
@@ -60,19 +60,19 @@
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.planned-session')"
+            :label="store.getters.message('story-page.planned-session')"
             :value="countPlannedSessions()"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.completed-session')"
+            :label="store.getters.message('story-page.completed-session')"
             v-model="doneSessionNum"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="this.$store.getters.message('story-page.bug-count')"
+            :label="store.getters.message('story-page.bug-count')"
             v-model="extractionBugNum"
           ></v-text-field>
         </v-col>
@@ -86,7 +86,7 @@
           <v-select
             :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
-            :label="this.$store.getters.message('story-page.review-target')"
+            :label="store.getters.message('story-page.review-target')"
             item-text="displayName"
             item-value="id"
             :multiple="!isViewerMode"
@@ -109,7 +109,7 @@
               <v-expansion-panel-header class="py-0">
                 <div>
                   {{
-                    `${$store.getters.message(
+                    `${store.getters.message(
                       "session-list.session-name-base"
                     )} ${index + 1}`
                   }}
@@ -118,7 +118,7 @@
                   <v-checkbox
                     :input-value="session.isDone"
                     @change="(value) => changeSessionStatus(session.id, value)"
-                    :label="$store.getters.message('session-list.complete')"
+                    :label="store.getters.message('session-list.complete')"
                     :readonly="isViewerMode"
                     :id="`completedSessionCheckBox${index}`"
                   ></v-checkbox>
@@ -131,7 +131,7 @@
                     openConfirmDialogToDeleteSession(session.id);
                   "
                   small
-                  >{{ $store.getters.message("session-list.delete") }}</v-btn
+                  >{{ store.getters.message("session-list.delete") }}</v-btn
                 >
               </v-expansion-panel-header>
               <v-expansion-panel-content>
@@ -151,7 +151,7 @@
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
-            >{{ $store.getters.message("story-page.add-session") }}</v-btn
+            >{{ store.getters.message("story-page.add-session") }}</v-btn
           >
         </v-col>
       </v-row>
@@ -168,7 +168,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import {
   Plan,
   TestMatrix,
@@ -182,297 +181,332 @@ import ReviewButton from "@/components/organisms/story/ReviewButton.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import SessionInfo from "@/components/organisms/story/SessionInfo.vue";
 import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, onBeforeUnmount, ref, inject } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "session-info": SessionInfo,
     "review-button": ReviewButton,
     "confirm-dialog": ConfirmDialog,
   },
-})
-export default class StoryPage extends Vue {
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
+    const isViewerMode = inject("isViewerMode") ?? false;
 
-  private reviewTargetSessionIds = [];
-
-  private sessionPanelExpantionStates: number[] = [];
-
-  async created(): Promise<void> {
-    if (!this.isViewerMode) {
-      await this.$store.dispatch("testManagement/readStory", {
-        storyId: this.$route.params.id,
-      });
-    }
-
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    const confirmDialogOpened = ref(false);
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAccept = ref(() => {
+      /* Do nothing */
     });
 
-    const sessionPanelExpantionStatesKey = `latteart-management-sessionPanelExpantionStates_${this.storyId}`;
+    const reviewTargetSessionIds = ref([]);
 
-    this.sessionPanelExpantionStates =
-      JSON.parse(
-        localStorage.getItem(sessionPanelExpantionStatesKey) as string
-      ) ??
-      this.story?.sessions.map((_, index) => index) ??
-      [];
+    const sessionPanelExpantionStates = ref<number[]>([]);
 
-    this.$once("hook:beforeDestroy", () => {
-      if (this.sessionPanelExpantionStates.length === 0) {
-        localStorage.removeItem(sessionPanelExpantionStatesKey);
+    const storyId = computed((): string => {
+      return route.params.id;
+    });
+
+    const story = computed((): Story | undefined => {
+      return store.getters["testManagement/findStory"](storyId.value);
+    });
+
+    const reviewableSessions = computed(
+      (): {
+        id: string | undefined;
+        displayName: string;
+      }[] => {
+        if (!story.value) {
+          return [];
+        }
+
+        const reviewableSessions: Session[] = store.getters[
+          "testManagement/collectReviewableSessions"
+        ](story.value.id);
+
+        return reviewableSessions.map((session) => {
+          const sessionNameSuffix =
+            story.value?.sessions.findIndex(({ id }) => id === session.id) ??
+            -1;
+
+          const testResultName = session.testResultFiles
+            .map((result) => result.name)
+            .join(", ");
+
+          return {
+            id: session.id,
+            displayName: `${store.getters.message("story-page.session")}${
+              sessionNameSuffix + 1
+            }${testResultName ? ` (${testResultName})` : ""}`,
+          };
+        });
+      }
+    );
+
+    const testMatrixName = computed((): string => {
+      if (!testMatrix.value) {
+        return "";
+      }
+      return testMatrix.value.name;
+    });
+
+    const groupName = computed((): string => {
+      if (!testMatrix.value) {
+        return "";
+      }
+
+      const targetGroup = testMatrix.value.groups.find((group) => {
+        return group.testTargets.some(
+          (target) => target.id === testTarget.value?.id
+        );
+      });
+
+      if (!targetGroup) {
+        return "";
+      }
+
+      return targetGroup.name;
+    });
+
+    const statuses = computed(() => {
+      return [
+        {
+          text: store.getters.message(
+            `viewPoint-status.${CHARTER_STATUS.OUT_OF_SCOPE.id}`
+          ),
+          value: CHARTER_STATUS.OUT_OF_SCOPE.id,
+        },
+        {
+          text: store.getters.message(
+            `viewPoint-status.${CHARTER_STATUS.OK.id}`
+          ),
+          value: CHARTER_STATUS.OK.id,
+        },
+        {
+          text: store.getters.message(
+            `viewPoint-status.${CHARTER_STATUS.NG.id}`
+          ),
+          value: CHARTER_STATUS.NG.id,
+        },
+        {
+          text: store.getters.message(
+            `viewPoint-status.${CHARTER_STATUS.ONGOING.id}`
+          ),
+          value: CHARTER_STATUS.ONGOING.id,
+        },
+        {
+          text: store.getters.message(
+            `viewPoint-status.${CHARTER_STATUS.PENDING.id}`
+          ),
+          value: CHARTER_STATUS.PENDING.id,
+        },
+      ];
+    });
+
+    const doneSessionNum = computed((): number => {
+      return (
+        story.value?.sessions.filter((session: Session) => {
+          return session.isDone;
+        }).length ?? 0
+      );
+    });
+
+    const extractionBugNum = computed((): number => {
+      return (
+        story.value?.sessions.reduce((bugNum, currentSession) => {
+          if (!currentSession.isDone) {
+            return bugNum;
+          }
+
+          bugNum += currentSession.notes.filter((note) =>
+            (note.tags ?? []).includes("bug")
+          ).length;
+
+          return bugNum;
+        }, 0) ?? 0
+      );
+    });
+
+    const testMatrix = computed((): TestMatrix | undefined => {
+      return store.getters["testManagement/findTestMatrix"](
+        story.value?.testMatrixId ?? ""
+      );
+    });
+
+    const testTarget = computed((): TestTarget | undefined => {
+      return testMatrix.value?.groups
+        .flatMap((group) => group.testTargets)
+        .find((testTarget) => story.value?.testTargetId === testTarget.id);
+    });
+
+    const testTargetName = computed((): string => {
+      if (!testTarget.value) {
+        return "";
+      }
+      return testTarget.value.name;
+    });
+
+    const viewPoint = computed((): ViewPoint | undefined => {
+      if (!testMatrix.value) {
+        return undefined;
+      }
+      return testMatrix.value.viewPoints.find((viewPoint) => {
+        return viewPoint.id === story.value?.viewPointId;
+      });
+    });
+
+    const viewPointName = computed((): string => {
+      if (!viewPoint.value) {
+        return "";
+      }
+      return viewPoint.value.name;
+    });
+
+    const plan = computed((): Plan | undefined => {
+      if (!testTarget.value) {
+        return undefined;
+      }
+      return testTarget.value.plans.find((plan: Plan) => {
+        return plan.viewPointId === story.value?.viewPointId;
+      });
+    });
+
+    const canReviewSession = computed((): boolean => {
+      if (isCapturing.value || isReplaying.value) {
+        return false;
+      }
+
+      return reviewTargetSessionIds.value.length >= 1;
+    });
+
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
+
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const countPlannedSessions = (): number => {
+      if (!plan.value) {
+        return 0;
+      }
+      return plan.value.value;
+    };
+
+    const updateStatus = (value: string) => {
+      store.dispatch("testManagement/updateStory", {
+        storyId: storyId.value,
+        params: {
+          status: value,
+        },
+      });
+    };
+
+    const addNewSession = () => {
+      store.dispatch("testManagement/addNewSession", {
+        storyId: storyId.value,
+      });
+    };
+
+    const changeSessionStatus = (sessionId: string, isDone: boolean): void => {
+      store.dispatch("testManagement/updateSession", {
+        storyId: storyId.value,
+        sessionId,
+        params: { isDone },
+      });
+    };
+
+    const openConfirmDialogToDeleteSession = (sessionId: string) => {
+      confirmDialogTitle.value = store.getters.message(
+        "session-list.delete-session"
+      );
+      confirmDialogMessage.value = store.getters.message(
+        "common.delete-warning"
+      );
+      confirmDialogAccept.value = () => {
+        store.dispatch("testManagement/deleteSession", {
+          storyId: storyId.value,
+          sessionId,
+        });
+      };
+
+      confirmDialogOpened.value = true;
+    };
+
+    const sessionPanelExpantionStatesKey = ref(
+      `latteart-management-sessionPanelExpantionStates_${storyId.value}`
+    );
+
+    onBeforeUnmount(async () => {
+      if (sessionPanelExpantionStates.value.length === 0) {
+        localStorage.removeItem(sessionPanelExpantionStatesKey.value);
         return;
       }
 
       localStorage.setItem(
-        sessionPanelExpantionStatesKey,
-        JSON.stringify(this.sessionPanelExpantionStates)
+        sessionPanelExpantionStatesKey.value,
+        JSON.stringify(sessionPanelExpantionStates.value)
       );
     });
 
-    this.$store.commit("testManagement/addRecentStory", {
-      story: this.story,
-    });
-  }
+    (async () => {
+      if (!isViewerMode) {
+        await store.dispatch("testManagement/readStory", {
+          storyId: route.params.id,
+        });
+      }
 
-  private get storyId(): string {
-    return this.$route.params.id;
-  }
-
-  private get story(): Story | undefined {
-    return this.$store.getters["testManagement/findStory"](this.storyId);
-  }
-
-  public get reviewableSessions(): {
-    id: string | undefined;
-    displayName: string;
-  }[] {
-    if (!this.story) {
-      return [];
-    }
-
-    const reviewableSessions: Session[] = this.$store.getters[
-      "testManagement/collectReviewableSessions"
-    ](this.story.id);
-
-    return reviewableSessions.map((session) => {
-      const sessionNameSuffix =
-        this.story?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
-
-      const testResultName = session.testResultFiles
-        .map((result) => result.name)
-        .join(", ");
-
-      return {
-        id: session.id,
-        displayName: `${this.$store.getters.message("story-page.session")}${
-          sessionNameSuffix + 1
-        }${testResultName ? ` (${testResultName})` : ""}`,
-      };
-    });
-  }
-
-  private get testMatrixName(): string {
-    if (!this.testMatrix) {
-      return "";
-    }
-    return this.testMatrix.name;
-  }
-
-  private get groupName(): string {
-    if (!this.testMatrix) {
-      return "";
-    }
-
-    const targetGroup = this.testMatrix.groups.find((group) => {
-      return group.testTargets.some(
-        (testTarget) => testTarget.id === this.testTarget?.id
-      );
-    });
-
-    if (!targetGroup) {
-      return "";
-    }
-
-    return targetGroup.name;
-  }
-
-  private get statuses() {
-    return [
-      {
-        text: this.$store.getters.message(
-          `viewPoint-status.${CHARTER_STATUS.OUT_OF_SCOPE.id}`
-        ),
-        value: CHARTER_STATUS.OUT_OF_SCOPE.id,
-      },
-      {
-        text: this.$store.getters.message(
-          `viewPoint-status.${CHARTER_STATUS.OK.id}`
-        ),
-        value: CHARTER_STATUS.OK.id,
-      },
-      {
-        text: this.$store.getters.message(
-          `viewPoint-status.${CHARTER_STATUS.NG.id}`
-        ),
-        value: CHARTER_STATUS.NG.id,
-      },
-      {
-        text: this.$store.getters.message(
-          `viewPoint-status.${CHARTER_STATUS.ONGOING.id}`
-        ),
-        value: CHARTER_STATUS.ONGOING.id,
-      },
-      {
-        text: this.$store.getters.message(
-          `viewPoint-status.${CHARTER_STATUS.PENDING.id}`
-        ),
-        value: CHARTER_STATUS.PENDING.id,
-      },
-    ];
-  }
-
-  private get doneSessionNum(): number {
-    return (
-      this.story?.sessions.filter((session: Session) => {
-        return session.isDone;
-      }).length ?? 0
-    );
-  }
-
-  private get extractionBugNum(): number {
-    return (
-      this.story?.sessions.reduce((bugNum, currentSession) => {
-        if (!currentSession.isDone) {
-          return bugNum;
-        }
-
-        bugNum += currentSession.notes.filter((note) =>
-          (note.tags ?? []).includes("bug")
-        ).length;
-
-        return bugNum;
-      }, 0) ?? 0
-    );
-  }
-
-  private get testMatrix(): TestMatrix | undefined {
-    return this.$store.getters["testManagement/findTestMatrix"](
-      this.story?.testMatrixId ?? ""
-    );
-  }
-
-  private get testTarget(): TestTarget | undefined {
-    return this.testMatrix?.groups
-      .flatMap((group) => group.testTargets)
-      .find((testTarget) => this.story?.testTargetId === testTarget.id);
-  }
-
-  private get testTargetName(): string {
-    if (!this.testTarget) {
-      return "";
-    }
-    return this.testTarget.name;
-  }
-
-  private get viewPoint(): ViewPoint | undefined {
-    if (!this.testMatrix) {
-      return undefined;
-    }
-    return this.testMatrix.viewPoints.find((viewPoint) => {
-      return viewPoint.id === this.story?.viewPointId;
-    });
-  }
-
-  private get viewPointName(): string {
-    if (!this.viewPoint) {
-      return "";
-    }
-    return this.viewPoint.name;
-  }
-
-  private get plan(): Plan | undefined {
-    if (!this.testTarget) {
-      return undefined;
-    }
-    return this.testTarget.plans.find((plan: Plan) => {
-      return plan.viewPointId === this.story?.viewPointId;
-    });
-  }
-
-  private get canReviewSession(): boolean {
-    if (this.isCapturing || this.isReplaying) {
-      return false;
-    }
-
-    return this.reviewTargetSessionIds.length >= 1;
-  }
-
-  private get isCapturing() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isCapturing;
-  }
-
-  private get isReplaying() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isReplaying;
-  }
-
-  private countPlannedSessions(): number {
-    if (!this.plan) {
-      return 0;
-    }
-    return this.plan.value;
-  }
-
-  private updateStatus(value: string) {
-    this.$store.dispatch("testManagement/updateStory", {
-      storyId: this.storyId,
-      params: {
-        status: value,
-      },
-    });
-  }
-
-  private addNewSession() {
-    this.$store.dispatch("testManagement/addNewSession", {
-      storyId: this.storyId,
-    });
-  }
-
-  private changeSessionStatus(sessionId: string, isDone: boolean): void {
-    this.$store.dispatch("testManagement/updateSession", {
-      storyId: this.storyId,
-      sessionId,
-      params: {
-        isDone,
-      },
-    });
-  }
-
-  private openConfirmDialogToDeleteSession(sessionId: string) {
-    this.confirmDialogTitle = this.$store.getters.message(
-      "session-list.delete-session"
-    );
-    this.confirmDialogMessage = this.$store.getters.message(
-      "common.delete-warning"
-    );
-    this.confirmDialogAccept = () => {
-      this.$store.dispatch("testManagement/deleteSession", {
-        storyId: this.storyId,
-        sessionId,
+      await store.dispatch("changeWindowTitle", {
+        title: store.getters.message(route.meta?.title ?? ""),
       });
-    };
 
-    this.confirmDialogOpened = true;
-  }
-}
+      sessionPanelExpantionStates.value =
+        JSON.parse(
+          localStorage.getItem(sessionPanelExpantionStatesKey.value) as string
+        ) ??
+        story.value?.sessions.map((_, index) => index) ??
+        [];
+
+      store.commit("testManagement/addRecentStory", {
+        story: story.value,
+      });
+    })();
+
+    return {
+      store,
+      isViewerMode,
+      confirmDialogOpened,
+      confirmDialogTitle,
+      confirmDialogMessage,
+      confirmDialogAccept,
+      reviewTargetSessionIds,
+      sessionPanelExpantionStates,
+      story,
+      reviewableSessions,
+      testMatrixName,
+      groupName,
+      statuses,
+      doneSessionNum,
+      extractionBugNum,
+      testTargetName,
+      viewPointName,
+      canReviewSession,
+      isCapturing,
+      isReplaying,
+      countPlannedSessions,
+      updateStatus,
+      addNewSession,
+      changeSessionStatus,
+      openConfirmDialogToDeleteSession,
+    };
+  },
+});
 </script>
