@@ -33,11 +33,11 @@
                   <span style="color: rgba(0, 0, 0, 0.6)"
                     ><v-icon>filter_list_alt</v-icon
                     >{{
-                      $store.getters.message("stories-review-page.filter")
+                      store.getters.message("stories-review-page.filter")
                     }}</span
                   >
                   <v-btn @click="filterClear" class="ml-4">{{
-                    $store.getters.message("stories-review-page.clear")
+                    store.getters.message("stories-review-page.clear")
                   }}</v-btn>
                   <v-row>
                     <v-col cols="3">
@@ -46,7 +46,7 @@
                           v-model="testMatrixFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message(
+                            store.getters.message(
                               'stories-review-page.test-matrix'
                             )
                           "
@@ -62,7 +62,7 @@
                           v-model="groupFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message('stories-review-page.group')
+                            store.getters.message('stories-review-page.group')
                           "
                           hide-details
                         >
@@ -76,7 +76,7 @@
                           v-model="testTargetFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message(
+                            store.getters.message(
                               'stories-review-page.test-target'
                             )
                           "
@@ -92,7 +92,7 @@
                           v-model="viewPointFilterValue"
                           type="text"
                           :label="
-                            $store.getters.message(
+                            store.getters.message(
                               'stories-review-page.view-point'
                             )
                           "
@@ -141,7 +141,7 @@
                 color="primary"
                 class="ma-1"
                 >{{
-                  $store.getters.message("stories-review-page.do-review")
+                  store.getters.message("stories-review-page.do-review")
                 }}</v-btn
               >
             </template>
@@ -158,191 +158,218 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { Story, TestMatrix } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
+import { computed, defineComponent, ref, inject } from "vue";
+import { useStore } from "@/store";
+import { useRoute, useRouter } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "test-result-load-trigger": TestResultLoadTrigger,
   },
-})
-export default class StoriesReviewPage extends Vue {
-  private testMatrixFilterValue = "";
-  private groupFilterValue = "";
-  private testTargetFilterValue = "";
-  private viewPointFilterValue = "";
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+    const router = useRouter();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const testMatrixFilterValue = ref("");
+    const groupFilterValue = ref("");
+    const testTargetFilterValue = ref("");
+    const viewPointFilterValue = ref("");
 
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private checkedItems: {
-    sequence: number;
-    testMatrix: { id: string; name: string };
-    group: { id: string; name: string };
-    testTarget: { id: string; name: string };
-    viewPoint: { id: string; name: string };
-  }[] = [];
+    const isViewerMode = inject("isViewerMode") ?? false;
 
-  private get headers() {
-    return [
+    const checkedItems = ref<
       {
-        text: this.$store.getters.message("stories-review-page.test-matrix"),
-        value: "testMatrix.name",
-        filter: this.testMatrixFilter,
-      },
-      {
-        text: this.$store.getters.message("stories-review-page.group"),
-        value: "group.name",
-        filter: this.groupFilter,
-      },
-      {
-        text: this.$store.getters.message("stories-review-page.test-target"),
-        value: "testTarget.name",
-        filter: this.testTargetFilter,
-      },
-      {
-        text: this.$store.getters.message("stories-review-page.view-point"),
-        value: "viewPoint.name",
-        filter: this.viewPointFilter,
-      },
-    ];
-  }
+        sequence: number;
+        testMatrix: { id: string; name: string };
+        group: { id: string; name: string };
+        testTarget: { id: string; name: string };
+        viewPoint: { id: string; name: string };
+      }[]
+    >([]);
 
-  private get storyItems() {
-    let sequence = 0;
-    return this.testMatrices
-      .flatMap((matrix) => {
-        return matrix.groups.flatMap((group) => {
-          return group.testTargets.flatMap((target) => {
-            return target.plans.map((plan) => {
-              sequence = sequence + 1;
-              return {
-                sequence,
-                testMatrix: { id: matrix.id, name: matrix.name },
-                group: { id: group.id, name: group.name },
-                testTarget: { id: target.id, name: target.name },
-                viewPoint: {
-                  id: plan.viewPointId,
-                  name: this.getViewPointName(plan.viewPointId),
-                },
-              };
+    const headers = computed(() => {
+      return [
+        {
+          text: store.getters.message("stories-review-page.test-matrix"),
+          value: "testMatrix.name",
+          filter: testMatrixFilter,
+        },
+        {
+          text: store.getters.message("stories-review-page.group"),
+          value: "group.name",
+          filter: groupFilter,
+        },
+        {
+          text: store.getters.message("stories-review-page.test-target"),
+          value: "testTarget.name",
+          filter: testTargetFilter,
+        },
+        {
+          text: store.getters.message("stories-review-page.view-point"),
+          value: "viewPoint.name",
+          filter: viewPointFilter,
+        },
+      ];
+    });
+
+    const storyItems = computed(() => {
+      let sequence = 0;
+      return testMatrices.value
+        .flatMap((matrix) => {
+          return matrix.groups.flatMap((group) => {
+            return group.testTargets.flatMap((target) => {
+              return target.plans.map((plan) => {
+                sequence = sequence + 1;
+                return {
+                  sequence,
+                  testMatrix: { id: matrix.id, name: matrix.name },
+                  group: { id: group.id, name: group.name },
+                  testTarget: { id: target.id, name: target.name },
+                  viewPoint: {
+                    id: plan.viewPointId,
+                    name: getViewPointName(plan.viewPointId),
+                  },
+                };
+              });
             });
           });
-        });
-      })
-      .filter((story) =>
-        this.hasTestResult(story.viewPoint.id, story.testTarget.id)
-      );
-  }
-
-  private get testMatrices(): TestMatrix[] {
-    return this.$store.getters["testManagement/getTestMatrices"]();
-  }
-
-  private get stories(): Story[] {
-    return this.$store.getters["testManagement/getStories"]();
-  }
-
-  private get viewPoints() {
-    return this.testMatrices.flatMap(({ viewPoints }) =>
-      viewPoints.map(({ id, name }) => {
-        return { id, name };
-      })
-    );
-  }
-
-  created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+        })
+        .filter((story) =>
+          hasTestResult(story.viewPoint.id, story.testTarget.id)
+        );
     });
-  }
 
-  private getViewPointName(viewPointId: string) {
-    return this.viewPoints.find(({ id }) => id === viewPointId)?.name ?? "";
-  }
+    const testMatrices = computed((): TestMatrix[] => {
+      return store.getters["testManagement/getTestMatrices"]();
+    });
 
-  private testMatrixFilter(testMatrix: string) {
-    if (!this.testMatrixFilterValue) {
-      return true;
-    }
-    return testMatrix.includes(this.testMatrixFilterValue);
-  }
+    const stories = computed((): Story[] => {
+      return store.getters["testManagement/getStories"]();
+    });
 
-  private groupFilter(group: string) {
-    if (!this.groupFilterValue) {
-      return true;
-    }
-    return group.includes(this.groupFilterValue);
-  }
+    const viewPoints = computed(() => {
+      return testMatrices.value.flatMap(({ viewPoints }) =>
+        viewPoints.map(({ id, name }) => {
+          return { id, name };
+        })
+      );
+    });
 
-  private testTargetFilter(testTarget: string) {
-    if (!this.testTargetFilterValue) {
-      return true;
-    }
-    return testTarget.includes(this.testTargetFilterValue);
-  }
+    const getViewPointName = (viewPointId: string) => {
+      return viewPoints.value.find(({ id }) => id === viewPointId)?.name ?? "";
+    };
 
-  private viewPointFilter(viewPoint: string) {
-    if (!this.viewPointFilterValue) {
-      return true;
-    }
-    return viewPoint.includes(this.viewPointFilterValue);
-  }
+    const testMatrixFilter = (testMatrix: string) => {
+      if (!testMatrixFilterValue.value) {
+        return true;
+      }
+      return testMatrix.includes(testMatrixFilterValue.value);
+    };
 
-  private hasTestResult(viewPointId: string, testTargetId: string): boolean {
-    const target = this.stories.find((story) => {
+    const groupFilter = (group: string) => {
+      if (!groupFilterValue.value) {
+        return true;
+      }
+      return group.includes(groupFilterValue.value);
+    };
+
+    const testTargetFilter = (testTarget: string) => {
+      if (!testTargetFilterValue.value) {
+        return true;
+      }
+      return testTarget.includes(testTargetFilterValue.value);
+    };
+
+    const viewPointFilter = (viewPoint: string) => {
+      if (!viewPointFilterValue.value) {
+        return true;
+      }
+      return viewPoint.includes(viewPointFilterValue.value);
+    };
+
+    const hasTestResult = (
+      viewPointId: string,
+      testTargetId: string
+    ): boolean => {
+      const target = stories.value.find((story) => {
+        return (
+          story.viewPointId === viewPointId &&
+          story.testTargetId === testTargetId
+        );
+      });
+      if (!target) {
+        return false;
+      }
+      return target.sessions.some((session) =>
+        session.testResultFiles.some((testResult) => testResult.id)
+      );
+    };
+
+    const filterClear = () => {
+      testMatrixFilterValue.value = "";
+      groupFilterValue.value = "";
+      testTargetFilterValue.value = "";
+      viewPointFilterValue.value = "";
+    };
+
+    const targetTestResultIds = computed(() => {
+      const targetStories: Story[] = checkedItems.value.map(
+        ({ testTarget, viewPoint, testMatrix }) => {
+          return store.getters[
+            "testManagement/findStoryByTestTargetAndViewPointId"
+          ](testTarget.id, viewPoint.id, testMatrix.id);
+        }
+      );
+
       return (
-        story.viewPointId === viewPointId && story.testTargetId === testTargetId
+        StoryService.collectTestResultIdsFromSession(targetStories)
+          ?.testResultIds ?? []
       );
     });
-    if (!target) {
-      return false;
-    }
-    return target.sessions.some((session) =>
-      session.testResultFiles.some((testResult) => testResult.id)
-    );
-  }
 
-  private filterClear() {
-    this.testMatrixFilterValue = "";
-    this.groupFilterValue = "";
-    this.testTargetFilterValue = "";
-    this.viewPointFilterValue = "";
-  }
+    const review = async (loadTestResults: () => Promise<void>) => {
+      await loadTestResults();
 
-  private get targetTestResultIds() {
-    const targetStories: Story[] = this.checkedItems.map(
-      ({ testTarget, viewPoint, testMatrix }) => {
-        return this.$store.getters[
-          "testManagement/findStoryByTestTargetAndViewPointId"
-        ](testTarget.id, viewPoint.id, testMatrix.id);
-      }
-    );
+      router.push({ name: "reviewPage" }).catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
+    };
 
-    return (
-      StoryService.collectTestResultIdsFromSession(targetStories)
-        ?.testResultIds ?? []
-    );
-  }
+    (async () => {
+      await store.dispatch("changeWindowTitle", {
+        title: store.getters.message(route.meta?.title ?? ""),
+      });
+    })();
 
-  private async review(loadTestResults: () => Promise<void>) {
-    await loadTestResults();
-
-    this.$router.push({ name: "reviewPage" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
-  }
-}
+    return {
+      store,
+      testMatrixFilterValue,
+      groupFilterValue,
+      testTargetFilterValue,
+      viewPointFilterValue,
+      errorMessageDialogOpened,
+      errorMessage,
+      isViewerMode,
+      checkedItems,
+      headers,
+      storyItems,
+      filterClear,
+      targetTestResultIds,
+      review,
+    };
+  },
+});
 </script>
 <style lang="sass" scoped>
 .v-data-table td

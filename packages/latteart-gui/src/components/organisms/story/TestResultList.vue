@@ -56,7 +56,7 @@
                   'align-items': 'center',
                   cursor: 'pointer',
                 }"
-                :title="$store.getters.message('test-result-list.load')"
+                :title="store.getters.message('test-result-list.load')"
               >
                 <div
                   :class="{ ellipsis: true }"
@@ -86,7 +86,7 @@
                       v-if="!isEditing"
                       icon
                       @click.stop="editTestResultName(item.id, item.name)"
-                      :title="$store.getters.message('test-result-list.edit')"
+                      :title="store.getters.message('test-result-list.edit')"
                       ><v-icon>edit</v-icon></v-btn
                     >
                     <v-btn
@@ -95,7 +95,7 @@
                       @click.stop="
                         editTestResultName(item.id, newTestResultName)
                       "
-                      :title="$store.getters.message('test-result-list.edit')"
+                      :title="store.getters.message('test-result-list.edit')"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>
@@ -108,7 +108,7 @@
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>{{
-                      $store.getters.message("test-result-list.url")
+                      store.getters.message("test-result-list.url")
                     }}</v-list-item-title>
                     <v-list-item-subtitle :title="item.initialUrl">
                       {{ item.initialUrl }}
@@ -119,7 +119,7 @@
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>{{
-                      $store.getters.message("test-result-list.testing-time")
+                      store.getters.message("test-result-list.testing-time")
                     }}</v-list-item-title>
                     <v-list-item-subtitle>
                       {{ millisecondsToHHmmss(item.testingTime) }}
@@ -130,7 +130,7 @@
                 <v-list-item v-if="item.testPurposes.length > 0">
                   <v-list-item-content>
                     <v-list-item-title>{{
-                      $store.getters.message("test-result-list.test-purpose")
+                      store.getters.message("test-result-list.test-purpose")
                     }}</v-list-item-title>
                     <v-list-item-subtitle
                       v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
@@ -151,7 +151,7 @@
                 <v-list-item v-if="item.creationTimestamp > 0">
                   <v-list-item-content>
                     <v-list-item-title>{{
-                      $store.getters.message(
+                      store.getters.message(
                         "test-result-list.creation-timestamp"
                       )
                     }}</v-list-item-title>
@@ -172,95 +172,121 @@
 <script lang="ts">
 import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    deletable: { type: Boolean, default: false },
+    editable: { type: Boolean, default: false },
+    items: {
+      type: Array as PropType<TestResultSummary[]>,
+      default: [],
+      required: true,
+    },
+  },
   components: {
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class TestResultList extends Vue {
-  @Prop({ type: Boolean, default: false }) deletable!: boolean;
-  @Prop({ type: Boolean, default: false }) editable!: boolean;
-  @Prop({ type: Array, default: [] }) items!: TestResultSummary[];
+  setup(props, context) {
+    const store = useStore();
 
-  private selectedTestResults: TestResultSummary[] = [];
-  private search = "";
-  private isEditing = false;
-  private oldTestResultName = "";
-  private newTestResultName = "";
+    const selectedTestResults = ref<TestResultSummary[]>([]);
+    const search = ref("");
+    const isEditing = ref(false);
+    const oldTestResultName = ref("");
+    const newTestResultName = ref("");
 
-  private testResults: TestResultSummary[] = this.items;
+    const testResults = ref<TestResultSummary[]>(props.items);
 
-  private get headers() {
-    return [
-      {
-        text: this.$store.getters.message("test-result-list.name"),
-        value: "name",
-      },
-    ];
-  }
-
-  @Watch("items")
-  private getTestResultList() {
-    this.testResults = this.items;
-  }
-
-  @Watch("selectedTestResults")
-  private updateCheckedTestResults(): void {
-    const checkedTestResults = this.selectedTestResults.map(({ id }) => id);
-    this.$store.commit("operationHistory/setCheckedTestResults", {
-      checkedTestResults,
+    const headers = computed(() => {
+      return [
+        {
+          text: store.getters.message("test-result-list.name"),
+          value: "name",
+        },
+      ];
     });
-  }
 
-  private async editTestResultName(
-    testResultId: string,
-    testResultName: string
-  ) {
-    if (this.isEditing) {
-      if (
-        this.newTestResultName !== "" &&
-        this.oldTestResultName !== testResultName
-      ) {
-        await this.$store.dispatch("operationHistory/changeTestResultName", {
-          testResultId,
-          testResultName,
-        });
-        const targetIndex = this.testResults.findIndex(
-          ({ id }) => id === testResultId
-        );
-        this.testResults.splice(targetIndex, 1, {
-          ...this.testResults[targetIndex],
-          name: testResultName,
-        });
-        this.newTestResultName = "";
+    const getTestResultList = () => {
+      testResults.value = props.items;
+    };
+
+    const updateCheckedTestResults = (): void => {
+      const checkedTestResults = selectedTestResults.value.map(({ id }) => id);
+      store.commit("operationHistory/setCheckedTestResults", {
+        checkedTestResults,
+      });
+    };
+
+    const editTestResultName = async (
+      testResultId: string,
+      testResultName: string
+    ) => {
+      if (isEditing.value) {
+        if (
+          newTestResultName.value !== "" &&
+          oldTestResultName.value !== testResultName
+        ) {
+          await store.dispatch("operationHistory/changeTestResultName", {
+            testResultId,
+            testResultName,
+          });
+          const targetIndex = testResults.value.findIndex(
+            ({ id }) => id === testResultId
+          );
+          testResults.value.splice(targetIndex, 1, {
+            ...testResults.value[targetIndex],
+            name: testResultName,
+          });
+          newTestResultName.value = "";
+        }
+
+        isEditing.value = false;
+      } else {
+        oldTestResultName.value = testResultName;
+        isEditing.value = true;
       }
+    };
 
-      this.isEditing = false;
-    } else {
-      this.oldTestResultName = testResultName;
-      this.isEditing = true;
-    }
-  }
+    const changeTestResultName = (name: string) => {
+      newTestResultName.value = name;
+    };
 
-  private changeTestResultName(name: string) {
-    this.newTestResultName = name;
-  }
+    const millisecondsToHHmmss = (millisecondsTime: number) => {
+      return formatTime(millisecondsTime);
+    };
 
-  private millisecondsToHHmmss(millisecondsTime: number) {
-    return formatTime(millisecondsTime);
-  }
+    const millisecondsToDateFormat = (millisecondsTime: number) => {
+      return formatDateTime(millisecondsTime);
+    };
 
-  private millisecondsToDateFormat(millisecondsTime: number) {
-    return formatDateTime(millisecondsTime);
-  }
+    const clickRowItem = (id: string, name: string): void => {
+      context.emit("click-item", { id, name });
+    };
 
-  private clickRowItem(id: string, name: string): void {
-    this.$emit("click-item", { id, name });
-  }
-}
+    const { items } = toRefs(props);
+    watch(items, getTestResultList);
+    watch(selectedTestResults, updateCheckedTestResults);
+
+    return {
+      store,
+      selectedTestResults,
+      search,
+      isEditing,
+      newTestResultName,
+      testResults,
+      headers,
+      editTestResultName,
+      changeTestResultName,
+      millisecondsToHHmmss,
+      millisecondsToDateFormat,
+      clickRowItem,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
