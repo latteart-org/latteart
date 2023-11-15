@@ -32,4 +32,9 @@ export default class ScreenSummary {
    * URL without protocol and domain.
    */
   public location = "";
+
+  /**
+   * The screenshot of the operation.(base64)
+   */
+  public screenshotBase64 = "";
 }

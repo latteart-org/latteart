@@ -32,7 +32,7 @@ import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { CapturedData } from "./capturer/captureScript";
+import { CapturedItem } from "./capturer/captureScripts";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
@@ -155,9 +155,9 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
 
 app.post(`${v1RootPath}/operation`, async (req, res) => {
   LoggingService.info("operation");
-  const capturedData: Omit<CapturedData, "eventInfo"> = req.body;
+  const capturedItem: Omit<CapturedItem, "eventInfo"> = req.body;
 
-  await capturer.registerCapturedData(capturedData);
+  await capturer.registerCapturedItem(capturedItem);
 
   res.json("OK");
 });
