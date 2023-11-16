@@ -607,6 +607,19 @@ export default class WebBrowserWindow {
         return false;
       }
 
+      // Ignores click events on the associated text field when the label is clicked.
+      if (
+        this.beforeOperation?.elementInfo?.tagname.toUpperCase() === "LABEL" &&
+        data.operation.elementInfo.tagname.toUpperCase() === "INPUT" &&
+        this.beforeOperation.elementInfo.attributes.for ===
+          data.operation.elementInfo.attributes.id &&
+        ["TEXT", "PASSWORD", "EMAIL", "TEL"].includes(
+          data.operation.elementInfo.attributes.type.toUpperCase()
+        )
+      ) {
+        return false;
+      }
+
       // Ignore the click event when clicking an input element of calendar type.
       if (
         data.operation.type === "click" &&
