@@ -49,8 +49,13 @@ export function isIgnoreOperation(
       return true;
     }
 
-    // Ignore the event for checkbox or radio that is fired after the click event for label.
-    if (hasEventForCheckboxOrRadioFiredByLabelClick(operation, prevOperation)) {
+    // Ignore the event for checkbox, radio, or text(email, password, tel) that is fired after the click event for label.
+    if (
+      hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
+        operation,
+        prevOperation
+      )
+    ) {
       return true;
     }
   }
@@ -58,7 +63,7 @@ export function isIgnoreOperation(
   return false;
 }
 
-function hasEventForCheckboxOrRadioFiredByLabelClick(
+function hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
   operation: CapturedOperation,
   prevOperation: CapturedOperation
 ): boolean {
@@ -86,7 +91,7 @@ function hasEventForCheckboxOrRadioFiredByLabelClick(
   }
 
   if (
-    !["CHECKBOX", "RADIO"].includes(
+    !["CHECKBOX", "RADIO", "TEXT", "PASSWORD", "EMAIL", "TEL"].includes(
       operation.elementInfo?.attributes.type.toUpperCase()
     )
   ) {
