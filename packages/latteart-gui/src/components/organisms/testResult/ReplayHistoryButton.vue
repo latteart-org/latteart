@@ -23,14 +23,6 @@
       @close="errorDialogOpened = false"
     />
 
-    <confirm-dialog
-      :opened="confirmDialogOpened"
-      :title="confirmDialogTitle"
-      :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
-      @close="confirmDialogOpened = false"
-    />
-
     <replay-option-dialog
       :opened="replayOptionDialogOpened"
       @close="replayOptionDialogOpened = false"
@@ -46,7 +38,6 @@
 </template>
 
 <script lang="ts">
-import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import {
   TestResultComparisonResult,
@@ -54,201 +45,212 @@ import {
 } from "@/lib/operationHistory/types";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
 import ReplayOptionDialog from "@/components/organisms/dialog/ReplayOptionDialog.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import { useRouter } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "confirm-dialog": ConfirmDialog,
     "replay-option-dialog": ReplayOptionDialog,
     "comparison-result-dialog": ComparisonResultDialog,
   },
-})
-export default class ReplayHistoryButton extends Vue {
-  private errorDialogOpened = false;
-  private errorDialogMessage = "";
+  setup() {
+    const store = useStore();
+    const router = useRouter();
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
+    const errorDialogOpened = ref(false);
+    const errorDialogMessage = ref("");
 
-  private replayOptionDialogOpened = false;
+    const replayOptionDialogOpened = ref(false);
 
-  private resultDialogOpened = false;
+    const resultDialogOpened = ref(false);
 
-  private comparisonResult: TestResultComparisonResult | null = null;
+    const comparisonResult = ref<TestResultComparisonResult | null>(null);
 
-  private get isDisabled(): boolean {
-    return (
-      (this.isCapturing && !this.isReplaying) ||
-      this.isResuming ||
-      this.operations.length === 0
+    const isDisabled = computed((): boolean => {
+      return (
+        (isCapturing.value && !isReplaying.value) ||
+        isResuming.value ||
+        operations.value.length === 0
+      );
+    });
+
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
+
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
+
+    const operations = computed((): OperationForGUI[] => {
+      return store.getters["operationHistory/getOperations"]();
+    });
+
+    const title = computed(() => {
+      return isReplaying.value
+        ? store.getters.message("app.stop-replay")
+        : store.getters.message("app.replay");
+    });
+
+    const replayOption = computed(
+      (): {
+        testResultName: string;
+        resultSavingEnabled: boolean;
+        comparisonEnabled: boolean;
+      } => {
+        return ((store.state as any).captureControl as CaptureControlState)
+          .replayOption;
+      }
     );
-  }
 
-  private get isCapturing() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isCapturing;
-  }
+    const execute = async () => {
+      if (!isReplaying.value) {
+        replayOptionDialogOpened.value = true;
+      } else {
+        await forceQuitReplay();
+      }
+    };
 
-  private get isReplaying() {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isReplaying;
-  }
+    const startReplay = async () => {
+      await replayOperations();
+    };
 
-  private get isResuming() {
-    return (this.$store.state.captureControl as CaptureControlState).isResuming;
-  }
+    const replayOperations = async () => {
+      goToHistoryView();
 
-  private get operations(): OperationForGUI[] {
-    return this.$store.getters["operationHistory/getOperations"]();
-  }
-
-  private get title() {
-    return this.isReplaying
-      ? this.$store.getters.message("app.stop-replay")
-      : this.$store.getters.message("app.replay");
-  }
-
-  private get replayOption(): {
-    testResultName: string;
-    resultSavingEnabled: boolean;
-    comparisonEnabled: boolean;
-  } {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .replayOption;
-  }
-
-  private async execute() {
-    if (!this.isReplaying) {
-      this.replayOptionDialogOpened = true;
-    } else {
-      await this.forceQuitReplay();
-    }
-  }
-
-  private async startReplay() {
-    await this.replayOperations();
-  }
-
-  private async replayOperations() {
-    this.goToHistoryView();
-
-    (async () => {
-      try {
-        await this.$store.dispatch("captureControl/replayOperations", {
-          initialUrl: this.operations[0].url,
-        });
-
-        if (
-          this.replayOption.resultSavingEnabled &&
-          this.replayOption.comparisonEnabled
-        ) {
-          await this.compareHistory();
-        } else {
-          this.$store.commit("captureControl/setCompletionDialog", {
-            title: this.$store.getters.message("replay.done-title"),
-            message: this.$store.getters.message("replay.done-run-operations"),
+      (async () => {
+        try {
+          await store.dispatch("captureControl/replayOperations", {
+            initialUrl: operations.value[0].url,
           });
+
+          if (
+            replayOption.value.resultSavingEnabled &&
+            replayOption.value.comparisonEnabled
+          ) {
+            await compareHistory();
+          } else {
+            store.commit("captureControl/setCompletionDialog", {
+              title: store.getters.message("replay.done-title"),
+              message: store.getters.message("replay.done-run-operations"),
+            });
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            errorDialogOpened.value = true;
+            errorDialogMessage.value = error.message;
+          } else {
+            throw error;
+          }
         }
+      })();
+    };
+
+    const compareHistory = async () => {
+      store.dispatch("openProgressDialog", {
+        message: store.getters.message(
+          "test-result-page.comparing-test-result"
+        ),
+      });
+
+      try {
+        const testResults: TestResultSummary[] = await store.dispatch(
+          "operationHistory/getTestResults"
+        );
+
+        if (testResults.length === 0) {
+          throw new Error(
+            store.getters.message(
+              "test-result-page.compare-test-result-not-exist"
+            )
+          );
+        }
+
+        const { actualTestResultId, expectedTestResultId } =
+          findCompareTargets(testResults);
+
+        if (!expectedTestResultId) {
+          throw new Error(
+            store.getters.message(
+              "test-result-page.compare-test-result-not-exist"
+            )
+          );
+        }
+
+        comparisonResult.value = await store.dispatch(
+          "operationHistory/compareTestResults",
+          { actualTestResultId, expectedTestResultId }
+        );
+
+        resultDialogOpened.value = true;
       } catch (error) {
         if (error instanceof Error) {
-          this.errorDialogOpened = true;
-          this.errorDialogMessage = error.message;
+          errorDialogMessage.value = error.message;
+          errorDialogOpened.value = true;
         } else {
           throw error;
         }
+      } finally {
+        store.dispatch("closeProgressDialog");
       }
-    })();
-  }
-
-  private async compareHistory() {
-    this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message(
-        "test-result-page.comparing-test-result"
-      ),
-    });
-
-    try {
-      const testResults: TestResultSummary[] = await this.$store.dispatch(
-        "operationHistory/getTestResults"
-      );
-
-      if (testResults.length === 0) {
-        throw new Error(
-          this.$store.getters.message(
-            "test-result-page.compare-test-result-not-exist"
-          )
-        );
-      }
-
-      const { actualTestResultId, expectedTestResultId } =
-        this.findCompareTargets(testResults);
-
-      if (!expectedTestResultId) {
-        throw new Error(
-          this.$store.getters.message(
-            "test-result-page.compare-test-result-not-exist"
-          )
-        );
-      }
-
-      this.comparisonResult = await this.$store.dispatch(
-        "operationHistory/compareTestResults",
-        { actualTestResultId, expectedTestResultId }
-      );
-
-      this.resultDialogOpened = true;
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorDialogMessage = error.message;
-        this.errorDialogOpened = true;
-      } else {
-        throw error;
-      }
-    } finally {
-      this.$store.dispatch("closeProgressDialog");
-    }
-  }
-
-  private findCompareTargets(testResults: TestResultSummary[]) {
-    const actualTestResultId = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).testResultInfo.id;
-
-    const actualTestResult = testResults.find((testResult) => {
-      return testResult.id === actualTestResultId;
-    });
-    const expectedTestResult = testResults.find((testResult) => {
-      return testResult.id === actualTestResult?.parentTestResultId;
-    });
-
-    return {
-      actualTestResultId,
-      expectedTestResultId: expectedTestResult?.id ?? undefined,
     };
-  }
 
-  private async forceQuitReplay() {
-    await this.$store
-      .dispatch("captureControl/forceQuitReplay")
-      .catch((error) => {
+    const findCompareTargets = (testResults: TestResultSummary[]) => {
+      const actualTestResultId = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).testResultInfo.id;
+
+      const actualTestResult = testResults.find((testResult) => {
+        return testResult.id === actualTestResultId;
+      });
+      const expectedTestResult = testResults.find((testResult) => {
+        return testResult.id === actualTestResult?.parentTestResultId;
+      });
+
+      return {
+        actualTestResultId,
+        expectedTestResultId: expectedTestResult?.id ?? undefined,
+      };
+    };
+
+    const forceQuitReplay = async () => {
+      await store.dispatch("captureControl/forceQuitReplay").catch((error) => {
         console.log(error);
       });
-  }
+    };
 
-  private goToHistoryView() {
-    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
-  }
-}
+    const goToHistoryView = () => {
+      router.push({ path: "/test-result" }).catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
+    };
+
+    return {
+      store,
+      errorDialogOpened,
+      errorDialogMessage,
+      replayOptionDialogOpened,
+      resultDialogOpened,
+      comparisonResult,
+      isDisabled,
+      title,
+      execute,
+      startReplay,
+    };
+  },
+});
 </script>

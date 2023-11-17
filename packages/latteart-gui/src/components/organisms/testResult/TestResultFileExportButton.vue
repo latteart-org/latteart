@@ -17,7 +17,7 @@
 <template>
   <v-list-item @click="exportData" :disabled="isDisabled">
     <v-list-item-title>{{
-      $store.getters.message("import-export-dialog.test-result-export-title")
+      store.getters.message("import-export-dialog.test-result-export-title")
     }}</v-list-item-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -31,7 +31,7 @@
       :message="downloadLinkDialogMessage"
       :alertMessage="downloadLinkDialogAlertMessage"
       :linkUrl="downloadLinkDialogLinkUrl"
-      :downloadMessage="$store.getters.message('common.download-link')"
+      :downloadMessage="store.getters.message('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-item>
@@ -41,97 +41,119 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "download-link-dialog": DownloadLinkDialog,
   },
-})
-export default class TestResultFileExportButton extends Vue {
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private isExportingData = false;
+    const downloadLinkDialogOpened = ref(false);
+    const downloadLinkDialogTitle = ref("");
+    const downloadLinkDialogMessage = ref("");
+    const downloadLinkDialogAlertMessage = ref("");
+    const downloadLinkDialogLinkUrl = ref("");
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.sequence === 0 ||
-      this.isExportingData
-    );
-  }
+    const isExportingData = ref(false);
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        sequence.value === 0 ||
+        isExportingData.value
+      );
+    });
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private get sequence() {
-    const history = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history;
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
 
-    return history.at(-1)?.operation.sequence ?? 0;
-  }
+    const sequence = computed(() => {
+      const history = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history;
 
-  private exportData() {
-    (async () => {
-      this.isExportingData = true;
-      const testResultId = this.$store.state.operationHistory.testResultInfo.id;
+      return history.at(-1)?.operation.sequence ?? 0;
+    });
 
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "import-export-dialog.creating-export-data"
-          ),
-        });
-        const exportDataPath = await this.$store
-          .dispatch("operationHistory/exportData", { testResultId })
-          .catch((error) => {
-            console.error(error);
+    const exportData = () => {
+      (async () => {
+        isExportingData.value = true;
+        const testResultId = (
+          (store.state as any).operationHistory as OperationHistoryState
+        ).testResultInfo.id;
+
+        try {
+          store.dispatch("openProgressDialog", {
+            message: store.getters.message(
+              "import-export-dialog.creating-export-data"
+            ),
           });
-        this.$store.dispatch("closeProgressDialog");
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "import-export-dialog.create-export-data-succeeded"
-        );
-        this.downloadLinkDialogAlertMessage = "";
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${exportDataPath}`;
-        this.downloadLinkDialogOpened = true;
-      } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+          const exportDataPath = await store
+            .dispatch("operationHistory/exportData", { testResultId })
+            .catch((error) => {
+              console.error(error);
+            });
+          store.dispatch("closeProgressDialog");
+          downloadLinkDialogTitle.value =
+            store.getters.message("common.confirm");
+          downloadLinkDialogMessage.value = store.getters.message(
+            "import-export-dialog.create-export-data-succeeded"
+          );
+          downloadLinkDialogAlertMessage.value = "";
+          downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${exportDataPath}`;
+          downloadLinkDialogOpened.value = true;
+        } catch (error) {
+          store.dispatch("closeProgressDialog");
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          isExportingData.value = false;
         }
-      } finally {
-        this.isExportingData = false;
-      }
-    })();
-  }
+      })();
+    };
 
-  private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-}
+    const currentRepositoryUrl = computed((): string => {
+      return store.state.repositoryService.serviceUrl;
+    });
+
+    return {
+      store,
+      errorMessageDialogOpened,
+      errorMessage,
+      downloadLinkDialogOpened,
+      downloadLinkDialogTitle,
+      downloadLinkDialogMessage,
+      downloadLinkDialogAlertMessage,
+      downloadLinkDialogLinkUrl,
+      isDisabled,
+      exportData,
+    };
+  },
+});
 </script>

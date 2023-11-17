@@ -32,37 +32,51 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class PauseButton extends Vue {
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+export default defineComponent({
+  setup() {
+    const store = useStore();
 
-  private get isPaused(): boolean {
-    return this.$store.state.captureControl.isPaused;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get pauseButtonTooltip(): string {
-    if (!this.isCapturing) {
-      return "";
-    }
-    return this.$store.getters.message(
-      this.isPaused ? "app.resume-capturing" : "app.pause-capturing"
-    );
-  }
+    const isPaused = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isPaused;
+    });
 
-  private get pauseButtonColor() {
-    return this.isPaused ? "yellow" : "grey darken-3";
-  }
+    const pauseButtonTooltip = computed((): string => {
+      if (!isCapturing.value) {
+        return "";
+      }
+      return store.getters.message(
+        isPaused.value ? "app.resume-capturing" : "app.pause-capturing"
+      );
+    });
 
-  private pushPauseButton() {
-    if (this.isPaused) {
-      this.$store.dispatch("captureControl/resumeCapturing");
-    } else {
-      this.$store.dispatch("captureControl/pauseCapturing");
-    }
-  }
-}
+    const pauseButtonColor = computed(() => {
+      return isPaused.value ? "yellow" : "grey darken-3";
+    });
+
+    const pushPauseButton = () => {
+      if (isPaused.value) {
+        store.dispatch("captureControl/resumeCapturing");
+      } else {
+        store.dispatch("captureControl/pauseCapturing");
+      }
+    };
+
+    return {
+      isCapturing,
+      pauseButtonTooltip,
+      pauseButtonColor,
+      pushPauseButton,
+    };
+  },
+});
 </script>

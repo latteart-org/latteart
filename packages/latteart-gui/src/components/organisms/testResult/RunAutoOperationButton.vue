@@ -23,7 +23,7 @@
       @click="autoOperationSelectDialogOpened = true"
       fab
       small
-      :title="$store.getters.message('app.auto-operation')"
+      :title="store.getters.message('app.auto-operation')"
       class="mx-2"
     >
       <v-icon>video_library</v-icon>
@@ -48,70 +48,80 @@
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationSelectDialog from "@/components/organisms/dialog/AutoOperationSelectDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { Component, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "auto-operation-select-dialog": AutoOperationSelectDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class RunAutoOperationButton extends Vue {
-  private autoOperationSelectDialogOpened = false;
-  private errorDialogOpened = false;
-  private errorDialogMessage = "";
+  setup() {
+    const store = useStore();
 
-  private get autoOperationConditionGroups() {
-    const conditionGroups: AutoOperationConditionGroup[] =
-      this.$store.state.projectSettings.config.autoOperationSetting
-        .conditionGroups;
-    return conditionGroups.filter((group) => {
-      return group.isEnabled;
+    const autoOperationSelectDialogOpened = ref(false);
+    const errorDialogOpened = ref(false);
+    const errorDialogMessage = ref("");
+
+    const autoOperationConditionGroups = computed(() => {
+      const conditionGroups: AutoOperationConditionGroup[] =
+        store.state.projectSettings.config.autoOperationSetting.conditionGroups;
+      return conditionGroups.filter((group) => {
+        return group.isEnabled;
+      });
     });
-  }
 
-  private get isDisabled(): boolean {
-    return (
-      !this.$store.state.captureControl.isCapturing ||
-      this.$store.state.captureControl.isAutoOperation ||
-      this.autoOperationConditionGroups.length < 1
-    );
-  }
+    const isDisabled = computed((): boolean => {
+      return (
+        !((store.state as any).captureControl as CaptureControlState)
+          .isCapturing || autoOperationConditionGroups.value.length < 1
+      );
+    });
 
-  private async runAutoOperations(index: number) {
-    try {
-      const tempOperations = this.autoOperationConditionGroups[
-        index
-      ].autoOperations.map((operation) => {
-        return {
-          input: operation.input,
-          type: operation.type,
-          elementInfo: operation.elementInfo,
-          title: operation.title,
-          url: operation.url,
-          timestamp: operation.timestamp,
-        };
-      });
+    const runAutoOperations = async (index: number) => {
+      try {
+        const tempOperations = autoOperationConditionGroups.value[
+          index
+        ].autoOperations.map((operation) => {
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+            title: operation.title,
+            url: operation.url,
+            timestamp: operation.timestamp,
+          };
+        });
 
-      await this.$store.dispatch("captureControl/runAutoOperations", {
-        operations: tempOperations,
-      });
-      this.$store.commit("captureControl/setCompletionDialog", {
-        title: this.$store.getters.message("auto-operation.done-title"),
-        message: this.$store.getters.message(
-          "auto-operation.done-auto-operations"
-        ),
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorDialogOpened = true;
-        this.errorDialogMessage = error.message;
-      } else {
-        throw error;
+        await store.dispatch("captureControl/runAutoOperations", {
+          operations: tempOperations,
+        });
+        store.commit("captureControl/setCompletionDialog", {
+          title: store.getters.message("auto-operation.done-title"),
+          message: store.getters.message("auto-operation.done-auto-operations"),
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          errorDialogOpened.value = true;
+          errorDialogMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      } finally {
+        autoOperationSelectDialogOpened.value = false;
       }
-    } finally {
-      this.autoOperationSelectDialogOpened = false;
-    }
-  }
-}
+    };
+
+    return {
+      store,
+      autoOperationSelectDialogOpened,
+      errorDialogOpened,
+      errorDialogMessage,
+      autoOperationConditionGroups,
+      isDisabled,
+      runAutoOperations,
+    };
+  },
+});
 </script>

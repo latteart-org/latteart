@@ -18,7 +18,7 @@
   <v-text-field
     :single-line="singleLine"
     :hide-details="hideDetails"
-    :label="$store.getters.message('app.test-result-name')"
+    :label="store.getters.message('app.test-result-name')"
     prepend-icon="save_alt"
     v-model="testResultName"
     @change="changeCurrentTestResultName"
@@ -28,39 +28,55 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class TestResultNameTextField extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly singleLine!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly hideDetails!: boolean;
+export default defineComponent({
+  props: {
+    singleLine: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true },
+  },
+  setup() {
+    const store = useStore();
 
-  private get isDisabled(): boolean {
-    return this.isCapturing || this.isResuming;
-  }
-
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
-
-  private get testResultName(): string {
-    return this.$store.state.operationHistory.testResultInfo.name;
-  }
-
-  private set testResultName(name: string) {
-    this.$store.commit("operationHistory/setTestResultName", { name });
-  }
-
-  private changeCurrentTestResultName() {
-    this.$store.dispatch("operationHistory/changeCurrentTestResult", {
-      startTime: null,
-      initialUrl: "",
+    const isDisabled = computed((): boolean => {
+      return isCapturing.value || isResuming.value;
     });
-  }
-}
+
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
+
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
+
+    const testResultName = computed({
+      get: () =>
+        ((store.state as any).operationHistory as OperationHistoryState)
+          .testResultInfo.name,
+      set: (name: string) => {
+        store.commit("operationHistory/setTestResultName", { name });
+      },
+    });
+
+    const changeCurrentTestResultName = () => {
+      store.dispatch("operationHistory/changeCurrentTestResult", {
+        startTime: null,
+        initialUrl: "",
+      });
+    };
+
+    return {
+      store,
+      isDisabled,
+      testResultName,
+      changeCurrentTestResultName,
+    };
+  },
+});
 </script>

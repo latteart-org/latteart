@@ -40,7 +40,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import BrowserBackButton from "./BrowserBackButton.vue";
 import BrowserForwardButton from "./BrowserForwardButton.vue";
 import CurrentWindowInfo from "./CurrentWindowInfo.vue";
@@ -49,8 +48,9 @@ import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
+import { defineComponent } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
     "browser-back-button": BrowserBackButton,
     "browser-forward-button": BrowserForwardButton,
@@ -61,6 +61,5 @@ import RunAutoOperationButton from "./RunAutoOperationButton.vue";
     "autofill-button": AutofillButton,
     "run-auto-operation-button": RunAutoOperationButton,
   },
-})
-export default class TestResultFooter extends Vue {}
+});
 </script>

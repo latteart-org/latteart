@@ -23,7 +23,7 @@
       @click="openDialog"
       fab
       small
-      :title="$store.getters.message('app.autofill')"
+      :title="store.getters.message('app.autofill')"
       class="mx-2"
     >
       <v-icon>edit</v-icon>
@@ -33,63 +33,72 @@
 
 <script lang="ts">
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
-import {
-  AutofillConditionGroup,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
-import { Component, Vue } from "vue-property-decorator";
+import { AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { CaptureControlState } from "@/store/captureControl";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class AutofillButton extends Vue {
-  private autofillConditionGroup: AutofillConditionGroup[] | null = null;
+export default defineComponent({
+  setup() {
+    const store = useStore();
 
-  private get isDisabled(): boolean {
-    if (
-      !this.$store.state.captureControl.isCapturing ||
-      this.$store.state.captureControl.isAutoOperation
-    ) {
-      this.setMatchedAutofillConditionGroup(null);
-      return true;
-    }
-    const history = this.$store.state.operationHistory
-      .history as OperationWithNotes[];
+    const autofillConditionGroup = ref<AutofillConditionGroup[] | null>(null);
 
-    if (!history || history.length === 0) {
-      this.setMatchedAutofillConditionGroup(null);
-      return true;
-    }
-    const lastOperation = history[history.length - 1].operation;
-    const matchGroup =
-      new AutofillTestAction().extractMatchingAutofillConditionGroup(
-        this.$store.state.projectSettings.config.autofillSetting
-          .conditionGroups,
-        lastOperation.title,
-        lastOperation.url
-      );
-    if (matchGroup.isFailure() || !matchGroup.data) {
-      this.setMatchedAutofillConditionGroup(null);
-      return true;
-    }
+    const isDisabled = computed((): boolean => {
+      if (
+        !((store.state as any).captureControl as CaptureControlState)
+          .isCapturing
+      ) {
+        setMatchedAutofillConditionGroup(null);
+        return true;
+      }
+      const history = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history;
 
-    const isDisabled = matchGroup.data.length === 0;
-    this.setMatchedAutofillConditionGroup(isDisabled ? null : matchGroup.data);
+      if (!history || history.length === 0) {
+        setMatchedAutofillConditionGroup(null);
+        return true;
+      }
+      const lastOperation = history[history.length - 1].operation;
+      const matchGroup =
+        new AutofillTestAction().extractMatchingAutofillConditionGroup(
+          store.state.projectSettings.config.autofillSetting.conditionGroups,
+          lastOperation.title,
+          lastOperation.url
+        );
+      if (matchGroup.isFailure() || !matchGroup.data) {
+        setMatchedAutofillConditionGroup(null);
+        return true;
+      }
 
-    return isDisabled;
-  }
+      const isDisabled = matchGroup.data.length === 0;
+      setMatchedAutofillConditionGroup(isDisabled ? null : matchGroup.data);
 
-  private openDialog() {
-    this.$store.commit("captureControl/setAutofillSelectDialog", {
-      dialogData: {
-        autofillConditionGroups: this.autofillConditionGroup,
-        message: this.$store.getters.message("autofill-button.message"),
-      },
+      return isDisabled;
     });
-  }
 
-  private setMatchedAutofillConditionGroup(
-    group: AutofillConditionGroup[] | null
-  ) {
-    this.autofillConditionGroup = group;
-  }
-}
+    const openDialog = () => {
+      store.commit("captureControl/setAutofillSelectDialog", {
+        dialogData: {
+          autofillConditionGroups: autofillConditionGroup.value,
+          message: store.getters.message("autofill-button.message"),
+        },
+      });
+    };
+
+    const setMatchedAutofillConditionGroup = (
+      group: AutofillConditionGroup[] | null
+    ) => {
+      autofillConditionGroup.value = group;
+    };
+
+    return {
+      store,
+      isDisabled,
+      openDialog,
+    };
+  },
+});
 </script>

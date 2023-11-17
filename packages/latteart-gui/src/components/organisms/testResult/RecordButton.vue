@@ -25,7 +25,7 @@
           large
           color="grey darken-3"
           @click="openOptionDialog"
-          :title="$store.getters.message('app.start')"
+          :title="store.getters.message('app.start')"
           id="startButton"
           class="mx-1"
         >
@@ -47,7 +47,7 @@
       large
       color="red"
       @click="endCapture"
-      :title="$store.getters.message('app.finish')"
+      :title="store.getters.message('app.finish')"
       id="endButton"
       class="mx-2"
     >
@@ -57,29 +57,42 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import FirstTestPurposeOptionDialog from "@/components/organisms/dialog/FirstTestPurposeOptionDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "first-test-purpose-option-dialog": FirstTestPurposeOptionDialog,
     "record-start-trigger": RecordStartTrigger,
   },
-})
-export default class RecordButton extends Vue {
-  private optionDialogOpened = false;
+  setup() {
+    const store = useStore();
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const optionDialogOpened = ref(false);
 
-  private openOptionDialog() {
-    this.optionDialogOpened = true;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private endCapture(): void {
-    this.$store.dispatch("captureControl/endCapture");
-  }
-}
+    const openOptionDialog = () => {
+      optionDialogOpened.value = true;
+    };
+
+    const endCapture = (): void => {
+      store.dispatch("captureControl/endCapture");
+    };
+
+    return {
+      store,
+      optionDialogOpened,
+      isCapturing,
+      openOptionDialog,
+      endCapture,
+    };
+  },
+});
 </script>

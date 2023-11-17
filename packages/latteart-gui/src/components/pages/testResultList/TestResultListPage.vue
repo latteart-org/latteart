@@ -22,7 +22,7 @@
           <test-result-import-trigger @update="loadTestResultSummaries">
             <template v-slot:activator="{ on, isDisabled }">
               <v-btn @click="on" :disabled="isDisabled">{{
-                $store.getters.message(
+                store.getters.message(
                   "import-export-dialog.test-result-import-title"
                 )
               }}</v-btn>
@@ -55,7 +55,7 @@
                       color="primary"
                       @click="goToHistoryView(on)"
                       :disabled="disabled"
-                      :title="$store.getters.message('test-result-list.load')"
+                      :title="store.getters.message('test-result-list.load')"
                     >
                       <v-icon>open_in_browser</v-icon>
                     </v-btn>
@@ -74,7 +74,7 @@
                       color="primary"
                       @click="on"
                       :disabled="disabled"
-                      :title="$store.getters.message('test-result-list.edit')"
+                      :title="store.getters.message('test-result-list.edit')"
                     >
                       <v-icon>edit</v-icon>
                     </v-btn>
@@ -152,7 +152,7 @@
             @click="confirmDialogOpened = true"
             color="error"
             >{{
-              $store.getters.message(
+              store.getters.message(
                 "test-result-navigation-drawer.delete-test-results"
               )
             }}</v-btn
@@ -164,12 +164,12 @@
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="
-        $store.getters.message(
+        store.getters.message(
           'test-result-navigation-drawer.delete-test-results'
         )
       "
       :message="
-        $store.getters.message(
+        store.getters.message(
           'test-result-navigation-drawer.delete-test-result-message'
         )
       "
@@ -179,9 +179,9 @@
 
     <information-message-dialog
       :opened="informationDialogOpened"
-      :title="$store.getters.message('common.confirm')"
+      :title="store.getters.message('common.confirm')"
       :message="
-        $store.getters.message(
+        store.getters.message(
           'test-result-navigation-drawer.delete-test-result-succeeded'
         )
       "
@@ -200,15 +200,17 @@
 import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import TestResultImportTrigger from "@/components/organisms/common/TestResultImportTrigger.vue";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 import TestResultNameEditTrigger from "@/components/organisms/common/TestResultNameEditTrigger.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import { useRoute, useRouter } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "confirm-dialog": ConfirmDialog,
     "information-message-dialog": InformationMessageDialog,
@@ -217,170 +219,191 @@ import TestResultNameEditTrigger from "@/components/organisms/common/TestResultN
     "test-result-load-trigger": TestResultLoadTrigger,
     "test-result-name-edit-trigger": TestResultNameEditTrigger,
   },
-})
-export default class TestResultListPage extends Vue {
-  private confirmDialogOpened = false;
-  private informationDialogOpened = false;
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+    const router = useRouter();
 
-  private errorDialogOpened = false;
-  private errorMessage = "";
+    const confirmDialogOpened = ref(false);
+    const informationDialogOpened = ref(false);
 
-  private selectedTestResults: TestResultSummary[] = [];
-  private testResults: TestResultSummary[] = [];
-  private search = "";
+    const errorDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get headers() {
-    return [
-      {
-        text: "",
-        value: "actions",
-        width: "120",
-        sortable: false,
-      },
-      {
-        text: this.$store.getters.message("test-result-list.name"),
-        value: "name",
-        width: "280",
-      },
-      {
-        text: this.$store.getters.message("test-result-list.url"),
-        value: "initialUrl",
-        width: "450",
-      },
-      {
-        text: this.$store.getters.message("test-result-list.testing-time"),
-        value: "testingTime",
-        width: "120",
-      },
-      {
-        text: this.$store.getters.message(
-          "test-result-list.creation-timestamp"
-        ),
-        value: "creationTimestamp",
-        width: "170",
-      },
-      {
-        text: this.$store.getters.message("test-result-list.test-purpose"),
-        value: "testPurposes",
-        width: "450",
-      },
-    ];
-  }
+    const selectedTestResults = ref<TestResultSummary[]>([]);
+    const testResults = ref<TestResultSummary[]>([]);
+    const search = ref("");
 
-  private get isDisabled() {
-    return this.selectedTestResults.length === 0;
-  }
-
-  private get operationHistoryState() {
-    return this.$store.state.operationHistory as OperationHistoryState;
-  }
-
-  async created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    const headers = computed(() => {
+      return [
+        {
+          text: "",
+          value: "actions",
+          width: "120",
+          sortable: false,
+        },
+        {
+          text: store.getters.message("test-result-list.name"),
+          value: "name",
+          width: "280",
+        },
+        {
+          text: store.getters.message("test-result-list.url"),
+          value: "initialUrl",
+          width: "450",
+        },
+        {
+          text: store.getters.message("test-result-list.testing-time"),
+          value: "testingTime",
+          width: "120",
+        },
+        {
+          text: store.getters.message("test-result-list.creation-timestamp"),
+          value: "creationTimestamp",
+          width: "170",
+        },
+        {
+          text: store.getters.message("test-result-list.test-purpose"),
+          value: "testPurposes",
+          width: "450",
+        },
+      ];
     });
 
-    await this.loadTestResultSummaries();
-  }
+    const isDisabled = computed(() => {
+      return selectedTestResults.value.length === 0;
+    });
 
-  private async loadTestResultSummaries() {
-    this.testResults = await this.$store
-      .dispatch("operationHistory/getTestResults")
-      .catch(() => []);
-  }
+    const operationHistoryState = computed(() => {
+      return (store.state as any).operationHistory as OperationHistoryState;
+    });
 
-  private filterItems(
-    value: string | number | TestResultSummary["testPurposes"] | null,
-    search: string | null
-  ) {
-    if (value == null || search == null) {
-      return false;
-    }
+    const loadTestResultSummaries = async () => {
+      testResults.value = await store
+        .dispatch("operationHistory/getTestResults")
+        .catch(() => []);
+    };
 
-    if (typeof value === "object") {
-      return JSON.stringify(value).indexOf(search) !== -1;
-    }
-
-    if (typeof value === "number") {
-      if (value.toString().length === 13) {
-        return this.millisecondsToDateFormat(value).indexOf(search) !== -1;
-      } else {
-        return this.millisecondsToHHmmss(value).indexOf(search) != -1;
+    const filterItems = (
+      value: string | number | TestResultSummary["testPurposes"] | null,
+      search: string | null
+    ) => {
+      if (value == null || search == null) {
+        return false;
       }
-    }
 
-    return value.toString().indexOf(search) !== -1;
-  }
+      if (typeof value === "object") {
+        return JSON.stringify(value).indexOf(search) !== -1;
+      }
 
-  private millisecondsToHHmmss(millisecondsTime: number) {
-    return formatTime(millisecondsTime);
-  }
+      if (typeof value === "number") {
+        if (value.toString().length === 13) {
+          return millisecondsToDateFormat(value).indexOf(search) !== -1;
+        } else {
+          return millisecondsToHHmmss(value).indexOf(search) != -1;
+        }
+      }
 
-  private millisecondsToDateFormat(millisecondsTime: number) {
-    return formatDateTime(millisecondsTime);
-  }
+      return value.toString().indexOf(search) !== -1;
+    };
 
-  private async deleteTestResults() {
-    await this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message(
-        "test-result-navigation-drawer.deleting-test-results"
-      ),
-    });
-    try {
-      const targetTestResultIds = this.selectedTestResults.map(({ id }) => id);
+    const millisecondsToHHmmss = (millisecondsTime: number) => {
+      return formatTime(millisecondsTime);
+    };
 
-      // Delete selected test results.
-      await this.$store.dispatch("operationHistory/deleteTestResults", {
-        testResultIds: targetTestResultIds,
+    const millisecondsToDateFormat = (millisecondsTime: number) => {
+      return formatDateTime(millisecondsTime);
+    };
+
+    const deleteTestResults = async () => {
+      await store.dispatch("openProgressDialog", {
+        message: store.getters.message(
+          "test-result-navigation-drawer.deleting-test-results"
+        ),
+      });
+      try {
+        const targetTestResultIds = selectedTestResults.value.map(
+          ({ id }) => id
+        );
+
+        // Delete selected test results.
+        await store.dispatch("operationHistory/deleteTestResults", {
+          testResultIds: targetTestResultIds,
+        });
+
+        await loadTestResultSummaries();
+
+        selectedTestResults.value = [];
+
+        // Clear display information if it contains test results you are viewing.
+        if (
+          targetTestResultIds.includes(
+            operationHistoryState.value.testResultInfo.id
+          )
+        ) {
+          store.commit("operationHistory/removeStoringTestResultInfos", {
+            testResultInfos: [
+              {
+                id: operationHistoryState.value.testResultInfo.id,
+                name: operationHistoryState.value.testResultInfo.name,
+              },
+            ],
+          });
+          await store.dispatch("operationHistory/clearTestResult");
+          store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+          store.commit("operationHistory/clearElementCoverages");
+          store.commit("operationHistory/clearInputValueTable");
+          await store.dispatch("captureControl/resetTimer");
+        }
+        informationDialogOpened.value = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          errorDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      } finally {
+        await store.dispatch("closeProgressDialog");
+      }
+    };
+
+    const goToHistoryView = async (loadTestResults: () => Promise<void>) => {
+      await loadTestResults();
+
+      router.push({ path: "/test-result" }).catch((err: Error) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
+    };
+
+    (async () => {
+      await store.dispatch("changeWindowTitle", {
+        title: store.getters.message(route.meta?.title ?? ""),
       });
 
-      await this.loadTestResultSummaries();
+      await loadTestResultSummaries();
+    })();
 
-      this.selectedTestResults = [];
-
-      // Clear display information if it contains test results you are viewing.
-      if (
-        targetTestResultIds.includes(
-          this.operationHistoryState.testResultInfo.id
-        )
-      ) {
-        this.$store.commit("operationHistory/removeStoringTestResultInfos", {
-          testResultInfos: [
-            {
-              id: this.operationHistoryState.testResultInfo.id,
-              name: this.operationHistoryState.testResultInfo.name,
-            },
-          ],
-        });
-        await this.$store.dispatch("operationHistory/clearTestResult");
-        this.$store.commit(
-          "operationHistory/clearScreenTransitionDiagramGraph"
-        );
-        this.$store.commit("operationHistory/clearElementCoverages");
-        this.$store.commit("operationHistory/clearInputValueTable");
-        await this.$store.dispatch("captureControl/resetTimer");
-      }
-      this.informationDialogOpened = true;
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    } finally {
-      await this.$store.dispatch("closeProgressDialog");
-    }
-  }
-
-  private async goToHistoryView(loadTestResults: () => Promise<void>) {
-    await loadTestResults();
-
-    this.$router.push({ path: "/test-result" }).catch((err: Error) => {
-      if (err.name !== "NavigationDuplicated") {
-        throw err;
-      }
-    });
-  }
-}
+    return {
+      store,
+      confirmDialogOpened,
+      informationDialogOpened,
+      errorDialogOpened,
+      errorMessage,
+      selectedTestResults,
+      testResults,
+      search,
+      headers,
+      isDisabled,
+      loadTestResultSummaries,
+      filterItems,
+      millisecondsToHHmmss,
+      millisecondsToDateFormat,
+      deleteTestResults,
+      goToHistoryView,
+    };
+  },
+});
 </script>

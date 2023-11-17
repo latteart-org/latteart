@@ -21,7 +21,7 @@
       small
       @click="browserForward"
       :disabled="isDisabled"
-      :title="$store.getters.message('navigate.forward')"
+      :title="store.getters.message('navigate.forward')"
       class="mx-2"
     >
       <v-icon dark>arrow_forward</v-icon>
@@ -31,27 +31,38 @@
 
 <script lang="ts">
 import { CaptureControlState } from "@/store/captureControl";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class BrowserForwardButton extends Vue {
-  private get isDisabled(): boolean {
-    return !this.isCapturing || !this.canDoBrowserForward;
-  }
+export default defineComponent({
+  setup() {
+    const store = useStore();
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isDisabled = computed((): boolean => {
+      return !isCapturing.value || !canDoBrowserForward.value;
+    });
 
-  private get canDoBrowserForward() {
-    return (
-      (this.$store.state.captureControl as CaptureControlState).captureSession
-        ?.canNavigateForward ?? false
-    );
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private browserForward(): void {
-    this.$store.dispatch("captureControl/browserForward");
-  }
-}
+    const canDoBrowserForward = computed(() => {
+      return (
+        ((store.state as any).captureControl as CaptureControlState)
+          .captureSession?.canNavigateForward ?? false
+      );
+    });
+
+    const browserForward = (): void => {
+      store.dispatch("captureControl/browserForward");
+    };
+
+    return {
+      store,
+      isDisabled,
+      browserForward,
+    };
+  },
+});
 </script>

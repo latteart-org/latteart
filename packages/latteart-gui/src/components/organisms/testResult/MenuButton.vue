@@ -39,7 +39,7 @@
             :disabled="slotProps.obj.isDisabled"
           >
             <v-list-item-title>{{
-              $store.getters.message("test-result-page.export-screenshots")
+              store.getters.message("test-result-page.export-screenshots")
             }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>
@@ -51,16 +51,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-
 import TestResultFileExportButton from "./TestResultFileExportButton.vue";
 import ReplayHistoryButton from "./ReplayHistoryButton.vue";
 import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import ScreenshotsDownloadButton from "@/components/organisms/common/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
+import { computed, defineComponent, inject } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "replay-button": ReplayHistoryButton,
     "test-tesult-export-button": TestResultFileExportButton,
@@ -69,10 +69,17 @@ import CompareHistoryButton from "./CompareHistoryButton.vue";
     "delete-test-result-button": DeleteTestResultButton,
     "compare-history-button": CompareHistoryButton,
   },
-})
-export default class MenuButton extends Vue {
-  private get isViewerMode() {
-    return (this as any).$isViewerMode ? (this as any).$isViewerMode : false;
-  }
-}
+  setup() {
+    const store = useStore();
+
+    const isViewerMode = computed((): boolean => {
+      return inject("isViewerMode") ?? false;
+    });
+
+    return {
+      store,
+      isViewerMode,
+    };
+  },
+});
 </script>

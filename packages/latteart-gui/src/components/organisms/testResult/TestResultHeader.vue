@@ -34,15 +34,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import PauseButton from "./PauseButton.vue";
 import RecordButton from "./RecordButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
 import URLTextField from "./URLTextField.vue";
 import MenuButton from "./MenuButton.vue";
+import { defineComponent } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
     "url-text-field": URLTextField,
     "test-result-name-text-field": TestResultNameTextField,
@@ -51,10 +51,14 @@ import MenuButton from "./MenuButton.vue";
     "generate-test-script-button": GenerateTestScriptButton,
     "menu-button": MenuButton,
   },
-})
-export default class TestResultHeader extends Vue {
-  private cancelKeydown(event: Event) {
-    event.stopPropagation();
-  }
-}
+  setup() {
+    const cancelKeydown = (event: Event) => {
+      event.stopPropagation();
+    };
+
+    return {
+      cancelKeydown,
+    };
+  },
+});
 </script>

@@ -18,14 +18,14 @@
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
       <v-list-item-title>{{
-        $store.getters.message("test-result-page.delete-test-result")
+        store.getters.message("test-result-page.delete-test-result")
       }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="
-        $store.getters.message('test-result-page.delete-test-result-title')
+        store.getters.message('test-result-page.delete-test-result-title')
       "
       :message="confirmMessage"
       :onAccept="deleteTestResult"
@@ -34,9 +34,9 @@
 
     <information-message-dialog
       :opened="informationMessageDialogOpened"
-      :title="$store.getters.message('common.confirm')"
+      :title="store.getters.message('common.confirm')"
       :message="
-        $store.getters.message('test-result-page.delete-test-result-succeeded')
+        store.getters.message('test-result-page.delete-test-result-succeeded')
       "
       @close="informationMessageDialogOpened = false"
     ></information-message-dialog>
@@ -54,107 +54,118 @@ import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
     "information-message-dialog": InformationMessageDialog,
   },
-})
-export default class DeleteTestResultButton extends Vue {
-  private confirmDialogOpened = false;
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-  private confirmMessage = "";
+  setup() {
+    const store = useStore();
 
-  private informationMessageDialogOpened = false;
-  private informationMessage = "";
+    const confirmDialogOpened = ref(false);
+    const confirmMessage = ref("");
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const informationMessageDialogOpened = ref(false);
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.testResultInfo.id === ""
-    );
-  }
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
-
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
-
-  private get testResultInfo() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .testResultInfo;
-  }
-
-  private get operations() {
-    return this.$store.getters["operationHistory/getOperations"]();
-  }
-
-  private async openConfirmDialog() {
-    const sessions: string[] = await this.$store.dispatch(
-      "operationHistory/getSessionIds"
-    );
-
-    this.confirmMessage =
-      sessions.length > 0
-        ? this.$store.getters.message(
-            "test-result-page.delete-test-result-associated-session-message",
-            { value: this.testResultInfo.name }
-          )
-        : this.$store.getters.message(
-            "test-result-page.delete-test-result-message",
-            { value: this.testResultInfo.name }
-          );
-    this.confirmDialogOpened = true;
-  }
-
-  private async deleteTestResult(): Promise<void> {
-    await this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message("remote-access.delete-testresults"),
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        testResultInfo.value.id === ""
+      );
     });
 
-    try {
-      await this.$store.dispatch("operationHistory/deleteTestResults", {
-        testResultIds: [this.testResultInfo.id],
-      });
-      this.$store.commit("operationHistory/removeStoringTestResultInfos", {
-        testResultInfos: [
-          { id: this.testResultInfo.id, name: this.testResultInfo.name },
-        ],
-      });
-      await this.$store.dispatch("operationHistory/clearTestResult");
-      this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-      this.$store.commit("operationHistory/clearElementCoverages");
-      this.$store.commit("operationHistory/clearInputValueTable");
-      await this.$store.dispatch("captureControl/resetTimer");
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-      this.informationMessageDialogOpened = true;
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
+
+    const testResultInfo = computed(() => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .testResultInfo;
+    });
+
+    const openConfirmDialog = async () => {
+      const sessions: string[] = await store.dispatch(
+        "operationHistory/getSessionIds"
+      );
+
+      confirmMessage.value =
+        sessions.length > 0
+          ? store.getters.message(
+              "test-result-page.delete-test-result-associated-session-message",
+              { value: testResultInfo.value.name }
+            )
+          : store.getters.message(
+              "test-result-page.delete-test-result-message",
+              { value: testResultInfo.value.name }
+            );
+      confirmDialogOpened.value = true;
+    };
+
+    const deleteTestResult = async (): Promise<void> => {
+      await store.dispatch("openProgressDialog", {
+        message: store.getters.message("remote-access.delete-testresults"),
+      });
+
+      try {
+        await store.dispatch("operationHistory/deleteTestResults", {
+          testResultIds: [testResultInfo.value.id],
+        });
+        store.commit("operationHistory/removeStoringTestResultInfos", {
+          testResultInfos: [
+            { id: testResultInfo.value.id, name: testResultInfo.value.name },
+          ],
+        });
+        await store.dispatch("operationHistory/clearTestResult");
+        store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+        store.commit("operationHistory/clearElementCoverages");
+        store.commit("operationHistory/clearInputValueTable");
+        await store.dispatch("captureControl/resetTimer");
+
+        informationMessageDialogOpened.value = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      } finally {
+        await store.dispatch("closeProgressDialog");
       }
-    } finally {
-      await this.$store.dispatch("closeProgressDialog");
-    }
-  }
-}
+    };
+
+    return {
+      store,
+      confirmDialogOpened,
+      confirmMessage,
+      informationMessageDialogOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      isDisabled,
+      openConfirmDialog,
+      deleteTestResult,
+    };
+  },
+});
 </script>
