@@ -23,27 +23,35 @@
 <script lang="ts">
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class CurrentWindowInfo extends Vue {
-  private get currentWindowName(): string {
-    const captureControlState = this.$store.state
-      .captureControl as CaptureControlState;
-    const operationHistoryState = this.$store.state
-      .operationHistory as OperationHistoryState;
+export default defineComponent({
+  setup() {
+    const store = useStore();
 
-    const session = captureControlState.captureSession;
+    const currentWindowName = computed((): string => {
+      const captureControlState = (store.state as any)
+        .captureControl as CaptureControlState;
+      const operationHistoryState = (store.state as any)
+        .operationHistory as OperationHistoryState;
 
-    const currentWindow = operationHistoryState?.windows.find((window) => {
-      return session && window.value === session.currentWindowHandle;
+      const session = captureControlState.captureSession;
+
+      const currentWindow = operationHistoryState?.windows.find((window) => {
+        return session && window.value === session.currentWindowHandle;
+      });
+
+      if (currentWindow === undefined) {
+        return "No Window";
+      }
+
+      return currentWindow.text;
     });
 
-    if (currentWindow === undefined) {
-      return "No Window";
-    }
-
-    return currentWindow.text;
-  }
-}
+    return {
+      currentWindowName,
+    };
+  },
+});
 </script>

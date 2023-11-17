@@ -18,17 +18,17 @@
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
       <v-list-item-title>{{
-        $store.getters.message("test-result-page.compare-test-result")
+        store.getters.message("test-result-page.compare-test-result")
       }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="
-        $store.getters.message('test-result-page.compare-test-result-title')
+        store.getters.message('test-result-page.compare-test-result-title')
       "
       :message="
-        $store.getters.message('test-result-page.compare-test-result-message')
+        store.getters.message('test-result-page.compare-test-result-message')
       "
       :onAccept="compareHistory"
       @close="confirmDialogOpened = false"
@@ -58,125 +58,141 @@ import {
 } from "@/lib/operationHistory/types";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Vue } from "vue-property-decorator";
 import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
     "comparison-result-dialog": ComparisonResultDialog,
   },
-})
-export default class CompareHistoryButton extends Vue {
-  private confirmDialogOpened = false;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-  private resultDialogOpened = false;
-  private comparisonResult: TestResultComparisonResult | null = null;
+  setup() {
+    const store = useStore();
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.operations.length === 0 ||
-      this.parentTestResultId === ""
-    );
-  }
+    const confirmDialogOpened = ref(false);
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
+    const resultDialogOpened = ref(false);
+    const comparisonResult = ref<TestResultComparisonResult | null>(null);
 
-  private get isCapturing(): boolean {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return (this.$store.state.captureControl as CaptureControlState)
-      .isReplaying;
-  }
-
-  private get isResuming(): boolean {
-    return (this.$store.state.captureControl as CaptureControlState).isResuming;
-  }
-
-  private get testResultId(): string {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .testResultInfo.id;
-  }
-
-  private get parentTestResultId(): string {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .testResultInfo.parentTestResultId;
-  }
-
-  private get operations(): OperationForGUI[] {
-    return this.$store.getters["operationHistory/getOperations"]();
-  }
-
-  private openConfirmDialog() {
-    this.confirmDialogOpened = true;
-  }
-
-  private async compareHistory(): Promise<void> {
-    await this.$store.dispatch("openProgressDialog", {
-      message: this.$store.getters.message(
-        "test-result-page.comparing-test-result"
-      ),
-    });
-
-    try {
-      const testResults: TestResultSummary[] = await this.$store.dispatch(
-        "operationHistory/getTestResults"
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        operations.value.length === 0 ||
+        parentTestResultId.value === ""
       );
-      if (testResults.length === 0) {
-        throw new Error(
-          this.$store.getters.message(
-            "test-result-page.compare-test-result-not-exist"
-          )
-        );
-      }
-
-      const { actualTestResultId, expectedTestResultId } =
-        this.findCompareTargets(testResults);
-
-      if (!expectedTestResultId) {
-        throw new Error(
-          this.$store.getters.message(
-            "test-result-page.compare-test-result-not-exist"
-          )
-        );
-      }
-
-      this.comparisonResult = await this.$store.dispatch(
-        "operationHistory/compareTestResults",
-        { actualTestResultId, expectedTestResultId }
-      );
-      this.resultDialogOpened = true;
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    } finally {
-      await this.$store.dispatch("closeProgressDialog");
-    }
-  }
-
-  private findCompareTargets(testResults: TestResultSummary[]) {
-    const actualTestResult = testResults.find((testResult) => {
-      return testResult.id === this.testResultId;
     });
 
-    const expectedTestResult = testResults.find((testResult) => {
-      return testResult.id === actualTestResult?.parentTestResultId;
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
     });
+
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
+
+    const testResultId = computed((): string => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .testResultInfo.id;
+    });
+
+    const parentTestResultId = computed((): string => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .testResultInfo.parentTestResultId;
+    });
+
+    const operations = computed((): OperationForGUI[] => {
+      return store.getters["operationHistory/getOperations"]();
+    });
+
+    const openConfirmDialog = () => {
+      confirmDialogOpened.value = true;
+    };
+
+    const compareHistory = async (): Promise<void> => {
+      await store.dispatch("openProgressDialog", {
+        message: store.getters.message(
+          "test-result-page.comparing-test-result"
+        ),
+      });
+
+      try {
+        const testResults: TestResultSummary[] = await store.dispatch(
+          "operationHistory/getTestResults"
+        );
+        if (testResults.length === 0) {
+          throw new Error(
+            store.getters.message(
+              "test-result-page.compare-test-result-not-exist"
+            )
+          );
+        }
+
+        const { actualTestResultId, expectedTestResultId } =
+          findCompareTargets(testResults);
+
+        if (!expectedTestResultId) {
+          throw new Error(
+            store.getters.message(
+              "test-result-page.compare-test-result-not-exist"
+            )
+          );
+        }
+
+        comparisonResult.value = await store.dispatch(
+          "operationHistory/compareTestResults",
+          { actualTestResultId, expectedTestResultId }
+        );
+        resultDialogOpened.value = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      } finally {
+        await store.dispatch("closeProgressDialog");
+      }
+    };
+
+    const findCompareTargets = (testResults: TestResultSummary[]) => {
+      const actualTestResult = testResults.find((testResult) => {
+        return testResult.id === testResultId.value;
+      });
+
+      const expectedTestResult = testResults.find((testResult) => {
+        return testResult.id === actualTestResult?.parentTestResultId;
+      });
+
+      return {
+        actualTestResultId: testResultId.value,
+        expectedTestResultId: expectedTestResult?.id ?? undefined,
+      };
+    };
 
     return {
-      actualTestResultId: this.testResultId,
-      expectedTestResultId: expectedTestResult?.id ?? undefined,
+      store,
+      confirmDialogOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      resultDialogOpened,
+      comparisonResult,
+      isDisabled,
+      openConfirmDialog,
+      compareHistory,
     };
-  }
-}
+  },
+});
 </script>

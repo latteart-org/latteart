@@ -21,7 +21,7 @@
       fab
       small
       @click="isWindowSelectorDialogOpened = true"
-      :title="$store.getters.message('app.target-tab-window')"
+      :title="store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
       class="mx-2"
     >
@@ -39,49 +39,58 @@
 <script lang="ts">
 import { DeviceSettings } from "@/lib/common/settings/Settings";
 import { CaptureControlState } from "@/store/captureControl";
-import { Component, Vue } from "vue-property-decorator";
 import WindowSelectDialog from "@/components/organisms/dialog/WindowSelectDialog.vue";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "window-select-dialog": WindowSelectDialog,
   },
-})
-export default class SelectWindowButton extends Vue {
-  private get config(): DeviceSettings {
-    return this.$store.state.deviceSettings;
-  }
+  setup() {
+    const store = useStore();
 
-  private get captureControlState() {
-    return this.$store.state.captureControl as CaptureControlState;
-  }
-
-  private get isCapturing(): boolean {
-    return this.captureControlState.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.captureControlState.isReplaying;
-  }
-
-  private get windowSelectorIsEnabled() {
-    if (!this.isCapturing) {
-      return false;
-    }
-    if (this.config.platformName === "iOS") {
-      return false;
-    }
-    return true;
-  }
-
-  private get isWindowSelectorDialogOpened() {
-    return this.captureControlState.isWindowSelectorDialogOpened;
-  }
-
-  private set isWindowSelectorDialogOpened(isOpened: boolean) {
-    this.$store.commit("captureControl/setWindowSelectorDialogOpened", {
-      isOpened,
+    const config = computed((): DeviceSettings => {
+      return store.state.deviceSettings;
     });
-  }
-}
+
+    const captureControlState = computed(() => {
+      return (store.state as any).captureControl as CaptureControlState;
+    });
+
+    const isCapturing = computed((): boolean => {
+      return captureControlState.value.isCapturing;
+    });
+
+    const isReplaying = computed((): boolean => {
+      return captureControlState.value.isReplaying;
+    });
+
+    const windowSelectorIsEnabled = computed(() => {
+      if (!isCapturing.value) {
+        return false;
+      }
+      if (config.value.platformName === "iOS") {
+        return false;
+      }
+      return true;
+    });
+
+    const isWindowSelectorDialogOpened = computed({
+      get: () => captureControlState.value.isWindowSelectorDialogOpened,
+      set: (isOpened: boolean) => {
+        store.commit("captureControl/setWindowSelectorDialogOpened", {
+          isOpened,
+        });
+      },
+    });
+
+    return {
+      store,
+      isReplaying,
+      windowSelectorIsEnabled,
+      isWindowSelectorDialogOpened,
+    };
+  },
+});
 </script>

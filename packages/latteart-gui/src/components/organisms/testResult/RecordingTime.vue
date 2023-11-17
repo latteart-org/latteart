@@ -21,12 +21,22 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class RecordingTime extends Vue {
-  private get currentTime(): string {
-    return this.$store.state.captureControl.timer.now;
-  }
-}
+export default defineComponent({
+  setup() {
+    const store = useStore();
+
+    const currentTime = computed((): string => {
+      return ((store.state as any).captureControl as CaptureControlState).timer
+        .now;
+    });
+
+    return {
+      currentTime,
+    };
+  },
+});
 </script>

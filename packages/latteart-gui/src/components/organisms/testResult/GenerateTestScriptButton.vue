@@ -20,7 +20,7 @@
     :disabled="isDisabled"
   >
     <v-list-item-title>{{
-      $store.getters.message("test-result-page.generate-testscript")
+      store.getters.message("test-result-page.generate-testscript")
     }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
@@ -50,122 +50,143 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/components/organisms/dialog/ScriptGenerationOptionDialog.vue";
-import { Component, Vue } from "vue-property-decorator";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
   },
-})
-export default class GenerateTestScriptButton extends Vue {
-  private scriptGenerationOptionDialogIsOpened = false;
-  private isGeneratingTestScripts = false;
+  setup() {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const scriptGenerationOptionDialogIsOpened = ref(false);
+    const isGeneratingTestScripts = ref(false);
 
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogTitle = "";
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogAlertMessage = "";
-  private downloadLinkDialogLinkUrl = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.sequence === 0 ||
-      this.isGeneratingTestScripts
-    );
-  }
+    const downloadLinkDialogOpened = ref(false);
+    const downloadLinkDialogTitle = ref("");
+    const downloadLinkDialogMessage = ref("");
+    const downloadLinkDialogAlertMessage = ref("");
+    const downloadLinkDialogLinkUrl = ref("");
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        sequence.value === 0 ||
+        isGeneratingTestScripts.value
+      );
+    });
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private get sequence() {
-    const history = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history;
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
 
-    return history.at(-1)?.operation.sequence ?? 0;
-  }
+    const sequence = computed(() => {
+      const history = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history;
 
-  private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
+      return history.at(-1)?.operation.sequence ?? 0;
+    });
 
-  private generateTestScript(option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
-    };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
-    };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  }) {
-    (async () => {
-      this.isGeneratingTestScripts = true;
+    const currentRepositoryUrl = computed((): string => {
+      return store.state.repositoryService.serviceUrl;
+    });
 
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "manage-header.generating-test-script"
-          ),
-        });
-        const testScriptInfo = await this.$store.dispatch(
-          "operationHistory/generateTestScripts",
-          {
-            option,
-          }
-        );
-        this.$store.dispatch("closeProgressDialog");
-        this.downloadLinkDialogTitle =
-          this.$store.getters.message("common.confirm");
-        this.downloadLinkDialogMessage = this.$store.getters.message(
-          "test-result-page.generate-testscript-succeeded"
-        );
-        if (testScriptInfo.invalidOperationTypeExists) {
-          this.downloadLinkDialogAlertMessage = this.$store.getters.message(
-            "test-result-page.generate-alert-info"
+    const generateTestScript = (option: {
+      testScript: {
+        isSimple: boolean;
+        useMultiLocator: boolean;
+      };
+      testData: {
+        useDataDriven: boolean;
+        maxGeneration: number;
+      };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
+    }) => {
+      (async () => {
+        isGeneratingTestScripts.value = true;
+
+        try {
+          store.dispatch("openProgressDialog", {
+            message: store.getters.message(
+              "manage-header.generating-test-script"
+            ),
+          });
+          const testScriptInfo = await store.dispatch(
+            "operationHistory/generateTestScripts",
+            {
+              option,
+            }
           );
-        } else {
-          this.downloadLinkDialogAlertMessage = "";
-        }
-        this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${testScriptInfo.outputUrl}`;
-        this.scriptGenerationOptionDialogIsOpened = false;
-        this.downloadLinkDialogOpened = true;
-      } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        this.scriptGenerationOptionDialogIsOpened = false;
+          store.dispatch("closeProgressDialog");
+          downloadLinkDialogTitle.value =
+            store.getters.message("common.confirm");
+          downloadLinkDialogMessage.value = store.getters.message(
+            "test-result-page.generate-testscript-succeeded"
+          );
+          if (testScriptInfo.invalidOperationTypeExists) {
+            downloadLinkDialogAlertMessage.value = store.getters.message(
+              "test-result-page.generate-alert-info"
+            );
+          } else {
+            downloadLinkDialogAlertMessage.value = "";
+          }
+          downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${testScriptInfo.outputUrl}`;
+          scriptGenerationOptionDialogIsOpened.value = false;
+          downloadLinkDialogOpened.value = true;
+        } catch (error) {
+          store.dispatch("closeProgressDialog");
+          scriptGenerationOptionDialogIsOpened.value = false;
 
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        } finally {
+          isGeneratingTestScripts.value = false;
         }
-      } finally {
-        this.isGeneratingTestScripts = false;
-      }
-    })();
-  }
-}
+      })();
+    };
+
+    return {
+      store,
+      scriptGenerationOptionDialogIsOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      downloadLinkDialogOpened,
+      downloadLinkDialogTitle,
+      downloadLinkDialogMessage,
+      downloadLinkDialogAlertMessage,
+      downloadLinkDialogLinkUrl,
+      isDisabled,
+      generateTestScript,
+    };
+  },
+});
 </script>

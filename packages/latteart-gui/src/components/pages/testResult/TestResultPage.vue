@@ -31,7 +31,7 @@
     >
       <v-row class="fill-height">
         <history-display
-          :locale="$store.state.i18n?.locale"
+          :locale="store.state.i18n?.locale"
           :changeWindowTitle="changeWindowTitle"
           :rawHistory="history"
           :message="messageProvider"
@@ -52,7 +52,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import {
   OperationHistory,
   MessageProvider,
@@ -67,8 +66,11 @@ import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDi
 import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
 import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "test-result-header": TestResultHeader,
     "test-result-footer": TestResultFooter,
@@ -80,30 +82,39 @@ import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue
     "note-update-dialog": NoteUpdateDialog,
     "completion-dialog": CompletionDialog,
   },
-})
-export default class TestResultPage extends Vue {
-  private get screenDefinitionConfig() {
-    return this.$store.state.projectSettings.config.screenDefinition;
-  }
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private get messageProvider(): MessageProvider {
-    return this.$store.getters.message;
-  }
-
-  private get history(): OperationHistory {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .history;
-  }
-
-  private changeWindowTitle(windowTitle: string) {
-    const windowTitlePrefix = this.$store.getters.message(
-      this.$route.meta?.title ?? ""
-    );
-    this.$store.dispatch("changeWindowTitle", {
-      title: `${windowTitlePrefix} [${windowTitle}]`,
+    const screenDefinitionConfig = computed(() => {
+      return store.state.projectSettings.config.screenDefinition;
     });
-  }
-}
+
+    const messageProvider = computed((): MessageProvider => {
+      return store.getters.message;
+    });
+
+    const history = computed((): OperationHistory => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .history;
+    });
+
+    const changeWindowTitle = (windowTitle: string) => {
+      const windowTitlePrefix = store.getters.message(route.meta?.title ?? "");
+      store.dispatch("changeWindowTitle", {
+        title: `${windowTitlePrefix} [${windowTitle}]`,
+      });
+    };
+
+    return {
+      store,
+      screenDefinitionConfig,
+      messageProvider,
+      history,
+      changeWindowTitle,
+    };
+  },
+});
 </script>
 <style lang="sass" scoped>
 html

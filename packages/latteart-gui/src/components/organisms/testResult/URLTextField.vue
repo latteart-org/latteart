@@ -27,36 +27,49 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class URLTextField extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly singleLine!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly hideDetails!: boolean;
+export default defineComponent({
+  props: {
+    singleLine: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true },
+  },
+  setup() {
+    const store = useStore();
 
-  private get isDisabled(): boolean {
-    return this.isCapturing || this.isReplaying || this.isResuming;
-  }
+    const isDisabled = computed((): boolean => {
+      return isCapturing.value || isReplaying.value || isResuming.value;
+    });
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
 
-  private get url(): string {
-    return this.$store.state.captureControl.url;
-  }
+    const url = computed({
+      get: (): string =>
+        ((store.state as any).captureControl as CaptureControlState).url,
+      set: (value: string) => {
+        store.commit("captureControl/setUrl", { url: value });
+      },
+    });
 
-  private set url(value: string) {
-    this.$store.commit("captureControl/setUrl", { url: value });
-  }
-}
+    return {
+      isDisabled,
+      url,
+    };
+  },
+});
 </script>
