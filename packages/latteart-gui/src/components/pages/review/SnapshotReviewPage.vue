@@ -25,25 +25,37 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { TestManagementState } from "@/store/testManagement";
 import { Story } from "@/lib/testManagement/types";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component
-export default class SnapshotReviewPage extends Vue {
-  private get sessionId() {
-    const sessionId = this.$route.query.sessionIds[0] as string;
-    return sessionId;
-  }
+export default defineComponent({
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private get tempStory() {
-    return this.$store.state.testManagement.tempStory as Story;
-  }
+    const querySessionId = computed(() => {
+      const sessionId = route.query.sessionIds[0] as string;
+      return sessionId;
+    });
 
-  private get historyPageUrl() {
-    const storyId = this.tempStory.id;
-    const sessionId = this.sessionId;
+    const tempStory = computed(() => {
+      return ((store.state as any).testManagement as TestManagementState)
+        .tempStory as Story;
+    });
 
-    return `data/${storyId}/${sessionId}/index.html`;
-  }
-}
+    const historyPageUrl = computed(() => {
+      const storyId = tempStory.value.id;
+      const sessionId = querySessionId.value;
+
+      return `data/${storyId}/${sessionId}/index.html`;
+    });
+
+    return {
+      historyPageUrl,
+    };
+  },
+});
 </script>
