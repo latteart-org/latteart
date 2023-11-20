@@ -34,69 +34,82 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import TestResultNameEditDialog from "../dialog/TestResultNameEditDialog.vue";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    testResultId: { type: String, default: "", required: true },
+    testResultName: { type: String, default: "", required: true },
+  },
   components: {
     "test-result-name-edit-dialog": TestResultNameEditDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class TestResultNameEditTrigger extends Vue {
-  @Prop({ type: String, default: "" }) public readonly testResultId!: string;
-  @Prop({ type: String, default: "" }) public readonly testResultName!: string;
+  setup(props, context) {
+    const store = useStore();
 
-  private editDialogOpened = false;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const editDialogOpened = ref(false);
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get isDisabled(): boolean {
-    return this.isReplaying || this.isResuming || this.isCapturing;
-  }
+    const isDisabled = computed((): boolean => {
+      return isReplaying.value || isResuming.value || isCapturing.value;
+    });
 
-  private get captureControlState() {
-    return this.$store.state.captureControl as CaptureControlState;
-  }
+    const captureControlState = computed(() => {
+      return (store.state as any).captureControl as CaptureControlState;
+    });
 
-  private get isCapturing(): boolean {
-    return this.captureControlState.isCapturing;
-  }
+    const isCapturing = computed((): boolean => {
+      return captureControlState.value.isCapturing;
+    });
 
-  private get isReplaying(): boolean {
-    return this.captureControlState.isReplaying;
-  }
+    const isReplaying = computed((): boolean => {
+      return captureControlState.value.isReplaying;
+    });
 
-  private get isResuming(): boolean {
-    return this.captureControlState.isResuming;
-  }
+    const isResuming = computed((): boolean => {
+      return captureControlState.value.isResuming;
+    });
 
-  private openEditDialog() {
-    this.editDialogOpened = true;
-  }
+    const openEditDialog = () => {
+      editDialogOpened.value = true;
+    };
 
-  private async editTestResultName(newTestResultName: string) {
-    if (!newTestResultName) {
-      return;
-    }
-
-    try {
-      await this.$store.dispatch("operationHistory/changeTestResultName", {
-        testResultId: this.testResultId,
-        testResultName: newTestResultName,
-      });
-
-      this.$emit("update", newTestResultName);
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
-      } else {
-        throw error;
+    const editTestResultName = async (newTestResultName: string) => {
+      if (!newTestResultName) {
+        return;
       }
-    }
-  }
-}
+
+      try {
+        await store.dispatch("operationHistory/changeTestResultName", {
+          testResultId: props.testResultId,
+          testResultName: newTestResultName,
+        });
+
+        context.emit("update", newTestResultName);
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessage.value = error.message;
+          errorMessageDialogOpened.value = true;
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    return {
+      editDialogOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      isDisabled,
+      openEditDialog,
+      editTestResultName,
+    };
+  },
+});
 </script>

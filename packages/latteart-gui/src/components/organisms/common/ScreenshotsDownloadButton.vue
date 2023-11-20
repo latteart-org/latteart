@@ -20,8 +20,8 @@
 
     <download-link-dialog
       :opened="dialogOpened"
-      :title="$store.getters.message('common.confirm')"
-      :message="$store.getters.message('test-result-page.generate-screenshots')"
+      :title="store.getters.message('common.confirm')"
+      :message="store.getters.message('test-result-page.generate-screenshots')"
       :linkUrl="linkUrl"
       @close="dialogOpened = false"
     />
@@ -29,86 +29,97 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
   },
-})
-export default class ScreenshotsDownloadButton extends Vue {
-  private dialogOpened = false;
-  private processing = false;
-  private linkUrl = "";
+  setup() {
+    const store = useStore();
 
-  private get obj() {
-    return {
-      isDisabled: this.isDisabled,
-      processing: this.processing,
-      execute: this.execute,
-    };
-  }
+    const dialogOpened = ref(false);
+    const processing = ref(false);
+    const linkUrl = ref("");
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.processing ||
-      !this.hasImageUrl
-    );
-  }
+    const obj = computed(() => {
+      return {
+        isDisabled: isDisabled.value,
+        processing: processing.value,
+        execute: execute,
+      };
+    });
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
-
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
-
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
-
-  private get operationHistoryState() {
-    return this.$store.state.operationHistory as OperationHistoryState;
-  }
-
-  private get testResultId(): string {
-    return this.operationHistoryState.testResultInfo.id;
-  }
-
-  private get hasImageUrl(): boolean {
-    const operation = this.operationHistoryState.history.find(
-      (item) => item.operation.imageFilePath !== ""
-    );
-    return operation ? true : false;
-  }
-
-  private async execute() {
-    this.processing = true;
-    try {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "test-result-page.export-screenshots"
-        ),
-      });
-      const url = await this.$store.dispatch(
-        "operationHistory/getScreenshots",
-        { testResultId: this.testResultId }
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        processing.value ||
+        !hasImageUrl.value
       );
-      this.$store.dispatch("closeProgressDialog");
-      this.linkUrl = `${this.$store.state.repositoryService.serviceUrl}/${url}`;
-      this.dialogOpened = true;
-    } catch (e) {
-      this.$store.dispatch("closeProgressDialog");
-      console.error(e);
-    } finally {
-      this.processing = false;
-    }
-  }
-}
+    });
+
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
+
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
+
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
+
+    const operationHistoryState = computed(() => {
+      return (store.state as any).operationHistory as OperationHistoryState;
+    });
+
+    const testResultId = computed((): string => {
+      return operationHistoryState.value.testResultInfo.id;
+    });
+
+    const hasImageUrl = computed((): boolean => {
+      const operation = operationHistoryState.value.history.find(
+        (item) => item.operation.imageFilePath !== ""
+      );
+      return operation ? true : false;
+    });
+
+    const execute = async () => {
+      processing.value = true;
+      try {
+        store.dispatch("openProgressDialog", {
+          message: store.getters.message("test-result-page.export-screenshots"),
+        });
+        const url = await store.dispatch("operationHistory/getScreenshots", {
+          testResultId: testResultId.value,
+        });
+        store.dispatch("closeProgressDialog");
+        linkUrl.value = `${store.state.repositoryService.serviceUrl}/${url}`;
+        dialogOpened.value = true;
+      } catch (e) {
+        store.dispatch("closeProgressDialog");
+        console.error(e);
+      } finally {
+        processing.value = false;
+      }
+    };
+
+    return {
+      store,
+      dialogOpened,
+      linkUrl,
+      obj,
+    };
+  },
+});
 </script>

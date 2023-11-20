@@ -27,145 +27,156 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import { useRouter } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
+  props: {
+    initial: { type: Boolean, default: false },
+  },
   components: {
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class RecordStartTrigger extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly initial!: boolean;
+  setup(props) {
+    const store = useStore();
+    const router = useRouter();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get isDisabled(): boolean {
-    return (
-      !this.url ||
-      this.isReplaying ||
-      this.isResuming ||
-      !this.urlIsValid ||
-      this.isCapturing
-    );
-  }
+    const isDisabled = computed((): boolean => {
+      return (
+        !url.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        !urlIsValid.value ||
+        isCapturing.value
+      );
+    });
 
-  private get captureControlState() {
-    return this.$store.state.captureControl as CaptureControlState;
-  }
+    const captureControlState = computed(() => {
+      return (store.state as any).captureControl as CaptureControlState;
+    });
 
-  private get testResultId() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .testResultInfo.id;
-  }
+    const url = computed((): string => {
+      return captureControlState.value.url;
+    });
 
-  private get url(): string {
-    return this.captureControlState.url;
-  }
+    const testResultName = computed((): string => {
+      return captureControlState.value.testResultName;
+    });
 
-  private get testResultName(): string {
-    return this.captureControlState.testResultName;
-  }
+    const isCapturing = computed((): boolean => {
+      return captureControlState.value.isCapturing;
+    });
 
-  private get isCapturing(): boolean {
-    return this.captureControlState.isCapturing;
-  }
+    const isReplaying = computed((): boolean => {
+      return captureControlState.value.isReplaying;
+    });
 
-  private get isReplaying(): boolean {
-    return this.captureControlState.isReplaying;
-  }
+    const isResuming = computed((): boolean => {
+      return captureControlState.value.isResuming;
+    });
 
-  private get isResuming(): boolean {
-    return this.captureControlState.isResuming;
-  }
+    const urlIsValid = computed((): boolean => {
+      return store.getters["captureControl/urlIsValid"]();
+    });
 
-  private get urlIsValid(): boolean {
-    return this.$store.getters["captureControl/urlIsValid"]();
-  }
+    const startCapture = async (): Promise<void> => {
+      goToHistoryView();
 
-  private async startCapture(): Promise<void> {
-    this.goToHistoryView();
-
-    try {
-      await this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "start-capture-page.starting-capture"
-        ),
-      });
-
-      if (this.initial) {
-        await this.resetHistory();
-      }
-
-      if (this.$store.state.operationHistory.testResultInfo.id === "") {
-        await this.$store.dispatch("operationHistory/createTestResult", {
-          initialUrl: this.url,
-          name: this.testResultName,
+      try {
+        await store.dispatch("openProgressDialog", {
+          message: store.getters.message("start-capture-page.starting-capture"),
         });
-      }
 
-      const history = this.$store.state.operationHistory.history;
-      const startTime = new TimestampImpl().epochMilliseconds();
-
-      if (history.length === 0) {
-        await this.$store.dispatch("operationHistory/changeCurrentTestResult", {
-          startTime,
-          initialUrl: this.url,
-        });
-      } else if (history.length > 0) {
-        await this.$store.dispatch("operationHistory/changeCurrentTestResult", {
-          startTime,
-          initialUrl: "",
-        });
-      }
-
-      await this.$store.dispatch("captureControl/startCapture", {
-        url: this.url,
-        callbacks: {
-          onEnd: async (error?: Error) => {
-            await this.$store.dispatch("closeProgressDialog");
-
-            if (error) {
-              this.goToHistoryView();
-              throw error;
-            }
-          },
-        },
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        this.goToHistoryView();
-      } else {
-        throw error;
-      }
-    } finally {
-      await this.$store.dispatch("closeProgressDialog");
-    }
-  }
-
-  private async resetHistory() {
-    await this.$store.dispatch("operationHistory/clearTestResult");
-    this.$store.commit("operationHistory/clearStoringTestResultInfos");
-    this.$store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-    this.$store.commit("operationHistory/clearElementCoverages");
-    this.$store.commit("operationHistory/clearInputValueTable");
-    await this.$store.dispatch("captureControl/resetTimer");
-  }
-
-  private goToHistoryView() {
-    const targetPath = "/test-result";
-
-    if (this.$router.currentRoute.path !== targetPath) {
-      this.$router.push({ path: targetPath }).catch((err: Error) => {
-        if (err.name !== "NavigationDuplicated") {
-          throw err;
+        if (props.initial) {
+          await resetHistory();
         }
-      });
-    }
-  }
-}
+
+        if (
+          ((store.state as any).operationHistory as OperationHistoryState)
+            .testResultInfo.id === ""
+        ) {
+          await store.dispatch("operationHistory/createTestResult", {
+            initialUrl: url.value,
+            name: testResultName.value,
+          });
+        }
+
+        const history = (
+          (store.state as any).operationHistory as OperationHistoryState
+        ).history;
+        const startTime = new TimestampImpl().epochMilliseconds();
+
+        if (history.length === 0) {
+          await store.dispatch("operationHistory/changeCurrentTestResult", {
+            startTime,
+            initialUrl: url.value,
+          });
+        } else if (history.length > 0) {
+          await store.dispatch("operationHistory/changeCurrentTestResult", {
+            startTime,
+            initialUrl: "",
+          });
+        }
+
+        await store.dispatch("captureControl/startCapture", {
+          url: url.value,
+          callbacks: {
+            onEnd: async (error?: Error) => {
+              await store.dispatch("closeProgressDialog");
+
+              if (error) {
+                goToHistoryView();
+                throw error;
+              }
+            },
+          },
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          goToHistoryView();
+        } else {
+          throw error;
+        }
+      } finally {
+        await store.dispatch("closeProgressDialog");
+      }
+    };
+
+    const resetHistory = async () => {
+      await store.dispatch("operationHistory/clearTestResult");
+      store.commit("operationHistory/clearStoringTestResultInfos");
+      store.commit("operationHistory/clearScreenTransitionDiagramGraph");
+      store.commit("operationHistory/clearElementCoverages");
+      store.commit("operationHistory/clearInputValueTable");
+      await store.dispatch("captureControl/resetTimer");
+    };
+
+    const goToHistoryView = () => {
+      const targetPath = "/test-result";
+
+      if (router.currentRoute.path !== targetPath) {
+        router.push({ path: targetPath }).catch((err: Error) => {
+          if (err.name !== "NavigationDuplicated") {
+            throw err;
+          }
+        });
+      }
+    };
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      isDisabled,
+      startCapture,
+    };
+  },
+});
 </script>

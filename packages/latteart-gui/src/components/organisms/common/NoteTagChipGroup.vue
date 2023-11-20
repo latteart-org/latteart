@@ -28,21 +28,29 @@
 
 <script lang="ts">
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, ref } from "vue";
 
-@Component
-export default class NoteTagChipGroup extends Vue {
-  @Prop({ type: Array, default: [] }) public readonly tags!: [];
+export default defineComponent({
+  props: {
+    tags: { type: Array, default: [], required: true },
+  },
+  setup() {
+    const bugColor = ref("");
+    const tagsColor = ref(
+      noteTagPreset.items.map((item) => {
+        if (item.text === "bug") {
+          bugColor.value = item.color;
+        }
+      })
+    );
 
-  private bugColor = "";
-  private tagsColor = noteTagPreset.items.map((item) => {
-    if (item.text === "bug") {
-      this.bugColor = item.color;
-    }
-  });
+    const getTagsColor = (tag: string) => {
+      return tag === "bug" ? bugColor.value : "";
+    };
 
-  private getTagsColor(tag: string) {
-    return tag === "bug" ? this.bugColor : "";
-  }
-}
+    return {
+      getTagsColor,
+    };
+  },
+});
 </script>
