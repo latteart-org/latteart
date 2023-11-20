@@ -29,7 +29,7 @@
                 color="primary"
                 @click="execute(on)"
                 >{{
-                  $store.getters.message("start-capture-page.execute-button")
+                  store.getters.message("start-capture-page.execute-button")
                 }}</v-btn
               >
             </template>
@@ -41,92 +41,102 @@
 </template>
 
 <script lang="ts">
-import { RootState } from "@/store";
-import { Component, Vue } from "vue-property-decorator";
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import { useRoute } from "vue-router/composables";
 
-@Component({
+export default defineComponent({
   components: {
     "record-start-trigger": RecordStartTrigger,
     "capture-option": CaptureOption,
   },
-})
-export default class StartCapturePage extends Vue {
-  private captureOption: CaptureOptionParams = {
-    url: "",
-    testResultName: "",
-    platform: "PC",
-    device: { deviceName: "", modelNumber: "", osVersion: "" },
-    waitTimeForStartupReload: 0,
-    browser: "Chrome",
-    mediaType: "image",
-    shouldRecordTestPurpose: false,
-    firstTestPurpose: "",
-    firstTestPurposeDetails: "",
-  };
+  setup() {
+    const store = useStore();
+    const route = useRoute();
 
-  private updateOption(option: CaptureOptionParams) {
-    this.captureOption = option;
-  }
-
-  private get isExecuteButtonDisabled() {
-    return !this.captureOption.url || !this.urlIsValid;
-  }
-
-  private get urlIsValid(): boolean {
-    try {
-      new URL(this.captureOption.url);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  private get config() {
-    return (this.$store.state as RootState).projectSettings.config;
-  }
-
-  created() {
-    this.$store.dispatch("changeWindowTitle", {
-      title: this.$store.getters.message(this.$route.meta?.title ?? ""),
+    const captureOption = ref<CaptureOptionParams>({
+      url: "",
+      testResultName: "",
+      platform: "PC",
+      device: { deviceName: "", modelNumber: "", osVersion: "" },
+      waitTimeForStartupReload: 0,
+      browser: "Chrome",
+      mediaType: "image",
+      shouldRecordTestPurpose: false,
+      firstTestPurpose: "",
+      firstTestPurposeDetails: "",
     });
-  }
 
-  private async execute(onStart: () => Promise<void>) {
-    this.$store.commit("captureControl/setUrl", {
-      url: this.captureOption.url,
+    const updateOption = (option: CaptureOptionParams) => {
+      captureOption.value = option;
+    };
+
+    const isExecuteButtonDisabled = computed(() => {
+      return !captureOption.value.url || !urlIsValid.value;
     });
-    this.$store.commit("captureControl/setTestResultName", {
-      name: this.captureOption.testResultName,
+
+    const urlIsValid = computed((): boolean => {
+      try {
+        new URL(captureOption.value.url);
+        return true;
+      } catch (error) {
+        return false;
+      }
     });
-    await this.$store.dispatch("writeDeviceSettings", {
-      config: {
-        platformName: this.captureOption.platform,
-        device: this.captureOption.device,
-        browser: this.captureOption.browser,
-        waitTimeForStartupReload: this.captureOption.waitTimeForStartupReload,
-      },
+
+    const config = computed(() => {
+      return store.state.projectSettings.config;
     });
-    await this.$store.dispatch("writeConfig", {
-      config: {
-        ...this.config,
-        captureMediaSetting: {
-          ...this.config.captureMediaSetting,
-          mediaType: this.captureOption.mediaType,
+
+    const execute = async (onStart: () => Promise<void>) => {
+      store.commit("captureControl/setUrl", {
+        url: captureOption.value.url,
+      });
+      store.commit("captureControl/setTestResultName", {
+        name: captureOption.value.testResultName,
+      });
+      await store.dispatch("writeDeviceSettings", {
+        config: {
+          platformName: captureOption.value.platform,
+          device: captureOption.value.device,
+          browser: captureOption.value.browser,
+          waitTimeForStartupReload:
+            captureOption.value.waitTimeForStartupReload,
         },
-      },
-    });
-    this.$store.commit("captureControl/setTestOption", {
-      testOption: {
-        firstTestPurpose: this.captureOption.firstTestPurpose,
-        firstTestPurposeDetails: this.captureOption.firstTestPurposeDetails,
-        shouldRecordTestPurpose: this.captureOption.shouldRecordTestPurpose,
-      },
+      });
+      await store.dispatch("writeConfig", {
+        config: {
+          ...config.value,
+          captureMediaSetting: {
+            ...config.value.captureMediaSetting,
+            mediaType: captureOption.value.mediaType,
+          },
+        },
+      });
+      store.commit("captureControl/setTestOption", {
+        testOption: {
+          firstTestPurpose: captureOption.value.firstTestPurpose,
+          firstTestPurposeDetails: captureOption.value.firstTestPurposeDetails,
+          shouldRecordTestPurpose: captureOption.value.shouldRecordTestPurpose,
+        },
+      });
+
+      await onStart();
+    };
+
+    store.dispatch("changeWindowTitle", {
+      title: store.getters.message(route.meta?.title ?? ""),
     });
 
-    await onStart();
-  }
-}
+    return {
+      store,
+      updateOption,
+      isExecuteButtonDisabled,
+      execute,
+    };
+  },
+});
 </script>
