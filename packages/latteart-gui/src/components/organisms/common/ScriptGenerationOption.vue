@@ -17,7 +17,7 @@
   <v-card flat class="pa-0">
     <v-checkbox
       :label="
-        $store.getters.message('test-result-page.generate-simple-testscript')
+        store.getters.message('test-result-page.generate-simple-testscript')
       "
       v-model="testGenerationOption.testScript.isSimple"
     >
@@ -28,13 +28,13 @@
     >
       <template v-slot:label>
         <div>
-          {{ $store.getters.message("test-result-page.use-multi-locator1") }}
+          {{ store.getters.message("test-result-page.use-multi-locator1") }}
           <a
             href="https://github.com/latteart-org/multi-locator"
             target="_blank"
             @click.stop
             >multi-locator</a
-          >{{ $store.getters.message("test-result-page.use-multi-locator2") }}
+          >{{ store.getters.message("test-result-page.use-multi-locator2") }}
         </div>
       </template>
     </v-checkbox>
@@ -48,9 +48,7 @@
             }"
           >
             {{
-              $store.getters.message(
-                "test-result-page.custom-button-definition"
-              )
+              store.getters.message("test-result-page.custom-button-definition")
             }}
           </p>
         </v-col>
@@ -63,7 +61,7 @@
               'text--disabled': testGenerationOption.testScript.isSimple,
             }"
           >
-            {{ $store.getters.message("test-result-page.custom-button-tags") }}
+            {{ store.getters.message("test-result-page.custom-button-tags") }}
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-icon
@@ -75,7 +73,7 @@
                 >
               </template>
               <span>{{
-                $store.getters.message("test-result-page.default-button-tags", {
+                store.getters.message("test-result-page.default-button-tags", {
                   value: standardButtontags.join(", "),
                 })
               }}</span>
@@ -119,13 +117,13 @@
               'text--disabled': testGenerationOption.testScript.isSimple,
             }"
           >
-            {{ $store.getters.message("test-result-page.testdata") }}
+            {{ store.getters.message("test-result-page.testdata") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
           <v-checkbox
             :label="
-              $store.getters.message('test-result-page.method-data-driven')
+              store.getters.message('test-result-page.method-data-driven')
             "
             :disabled="testGenerationOption.testScript.isSimple"
             v-model="testGenerationOption.testData.useDataDriven"
@@ -136,7 +134,7 @@
           <number-field
             :value="testGenerationOption.testData.maxGeneration"
             @updateNumberFieldValue="updateMaxGeneration"
-            :label="$store.getters.message('test-result-page.max-generation')"
+            :label="store.getters.message('test-result-page.max-generation')"
             :disabled="
               !testGenerationOption.testData.useDataDriven ||
               testGenerationOption.testScript.isSimple
@@ -153,7 +151,7 @@
                 testGenerationOption.testScript.isSimple,
             }"
             >{{
-              $store.getters.message("test-result-page.generate-only-template")
+              store.getters.message("test-result-page.generate-only-template")
             }}</span
           >
         </v-col>
@@ -163,168 +161,187 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { RootState } from "@/store";
 import { TestScriptOption } from "latteart-client";
+import { computed, defineComponent, ref, watch } from "vue";
+import { useStore } from "@/store";
 
 type ButtonDefinition = {
   tagname: string;
-  attribute?: {
-    name: string;
-    value: string;
-  };
+  attribute?: { name: string; value: string };
 };
 
-@Component({
+export default defineComponent({
   components: {
     "number-field": NumberField,
   },
-})
-export default class ScriptGenerationOption extends Vue {
-  private search = "";
-  private testGenerationOption = this.createNewOption();
-  private get customButtonCandidateTags() {
-    const tags = [
-      ...(this.$store.state as RootState).projectSettings.defaultTagList,
-      "INPUT:type=submit",
-      "INPUT:type=button",
-      "INPUT:type=text",
-      "INPUT:type=search",
-      "INPUT:type=tel",
-      "INPUT:type=url",
-      "INPUT:type=email",
-      "INPUT:type=password",
-      "INPUT:type=datetime",
-      "INPUT:type=date",
-      "INPUT:type=month",
-      "INPUT:type=week",
-      "INPUT:type=time",
-      "INPUT:type=datetime-local",
-      "INPUT:type=number",
-      "INPUT:type=range",
-      "INPUT:type=color",
-      "INPUT:type=checkbox",
-      "INPUT:type=radio",
-      "INPUT:type=file",
-      "INPUT:type=image",
-      "INPUT:type=reset",
-    ];
+  setup(_, context) {
+    const store = useStore();
 
-    return tags.sort();
-  }
-  private get defaultCustomButtonTags() {
-    return ["SPAN", "IMG"];
-  }
-  private get standardButtontags() {
-    return ["INPUT:type=submit", "INPUT:type=button", "BUTTON", "A"];
-  }
+    const search = ref("");
 
-  created() {
+    const customButtonCandidateTags = computed(() => {
+      const tags = [
+        ...store.state.projectSettings.defaultTagList,
+        "INPUT:type=submit",
+        "INPUT:type=button",
+        "INPUT:type=text",
+        "INPUT:type=search",
+        "INPUT:type=tel",
+        "INPUT:type=url",
+        "INPUT:type=email",
+        "INPUT:type=password",
+        "INPUT:type=datetime",
+        "INPUT:type=date",
+        "INPUT:type=month",
+        "INPUT:type=week",
+        "INPUT:type=time",
+        "INPUT:type=datetime-local",
+        "INPUT:type=number",
+        "INPUT:type=range",
+        "INPUT:type=color",
+        "INPUT:type=checkbox",
+        "INPUT:type=radio",
+        "INPUT:type=file",
+        "INPUT:type=image",
+        "INPUT:type=reset",
+      ];
+
+      return tags.sort();
+    });
+
+    const defaultCustomButtonTags = computed(() => {
+      return ["SPAN", "IMG"];
+    });
+
+    const standardButtontags = computed(() => {
+      return ["INPUT:type=submit", "INPUT:type=button", "BUTTON", "A"];
+    });
+
+    const createNewOption = () => {
+      return {
+        testScript: {
+          isSimple: false,
+          useMultiLocator: false,
+        },
+        testData: {
+          useDataDriven: false,
+          maxGeneration: 0,
+        },
+        customButtonTags: defaultCustomButtonTags.value,
+      };
+    };
+
+    const testGenerationOption = ref(createNewOption());
+
+    const clearSearchText = () => {
+      search.value = "";
+    };
+
+    const resetCustomButtonTags = () => {
+      testGenerationOption.value.customButtonTags =
+        defaultCustomButtonTags.value;
+    };
+
+    const updateMaxGeneration = (data: { value: number }) => {
+      testGenerationOption.value.testData.maxGeneration = data.value;
+    };
+
+    const customButtonTagsDefinition = computed(() => {
+      return testGenerationOption.value.customButtonTags.map(
+        convertTagToButtonDefinition
+      );
+    });
+
+    const update = (): void => {
+      const standardButtongTagsDefinition = standardButtontags.value.map(
+        convertTagToButtonDefinition
+      );
+      const option = {
+        testScript: { ...testGenerationOption.value.testScript },
+        testData: testGenerationOption.value.testData,
+        buttonDefinitions: [
+          ...customButtonTagsDefinition.value,
+          ...standardButtongTagsDefinition,
+        ],
+      };
+
+      context.emit("update", option);
+    };
+
+    const saveCustomButtontagsDefinition = () => {
+      store.dispatch("writeTestScriptOption", {
+        option: { buttonDefinitions: customButtonTagsDefinition.value },
+      });
+    };
+
+    const convertButtonDefinitionToTag = (
+      buttonDefinition: ButtonDefinition
+    ): string => {
+      const attributeText = buttonDefinition.attribute
+        ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
+        : "";
+
+      if (!attributeText) {
+        return buttonDefinition.tagname;
+      }
+
+      return [buttonDefinition.tagname, attributeText].join(":");
+    };
+
+    const convertTagToButtonDefinition = (tag: string) => {
+      const items = tag.split(":");
+
+      const tagname = items.at(0) ?? "";
+      const attributeText = items.at(1);
+
+      if (!attributeText) {
+        return { tagname };
+      }
+
+      const [name, value] = attributeText?.split("=");
+
+      return { tagname, attribute: { name, value } };
+    };
+
+    const errorCaptured = (error: Error) => {
+      if (
+        error.message ===
+        "Cannot read properties of undefined (reading 'click')"
+      ) {
+        console.warn(error);
+        return false;
+      }
+    };
+
+    watch(testGenerationOption, update, { deep: true });
+    watch(
+      () => testGenerationOption.value.customButtonTags,
+      saveCustomButtontagsDefinition,
+      { deep: true }
+    );
+
     (async () => {
       const option: Pick<TestScriptOption, "buttonDefinitions"> =
-        await this.$store.dispatch("readTestScriptOption");
+        await store.dispatch("readTestScriptOption");
       if (option.buttonDefinitions) {
-        this.testGenerationOption.customButtonTags =
-          option.buttonDefinitions.map(this.convertButtonDefinitionToTag);
+        testGenerationOption.value.customButtonTags =
+          option.buttonDefinitions.map(convertButtonDefinitionToTag);
       }
     })();
-  }
 
-  private createNewOption() {
     return {
-      testScript: {
-        isSimple: false,
-        useMultiLocator: false,
-      },
-      testData: {
-        useDataDriven: false,
-        maxGeneration: 0,
-      },
-      customButtonTags: this.defaultCustomButtonTags,
+      store,
+      search,
+      customButtonCandidateTags,
+      standardButtontags,
+      testGenerationOption,
+      clearSearchText,
+      resetCustomButtonTags,
+      updateMaxGeneration,
     };
-  }
-
-  private clearSearchText() {
-    this.search = "";
-  }
-
-  private resetCustomButtonTags() {
-    this.testGenerationOption.customButtonTags = this.defaultCustomButtonTags;
-  }
-
-  private updateMaxGeneration(data: { value: number }) {
-    this.testGenerationOption.testData.maxGeneration = data.value;
-  }
-
-  private get customButtonTagsDefinition() {
-    return this.testGenerationOption.customButtonTags.map(
-      this.convertTagToButtonDefinition
-    );
-  }
-
-  @Watch("testGenerationOption", { deep: true })
-  private update(): void {
-    const standardButtongTagsDefinition = this.standardButtontags.map(
-      this.convertTagToButtonDefinition
-    );
-    const option = {
-      testScript: { ...this.testGenerationOption.testScript },
-      testData: this.testGenerationOption.testData,
-      buttonDefinitions: [
-        ...this.customButtonTagsDefinition,
-        ...standardButtongTagsDefinition,
-      ],
-    };
-
-    this.$emit("update", option);
-  }
-
-  @Watch("testGenerationOption.customButtonTags", { deep: true })
-  private saveCustomButtontagsDefinition() {
-    this.$store.dispatch("writeTestScriptOption", {
-      option: { buttonDefinitions: this.customButtonTagsDefinition },
-    });
-  }
-
-  private convertButtonDefinitionToTag(
-    buttonDefinition: ButtonDefinition
-  ): string {
-    const attributeText = buttonDefinition.attribute
-      ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
-      : "";
-
-    if (!attributeText) {
-      return buttonDefinition.tagname;
-    }
-
-    return [buttonDefinition.tagname, attributeText].join(":");
-  }
-
-  private convertTagToButtonDefinition(tag: string) {
-    const items = tag.split(":");
-
-    const tagname = items.at(0) ?? "";
-    const attributeText = items.at(1);
-
-    if (!attributeText) {
-      return { tagname };
-    }
-
-    const [name, value] = attributeText?.split("=");
-
-    return { tagname, attribute: { name, value } };
-  }
-
-  private errorCaptured(error: Error) {
-    if (
-      error.message === "Cannot read properties of undefined (reading 'click')"
-    ) {
-      console.warn(error);
-      return false;
-    }
-  }
-}
+  },
+});
 </script>
 
 <style lang="sass">

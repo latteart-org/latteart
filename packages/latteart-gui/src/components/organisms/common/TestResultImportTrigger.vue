@@ -43,94 +43,116 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import TestResultImportDialog from "@/components/organisms/dialog/TestResultImportDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "information-message-dialog": InformationMessageDialog,
     "test-result-import-dialog": TestResultImportDialog,
   },
-})
-export default class TestResultImportTrigger extends Vue {
-  private isImportingTestResults = false;
+  setup(_, context) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const isImportingTestResults = ref(false);
 
-  private testResultImportDialogOpened = false;
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private informationMessageDialogOpened = false;
-  private informationTitle = "";
-  private informationMessage = "";
+    const testResultImportDialogOpened = ref(false);
 
-  private get isDisabled(): boolean {
-    return (
-      this.isCapturing ||
-      this.isReplaying ||
-      this.isResuming ||
-      this.isImportingTestResults
-    );
-  }
+    const informationMessageDialogOpened = ref(false);
+    const informationTitle = ref("");
+    const informationMessage = ref("");
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isDisabled = computed((): boolean => {
+      return (
+        isCapturing.value ||
+        isReplaying.value ||
+        isResuming.value ||
+        isImportingTestResults.value
+      );
+    });
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private openTestResultImportDialog() {
-    this.testResultImportDialogOpened = true;
-  }
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
 
-  private importData(testResultImportFile: { data: string; name: string }) {
-    this.isImportingTestResults = true;
+    const openTestResultImportDialog = () => {
+      testResultImportDialogOpened.value = true;
+    };
 
-    setTimeout(async () => {
-      try {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "import-export-dialog.importing-data"
-          ),
-        });
-        await this.$store.dispatch("operationHistory/importData", {
-          source: { testResultFile: testResultImportFile },
-        });
-        this.$store.dispatch("closeProgressDialog");
+    const importData = (testResultImportFile: {
+      data: string;
+      name: string;
+    }) => {
+      isImportingTestResults.value = true;
 
-        this.informationMessageDialogOpened = true;
-        this.informationTitle = this.$store.getters.message(
-          "import-export-dialog.test-result-import-title"
-        );
-        this.informationMessage = this.$store.getters.message(
-          "import-export-dialog.import-data-succeeded",
-          {
-            returnName: testResultImportFile.name,
+      setTimeout(async () => {
+        try {
+          store.dispatch("openProgressDialog", {
+            message: store.getters.message(
+              "import-export-dialog.importing-data"
+            ),
+          });
+          await store.dispatch("operationHistory/importData", {
+            source: { testResultFile: testResultImportFile },
+          });
+          store.dispatch("closeProgressDialog");
+
+          informationMessageDialogOpened.value = true;
+          informationTitle.value = store.getters.message(
+            "import-export-dialog.test-result-import-title"
+          );
+          informationMessage.value = store.getters.message(
+            "import-export-dialog.import-data-succeeded",
+            {
+              returnName: testResultImportFile.name,
+            }
+          );
+
+          context.emit("update", testResultImportFile.name);
+        } catch (error) {
+          store.dispatch("closeProgressDialog");
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
           }
-        );
-
-        this.$emit("update", testResultImportFile.name);
-      } catch (error) {
-        this.$store.dispatch("closeProgressDialog");
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+        } finally {
+          isImportingTestResults.value = false;
         }
-      } finally {
-        this.isImportingTestResults = false;
-      }
-    }, 300);
-  }
-}
+      }, 300);
+    };
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      testResultImportDialogOpened,
+      informationMessageDialogOpened,
+      informationTitle,
+      informationMessage,
+      isDisabled,
+      openTestResultImportDialog,
+      importData,
+    };
+  },
+});
 </script>

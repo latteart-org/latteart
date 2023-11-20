@@ -17,15 +17,15 @@
   <v-card flat class="pa-0">
     <v-container class="px-0" fluid id="export-option">
       <v-checkbox
-        :label="$store.getters.message('import-export-dialog.project-data')"
+        :label="store.getters.message('import-export-dialog.project-data')"
         v-model="option.selectedOptionProject"
       />
       <v-checkbox
-        :label="$store.getters.message('import-export-dialog.testresult-data')"
+        :label="store.getters.message('import-export-dialog.testresult-data')"
         v-model="option.selectedOptionTestresult"
       />
       <v-checkbox
-        :label="$store.getters.message('import-export-dialog.config-data')"
+        :label="store.getters.message('import-export-dialog.config-data')"
         v-model="option.selectedOptionConfig"
       />
     </v-container>
@@ -33,21 +33,31 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { defineComponent, ref, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class ExportOption extends Vue {
-  private option = {
-    selectedOptionProject: true,
-    selectedOptionTestresult: true,
-    selectedOptionConfig: true,
-  };
+export default defineComponent({
+  setup(_, context) {
+    const store = useStore();
 
-  @Watch("option", { deep: true })
-  private update(): void {
-    this.$emit("update", this.option);
-  }
-}
+    const option = ref({
+      selectedOptionProject: true,
+      selectedOptionTestresult: true,
+      selectedOptionConfig: true,
+    });
+
+    const update = (): void => {
+      context.emit("update", option.value);
+    };
+
+    watch(option, update, { deep: true });
+
+    return {
+      store,
+      option,
+    };
+  },
+});
 </script>
 
 <style lang="sass">

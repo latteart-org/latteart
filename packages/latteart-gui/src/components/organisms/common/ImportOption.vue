@@ -19,7 +19,7 @@
       <v-row>
         <v-col cols="12">
           {{
-            $store.getters.message(
+            store.getters.message(
               "import-export-dialog.select-project-file-label"
             )
           }}
@@ -32,7 +32,7 @@
             @select="selectImportFile"
           >
             {{
-              $store.getters.message(
+              store.getters.message(
                 "import-export-dialog.select-project-file-button"
               )
             }}
@@ -41,17 +41,17 @@
 
         <v-col class="pt-3">
           <v-checkbox
-            :label="$store.getters.message('import-export-dialog.project-data')"
+            :label="store.getters.message('import-export-dialog.project-data')"
             v-model="option.selectedOptionProject"
           />
           <v-checkbox
             :label="
-              $store.getters.message('import-export-dialog.testresult-data')
+              store.getters.message('import-export-dialog.testresult-data')
             "
             v-model="option.selectedOptionTestresult"
           />
           <v-checkbox
-            :label="$store.getters.message('import-export-dialog.config-data')"
+            :label="store.getters.message('import-export-dialog.config-data')"
             v-model="option.selectedOptionConfig"
           />
         </v-col>
@@ -61,36 +61,46 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
+import { defineComponent, ref, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "select-file-button": SelectFileButton,
   },
-})
-export default class ImportOption extends Vue {
-  private option: {
-    selectedOptionProject: boolean;
-    selectedOptionTestresult: boolean;
-    selectedOptionConfig: boolean;
-    targetFile: File | null;
-  } = {
-    selectedOptionProject: true,
-    selectedOptionTestresult: true,
-    selectedOptionConfig: true,
-    targetFile: null,
-  };
+  setup(_, context) {
+    const store = useStore();
 
-  @Watch("option", { deep: true })
-  private update() {
-    this.$emit("update", this.option);
-  }
+    const option = ref<{
+      selectedOptionProject: boolean;
+      selectedOptionTestresult: boolean;
+      selectedOptionConfig: boolean;
+      targetFile: File | null;
+    }>({
+      selectedOptionProject: true,
+      selectedOptionTestresult: true,
+      selectedOptionConfig: true,
+      targetFile: null,
+    });
 
-  private selectImportFile(targetFile: File): void {
-    this.option.targetFile = targetFile;
-  }
-}
+    const update = (): void => {
+      context.emit("update", option.value);
+    };
+
+    const selectImportFile = (targetFile: File): void => {
+      option.value.targetFile = targetFile;
+    };
+
+    watch(option, update, { deep: true });
+
+    return {
+      store,
+      option,
+      selectImportFile,
+    };
+  },
+});
 </script>
 
 <style lang="sass">

@@ -27,83 +27,103 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    testResultIds: {
+      type: Array as PropType<string[]>,
+      default: () => [],
+      required: true,
+    },
+  },
   components: {
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class TestResultLoadTrigger extends Vue {
-  @Prop({ type: Array, default: () => [] }) testResultIds!: string[];
+  setup(props) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get isDisabled(): boolean {
-    return this.isCapturing || this.isReplaying || this.isResuming;
-  }
+    const isDisabled = computed((): boolean => {
+      return isCapturing.value || isReplaying.value || isResuming.value;
+    });
 
-  private get isCapturing(): boolean {
-    return this.$store.state.captureControl.isCapturing;
-  }
+    const isCapturing = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isCapturing;
+    });
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private get isResuming(): boolean {
-    return this.$store.state.captureControl.isResuming;
-  }
+    const isResuming = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isResuming;
+    });
 
-  private async loadHistory() {
-    if (this.testResultIds.length === 0) {
-      return;
-    }
-
-    try {
-      this.$store.dispatch("openProgressDialog", {
-        message: this.$store.getters.message(
-          "test-result-page.loading-test-results"
-        ),
-      });
-
-      await this.loadTestResults(...this.testResultIds);
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
-      } else {
-        throw error;
+    const loadHistory = async () => {
+      if (props.testResultIds.length === 0) {
+        return;
       }
-    } finally {
-      this.$store.dispatch("closeProgressDialog");
-    }
-  }
 
-  private async loadTestResults(...testResultIds: string[]) {
-    try {
-      await this.$store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds,
-      });
+      try {
+        store.dispatch("openProgressDialog", {
+          message: store.getters.message(
+            "test-result-page.loading-test-results"
+          ),
+        });
 
-      await this.$store.dispatch("operationHistory/loadTestResult", {
-        testResultId: testResultIds[0],
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
+        await loadTestResults(...props.testResultIds);
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessage.value = error.message;
+          errorMessageDialogOpened.value = true;
+        } else {
+          throw error;
+        }
+      } finally {
+        store.dispatch("closeProgressDialog");
       }
-    }
-  }
-}
+    };
+
+    const loadTestResults = async (...testResultIds: string[]) => {
+      try {
+        await store.dispatch("operationHistory/loadTestResultSummaries", {
+          testResultIds,
+        });
+
+        await store.dispatch("operationHistory/loadTestResult", {
+          testResultId: testResultIds[0],
+        });
+
+        store.commit("operationHistory/setCanUpdateModels", {
+          setCanUpdateModels: false,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error);
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      isDisabled,
+      loadHistory,
+    };
+  },
+});
 </script>
