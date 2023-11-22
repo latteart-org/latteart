@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('note-details-dialog.details')"
+    :title="store.getters.message('note-details-dialog.details')"
     @accept="
       execute();
       close();
@@ -30,7 +30,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-details-dialog.summary")
+              store.getters.message("note-details-dialog.summary")
             }}</v-list-item-title>
             <p class="break-all">{{ summary }}</p>
           </v-list-item-content>
@@ -39,7 +39,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-details-dialog.details")
+              store.getters.message("note-details-dialog.details")
             }}</v-list-item-title>
             <p class="break-all pre-wrap">{{ details }}</p>
           </v-list-item-content>
@@ -48,7 +48,7 @@
         <v-list-item class="mb-2">
           <v-list-item-content>
             <v-list-item-title>{{
-              $store.getters.message("note-details-dialog.tags")
+              store.getters.message("note-details-dialog.tags")
             }}</v-list-item-title>
             <v-combobox
               v-model="newTags"
@@ -105,7 +105,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import {
   NoteTagItem,
@@ -113,103 +112,126 @@ import {
 } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
+import { defineComponent, ref, toRefs, watch, inject, nextTick } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    testResultId: { type: String, default: "", required: true },
+    noteId: { type: String, default: "", required: true },
+    summary: { type: String, default: "", required: true },
+    details: { type: String, default: "", required: true },
+    tags: {
+      type: Array as PropType<string[]>,
+      default: [],
+      required: true,
+    },
+    imageFilePath: { type: String, default: "", required: true },
+    videoUrl: { type: String, default: "", required: true },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
     "media-display-group": MediaDisplayGroup,
   },
-})
-export default class NoteDetailsDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) opened!: boolean;
-  @Prop({ type: String, default: "" }) testResultId!: string;
-  @Prop({ type: String, default: "" }) noteId!: string;
-  @Prop({ type: String, default: "" }) summary!: string;
-  @Prop({ type: String, default: "" }) details!: string;
-  @Prop({ type: Array, default: [] }) tags!: string[];
-  @Prop({ type: String, default: "" }) imageFilePath!: string;
-  @Prop({ type: String, default: "" }) videoUrl!: string;
+  setup(props, context) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private search = null;
-  private newTags: NoteTagItem[] = [];
-  private tagsItem = noteTagPreset.items;
+    const search = ref(null);
+    const newTags = ref<NoteTagItem[]>([]);
+    const tagsItem = ref(noteTagPreset.items);
 
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
+    const isViewerMode = inject("isViewerMode") ?? false;
 
-  private isMediaDisplayed: boolean = false;
+    const isMediaDisplayed = ref<boolean>(false);
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-    this.newTags = this.tags.map((tag) => {
-      const targetTagItem = this.tagsItem.find((item) => item.text === tag);
-      if (targetTagItem) {
-        return targetTagItem;
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
+      newTags.value = props.tags.map((tag) => {
+        const targetTagItem = tagsItem.value.find((item) => item.text === tag);
+        if (targetTagItem) {
+          return targetTagItem;
+        }
 
-      return {
-        text: tag,
-        color: "#E0E0E0",
-      };
-    });
-
-    this.isMediaDisplayed = false;
-    this.$nextTick(() => {
-      this.isMediaDisplayed = true;
-    });
-  }
-
-  @Watch("newTags")
-  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
-    if (val.length === prev.length) return;
-
-    this.newTags = val.map((v) => {
-      if (typeof v === "string") {
-        v = {
-          text: v,
+        return {
+          text: tag,
           color: "#E0E0E0",
         };
-
-        this.newTags.push(v);
-      }
-
-      return v;
-    });
-  }
-
-  private async execute() {
-    try {
-      await this.$store.dispatch("testManagement/updateNotes", {
-        testResultId: this.testResultId,
-        noteId: this.noteId,
-        value: this.summary,
-        details: this.details,
-        tags: this.newTags.map((tag) => tag.text),
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
-      } else {
-        throw error;
+
+      isMediaDisplayed.value = false;
+      nextTick(() => {
+        isMediaDisplayed.value = true;
+      });
+    };
+
+    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
+      if (val.length === prev.length) return;
+
+      newTags.value = val.map((v) => {
+        if (typeof v === "string") {
+          v = {
+            text: v,
+            color: "#E0E0E0",
+          };
+
+          newTags.value.push(v);
+        }
+
+        return v;
+      });
+    };
+
+    const execute = async () => {
+      try {
+        await store.dispatch("testManagement/updateNotes", {
+          testResultId: props.testResultId,
+          noteId: props.noteId,
+          value: props.summary,
+          details: props.details,
+          tags: newTags.value.map((tag) => tag.text),
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessage.value = error.message;
+          errorMessageDialogOpened.value = true;
+        } else {
+          throw error;
+        }
       }
-    }
 
-    this.$emit("execute");
-  }
+      context.emit("execute");
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+    watch(newTags, changeTags);
+
+    return {
+      store,
+      errorMessageDialogOpened,
+      errorMessage,
+      search,
+      newTags,
+      tagsItem,
+      isViewerMode,
+      isMediaDisplayed,
+      execute,
+      close,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

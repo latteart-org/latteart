@@ -72,67 +72,80 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { VideoFrame } from "latteart-client";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
+import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false },
+    notes: {
+      type: Array as PropType<
+        {
+          sequence: number;
+          id: string;
+          tags: string[];
+          value: string;
+          details: string;
+          timestamp: number;
+          testResultName: string;
+          image: { imageFileUrl?: string; videoFrame?: VideoFrame };
+        }[]
+      >,
+      default: [],
+    },
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
     "media-display-group": MediaDisplayGroup,
   },
-})
-export default class NoteListDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) opened?: boolean;
-  @Prop({ type: Array, default: [] }) notes?: {
-    sequence: number;
-    id: string;
-    tags: string[];
-    value: string;
-    details: string;
-    timestamp: number;
-    testResultName: string;
-    image: { imageFileUrl?: string; videoFrame?: VideoFrame };
-  }[];
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+  setup(props, context) {
+    const isMediaDisplayed = ref<boolean>(false);
 
-  private isMediaDisplayed: boolean = false;
+    const rerenderMediaDisplay = () => {
+      if (props.opened) {
+        isMediaDisplayed.value = false;
+        nextTick(() => {
+          isMediaDisplayed.value = true;
+        });
+      }
+    };
 
-  @Watch("opened")
-  private rerenderMediaDisplay() {
-    if (this.opened) {
-      this.isMediaDisplayed = false;
-      this.$nextTick(() => {
-        this.isMediaDisplayed = true;
-      });
-    }
-  }
+    const noteWithTime = computed(() => {
+      return props.notes
+        ? props.notes.map((note) => {
+            const time = note.image.videoFrame?.time ?? 0;
+            const videoUrl = note.image.videoFrame?.url
+              ? `${note.image.videoFrame.url}#t=${time}`
+              : "";
+            return { ...note, videoUrl };
+          })
+        : [];
+    });
 
-  private get noteWithTime() {
-    return this.notes
-      ? this.notes.map((note) => {
-          const time = note.image.videoFrame?.time ?? 0;
-          const videoUrl = note.image.videoFrame?.url
-            ? `${note.image.videoFrame.url}#t=${time}`
-            : "";
-          return { ...note, videoUrl };
-        })
-      : [];
-  }
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private get operationHistoryState() {
-    return this.$store.state.operationHistory as OperationHistoryState;
-  }
+    const { opened } = toRefs(props);
+    watch(opened, rerenderMediaDisplay);
 
-  private close() {
-    this.$emit("close");
-  }
-}
+    return {
+      isMediaDisplayed,
+      noteWithTime,
+      close,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

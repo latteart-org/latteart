@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$store.getters.message('app.record-notice')"
+      :title="store.getters.message('app.record-notice')"
       @accept="execute"
       @cancel="
         cancel();
@@ -29,7 +29,7 @@
     >
       <template>
         <number-field
-          :label="$store.getters.message('note-edit.target-sequence')"
+          :label="store.getters.message('note-edit.target-sequence')"
           :value="newTargetSequence"
           :minValue="1"
           :maxValue="maxSequence"
@@ -37,16 +37,16 @@
           :disabled="oldNote === ''"
         ></number-field>
         <v-text-field
-          :label="$store.getters.message('note-edit.summary')"
+          :label="store.getters.message('note-edit.summary')"
           v-model="newNote"
         ></v-text-field>
         <v-textarea
-          :label="$store.getters.message('note-edit.details')"
+          :label="store.getters.message('note-edit.details')"
           v-model="newNoteDetails"
         ></v-textarea>
 
         <v-combobox
-          :label="$store.getters.message('note-edit.tags')"
+          :label="store.getters.message('note-edit.tags')"
           v-model="newTags"
           :hide-no-data="!search"
           :items="tagsItem"
@@ -79,7 +79,7 @@
           </template>
         </v-combobox>
         <h4 v-if="isCapturing && oldIndex === null">
-          {{ $store.getters.message("note-edit.take-screenshot") }}
+          {{ store.getters.message("note-edit.take-screenshot") }}
         </h4>
         <v-radio-group
           v-if="isCapturing && oldIndex === null"
@@ -91,11 +91,11 @@
           :error-messages="takeScreenshotErrorMessage"
         >
           <v-radio
-            :label="$store.getters.message('note-edit.previous-screen')"
+            :label="store.getters.message('note-edit.previous-screen')"
             :value="false"
           ></v-radio>
           <v-radio
-            :label="$store.getters.message('note-edit.current-screen')"
+            :label="store.getters.message('note-edit.current-screen')"
             :value="true"
           ></v-radio>
         </v-radio-group>
@@ -105,11 +105,11 @@
             class="mx-2 my-3"
             :disabled="!screenshot"
             @click="showStillImage"
-            >{{ $store.getters.message("note-edit.check-still-Image") }}</v-btn
+            >{{ store.getters.message("note-edit.check-still-Image") }}</v-btn
           >
 
           <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
-            $store.getters.message("note-edit.check-video")
+            store.getters.message("note-edit.check-video")
           }}</v-btn>
 
           <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
@@ -122,7 +122,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import {
@@ -134,177 +133,217 @@ import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    isCapturing: { type: Boolean, default: false },
+    noteInfo: {
+      type: Object as PropType<NoteDialogInfo>,
+      default: undefined,
+      required: true,
+    },
+  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "video-display": VideoDisplay,
     "popup-image": PopupImage,
   },
-})
-export default class NoteCommonDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly isCapturing!: boolean;
-  @Prop({ type: Object, default: undefined })
-  public readonly noteInfo!: NoteDialogInfo;
+  setup(props, context) {
+    const store = useStore();
 
-  private search = null;
-  private oldNote = "";
-  private oldNoteDetails = "";
-  private oldTags: string[] = [];
-  private newNote = "";
-  private newNoteDetails = "";
-  private newTags: NoteTagItem[] = [];
-  private screenshot = "";
-  private video = "";
+    const search = ref(null);
+    const oldNote = ref("");
+    const oldNoteDetails = ref("");
+    const oldTags = ref<string[]>([]);
+    const newNote = ref("");
+    const newNoteDetails = ref("");
+    const newTags = ref<NoteTagItem[]>([]);
+    const screenshot = ref("");
+    const video = ref("");
 
-  private oldSequence: number | null = null;
-  private newTargetSequence: number | null = null;
-  private maxSequence: number | null = null;
-  private oldIndex: number | null = null;
-  private shouldTakeScreenshot = false;
+    const oldSequence = ref<number | null>(null);
+    const newTargetSequence = ref<number | null>(null);
+    const maxSequence = ref<number | null>(null);
+    const oldIndex = ref<number | null>(null);
+    const shouldTakeScreenshot = ref(false);
 
-  private isAlertVisible = false;
-  private isImageVisible = false;
-  private isVideoVisible = false;
+    const isAlertVisible = ref(false);
+    const isImageVisible = ref(false);
+    const isVideoVisible = ref(false);
 
-  private tagsItem = noteTagPreset.items;
+    const tagsItem = ref(noteTagPreset.items);
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-
-    this.isAlertVisible =
-      (this.$store.state.captureControl as CaptureControlState).captureSession
-        ?.isAlertVisible ?? false;
-
-    this.oldNote = this.noteInfo.value;
-    this.oldNoteDetails = this.noteInfo.details;
-    this.oldIndex = this.noteInfo.index;
-    this.oldTags = this.noteInfo.tags;
-    this.screenshot = this.noteInfo.imageFilePath;
-    this.video = this.noteInfo.videoFilePath;
-    this.newNote = this.oldNote;
-    this.newNoteDetails = this.oldNoteDetails;
-    this.newTags = this.oldTags.map((tag) => {
-      const targetTagItem = this.tagsItem.find((item) => item.text === tag);
-      if (targetTagItem) {
-        return targetTagItem;
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
 
-      return {
-        text: tag,
-        color: "#E0E0E0",
-      };
-    });
-    this.oldSequence = this.noteInfo.sequence;
-    this.newTargetSequence = this.oldSequence;
-    this.maxSequence = this.noteInfo.maxSequence;
-    this.shouldTakeScreenshot = false;
-    this.isImageVisible = false;
-    this.isVideoVisible = false;
+      isAlertVisible.value =
+        ((store.state as any).captureControl as CaptureControlState)
+          .captureSession?.isAlertVisible ?? false;
 
-    this.$store.commit("operationHistory/selectOperationNote", {
-      selectedOperationNote: { sequence: null, index: null },
-    });
-  }
+      oldNote.value = props.noteInfo.value;
+      oldNoteDetails.value = props.noteInfo.details;
+      oldIndex.value = props.noteInfo.index;
+      oldTags.value = props.noteInfo.tags;
+      screenshot.value = props.noteInfo.imageFilePath;
+      video.value = props.noteInfo.videoFilePath;
+      newNote.value = oldNote.value;
+      newNoteDetails.value = oldNoteDetails.value;
+      newTags.value = oldTags.value.map((tag) => {
+        const targetTagItem = tagsItem.value.find((item) => item.text === tag);
+        if (targetTagItem) {
+          return targetTagItem;
+        }
 
-  @Watch("newTags")
-  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
-    if (val.length === prev.length) return;
-
-    this.newTags = val.map((v) => {
-      if (typeof v === "string") {
-        v = {
-          text: v,
+        return {
+          text: tag,
           color: "#E0E0E0",
         };
+      });
+      oldSequence.value = props.noteInfo.sequence;
+      newTargetSequence.value = oldSequence.value;
+      maxSequence.value = props.noteInfo.maxSequence;
+      shouldTakeScreenshot.value = false;
+      isImageVisible.value = false;
+      isVideoVisible.value = false;
 
-        this.newTags.push(v);
+      store.commit("operationHistory/selectOperationNote", {
+        selectedOperationNote: { sequence: null, index: null },
+      });
+    };
+
+    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
+      if (val.length === prev.length) return;
+
+      newTags.value = val.map((v) => {
+        if (typeof v === "string") {
+          v = {
+            text: v,
+            color: "#E0E0E0",
+          };
+
+          newTags.value.push(v);
+        }
+
+        return v;
+      });
+    };
+
+    const takeScreenshotErrorMessage = computed((): string => {
+      return isAlertVisible.value
+        ? store.getters.message("note-edit.error-cannot-take-screenshots")
+        : "";
+    });
+
+    const execute = (): void => {
+      const noteEditInfo = {
+        oldSequence: oldSequence.value,
+        oldIndex: oldIndex.value,
+        newSequence:
+          oldSequence.value !== newTargetSequence.value
+            ? newTargetSequence.value
+            : undefined,
+        note: newNote.value,
+        noteDetails: newNoteDetails.value,
+        shouldTakeScreenshot: shouldTakeScreenshot.value,
+        tags: newTags.value.map((tag) => tag.text),
+      } as NoteEditInfo;
+      context.emit("execute", noteEditInfo);
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const updateNewTargetSequence = (data: {
+      id: string;
+      value: number;
+    }): void => {
+      newTargetSequence.value = data.value;
+    };
+
+    const canSave = computed(() => {
+      if (newNote.value === "") {
+        return false;
       }
 
-      return v;
-    });
-  }
+      if (sequenceIsOutOfRange()) {
+        return false;
+      }
 
-  private get takeScreenshotErrorMessage(): string {
-    return this.isAlertVisible
-      ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
-      : "";
-  }
-
-  private execute(): void {
-    const noteEditInfo = {
-      oldSequence: this.oldSequence,
-      oldIndex: this.oldIndex,
-      newSequence:
-        this.oldSequence !== this.newTargetSequence
-          ? this.newTargetSequence
-          : undefined,
-      note: this.newNote,
-      noteDetails: this.newNoteDetails,
-      shouldTakeScreenshot: this.shouldTakeScreenshot,
-      tags: this.newTags.map((tag) => tag.text),
-    } as NoteEditInfo;
-    this.$emit("execute", noteEditInfo);
-  }
-
-  private cancel(): void {
-    this.$emit("cancel");
-  }
-
-  private close(): void {
-    this.$emit("close");
-  }
-
-  private updateNewTargetSequence(data: { id: string; value: number }): void {
-    this.newTargetSequence = data.value;
-  }
-
-  private get canSave() {
-    if (this.newNote === "") {
-      return false;
-    }
-
-    if (this.sequenceIsOutOfRange()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private sequenceIsOutOfRange() {
-    if (!this.maxSequence || this.newTargetSequence === null) {
-      return false;
-    }
-
-    if (isNaN(this.newTargetSequence)) {
       return true;
-    }
+    });
 
-    if (this.newTargetSequence <= this.maxSequence) {
-      return false;
-    }
+    const sequenceIsOutOfRange = () => {
+      if (!maxSequence.value || newTargetSequence.value === null) {
+        return false;
+      }
 
-    if (this.newTargetSequence >= 1) {
-      return false;
-    }
+      if (isNaN(newTargetSequence.value)) {
+        return true;
+      }
 
-    return true;
-  }
+      if (newTargetSequence.value <= maxSequence.value) {
+        return false;
+      }
 
-  private showStillImage() {
-    this.isImageVisible = true;
-    this.isVideoVisible = false;
-  }
+      if (newTargetSequence.value >= 1) {
+        return false;
+      }
 
-  private showVideo() {
-    this.isVideoVisible = true;
-    this.isImageVisible = false;
-  }
-}
+      return true;
+    };
+
+    const showStillImage = () => {
+      isImageVisible.value = true;
+      isVideoVisible.value = false;
+    };
+
+    const showVideo = () => {
+      isVideoVisible.value = true;
+      isImageVisible.value = false;
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+    watch(newTags, changeTags);
+
+    return {
+      store,
+      search,
+      oldNote,
+      newNote,
+      newNoteDetails,
+      newTags,
+      screenshot,
+      video,
+      newTargetSequence,
+      maxSequence,
+      oldIndex,
+      shouldTakeScreenshot,
+      isAlertVisible,
+      isImageVisible,
+      isVideoVisible,
+      tagsItem,
+      takeScreenshotErrorMessage,
+      execute,
+      cancel,
+      close,
+      updateNewTargetSequence,
+      canSave,
+      showStillImage,
+      showVideo,
+    };
+  },
+});
 </script>

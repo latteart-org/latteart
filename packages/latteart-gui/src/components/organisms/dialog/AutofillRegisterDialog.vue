@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('autofill-register-dialog.title')"
+    :title="store.getters.message('autofill-register-dialog.title')"
     @accept="
       accept();
       close();
@@ -30,89 +30,109 @@
       </div>
       <v-text-field
         v-model="settingName"
-        :label="$store.getters.message('autofill-register-dialog.form-label')"
+        :label="store.getters.message('autofill-register-dialog.form-label')"
       ></v-text-field>
     </template>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref, nextTick } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class AutofillRegisterDialog extends Vue {
-  private settingName = "";
-  private opened = false;
+  setup() {
+    const store = useStore();
 
-  private get autofillRegisterDialogData(): {
-    title: string;
-    url: string;
-    message: string;
-    inputElements: {
-      xpath: string;
-      attributes: { [key: string]: string };
-      inputValue: string;
-      iframeIndex?: number;
-    }[];
-    callback: () => void;
-  } | null {
-    this.settingName =
-      this.$store.state.captureControl?.autofillRegisterDialogData?.title ?? "";
-    this.opened =
-      !!this.$store.state.captureControl?.autofillRegisterDialogData;
-    return this.$store.state.captureControl?.autofillRegisterDialogData ?? null;
-  }
+    const settingName = ref("");
+    const opened = ref(false);
 
-  private get message(): string {
-    return this.autofillRegisterDialogData?.message ?? "";
-  }
+    const autofillRegisterDialogData = computed(
+      (): {
+        title: string;
+        url: string;
+        message: string;
+        inputElements: {
+          xpath: string;
+          attributes: { [key: string]: string };
+          inputValue: string;
+          iframeIndex?: number;
+        }[];
+        callback: () => void;
+      } | null => {
+        settingName.value =
+          ((store.state as any).captureControl as CaptureControlState)
+            ?.autofillRegisterDialogData?.title ?? "";
+        opened.value = !!(
+          (store.state as any).captureControl as CaptureControlState
+        )?.autofillRegisterDialogData;
+        return (
+          ((store.state as any).captureControl as CaptureControlState)
+            ?.autofillRegisterDialogData ?? null
+        );
+      }
+    );
 
-  private async accept(): Promise<void> {
-    const autofillConditionGroup: AutofillConditionGroup = {
-      isEnabled: true,
-      settingName: this.settingName,
-      url: this.autofillRegisterDialogData?.url ?? "",
-      title: this.autofillRegisterDialogData?.title ?? "",
-      inputValueConditions: (
-        this.autofillRegisterDialogData?.inputElements ?? []
-      )
-        .filter((element) => {
-          return element.attributes.type !== "hidden";
-        })
-        .map((element) => {
-          return {
-            isEnabled: true,
-            locator: element.attributes.id ?? element.xpath,
-            locatorType: element.attributes.id ? "id" : "xpath",
-            locatorMatchType: "equals",
-            inputValue: element.inputValue,
-            iframeIndex: element.iframeIndex,
-          };
-        }),
-    };
-    this.$store.dispatch("operationHistory/updateAutofillConditionGroup", {
-      conditionGroup: autofillConditionGroup,
-      index: -1,
+    const message = computed((): string => {
+      return autofillRegisterDialogData.value?.message ?? "";
     });
-    await this.close();
-  }
 
-  private async close(): Promise<void> {
-    this.opened = false;
-    await new Promise((s) => setTimeout(s, 300));
-    const callback = this.autofillRegisterDialogData?.callback;
-    this.$store.commit("captureControl/setAutofillRegisterDialog", null);
-    if (callback) {
-      this.$nextTick(() => {
-        callback();
+    const accept = async (): Promise<void> => {
+      const autofillConditionGroup: AutofillConditionGroup = {
+        isEnabled: true,
+        settingName: settingName.value,
+        url: autofillRegisterDialogData.value?.url ?? "",
+        title: autofillRegisterDialogData.value?.title ?? "",
+        inputValueConditions: (
+          autofillRegisterDialogData.value?.inputElements ?? []
+        )
+          .filter((element) => {
+            return element.attributes.type !== "hidden";
+          })
+          .map((element) => {
+            return {
+              isEnabled: true,
+              locator: element.attributes.id ?? element.xpath,
+              locatorType: element.attributes.id ? "id" : "xpath",
+              locatorMatchType: "equals",
+              inputValue: element.inputValue,
+              iframeIndex: element.iframeIndex,
+            };
+          }),
+      };
+      store.dispatch("operationHistory/updateAutofillConditionGroup", {
+        conditionGroup: autofillConditionGroup,
+        index: -1,
       });
-    }
-  }
-}
+      await close();
+    };
+
+    const close = async (): Promise<void> => {
+      opened.value = false;
+      await new Promise((s) => setTimeout(s, 300));
+      const callback = autofillRegisterDialogData.value?.callback;
+      store.commit("captureControl/setAutofillRegisterDialog", null);
+      if (callback) {
+        nextTick(() => {
+          callback();
+        });
+      }
+    };
+
+    return {
+      store,
+      settingName,
+      opened,
+      message,
+      accept,
+      close,
+    };
+  },
+});
 </script>

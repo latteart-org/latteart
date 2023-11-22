@@ -27,7 +27,7 @@
         <v-row class="mt-2">
           <v-text-field
             :label="
-              $store.getters.message('test-matrix-dialog.test-matrix-name')
+              store.getters.message('test-matrix-dialog.test-matrix-name')
             "
             v-model="testMatrix.name"
             class="pt-0"
@@ -37,7 +37,7 @@
           <v-card>
             <v-card-title>
               {{
-                $store.getters.message("test-matrix-dialog.setting-viewPoint")
+                store.getters.message("test-matrix-dialog.setting-viewPoint")
               }}
             </v-card-title>
             <v-card-text>
@@ -46,7 +46,7 @@
                   <v-select
                     v-model="selectedViewPointsPresetId"
                     @change="changeSelectedViewPoints"
-                    :label="$store.getters.message('test-matrix-dialog.preset')"
+                    :label="store.getters.message('test-matrix-dialog.preset')"
                     :items="viewPointsPresetsWithUnselected"
                     item-text="name"
                     item-value="id"
@@ -63,7 +63,7 @@
                           <v-col cols="9">
                             <v-text-field
                               :placeholder="
-                                $store.getters.message(
+                                store.getters.message(
                                   'test-matrix-dialog.viewPoint-name'
                                 )
                               "
@@ -99,7 +99,7 @@
                             rows="3"
                             v-model="tempViewPoint.description"
                             :placeholder="
-                              $store.getters.message(
+                              store.getters.message(
                                 'test-matrix-dialog.view-point-description'
                               )
                             "
@@ -111,7 +111,7 @@
                 </v-row>
                 <v-row>
                   <v-btn small @click="createTempViewPoint" class="mt-4">{{
-                    $store.getters.message("test-matrix-dialog.new-viewPoint")
+                    store.getters.message("test-matrix-dialog.new-viewPoint")
                   }}</v-btn>
                 </v-row>
               </v-container>
@@ -124,198 +124,222 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import UpDownArrows from "@/components/molecules/UpDownArrows.vue";
 import { UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { RootState } from "@/store";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    testMatrixBeingEdited: {
+      type: Object as PropType<TestMatrix>,
+      default: { name: "", id: "", viewPoints: [] },
+    },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
     "up-down-arrows": UpDownArrows,
   },
-})
-export default class TestMatrixDialog extends Vue {
-  @Prop({ type: Object, default: { name: "", id: "", viewPoints: [] } })
-  public readonly testMatrixBeingEdited!: TestMatrix;
+  setup(props, context) {
+    const store = useStore();
 
-  private selectedViewPointsPresetId = "";
-  private tempViewPoints: Array<{
-    key: string;
-    name: string;
-    description: string;
-    index: number;
-    id: string | null;
-  }> = [];
-  private key = 0;
-  private testMatrix: { name: string; id: string } = { name: "", id: "" };
+    const selectedViewPointsPresetId = ref("");
+    const tempViewPoints = ref<
+      {
+        key: string;
+        name: string;
+        description: string;
+        index: number;
+        id: string | null;
+      }[]
+    >([]);
+    const key = ref(0);
+    const testMatrix = ref<{ name: string; id: string }>({ name: "", id: "" });
 
-  private panel = [];
-
-  private get viewPointsPresets(): ViewPointsPreset[] {
-    return (this.$store.state as RootState).projectSettings.viewPointsPreset;
-  }
-
-  private get viewPointsPresetsWithUnselected(): ViewPointsPreset[] {
-    const presets: ViewPointsPreset[] = [];
-    presets.push({
-      id: "",
-      name: this.$store.getters.message("test-matrix-dialog.unselected"),
-      viewPoints: [],
+    const viewPointsPresets = computed((): ViewPointsPreset[] => {
+      return store.state.projectSettings.viewPointsPreset;
     });
-    this.selectedViewPointsPresetId = this.viewPointsPresets[0]?.id ?? "";
 
-    for (const pre of this.viewPointsPresets) {
-      presets.push(pre);
-    }
-    return presets;
-  }
+    const viewPointsPresetsWithUnselected = computed((): ViewPointsPreset[] => {
+      const presets: ViewPointsPreset[] = [];
+      presets.push({
+        id: "",
+        name: store.getters.message("test-matrix-dialog.unselected"),
+        viewPoints: [],
+      });
+      selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
 
-  private get opened(): boolean {
-    return this.testMatrixBeingEdited !== null;
-  }
-
-  private get isCreate(): boolean {
-    return this.testMatrix.id === "";
-  }
-
-  private get dialogTitle(): string {
-    const key = `test-matrix-dialog.${
-      this.isCreate ? "create-test-matrix" : "edit-test-matrix"
-    }`;
-    return this.$store.getters.message(key);
-  }
-
-  private created() {
-    this.key = 0;
-  }
-
-  @Watch("testMatrixBeingEdited")
-  private init(testMatrix: TestMatrix): void {
-    if (!testMatrix) {
-      return;
-    }
-    this.testMatrix = {
-      name: testMatrix.name,
-      id: testMatrix.id,
-    };
-    if (this.isCreate) {
-      this.selectedViewPointsPresetId = this.viewPointsPresets[0]?.id ?? "";
-      this.changeSelectedViewPoints();
-    } else {
-      this.tempViewPoints = testMatrix.viewPoints
-        .map((viewPoint, index) => {
-          return {
-            key: this.tempViewPointKey(),
-            name: viewPoint.name,
-            index: index,
-            id: viewPoint.id,
-            description: viewPoint.description,
-          };
-        })
-        .sort((v1, v2) => {
-          return v1.index - v2.index;
-        });
-    }
-  }
-
-  private tempViewPointKey(): string {
-    return `${this.key++}`;
-  }
-
-  private createTempViewPoint(): void {
-    this.tempViewPoints.push({
-      key: this.tempViewPointKey(),
-      name: "",
-      description: "",
-      index: this.tempViewPoints.length,
-      id: null,
+      for (const pre of viewPointsPresets.value) {
+        presets.push(pre);
+      }
+      return presets;
     });
-  }
 
-  private changeSelectedViewPoints(): void {
-    if (this.selectedViewPointsPresetId === "") {
-      this.tempViewPoints = [];
-    }
-    const addPreset = this.viewPointsPresets.find((preset) => {
-      return this.selectedViewPointsPresetId === preset.id;
+    const opened = computed((): boolean => {
+      return props.testMatrixBeingEdited !== null;
     });
-    if (!addPreset) {
-      return;
-    }
-    this.tempViewPoints = addPreset.viewPoints.map((viewPoint, index) => {
-      return {
-        key: this.tempViewPointKey(),
-        name: viewPoint.name,
-        description: viewPoint.description,
-        index,
-        id: null,
+
+    const isCreate = computed((): boolean => {
+      return testMatrix.value.id === "";
+    });
+
+    const dialogTitle = computed((): string => {
+      const key = `test-matrix-dialog.${
+        isCreate.value ? "create-test-matrix" : "edit-test-matrix"
+      }`;
+      return store.getters.message(key);
+    });
+
+    const init = (initTestMatrix: TestMatrix): void => {
+      if (!initTestMatrix) {
+        return;
+      }
+      testMatrix.value = {
+        name: initTestMatrix.name,
+        id: initTestMatrix.id,
       };
-    });
-  }
+      if (isCreate.value) {
+        selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
+        changeSelectedViewPoints();
+      } else {
+        tempViewPoints.value = initTestMatrix.viewPoints
+          .map((viewPoint, index) => {
+            return {
+              key: tempViewPointKey(),
+              name: viewPoint.name,
+              index: index,
+              id: viewPoint.id,
+              description: viewPoint.description,
+            };
+          })
+          .sort((v1, v2) => {
+            return v1.index - v2.index;
+          });
+      }
+    };
 
-  private deleteTempViewPoint(index: number): void {
-    this.tempViewPoints = this.tempViewPoints
-      .filter((_, vIndex) => {
-        return vIndex !== index;
-      })
-      .map((viewPoint, index) => {
+    const tempViewPointKey = (): string => {
+      return `${key.value++}`;
+    };
+
+    const createTempViewPoint = (): void => {
+      tempViewPoints.value.push({
+        key: tempViewPointKey(),
+        name: "",
+        description: "",
+        index: tempViewPoints.value.length,
+        id: null,
+      });
+    };
+
+    const changeSelectedViewPoints = (): void => {
+      if (selectedViewPointsPresetId.value === "") {
+        tempViewPoints.value = [];
+      }
+      const addPreset = viewPointsPresets.value.find((preset) => {
+        return selectedViewPointsPresetId.value === preset.id;
+      });
+      if (!addPreset) {
+        return;
+      }
+      tempViewPoints.value = addPreset.viewPoints.map((viewPoint, index) => {
         return {
-          ...viewPoint,
+          key: tempViewPointKey(),
+          name: viewPoint.name,
+          description: viewPoint.description,
           index,
+          id: null,
         };
       });
-  }
-
-  private closeDialog(): void {
-    this.$emit("closeDialog");
-  }
-
-  private update(): void {
-    const updateTestMatrixObject: UpdateTestMatrixObject = {
-      isCreate: this.isCreate,
-      testMatrix: {
-        name: this.testMatrix.name,
-        id: this.testMatrix.id,
-      },
-      viewPoints: this.tempViewPoints
-        .filter((tempViewPoint) => {
-          return !!tempViewPoint.name;
-        })
-        .map((tempViewPoint) => {
-          return {
-            name: tempViewPoint.name,
-            id: tempViewPoint.id,
-            description: tempViewPoint.description,
-            index: tempViewPoint.index,
-          };
-        }),
     };
-    this.$emit("updateTestMatrix", updateTestMatrixObject);
 
-    this.closeDialog();
-  }
+    const deleteTempViewPoint = (index: number): void => {
+      tempViewPoints.value = tempViewPoints.value
+        .filter((_, vIndex) => {
+          return vIndex !== index;
+        })
+        .map((viewPoint, index) => {
+          return {
+            ...viewPoint,
+            index,
+          };
+        });
+    };
 
-  private upViewPoint(index: number): void {
-    const temp = [...this.tempViewPoints];
-    temp[index].index = index - 1;
-    temp[index - 1].index = index;
-    this.tempViewPoints = [...temp].sort((v1, v2) => {
-      return v1.index - v2.index;
-    });
-  }
+    const closeDialog = (): void => {
+      context.emit("closeDialog");
+    };
 
-  private downViewPoint(index: number): void {
-    const temp = [...this.tempViewPoints];
-    temp[index].index = index + 1;
-    temp[index + 1].index = index;
-    this.tempViewPoints = [...temp].sort((v1, v2) => {
-      return v1.index - v2.index;
-    });
-  }
-}
+    const update = (): void => {
+      const updateTestMatrixObject: UpdateTestMatrixObject = {
+        isCreate: isCreate.value,
+        testMatrix: {
+          name: testMatrix.value.name,
+          id: testMatrix.value.id,
+        },
+        viewPoints: tempViewPoints.value
+          .filter((tempViewPoint) => {
+            return !!tempViewPoint.name;
+          })
+          .map((tempViewPoint) => {
+            return {
+              name: tempViewPoint.name,
+              id: tempViewPoint.id,
+              description: tempViewPoint.description,
+              index: tempViewPoint.index,
+            };
+          }),
+      };
+      context.emit("updateTestMatrix", updateTestMatrixObject);
+
+      closeDialog();
+    };
+
+    const upViewPoint = (index: number): void => {
+      const temp = [...tempViewPoints.value];
+      temp[index].index = index - 1;
+      temp[index - 1].index = index;
+      tempViewPoints.value = [...temp].sort((v1, v2) => {
+        return v1.index - v2.index;
+      });
+    };
+
+    const downViewPoint = (index: number): void => {
+      const temp = [...tempViewPoints.value];
+      temp[index].index = index + 1;
+      temp[index + 1].index = index;
+      tempViewPoints.value = [...temp].sort((v1, v2) => {
+        return v1.index - v2.index;
+      });
+    };
+
+    const { testMatrixBeingEdited } = toRefs(props);
+    watch(testMatrixBeingEdited, init);
+
+    key.value = 0;
+
+    return {
+      store,
+      selectedViewPointsPresetId,
+      tempViewPoints,
+      testMatrix,
+      viewPointsPresetsWithUnselected,
+      opened,
+      isCreate,
+      dialogTitle,
+      createTempViewPoint,
+      changeSelectedViewPoints,
+      deleteTempViewPoint,
+      closeDialog,
+      update,
+      upViewPoint,
+      downViewPoint,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

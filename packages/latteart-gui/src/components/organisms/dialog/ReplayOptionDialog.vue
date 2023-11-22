@@ -18,11 +18,11 @@
   <div>
     <scrollable-dialog :opened="opened">
       <template v-slot:title>{{
-        $store.getters.message("replay-option.start-replay")
+        store.getters.message("replay-option.start-replay")
       }}</template>
       <template v-slot:content>
         <v-checkbox
-          :label="$store.getters.message('replay-option.replay-capture')"
+          :label="store.getters.message('replay-option.replay-capture')"
           v-model="isResultSavingEnabled"
           hide-details
         ></v-checkbox>
@@ -31,7 +31,7 @@
           <v-card-text>
             <v-text-field
               :disabled="!isResultSavingEnabled"
-              :label="$store.getters.message('replay-option.test-result-name')"
+              :label="store.getters.message('replay-option.test-result-name')"
               v-model="testResultName"
               hide-details
             ></v-text-field>
@@ -48,7 +48,7 @@
         <v-checkbox
           :disabled="!isResultSavingEnabled"
           :label="
-            $store.getters.message('replay-option.replay-compare', {
+            store.getters.message('replay-option.replay-compare', {
               sourceTestResultName,
             })
           "
@@ -68,14 +68,14 @@
             close();
           "
         >
-          {{ $store.getters.message("common.ok") }}
+          {{ store.getters.message("common.ok") }}
         </v-btn>
         <v-btn
           @click="
             cancel();
             close();
           "
-          >{{ $store.getters.message("common.cancel") }}</v-btn
+          >{{ store.getters.message("common.cancel") }}</v-btn
         >
       </template>
     </scrollable-dialog>
@@ -88,111 +88,135 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { RootState } from "@/store";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class ReplayOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  private testResultName = "";
-  private isResultSavingEnabled = false;
-  private isComparisonEnabled = false;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-  private alertMessage = "";
+  setup(props, context) {
+    const store = useStore();
 
-  private get okButtonIsDisabled() {
-    if (this.isResultSavingEnabled) {
-      return !this.testResultName ? true : false;
-    }
-    return false;
-  }
+    const testResultName = ref("");
+    const isResultSavingEnabled = ref(false);
+    const isComparisonEnabled = ref(false);
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
+    const alertMessage = ref("");
 
-  private get savingReplayResultsWarningMessage(): string {
-    return (this.$store.state as RootState).projectSettings.config
-      .captureMediaSetting.mediaType === "video"
-      ? this.$store.getters.message(
-          "replay-option.saving-replay-results-warning-message"
-        )
-      : "";
-  }
-
-  private get hasIgnoredOperations(): boolean {
-    const operations: OperationForGUI[] =
-      this.$store.getters["operationHistory/getOperations"]();
-
-    return operations.some(({ type }, index) => {
-      if (index > 0 && type === "start_capturing") {
-        return true;
+    const okButtonIsDisabled = computed(() => {
+      if (isResultSavingEnabled.value) {
+        return !testResultName.value ? true : false;
       }
-
-      if (type === "pause_capturing") {
-        return true;
-      }
-
       return false;
     });
-  }
 
-  private get sourceTestResultName() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .testResultInfo.name;
-  }
+    const savingReplayResultsWarningMessage = computed((): string => {
+      return store.state.projectSettings.config.captureMediaSetting
+        .mediaType === "video"
+        ? store.getters.message(
+            "replay-option.saving-replay-results-warning-message"
+          )
+        : "";
+    });
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
+    const hasIgnoredOperations = computed((): boolean => {
+      const operations: OperationForGUI[] =
+        store.getters["operationHistory/getOperations"]();
 
-    this.testResultName = `${this.sourceTestResultName}_re`;
-    this.isResultSavingEnabled = false;
-    this.isComparisonEnabled = false;
-    this.alertMessage = this.hasIgnoredOperations
-      ? this.$store.getters.message("replay-option.ignored-operations-alert")
-      : "";
-  }
+      return operations.some(({ type }, index) => {
+        if (index > 0 && type === "start_capturing") {
+          return true;
+        }
 
-  private ok() {
-    try {
-      this.$store.commit("captureControl/setReplayOption", {
-        replayOption: {
-          testResultName: this.isResultSavingEnabled ? this.testResultName : "",
-          resultSavingEnabled: this.isResultSavingEnabled,
-          comparisonEnabled: this.isResultSavingEnabled
-            ? this.isComparisonEnabled
-            : false,
-        },
+        if (type === "pause_capturing") {
+          return true;
+        }
+
+        return false;
       });
+    });
 
-      this.$emit("ok");
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
-      } else {
-        throw error;
+    const sourceTestResultName = computed(() => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .testResultInfo.name;
+    });
+
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
-    }
-  }
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+      testResultName.value = `${sourceTestResultName.value}_re`;
+      isResultSavingEnabled.value = false;
+      isComparisonEnabled.value = false;
+      alertMessage.value = hasIgnoredOperations.value
+        ? store.getters.message("replay-option.ignored-operations-alert")
+        : "";
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+    const ok = () => {
+      try {
+        store.commit("captureControl/setReplayOption", {
+          replayOption: {
+            testResultName: isResultSavingEnabled.value
+              ? testResultName.value
+              : "",
+            resultSavingEnabled: isResultSavingEnabled.value,
+            comparisonEnabled: isResultSavingEnabled.value
+              ? isComparisonEnabled.value
+              : false,
+          },
+        });
+
+        context.emit("ok");
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessage.value = error.message;
+          errorMessageDialogOpened.value = true;
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      testResultName,
+      isResultSavingEnabled,
+      isComparisonEnabled,
+      errorMessageDialogOpened,
+      errorMessage,
+      alertMessage,
+      okButtonIsDisabled,
+      savingReplayResultsWarningMessage,
+      sourceTestResultName,
+      ok,
+      cancel,
+      close,
+    };
+  },
+});
 </script>
 
 <style lang="sass">

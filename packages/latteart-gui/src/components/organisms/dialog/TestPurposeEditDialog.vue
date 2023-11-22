@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$store.getters.message('app.record-intention')"
+      :title="store.getters.message('app.record-intention')"
       @accept="
         saveTestPurpose();
         close();
@@ -32,7 +32,7 @@
       <template>
         <number-field
           v-if="oldSequence !== null"
-          :label="$store.getters.message('note-edit.target-sequence')"
+          :label="store.getters.message('note-edit.target-sequence')"
           :value="newTargetSequence"
           :minValue="1"
           :maxValue="maxSequence"
@@ -40,14 +40,14 @@
           :disabled="oldNote === ''"
         ></number-field>
         <p v-if="isSaveWarning" class="warningMessage">
-          {{ $store.getters.message("note-edit.save-warning") }}
+          {{ store.getters.message("note-edit.save-warning") }}
         </p>
         <v-text-field
-          :label="$store.getters.message('note-edit.summary')"
+          :label="store.getters.message('note-edit.summary')"
           v-model="newNote"
         ></v-text-field>
         <v-textarea
-          :label="$store.getters.message('note-edit.details')"
+          :label="store.getters.message('note-edit.details')"
           v-model="newNoteDetails"
         ></v-textarea>
       </template>
@@ -61,185 +61,215 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class TestPurposeEditDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private oldNote = "";
-  private oldNoteDetails = "";
-  private newNote = "";
-  private newNoteDetails = "";
-  private oldSequence: number | null = null;
-  private newTargetSequence: number | null = null;
-  private maxSequence: number | null = null;
-  private oldIndex: number | null = null;
+    const oldNote = ref("");
+    const oldNoteDetails = ref("");
+    const newNote = ref("");
+    const newNoteDetails = ref("");
+    const oldSequence = ref<number | null>(null);
+    const newTargetSequence = ref<number | null>(null);
+    const maxSequence = ref<number | null>(null);
+    const oldIndex = ref<number | null>(null);
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private isSaveWarning = false;
+    const isSaveWarning = ref(false);
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
 
-    const { sequence } =
-      this.$store.state.operationHistory.selectedOperationNote;
-    const historyItem: OperationWithNotes =
-      this.$store.getters["operationHistory/findHistoryItem"](sequence);
+      const sequence = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).selectedOperationNote.sequence as number;
+      const historyItem: OperationWithNotes =
+        store.getters["operationHistory/findHistoryItem"](sequence);
 
-    if (!historyItem || !historyItem.intention) {
-      // new note
-      this.oldNote = "";
-      this.oldNoteDetails = "";
-      this.oldIndex = null;
-    } else {
-      // update note
-      this.oldNote = historyItem.intention.value;
-      this.oldNoteDetails = historyItem.intention.details;
-    }
-    this.newNote = this.oldNote;
-    this.newNoteDetails = this.oldNoteDetails;
-    this.oldSequence = sequence;
-    this.newTargetSequence = this.oldSequence;
-    this.maxSequence = this.$store.state.operationHistory.history.length;
+      if (!historyItem || !historyItem.intention) {
+        // new note
+        oldNote.value = "";
+        oldNoteDetails.value = "";
+        oldIndex.value = null;
+      } else {
+        // update note
+        oldNote.value = historyItem.intention.value;
+        oldNoteDetails.value = historyItem.intention.details;
+      }
+      newNote.value = oldNote.value;
+      newNoteDetails.value = oldNoteDetails.value;
+      oldSequence.value = sequence;
+      newTargetSequence.value = oldSequence.value;
+      maxSequence.value = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history.length;
 
-    this.isSaveWarning = false;
+      isSaveWarning.value = false;
 
-    this.$store.commit("operationHistory/selectOperationNote", {
-      selectedOperationNote: { sequence: null, index: null },
-    });
-  }
-
-  private saveTestPurpose() {
-    const args: NoteEditInfo = {
-      oldSequence: this.oldSequence ?? undefined,
-      newSequence: this.newTargetSequence ?? undefined,
-      note: this.newNote,
-      noteDetails: this.newNoteDetails,
-      shouldTakeScreenshot: false,
-      tags: [],
+      store.commit("operationHistory/selectOperationNote", {
+        selectedOperationNote: { sequence: null, index: null },
+      });
     };
-    (async () => {
-      try {
-        if (this.oldNote === "") {
-          await this.$store.dispatch("operationHistory/addTestPurpose", {
-            noteEditInfo: args,
-          });
-        } else {
-          await this.$store.dispatch("operationHistory/editTestPurpose", {
-            noteEditInfo: args,
-          });
+
+    const saveTestPurpose = () => {
+      const args: NoteEditInfo = {
+        oldSequence: oldSequence.value ?? undefined,
+        newSequence: newTargetSequence.value ?? undefined,
+        note: newNote.value,
+        noteDetails: newNoteDetails.value,
+        shouldTakeScreenshot: false,
+        tags: [],
+      };
+      (async () => {
+        try {
+          if (oldNote.value === "") {
+            await store.dispatch("operationHistory/addTestPurpose", {
+              noteEditInfo: args,
+            });
+          } else {
+            await store.dispatch("operationHistory/editTestPurpose", {
+              noteEditInfo: args,
+            });
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
         }
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
+      })();
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const updateNewTargetSequence = (data: {
+      id: string;
+      value: number;
+    }): void => {
+      newTargetSequence.value = data.value;
+      isSaveWarning.value = checkDuplicatedBySequence();
+    };
+
+    const checkDuplicatedBySequence = (): boolean => {
+      // case in add button.
+      if (!oldSequence.value) {
+        return false;
+      }
+
+      if (oldSequence.value === newTargetSequence.value) {
+        return false;
+      }
+
+      for (const seq of collectTestPurposeSequences.value) {
+        if (seq === newTargetSequence.value) {
+          return true;
         }
       }
-    })();
-  }
-
-  private cancel(): void {
-    this.$emit("cancel");
-  }
-
-  private close(): void {
-    this.$emit("close");
-  }
-
-  private updateNewTargetSequence(data: { id: string; value: number }): void {
-    this.newTargetSequence = data.value;
-    this.isSaveWarning = this.checkDuplicatedBySequence();
-  }
-
-  private checkDuplicatedBySequence(): boolean {
-    // case in add button.
-    if (!this.oldSequence) {
       return false;
-    }
+    };
 
-    if (this.oldSequence === this.newTargetSequence) {
-      return false;
-    }
+    const collectTestPurposeSequences = computed((): number[] => {
+      const seqs = [];
+      const history = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history;
 
-    for (const seq of this.collectTestPurposeSequences) {
-      if (seq === this.newTargetSequence) {
+      for (const operationWithNotes of history) {
+        if (!operationWithNotes.intention) {
+          continue;
+        }
+        seqs.push(operationWithNotes.operation.sequence);
+      }
+      return seqs;
+    });
+
+    const canSave = computed(() => {
+      if (isSaveWarning.value) {
+        return false;
+      }
+
+      if (newNote.value === "") {
+        return false;
+      }
+
+      if (sequenceIsOutOfRange()) {
+        return false;
+      }
+
+      return true;
+    });
+
+    const sequenceIsOutOfRange = () => {
+      if (!maxSequence.value || newTargetSequence.value === null) {
+        return false;
+      }
+
+      if (isNaN(newTargetSequence.value)) {
         return true;
       }
-    }
-    return false;
-  }
 
-  private get collectTestPurposeSequences(): number[] {
-    const seqs = [];
-    const history = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history;
-
-    for (const operationWithNotes of history) {
-      if (!operationWithNotes.intention) {
-        continue;
+      if (newTargetSequence.value <= maxSequence.value) {
+        return false;
       }
-      seqs.push(operationWithNotes.operation.sequence);
-    }
-    return seqs;
-  }
 
-  private get canSave() {
-    if (this.isSaveWarning) {
-      return false;
-    }
+      if (newTargetSequence.value >= 1) {
+        return false;
+      }
 
-    if (this.newNote === "") {
-      return false;
-    }
-
-    if (this.sequenceIsOutOfRange()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private sequenceIsOutOfRange() {
-    if (!this.maxSequence || this.newTargetSequence === null) {
-      return false;
-    }
-
-    if (isNaN(this.newTargetSequence)) {
       return true;
-    }
+    };
 
-    if (this.newTargetSequence <= this.maxSequence) {
-      return false;
-    }
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
 
-    if (this.newTargetSequence >= 1) {
-      return false;
-    }
-
-    return true;
-  }
-}
+    return {
+      store,
+      oldNote,
+      newNote,
+      newNoteDetails,
+      oldSequence,
+      newTargetSequence,
+      maxSequence,
+      errorMessageDialogOpened,
+      errorMessage,
+      isSaveWarning,
+      saveTestPurpose,
+      cancel,
+      close,
+      updateNewTargetSequence,
+      canSave,
+    };
+  },
+});
 </script>
 
 <style lang="sass">
