@@ -31,16 +31,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
 
-@Component
-export default class ProgressDialog extends Vue {
-  get opened(): boolean {
-    return this.$store.state.progressDialog.opened;
-  }
+export default defineComponent({
+  setup() {
+    const store = useStore();
 
-  get message(): string {
-    return this.$store.state.progressDialog.message ?? "";
-  }
-}
+    const opened = computed((): boolean => {
+      return store.state.progressDialog.opened;
+    });
+
+    const message = computed((): string => {
+      return store.state.progressDialog.message ?? "";
+    });
+
+    return {
+      opened,
+      message,
+    };
+  },
+});
 </script>

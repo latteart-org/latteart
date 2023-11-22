@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('start-capture-page.title')"
+    :title="store.getters.message('start-capture-page.title')"
     @accept="
       execute();
       close();
@@ -33,66 +33,80 @@
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
+import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
     "capture-option": CaptureOption,
   },
-})
-export default class CaptureOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private isOptionDisplayed: boolean = false;
+    const isOptionDisplayed = ref<boolean>(false);
+    const captureOption = ref<CaptureOptionParams>({
+      url: "",
+      testResultName: "",
+      platform: "PC",
+      device: { deviceName: "", modelNumber: "", osVersion: "" },
+      waitTimeForStartupReload: 0,
+      browser: "Chrome",
+      mediaType: "image",
+      shouldRecordTestPurpose: false,
+      firstTestPurpose: "",
+      firstTestPurposeDetails: "",
+    });
 
-  private captureOption: CaptureOptionParams = {
-    url: "",
-    testResultName: "",
-    platform: "PC",
-    device: { deviceName: "", modelNumber: "", osVersion: "" },
-    waitTimeForStartupReload: 0,
-    browser: "Chrome",
-    mediaType: "image",
-    shouldRecordTestPurpose: false,
-    firstTestPurpose: "",
-    firstTestPurposeDetails: "",
-  };
+    const updateOption = (option: CaptureOptionParams) => {
+      captureOption.value = option;
+    };
 
-  private updateOption(option: CaptureOptionParams) {
-    this.captureOption = option;
-  }
+    const isOkButtonDisabled = computed(() => {
+      return !captureOption.value.url || !isUrlValid.value;
+    });
 
-  private get isOkButtonDisabled() {
-    return !this.captureOption.url || !this.isUrlValid;
-  }
+    const isUrlValid = computed((): boolean => {
+      try {
+        new URL(captureOption.value.url);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    });
 
-  private get isUrlValid(): boolean {
-    try {
-      new URL(this.captureOption.url);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
+    const execute = (): void => {
+      context.emit("execute", captureOption.value);
+    };
 
-  private execute(): void {
-    this.$emit("execute", this.captureOption);
-  }
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
+    const rerenderOption = () => {
+      if (props.opened) {
+        isOptionDisplayed.value = false;
+        nextTick(() => {
+          isOptionDisplayed.value = true;
+        });
+      }
+    };
 
-  @Watch("opened")
-  private rerenderOption() {
-    if (this.opened) {
-      this.isOptionDisplayed = false;
-      this.$nextTick(() => {
-        this.isOptionDisplayed = true;
-      });
-    }
-  }
-}
+    const { opened } = toRefs(props);
+    watch(opened, rerenderOption);
+
+    return {
+      store,
+      isOptionDisplayed,
+      updateOption,
+      isOkButtonDisabled,
+      execute,
+      close,
+    };
+  },
+});
 </script>

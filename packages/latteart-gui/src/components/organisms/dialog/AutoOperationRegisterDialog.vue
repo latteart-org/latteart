@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('auto-operation-register-dialog.title')"
+    :title="store.getters.message('auto-operation-register-dialog.title')"
     @accept="
       ok();
       close();
@@ -27,16 +27,14 @@
   >
     <template>
       <div class="pre-wrap break-word">
-        {{ $store.getters.message("auto-operation-register-dialog.message") }}
+        {{ store.getters.message("auto-operation-register-dialog.message") }}
       </div>
       <v-text-field
         v-model="settingName"
-        :label="$store.getters.message('auto-operation-register-dialog.name')"
+        :label="store.getters.message('auto-operation-register-dialog.name')"
       ></v-text-field>
       <v-textarea
-        :label="
-          $store.getters.message('auto-operation-register-dialog.details')
-        "
+        :label="store.getters.message('auto-operation-register-dialog.details')"
         v-model="settingDetails"
       ></v-textarea>
     </template>
@@ -44,70 +42,90 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    targetOperations: {
+      type: Array as PropType<OperationForGUI[]>,
+      default: () => [],
+      required: true,
+    },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class AutoOperationRegisterDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Array, default: () => [] })
-  public readonly targetOperations!: OperationForGUI[];
-  private settingName = "";
-  private settingDetails = "";
-  private invalidTypes = ["switch_window"];
+  setup(props, context) {
+    const store = useStore();
 
-  private get okButtonIsDisabled() {
-    return !this.settingName ? true : false;
-  }
+    const settingName = ref("");
+    const settingDetails = ref("");
+    const invalidTypes = ref(["switch_window"]);
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-    this.settingName = "";
-    this.settingDetails = "";
-  }
-
-  private get invalidOperations() {
-    return this.targetOperations.filter((operation) => {
-      return this.invalidTypes.includes(operation.type);
+    const okButtonIsDisabled = computed(() => {
+      return !settingName.value ? true : false;
     });
-  }
 
-  private ok() {
-    if (this.invalidOperations.length > 0) {
-      this.$emit("error", this.invalidTypes);
-      return;
-    }
-    const sortedOperations = this.targetOperations
-      .sort((a, b) => a.sequence - b.sequence)
-      .map((operation) => {
-        return {
-          input: operation.input,
-          type: operation.type,
-          elementInfo: operation.elementInfo,
-          title: operation.title,
-          url: operation.url,
-          timestamp: operation.timestamp,
-        };
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
+      settingName.value = "";
+      settingDetails.value = "";
+    };
+
+    const invalidOperations = computed(() => {
+      return props.targetOperations.filter((operation) => {
+        return invalidTypes.value.includes(operation.type);
       });
-    this.$store.dispatch("operationHistory/registerAutoOperation", {
-      settingName: this.settingName,
-      settingDetails: this.settingDetails,
-      operations: sortedOperations,
     });
 
-    this.$emit("ok");
-  }
+    const ok = () => {
+      if (invalidOperations.value.length > 0) {
+        context.emit("error", invalidTypes.value);
+        return;
+      }
+      const sortedOperations = props.targetOperations
+        .sort((a, b) => a.sequence - b.sequence)
+        .map((operation) => {
+          return {
+            input: operation.input,
+            type: operation.type,
+            elementInfo: operation.elementInfo,
+            title: operation.title,
+            url: operation.url,
+            timestamp: operation.timestamp,
+          };
+        });
+      store.dispatch("operationHistory/registerAutoOperation", {
+        settingName: settingName.value,
+        settingDetails: settingDetails.value,
+        operations: sortedOperations,
+      });
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+      context.emit("ok");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      settingName,
+      settingDetails,
+      okButtonIsDisabled,
+      ok,
+      close,
+    };
+  },
+});
 </script>

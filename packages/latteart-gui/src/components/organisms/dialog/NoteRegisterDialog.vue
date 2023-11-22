@@ -34,81 +34,98 @@
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import NoteCommonDialog from "@/components/organisms/dialog/NoteCommonDialog.vue";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "note-common-dialog": NoteCommonDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class NoteRegisterDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private noteInfo: NoteDialogInfo = {
-    value: "",
-    details: "",
-    index: null,
-    tags: [],
-    imageFilePath: "",
-    sequence: 1,
-    maxSequence: 1,
-    videoFilePath: "",
-  };
-
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-    const { sequence } =
-      this.$store.state.operationHistory.selectedOperationNote;
-    const targetOperation = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history[sequence - 1].operation;
-
-    const time = targetOperation.videoFrame?.time ?? 0;
-    const videoUrl = targetOperation.videoFrame?.url
-      ? `${targetOperation.videoFrame.url}#t=${time}`
-      : "";
-
-    this.noteInfo = {
+    const noteInfo = ref<NoteDialogInfo>({
       value: "",
       details: "",
       index: null,
       tags: [],
-      imageFilePath: targetOperation.imageFilePath ?? "",
-      sequence: sequence,
-      maxSequence: this.$store.state.operationHistory.history.length,
-      videoFilePath: videoUrl,
-    };
-  }
+      imageFilePath: "",
+      sequence: 1,
+      maxSequence: 1,
+      videoFilePath: "",
+    });
 
-  private addNote(noteEditInfo: NoteEditInfo) {
-    (async () => {
-      this.close();
-      try {
-        await this.$store.dispatch("operationHistory/addNote", {
-          noteEditInfo,
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
-    })();
-  }
+      const sequence = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).selectedOperationNote.sequence as number;
+      const targetOperation = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history[sequence - 1].operation;
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+      const time = targetOperation.videoFrame?.time ?? 0;
+      const videoUrl = targetOperation.videoFrame?.url
+        ? `${targetOperation.videoFrame.url}#t=${time}`
+        : "";
+
+      noteInfo.value = {
+        value: "",
+        details: "",
+        index: null,
+        tags: [],
+        imageFilePath: targetOperation.imageFilePath ?? "",
+        sequence: sequence,
+        maxSequence: (
+          (store.state as any).operationHistory as OperationHistoryState
+        ).history.length,
+        videoFilePath: videoUrl,
+      };
+    };
+
+    const addNote = (noteEditInfo: NoteEditInfo) => {
+      (async () => {
+        close();
+        try {
+          await store.dispatch("operationHistory/addNote", {
+            noteEditInfo,
+          });
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
+        }
+      })();
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      noteInfo,
+      addNote,
+      close,
+    };
+  },
+});
 </script>

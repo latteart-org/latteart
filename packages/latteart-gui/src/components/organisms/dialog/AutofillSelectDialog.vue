@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('autofill-select-dialog.title')"
+    :title="store.getters.message('autofill-select-dialog.title')"
     @accept="
       accept();
       close();
@@ -29,7 +29,7 @@
         {{ message }}
       </div>
       <v-select
-        :label="$store.getters.message('autofill-select-dialog.form-label')"
+        :label="store.getters.message('autofill-select-dialog.form-label')"
         :items="selectList"
         item-text="settingName"
         item-value="index"
@@ -40,65 +40,89 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class AutofillSelectDialog extends Vue {
-  private selectedIndex = -1;
-  private opened = false;
+  setup() {
+    const store = useStore();
 
-  private get dialogData(): {
-    autofillConditionGroups: AutofillConditionGroup[];
-    message: string;
-  } | null {
-    const data = this.$store.state.captureControl?.autofillSelectDialogData;
-    this.opened = !!data?.autofillConditionGroups;
-    return this.$store.state.captureControl?.autofillSelectDialogData ?? null;
-  }
+    const selectedIndex = ref(-1);
+    const opened = ref(false);
 
-  private get autofillConditionGroups(): AutofillConditionGroup[] {
-    return this.dialogData?.autofillConditionGroups ?? [];
-  }
+    const dialogData = computed(
+      (): {
+        autofillConditionGroups: AutofillConditionGroup[];
+        message: string;
+      } | null => {
+        const data = (
+          (store.state as any).captureControl as CaptureControlState
+        )?.autofillSelectDialogData;
+        opened.value = !!data?.autofillConditionGroups;
+        return (
+          ((store.state as any).captureControl as CaptureControlState)
+            ?.autofillSelectDialogData ?? null
+        );
+      }
+    );
 
-  private get message(): string {
-    return this.dialogData?.message ?? "";
-  }
-
-  private get selectList(): { settingName: string; index: number }[] {
-    return (this.autofillConditionGroups ?? []).map((group, index) => {
-      return {
-        settingName: group.settingName,
-        index,
-      };
+    const autofillConditionGroups = computed((): AutofillConditionGroup[] => {
+      return dialogData.value?.autofillConditionGroups ?? [];
     });
-  }
 
-  private selectGroup(index: number) {
-    this.selectedIndex = index;
-  }
-
-  private async accept(): Promise<void> {
-    if (this.autofillConditionGroups === null || this.selectedIndex < 0) {
-      return;
-    }
-    await this.$store.dispatch("captureControl/autofill", {
-      autofillConditionGroup: this.autofillConditionGroups[this.selectedIndex],
+    const message = computed((): string => {
+      return dialogData.value?.message ?? "";
     });
-    await this.close();
-  }
 
-  private async close(): Promise<void> {
-    this.opened = false;
-    await new Promise((s) => setTimeout(s, 300));
-    this.$store.commit("captureControl/setAutofillSelectDialog", {
-      autofillConditionGroups: null,
-    });
-  }
-}
+    const selectList = computed(
+      (): { settingName: string; index: number }[] => {
+        return (autofillConditionGroups.value ?? []).map((group, index) => {
+          return {
+            settingName: group.settingName,
+            index,
+          };
+        });
+      }
+    );
+
+    const selectGroup = (index: number) => {
+      selectedIndex.value = index;
+    };
+
+    const accept = async (): Promise<void> => {
+      if (autofillConditionGroups.value === null || selectedIndex.value < 0) {
+        return;
+      }
+      await store.dispatch("captureControl/autofill", {
+        autofillConditionGroup:
+          autofillConditionGroups.value[selectedIndex.value],
+      });
+      await close();
+    };
+
+    const close = async (): Promise<void> => {
+      opened.value = false;
+      await new Promise((s) => setTimeout(s, 300));
+      store.commit("captureControl/setAutofillSelectDialog", {
+        autofillConditionGroups: null,
+      });
+    };
+
+    return {
+      store,
+      opened,
+      message,
+      selectList,
+      selectGroup,
+      accept,
+      close,
+    };
+  },
+});
 </script>

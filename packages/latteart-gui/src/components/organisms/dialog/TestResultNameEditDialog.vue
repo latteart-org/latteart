@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$store.getters.message('test-result-list.edit')"
+      :title="store.getters.message('test-result-list.edit')"
       @accept="
         execute();
         close();
@@ -37,46 +37,60 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    oldTestResultName: { type: String, default: "", required: true },
+  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class TestResultNameEditDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" })
-  public readonly oldTestResultName!: string;
+  setup(props, context) {
+    const store = useStore();
 
-  private testResultName = "";
+    const testResultName = ref("");
 
-  private get okButtonIsDisabled() {
-    return !this.testResultName;
-  }
+    const okButtonIsDisabled = computed(() => {
+      return !testResultName.value;
+    });
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
 
-    this.testResultName = this.oldTestResultName;
-  }
+      testResultName.value = props.oldTestResultName;
+    };
 
-  private execute() {
-    this.$emit("execute", this.testResultName);
-  }
+    const execute = () => {
+      context.emit("execute", testResultName.value);
+    };
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      testResultName,
+      okButtonIsDisabled,
+      execute,
+      cancel,
+      close,
+    };
+  },
+});
 </script>

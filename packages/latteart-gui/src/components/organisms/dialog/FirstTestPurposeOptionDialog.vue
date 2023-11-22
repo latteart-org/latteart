@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$store.getters.message('test-option.start-testing')"
+      :title="store.getters.message('test-option.start-testing')"
       @accept="
         ok();
         close();
@@ -31,7 +31,7 @@
     >
       <template>
         <v-checkbox
-          :label="$store.getters.message('test-option.use-test-purpose')"
+          :label="store.getters.message('test-option.use-test-purpose')"
           v-model="shouldRecordTestPurpose"
         ></v-checkbox>
 
@@ -44,17 +44,17 @@
                 'text--disabled': !shouldRecordTestPurpose,
               }"
             >
-              {{ $store.getters.message("test-option.first-test-purpose") }}
+              {{ store.getters.message("test-option.first-test-purpose") }}
             </h3>
 
             <v-text-field
               :disabled="!shouldRecordTestPurpose"
-              :label="$store.getters.message('note-edit.summary')"
+              :label="store.getters.message('note-edit.summary')"
               v-model="firstTestPurpose"
             ></v-text-field>
             <v-textarea
               :disabled="!shouldRecordTestPurpose"
-              :label="$store.getters.message('note-edit.details')"
+              :label="store.getters.message('note-edit.details')"
               v-model="firstTestPurposeDetails"
             ></v-textarea>
           </v-card-text>
@@ -70,74 +70,93 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class FirstTestPurposeOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private firstTestPurpose = "";
-  private firstTestPurposeDetails = "";
-  private shouldRecordTestPurpose = true;
+    const firstTestPurpose = ref("");
+    const firstTestPurposeDetails = ref("");
+    const shouldRecordTestPurpose = ref(true);
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private get okButtonIsDisabled() {
-    return this.shouldRecordTestPurpose && !this.firstTestPurpose;
-  }
+    const okButtonIsDisabled = computed(() => {
+      return shouldRecordTestPurpose.value && !firstTestPurpose.value;
+    });
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-
-    this.firstTestPurpose = "";
-    this.firstTestPurposeDetails = "";
-    this.shouldRecordTestPurpose = true;
-  }
-
-  private ok() {
-    try {
-      this.$store.commit("captureControl/setTestOption", {
-        testOption: {
-          firstTestPurpose: this.shouldRecordTestPurpose
-            ? this.firstTestPurpose
-            : "",
-          firstTestPurposeDetails: this.shouldRecordTestPurpose
-            ? this.firstTestPurposeDetails
-            : "",
-          shouldRecordTestPurpose: this.shouldRecordTestPurpose,
-        },
-      });
-
-      this.$emit("ok");
-    } catch (error) {
-      if (error instanceof Error) {
-        this.errorMessage = error.message;
-        this.errorMessageDialogOpened = true;
-      } else {
-        throw error;
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
-    }
-  }
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+      firstTestPurpose.value = "";
+      firstTestPurposeDetails.value = "";
+      shouldRecordTestPurpose.value = true;
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+    const ok = () => {
+      try {
+        store.commit("captureControl/setTestOption", {
+          testOption: {
+            firstTestPurpose: shouldRecordTestPurpose.value
+              ? firstTestPurpose.value
+              : "",
+            firstTestPurposeDetails: shouldRecordTestPurpose.value
+              ? firstTestPurposeDetails.value
+              : "",
+            shouldRecordTestPurpose: shouldRecordTestPurpose.value,
+          },
+        });
+
+        context.emit("ok");
+      } catch (error) {
+        if (error instanceof Error) {
+          errorMessage.value = error.message;
+          errorMessageDialogOpened.value = true;
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      firstTestPurpose,
+      firstTestPurposeDetails,
+      shouldRecordTestPurpose,
+      errorMessageDialogOpened,
+      errorMessage,
+      okButtonIsDisabled,
+      ok,
+      cancel,
+      close,
+    };
+  },
+});
 </script>

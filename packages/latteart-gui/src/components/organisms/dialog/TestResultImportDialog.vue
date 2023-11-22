@@ -17,7 +17,7 @@
   <execute-dialog
     :opened="opened"
     :title="
-      $store.getters.message('import-export-dialog.test-result-import-title')
+      store.getters.message('import-export-dialog.test-result-import-title')
     "
     @accept="
       execute();
@@ -31,7 +31,7 @@
         <v-row>
           <v-col cols="12">
             {{
-              $store.getters.message(
+              store.getters.message(
                 "import-export-dialog.select-test-result-file-label"
               )
             }}
@@ -44,7 +44,7 @@
               @select="selectImportFile"
             >
               {{
-                $store.getters.message(
+                store.getters.message(
                   "import-export-dialog.select-test-result-file-button"
                 )
               }}
@@ -57,55 +57,70 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { loadFileAsBase64 } from "@/lib/common/util";
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
     "select-file-button": SelectFileButton,
   },
-})
-export default class TestResultImportDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private targetFile: File | null = null;
+    const targetFile = ref<File | null>(null);
 
-  private get okButtonIsDisabled() {
-    return !this.targetFile;
-  }
+    const okButtonIsDisabled = computed(() => {
+      return !targetFile.value;
+    });
 
-  @Watch("opened")
-  private initialize() {
-    if (this.opened) {
-      this.targetFile = null;
-    }
-  }
+    const initialize = () => {
+      if (props.opened) {
+        targetFile.value = null;
+      }
+    };
 
-  private selectImportFile(targetFile: File): void {
-    this.targetFile = targetFile;
-  }
+    const selectImportFile = (selectFile: File): void => {
+      targetFile.value = selectFile;
+    };
 
-  private execute(): void {
-    if (!this.targetFile) {
-      return;
-    }
+    const execute = (): void => {
+      if (!targetFile.value) {
+        return;
+      }
 
-    (async (targetFile) => {
-      const file = await loadFileAsBase64(targetFile);
+      (async (targetFile) => {
+        const file = await loadFileAsBase64(targetFile);
 
-      this.$emit("execute", file);
+        context.emit("execute", file);
 
-      this.close();
-    })(this.targetFile);
-  }
+        close();
+      })(targetFile.value);
+    };
 
-  private close(): void {
-    this.$emit("close");
-  }
-}
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      targetFile,
+      okButtonIsDisabled,
+      selectImportFile,
+      execute,
+      close,
+    };
+  },
+});
 </script>
 
 <style lang="sass">

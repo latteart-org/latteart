@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('app.target-tab-window')"
+    :title="store.getters.message('app.target-tab-window')"
     @accept="onAcceptWindowSelector()"
     @cancel="onCancelWindowSelector()"
   >
@@ -32,72 +32,83 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { WindowInfo } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class WindowSelectDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private capturingWindowInfo: {
-    currentWindowHandle: string;
-    windows: WindowInfo[];
-  } = {
-    currentWindowHandle: "",
-    windows: [],
-  };
-
-  created() {
-    if (this.opened) {
-      this.openWindowSelector();
-    }
-  }
-
-  @Watch("opened")
-  private openWindowSelector(): void {
-    const captureControlState = this.$store.state
-      .captureControl as CaptureControlState;
-    const operationHistoryState = this.$store.state
-      .operationHistory as OperationHistoryState;
-
-    const windows = operationHistoryState.windows.filter((window) => {
-      return captureControlState.captureSession?.windowHandles.includes(
-        window.value
-      );
+    const capturingWindowInfo = ref<{
+      currentWindowHandle: string;
+      windows: WindowInfo[];
+    }>({
+      currentWindowHandle: "",
+      windows: [],
     });
 
-    if (this.opened && captureControlState.captureSession) {
-      this.capturingWindowInfo.currentWindowHandle =
-        captureControlState.captureSession.currentWindowHandle;
-      this.capturingWindowInfo.windows.splice(
-        0,
-        this.capturingWindowInfo.windows.length,
-        ...windows
-      );
-    }
-  }
+    const openWindowSelector = (): void => {
+      const captureControlState = (store.state as any)
+        .captureControl as CaptureControlState;
+      const operationHistoryState = (store.state as any)
+        .operationHistory as OperationHistoryState;
 
-  private onAcceptWindowSelector(): void {
-    (async () => {
-      await this.$store.dispatch("captureControl/switchCapturingWindow", {
-        to: this.capturingWindowInfo.currentWindowHandle,
+      const windows = operationHistoryState.windows.filter((window) => {
+        return captureControlState.captureSession?.windowHandles.includes(
+          window.value
+        );
       });
 
-      this.$emit("close");
-    })();
-  }
+      if (props.opened && captureControlState.captureSession) {
+        capturingWindowInfo.value.currentWindowHandle =
+          captureControlState.captureSession.currentWindowHandle;
+        capturingWindowInfo.value.windows.splice(
+          0,
+          capturingWindowInfo.value.windows.length,
+          ...windows
+        );
+      }
+    };
 
-  private onCancelWindowSelector(): void {
-    (async () => {
-      this.$emit("close");
-    })();
-  }
-}
+    const onAcceptWindowSelector = (): void => {
+      (async () => {
+        await store.dispatch("captureControl/switchCapturingWindow", {
+          to: capturingWindowInfo.value.currentWindowHandle,
+        });
+
+        context.emit("close");
+      })();
+    };
+
+    const onCancelWindowSelector = (): void => {
+      (async () => {
+        context.emit("close");
+      })();
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, openWindowSelector);
+
+    if (props.opened) {
+      openWindowSelector();
+    }
+
+    return {
+      store,
+      capturingWindowInfo,
+      onAcceptWindowSelector,
+      onCancelWindowSelector,
+    };
+  },
+});
 </script>

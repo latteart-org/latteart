@@ -25,42 +25,54 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 import AlertDialog from "../../molecules/AlertDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "alert-dialog": AlertDialog,
   },
-})
-export default class CompletionDialog extends Vue {
-  private opened = false;
+  setup() {
+    const store = useStore();
 
-  private get captureControlState() {
-    return this.$store.state.captureControl as CaptureControlState;
-  }
+    const opened = ref(false);
 
-  private get completionDialogData(): {
-    title: string;
-    message: string;
-  } | null {
-    this.opened = !!this.captureControlState?.completionDialogData;
-    return this.captureControlState?.completionDialogData ?? null;
-  }
+    const captureControlState = computed(() => {
+      return (store.state as any).captureControl as CaptureControlState;
+    });
 
-  private get title(): string {
-    return this.completionDialogData?.title ?? "aa";
-  }
+    const completionDialogData = computed(
+      (): {
+        title: string;
+        message: string;
+      } | null => {
+        opened.value = !!captureControlState.value?.completionDialogData;
+        return captureControlState.value?.completionDialogData ?? null;
+      }
+    );
 
-  private get message(): string {
-    return this.completionDialogData?.message ?? "";
-  }
+    const title = computed((): string => {
+      return completionDialogData.value?.title ?? "aa";
+    });
 
-  private async close(): Promise<void> {
-    this.opened = false;
-    await new Promise((s) => setTimeout(s, 300));
-    this.$store.commit("captureControl/setCompletionDialog", null);
-  }
-}
+    const message = computed((): string => {
+      return completionDialogData.value?.message ?? "";
+    });
+
+    const close = async (): Promise<void> => {
+      opened.value = false;
+      await new Promise((s) => setTimeout(s, 300));
+      store.commit("captureControl/setCompletionDialog", null);
+    };
+
+    return {
+      opened,
+      title,
+      message,
+      close,
+    };
+  },
+});
 </script>

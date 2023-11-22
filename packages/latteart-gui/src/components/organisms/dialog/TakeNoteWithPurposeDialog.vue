@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$store.getters.message('app.record-note')"
+      :title="store.getters.message('app.record-note')"
       @accept="
         saveNote();
         close();
@@ -32,33 +32,33 @@
     >
       <template>
         <h3 class="title mb-0">
-          {{ $store.getters.message("note-edit.note-for-current-purpose") }}
+          {{ store.getters.message("note-edit.note-for-current-purpose") }}
         </h3>
 
         <v-card flat>
           <v-card-text>
             <v-radio-group v-model="shouldRecordAsIssue">
               <v-radio
-                :label="$store.getters.message('note-edit.no-problem')"
+                :label="store.getters.message('note-edit.no-problem')"
                 :value="false"
               ></v-radio>
               <v-radio
-                :label="$store.getters.message('note-edit.problem-occured')"
+                :label="store.getters.message('note-edit.problem-occured')"
                 :value="true"
               ></v-radio>
             </v-radio-group>
             <div v-if="shouldRecordAsIssue">
               <v-text-field
-                :label="$store.getters.message('note-edit.summary')"
+                :label="store.getters.message('note-edit.summary')"
                 v-model="newNote"
               ></v-text-field>
               <v-textarea
-                :label="$store.getters.message('note-edit.details')"
+                :label="store.getters.message('note-edit.details')"
                 v-model="newNoteDetails"
               ></v-textarea>
 
               <v-combobox
-                :label="$store.getters.message('note-edit.tags')"
+                :label="store.getters.message('note-edit.tags')"
                 v-model="newTags"
                 :hide-no-data="!search"
                 :items="tagsItem"
@@ -92,7 +92,7 @@
                   </v-chip>
                 </template>
               </v-combobox>
-              <h4>{{ $store.getters.message("note-edit.take-screenshot") }}</h4>
+              <h4>{{ store.getters.message("note-edit.take-screenshot") }}</h4>
               <v-radio-group
                 v-model="shouldTakeScreenshot"
                 row
@@ -101,11 +101,11 @@
                 :disabled="!screenshot && !video"
               >
                 <v-radio
-                  :label="$store.getters.message('note-edit.previous-screen')"
+                  :label="store.getters.message('note-edit.previous-screen')"
                   :value="false"
                 ></v-radio>
                 <v-radio
-                  :label="$store.getters.message('note-edit.current-screen')"
+                  :label="store.getters.message('note-edit.current-screen')"
                   :value="true"
                 ></v-radio>
               </v-radio-group>
@@ -116,7 +116,7 @@
                   :disabled="!screenshot"
                   @click="showStillImage"
                   >{{
-                    $store.getters.message("note-edit.check-still-Image")
+                    store.getters.message("note-edit.check-still-Image")
                   }}</v-btn
                 >
 
@@ -124,7 +124,7 @@
                   class="mx-2 my-3"
                   :disabled="!video"
                   @click="showVideo"
-                  >{{ $store.getters.message("note-edit.check-video") }}</v-btn
+                  >{{ store.getters.message("note-edit.check-video") }}</v-btn
                 >
 
                 <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
@@ -136,25 +136,25 @@
         </v-card>
 
         <h3 class="title mb-0">
-          {{ $store.getters.message("note-edit.next-purpose") }}
+          {{ store.getters.message("note-edit.next-purpose") }}
         </h3>
 
         <v-card flat>
           <v-card-text>
             <v-text-field
               :disabled="shouldContinueSameTestPurpose"
-              :label="$store.getters.message('note-edit.summary')"
+              :label="store.getters.message('note-edit.summary')"
               v-model="newTestPurpose"
             ></v-text-field>
             <v-textarea
               :disabled="shouldContinueSameTestPurpose"
-              :label="$store.getters.message('note-edit.details')"
+              :label="store.getters.message('note-edit.details')"
               v-model="newTestPurposeDetails"
             ></v-textarea>
 
             <v-checkbox
               v-model="shouldContinueSameTestPurpose"
-              :label="$store.getters.message('note-edit.continue-same-purpose')"
+              :label="store.getters.message('note-edit.continue-same-purpose')"
             ></v-checkbox>
           </v-card-text>
         </v-card>
@@ -169,7 +169,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
@@ -181,8 +180,13 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
@@ -190,186 +194,213 @@ import PopupImage from "@/components/molecules/PopupImage.vue";
     "video-display": VideoDisplay,
     "popup-image": PopupImage,
   },
-})
-export default class TakeNoteWithPurposeDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private search = null;
-  private newNote = "";
-  private newNoteDetails = "";
-  private newTags: NoteTagItem[] = [];
-  private newTargetSequence: number | null = null;
-  private maxSequence: number | null = null;
-  private shouldTakeScreenshot = false;
-  private shouldRecordAsIssue = false;
-  private newTestPurpose = "";
-  private newTestPurposeDetails = "";
-  private shouldContinueSameTestPurpose = false;
-  private screenshot = "";
-  private video = "";
+    const search = ref(null);
+    const newNote = ref("");
+    const newNoteDetails = ref("");
+    const newTags = ref<NoteTagItem[]>([]);
+    const newTargetSequence = ref<number | null>(null);
+    const maxSequence = ref<number | null>(null);
+    const shouldTakeScreenshot = ref(false);
+    const shouldRecordAsIssue = ref(false);
+    const newTestPurpose = ref("");
+    const newTestPurposeDetails = ref("");
+    const shouldContinueSameTestPurpose = ref(false);
+    const screenshot = ref("");
+    const video = ref("");
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private isImageVisible = false;
-  private isVideoVisible = false;
+    const isImageVisible = ref(false);
+    const isVideoVisible = ref(false);
 
-  private tagsItem = noteTagPreset.items;
+    const tagsItem = ref(noteTagPreset.items);
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-
-    const { sequence } =
-      this.$store.state.operationHistory.selectedOperationNote;
-    const targetOperation = (
-      this.$store.state.operationHistory as OperationHistoryState
-    ).history[sequence - 1].operation;
-
-    this.newNote = "";
-    this.newNoteDetails = "";
-    this.newTags = [];
-    this.newTargetSequence = sequence;
-    this.maxSequence = this.$store.state.operationHistory.history.length;
-    this.shouldTakeScreenshot = false;
-    this.shouldRecordAsIssue = false;
-    this.newTestPurpose = "";
-    this.newTestPurposeDetails = "";
-    this.shouldContinueSameTestPurpose = false;
-    this.screenshot = targetOperation.imageFilePath ?? "";
-
-    const time = targetOperation.videoFrame?.time ?? 0;
-    this.video = targetOperation.videoFrame?.url
-      ? `${targetOperation.videoFrame.url}#t=${time}`
-      : "";
-
-    this.isImageVisible = false;
-    this.isVideoVisible = false;
-
-    this.$store.commit("operationHistory/selectOperationNote", {
-      selectedOperationNote: { sequence: null, index: null },
-    });
-  }
-
-  @Watch("newTags")
-  private changeTags(val: NoteTagItem[], prev: NoteTagItem[]) {
-    if (val.length === prev.length) return;
-
-    this.newTags = val.map((v) => {
-      if (typeof v === "string") {
-        v = {
-          text: v,
-          color: "#E0E0E0",
-        };
-
-        this.newTags.push(v);
+    const initialize = () => {
+      if (!props.opened) {
+        return;
       }
 
-      return v;
-    });
-  }
+      const sequence = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).selectedOperationNote.sequence as number;
+      const targetOperation = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history[sequence - 1].operation;
 
-  private saveNote() {
-    (async () => {
-      try {
-        const noteInfo: NoteEditInfo = {
-          oldSequence: this.newTargetSequence,
-          newSequence: this.newTargetSequence,
-          note: this.newNote,
-          noteDetails: this.newNoteDetails,
-          tags: this.newTags.map((tag) => tag.text),
-          shouldTakeScreenshot: this.shouldTakeScreenshot,
-        } as NoteEditInfo;
+      newNote.value = "";
+      newNoteDetails.value = "";
+      newTags.value = [];
+      newTargetSequence.value = sequence;
+      maxSequence.value = (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).history.length;
+      shouldTakeScreenshot.value = false;
+      shouldRecordAsIssue.value = false;
+      newTestPurpose.value = "";
+      newTestPurposeDetails.value = "";
+      shouldContinueSameTestPurpose.value = false;
+      screenshot.value = targetOperation.imageFilePath ?? "";
 
-        const intentionInfo = {
-          oldSequence: this.newTargetSequence ?? undefined,
-          newSequence: this.newTargetSequence ?? undefined,
-          note: this.newTestPurpose,
-          noteDetails: this.newTestPurposeDetails,
-          tags: [],
-          shouldTakeScreenshot: false,
-        } as NoteEditInfo;
+      const time = targetOperation.videoFrame?.time ?? 0;
+      video.value = targetOperation.videoFrame?.url
+        ? `${targetOperation.videoFrame.url}#t=${time}`
+        : "";
 
-        if (this.shouldRecordAsIssue) {
-          await this.$store.dispatch("captureControl/takeNote", {
-            noteEditInfo: noteInfo,
-          });
+      isImageVisible.value = false;
+      isVideoVisible.value = false;
+
+      store.commit("operationHistory/selectOperationNote", {
+        selectedOperationNote: { sequence: null, index: null },
+      });
+    };
+
+    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
+      if (val.length === prev.length) return;
+
+      newTags.value = val.map((v) => {
+        if (typeof v === "string") {
+          v = {
+            text: v,
+            color: "#E0E0E0",
+          };
+
+          newTags.value.push(v);
         }
 
-        if (!this.shouldContinueSameTestPurpose) {
-          await this.$store.dispatch("captureControl/setNextTestPurpose", {
-            noteEditInfo: intentionInfo,
-          });
+        return v;
+      });
+    };
+
+    const saveNote = () => {
+      (async () => {
+        try {
+          const noteInfo: NoteEditInfo = {
+            oldSequence: newTargetSequence.value,
+            newSequence: newTargetSequence.value,
+            note: newNote.value,
+            noteDetails: newNoteDetails.value,
+            tags: newTags.value.map((tag) => tag.text),
+            shouldTakeScreenshot: shouldTakeScreenshot.value,
+          } as NoteEditInfo;
+
+          const intentionInfo = {
+            oldSequence: newTargetSequence.value ?? undefined,
+            newSequence: newTargetSequence.value ?? undefined,
+            note: newTestPurpose.value,
+            noteDetails: newTestPurposeDetails.value,
+            tags: [],
+            shouldTakeScreenshot: false,
+          } as NoteEditInfo;
+
+          if (shouldRecordAsIssue.value) {
+            await store.dispatch("captureControl/takeNote", {
+              noteEditInfo: noteInfo,
+            });
+          }
+
+          if (!shouldContinueSameTestPurpose.value) {
+            await store.dispatch("captureControl/setNextTestPurpose", {
+              noteEditInfo: intentionInfo,
+            });
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessage.value = error.message;
+            errorMessageDialogOpened.value = true;
+          } else {
+            throw error;
+          }
         }
-      } catch (error) {
-        if (error instanceof Error) {
-          this.errorMessage = error.message;
-          this.errorMessageDialogOpened = true;
-        } else {
-          throw error;
-        }
+      })();
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const canSave = computed(() => {
+      if (shouldRecordAsIssue.value && newNote.value === "") {
+        return false;
       }
-    })();
-  }
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+      if (!shouldContinueSameTestPurpose.value && newTestPurpose.value === "") {
+        return false;
+      }
 
-  private close(): void {
-    this.$emit("close");
-  }
+      if (sequenceIsOutOfRange()) {
+        return false;
+      }
 
-  private updateNewTargetSequence(data: { id: string; value: number }): void {
-    this.newTargetSequence = data.value;
-  }
-
-  private get canSave() {
-    if (this.shouldRecordAsIssue && this.newNote === "") {
-      return false;
-    }
-
-    if (!this.shouldContinueSameTestPurpose && this.newTestPurpose === "") {
-      return false;
-    }
-
-    if (this.sequenceIsOutOfRange()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  private sequenceIsOutOfRange() {
-    if (!this.maxSequence || this.newTargetSequence === null) {
-      return false;
-    }
-
-    if (isNaN(this.newTargetSequence)) {
       return true;
-    }
+    });
 
-    if (this.newTargetSequence <= this.maxSequence) {
-      return false;
-    }
+    const sequenceIsOutOfRange = () => {
+      if (!maxSequence.value || newTargetSequence.value === null) {
+        return false;
+      }
 
-    if (this.newTargetSequence >= 1) {
-      return false;
-    }
+      if (isNaN(newTargetSequence.value)) {
+        return true;
+      }
 
-    return true;
-  }
+      if (newTargetSequence.value <= maxSequence.value) {
+        return false;
+      }
 
-  private showStillImage() {
-    this.isImageVisible = true;
-    this.isVideoVisible = false;
-  }
+      if (newTargetSequence.value >= 1) {
+        return false;
+      }
 
-  private showVideo() {
-    this.isVideoVisible = true;
-    this.isImageVisible = false;
-  }
-}
+      return true;
+    };
+
+    const showStillImage = () => {
+      isImageVisible.value = true;
+      isVideoVisible.value = false;
+    };
+
+    const showVideo = () => {
+      isVideoVisible.value = true;
+      isImageVisible.value = false;
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+    watch(newTags, changeTags);
+
+    return {
+      store,
+      search,
+      newNote,
+      newNoteDetails,
+      newTags,
+      shouldTakeScreenshot,
+      shouldRecordAsIssue,
+      newTestPurpose,
+      newTestPurposeDetails,
+      shouldContinueSameTestPurpose,
+      screenshot,
+      video,
+      errorMessageDialogOpened,
+      errorMessage,
+      isImageVisible,
+      isVideoVisible,
+      tagsItem,
+      saveNote,
+      cancel,
+      close,
+      canSave,
+      showStillImage,
+      showVideo,
+    };
+  },
+});
 </script>

@@ -16,9 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="
-      $store.getters.message('test-result-page.generate-testscript-title')
-    "
+    :title="store.getters.message('test-result-page.generate-testscript-title')"
     @accept="
       execute();
       close();
@@ -35,79 +33,75 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import ScriptGenerationOption from "../common/ScriptGenerationOption.vue";
+import { defineComponent, ref, toRefs, watch, nextTick } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
     "script-generation-option": ScriptGenerationOption,
   },
-})
-export default class ScriptGenerationOptionDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened?: boolean;
+  setup(props, context) {
+    const store = useStore();
 
-  private isOptionDisplayed: boolean = false;
+    const isOptionDisplayed = ref<boolean>(false);
 
-  private option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
+    const option = ref<{
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
+      testData: { useDataDriven: boolean; maxGeneration: number };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
+    }>({
+      testScript: { isSimple: false, useMultiLocator: false },
+      testData: { useDataDriven: false, maxGeneration: 0 },
+      buttonDefinitions: [],
+    });
+
+    const updateOption = (updateOption: {
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
+      testData: { useDataDriven: boolean; maxGeneration: number };
+      buttonDefinitions: {
+        tagname: string;
+        attribute?: { name: string; value: string };
+      }[];
+    }) => {
+      option.value = updateOption;
     };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
+
+    const execute = (): void => {
+      context.emit("execute", option.value);
     };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  } = {
-    testScript: {
-      isSimple: false,
-      useMultiLocator: false,
-    },
-    testData: {
-      useDataDriven: false,
-      maxGeneration: 0,
-    },
-    buttonDefinitions: [],
-  };
 
-  private updateOption(option: {
-    testScript: {
-      isSimple: boolean;
-      useMultiLocator: boolean;
+    const close = (): void => {
+      context.emit("close");
     };
-    testData: {
-      useDataDriven: boolean;
-      maxGeneration: number;
+
+    const rerenderOption = () => {
+      if (props.opened) {
+        isOptionDisplayed.value = false;
+        nextTick(() => {
+          isOptionDisplayed.value = true;
+        });
+      }
     };
-    buttonDefinitions: {
-      tagname: string;
-      attribute?: { name: string; value: string };
-    }[];
-  }) {
-    this.option = option;
-  }
 
-  private execute(): void {
-    this.$emit("execute", this.option);
-  }
+    const { opened } = toRefs(props);
+    watch(opened, rerenderOption);
 
-  private close(): void {
-    this.$emit("close");
-  }
-
-  @Watch("opened")
-  private rerenderOption() {
-    if (this.opened) {
-      this.isOptionDisplayed = false;
-      this.$nextTick(() => {
-        this.isOptionDisplayed = true;
-      });
-    }
-  }
-}
+    return {
+      store,
+      isOptionDisplayed,
+      updateOption,
+      execute,
+      close,
+    };
+  },
+});
 </script>

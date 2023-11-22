@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$store.getters.message('auto-operation-select-dialog.title')"
+    :title="store.getters.message('auto-operation-select-dialog.title')"
     @accept="
       ok();
       close();
@@ -27,17 +27,17 @@
   >
     <template>
       <div class="pre-wrap break-word">
-        {{ $store.getters.message("auto-operation-select-dialog.message") }}
+        {{ store.getters.message("auto-operation-select-dialog.message") }}
       </div>
       <v-select
-        :label="$store.getters.message('auto-operation-select-dialog.name')"
+        :label="store.getters.message('auto-operation-select-dialog.name')"
         :items="selectList"
         v-model="selectedItem"
         item-text="settingName"
         item-value="value"
       ></v-select>
       <v-textarea
-        :label="$store.getters.message('auto-operation-select-dialog.details')"
+        :label="store.getters.message('auto-operation-select-dialog.details')"
         readonly
         no-resize
         :value="selectedItem ? selectedItem.details : ''"
@@ -47,52 +47,72 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    autoOperationConditionGroups: {
+      type: Array as PropType<AutoOperationConditionGroup[]>,
+      default: [],
+      required: true,
+    },
+  },
   components: {
     "execute-dialog": ExecuteDialog,
   },
-})
-export default class AutoOperationSelectDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Array, default: [] })
-  public readonly autoOperationConditionGroups!: AutoOperationConditionGroup[];
-  private selectedItem: {
-    index: number;
-    setingName: string;
-    details: string;
-  } | null = null;
+  setup(props, context) {
+    const store = useStore();
 
-  private get selectList() {
-    return this.autoOperationConditionGroups.map((group, index) => {
-      return {
-        settingName: group.settingName,
-        value: { index, details: group.details },
-      };
+    const selectedItem = ref<{
+      index: number;
+      setingName: string;
+      details: string;
+    } | null>(null);
+
+    const selectList = computed(() => {
+      return props.autoOperationConditionGroups.map((group, index) => {
+        return {
+          settingName: group.settingName,
+          value: { index, details: group.details },
+        };
+      });
     });
-  }
 
-  private get okButtonIsDisabled() {
-    return this.selectedItem === null;
-  }
+    const okButtonIsDisabled = computed(() => {
+      return selectedItem.value === null;
+    });
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
-    this.selectedItem = null;
-  }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
+      selectedItem.value = null;
+    };
 
-  private async ok(): Promise<void> {
-    this.$emit("ok", this.selectedItem?.index);
-  }
+    const ok = async (): Promise<void> => {
+      context.emit("ok", selectedItem.value?.index);
+    };
 
-  private async close(): Promise<void> {
-    this.$emit("close");
-  }
-}
+    const close = async (): Promise<void> => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return {
+      store,
+      selectedItem,
+      selectList,
+      okButtonIsDisabled,
+      ok,
+      close,
+    };
+  },
+});
 </script>

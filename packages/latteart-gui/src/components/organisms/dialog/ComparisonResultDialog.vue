@@ -17,7 +17,7 @@
 <template>
   <scrollable-dialog :opened="opened" :maxWidth="1000">
     <template v-slot:title>
-      <span>{{ $store.getters.message("common.confirm") }}</span>
+      <span>{{ store.getters.message("common.confirm") }}</span>
     </template>
     <template v-slot:content>
       <span
@@ -28,10 +28,10 @@
       >
       <br />
       <span class="pre-wrap break-word">{{
-        $store.getters.message("test-result-page.compare-test-result-download")
+        store.getters.message("test-result-page.compare-test-result-download")
       }}</span>
       <a :href="downloadLinkUrl" class="px-2" download>{{
-        $store.getters.message("common.download-link")
+        store.getters.message("common.download-link")
       }}</a>
 
       <div v-if="diffs.length > 0">
@@ -62,7 +62,7 @@
     <template v-slot:footer>
       <v-spacer></v-spacer>
       <v-btn color="blue" dark @click="$emit('close')">{{
-        $store.getters.message("common.ok")
+        store.getters.message("common.ok")
       }}</v-btn>
     </template>
   </scrollable-dialog>
@@ -71,153 +71,166 @@
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { TestResultComparisonResult } from "@/lib/operationHistory/types";
-import { Component, Prop, Vue } from "vue-property-decorator";
-@Component({
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
+
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    comparisonResult: {
+      type: Object as PropType<TestResultComparisonResult | null>,
+      default: () => {
+        /* Do nothing */
+      },
+    },
+  },
   components: {
     "scrollable-dialog": ScrollableDialog,
   },
-})
-export default class ComparisonResultDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({
-    type: Object,
-    default: () => {
-      /* Do nothing */
-    },
-  })
-  public readonly comparisonResult!: TestResultComparisonResult | null;
-  private get headers() {
-    return [
-      {
-        text: `${this.$store.getters.message(
-          "test-result-page.compare-diffs-sequence"
-        )}`,
-        value: "sequence",
-        sortable: false,
-      },
-      {
-        text: `${this.$store.getters.message(
-          "test-result-page.compare-diffs-items"
-        )}`,
-        value: "ngItemNames",
-        sortable: false,
-      },
-      {
-        text: `${this.$store.getters.message(
-          "test-result-page.compare-diffs-remarks"
-        )}`,
-        value: "remarks",
-        sortable: false,
-      },
-    ];
-  }
-  private get dialogMessages() {
-    if (!this.comparisonResult) {
-      return "";
-    }
+  setup(props) {
+    const store = useStore();
 
-    const isSame = this.comparisonResult.summary.isOk;
-    const diffCount = this.comparisonResult.summary.steps.filter(
-      ({ isOk }) => !isOk
-    ).length;
+    const headers = computed(() => {
+      return [
+        {
+          text: `${store.getters.message(
+            "test-result-page.compare-diffs-sequence"
+          )}`,
+          value: "sequence",
+          sortable: false,
+        },
+        {
+          text: `${store.getters.message(
+            "test-result-page.compare-diffs-items"
+          )}`,
+          value: "ngItemNames",
+          sortable: false,
+        },
+        {
+          text: `${store.getters.message(
+            "test-result-page.compare-diffs-remarks"
+          )}`,
+          value: "remarks",
+          sortable: false,
+        },
+      ];
+    });
 
-    return [
-      this.$store.getters.message(
-        "test-result-page.compare-test-result-completed",
-        this.comparisonResult.targetNames
-      ),
-      isSame
-        ? this.$store.getters.message(
-            "test-result-page.compare-test-result-is-same"
-          )
-        : this.$store.getters.message(
-            "test-result-page.compare-test-result-is-different",
-            { diffCount }
-          ),
-    ];
-  }
-
-  private get downloadLinkUrl() {
-    if (!this.comparisonResult) {
-      return "";
-    }
-    return `${this.currentRepositoryUrl}/${this.comparisonResult.url}`;
-  }
-
-  private get diffs() {
-    if (!this.comparisonResult) {
-      return [];
-    }
-
-    const sequenceAndSteps = this.comparisonResult.summary.steps.map(
-      (step, index) => {
-        const ngItemNames = Object.entries(step.items)
-          .filter(([_, value]) => !value.isOk)
-          .flatMap(([name]) => {
-            if (name === "title") {
-              return [
-                this.$store.getters.message(
-                  "test-result-comparison-items.title"
-                ),
-              ];
-            }
-            if (name === "url") {
-              return [
-                this.$store.getters.message("test-result-comparison-items.url"),
-              ];
-            }
-            if (name === "elementTexts") {
-              return [
-                this.$store.getters.message(
-                  "test-result-comparison-items.elementTexts"
-                ),
-              ];
-            }
-            if (name === "screenshot") {
-              return [
-                this.$store.getters.message(
-                  "test-result-comparison-items.screenshot"
-                ),
-              ];
-            }
-            return [];
-          })
-          .join(", ");
-
-        const remarks = (
-          step.errors?.flatMap((error) => {
-            if (error === "invalid_screenshot") {
-              return [
-                this.$store.getters.message(
-                  "test-result-page.compare-remarks-invalid-screenshot"
-                ),
-              ];
-            }
-            if (error === "image_sizes_do_not_match") {
-              return [
-                this.$store.getters.message(
-                  "test-result-page.compare-remarks-image-sizes-do-not-match"
-                ),
-              ];
-            }
-
-            return [];
-          }) ?? []
-        ).join("\n");
-
-        return { sequence: index + 1, isOk: step.isOk, ngItemNames, remarks };
+    const dialogMessages = computed(() => {
+      if (!props.comparisonResult) {
+        return "";
       }
-    );
 
-    return sequenceAndSteps.filter(
-      ({ isOk, ngItemNames }) => !isOk && ngItemNames !== ""
-    );
-  }
+      const isSame = props.comparisonResult.summary.isOk;
+      const diffCount = props.comparisonResult.summary.steps.filter(
+        ({ isOk }) => !isOk
+      ).length;
 
-  private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryService.serviceUrl;
-  }
-}
+      return [
+        store.getters.message(
+          "test-result-page.compare-test-result-completed",
+          props.comparisonResult.targetNames
+        ),
+        isSame
+          ? store.getters.message(
+              "test-result-page.compare-test-result-is-same"
+            )
+          : store.getters.message(
+              "test-result-page.compare-test-result-is-different",
+              { diffCount }
+            ),
+      ];
+    });
+
+    const downloadLinkUrl = computed(() => {
+      if (!props.comparisonResult) {
+        return "";
+      }
+      return `${currentRepositoryUrl.value}/${props.comparisonResult.url}`;
+    });
+
+    const diffs = computed(() => {
+      if (!props.comparisonResult) {
+        return [];
+      }
+
+      const sequenceAndSteps = props.comparisonResult.summary.steps.map(
+        (step, index) => {
+          const ngItemNames = Object.entries(step.items)
+            .filter(([_, value]) => !value.isOk)
+            .flatMap(([name]) => {
+              if (name === "title") {
+                return [
+                  store.getters.message("test-result-comparison-items.title"),
+                ];
+              }
+              if (name === "url") {
+                return [
+                  store.getters.message("test-result-comparison-items.url"),
+                ];
+              }
+              if (name === "elementTexts") {
+                return [
+                  store.getters.message(
+                    "test-result-comparison-items.elementTexts"
+                  ),
+                ];
+              }
+              if (name === "screenshot") {
+                return [
+                  store.getters.message(
+                    "test-result-comparison-items.screenshot"
+                  ),
+                ];
+              }
+              return [];
+            })
+            .join(", ");
+
+          const remarks = (
+            step.errors?.flatMap((error) => {
+              if (error === "invalid_screenshot") {
+                return [
+                  store.getters.message(
+                    "test-result-page.compare-remarks-invalid-screenshot"
+                  ),
+                ];
+              }
+              if (error === "image_sizes_do_not_match") {
+                return [
+                  store.getters.message(
+                    "test-result-page.compare-remarks-image-sizes-do-not-match"
+                  ),
+                ];
+              }
+
+              return [];
+            }) ?? []
+          ).join("\n");
+
+          return { sequence: index + 1, isOk: step.isOk, ngItemNames, remarks };
+        }
+      );
+
+      return sequenceAndSteps.filter(
+        ({ isOk, ngItemNames }) => !isOk && ngItemNames !== ""
+      );
+    });
+
+    const currentRepositoryUrl = computed((): string => {
+      return store.state.repositoryService.serviceUrl;
+    });
+
+    return {
+      store,
+      headers,
+      dialogMessages,
+      downloadLinkUrl,
+      diffs,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
