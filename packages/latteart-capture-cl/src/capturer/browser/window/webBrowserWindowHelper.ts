@@ -91,14 +91,23 @@ function hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
   }
 
   if (
-    !["CHECKBOX", "RADIO", "TEXT", "PASSWORD", "EMAIL", "TEL"].includes(
+    ["TEXT", "PASSWORD", "EMAIL", "TEL"].includes(
+      operation.elementInfo?.attributes.type.toUpperCase()
+    ) &&
+    operation.type === "click"
+  ) {
+    return true;
+  }
+
+  if (
+    ["CHECKBOX", "RADIO"].includes(
       operation.elementInfo?.attributes.type.toUpperCase()
     )
   ) {
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 function hasChangeEventFiredByClickForCheckboxOrRadio(
