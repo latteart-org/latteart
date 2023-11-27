@@ -52,6 +52,13 @@ export default class WindowContainer {
   }
 
   /**
+   * Get the specified window.
+   */
+  public findWindow(windowHandle: string): WebBrowserWindow | undefined {
+    return this.windowHandleToManagedWindow.get(windowHandle);
+  }
+
+  /**
    * Current window.
    */
   public get currentWindow(): WebBrowserWindow | undefined {
