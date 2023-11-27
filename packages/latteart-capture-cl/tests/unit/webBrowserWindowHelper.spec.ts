@@ -43,9 +43,13 @@ describe("isIgnoreOperation", () => {
 
     describe("他のイベントに続けて発火したイベント", () => {
       it.each`
-        prevEventType | prevTargetTagname | prevTargetAttributes    | prevTargetXpath | eventType   | targetTagname | targetAttributes        | targetXpath
-        ${"click"}    | ${"INPUT"}        | ${{ type: "radio" }}    | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ type: "radio" }}    | ${"xpath2"}
-        ${"click"}    | ${"INPUT"}        | ${{ type: "checkbox" }} | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ type: "checkbox" }} | ${"xpath2"}
+        prevEventType | prevTargetTagname | prevTargetAttributes     | prevTargetXpath | eventType   | targetTagname | targetAttributes                          | targetXpath
+        ${"click"}    | ${"INPUT"}        | ${{ type: "radio" }}     | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ type: "radio" }}                      | ${"xpath2"}
+        ${"click"}    | ${"INPUT"}        | ${{ type: "checkbox" }}  | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ type: "checkbox" }}                   | ${"xpath2"}
+        ${"click"}    | ${"LABEL"}        | ${{ for: "textId" }}     | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ id: "textId", type: "text" }}         | ${"xpath2"}
+        ${"click"}    | ${"LABEL"}        | ${{ for: "passwordId" }} | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ id: "passwordId", type: "password" }} | ${"xpath2"}
+        ${"click"}    | ${"LABEL"}        | ${{ for: "emailId" }}    | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ id: "emailId", type: "email" }}       | ${"xpath2"}
+        ${"click"}    | ${"LABEL"}        | ${{ for: "telId" }}      | ${"xpath1"}     | ${"change"} | ${"INPUT"}    | ${{ id: "telId", type: "tel" }}           | ${"xpath2"}
       `(
         "$prevEventType: $prevTargetTagname $prevTargetAttributes $prevTargetXpath => $eventType: $targetTagname $targetAttributes $targetXpath",
         async ({
