@@ -240,8 +240,14 @@ export default class WebBrowser {
    * Change current window.
    * @param windowHandle Destination window handle.
    */
-  public changeCurrentWindow(windowHandle: string): Promise<void> {
-    return this.windowContainer.changeCurrentWindowTo(windowHandle);
+  public async changeCurrentWindow(windowHandle: string): Promise<void> {
+    const destWindow = this.windowContainer.findWindow(windowHandle);
+
+    if (!destWindow) {
+      return;
+    }
+
+    return this.switchWindow(destWindow, this.currentWindow);
   }
 
   /**
