@@ -69,6 +69,30 @@ export default defineComponent({
         .isResuming;
     });
 
+    const loadTestResults = async (...testResultIds: string[]) => {
+      try {
+        await store.dispatch("operationHistory/loadTestResultSummaries", {
+          testResultIds,
+        });
+
+        await store.dispatch("operationHistory/loadTestResult", {
+          testResultId: testResultIds[0],
+        });
+
+        store.commit("operationHistory/setCanUpdateModels", {
+          setCanUpdateModels: false,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error);
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      }
+    };
+
     const loadHistory = async () => {
       if (props.testResultIds.length === 0) {
         return;
@@ -91,30 +115,6 @@ export default defineComponent({
         }
       } finally {
         store.dispatch("closeProgressDialog");
-      }
-    };
-
-    const loadTestResults = async (...testResultIds: string[]) => {
-      try {
-        await store.dispatch("operationHistory/loadTestResultSummaries", {
-          testResultIds,
-        });
-
-        await store.dispatch("operationHistory/loadTestResult", {
-          testResultId: testResultIds[0],
-        });
-
-        store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error(error);
-          errorMessageDialogOpened.value = true;
-          errorMessage.value = error.message;
-        } else {
-          throw error;
-        }
       }
     };
 

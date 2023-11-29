@@ -490,10 +490,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         { millis: result.data.testingTime },
         { root: true }
       );
-
-      await context.dispatch("updateModelsFromSequenceView", {
-        testResultId: payload.testResultId,
-      });
     } finally {
       context.commit(
         "captureControl/setIsResuming",
