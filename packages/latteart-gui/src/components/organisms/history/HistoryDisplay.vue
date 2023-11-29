@@ -312,6 +312,8 @@ export default class HistoryDisplay extends Vue {
     this.$store.commit("operationHistory/setDeleteNoteFunction", {
       deleteNote: this.deleteNote,
     });
+
+    await this.updateTestResultViewModel();
   }
 
   private get testResultIds(): string[] {

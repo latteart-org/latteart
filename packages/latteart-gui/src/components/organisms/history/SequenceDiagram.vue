@@ -156,6 +156,13 @@ export default class SequenceDiagram extends Vue {
         await this.$store.dispatch("operationHistory/loadTestResult", {
           testResultId,
         });
+
+        await this.$store.dispatch(
+          "operationHistory/updateModelsFromSequenceView",
+          {
+            testResultId,
+          }
+        );
       }
 
       this.$store.commit("operationHistory/setCanUpdateModels", {
