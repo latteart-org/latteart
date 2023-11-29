@@ -578,6 +578,10 @@ export default class HistoryDisplay extends Vue {
     try {
       const testResultId = this.operationHistoryState.testResultInfo.id;
 
+      if (!testResultId) {
+        return;
+      }
+
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
         { testResultId }

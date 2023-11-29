@@ -108,6 +108,10 @@ export default class MermaidGraphRenderer extends Vue {
   }
 
   private adaptSvgScaleOfSequence() {
+    if (!this.$refs.graph) {
+      return;
+    }
+
     const svg = (this.$refs.graph as HTMLElement).children[0] as any;
     svg.style.width = `${
       svg.style.maxWidth.split("px")[0] * this.svgScalePercentage * 0.01
