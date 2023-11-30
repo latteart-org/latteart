@@ -195,7 +195,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import {
   OperationHistory,
   MessageProvider,
@@ -206,6 +205,21 @@ import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
 import { filterTableRows, sortTableRows } from "@/lib/common/table";
+import { OperationHistoryState } from "@/store/operationHistory";
+import {
+  computed,
+  defineComponent,
+  ref,
+  toRefs,
+  nextTick,
+  inject,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from "vue";
+import { useStore } from "@/store";
+import { useVuetify } from "@/composables/useVuetify";
+import type { PropType } from "vue";
 
 type ElementInfoForDisplay = {
   tagname: string;
@@ -229,459 +243,503 @@ type HistoryItemForDisplay = {
   };
 };
 
-@Component({
+export default defineComponent({
+  props: {
+    history: {
+      type: Array as PropType<OperationHistory>,
+      default: [],
+      required: true,
+    },
+    selectedOperationSequence: { type: Number, default: -1, required: true },
+    onSelectOperation: {
+      type: Function as PropType<(sequence: number) => void>,
+      default: () => {
+        /* Do nothing */
+      },
+      required: true,
+    },
+    displayedOperations: {
+      type: Array as PropType<number[]>,
+      default: [],
+      required: true,
+    },
+    message: { type: Function as PropType<MessageProvider>, required: true },
+    operationContextEnabled: { type: Boolean, default: false, required: true },
+  },
   components: {
     "operation-context-menu": OperationContextMenu,
     "auto-operation-register-button": AutoOperationRegisterButton,
   },
-})
-export default class OperationList extends Vue {
-  @Prop({ type: Array, default: [] })
-  public readonly history!: OperationHistory;
-  @Prop({ type: Number, default: -1 })
-  public readonly selectedOperationSequence!: number;
-  @Prop({
-    type: Function,
-    default: () => {
-      /* Do nothing */
-    },
-  })
-  public readonly onSelectOperation!: (sequence: number) => void;
-  @Prop({ type: Array, default: [] })
-  public readonly displayedOperations!: number[];
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
-  @Prop({ type: Boolean, default: false })
-  public readonly operationContextEnabled!: boolean;
+  setup(props) {
+    const store = useStore();
+    const vuetify = useVuetify();
 
-  private isViewerMode = (this as any).$isViewerMode
-    ? (this as any).$isViewerMode
-    : false;
+    const isViewerMode = inject("isViewerMode") ?? false;
 
-  private selectedSequences: number[] = [];
-  private checkedSequences: number[] = [];
+    const selectedSequences = ref<number[]>([]);
 
-  private isPurposeFilterEnabled = false;
-  private isNoteFilterEnabled = false;
+    const isPurposeFilterEnabled = ref(false);
+    const isNoteFilterEnabled = ref(false);
 
-  private contextMenuOpened = false;
-  private contextMenuX = -1;
-  private contextMenuY = -1;
-  private contextMenuInfo: { sequence: number; selectedSequences: number[] } = {
-    sequence: -1,
-    selectedSequences: [],
-  };
+    const contextMenuOpened = ref(false);
+    const contextMenuX = ref(-1);
+    const contextMenuY = ref(-1);
+    const contextMenuInfo = ref<{
+      sequence: number;
+      selectedSequences: number[];
+    }>({
+      sequence: -1,
+      selectedSequences: [],
+    });
 
-  private checkedItems: HistoryItemForDisplay[] = [];
-  private search = "";
-  private page: number = 1;
-  private itemsPerPage: number = 100;
-  private itemsPerPageOptions: number[] = [100, 200, 500, 1000];
-  private sortBy = "operation.sequence";
-  private sortDesc = false;
+    const checkedItems = ref<HistoryItemForDisplay[]>([]);
+    const search = ref("");
+    const page = ref<number>(1);
+    const itemsPerPage = ref<number>(100);
+    const itemsPerPageOptions = ref<number[]>([100, 200, 500, 1000]);
+    const sortBy = ref("operation.sequence");
+    const sortDesc = ref(false);
 
-  private get headers(): {
-    text: string;
-    value: string;
-    class?: string;
-    width?: string;
-    sortable?: boolean;
-  }[] {
-    return [
-      {
-        text: this.message("operation.sequence"),
-        value: "operation.sequence",
-        width: "70",
-        class: "seq-col",
-      },
-      {
-        text: "",
-        value: "notes",
-        class: "icon-col",
-        width: "90",
-        sortable: false,
-      },
-      { text: this.message("operation.title"), value: "operation.title" },
-      {
-        text: this.message("operation.tagname"),
-        value: "operation.elementInfo.tagname",
-      },
-      {
-        text: this.message("operation.name"),
-        value: "operation.elementInfo.attributes.name",
-      },
-      {
-        text: this.message("operation.text"),
-        value: "operation.elementInfo.text",
-      },
-      { text: this.message("operation.type"), value: "operation.type" },
-      { text: this.message("operation.input"), value: "operation.inputValue" },
-      {
-        text: this.message("operation.timestamp"),
-        value: "operation.timestamp",
-      },
-    ];
-  }
+    const headers = computed(
+      (): {
+        text: string;
+        value: string;
+        class?: string;
+        width?: string;
+        sortable?: boolean;
+      }[] => {
+        return [
+          {
+            text: props.message("operation.sequence"),
+            value: "operation.sequence",
+            width: "70",
+            class: "seq-col",
+          },
+          {
+            text: "",
+            value: "notes",
+            class: "icon-col",
+            width: "90",
+            sortable: false,
+          },
+          { text: props.message("operation.title"), value: "operation.title" },
+          {
+            text: props.message("operation.tagname"),
+            value: "operation.elementInfo.tagname",
+          },
+          {
+            text: props.message("operation.name"),
+            value: "operation.elementInfo.attributes.name",
+          },
+          {
+            text: props.message("operation.text"),
+            value: "operation.elementInfo.text",
+          },
+          { text: props.message("operation.type"), value: "operation.type" },
+          {
+            text: props.message("operation.input"),
+            value: "operation.inputValue",
+          },
+          {
+            text: props.message("operation.timestamp"),
+            value: "operation.timestamp",
+          },
+        ];
+      }
+    );
 
-  created() {
-    this.initializeSelectedSequences();
-  }
-
-  mounted(): void {
-    document.addEventListener("keydown", this.keyDown);
-  }
-
-  beforeDestroy(): void {
-    document.removeEventListener("keydown", this.keyDown);
-  }
-
-  private createCssClassForRow(itemIndex: number) {
-    return {
-      selected: this.selectedOperationIndexes.includes(itemIndex),
-      marked: this.autoOperationIndexes.includes(itemIndex),
-      disabled: this.disabledOperationIndexes.includes(itemIndex),
+    const createCssClassForRow = (itemIndex: number) => {
+      return {
+        selected: selectedOperationIndexes.value.includes(itemIndex),
+        marked: autoOperationIndexes.value.includes(itemIndex),
+        disabled: disabledOperationIndexes.value.includes(itemIndex),
+      };
     };
-  }
 
-  @Watch("selectedOperationSequence")
-  private initializeSelectedSequences() {
-    this.selectedSequences = [this.selectedOperationSequence];
-  }
+    const initializeSelectedSequences = () => {
+      selectedSequences.value = [props.selectedOperationSequence];
+    };
 
-  private formatTimestamp(epochMilliseconds: string) {
-    return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
-  }
+    const formatTimestamp = (epochMilliseconds: string) => {
+      return new TimestampImpl(epochMilliseconds).format("HH:mm:ss");
+    };
 
-  private onSelectOperations(...indexes: number[]) {
-    this.selectedSequences = indexes.map((index) => index + 1);
+    const onSelectOperations = (...indexes: number[]) => {
+      selectedSequences.value = indexes.map((index) => index + 1);
 
-    this.onSelectOperation(this.selectedSequences[0]);
-  }
+      props.onSelectOperation(selectedSequences.value[0]);
+    };
 
-  private openOperationContextMenu(target: {
-    itemIndex: number;
-    x: number;
-    y: number;
-  }) {
-    if ((this as any).$isViewerMode || !this.operationContextEnabled) {
-      return;
-    }
+    const openOperationContextMenu = (target: {
+      itemIndex: number;
+      x: number;
+      y: number;
+    }) => {
+      if (isViewerMode || !props.operationContextEnabled) {
+        return;
+      }
 
-    this.contextMenuOpened = false;
+      contextMenuOpened.value = false;
 
-    // for close and  open animation.
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.contextMenuX = target.x;
-        this.contextMenuY = target.y;
-        this.contextMenuInfo = {
-          sequence: target.itemIndex + 1,
-          selectedSequences: this.selectedSequences,
+      // for close and  open animation.
+      nextTick(() => {
+        setTimeout(() => {
+          contextMenuX.value = target.x;
+          contextMenuY.value = target.y;
+          contextMenuInfo.value = {
+            sequence: target.itemIndex + 1,
+            selectedSequences: selectedSequences.value,
+          };
+          contextMenuOpened.value = true;
+        }, 100);
+      });
+    };
+
+    const selectedOperationIndexes = computed(() => {
+      return selectedSequences.value.map((sequence) => sequence - 1);
+    });
+
+    const autoOperationIndexes = computed(() => {
+      const autoOperationIndexes = [];
+      for (const [index, { operation }] of props.history.entries()) {
+        if (operation.isAutomatic) {
+          autoOperationIndexes.push(index);
+        }
+      }
+      console.log(autoOperationIndexes);
+      return autoOperationIndexes;
+    });
+
+    const disabledOperationIndexes = computed(() => {
+      const disabledIndexes = [];
+      let isCounting = false;
+
+      for (const [index, { operation }] of props.history.entries()) {
+        if (operation.type === "pause_capturing") {
+          isCounting = true;
+          continue;
+        }
+
+        if (["resume_capturing", "start_capturing"].includes(operation.type)) {
+          isCounting = false;
+          continue;
+        }
+
+        if (isCounting) {
+          disabledIndexes.push(index);
+        }
+      }
+
+      return disabledIndexes;
+    });
+
+    const displayedHistoryItems = computed((): HistoryItemForDisplay[] => {
+      const items = props.history.map((operationWithNotes, index) => {
+        const elementInfo = operationWithNotes.operation.elementInfo;
+
+        const elementInfoForDisplay: ElementInfoForDisplay = {
+          tagname: elementInfo?.tagname ?? "",
+          text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
+          attributes: { ...elementInfo?.attributes },
+          xpath: elementInfo?.xpath ?? "",
+          iframeIndex: elementInfo?.iframe?.index,
         };
-        this.contextMenuOpened = true;
-      }, 100);
-    });
-  }
 
-  private get selectedOperationIndexes() {
-    return this.selectedSequences.map((sequence) => sequence - 1);
-  }
+        const operation: OperationForDisplay = {
+          ...operationWithNotes.operation,
+          inputValue: operationWithNotes.operation.inputValue,
+          elementInfo: elementInfoForDisplay,
+        };
 
-  private get autoOperationIndexes() {
-    const autoOperationIndexes = [];
-    for (const [index, { operation }] of this.history.entries()) {
-      if (operation.isAutomatic) {
-        autoOperationIndexes.push(index);
-      }
-    }
-    console.log(autoOperationIndexes);
-    return autoOperationIndexes;
-  }
+        const notes = {
+          bugs: operationWithNotes.bugs ?? [],
+          notices: operationWithNotes.notices ?? [],
+          intention: operationWithNotes.intention,
+        };
 
-  private get disabledOperationIndexes() {
-    const disabledIndexes = [];
-    let isCounting = false;
+        return { index, operation, notes };
+      });
 
-    for (const [index, { operation }] of this.history.entries()) {
-      if (operation.type === "pause_capturing") {
-        isCounting = true;
-        continue;
-      }
+      const filteredItems = filterTableRows(items, [
+        displayedOperationFilterPredicate,
+        textFilterPredicate,
+        noteFilterPredicate,
+      ]);
 
-      if (["resume_capturing", "start_capturing"].includes(operation.type)) {
-        isCounting = false;
-        continue;
-      }
-
-      if (isCounting) {
-        disabledIndexes.push(index);
-      }
-    }
-
-    return disabledIndexes;
-  }
-
-  private get displayedHistoryItems(): HistoryItemForDisplay[] {
-    const items = this.history.map((operationWithNotes, index) => {
-      const elementInfo = operationWithNotes.operation.elementInfo;
-
-      const elementInfoForDisplay: ElementInfoForDisplay = {
-        tagname: elementInfo?.tagname ?? "",
-        text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
-        attributes: { ...elementInfo?.attributes },
-        xpath: elementInfo?.xpath ?? "",
-        iframeIndex: elementInfo?.iframe?.index,
-      };
-
-      const operation: OperationForDisplay = {
-        ...operationWithNotes.operation,
-        inputValue: operationWithNotes.operation.inputValue,
-        elementInfo: elementInfoForDisplay,
-      };
-
-      const notes = {
-        bugs: operationWithNotes.bugs ?? [],
-        notices: operationWithNotes.notices ?? [],
-        intention: operationWithNotes.intention,
-      };
-
-      return { index, operation, notes };
+      return sortTableRows(filteredItems, sortBy.value, sortDesc.value);
     });
 
-    const filteredItems = filterTableRows(items, [
-      this.displayedOperationFilterPredicate,
-      this.textFilterPredicate,
-      this.noteFilterPredicate,
-    ]);
+    const getCheckedItems = computed(
+      (): { index: number; operation: OperationForGUI }[] => {
+        return ((store.state as any).operationHistory as OperationHistoryState)
+          .checkedOperations;
+      }
+    );
 
-    return sortTableRows(filteredItems, this.sortBy, this.sortDesc);
-  }
-
-  private get getCheckedItems(): {
-    index: number;
-    operation: OperationForGUI;
-  }[] {
-    return this.$store.state.operationHistory.checkedOperations;
-  }
-
-  private displayedOperationFilterPredicate(item: HistoryItemForDisplay) {
-    if (this.displayedOperations.length === 0) {
-      return true;
-    }
-
-    return this.displayedOperations.includes(item.operation.sequence);
-  }
-
-  private noteFilterPredicate(item: HistoryItemForDisplay): boolean {
-    if (!this.isNoteFilterEnabled && !this.isPurposeFilterEnabled) {
-      return true;
-    }
-    if (this.isNoteFilterEnabled && (item.notes.notices?.length ?? 0 > 0)) {
-      return true;
-    }
-    if (this.isPurposeFilterEnabled && item.notes.intention) {
-      return true;
-    }
-
-    return false;
-  }
-
-  private textFilterPredicate(item: HistoryItemForDisplay): boolean {
-    const search = this.search;
-
-    if (
-      item.operation.sequence.toString().toLowerCase().indexOf(search) !== -1
-    ) {
-      return true;
-    }
-    if (item.operation.title.indexOf(search) !== -1) {
-      return true;
-    }
-    const elementInfo = item.operation.elementInfo;
-    if (elementInfo !== null) {
-      if (elementInfo.tagname && elementInfo.tagname.indexOf(search) !== -1) {
+    const displayedOperationFilterPredicate = (item: HistoryItemForDisplay) => {
+      if (props.displayedOperations.length === 0) {
         return true;
       }
+
+      return props.displayedOperations.includes(item.operation.sequence);
+    };
+
+    const noteFilterPredicate = (item: HistoryItemForDisplay): boolean => {
+      if (!isNoteFilterEnabled.value && !isPurposeFilterEnabled.value) {
+        return true;
+      }
+      if (isNoteFilterEnabled.value && (item.notes.notices?.length ?? 0 > 0)) {
+        return true;
+      }
+      if (isPurposeFilterEnabled.value && item.notes.intention) {
+        return true;
+      }
+
+      return false;
+    };
+
+    const textFilterPredicate = (item: HistoryItemForDisplay): boolean => {
+      const searchText = search.value;
+
       if (
-        elementInfo.attributes.name &&
-        elementInfo.attributes.name.indexOf(search) !== -1
+        item.operation.sequence.toString().toLowerCase().indexOf(searchText) !==
+        -1
       ) {
         return true;
       }
-      if (elementInfo.text && elementInfo.text.indexOf(search) !== -1) {
+      if (item.operation.title.indexOf(searchText) !== -1) {
         return true;
       }
-    }
-    if (item.operation.type.indexOf(search) !== -1) {
-      return true;
-    }
-    if (item.operation.input.indexOf(search) !== -1) {
-      return true;
-    }
-    return false;
-  }
+      const elementInfo = item.operation.elementInfo;
+      if (elementInfo !== null) {
+        if (
+          elementInfo.tagname &&
+          elementInfo.tagname.indexOf(searchText) !== -1
+        ) {
+          return true;
+        }
+        if (
+          elementInfo.attributes.name &&
+          elementInfo.attributes.name.indexOf(searchText) !== -1
+        ) {
+          return true;
+        }
+        if (elementInfo.text && elementInfo.text.indexOf(searchText) !== -1) {
+          return true;
+        }
+      }
+      if (item.operation.type.indexOf(searchText) !== -1) {
+        return true;
+      }
+      if (item.operation.input.indexOf(searchText) !== -1) {
+        return true;
+      }
+      return false;
+    };
 
-  @Watch("getCheckedItems")
-  private clearCheckedItems(
-    newValue: {
-      index: number;
-      operation: OperationForGUI;
-    }[]
-  ): void {
-    if (newValue.length === 0 && this.checkedItems.length !== 0) {
-      this.checkedItems = [];
-    }
-  }
+    const clearCheckedItems = (
+      newValue: {
+        index: number;
+        operation: OperationForGUI;
+      }[]
+    ): void => {
+      if (newValue.length === 0 && checkedItems.value.length !== 0) {
+        checkedItems.value = [];
+      }
+    };
 
-  @Watch("checkedItems")
-  private updateCheckedOperationList(): void {
-    const checkedOperations = this.checkedItems.map(({ index, operation }) => {
-      return { index, operation };
-    });
-    this.$store.commit("operationHistory/setCheckedOperations", {
-      checkedOperations,
-    });
-  }
-
-  private contextmenu(itemIndex: number, event: MouseEvent) {
-    event.preventDefault();
-    this.openOperationContextMenu({
-      itemIndex: (this.page - 1) * this.itemsPerPage + itemIndex,
-      x: event.clientX,
-      y: event.clientY,
-    });
-  }
-
-  private cancelKeydown(event: Event) {
-    event.stopPropagation();
-  }
-
-  private keyDown(event: KeyboardEvent): void {
-    const keyToAction = new Map([
-      ["ArrowUp", this.prev],
-      ["ArrowDown", this.next],
-      ["ArrowRight", this.pageForward],
-      ["ArrowLeft", this.pageBack],
-    ]);
-
-    const action = keyToAction.get(event.key) ?? (() => undefined);
-
-    action();
-  }
-
-  private prev() {
-    const destItem = this.displayedHistoryItems[this.currentItemIndex - 1];
-
-    if (destItem) {
-      this.onSelectOperations(destItem.index);
-      this.switchTablePage(destItem.index);
-      this.resetPosition();
-    }
-  }
-
-  private next() {
-    const destItem = this.displayedHistoryItems[this.currentItemIndex + 1];
-
-    if (destItem) {
-      this.onSelectOperations(destItem.index);
-      this.switchTablePage(destItem.index);
-      this.resetPosition();
-    }
-  }
-
-  private switchTablePage(itemIndex: number) {
-    const itemsPerPage =
-      this.itemsPerPage > 0
-        ? this.itemsPerPage
-        : this.displayedHistoryItems.length;
-
-    this.page = Math.floor(itemIndex / itemsPerPage) + 1;
-  }
-
-  private scrollToTableRow(itemIndex: number) {
-    const itemsPerPage =
-      this.itemsPerPage > 0
-        ? this.itemsPerPage
-        : this.displayedHistoryItems.length;
-    const rowIndex = Math.floor(itemIndex % itemsPerPage);
-    const rowHeight = 29;
-    const rowTop = rowIndex * rowHeight;
-    const rowBottom = rowTop + rowHeight;
-    const container = document.querySelector(
-      ".v-data-table__wrapper:first-child"
-    );
-    const scrollTop = container?.scrollTop ?? 0;
-    const clientHeight = container?.clientHeight ?? 0;
-    const scrollBottom = scrollTop + (clientHeight - 32);
-
-    const destScrollTop =
-      rowTop < scrollTop
-        ? rowTop
-        : rowBottom > scrollBottom
-        ? scrollTop + rowBottom - scrollBottom
-        : scrollTop;
-
-    this.$vuetify.goTo(destScrollTop, {
-      container: ".v-data-table__wrapper:first-child",
-      duration: 100,
-    });
-  }
-
-  private pageForward() {
-    const destIndex = this.currentItemIndex + this.itemsPerPage;
-    const destItem =
-      this.displayedHistoryItems[
-        destIndex > this.displayedHistoryItems.length - 1
-          ? this.displayedHistoryItems.length - 1
-          : destIndex
-      ];
-
-    if (destItem) {
-      this.onSelectOperations(destItem.index);
-      this.page++;
-      this.$nextTick(() => {
-        this.resetPosition();
+    const updateCheckedOperationList = (): void => {
+      const checkedOperations = checkedItems.value.map(
+        ({ index, operation }) => {
+          return { index, operation };
+        }
+      );
+      store.commit("operationHistory/setCheckedOperations", {
+        checkedOperations,
       });
-    }
-  }
+    };
 
-  private pageBack() {
-    const destIndex = this.currentItemIndex - this.itemsPerPage;
-    const destItem = this.displayedHistoryItems[destIndex < 0 ? 0 : destIndex];
-
-    if (destItem) {
-      this.onSelectOperations(destItem.index);
-      this.page--;
-      this.$nextTick(() => {
-        this.resetPosition();
+    const contextmenu = (itemIndex: number, event: MouseEvent) => {
+      event.preventDefault();
+      openOperationContextMenu({
+        itemIndex: (page.value - 1) * itemsPerPage.value + itemIndex,
+        x: event.clientX,
+        y: event.clientY,
       });
-    }
-  }
+    };
 
-  private get currentItemIndex() {
-    return this.displayedHistoryItems.findIndex(
-      ({ index }) => index === this.selectedOperationIndexes[0]
-    );
-  }
+    const cancelKeydown = (event: Event) => {
+      event.stopPropagation();
+    };
 
-  private get displayedHistoryStr() {
-    return JSON.stringify(this.displayedHistoryItems);
-  }
+    const keyDown = (event: KeyboardEvent): void => {
+      const keyToAction = new Map([
+        ["ArrowUp", prev],
+        ["ArrowDown", next],
+        ["ArrowRight", pageForward],
+        ["ArrowLeft", pageBack],
+      ]);
 
-  @Watch("itemsPerPage")
-  @Watch("displayedHistoryStr")
-  private resetPosition() {
-    const currentItemIndex = this.selectedOperationIndexes[0];
+      const action = keyToAction.get(event.key) ?? (() => undefined);
 
-    const itemIndex = this.displayedHistoryItems.findIndex(
-      ({ index }) => index === currentItemIndex
-    );
+      action();
+    };
 
-    if (itemIndex !== -1) {
-      this.switchTablePage(itemIndex);
-      this.scrollToTableRow(itemIndex);
-    }
-  }
-}
+    const prev = () => {
+      const destItem = displayedHistoryItems.value[currentItemIndex.value - 1];
+
+      if (destItem) {
+        onSelectOperations(destItem.index);
+        switchTablePage(destItem.index);
+        resetPosition();
+      }
+    };
+
+    const next = () => {
+      const destItem = displayedHistoryItems.value[currentItemIndex.value + 1];
+
+      if (destItem) {
+        onSelectOperations(destItem.index);
+        switchTablePage(destItem.index);
+        resetPosition();
+      }
+    };
+
+    const switchTablePage = (itemIndex: number) => {
+      const perPage =
+        itemsPerPage.value > 0
+          ? itemsPerPage.value
+          : displayedHistoryItems.value.length;
+
+      page.value = Math.floor(itemIndex / perPage) + 1;
+    };
+
+    const scrollToTableRow = (itemIndex: number) => {
+      const perPage =
+        itemsPerPage.value > 0
+          ? itemsPerPage.value
+          : displayedHistoryItems.value.length;
+      const rowIndex = Math.floor(itemIndex % perPage);
+      const rowHeight = 29;
+      const rowTop = rowIndex * rowHeight;
+      const rowBottom = rowTop + rowHeight;
+      const container = document.querySelector(
+        ".v-data-table__wrapper:first-child"
+      );
+      const scrollTop = container?.scrollTop ?? 0;
+      const clientHeight = container?.clientHeight ?? 0;
+      const scrollBottom = scrollTop + (clientHeight - 32);
+
+      const destScrollTop =
+        rowTop < scrollTop
+          ? rowTop
+          : rowBottom > scrollBottom
+          ? scrollTop + rowBottom - scrollBottom
+          : scrollTop;
+
+      vuetify.goTo(destScrollTop, {
+        container: ".v-data-table__wrapper:first-child",
+        duration: 100,
+      });
+    };
+
+    const pageForward = () => {
+      const destIndex = currentItemIndex.value + itemsPerPage.value;
+      const destItem =
+        displayedHistoryItems.value[
+          destIndex > displayedHistoryItems.value.length - 1
+            ? displayedHistoryItems.value.length - 1
+            : destIndex
+        ];
+
+      if (destItem) {
+        onSelectOperations(destItem.index);
+        page.value++;
+        nextTick(() => {
+          resetPosition();
+        });
+      }
+    };
+
+    const pageBack = () => {
+      const destIndex = currentItemIndex.value - itemsPerPage.value;
+      const destItem =
+        displayedHistoryItems.value[destIndex < 0 ? 0 : destIndex];
+
+      if (destItem) {
+        onSelectOperations(destItem.index);
+        page.value--;
+        nextTick(() => {
+          resetPosition();
+        });
+      }
+    };
+
+    const currentItemIndex = computed(() => {
+      return displayedHistoryItems.value.findIndex(
+        ({ index }) => index === selectedOperationIndexes.value[0]
+      );
+    });
+
+    const displayedHistoryStr = computed(() => {
+      return JSON.stringify(displayedHistoryItems.value);
+    });
+
+    const resetPosition = () => {
+      const currentIndex = selectedOperationIndexes.value[0];
+
+      const itemIndex = displayedHistoryItems.value.findIndex(
+        ({ index }) => index === currentIndex
+      );
+
+      if (itemIndex !== -1) {
+        switchTablePage(itemIndex);
+        scrollToTableRow(itemIndex);
+      }
+    };
+
+    onMounted((): void => {
+      document.addEventListener("keydown", keyDown);
+    });
+
+    onBeforeUnmount((): void => {
+      document.removeEventListener("keydown", keyDown);
+    });
+
+    const { selectedOperationSequence } = toRefs(props);
+    watch(selectedOperationSequence, initializeSelectedSequences);
+    watch(getCheckedItems, clearCheckedItems);
+    watch(checkedItems, updateCheckedOperationList);
+    watch(itemsPerPage, resetPosition);
+    watch(displayedHistoryStr, resetPosition);
+
+    initializeSelectedSequences();
+
+    return {
+      isViewerMode,
+      isPurposeFilterEnabled,
+      isNoteFilterEnabled,
+      contextMenuOpened,
+      contextMenuX,
+      contextMenuY,
+      contextMenuInfo,
+      checkedItems,
+      search,
+      page,
+      itemsPerPage,
+      itemsPerPageOptions,
+      sortBy,
+      sortDesc,
+      headers,
+      createCssClassForRow,
+      formatTimestamp,
+      onSelectOperations,
+      displayedHistoryItems,
+      contextmenu,
+      cancelKeydown,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

@@ -166,12 +166,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import NoteListDialog from "../dialog/NoteListDialog.vue";
 import { ElementInfo, VideoFrame } from "latteart-client";
 import { OperationHistoryState } from "@/store/operationHistory";
+import { computed, defineComponent, ref, inject } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
 type InputValue = {
   [key: string]:
@@ -191,212 +193,234 @@ type InputValue = {
     | undefined;
 };
 
-@Component({
+export default defineComponent({
+  props: {
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
   components: {
     "note-list-dialog": NoteListDialog,
   },
-})
-export default class DecisionTable extends Vue {
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+  setup(props) {
+    const store = useStore();
 
-  private shouldGrayOutNotInputValueCell = true;
-  private shouldHideHiddenElements = true;
+    const shouldGrayOutNotInputValueCell = ref(true);
+    const shouldHideHiddenElements = ref(true);
 
-  private search = "";
-  private pagination = -1;
-  private opened = false;
-  private selectedColumnNotes = [];
+    const search = ref("");
+    const pagination = ref(-1);
+    const opened = ref(false);
+    const selectedColumnNotes = ref([]);
 
-  private get isViewerMode(): boolean {
-    return (this as any).$isViewerMode ?? false;
-  }
-
-  private get operationHistoryState(): OperationHistoryState {
-    return this.$store.state.operationHistory;
-  }
-
-  private get inputValueTable(): InputValueTable {
-    return this.operationHistoryState.inputValueTable;
-  }
-
-  private get screenTransitions() {
-    return new Array(this.inputValueTable.columnSize);
-  }
-
-  private get headers() {
-    return [
-      {
-        values: [
-          {
-            text: this.message("input-value.element-id"),
-            value: "elementId",
-            sourceScreenDef: "",
-            targetScreenDef: "",
-            trigger: {
-              elementText: "",
-              eventType: "",
-            },
-            notes: [],
-            operationHistory: [],
-          },
-        ],
-      },
-      {
-        values: [
-          {
-            text: this.message("input-value.element-name"),
-            value: "elementName",
-            sourceScreenDef: "",
-            targetScreenDef: "",
-            trigger: {
-              elementText: "",
-              eventType: "",
-            },
-            notes: [],
-            operationHistory: [],
-          },
-        ],
-      },
-      {
-        values: [
-          {
-            text: "type",
-            value: "elementType",
-            sourceScreenDef: "",
-            targetScreenDef: "",
-            trigger: {
-              elementText: "",
-              eventType: "",
-            },
-            notes: [],
-            operationHistory: [],
-          },
-        ],
-      },
-      {
-        values: this.inputValueTable.headerColumns.map(
-          (screenTransition, index) => {
-            return {
-              text: `${screenTransition.index + 1}${this.message(
-                "input-value.times"
-              )}`,
-              value: `set${screenTransition.index}`,
-              sourceScreenDef: screenTransition.sourceScreenDef,
-              targetScreenDef: screenTransition.targetScreenDef,
-              trigger: screenTransition.trigger,
-              notes: screenTransition.notes.map((note) => {
-                const testResultName =
-                  this.operationHistoryState.storingTestResultInfos.find(
-                    (testResult) => testResult.id === note.testResultId
-                  )?.name;
-
-                return {
-                  ...note,
-                  testResultName,
-                };
-              }),
-              testPurposes: screenTransition.testPurposes,
-              index,
-            };
-          }
-        ),
-      },
-    ];
-  }
-
-  private get inputValues(): InputValue[] {
-    return this.inputValueTable.rows.map(
-      ({ inputs, elementName, elementId, elementType, elementImage }) => {
-        return inputs.reduce(
-          (acc: any, current, index) => {
-            acc[`set${index}`] = current;
-
-            return acc;
-          },
-          { elementName, elementId, elementType, elementImage }
-        );
-      }
-    );
-  }
-
-  private filterByWord(_: any, search: string, item: InputValue) {
-    const columns = Object.entries(item);
-    return columns
-      .filter(([columnName]) => {
-        return columnName !== "media";
-      })
-      .some(([_, columnValue]) => {
-        if (!columnValue) {
-          return false;
-        }
-
-        if (typeof columnValue === "string") {
-          return columnValue.includes(search);
-        }
-
-        if ("value" in columnValue) {
-          return columnValue.value.includes(search);
-        }
-
-        return false;
-      });
-  }
-
-  private selectRow(index: number): void {
-    const elementImage = this.inputValues[index].elementImage;
-    if (
-      typeof elementImage === "object" &&
-      "image" in elementImage &&
-      "elementInfo" in elementImage
-    ) {
-      if (elementImage.image.imageFileUrl || elementImage.image.videoFrame) {
-        this.$store.dispatch("operationHistory/changeScreenImage", {
-          ...elementImage,
-        });
-      } else {
-        this.$store.commit("operationHistory/clearScreenImage");
-      }
-    }
-  }
-
-  private elementTypeIsHidden(elementType: string): boolean {
-    return elementType === "hidden";
-  }
-
-  private hasInputElements(index: number): boolean {
-    return (
-      (this.inputValueTable.getScreenTransitions().at(index)?.inputElements
-        .length ?? 0) > 0
-    );
-  }
-
-  private registerAutofillSetting(index: number): void {
-    const screenTransition = this.inputValueTable
-      .getScreenTransitions()
-      .at(index);
-
-    if (!screenTransition || !screenTransition.trigger) {
-      return;
-    }
-
-    this.$store.commit("captureControl/setAutofillRegisterDialog", {
-      title: screenTransition.trigger.pageTitle,
-      url: screenTransition.trigger.pageUrl,
-      message: this.$store.getters.message(
-        "input-value.autofill-dialog-message"
-      ),
-      inputElements: screenTransition.inputElements?.map((element) => {
-        return {
-          xpath: element.xpath.toLowerCase(),
-          attributes: element.attributes,
-          inputValue: element.defaultValue ?? element.inputs.at(-1) ?? "",
-          iframeIndex: element.iframe?.index,
-        };
-      }),
-      callback: null,
+    const isViewerMode = computed((): boolean => {
+      return inject("isViewerMode") ?? false;
     });
-  }
-}
+
+    const operationHistoryState = computed((): OperationHistoryState => {
+      return (store.state as any).operationHistory;
+    });
+
+    const inputValueTable = computed((): InputValueTable => {
+      return operationHistoryState.value.inputValueTable;
+    });
+
+    const screenTransitions = computed(() => {
+      return new Array(inputValueTable.value.columnSize);
+    });
+
+    const headers = computed(() => {
+      return [
+        {
+          values: [
+            {
+              text: props.message("input-value.element-id"),
+              value: "elementId",
+              sourceScreenDef: "",
+              targetScreenDef: "",
+              trigger: {
+                elementText: "",
+                eventType: "",
+              },
+              notes: [],
+              operationHistory: [],
+            },
+          ],
+        },
+        {
+          values: [
+            {
+              text: props.message("input-value.element-name"),
+              value: "elementName",
+              sourceScreenDef: "",
+              targetScreenDef: "",
+              trigger: {
+                elementText: "",
+                eventType: "",
+              },
+              notes: [],
+              operationHistory: [],
+            },
+          ],
+        },
+        {
+          values: [
+            {
+              text: "type",
+              value: "elementType",
+              sourceScreenDef: "",
+              targetScreenDef: "",
+              trigger: {
+                elementText: "",
+                eventType: "",
+              },
+              notes: [],
+              operationHistory: [],
+            },
+          ],
+        },
+        {
+          values: inputValueTable.value.headerColumns.map(
+            (screenTransition, index) => {
+              return {
+                text: `${screenTransition.index + 1}${props.message(
+                  "input-value.times"
+                )}`,
+                value: `set${screenTransition.index}`,
+                sourceScreenDef: screenTransition.sourceScreenDef,
+                targetScreenDef: screenTransition.targetScreenDef,
+                trigger: screenTransition.trigger,
+                notes: screenTransition.notes.map((note) => {
+                  const testResultName =
+                    operationHistoryState.value.storingTestResultInfos.find(
+                      (testResult) => testResult.id === note.testResultId
+                    )?.name;
+
+                  return {
+                    ...note,
+                    testResultName,
+                  };
+                }),
+                testPurposes: screenTransition.testPurposes,
+                index,
+              };
+            }
+          ),
+        },
+      ];
+    });
+
+    const inputValues = computed((): InputValue[] => {
+      return inputValueTable.value.rows.map(
+        ({ inputs, elementName, elementId, elementType, elementImage }) => {
+          return inputs.reduce(
+            (acc: any, current, index) => {
+              acc[`set${index}`] = current;
+
+              return acc;
+            },
+            { elementName, elementId, elementType, elementImage }
+          );
+        }
+      );
+    });
+
+    const filterByWord = (_: any, search: string, item: InputValue) => {
+      const columns = Object.entries(item);
+      return columns
+        .filter(([columnName]) => {
+          return columnName !== "media";
+        })
+        .some(([_, columnValue]) => {
+          if (!columnValue) {
+            return false;
+          }
+
+          if (typeof columnValue === "string") {
+            return columnValue.includes(search);
+          }
+
+          if ("value" in columnValue) {
+            return columnValue.value.includes(search);
+          }
+
+          return false;
+        });
+    };
+
+    const selectRow = (index: number): void => {
+      const elementImage = inputValues.value[index].elementImage;
+      if (
+        typeof elementImage === "object" &&
+        "image" in elementImage &&
+        "elementInfo" in elementImage
+      ) {
+        if (elementImage.image.imageFileUrl || elementImage.image.videoFrame) {
+          store.dispatch("operationHistory/changeScreenImage", {
+            ...elementImage,
+          });
+        } else {
+          store.commit("operationHistory/clearScreenImage");
+        }
+      }
+    };
+
+    const elementTypeIsHidden = (elementType: string): boolean => {
+      return elementType === "hidden";
+    };
+
+    const hasInputElements = (index: number): boolean => {
+      return (
+        (inputValueTable.value.getScreenTransitions().at(index)?.inputElements
+          .length ?? 0) > 0
+      );
+    };
+
+    const registerAutofillSetting = (index: number): void => {
+      const screenTransition = inputValueTable.value
+        .getScreenTransitions()
+        .at(index);
+
+      if (!screenTransition || !screenTransition.trigger) {
+        return;
+      }
+
+      store.commit("captureControl/setAutofillRegisterDialog", {
+        title: screenTransition.trigger.pageTitle,
+        url: screenTransition.trigger.pageUrl,
+        message: store.getters.message("input-value.autofill-dialog-message"),
+        inputElements: screenTransition.inputElements?.map((element) => {
+          return {
+            xpath: element.xpath.toLowerCase(),
+            attributes: element.attributes,
+            inputValue: element.defaultValue ?? element.inputs.at(-1) ?? "",
+            iframeIndex: element.iframe?.index,
+          };
+        }),
+        callback: null,
+      });
+    };
+
+    return {
+      shouldGrayOutNotInputValueCell,
+      shouldHideHiddenElements,
+      search,
+      pagination,
+      opened,
+      selectedColumnNotes,
+      isViewerMode,
+      screenTransitions,
+      headers,
+      inputValues,
+      filterByWord,
+      selectRow,
+      elementTypeIsHidden,
+      hasInputElements,
+      registerAutofillSetting,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>
