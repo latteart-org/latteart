@@ -218,7 +218,7 @@ import {
   watch,
 } from "vue";
 import { useStore } from "@/store";
-import { useVuetify } from "@/lib/operationHistory/UseVuetify";
+import { useVuetify } from "@/composables/useVuetify";
 import type { PropType } from "vue";
 
 type ElementInfoForDisplay = {
