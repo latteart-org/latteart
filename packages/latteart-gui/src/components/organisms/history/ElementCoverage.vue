@@ -74,73 +74,105 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
 import { VideoFrame } from "latteart-client";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component
-export default class ElementCoverage extends Vue {
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+export default defineComponent({
+  props: {
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
+  setup(props) {
+    const store = useStore();
 
-  private get coverages() {
-    return (this.$store.state.operationHistory as OperationHistoryState)
-      .elementCoverages;
-  }
-
-  private get headers() {
-    const headers: Array<
-      Array<{ text: string; value: string; sortable: boolean }>
-    > = [];
-    this.coverages.forEach(() => {
-      headers.push([
-        {
-          text: this.message("coverage.tagname"),
-          value: "tagname",
-          sortable: true,
-        },
-        { text: this.message("coverage.type"), value: "type", sortable: true },
-        { text: this.message("coverage.id"), value: "id", sortable: true },
-        { text: this.message("coverage.name"), value: "name", sortable: true },
-        { text: this.message("coverage.text"), value: "text", sortable: true },
-        {
-          text: this.message("coverage.operated"),
-          value: "operated",
-          sortable: true,
-        },
-      ]);
+    const coverages = computed(() => {
+      return ((store.state as any).operationHistory as OperationHistoryState)
+        .elementCoverages;
     });
-    return headers;
-  }
 
-  private selectElement(element: {
-    imageFileUrl?: string;
-    videoFrame?: VideoFrame;
-    boundingRect?: { top: number; left: number; width: number; height: number };
-    innerHeight?: number;
-    innerWidth?: number;
-    outerHeight?: number;
-    outerWidth?: number;
-  }) {
-    if (element.imageFileUrl || element.videoFrame) {
-      this.$store.dispatch("operationHistory/changeScreenImage", {
-        image: {
-          imageFileUrl: element.imageFileUrl,
-          videoFrame: element.videoFrame,
-        },
-        elementInfo: {
-          boundingRect: element.boundingRect,
-          innerHeight: element.innerHeight,
-          innerWidth: element.innerWidth,
-          outerHeight: element.outerHeight,
-          outerWidth: element.outerWidth,
-        },
+    const headers = computed(() => {
+      const headers: Array<
+        Array<{ text: string; value: string; sortable: boolean }>
+      > = [];
+      coverages.value.forEach(() => {
+        headers.push([
+          {
+            text: props.message("coverage.tagname"),
+            value: "tagname",
+            sortable: true,
+          },
+          {
+            text: props.message("coverage.type"),
+            value: "type",
+            sortable: true,
+          },
+          { text: props.message("coverage.id"), value: "id", sortable: true },
+          {
+            text: props.message("coverage.name"),
+            value: "name",
+            sortable: true,
+          },
+          {
+            text: props.message("coverage.text"),
+            value: "text",
+            sortable: true,
+          },
+          {
+            text: props.message("coverage.operated"),
+            value: "operated",
+            sortable: true,
+          },
+        ]);
       });
-    } else {
-      this.$store.commit("operationHistory/clearScreenImage");
-    }
-  }
-}
+      return headers;
+    });
+
+    const selectElement = (element: {
+      imageFileUrl?: string;
+      videoFrame?: VideoFrame;
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
+    }) => {
+      if (element.imageFileUrl || element.videoFrame) {
+        store.dispatch("operationHistory/changeScreenImage", {
+          image: {
+            imageFileUrl: element.imageFileUrl,
+            videoFrame: element.videoFrame,
+          },
+          elementInfo: {
+            boundingRect: element.boundingRect,
+            innerHeight: element.innerHeight,
+            innerWidth: element.innerWidth,
+            outerHeight: element.outerHeight,
+            outerWidth: element.outerWidth,
+          },
+        });
+      } else {
+        store.commit("operationHistory/clearScreenImage");
+      }
+    };
+
+    return {
+      coverages,
+      headers,
+      selectElement,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

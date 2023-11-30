@@ -45,7 +45,7 @@
           dense
       /></v-col>
       <v-col cols="auto" v-if="!isViewerMode">
-        <v-btn class="mr-1" :disabled="!this.graph" @click="editTestPurpose">{{
+        <v-btn class="mr-1" :disabled="!graph" @click="editTestPurpose">{{
           message("test-result-page.edit-test-purpose")
         }}</v-btn></v-col
       >
@@ -72,135 +72,154 @@
 <script lang="ts">
 /* tslint:disable:max-line-length */
 
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import { computed, defineComponent, onMounted, ref, watch, inject } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
   components: {
     "mermaid-graph-renderer": MermaidGraphRenderer,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class SequenceDiagram extends Vue {
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+  setup(props) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
-  private selectedTestPurposeIndex = 0;
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
+    const selectedTestPurposeIndex = ref(0);
 
-  private get isViewerMode() {
-    return (this as any).$isViewerMode ?? false;
-  }
+    const isViewerMode = computed((): boolean => {
+      return inject("isViewerMode") ?? false;
+    });
 
-  private get operationHistoryState() {
-    return this.$store.state.operationHistory as OperationHistoryState;
-  }
+    const operationHistoryState = computed(() => {
+      return (store.state as any).operationHistory as OperationHistoryState;
+    });
 
-  private get currentTestResultId() {
-    return this.operationHistoryState.testResultInfo.id;
-  }
+    const currentTestResultId = computed(() => {
+      return operationHistoryState.value.testResultInfo.id;
+    });
 
-  private get testResults() {
-    return this.operationHistoryState.storingTestResultInfos;
-  }
+    const testResults = computed(() => {
+      return operationHistoryState.value.storingTestResultInfos;
+    });
 
-  private get testPurposes() {
-    return this.operationHistoryState.sequenceDiagramGraphs.map(
-      ({ testPurpose }, index) => {
-        return {
-          text:
-            testPurpose?.value ??
-            this.message("test-result-page.no-test-purpose"),
-          value: index,
-        };
-      }
-    );
-  }
+    const testPurposes = computed(() => {
+      return operationHistoryState.value.sequenceDiagramGraphs.map(
+        ({ testPurpose }, index) => {
+          return {
+            text:
+              testPurpose?.value ??
+              props.message("test-result-page.no-test-purpose"),
+            value: index,
+          };
+        }
+      );
+    });
 
-  private get graph() {
-    const graphs = this.operationHistoryState.sequenceDiagramGraphs;
+    const graph = computed(() => {
+      const graphs = operationHistoryState.value.sequenceDiagramGraphs;
 
-    return graphs.at(this.selectedTestPurposeIndex);
-  }
+      return graphs.at(selectedTestPurposeIndex.value);
+    });
 
-  private get graphElement() {
-    return this.graph?.element ?? null;
-  }
+    const graphElement = computed(() => {
+      return graph.value?.element ?? null;
+    });
 
-  private mounted() {
-    this.selectedTestPurposeIndex = 0;
-    const sequenceDiagram = document.getElementById(
-      "sequence-diagram-container"
-    ) as any;
-    sequenceDiagram.oncontextmenu = () => false;
-  }
-
-  @Watch("currentTestResultId")
-  private resetTestPurposeIndex() {
-    this.selectedTestPurposeIndex = 0;
-  }
-
-  private async changeCurrentTestResultId(testResultId: string) {
-    try {
-      if ((this as any).$isViewerMode ? (this as any).$isViewerMode : false) {
-        await this.$store.dispatch(
-          "operationHistory/loadTestResultForSnapshot",
-          {
-            testResultId,
-          }
-        );
-      } else {
-        await this.$store.dispatch("operationHistory/loadTestResult", {
-          testResultId,
-        });
-
-        await this.$store.dispatch(
-          "operationHistory/updateModelsFromSequenceView",
-          {
-            testResultId,
-          }
-        );
-      }
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-      this.$store.dispatch("operationHistory/selectOperation", { sequence: 1 });
-
-      this.selectedTestPurposeIndex = 0;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  private editTestPurpose() {
-    if (!this.graph) {
-      return;
-    }
-
-    this.operationHistoryState.openNoteEditDialog(
-      "intention",
-      this.graph.sequence
-    );
-  }
-
-  private get buildStyle() {
-    const buttonWidth = this.isViewerMode ? "0px" : "160px";
-    const selectBoxNum = this.testResults.length > 1 ? 2 : 1;
-    return {
-      "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`,
+    const resetTestPurposeIndex = () => {
+      selectedTestPurposeIndex.value = 0;
     };
-  }
-}
+
+    const changeCurrentTestResultId = async (testResultId: string) => {
+      try {
+        if (isViewerMode.value) {
+          await store.dispatch("operationHistory/loadTestResultForSnapshot", {
+            testResultId,
+          });
+        } else {
+          await store.dispatch("operationHistory/loadTestResult", {
+            testResultId,
+          });
+
+          await store.dispatch(
+            "operationHistory/updateModelsFromSequenceView",
+            { testResultId }
+          );
+        }
+
+        store.commit("operationHistory/setCanUpdateModels", {
+          setCanUpdateModels: false,
+        });
+        store.dispatch("operationHistory/selectOperation", { sequence: 1 });
+
+        selectedTestPurposeIndex.value = 0;
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error);
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    const editTestPurpose = () => {
+      if (!graph.value) {
+        return;
+      }
+
+      operationHistoryState.value.openNoteEditDialog(
+        "intention",
+        graph.value.sequence
+      );
+    };
+
+    const buildStyle = computed(() => {
+      const buttonWidth = isViewerMode.value ? "0px" : "160px";
+      const selectBoxNum = testResults.value.length > 1 ? 2 : 1;
+      return {
+        "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`,
+      };
+    });
+
+    onMounted(() => {
+      selectedTestPurposeIndex.value = 0;
+      const sequenceDiagram = document.getElementById(
+        "sequence-diagram-container"
+      ) as any;
+      sequenceDiagram.oncontextmenu = () => false;
+    });
+
+    watch(currentTestResultId, resetTestPurposeIndex);
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      selectedTestPurposeIndex,
+      isViewerMode,
+      currentTestResultId,
+      testResults,
+      testPurposes,
+      graph,
+      graphElement,
+      changeCurrentTestResultId,
+      editTestPurpose,
+      buildStyle,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

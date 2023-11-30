@@ -23,7 +23,7 @@
       @click="registerDialogOpened = true"
       small
       class="mx-2"
-      >{{ $store.getters.message("app.register-operation") }}
+      >{{ store.getters.message("app.register-operation") }}
     </v-btn>
 
     <auto-operation-register-dialog
@@ -45,51 +45,65 @@
 <script lang="ts">
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import AutoOperationRegisterDialog from "@/components/organisms/dialog/AutoOperationRegisterDialog.vue";
-import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "@/store";
 
-@Component({
+export default defineComponent({
   components: {
     "auto-operation-register-dialog": AutoOperationRegisterDialog,
     "error-message-dialog": ErrorMessageDialog,
   },
-})
-export default class AutoOperationRegisterButton extends Vue {
-  private registerDialogOpened = false;
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+  setup() {
+    const store = useStore();
 
-  private get targetOperations(): OperationForGUI[] {
-    return (
-      this.$store.state.operationHistory.checkedOperations as {
-        index: number;
-        operation: OperationForGUI;
-      }[]
-    ).map((item) => {
-      return item.operation;
+    const registerDialogOpened = ref(false);
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
+
+    const targetOperations = computed((): OperationForGUI[] => {
+      return (
+        (store.state as any).operationHistory as OperationHistoryState
+      ).checkedOperations.map((item) => {
+        return item.operation;
+      });
     });
-  }
 
-  private get isReplaying(): boolean {
-    return this.$store.state.captureControl.isReplaying;
-  }
+    const isReplaying = computed((): boolean => {
+      return ((store.state as any).captureControl as CaptureControlState)
+        .isReplaying;
+    });
 
-  private get isDisabled(): boolean {
-    return this.targetOperations.length < 1 || this.isReplaying;
-  }
+    const isDisabled = computed((): boolean => {
+      return targetOperations.value.length < 1 || isReplaying.value;
+    });
 
-  private clearCheckedOperations() {
-    this.$store.commit("operationHistory/clearCheckedOperations");
-    this.registerDialogOpened = false;
-  }
+    const clearCheckedOperations = () => {
+      store.commit("operationHistory/clearCheckedOperations");
+      registerDialogOpened.value = false;
+    };
 
-  private openInvalidTypeErrorDialog(invalidTypes: string[]) {
-    this.registerDialogOpened = false;
-    this.errorMessage = this.$store.getters.message(
-      "error.operation_history.register_failed_with_invalid_type",
-      { value: invalidTypes.join(",") }
-    );
-    this.errorMessageDialogOpened = true;
-  }
-}
+    const openInvalidTypeErrorDialog = (invalidTypes: string[]): void => {
+      registerDialogOpened.value = false;
+      errorMessage.value = store.getters.message(
+        "error.operation_history.register_failed_with_invalid_type",
+        { value: invalidTypes.join(",") }
+      );
+      errorMessageDialogOpened.value = true;
+    };
+
+    return {
+      store,
+      registerDialogOpened,
+      errorMessageDialogOpened,
+      errorMessage,
+      targetOperations,
+      isDisabled,
+      clearCheckedOperations,
+      openInvalidTypeErrorDialog,
+    };
+  },
+});
 </script>

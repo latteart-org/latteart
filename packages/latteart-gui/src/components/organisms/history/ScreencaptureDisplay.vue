@@ -42,52 +42,62 @@
 <script lang="ts">
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { Vue, Component } from "vue-property-decorator";
-@Component({
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+
+export default defineComponent({
   components: {
     "screen-shot-display": ScreenShotDisplay,
   },
-})
-export default class ScreencaptureDisplay extends Vue {
-  private get operationHistoryState() {
-    return (
-      (this.$store.state.operationHistory as OperationHistoryState) ?? null
-    );
-  }
+  setup() {
+    const store = useStore();
 
-  private get selectedOperationSequence() {
-    return this.operationHistoryState.selectedOperationSequence;
-  }
+    const operationHistoryState = computed(() => {
+      return (
+        ((store.state as any).operationHistory as OperationHistoryState) ?? null
+      );
+    });
 
-  private get screenshotName(): string {
-    const url = this.imageInfo.decode;
-    const ar = url.split(".");
-    const ext = ar[ar.length - 1];
-    const sequence = this.selectedOperationSequence;
-    return `${sequence}.${ext}`;
-  }
+    const selectedOperationSequence = computed(() => {
+      return operationHistoryState.value.selectedOperationSequence;
+    });
 
-  private get displayedScreenshotUrl(): string {
-    const screenImage = this.operationHistoryState.screenImage;
-    if (!screenImage) {
-      return "";
-    }
+    const screenshotName = computed((): string => {
+      const url = imageInfo.value.decode;
+      const ar = url.split(".");
+      const ext = ar[ar.length - 1];
+      const sequence = selectedOperationSequence.value;
+      return `${sequence}.${ext}`;
+    });
 
-    return screenImage.background.image.url;
-  }
+    const displayedScreenshotUrl = computed((): string => {
+      const screenImage = operationHistoryState.value.screenImage;
+      if (!screenImage) {
+        return "";
+      }
 
-  private get imageInfo(): { decode: string } {
-    if (this.displayedScreenshotUrl !== "") {
-      return { decode: this.displayedScreenshotUrl };
-    }
+      return screenImage.background.image.url;
+    });
 
-    return { decode: "" };
-  }
+    const imageInfo = computed((): { decode: string } => {
+      if (displayedScreenshotUrl.value !== "") {
+        return { decode: displayedScreenshotUrl.value };
+      }
 
-  private get screenshotUrl(): string {
-    return this.imageInfo.decode ?? "";
-  }
-}
+      return { decode: "" };
+    });
+
+    const screenshotUrl = computed((): string => {
+      return imageInfo.value.decode ?? "";
+    });
+
+    return {
+      screenshotName,
+      imageInfo,
+      screenshotUrl,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

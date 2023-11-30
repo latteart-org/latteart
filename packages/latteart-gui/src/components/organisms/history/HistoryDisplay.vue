@@ -183,7 +183,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 import {
@@ -205,8 +204,53 @@ import TestPurposeEditDialog from "@/components/organisms/dialog/TestPurposeEdit
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  ref,
+  nextTick,
+  watch,
+  inject,
+} from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    scriptGenerationEnabled: { type: Boolean, default: false },
+    locale: { type: String, default: "ja" },
+    rawHistory: {
+      type: Array as PropType<OperationHistory>,
+      default: [],
+    },
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+    operationContextEnabled: { type: Boolean, default: false },
+    screenDefinitionConfig: {
+      type: Object as PropType<{
+        screenDefType: string;
+        isRegex: boolean;
+        screenDefList: ScreenDef[];
+      }>,
+      default: () => {
+        return {
+          screenDefType: "title",
+          isRegex: false,
+          screenDefList: [],
+        };
+      },
+    },
+    changeWindowTitle: {
+      type: Function as PropType<(windowTitle: string) => void>,
+      default: (windowTitle: string) => {
+        document.title = `operation viewer [${windowTitle}]`;
+      },
+    },
+    testResultId: { type: String, default: "" },
+  },
   components: {
     "history-summary-diagram": HistorySummaryDiagram,
     "operation-list": OperationList,
@@ -223,453 +267,456 @@ import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue
     "note-register-dialog": NoteRegisterDialog,
     "note-update-dialog": NoteUpdateDialog,
   },
-})
-export default class HistoryDisplay extends Vue {
-  @Prop({ type: Boolean, default: false })
-  public readonly scriptGenerationEnabled!: boolean;
-  @Prop({ type: String, default: "ja" }) public readonly locale!: string;
-  @Prop({ type: Array, default: [] })
-  public readonly rawHistory!: OperationHistory;
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
-  @Prop({ type: Boolean, default: false })
-  public readonly operationContextEnabled!: boolean;
-  @Prop({
-    type: Object,
-    default: () => {
-      return {
-        screenDefType: "title",
-        isRegex: false,
-        screenDefList: [],
-      };
-    },
-  })
-  public readonly screenDefinitionConfig!: {
-    screenDefType: string;
-    isRegex: boolean;
-    screenDefList: ScreenDef[];
-  };
-  @Prop({
-    type: Function,
-    default: (windowTitle: string) => {
-      document.title = `operation viewer [${windowTitle}]`;
-    },
-  })
-  public readonly changeWindowTitle!: (windowTitle: string) => void;
-  @Prop({ type: String, default: "" }) public readonly testResultId!: string;
+  setup(props) {
+    const store = useStore();
 
-  private errorMessageDialogOpened = false;
-  private errorMessage = "";
+    const errorMessageDialogOpened = ref(false);
+    const errorMessage = ref("");
 
-  private mediaType: "image" | "video" = "image";
+    const mediaType = ref<"image" | "video">("image");
 
-  private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
-  private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
-  private readonly DIAGRAM_TYPE_ELEMENT_COVERAGE: string = "coverage";
+    const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
+    const DIAGRAM_TYPE_SCREEN_TRANSITION = ref<string>("screenTransition");
+    const DIAGRAM_TYPE_ELEMENT_COVERAGE = ref<string>("coverage");
 
-  private diagramType: string = this.DIAGRAM_TYPE_SEQUENCE;
+    const diagramType = ref<string>(DIAGRAM_TYPE_SEQUENCE.value);
 
-  private verticalPaneSize: number = 0;
-  private horizontalPaneSize: number = 0;
+    const verticalPaneSize = ref<number>(0);
+    const horizontalPaneSize = ref<number>(0);
 
-  private testPurposeEditDialogOpened = false;
-  private noteUpdateDialogOpened = false;
-  private noteRegisterDialogOpened = false;
+    const testPurposeEditDialogOpened = ref(false);
+    const noteUpdateDialogOpened = ref(false);
+    const noteRegisterDialogOpened = ref(false);
 
-  private contextMenuOpened = false;
-  private contextMenuX = -1;
-  private contextMenuY = -1;
-  private contextMenuItems: Array<{ label: string; onClick: () => void }> = [];
+    const contextMenuOpened = ref(false);
+    const contextMenuX = ref(-1);
+    const contextMenuY = ref(-1);
+    const contextMenuItems = ref<{ label: string; onClick: () => void }[]>([]);
 
-  private confirmDialogOpened = false;
-  private confirmDialogTitle = "";
-  private confirmDialogMessage = "";
-  private confirmDialogAccept() {
-    /* Do nothing */
-  }
-
-  private created() {
-    this.verticalPaneSize = Number(this.getPaneSize("vertical") ?? "50");
-    this.horizontalPaneSize = Number(this.getPaneSize("horizontal") ?? "50");
-
-    this.selectFirstOperation();
-    this.updateWindowTitle();
-  }
-
-  private async mounted() {
-    this.$store.commit("operationHistory/setOpenNoteEditDialogFunction", {
-      openNoteEditDialog: this.openNoteEditDialog,
+    const confirmDialogOpened = ref(false);
+    const confirmDialogTitle = ref("");
+    const confirmDialogMessage = ref("");
+    const confirmDialogAccept = ref(() => {
+      /* Do nothing */
     });
-    this.$store.commit(
-      "operationHistory/setOpenNoteDeleteConfirmDialogFunction",
-      {
-        openNoteDeleteConfirmDialog: this.openNoteDeleteConfirmDialog,
+
+    const mermaidGraphDisplay = ref(null);
+    const isViewerMode = inject("isViewerMode") ?? false;
+
+    const openNoteMenu = (
+      note: {
+        id: number;
+        sequence: number;
+        index: number;
+        type: string;
+        value: string;
+      },
+      eventInfo: { clientX: number; clientY: number }
+    ) => {
+      if (isViewerMode) {
+        console.log("isViewerMode");
+        return;
       }
-    );
-    this.$store.commit("operationHistory/setOpenNoteMenu", {
-      menu: this.openNoteMenu,
-    });
 
-    this.$store.commit("operationHistory/setDeleteNoteFunction", {
-      deleteNote: this.deleteNote,
-    });
+      contextMenuX.value = eventInfo.clientX;
+      contextMenuY.value = eventInfo.clientY;
+      contextMenuItems.value = [];
 
-    await this.updateTestResultViewModel();
-  }
+      contextMenuItems.value.push({
+        label: store.getters.message("test-result-page.edit-notice", {
+          value: note.value,
+        }),
+        onClick: () => {
+          if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
+            (store.state as any).operationHistory.openNoteEditDialog(
+              note.type,
+              note.sequence,
+              note.index
+            );
+          }
 
-  private get testResultIds(): string[] {
-    return this.$route.query.testResultIds as string[];
-  }
+          contextMenuOpened.value = false;
+          store.commit("operationHistory/setTmpNoteInfoForEdit", {
+            tmpNoteInfoForEdit: null,
+          });
+        },
+      });
+      contextMenuItems.value.push({
+        label: store.getters.message("test-result-page.delete-notice", {
+          value: note.value,
+        }),
+        onClick: () => {
+          if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
+            (store.state as any).operationHistory.deleteNote(
+              note.type,
+              note.sequence,
+              note.index
+            );
+          }
 
-  private openNoteMenu(
-    note: {
-      id: number;
-      sequence: number;
-      index: number;
-      type: string;
-      value: string;
-    },
-    eventInfo: { clientX: number; clientY: number }
-  ) {
-    if ((this as any).$isViewerMode) {
-      console.log("isViewerMode");
-      return;
-    }
+          contextMenuOpened.value = false;
+          store.commit("operationHistory/setTmpNoteInfoForEdit", {
+            tmpNoteInfoForEdit: null,
+          });
+        },
+      });
 
-    const context = this.$store;
-
-    this.contextMenuX = eventInfo.clientX;
-    this.contextMenuY = eventInfo.clientY;
-    this.contextMenuItems = [];
-
-    this.contextMenuItems.push({
-      label: context.getters.message("test-result-page.edit-notice", {
-        value: note.value,
-      }),
-      onClick: () => {
-        if (context.state.operationHistory.tmpNoteInfoForEdit) {
-          context.state.operationHistory.openNoteEditDialog(
-            note.type,
-            note.sequence,
-            note.index
-          );
-        }
-
-        this.contextMenuOpened = false;
-        context.commit("operationHistory/setTmpNoteInfoForEdit", {
-          tmpNoteInfoForEdit: null,
-        });
-      },
-    });
-    this.contextMenuItems.push({
-      label: context.getters.message("test-result-page.delete-notice", {
-        value: note.value,
-      }),
-      onClick: () => {
-        if (context.state.operationHistory.tmpNoteInfoForEdit) {
-          context.state.operationHistory.deleteNote(
-            note.type,
-            note.sequence,
-            note.index
-          );
-        }
-
-        this.contextMenuOpened = false;
-        context.commit("operationHistory/setTmpNoteInfoForEdit", {
-          tmpNoteInfoForEdit: null,
-        });
-      },
-    });
-
-    context.commit("operationHistory/setTmpNoteInfoForEdit", {
-      tmpNoteInfoForEdit: {
-        noteType: note.type,
-        sequence: note.sequence,
-        index: note.index,
-      },
-    });
-    this.contextMenuOpened = true;
-  }
-
-  private openNoteEditDialog(
-    noteType: string,
-    sequence: number,
-    index?: number
-  ) {
-    const historyItem: OperationWithNotes =
-      this.$store.getters["operationHistory/findHistoryItem"](sequence);
-    if (historyItem === undefined) {
-      return;
-    }
-    switch (noteType) {
-      case "intention":
-        this.$store.commit("operationHistory/selectOperationNote", {
-          selectedOperationNote: {
-            sequence: sequence ?? null,
-            index: index ?? null,
-          },
-        });
-        this.testPurposeEditDialogOpened = true;
-        return;
-      case "bug":
-      case "notice":
-        this.$store.commit("operationHistory/selectOperationNote", {
-          selectedOperationNote: {
-            sequence: sequence ?? null,
-            index: index ?? null,
-          },
-        });
-
-        if (index !== undefined) {
-          this.noteUpdateDialogOpened = true;
-        } else {
-          this.noteRegisterDialogOpened = true;
-        }
-
-        return;
-      default:
-        return;
-    }
-  }
-
-  private openNoteDeleteConfirmDialog(
-    noteType: string,
-    title: string,
-    sequence: number,
-    index?: number
-  ) {
-    if (noteType === "intention") {
-      this.confirmDialogTitle = this.$store.getters.message(
-        "test-result-page.delete-intention"
-      );
-      this.confirmDialogMessage = this.$store.getters.message(
-        "test-result-page.delete-intention-message",
-        { value: title }
-      );
-    } else {
-      this.confirmDialogTitle = this.$store.getters.message(
-        "test-result-page.delete-notice-title"
-      );
-      this.confirmDialogMessage = this.$store.getters.message(
-        "test-result-page.delete-notice-message",
-        { value: title }
-      );
-    }
-
-    this.confirmDialogAccept = () => {
-      this.deleteNote(noteType, sequence, index ?? 0);
+      store.commit("operationHistory/setTmpNoteInfoForEdit", {
+        tmpNoteInfoForEdit: {
+          noteType: note.type,
+          sequence: note.sequence,
+          index: note.index,
+        },
+      });
+      contextMenuOpened.value = true;
     };
-    this.confirmDialogOpened = true;
-  }
 
-  private deleteNote(noteType: string, sequence: number, index: number) {
-    (async () => {
-      try {
-        switch (noteType) {
-          case "intention":
-            this.$store.dispatch("operationHistory/deleteTestPurpose", {
-              sequence,
-            });
-            return;
-          case "bug":
-          case "notice":
-            this.$store.dispatch("operationHistory/deleteNotice", {
-              sequence,
-              index,
-            });
-            return;
-          default:
-            return;
+    const openNoteEditDialog = (
+      noteType: string,
+      sequence: number,
+      index?: number
+    ) => {
+      const historyItem: OperationWithNotes =
+        store.getters["operationHistory/findHistoryItem"](sequence);
+      if (historyItem === undefined) {
+        return;
+      }
+      switch (noteType) {
+        case "intention":
+          store.commit("operationHistory/selectOperationNote", {
+            selectedOperationNote: {
+              sequence: sequence ?? null,
+              index: index ?? null,
+            },
+          });
+          testPurposeEditDialogOpened.value = true;
+          return;
+        case "bug":
+        case "notice":
+          store.commit("operationHistory/selectOperationNote", {
+            selectedOperationNote: {
+              sequence: sequence ?? null,
+              index: index ?? null,
+            },
+          });
+
+          if (index !== undefined) {
+            noteUpdateDialogOpened.value = true;
+          } else {
+            noteRegisterDialogOpened.value = true;
+          }
+
+          return;
+        default:
+          return;
+      }
+    };
+
+    const openNoteDeleteConfirmDialog = (
+      noteType: string,
+      title: string,
+      sequence: number,
+      index?: number
+    ) => {
+      if (noteType === "intention") {
+        confirmDialogTitle.value = store.getters.message(
+          "test-result-page.delete-intention"
+        );
+        confirmDialogMessage.value = store.getters.message(
+          "test-result-page.delete-intention-message",
+          { value: title }
+        );
+      } else {
+        confirmDialogTitle.value = store.getters.message(
+          "test-result-page.delete-notice-title"
+        );
+        confirmDialogMessage.value = store.getters.message(
+          "test-result-page.delete-notice-message",
+          { value: title }
+        );
+      }
+
+      confirmDialogAccept.value = () => {
+        deleteNote(noteType, sequence, index ?? 0);
+      };
+      confirmDialogOpened.value = true;
+    };
+
+    const deleteNote = (noteType: string, sequence: number, index: number) => {
+      (async () => {
+        try {
+          switch (noteType) {
+            case "intention":
+              store.dispatch("operationHistory/deleteTestPurpose", {
+                sequence,
+              });
+              return;
+            case "bug":
+            case "notice":
+              store.dispatch("operationHistory/deleteNotice", {
+                sequence,
+                index,
+              });
+              return;
+            default:
+              return;
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            errorMessageDialogOpened.value = true;
+            errorMessage.value = error.message;
+          } else {
+            throw error;
+          }
         }
+      })();
+    };
+
+    const verticalPaneSizeKey = computed((): string => {
+      return "latteart-management-verticalPaneSizeKey";
+    });
+
+    const horizontalPaneSizeKey = computed((): string => {
+      return "latteart-management-horizontalPaneSizeKey";
+    });
+
+    const setPaneSize = (key: "vertical" | "horizontal", value: number) => {
+      localStorage.setItem(
+        key === "vertical"
+          ? verticalPaneSizeKey.value
+          : horizontalPaneSizeKey.value,
+        value.toString()
+      );
+    };
+
+    const getPaneSize = (key: "vertical" | "horizontal"): string | null => {
+      return localStorage.getItem(
+        key === "vertical"
+          ? verticalPaneSizeKey.value
+          : horizontalPaneSizeKey.value
+      );
+    };
+
+    const dispCoverage = computed(() => {
+      return diagramType.value === DIAGRAM_TYPE_ELEMENT_COVERAGE.value;
+    });
+
+    const operationHistoryState = computed(() => {
+      return (store.state as any).operationHistory as OperationHistoryState;
+    });
+
+    const history = computed((): OperationHistory => {
+      return [...props.rawHistory];
+    });
+
+    const selectedOperationSequence = computed((): number => {
+      return operationHistoryState.value.selectedOperationSequence;
+    });
+
+    const displayedMediaType = computed({
+      get: (): "image" | "video" => mediaType.value,
+      set: (type: "image" | "video") => {
+        mediaType.value = type;
+      },
+    });
+
+    const updateMediaType = () => {
+      displayedMediaType.value = hasStillImage.value ? "image" : "video";
+    };
+
+    const hasStillImage = computed((): boolean => {
+      const screenImage = operationHistoryState.value.screenImage;
+
+      return (screenImage?.background.image.url ?? "") !== "";
+    });
+
+    const hasVideo = computed((): boolean => {
+      const screenImage = operationHistoryState.value.screenImage;
+
+      return screenImage?.background.video != null;
+    });
+
+    const displayedOperations = computed((): number[] => {
+      return operationHistoryState.value.displayedOperations;
+    });
+
+    const updating = computed((): boolean => {
+      return operationHistoryState.value.isTestResultViewModelUpdating;
+    });
+
+    const onChangeDialogType = () => {
+      updateWindowTitle();
+    };
+
+    const canUpdateModels = computed((): boolean => {
+      return operationHistoryState.value.canUpdateModels;
+    });
+
+    const updateTestResultViewModel = async () => {
+      try {
+        const testResultId = operationHistoryState.value.testResultInfo.id;
+
+        if (!testResultId) {
+          return;
+        }
+
+        await store.dispatch("operationHistory/updateModelsFromSequenceView", {
+          testResultId,
+        });
+
+        const testResultIds =
+          operationHistoryState.value.storingTestResultInfos.map(
+            ({ id }) => id
+          );
+        await store.dispatch("operationHistory/updateModelsFromGraphView", {
+          testResultIds:
+            testResultIds.length === 0 ? [testResultId] : testResultIds,
+        });
+
+        store.commit("operationHistory/setCanUpdateModels", {
+          setCanUpdateModels: false,
+        });
       } catch (error) {
         if (error instanceof Error) {
-          this.errorMessageDialogOpened = true;
-          this.errorMessage = error.message;
+          console.error(error);
+          errorMessageDialogOpened.value = true;
+          errorMessage.value = error.message;
         } else {
           throw error;
         }
       }
-    })();
-  }
-  private get verticalPaneSizeKey(): string {
-    return "latteart-management-verticalPaneSizeKey";
-  }
+    };
 
-  private get horizontalPaneSizeKey(): string {
-    return "latteart-management-horizontalPaneSizeKey";
-  }
+    const updateWindowTitle = () => {
+      switch (diagramType.value) {
+        case DIAGRAM_TYPE_SEQUENCE.value:
+          props.changeWindowTitle(props.message("sequence.window-title"));
+          return;
+        case DIAGRAM_TYPE_SCREEN_TRANSITION.value:
+          props.changeWindowTitle(
+            props.message("screen-transition.window-title")
+          );
+          return;
+        case DIAGRAM_TYPE_ELEMENT_COVERAGE.value:
+          props.changeWindowTitle(props.message("coverage.window-title"));
+          return;
+        default:
+          return;
+      }
+    };
 
-  private setPaneSize(key: "vertical" | "horizontal", value: number) {
-    localStorage.setItem(
-      key === "vertical"
-        ? this.verticalPaneSizeKey
-        : this.horizontalPaneSizeKey,
-      value.toString()
-    );
-  }
+    const onChangeHistory = (
+      newValue: OperationHistory,
+      oldValue: OperationHistory
+    ) => {
+      if (oldValue.length === 0) {
+        selectFirstOperation();
+      } else if (newValue.length !== oldValue.length) {
+        selectLastOperation();
+      }
+      scrollGraphArea();
+    };
 
-  private getPaneSize(key: "vertical" | "horizontal"): string | null {
-    return localStorage.getItem(
-      key === "vertical" ? this.verticalPaneSizeKey : this.horizontalPaneSizeKey
-    );
-  }
-
-  private get dispCoverage() {
-    return this.diagramType === this.DIAGRAM_TYPE_ELEMENT_COVERAGE;
-  }
-
-  private get operationHistoryState() {
-    return this.$store.state.operationHistory as OperationHistoryState;
-  }
-
-  private get history(): OperationHistory {
-    return [...this.rawHistory];
-  }
-
-  private get selectedOperationSequence(): number {
-    return this.operationHistoryState.selectedOperationSequence;
-  }
-
-  private get displayedMediaType(): "image" | "video" {
-    return this.mediaType;
-  }
-
-  private set displayedMediaType(mediaType: "image" | "video") {
-    this.mediaType = mediaType;
-  }
-
-  @Watch("hasStillImage")
-  @Watch("hasVideo")
-  private updateMediaType() {
-    this.displayedMediaType = this.hasStillImage ? "image" : "video";
-  }
-
-  private get hasStillImage(): boolean {
-    const screenImage = this.operationHistoryState.screenImage;
-
-    return (screenImage?.background.image.url ?? "") !== "";
-  }
-
-  private get hasVideo(): boolean {
-    const screenImage = this.operationHistoryState.screenImage;
-
-    return screenImage?.background.video != null;
-  }
-
-  private get displayedOperations(): number[] {
-    return this.operationHistoryState.displayedOperations;
-  }
-
-  private recentImageInfo = "";
-
-  private get updating(): boolean {
-    return this.operationHistoryState.isTestResultViewModelUpdating;
-  }
-
-  @Watch("diagramType")
-  private onChangeDialogType() {
-    this.updateWindowTitle();
-  }
-
-  private get canUpdateModels(): boolean {
-    return this.operationHistoryState.canUpdateModels;
-  }
-
-  private async updateTestResultViewModel() {
-    try {
-      const testResultId = this.operationHistoryState.testResultInfo.id;
-
-      if (!testResultId) {
+    const selectLastOperation = () => {
+      const lastOperation = history.value[history.value.length - 1];
+      if (!lastOperation) {
         return;
       }
+      selectOperation(lastOperation.operation.sequence);
+    };
 
-      await this.$store.dispatch(
-        "operationHistory/updateModelsFromSequenceView",
-        { testResultId }
-      );
-
-      const testResultIds =
-        this.operationHistoryState.storingTestResultInfos.map(({ id }) => id);
-      await this.$store.dispatch("operationHistory/updateModelsFromGraphView", {
-        testResultIds:
-          testResultIds.length === 0 ? [testResultId] : testResultIds,
-      });
-
-      this.$store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-        this.errorMessageDialogOpened = true;
-        this.errorMessage = error.message;
-      } else {
-        throw error;
+    const selectFirstOperation = () => {
+      const firstOperation = history.value[0];
+      if (!firstOperation) {
+        return;
       }
-    }
-  }
+      selectOperation(firstOperation.operation.sequence);
+    };
 
-  private updateWindowTitle() {
-    switch (this.diagramType) {
-      case this.DIAGRAM_TYPE_SEQUENCE:
-        this.changeWindowTitle(this.message("sequence.window-title"));
-        return;
-      case this.DIAGRAM_TYPE_SCREEN_TRANSITION:
-        this.changeWindowTitle(this.message("screen-transition.window-title"));
-        return;
-      case this.DIAGRAM_TYPE_ELEMENT_COVERAGE:
-        this.changeWindowTitle(this.message("coverage.window-title"));
-        return;
-      default:
-        return;
-    }
-  }
+    const selectOperation = (selectedOperationSequence: number) => {
+      store.dispatch("operationHistory/selectOperation", {
+        sequence: selectedOperationSequence,
+      });
+    };
 
-  @Watch("history")
-  private onChangeHistory(newValue: [], oldValue: []) {
-    if (oldValue.length === 0) {
-      this.selectFirstOperation();
-    } else if (newValue.length !== oldValue.length) {
-      this.selectLastOperation();
-    }
-    this.scrollGraphArea();
-  }
+    const scrollGraphArea = () => {
+      if (diagramType.value === DIAGRAM_TYPE_SEQUENCE.value) {
+        nextTick(() => {
+          (mermaidGraphDisplay.value as any).scrollTop = (
+            mermaidGraphDisplay.value as any
+          ).scrollHeight;
+        });
+      }
+    };
 
-  private selectLastOperation() {
-    const lastOperation = this.history[this.history.length - 1];
-    if (!lastOperation) {
-      return;
-    }
-    this.selectOperation(lastOperation.operation.sequence);
-  }
+    const resize = (type: "vertical" | "horizontal", event: any) => {
+      setPaneSize(type, event[0].size);
+    };
 
-  private selectFirstOperation() {
-    const firstOperation = this.history[0];
-    if (!firstOperation) {
-      return;
-    }
-    this.selectOperation(firstOperation.operation.sequence);
-  }
+    onMounted(async () => {
+      store.commit("operationHistory/setOpenNoteEditDialogFunction", {
+        openNoteEditDialog: openNoteEditDialog,
+      });
+      store.commit("operationHistory/setOpenNoteDeleteConfirmDialogFunction", {
+        openNoteDeleteConfirmDialog: openNoteDeleteConfirmDialog,
+      });
+      store.commit("operationHistory/setOpenNoteMenu", {
+        menu: openNoteMenu,
+      });
 
-  private selectOperation(selectedOperationSequence: number) {
-    this.$store.dispatch("operationHistory/selectOperation", {
-      sequence: selectedOperationSequence,
+      store.commit("operationHistory/setDeleteNoteFunction", {
+        deleteNote: deleteNote,
+      });
+      await updateTestResultViewModel();
     });
-  }
 
-  private scrollGraphArea() {
-    if (this.diagramType === this.DIAGRAM_TYPE_SEQUENCE) {
-      this.$nextTick(() => {
-        (this.$refs.mermaidGraphDisplay as Element).scrollTop = (
-          this.$refs.mermaidGraphDisplay as Element
-        ).scrollHeight;
-      });
-    }
-  }
+    watch(hasStillImage, updateMediaType);
+    watch(hasVideo, updateMediaType);
+    watch(diagramType, onChangeDialogType);
+    watch(history, onChangeHistory);
 
-  private resize(type: "vertical" | "horizontal", event: any) {
-    this.setPaneSize(type, event[0].size);
-  }
-}
+    verticalPaneSize.value = Number(getPaneSize("vertical") ?? "50");
+    horizontalPaneSize.value = Number(getPaneSize("horizontal") ?? "50");
+
+    selectFirstOperation();
+    updateWindowTitle();
+
+    return {
+      errorMessageDialogOpened,
+      errorMessage,
+      DIAGRAM_TYPE_SEQUENCE,
+      DIAGRAM_TYPE_SCREEN_TRANSITION,
+      DIAGRAM_TYPE_ELEMENT_COVERAGE,
+      diagramType,
+      verticalPaneSize,
+      horizontalPaneSize,
+      testPurposeEditDialogOpened,
+      noteUpdateDialogOpened,
+      noteRegisterDialogOpened,
+      contextMenuOpened,
+      contextMenuX,
+      contextMenuY,
+      contextMenuItems,
+      confirmDialogOpened,
+      confirmDialogTitle,
+      confirmDialogMessage,
+      confirmDialogAccept,
+      mermaidGraphDisplay,
+      dispCoverage,
+      history,
+      selectedOperationSequence,
+      displayedMediaType,
+      hasStillImage,
+      hasVideo,
+      displayedOperations,
+      updating,
+      canUpdateModels,
+      updateTestResultViewModel,
+      selectOperation,
+      resize,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

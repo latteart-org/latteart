@@ -30,26 +30,35 @@
 <script lang="ts">
 /* tslint:disable:max-line-length */
 
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { Edge, MessageProvider } from "@/lib/operationHistory/types";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
 import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
   components: {
     "mermaid-graph-renderer": MermaidGraphRenderer,
   },
-})
-export default class ScreenTransitionDiagram extends Vue {
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+  setup() {
+    const store = useStore();
 
-  private edges: Edge[] = [];
-  private nameMap: Map<number, string> = new Map();
+    const graph = computed((): MermaidGraph | null => {
+      return (store.state as any).operationHistory.screenTransitionDiagramGraph;
+    });
 
-  private get graph(): MermaidGraph | null {
-    return this.$store.state.operationHistory.screenTransitionDiagramGraph;
-  }
-}
+    return {
+      graph,
+    };
+  },
+});
 </script>
 
 <style lang="sass" scoped>

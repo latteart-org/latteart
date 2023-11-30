@@ -29,22 +29,32 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
 import { MessageProvider } from "@/lib/operationHistory/types";
 import ScreenTransitionDiagram from "./ScreenTransitionDiagram.vue";
 import SequenceDiagram from "./SequenceDiagram.vue";
+import { defineComponent, ref } from "vue";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
+  props: {
+    diagramType: { type: String, required: true },
+    message: {
+      type: Function as PropType<MessageProvider>,
+      required: true,
+    },
+  },
   components: {
     "screen-transition-diagram": ScreenTransitionDiagram,
     "sequence-diagram": SequenceDiagram,
   },
-})
-export default class HistorySummaryDiagram extends Vue {
-  @Prop({ type: String }) public readonly diagramType!: string;
-  @Prop({ type: Function }) public readonly message!: MessageProvider;
+  setup() {
+    const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
+    const DIAGRAM_TYPE_SCREEN_TRANSITION = ref<string>("screenTransition");
 
-  private readonly DIAGRAM_TYPE_SEQUENCE: string = "sequence";
-  private readonly DIAGRAM_TYPE_SCREEN_TRANSITION: string = "screenTransition";
-}
+    return {
+      DIAGRAM_TYPE_SEQUENCE,
+      DIAGRAM_TYPE_SCREEN_TRANSITION,
+    };
+  },
+});
 </script>
