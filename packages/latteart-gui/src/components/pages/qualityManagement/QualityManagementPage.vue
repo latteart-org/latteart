@@ -244,6 +244,13 @@ export default class QualityManagementPage extends Vue {
   private get headers() {
     const headers: any = [
       {
+        text: this.$store.getters.message("quality-management.test-matrix"),
+        align: "center",
+        sortable: false,
+        value: "testMatrix",
+        class: "ellipsis_short",
+      },
+      {
         text: this.$store.getters.message("quality-management.group"),
         align: "center",
         sortable: false,
@@ -299,6 +306,7 @@ export default class QualityManagementPage extends Vue {
             continue;
           }
           const row: any = {
+            testMatrix: testMatrix.name,
             group: group.name,
             testTarget: testTarget.name,
           };
@@ -353,7 +361,8 @@ export default class QualityManagementPage extends Vue {
     }
 
     const totalRow: any = {
-      group: this.$store.getters.message("quality-management.total"),
+      testMatrix: this.$store.getters.message("quality-management.total"),
+      group: " ",
       testTarget: " ",
     };
 
