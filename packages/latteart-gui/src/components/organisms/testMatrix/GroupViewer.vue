@@ -60,6 +60,7 @@
                 })
               "
               :plan="props.item[val.id]"
+              :displayedStories="displayedStories"
             ></sessions-status>
           </td>
         </tr>
@@ -93,6 +94,10 @@ export default defineComponent({
       required: true,
     },
     testMatrixId: { type: String, default: "", required: true },
+    displayedStories: {
+      type: Array as PropType<string[] | null>,
+      default: null,
+    },
   },
   components: {
     "sessions-status": SessionsStatus,

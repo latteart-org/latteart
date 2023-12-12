@@ -35,6 +35,7 @@
               <group-viewer
                 :testMatrixId="testMatrixId"
                 :viewPoints="testMatrix.viewPoints"
+                :displayedStories="displayedStories"
                 :group="group"
               ></group-viewer>
             </v-expansion-panel-content>
@@ -64,6 +65,7 @@ export default defineComponent({
     const store = useStore();
 
     const expandedPanelIndex = ref<number | undefined | null>(null);
+    const displayedStories = ref<string[] | null>(null);
 
     const expandedGroupPanelIndexKey = computed((): string => {
       return `latteart-management-expandedGroupPanelIndex_${props.testMatrixId}`;
@@ -123,6 +125,7 @@ export default defineComponent({
     };
 
     const filterItems = () => {
+      displayedStories.value = null;
       if (!props.search && !props.completionFilter) {
         testMatrix.value = targetTestMatrix.value;
         return;
@@ -133,6 +136,7 @@ export default defineComponent({
       }
 
       const filteredStories = filterStories();
+      displayedStories.value = filteredStories.map((story) => story.id);
 
       const testTargetIds = new Set(
         filteredStories.map(({ testTargetId }) => testTargetId)
@@ -195,6 +199,7 @@ export default defineComponent({
       store,
       expandedPanelIndex,
       testMatrix,
+      displayedStories,
     };
   },
 });
