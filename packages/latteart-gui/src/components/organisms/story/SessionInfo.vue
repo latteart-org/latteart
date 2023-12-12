@@ -21,24 +21,22 @@
         store.getters.message("session-info.charter")
       }}</v-card-title>
 
-      <v-form>
-        <v-card-text class="pt-0">
-          <v-text-field
-            class="pt-0"
-            :label="store.getters.message('session-info.tester-name')"
-            :value="session.testerName"
-            @change="(value) => updateSession({ testerName: value })"
-            :readonly="isViewerMode"
-          ></v-text-field>
-          <v-textarea
-            class="pt-0"
-            :label="store.getters.message('session-info.memo')"
-            :value="memo"
-            @change="(value) => updateSession({ memo: value, testItem: '' })"
-            :readonly="isViewerMode"
-          ></v-textarea>
-        </v-card-text>
-      </v-form>
+      <v-card-text class="pt-0">
+        <v-text-field
+          class="pt-0"
+          :label="store.getters.message('session-info.tester-name')"
+          :value="session.testerName"
+          @change="(value) => updateSession({ testerName: value })"
+          :readonly="isViewerMode"
+        ></v-text-field>
+        <v-textarea
+          class="pt-0"
+          :label="store.getters.message('session-info.memo')"
+          :value="memo"
+          @change="(value) => updateSession({ memo: value, testItem: '' })"
+          :readonly="isViewerMode"
+        ></v-textarea>
+      </v-card-text>
     </v-card>
 
     <v-card class="ma-2" color="blue-grey lighten-4">
