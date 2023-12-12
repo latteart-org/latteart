@@ -57,6 +57,7 @@
             v-if="isMediaDisplayed"
             :imageFileUrl="note.image.imageFileUrl"
             :videoUrl="note.videoUrl"
+            :message="message"
           />
         </v-card-text>
         <v-divider v-if="index + 1 !== noteWithTime.length"></v-divider>
