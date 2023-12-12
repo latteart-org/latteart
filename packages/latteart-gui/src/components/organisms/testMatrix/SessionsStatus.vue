@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-card class="py-0 my-3" @click="toStory">
+  <v-card v-if="displayed" class="py-0 my-3" @click="toStory">
     <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
       <p class="card-center">
         {{ store.getters.message(`test-matrix-page.status-${status}`) }}
@@ -34,11 +34,16 @@ import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { computed, defineComponent } from "vue";
 import { useStore } from "@/store";
 import { useRouter } from "vue-router/composables";
+import type { PropType } from "vue";
 
 export default defineComponent({
   props: {
     plan: { type: Number, default: -1, required: true },
     id: { type: String, default: "", required: true },
+    displayedStories: {
+      type: Array as PropType<string[] | null>,
+      default: null,
+    },
   },
   setup(props) {
     const store = useStore();
@@ -92,7 +97,13 @@ export default defineComponent({
       });
     };
 
+    const displayed =
+      props.displayedStories === null
+        ? true
+        : !!props.displayedStories.find((id) => id === props.id);
+
     return {
+      displayed,
       store,
       cardStyle,
       status,
