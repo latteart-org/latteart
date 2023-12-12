@@ -517,6 +517,7 @@ export default class WebBrowserWindow {
     shouldTakeScreenshot: boolean
   ) {
     if (isIgnoreOperation(capturedItem.operation, this.prevCapturedOperation)) {
+      this.prevCapturedOperation = capturedItem.operation;
       return;
     }
 
