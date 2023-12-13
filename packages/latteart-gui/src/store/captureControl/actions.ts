@@ -617,6 +617,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       };
     }
   ) {
+    await context.dispatch("captureControl/clearTestResult");
     const config: CaptureConfig = {
       ...context.rootState.deviceSettings,
       captureArch:
