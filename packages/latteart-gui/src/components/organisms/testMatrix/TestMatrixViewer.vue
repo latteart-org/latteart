@@ -164,27 +164,55 @@ export default defineComponent({
     };
 
     const filterStories = () => {
-      const filteredStoriesByCompleted = props.completionFilter
-        ? stories.value.filter(
-            (story) => story.sessions.findIndex(({ isDone }) => !isDone) > -1
-          )
-        : stories.value;
-
-      if (props.search) {
-        const filteredStoriesByText: Story[] = [];
-        for (const story of filteredStoriesByCompleted) {
-          const sessionIndex = story.sessions.findIndex(
-            ({ testerName }) => testerName === props.search
-          );
-          if (sessionIndex > -1) {
-            filteredStoriesByText.push({ ...story });
-          }
-        }
-
-        return filteredStoriesByText;
+      if (props.completionFilter && props.search) {
+        return filteredStoriesByTextAndCompleted();
       }
 
-      return filteredStoriesByCompleted;
+      if (props.completionFilter) {
+        return filteredStoriesByCompleted();
+      }
+
+      if (props.search) {
+        return filteredStoriesByText();
+      }
+
+      return stories.value;
+    };
+
+    const filteredStoriesByCompleted = () => {
+      return stories.value.filter(
+        (story) => story.sessions.findIndex(({ isDone }) => !isDone) > -1
+      );
+    };
+
+    const filteredStoriesByText = () => {
+      const filteredStoriesByText: Story[] = [];
+      for (const story of stories.value) {
+        const sessionIndex = story.sessions.findIndex(
+          ({ testerName }) => testerName === props.search
+        );
+
+        if (sessionIndex > -1) {
+          filteredStoriesByText.push({ ...story });
+        }
+      }
+
+      return filteredStoriesByText;
+    };
+
+    const filteredStoriesByTextAndCompleted = () => {
+      const filteredStoriesByText: Story[] = [];
+      for (const story of stories.value) {
+        const sessionIndex = story.sessions.findIndex(
+          ({ testerName, isDone }) => testerName === props.search && !isDone
+        );
+
+        if (sessionIndex > -1) {
+          filteredStoriesByText.push({ ...story });
+        }
+      }
+
+      return filteredStoriesByText;
     };
 
     const { testMatrixId, search, completionFilter } = toRefs(props);
