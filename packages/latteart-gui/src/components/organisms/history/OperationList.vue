@@ -52,7 +52,10 @@
             :items-per-page.sync="itemsPerPage"
             :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
             @click:row="(item) => onSelectOperations(item.index)"
-            @contextmenu:row="(event, item) => contextmenu(item.index, event)"
+            @contextmenu:row="
+              (event, item) =>
+                contextmenu(item.item.operation.sequence, event, item)
+            "
           >
             <template
               v-slot:[`item.data-table-select`]="{ isSelected, select, item }"
@@ -559,10 +562,10 @@ export default defineComponent({
       });
     };
 
-    const contextmenu = (itemIndex: number, event: MouseEvent) => {
+    const contextmenu = (itemSequence: number, event: MouseEvent) => {
       event.preventDefault();
       openOperationContextMenu({
-        itemIndex: (page.value - 1) * itemsPerPage.value + itemIndex,
+        itemIndex: itemSequence - 1,
         x: event.clientX,
         y: event.clientY,
       });
