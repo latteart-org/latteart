@@ -628,6 +628,19 @@ const mutations: MutationTree<OperationHistoryState> = {
   setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
     state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
   },
+
+  /**
+   * Set test result list page options.
+   * @param state State.
+   * @param payload.page Page number.
+   * @param payload.itemsPerPage Number of items per page.
+   */
+  setTestResultListOption(
+    state,
+    payload: { page: number; itemsPerPage: number }
+  ) {
+    state.testResultListOption = payload;
+  },
 };
 
 export default mutations;
