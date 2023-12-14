@@ -88,6 +88,10 @@ export default defineComponent({
     });
 
     const startCapture = async (): Promise<void> => {
+      store.dispatch("operationHistory/clearTestResult", null, {
+        root: true,
+      });
+
       goToHistoryView();
 
       try {
