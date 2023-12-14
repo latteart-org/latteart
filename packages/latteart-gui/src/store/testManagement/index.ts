@@ -54,6 +54,11 @@ export interface TestManagementState {
    * Recent review query.
    */
   recentReviewQuery: { sessionIds: string[]; testResultIds: string[] } | null;
+
+  /**
+   * Test matrix filter.
+   */
+  testMatrixFilter: { search: string; isCompletionFilterEnabled: boolean };
 }
 
 const state: TestManagementState = {
@@ -63,6 +68,7 @@ const state: TestManagementState = {
   tempStory: null,
   recentStories: [],
   recentReviewQuery: null,
+  testMatrixFilter: { search: "", isCompletionFilterEnabled: false },
 };
 
 export const testManagement: Module<TestManagementState, RootState> = {
