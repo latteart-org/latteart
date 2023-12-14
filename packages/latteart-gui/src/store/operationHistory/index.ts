@@ -249,6 +249,11 @@ export interface OperationHistoryState {
   isPictureInPictureWindowDisplayed: boolean;
 
   /**
+   * Test result list page options.
+   */
+  testResultListOption: { page: number; itemsPerPage: number };
+
+  /**
    * The function to open the dialog for editing a note.
    */
   openNoteEditDialog: (
@@ -314,6 +319,7 @@ const state: OperationHistoryState = {
   checkedOperations: [],
   checkedTestResults: [],
   isPictureInPictureWindowDisplayed: false,
+  testResultListOption: { page: 1, itemsPerPage: 10 },
   openNoteEditDialog: () => {
     /* Do nothing. */
   },
