@@ -207,7 +207,7 @@ export interface OperationHistoryState {
   /**
    * Sequence number of selected operation.
    */
-  selectedOperationSequence: number;
+  selectedOperationSequence: { sequence: number; doScroll: boolean };
 
   /**
    * Selected note.
@@ -311,7 +311,7 @@ const state: OperationHistoryState = {
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
   isTestResultViewModelUpdating: false,
-  selectedOperationSequence: 0,
+  selectedOperationSequence: { sequence: 0, doScroll: false },
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
   screenImage: null,

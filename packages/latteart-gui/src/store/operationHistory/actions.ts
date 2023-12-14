@@ -853,7 +853,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
-            context.dispatch("selectOperation", { sequence: firstSequence });
+            context.dispatch("selectOperation", {
+              sequence: firstSequence,
+              doScroll: true,
+            });
           },
           onClickEdge: (sequences: number[]) => {
             const lastSequence = sequences.at(-1);
@@ -862,10 +865,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
-            context.dispatch("selectOperation", { sequence: lastSequence });
+            context.dispatch("selectOperation", {
+              sequence: lastSequence,
+              doScroll: true,
+            });
           },
           onClickScreenRect: (sequence: number) => {
-            context.dispatch("selectOperation", { sequence });
+            context.dispatch("selectOperation", { sequence, doScroll: false });
           },
           onClickNote: (note: {
             id: number;
@@ -873,7 +879,10 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             type: string;
           }) => {
             if (!!note && (note.type === "notice" || note.type === "bug")) {
-              context.dispatch("selectOperation", { sequence: note.sequence });
+              context.dispatch("selectOperation", {
+                sequence: note.sequence,
+                doScroll: true,
+              });
             }
           },
           onRightClickNote: context.state.openNoteMenu,
@@ -1384,8 +1393,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     return result.data;
   },
 
-  selectOperation(context, payload: { sequence: number }) {
-    context.commit("selectOperation", { sequence: payload.sequence });
+  selectOperation(context, payload: { sequence: number; doScroll: boolean }) {
+    context.commit("selectOperation", {
+      sequence: payload.sequence,
+      doScroll: payload.doScroll,
+    });
 
     const selectedItem = (context.state.history ?? []).find(({ operation }) => {
       return operation.sequence === payload.sequence;
