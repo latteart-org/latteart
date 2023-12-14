@@ -133,7 +133,7 @@
           :displayedOperations="displayedOperations"
           :onSelectOperation="selectOperation"
           :history="history"
-          :selectedOperationSequence="selectedOperationSequence"
+          :selectedOperationInfo="selectedOperationInfo"
           :message="message"
           :operationContextEnabled="operationContextEnabled"
         ></operation-list>
@@ -509,9 +509,11 @@ export default defineComponent({
       return [...props.rawHistory];
     });
 
-    const selectedOperationSequence = computed((): number => {
-      return operationHistoryState.value.selectedOperationSequence;
-    });
+    const selectedOperationInfo = computed(
+      (): { sequence: number; doScroll: boolean } => {
+        return operationHistoryState.value.selectedOperationInfo;
+      }
+    );
 
     const displayedMediaType = computed({
       get: (): "image" | "video" => mediaType.value,
@@ -622,7 +624,7 @@ export default defineComponent({
       if (!lastOperation) {
         return;
       }
-      selectOperation(lastOperation.operation.sequence);
+      selectOperation(lastOperation.operation.sequence, false);
     };
 
     const selectFirstOperation = () => {
@@ -630,12 +632,13 @@ export default defineComponent({
       if (!firstOperation) {
         return;
       }
-      selectOperation(firstOperation.operation.sequence);
+      selectOperation(firstOperation.operation.sequence, false);
     };
 
-    const selectOperation = (selectedOperationSequence: number) => {
+    const selectOperation = (sequence: number, doScroll: boolean) => {
       store.dispatch("operationHistory/selectOperation", {
-        sequence: selectedOperationSequence,
+        sequence,
+        doScroll,
       });
     };
 
@@ -704,7 +707,7 @@ export default defineComponent({
       mermaidGraphDisplay,
       dispCoverage,
       history,
-      selectedOperationSequence,
+      selectedOperationInfo,
       displayedMediaType,
       hasStillImage,
       hasVideo,

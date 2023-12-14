@@ -69,7 +69,12 @@
             </template>
 
             <template v-slot:[`item.operation.sequence`]="{ item }">
-              <td :class="createCssClassForRow(item.index)">
+              <td
+                :class="[
+                  createCssClassForRow(item.index),
+                  `sequence_${item.operation.sequence}`,
+                ]"
+              >
                 {{ item.operation.sequence }}
               </td>
             </template>
@@ -253,9 +258,12 @@ export default defineComponent({
       default: [],
       required: true,
     },
-    selectedOperationSequence: { type: Number, default: -1, required: true },
+    selectedOperationInfo: {
+      type: Object as PropType<{ sequence: number; doScroll: boolean }>,
+      required: true,
+    },
     onSelectOperation: {
-      type: Function as PropType<(sequence: number) => void>,
+      type: Function as PropType<(sequence: number, doScroll: boolean) => void>,
       default: () => {
         /* Do nothing */
       },
@@ -360,7 +368,19 @@ export default defineComponent({
     };
 
     const initializeSelectedSequences = () => {
-      selectedSequences.value = [props.selectedOperationSequence];
+      selectedSequences.value = [props.selectedOperationInfo.sequence];
+      if (!props.selectedOperationInfo.doScroll) {
+        return;
+      }
+
+      const seqElement = document.querySelector(
+        `.sequence_${props.selectedOperationInfo.sequence}`
+      );
+
+      const dataTableElement = document.querySelector(".v-data-table__wrapper");
+      if (seqElement && dataTableElement) {
+        dataTableElement.scrollTop = (seqElement as HTMLElement).offsetTop - 32;
+      }
     };
 
     const formatTimestamp = (epochMilliseconds: string) => {
@@ -370,7 +390,7 @@ export default defineComponent({
     const onSelectOperations = (...indexes: number[]) => {
       selectedSequences.value = indexes.map((index) => index + 1);
 
-      props.onSelectOperation(selectedSequences.value[0]);
+      props.onSelectOperation(selectedSequences.value[0], false);
     };
 
     const openOperationContextMenu = (target: {
@@ -709,8 +729,8 @@ export default defineComponent({
       document.removeEventListener("keydown", keyDown);
     });
 
-    const { selectedOperationSequence } = toRefs(props);
-    watch(selectedOperationSequence, initializeSelectedSequences);
+    const { selectedOperationInfo } = toRefs(props);
+    watch(selectedOperationInfo, initializeSelectedSequences);
     watch(getCheckedItems, clearCheckedItems);
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);
