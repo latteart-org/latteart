@@ -205,9 +205,9 @@ export interface OperationHistoryState {
   isTestResultViewModelUpdating: boolean;
 
   /**
-   * Sequence number of selected operation.
+   * Sequence info of selected operation.
    */
-  selectedOperationSequence: { sequence: number; doScroll: boolean };
+  selectedOperationInfo: { sequence: number; doScroll: boolean };
 
   /**
    * Selected note.
@@ -311,7 +311,7 @@ const state: OperationHistoryState = {
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
   isTestResultViewModelUpdating: false,
-  selectedOperationSequence: { sequence: 0, doScroll: false },
+  selectedOperationInfo: { sequence: 0, doScroll: false },
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
   screenImage: null,

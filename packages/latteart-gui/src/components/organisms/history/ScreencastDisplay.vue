@@ -53,8 +53,8 @@ export default defineComponent({
       return operationHistoryState.value.isPictureInPictureWindowDisplayed;
     });
 
-    const selectedOperationSequence = computed(() => {
-      return operationHistoryState.value.selectedOperationSequence;
+    const selectedOperationInfo = computed(() => {
+      return operationHistoryState.value.selectedOperationInfo;
     });
 
     const rectStyle = computed(
@@ -110,7 +110,7 @@ export default defineComponent({
       isRectDisplayed.value = true;
     };
 
-    watch(selectedOperationSequence, displayRect);
+    watch(selectedOperationInfo, displayRect);
 
     return {
       isRectDisplayed,

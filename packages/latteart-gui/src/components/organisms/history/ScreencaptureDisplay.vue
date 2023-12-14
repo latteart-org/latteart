@@ -58,15 +58,15 @@ export default defineComponent({
       );
     });
 
-    const selectedOperationSequence = computed(() => {
-      return operationHistoryState.value.selectedOperationSequence;
+    const selectedOperationInfo = computed(() => {
+      return operationHistoryState.value.selectedOperationInfo;
     });
 
     const screenshotName = computed((): string => {
       const url = imageInfo.value.decode;
       const ar = url.split(".");
       const ext = ar[ar.length - 1];
-      const sequence = selectedOperationSequence.value;
+      const sequence = selectedOperationInfo.value;
       return `${sequence}.${ext}`;
     });
 

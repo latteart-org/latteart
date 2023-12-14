@@ -258,9 +258,8 @@ export default defineComponent({
       default: [],
       required: true,
     },
-    selectedOperationSequence: {
+    selectedOperationInfo: {
       type: Object as PropType<{ sequence: number; doScroll: boolean }>,
-      default: null,
       required: true,
     },
     onSelectOperation: {
@@ -369,14 +368,13 @@ export default defineComponent({
     };
 
     const initializeSelectedSequences = () => {
-      console.log("initializeSelectedSequences");
-      selectedSequences.value = [props.selectedOperationSequence.sequence];
-      if (!props.selectedOperationSequence.doScroll) {
+      selectedSequences.value = [props.selectedOperationInfo.sequence];
+      if (!props.selectedOperationInfo.doScroll) {
         return;
       }
 
       const seqElement = document.querySelector(
-        `.sequence_${props.selectedOperationSequence.sequence}`
+        `.sequence_${props.selectedOperationInfo.sequence}`
       );
 
       const dataTableElement = document.querySelector(".v-data-table__wrapper");
@@ -731,8 +729,8 @@ export default defineComponent({
       document.removeEventListener("keydown", keyDown);
     });
 
-    const { selectedOperationSequence } = toRefs(props);
-    watch(selectedOperationSequence, initializeSelectedSequences);
+    const { selectedOperationInfo } = toRefs(props);
+    watch(selectedOperationInfo, initializeSelectedSequences);
     watch(getCheckedItems, clearCheckedItems);
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);

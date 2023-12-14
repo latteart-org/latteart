@@ -133,7 +133,7 @@
           :displayedOperations="displayedOperations"
           :onSelectOperation="selectOperation"
           :history="history"
-          :selectedOperationSequence="selectedOperationSequence"
+          :selectedOperationInfo="selectedOperationInfo"
           :message="message"
           :operationContextEnabled="operationContextEnabled"
         ></operation-list>
@@ -509,9 +509,9 @@ export default defineComponent({
       return [...props.rawHistory];
     });
 
-    const selectedOperationSequence = computed(
+    const selectedOperationInfo = computed(
       (): { sequence: number; doScroll: boolean } => {
-        return operationHistoryState.value.selectedOperationSequence;
+        return operationHistoryState.value.selectedOperationInfo;
       }
     );
 
@@ -707,7 +707,7 @@ export default defineComponent({
       mermaidGraphDisplay,
       dispCoverage,
       history,
-      selectedOperationSequence,
+      selectedOperationInfo,
       displayedMediaType,
       hasStillImage,
       hasVideo,

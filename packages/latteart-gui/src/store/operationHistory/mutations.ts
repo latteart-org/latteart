@@ -304,7 +304,7 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param payload.doScroll Scroll to the corresponding sequence in the history table.
    */
   selectOperation(state, payload: { sequence: number; doScroll: boolean }) {
-    state.selectedOperationSequence = {
+    state.selectedOperationInfo = {
       sequence: payload.sequence,
       doScroll: payload.doScroll,
     };
