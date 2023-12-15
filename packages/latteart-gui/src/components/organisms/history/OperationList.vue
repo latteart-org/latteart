@@ -373,14 +373,29 @@ export default defineComponent({
         return;
       }
 
-      const seqElement = document.querySelector(
-        `.sequence_${props.selectedOperationInfo.sequence}`
+      const index = displayedHistoryItems.value.findIndex(
+        (item) =>
+          item.operation.sequence === props.selectedOperationInfo.sequence
       );
-
-      const dataTableElement = document.querySelector(".v-data-table__wrapper");
-      if (seqElement && dataTableElement) {
-        dataTableElement.scrollTop = (seqElement as HTMLElement).offsetTop - 32;
+      if (index === undefined) {
+        return;
       }
+
+      page.value = Math.floor((index + 1) / itemsPerPage.value) + 1;
+
+      nextTick(() => {
+        const seqElement = document.querySelector(
+          `.sequence_${props.selectedOperationInfo.sequence}`
+        );
+
+        const dataTableElement = document.querySelector(
+          ".v-data-table__wrapper"
+        );
+        if (seqElement && dataTableElement) {
+          dataTableElement.scrollTop =
+            (seqElement as HTMLElement).offsetTop - 32;
+        }
+      });
     };
 
     const formatTimestamp = (epochMilliseconds: string) => {
