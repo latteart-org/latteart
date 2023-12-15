@@ -205,9 +205,9 @@ export interface OperationHistoryState {
   isTestResultViewModelUpdating: boolean;
 
   /**
-   * Sequence number of selected operation.
+   * Sequence info of selected operation.
    */
-  selectedOperationSequence: number;
+  selectedOperationInfo: { sequence: number; doScroll: boolean };
 
   /**
    * Selected note.
@@ -247,6 +247,17 @@ export interface OperationHistoryState {
    * Whether Picture-in-Picture window is displayed.
    */
   isPictureInPictureWindowDisplayed: boolean;
+
+  /**
+   * Test result list page options.
+   */
+  testResultListOption: {
+    search: string;
+    page: number;
+    itemsPerPage: number;
+    sortBy: string;
+    sortDesc: boolean;
+  };
 
   /**
    * The function to open the dialog for editing a note.
@@ -306,7 +317,7 @@ const state: OperationHistoryState = {
   inputValueTable: new InputValueTable(),
   canUpdateModels: false,
   isTestResultViewModelUpdating: false,
-  selectedOperationSequence: 0,
+  selectedOperationInfo: { sequence: 0, doScroll: false },
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
   screenImage: null,
@@ -314,6 +325,13 @@ const state: OperationHistoryState = {
   checkedOperations: [],
   checkedTestResults: [],
   isPictureInPictureWindowDisplayed: false,
+  testResultListOption: {
+    search: "",
+    page: 1,
+    itemsPerPage: 10,
+    sortBy: "creationTimestamp",
+    sortDesc: false,
+  },
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

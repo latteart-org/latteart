@@ -52,7 +52,10 @@
             :items-per-page.sync="itemsPerPage"
             :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
             @click:row="(item) => onSelectOperations(item.index)"
-            @contextmenu:row="(event, item) => contextmenu(item.index, event)"
+            @contextmenu:row="
+              (event, item) =>
+                contextmenu(item.item.operation.sequence, event, item)
+            "
           >
             <template
               v-slot:[`item.data-table-select`]="{ isSelected, select, item }"
@@ -66,7 +69,12 @@
             </template>
 
             <template v-slot:[`item.operation.sequence`]="{ item }">
-              <td :class="createCssClassForRow(item.index)">
+              <td
+                :class="[
+                  createCssClassForRow(item.index),
+                  `sequence_${item.operation.sequence}`,
+                ]"
+              >
                 {{ item.operation.sequence }}
               </td>
             </template>
@@ -250,9 +258,12 @@ export default defineComponent({
       default: [],
       required: true,
     },
-    selectedOperationSequence: { type: Number, default: -1, required: true },
+    selectedOperationInfo: {
+      type: Object as PropType<{ sequence: number; doScroll: boolean }>,
+      required: true,
+    },
     onSelectOperation: {
-      type: Function as PropType<(sequence: number) => void>,
+      type: Function as PropType<(sequence: number, doScroll: boolean) => void>,
       default: () => {
         /* Do nothing */
       },
@@ -357,7 +368,34 @@ export default defineComponent({
     };
 
     const initializeSelectedSequences = () => {
-      selectedSequences.value = [props.selectedOperationSequence];
+      selectedSequences.value = [props.selectedOperationInfo.sequence];
+      if (!props.selectedOperationInfo.doScroll) {
+        return;
+      }
+
+      const index = displayedHistoryItems.value.findIndex(
+        (item) =>
+          item.operation.sequence === props.selectedOperationInfo.sequence
+      );
+      if (index === undefined) {
+        return;
+      }
+
+      page.value = Math.floor(index / itemsPerPage.value) + 1;
+
+      nextTick(() => {
+        const seqElement = document.querySelector(
+          `.sequence_${props.selectedOperationInfo.sequence}`
+        );
+
+        const dataTableElement = document.querySelector(
+          ".v-data-table__wrapper"
+        );
+        if (seqElement && dataTableElement) {
+          dataTableElement.scrollTop =
+            (seqElement as HTMLElement).offsetTop - 32;
+        }
+      });
     };
 
     const formatTimestamp = (epochMilliseconds: string) => {
@@ -367,7 +405,7 @@ export default defineComponent({
     const onSelectOperations = (...indexes: number[]) => {
       selectedSequences.value = indexes.map((index) => index + 1);
 
-      props.onSelectOperation(selectedSequences.value[0]);
+      props.onSelectOperation(selectedSequences.value[0], false);
     };
 
     const openOperationContextMenu = (target: {
@@ -559,10 +597,10 @@ export default defineComponent({
       });
     };
 
-    const contextmenu = (itemIndex: number, event: MouseEvent) => {
+    const contextmenu = (itemSequence: number, event: MouseEvent) => {
       event.preventDefault();
       openOperationContextMenu({
-        itemIndex: (page.value - 1) * itemsPerPage.value + itemIndex,
+        itemIndex: itemSequence - 1,
         x: event.clientX,
         y: event.clientY,
       });
@@ -706,8 +744,8 @@ export default defineComponent({
       document.removeEventListener("keydown", keyDown);
     });
 
-    const { selectedOperationSequence } = toRefs(props);
-    watch(selectedOperationSequence, initializeSelectedSequences);
+    const { selectedOperationInfo } = toRefs(props);
+    watch(selectedOperationInfo, initializeSelectedSequences);
     watch(getCheckedItems, clearCheckedItems);
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);

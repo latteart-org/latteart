@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: latteart-capture-cl
-  version: 2.14.0
+  version: 2.14.1
 servers:
   - url: "http://localhost:3001/api/v1"
 paths:

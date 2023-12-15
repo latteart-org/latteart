@@ -332,6 +332,19 @@ const mutations: MutationTree<TestManagementState> = {
   ) {
     state.recentReviewQuery = payload.query;
   },
+
+  /**
+   * Set test matrix filter.
+   * @param state State.
+   * @param payload.search Tester name filter text.
+   * @param payload.isCompletionFilterEnabled Flag to filter only stories with incompletes.
+   */
+  setTestMatrixFilter(
+    state,
+    payload: { search: string; isCompletionFilterEnabled: boolean }
+  ) {
+    state.testMatrixFilter = payload;
+  },
 };
 
 export default mutations;

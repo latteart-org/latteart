@@ -24,12 +24,20 @@
       v-if="imageFileUrl || videoUrl"
     >
       <v-radio
-        :label="store.getters.message('media-display-group.image')"
+        :label="
+          message
+            ? message('media-display-group.image')
+            : store.getters.message('media-display-group.image')
+        "
         value="image"
         :disabled="!imageFileUrl"
       ></v-radio>
       <v-radio
-        :label="store.getters.message('media-display-group.video')"
+        :label="
+          message
+            ? message('media-display-group.video')
+            : store.getters.message('media-display-group.video')
+        "
         value="video"
         :disabled="!videoUrl"
       ></v-radio>
@@ -43,13 +51,16 @@
 <script lang="ts">
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import { MessageProvider } from "@/lib/operationHistory/types";
 import { defineComponent, ref } from "vue";
 import { useStore } from "@/store";
+import type { PropType } from "vue";
 
 export default defineComponent({
   props: {
     imageFileUrl: { type: String },
     videoUrl: { type: String },
+    message: { type: Function as PropType<MessageProvider> },
   },
   components: {
     "popup-image": PopupImage,

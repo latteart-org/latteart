@@ -84,6 +84,7 @@ import { TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
 import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
 import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
+import { TestManagementState } from "@/store/testManagement";
 import { computed, defineComponent, onBeforeUnmount, ref, watch } from "vue";
 import { useStore } from "@/store";
 import { useRoute } from "vue-router/composables";
@@ -99,8 +100,15 @@ export default defineComponent({
     const route = useRoute();
 
     const selectedTestMatrixId = ref("");
-    const search = ref("");
-    const isCompletionFilterEnabled = ref(false);
+
+    const testManagementState = computed(() => {
+      return (store.state as any).testManagement as TestManagementState;
+    });
+
+    const search = ref(testManagementState.value.testMatrixFilter.search);
+    const isCompletionFilterEnabled = ref(
+      testManagementState.value.testMatrixFilter.isCompletionFilterEnabled
+    );
 
     const testMatrices = computed((): TestMatrix[] => {
       const targetTestMatrices =
@@ -138,6 +146,10 @@ export default defineComponent({
         "latteart-management-selectedTestMatrixIdOnViewer",
         selectedTestMatrixId.value
       );
+      store.commit("testManagement/setTestMatrixFilter", {
+        search: search.value,
+        isCompletionFilterEnabled: isCompletionFilterEnabled.value,
+      });
     });
 
     watch(selectedTestMatrixId, noticeTestMatrixChanged);
