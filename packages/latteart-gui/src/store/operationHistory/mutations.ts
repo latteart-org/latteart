@@ -636,12 +636,21 @@ const mutations: MutationTree<OperationHistoryState> = {
   /**
    * Set test result list page options.
    * @param state State.
+   * @param payload.search Search text.
    * @param payload.page Page number.
    * @param payload.itemsPerPage Number of items per page.
+   * @param payload.sortBy Sort target.
+   * @param payload.sortDesc Sort order.
    */
   setTestResultListOption(
     state,
-    payload: { page: number; itemsPerPage: number }
+    payload: {
+      search: string;
+      page: number;
+      itemsPerPage: number;
+      sortBy: string;
+      sortDesc: boolean;
+    }
   ) {
     state.testResultListOption = payload;
   },

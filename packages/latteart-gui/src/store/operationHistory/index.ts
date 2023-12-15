@@ -251,7 +251,13 @@ export interface OperationHistoryState {
   /**
    * Test result list page options.
    */
-  testResultListOption: { page: number; itemsPerPage: number };
+  testResultListOption: {
+    search: string;
+    page: number;
+    itemsPerPage: number;
+    sortBy: string;
+    sortDesc: boolean;
+  };
 
   /**
    * The function to open the dialog for editing a note.
@@ -319,7 +325,13 @@ const state: OperationHistoryState = {
   checkedOperations: [],
   checkedTestResults: [],
   isPictureInPictureWindowDisplayed: false,
-  testResultListOption: { page: 1, itemsPerPage: 10 },
+  testResultListOption: {
+    search: "",
+    page: 1,
+    itemsPerPage: 10,
+    sortBy: "creationTimestamp",
+    sortDesc: false,
+  },
   openNoteEditDialog: () => {
     /* Do nothing. */
   },
