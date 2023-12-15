@@ -97,10 +97,11 @@ export default defineComponent({
       });
     };
 
-    const displayed =
-      props.displayedStories === null
+    const displayed = computed((): boolean => {
+      return props.displayedStories === null
         ? true
         : !!props.displayedStories.find((id) => id === props.id);
+    });
 
     return {
       displayed,
