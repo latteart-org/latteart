@@ -43,6 +43,8 @@
             show-select
             :page.sync="page"
             :items-per-page.sync="itemsPerPage"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
             :search="search"
             :custom-filter="filterItems"
           >
@@ -207,7 +209,7 @@ import InformationMessageDialog from "@/components/molecules/InformationMessageD
 import TestResultImportTrigger from "@/components/organisms/common/TestResultImportTrigger.vue";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 import TestResultNameEditTrigger from "@/components/organisms/common/TestResultNameEditTrigger.vue";
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, onBeforeUnmount } from "vue";
 import { useStore } from "@/store";
 import { useRoute, useRouter } from "vue-router/composables";
 
@@ -233,7 +235,6 @@ export default defineComponent({
 
     const selectedTestResults = ref<TestResultSummary[]>([]);
     const testResults = ref<TestResultSummary[]>([]);
-    const search = ref("");
 
     const headers = computed(() => {
       return [
@@ -279,9 +280,14 @@ export default defineComponent({
       return (store.state as any).operationHistory as OperationHistoryState;
     });
 
+    const search = ref(operationHistoryState.value.testResultListOption.search);
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(
       operationHistoryState.value.testResultListOption.itemsPerPage
+    );
+    const sortBy = ref(operationHistoryState.value.testResultListOption.sortBy);
+    const sortDesc = ref(
+      operationHistoryState.value.testResultListOption.sortDesc
     );
 
     const loadTestResultSummaries = async () => {
@@ -384,15 +390,15 @@ export default defineComponent({
       });
     };
 
-    const changeTestResultOption = () => {
+    onBeforeUnmount(() => {
       store.commit("operationHistory/setTestResultListOption", {
+        search: search.value,
         page: page.value,
         itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value,
+        sortDesc: sortDesc.value,
       });
-    };
-
-    watch(page, changeTestResultOption);
-    watch(itemsPerPage, changeTestResultOption);
+    });
 
     (async () => {
       await store.dispatch("changeWindowTitle", {
@@ -416,6 +422,8 @@ export default defineComponent({
       search,
       page,
       itemsPerPage,
+      sortBy,
+      sortDesc,
       headers,
       isDisabled,
       loadTestResultSummaries,
