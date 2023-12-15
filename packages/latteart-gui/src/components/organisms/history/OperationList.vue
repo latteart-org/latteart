@@ -381,7 +381,7 @@ export default defineComponent({
         return;
       }
 
-      page.value = Math.floor((index + 1) / itemsPerPage.value) + 1;
+      page.value = Math.floor(index / itemsPerPage.value) + 1;
 
       nextTick(() => {
         const seqElement = document.querySelector(
