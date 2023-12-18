@@ -512,11 +512,11 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   /**
    * @inheritdoc
    */
-  public async getDocumentReadyState(): Promise<string> {
+  public async isCurrentDocumentLoadingCompleted(): Promise<boolean> {
     try {
       const readyState = (await this.driver.executeScript(
-        "return document.readyState"
-      )) as string;
+        "return document.readyState === 'complete'"
+      )) as boolean;
       return readyState;
     } catch (error) {
       LoggingService.debug("get document ready state failed.");
@@ -531,7 +531,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
           ].includes(error.name)
         ) {
           LoggingService.debug(`${error}`);
-          return "";
+          return false;
         }
       }
       throw error;
@@ -740,8 +740,14 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }[]
   > {
     const iframes = await this.execute(() => {
-      return [...document.getElementsByTagName("iframe")].map(
-        (iframe, index) => {
+      return [...document.getElementsByTagName("iframe")]
+        .filter((iframe) => {
+          return (
+            iframe.style.display !== "none" &&
+            iframe.style.visibility !== "hidden"
+          );
+        })
+        .map((iframe, index) => {
           const { top, left, width, height } = iframe.getBoundingClientRect();
           const { innerHeight, innerWidth, outerHeight, outerWidth } = window;
           return {
@@ -752,8 +758,7 @@ export class SeleniumWebDriverClient implements WebDriverClient {
             outerHeight,
             outerWidth,
           };
-        }
-      );
+        });
     });
 
     return iframes === null ? [] : iframes;

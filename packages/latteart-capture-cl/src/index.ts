@@ -32,7 +32,7 @@ import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { CapturedData } from "./capturer/captureScript";
+import { CapturedItem } from "./capturer/captureScripts";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
@@ -155,9 +155,9 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
 
 app.post(`${v1RootPath}/operation`, async (req, res) => {
   LoggingService.info("operation");
-  const capturedData: Omit<CapturedData, "eventInfo"> = req.body;
+  const capturedItem: Omit<CapturedItem, "eventInfo"> = req.body;
 
-  await capturer.registerCapturedData(capturedData);
+  await capturer.registerCapturedItem(capturedItem);
 
   res.json("OK");
 });
@@ -415,7 +415,7 @@ io.on("connection", (socket) => {
             "This version of ChromeDriver only supports Chrome version"
           ) ||
             error.message.includes(
-              "This version of Microsoft Edge WebDriver only supports Microsoft Edge version"
+              "This version of Microsoft Edge WebDriver only supports msedge version"
             ))
         ) {
           LoggingService.error("WebDriver version mismatch.", error);
@@ -423,6 +423,25 @@ io.on("connection", (socket) => {
           const serverError: ServerError = {
             code: "web_driver_version_mismatch",
             message: "WebDriver version mismatch.",
+          };
+
+          socket.emit(
+            ServerToClientSocketIOEvent.ERROR_OCCURRED,
+            JSON.stringify(serverError)
+          );
+
+          return;
+        }
+
+        if (
+          error.name === "WebDriverError" &&
+          error.message.includes("net::ERR_CONNECTION_REFUSED")
+        ) {
+          LoggingService.error(`Connection refused.: ${url}`);
+
+          const serverError: ServerError = {
+            code: "connection_refused",
+            message: "Connection refused.",
           };
 
           socket.emit(

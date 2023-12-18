@@ -23,7 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedData } from "./captureScript";
+import { CapturedItem } from "./captureScripts";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -112,12 +112,7 @@ export default class BrowserOperationCapturer {
       await browser.open(url);
       onStart();
     } catch (error) {
-      if (error instanceof Error) {
-        this.onError(error);
-        this.onBrowserClosed();
-
-        return;
-      }
+      await browser.close();
       throw error;
     }
 
@@ -125,70 +120,28 @@ export default class BrowserOperationCapturer {
 
     let acceptAlertOperation: Operation | null = null;
 
-    let shouldDeleteCapturedData = false;
     let lastAlertIsVisible = false;
     let pageSource = "";
-    let screenElements: ScreenElements[] | undefined = [];
+    let screenElements: ScreenElements[] = [];
 
     while (this.isCapturing()) {
+      // Wait.
+      await ((msec) => new Promise((resolve) => setTimeout(resolve, msec)))(
+        200
+      );
+
+      const beforeWindow = this.webBrowser.currentWindow;
+
       try {
         this.alertIsVisible = await this.client.alertIsVisible();
-
-        if (!this.alertIsVisible) {
-          pageSource = await this.client.getCurrentPageText();
-
-          screenElements =
-            await this.webBrowser.currentWindow?.collectAllFrameScreenElements();
-
-          if (
-            shouldDeleteCapturedData &&
-            this.config.captureArch === "polling"
-          ) {
-            await this.webBrowser.currentWindow?.deleteCapturedDatas();
-            shouldDeleteCapturedData = false;
-          }
-        }
 
         if (this.alertIsVisible !== lastAlertIsVisible) {
           lastAlertIsVisible = this.alertIsVisible;
           this.onAlertVisibilityChanged(this.alertIsVisible);
         }
-        // Wait.
-        await ((msec) => new Promise((resolve) => setTimeout(resolve, msec)))(
-          200
-        );
-
-        const beforeWindow = this.webBrowser.currentWindow;
-
-        // Delete actions after executing all registered actions.
-        if (!this.alertIsVisible) {
-          for (const action of [...this.actionQueue]) {
-            try {
-              await action(this.webBrowser);
-
-              this.actionQueue.shift();
-            } catch (error) {
-              if (
-                error instanceof Error &&
-                error.name === "NoSuchWindowError"
-              ) {
-                LoggingService.debug(`${error}`);
-
-                break;
-              }
-
-              throw error;
-            }
-          }
-        }
-
-        if (!this.isCapturing()) {
-          break;
-        }
 
         if (this.alertIsVisible) {
           if (acceptAlertOperation) {
-            shouldDeleteCapturedData = true;
             continue;
           }
 
@@ -209,6 +162,11 @@ export default class BrowserOperationCapturer {
         }
 
         if (acceptAlertOperation) {
+          if (this.config.captureArch === "polling") {
+            // Delete items captured between the triggering operation and the alert display.
+            await this.webBrowser.currentWindow?.deleteCapturedItems();
+          }
+
           this.onGetOperation(
             new Operation({
               ...acceptAlertOperation,
@@ -219,7 +177,7 @@ export default class BrowserOperationCapturer {
           acceptAlertOperation = null;
         }
 
-        // Updates browser state.
+        // Update browser state.
         await this.webBrowser.updateState(beforeWindow);
 
         if (this.webBrowser.countWindows() === 0) {
@@ -229,9 +187,8 @@ export default class BrowserOperationCapturer {
           break;
         }
 
-        // Capture operations.
+        // Capture data in current window.
         const currentWindow = this.webBrowser.currentWindow;
-
         if (currentWindow) {
           if (this.capturingIsPaused) {
             await currentWindow.pauseCapturing();
@@ -239,11 +196,26 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
-          await currentWindow.getReadyToCapture();
-          await currentWindow.captureScreenTransition();
+          const result = await currentWindow.captureData();
 
-          if (this.config.captureArch === "polling") {
-            await currentWindow.captureOperations();
+          screenElements = result.screenElements;
+          pageSource = result.pageSource;
+        }
+
+        // Execute all registered actions.
+        for (const action of [...this.actionQueue]) {
+          try {
+            await action(this.webBrowser);
+
+            this.actionQueue.shift();
+          } catch (error) {
+            if (error instanceof Error && error.name === "NoSuchWindowError") {
+              LoggingService.debug(`${error}`);
+
+              break;
+            }
+
+            throw error;
           }
         }
       } catch (error) {
@@ -294,12 +266,12 @@ export default class BrowserOperationCapturer {
   }
 
   /**
-   * Register captured data.
-   * @param capturedData captured data.
+   * Register captured item.
+   * @param capturedItem captured item.
    * @param option option.
    */
-  public async registerCapturedData(
-    capturedData: Omit<CapturedData, "eventInfo">,
+  public async registerCapturedItem(
+    capturedItem: Omit<CapturedItem, "eventInfo">,
     option: {
       shouldTakeScreenshot?: boolean;
     } = {}
@@ -311,8 +283,8 @@ export default class BrowserOperationCapturer {
     try {
       this.alertIsVisible = await this.client.alertIsVisible();
       this.actionQueue.push(async (browser) => {
-        await browser.currentWindow?.registerCapturedData(
-          capturedData,
+        await browser.currentWindow?.registerCapturedItem(
+          capturedItem,
           option.shouldTakeScreenshot ?? false
         );
       });

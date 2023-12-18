@@ -40,7 +40,7 @@
         <v-list-item-group v-model="displayedPage" color="primary">
           <v-list-item
             :disabled="!hasTestMatrix"
-            to="/manage/view/show"
+            to="/page/test-matrix"
             :title="$store.getters.message('manage-header.top')"
             exact
           >
@@ -57,8 +57,8 @@
 
           <v-list-item
             :disabled="!hasSession"
-            to="/manage/view/progress"
-            :title="$store.getters.message('manage-progress.title')"
+            to="/page/progress-management"
+            :title="$store.getters.message('progress-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -67,15 +67,15 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-progress.title")
+                $store.getters.message("progress-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             :disabled="!hasSession"
-            to="/manage/view/quality"
-            :title="$store.getters.message('manage-quality.title')"
+            to="/page/quality-management"
+            :title="$store.getters.message('quality-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -84,7 +84,7 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-quality.title")
+                $store.getters.message("quality-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -130,7 +130,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             v-if="recentReviewQuery"
-            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :to="{ path: '/page/review', query: recentReviewQuery }"
             :title="$store.getters.message('manager-history-view.review')"
             exact
           >
@@ -165,7 +165,7 @@ export default class Root extends Vue {
   private displayedPage = 0;
 
   private mounted(): void {
-    this.$router.push({ name: "manageShowView" });
+    this.$router.push({ name: "testMatrixPage" });
   }
 
   private get hasTestMatrix(): boolean {
@@ -211,7 +211,7 @@ export default class Root extends Vue {
       }
 
       return {
-        path: `/manage/view/story/${story.id}`,
+        path: `/page/story/${story.id}`,
         testTargetName: testTarget.name,
         viewPointName: viewPoint.name,
       };

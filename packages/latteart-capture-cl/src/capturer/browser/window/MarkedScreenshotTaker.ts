@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BoundingRect, captureScript } from "@/capturer/captureScript";
+import { BoundingRect, captureScripts } from "@/capturer/captureScripts";
 import WebDriverClient from "@/webdriver/WebDriverClient";
 
 /**
@@ -61,14 +61,14 @@ export default class MarkedScreenShotTaker {
   }
 
   private async unmarkElements(rects: BoundingRect[]): Promise<void> {
-    await this.client.execute(captureScript.unmarkElements, {
+    await this.client.execute(captureScripts.unmarkElements, {
       rects,
       prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
     });
   }
 
   private async markRect(rect: BoundingRect, index: number): Promise<void> {
-    await this.client.execute(captureScript.markRect, {
+    await this.client.execute(captureScripts.markElement, {
       rect,
       index,
       prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
@@ -76,7 +76,7 @@ export default class MarkedScreenShotTaker {
   }
 
   private async putNumberToRect(index: number): Promise<void> {
-    await this.client.execute(captureScript.putNumberToRect, {
+    await this.client.execute(captureScripts.putNumberToRect, {
       index,
       prefix: MarkedScreenShotTaker.MARKED_RECT_ID_PREFIX,
     });

@@ -40,8 +40,8 @@
         <v-list-item-group color="primary">
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/start"
-            :title="$store.getters.message('start-capture-view.title')"
+            to="/page/start"
+            :title="$store.getters.message('start-capture-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -50,14 +50,14 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("start-capture-view.title")
+                $store.getters.message("start-capture-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             v-if="currentTestResultName && !recentReviewQuery"
-            to="/capture/history"
+            to="/test-result"
             :title="currentTestResultName"
             exact
           >
@@ -75,7 +75,7 @@
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/results"
+            to="/page/test-result-list"
             :title="
               $store.getters.message('test-result-navigation-drawer.title')
             "
@@ -106,7 +106,7 @@
         <v-list-item-group v-model="displayedPage" color="primary">
           <v-list-item
             :disabled="!hasTestMatrix"
-            to="/manage/view/show"
+            to="/page/test-matrix"
             :title="$store.getters.message('manage-header.top')"
             exact
           >
@@ -123,8 +123,8 @@
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/edit"
-            :title="$store.getters.message('manage-edit-view.title')"
+            to="/page/test-matrix-edit"
+            :title="$store.getters.message('test-matrix-edit-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -133,15 +133,15 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-edit-view.title")
+                $store.getters.message("test-matrix-edit-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             :disabled="!hasTestMatrix || isCapturing || isReplaying"
-            to="/manage/view/stories"
-            :title="$store.getters.message('story-list-view.title')"
+            to="/page/stories-review"
+            :title="$store.getters.message('stories-review-page.title')"
             exact
           >
             <v-list-item-icon>
@@ -150,15 +150,15 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("story-list-view.title")
+                $store.getters.message("stories-review-page.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
-            to="/manage/view/progress"
-            :title="$store.getters.message('manage-progress.title')"
+            to="/page/progress-management"
+            :title="$store.getters.message('progress-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -167,15 +167,15 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-progress.title")
+                $store.getters.message("progress-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             :disabled="!hasSession || isCapturing || isReplaying"
-            to="/manage/view/quality"
-            :title="$store.getters.message('manage-quality.title')"
+            to="/page/quality-management"
+            :title="$store.getters.message('quality-management.title')"
             exact
           >
             <v-list-item-icon>
@@ -184,14 +184,14 @@
 
             <v-list-item-content>
               <v-list-item-title>{{
-                $store.getters.message("manage-quality.title")
+                $store.getters.message("quality-management.title")
               }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
           <v-list-item
             :disabled="isCapturing || isReplaying"
-            to="/manage/view/features"
+            to="/page/optional-features"
             :title="$store.getters.message('optional-features.title')"
             exact
           >
@@ -247,7 +247,7 @@
         <v-list-item-group color="primary">
           <v-list-item
             v-if="currentTestResultName && recentReviewQuery"
-            :to="{ path: '/manage/view/history', query: recentReviewQuery }"
+            :to="{ path: '/page/review', query: recentReviewQuery }"
             :title="currentTestResultName"
             exact
           >
@@ -271,7 +271,7 @@
 
         <v-list-item-group color="primary">
           <v-list-item
-            to="/manage/view/config"
+            to="/page/config"
             :title="$store.getters.message('manage-header.capture-config')"
             exact
           >
@@ -305,20 +305,20 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
-import ProgressDialog from "./components/pages/common/ProgressDialog.vue";
-import ExpCapture from "@/components/pages/captureControl/expCapture/ExpCapture.vue";
-import ExpManager from "@/components/pages/testManagement/ExpManager.vue";
-import { TestManagementState } from "./store/testManagement";
-import { TestMatrix } from "./lib/testManagement/types";
-import { OperationHistoryState } from "./store/operationHistory";
-import { CaptureControlState } from "./store/captureControl";
-import AutofillRegisterDialog from "./components/pages/common/AutofillRegisterDialog.vue";
+import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
+import ProgressDialog from "@/components/organisms/dialog/ProgressDialog.vue";
+import { TestManagementState } from "@/store/testManagement";
+import { TestMatrix } from "@/lib/testManagement/types";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { CaptureControlState } from "@/store/captureControl";
+import AutofillRegisterDialog from "@/components/organisms/dialog/AutofillRegisterDialog.vue";
+import TestResultPage from "./components/pages/testResult/TestResultPage.vue";
+import PageFrame from "./PageFrame.vue";
 
 @Component({
   components: {
-    "exp-capture": ExpCapture,
-    "exp-manager": ExpManager,
+    "test-result-page": TestResultPage,
+    "page-frame": PageFrame,
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
     "autofill-register-dialog": AutofillRegisterDialog,
@@ -346,7 +346,7 @@ export default class Root extends Vue {
         }
       }
 
-      this.$router.push({ path: "/manage/view/start" });
+      this.$router.push({ path: "/page/start" });
     })();
   }
 
@@ -379,7 +379,7 @@ export default class Root extends Vue {
       }
 
       return {
-        path: `/manage/view/story/${story.id}`,
+        path: `/page/story/${story.id}`,
         testTargetName: testTarget.name,
         viewPointName: viewPoint.name,
       };
@@ -451,7 +451,7 @@ export default class Root extends Vue {
     if (!newState) {
       return;
     }
-    const targetPath = "/capture/history";
+    const targetPath = "/test-result";
     if (this.$router.currentRoute.path !== targetPath) {
       await this.$router.push({ path: targetPath });
     }

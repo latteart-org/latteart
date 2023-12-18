@@ -16,13 +16,12 @@
 
 import Vue from "vue";
 import Router from "vue-router";
-import ExpManager from "./components/pages/testManagement/ExpManager.vue";
-import ManageView from "./components/pages/testManagement/ManageView.vue";
-import StoryView from "./components/pages/testManagement/storyView/StoryView.vue";
-import HistoryFrame from "./components/pages/operationHistory/HistoryFrame.vue";
-import ManageShowView from "./components/pages/testManagement/manageShowView/ManageShowView.vue";
-import ManageProgressView from "./components/pages/testManagement/manageProgressView/ManageProgressView.vue";
-import ManageQualityView from "./components/pages/testManagement/manageQualityView/ManageQualityView.vue";
+import PageFrame from "./PageFrame.vue";
+import StoryPage from "./components/pages/story/StoryPage.vue";
+import SnapshotReviewPage from "./components/pages/review/SnapshotReviewPage.vue";
+import TestMatrixPage from "./components/pages/testMatrix/TestMatrixPage.vue";
+import ProgressManagementPage from "./components/pages/progressManagement/ProgressManagementPage.vue";
+import QualityManagementPage from "./components/pages/qualityManagement/QualityManagementPage.vue";
 import Root from "./ViewerRoot.vue";
 import store from "@/store/index";
 
@@ -36,52 +35,45 @@ export default new Router({
       component: Root,
       children: [
         {
-          path: "manage",
-          name: "expmanager",
-          component: ExpManager,
+          path: "page",
+          name: "pageFrame",
+          component: PageFrame,
           children: [
             {
-              path: "view",
-              name: "manageView",
-              component: ManageView,
-              children: [
-                {
-                  path: "show",
-                  name: "manageShowView",
-                  component: ManageShowView,
-                  meta: { title: "manage-header.top" },
-                },
-                {
-                  path: "progress",
-                  name: "manageProgressView",
-                  component: ManageProgressView,
-                  meta: { title: "manage-progress.title" },
-                },
-                {
-                  path: "quality",
-                  name: "manageQualityView",
-                  component: ManageQualityView,
-                  meta: { title: "manage-quality.title" },
-                },
-                {
-                  path: "story/:id",
-                  name: "storyView",
-                  component: StoryView,
-                  meta: { title: "story-view.title" },
-                },
-                {
-                  path: "history",
-                  name: "historyFrame",
-                  component: HistoryFrame,
-                  meta: { title: "manager-history-view.review" },
-                  beforeEnter: (to, from, next) => {
-                    store.commit("testManagement/setRecentReviewQuery", {
-                      query: to.query,
-                    });
-                    next();
-                  },
-                },
-              ],
+              path: "test-matrix",
+              name: "testMatrixPage",
+              component: TestMatrixPage,
+              meta: { title: "manage-header.top" },
+            },
+            {
+              path: "progress-management",
+              name: "progressManagementPage",
+              component: ProgressManagementPage,
+              meta: { title: "progress-management.title" },
+            },
+            {
+              path: "quality-management",
+              name: "qualityManagementPage",
+              component: QualityManagementPage,
+              meta: { title: "quality-management.title" },
+            },
+            {
+              path: "story/:id",
+              name: "storyPage",
+              component: StoryPage,
+              meta: { title: "story-page.title" },
+            },
+            {
+              path: "review",
+              name: "reviewPage",
+              component: SnapshotReviewPage,
+              meta: { title: "manager-history-view.review" },
+              beforeEnter: (to, from, next) => {
+                store.commit("testManagement/setRecentReviewQuery", {
+                  query: to.query,
+                });
+                next();
+              },
             },
           ],
         },

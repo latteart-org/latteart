@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import ErrorMessageDialog from "./components/pages/common/ErrorMessageDialog.vue";
+import ErrorMessageDialog from "./components/molecules/ErrorMessageDialog.vue";
 
 interface ExtendError extends Error {
   code?: string;

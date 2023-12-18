@@ -107,11 +107,6 @@ export interface CaptureControlState {
   } | null;
 
   /**
-   * Whether test result navigation drawer is opened or not.
-   */
-  isTestResultNavigationDrawerOpened: boolean;
-
-  /**
    * Whether window selector dialog is opened or not.
    */
   isWindowSelectorDialogOpened: boolean;
@@ -143,7 +138,6 @@ const state: CaptureControlState = {
   autofillRegisterDialogData: null,
   timer: new Timer(),
   captureSession: null,
-  isTestResultNavigationDrawerOpened: false,
   isWindowSelectorDialogOpened: false,
   completionDialogData: null,
 };

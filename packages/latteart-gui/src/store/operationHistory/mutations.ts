@@ -301,9 +301,13 @@ const mutations: MutationTree<OperationHistoryState> = {
    * Select an operation.
    * @param state State.
    * @param payload.sequence Sequence number of the operation.
+   * @param payload.doScroll Scroll to the corresponding sequence in the history table.
    */
-  selectOperation(state, payload: { sequence: number }) {
-    state.selectedOperationSequence = payload.sequence;
+  selectOperation(state, payload: { sequence: number; doScroll: boolean }) {
+    state.selectedOperationInfo = {
+      sequence: payload.sequence,
+      doScroll: payload.doScroll,
+    };
   },
 
   /**
@@ -627,6 +631,28 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
     state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
+  },
+
+  /**
+   * Set test result list page options.
+   * @param state State.
+   * @param payload.search Search text.
+   * @param payload.page Page number.
+   * @param payload.itemsPerPage Number of items per page.
+   * @param payload.sortBy Sort target.
+   * @param payload.sortDesc Sort order.
+   */
+  setTestResultListOption(
+    state,
+    payload: {
+      search: string;
+      page: number;
+      itemsPerPage: number;
+      sortBy: string;
+      sortDesc: boolean;
+    }
+  ) {
+    state.testResultListOption = payload;
   },
 };
 

@@ -19,43 +19,35 @@ import ScreenTransitionHistory from "./ScreenTransitionHistory";
 import LoggingService from "../../../logger/LoggingService";
 import WebDriverClient from "@/webdriver/WebDriverClient";
 import ScreenSummary from "./ScreenSummary";
-import OperationSummary from "./OperationSummary";
 import MarkedScreenShotTaker from "./MarkedScreenshotTaker";
 import ScreenTransition from "../../../ScreenTransition";
 import WebBrowser from "../WebBrowser";
 import { SpecialOperationType } from "../../../SpecialOperationType";
 import { Key } from "selenium-webdriver";
 import {
-  CapturedData,
+  CapturedItem,
   CapturedElementInfo,
-  captureScript,
-  EventInfo,
-} from "@/capturer/captureScript";
+  captureScripts,
+  Iframe,
+  SuspendedCapturedItem,
+} from "@/capturer/captureScripts";
+import { CapturedOperation, isIgnoreOperation } from "./webBrowserWindowHelper";
 
-/**
- * Suspended Captured data.
- */
-type SuspendedCapturedData = Omit<CapturedData, "eventInfo"> & {
-  /**
-   * The event that is suspended.
-   */
-  suspendedEvent: {
-    refire(): Promise<void>;
-    refireType: string;
-  };
-};
+type CapturingAction = (iframe?: Iframe) => Promise<{
+  capturedItems: SuspendedCapturedItem[];
+  screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+} | null>;
 
 /**
  * The class for operating for window.
  */
 export default class WebBrowserWindow {
   public currentScreenSummary: ScreenSummary = new ScreenSummary();
-  public currentOperationSummary: OperationSummary = new OperationSummary();
+  public prevCapturedOperation?: CapturedOperation;
 
   private client: WebDriverClient;
   private captureArch: "polling" | "push";
   private _windowHandle: string;
-  private beforeOperation: Operation | null = null;
   private onGetOperation: (operation: Operation) => void;
   private onGetScreenTransition: (screenTransition: ScreenTransition) => void;
   private onHistoryChanged: (browserStatus: {
@@ -159,155 +151,30 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
-  public async getReadyToCapture(): Promise<void> {
-    const doGetReadyToCapture = async (
-      urlAndTitle: { url: string; title: string },
-      iframe?: {
-        index: number;
-        boundingRect: {
-          top: number;
-          left: number;
-          width: number;
-          height: number;
-        };
-        innerHeight: number;
-        innerWidth: number;
-        outerHeight: number;
-        outerWidth: number;
-      }
-    ) => {
-      const isReadyToCapture =
-        (await this.client.execute(captureScript.isReadyToCapture, {
-          captureArch: this.captureArch,
-          url: urlAndTitle.url,
-          title: urlAndTitle.title,
-        })) ?? false;
-
-      if (isReadyToCapture) {
-        return;
-      }
-
-      if (this.captureArch === "polling") {
-        await this.injectFunctionToEnqueueEventForReFire();
-      }
-
-      (await this.injectFunctionToGetAttributesFromElement()) &&
-        (await this.injectFunctionToCollectVisibleElements()) &&
-        (await this.injectFunctionToExtractElements()) &&
-        (await this.injectFunctionToBuildOperationInfo()) &&
-        (await this.injectFunctionToHandleCapturedEvent(
-          [WebBrowser.SHIELD_ID],
-          this.captureArch,
-          iframe
-        )) &&
-        (await this.resetEventListeners());
-    };
-
-    const urlAndTitle = (await this.client.execute(
-      captureScript.getUrlAndTitle
-    )) ?? { url: "", title: "" };
-    await doGetReadyToCapture(urlAndTitle);
-
-    await this.client.doActionInIframes("injectScript", (iframe) =>
-      doGetReadyToCapture(urlAndTitle, iframe)
-    );
-  }
-
-  /**
-   * Check if a screen transition is captured and if so, call the callback function.
-   */
-  public async captureScreenTransition(): Promise<void> {
-    const currentDocumentLoadingIsCompleted =
-      (await this.client.getDocumentReadyState()) === "complete";
-    if (!currentDocumentLoadingIsCompleted) {
-      return;
-    }
-    const currentScreenHasBeenObserved =
-      (await this.client.execute(captureScript.isCurrentScreenObserved)) ??
-      false;
-
-    await this.client.execute(captureScript.observeCurrentScreen);
-
-    const currentUrl = await this.client.getCurrentUrl();
-    if (currentUrl === "") {
-      return;
-    }
-
-    const urlIsChanged = this.currentScreenSummary.url !== currentUrl;
-
-    if (currentScreenHasBeenObserved && !urlIsChanged) {
-      return;
-    }
-
-    const screenTransition = await this.createScreenTransition();
-    if (!screenTransition) {
-      return;
-    }
-    this.onGetScreenTransition(screenTransition);
-
-    if (urlIsChanged) {
-      // Add URL to the history for browser back/forward.
-      if (this.screenTransitionHistory.isLocked) {
-        this.screenTransitionHistory.unlock();
-      } else {
-        this.screenTransitionHistory.add(this.currentScreenSummary.url);
-      }
-    }
-
-    this.onHistoryChanged({
-      canGoBack: this.canDoBrowserBack(),
-      canGoForward: this.canDoBrowserForward(),
-    });
-  }
-
-  public async registerCapturedData(
-    capturedData: Omit<CapturedData, "eventInfo">,
+  public async registerCapturedItem(
+    capturedItem: CapturedItem,
     shouldTakeScreenshot: boolean
   ) {
     const clientSize = await this.client.getClientSize();
     let elements = await this.collectAllFrameScreenElements();
 
-    if (capturedData.operation.url !== (await this.client.getCurrentUrl())) {
+    if (capturedItem.operation.url !== (await this.client.getCurrentUrl())) {
       elements = [];
     }
 
-    const capturedOperations = await this.convertToCapturedOperations(
-      [{ ...capturedData, elements }],
+    const operation = await this.convertToOperation(
+      { ...capturedItem, elements },
       clientSize,
       shouldTakeScreenshot
     );
 
-    if (
-      capturedOperations[0] &&
-      this.shouldRegisterOperation(capturedOperations[0], this.beforeOperation)
-    ) {
-      this.noticeCapturedOperations(...capturedOperations);
-    }
-    this.beforeOperation = capturedOperations[0] ?? null;
-  }
-
-  /**
-   * Check if operations are captured and if so, call the callback function.
-   */
-  public async captureOperations(): Promise<void> {
-    const capturedDatas = await this.pullCapturedDatasEveryIframe();
-
-    if (capturedDatas.length === 0) {
-      return;
-    }
-
-    for (const capturedData of capturedDatas) {
-      if (await this.client.alertIsVisible()) {
-        break;
-      }
-
-      await this.registerCapturedData(capturedData, true);
-      await this.refireSuspendedEvent(capturedData);
+    if (operation) {
+      this.onGetOperation(operation);
     }
   }
 
-  public async deleteCapturedDatas(): Promise<void> {
-    await this.client.execute(captureScript.deleteCapturedDatas);
+  public async deleteCapturedItems(): Promise<void> {
+    await this.client.execute(captureScripts.deleteCapturedItems);
   }
 
   /**
@@ -338,7 +205,7 @@ export default class WebBrowserWindow {
       windowHandle: args.windowHandle,
       title: args.title ?? this.currentScreenSummary.title,
       url: args.url ?? this.currentScreenSummary.url,
-      imageData: this.currentOperationSummary.screenshotBase64,
+      imageData: this.currentScreenSummary.screenshotBase64,
       pageSource: args.pageSource ?? "",
     };
 
@@ -420,14 +287,14 @@ export default class WebBrowserWindow {
    */
   public clearScreenAndOperationInfo(): void {
     this.currentScreenSummary = new ScreenSummary();
-    this.currentOperationSummary = new OperationSummary();
+    this.prevCapturedOperation = undefined;
   }
 
   /**
    * Focus the window.
    */
   public async focus(): Promise<void> {
-    await this.client.execute(captureScript.focusWindow, this._windowHandle);
+    await this.client.execute(captureScripts.focusWindow, this._windowHandle);
 
     LoggingService.debug(`focusWindow: ${this._windowHandle}`);
   }
@@ -448,7 +315,7 @@ export default class WebBrowserWindow {
    * Pause capturing.
    */
   public async pauseCapturing(): Promise<void> {
-    const action = () => this.client.execute(captureScript.pauseCapturing);
+    const action = () => this.client.execute(captureScripts.pauseCapturing);
 
     await action();
     await this.client.doActionInIframes("pauseCapturing", action);
@@ -458,7 +325,7 @@ export default class WebBrowserWindow {
    * Resume capturing.
    */
   public async resumeCapturing(): Promise<void> {
-    const action = () => this.client.execute(captureScript.resumeCapturing);
+    const action = () => this.client.execute(captureScripts.resumeCapturing);
 
     await action();
     await this.client.doActionInIframes("resumeCapturing", action);
@@ -470,59 +337,59 @@ export default class WebBrowserWindow {
    */
   public async capturingIsPaused(): Promise<boolean> {
     return (
-      (await this.client.execute(captureScript.capturingIsPaused)) ?? false
+      (await this.client.execute(captureScripts.capturingIsPaused)) ?? false
     );
   }
 
-  private noticeCapturedOperations(...operations: Operation[]) {
-    for (const operation of operations) {
-      this.onGetOperation(operation);
-    }
-  }
-
-  private async updateScreenAndOperationSummary() {
-    const url = await this.client.getCurrentUrl();
-    if (url === "") {
-      return;
-    }
-
-    const title = await this.client.getCurrentTitle();
-
-    const urlParser = new URL(url);
-    const location = urlParser.pathname + urlParser.search;
-    this.currentScreenSummary = {
-      url,
-      title,
-      location,
+  public async captureData() {
+    const action: CapturingAction = (iframe) => {
+      return this.client.execute(captureScripts.captureData, {
+        captureArch: this.captureArch,
+        shieldId: WebBrowser.SHIELD_ID,
+        iframe,
+      });
     };
 
-    this.currentOperationSummary = {
-      screenshotBase64: await this.getScreenshot(),
-      elementXPath: "",
-      type: "screen_transition",
+    const defaultContentResult = await action();
+    const iframeResult = (
+      await this.client.doActionInIframes("capture", action)
+    ).reduce(
+      (acc, { result }) => {
+        return {
+          capturedItems: [
+            ...acc.capturedItems,
+            ...(result?.capturedItems ?? []),
+          ],
+          screenElements: [
+            ...acc.screenElements,
+            ...(result ? [result.screenElements] : []),
+          ],
+        };
+      },
+      {
+        capturedItems: Array<SuspendedCapturedItem>(),
+        screenElements: Array<ScreenElements>(),
+      }
+    );
+
+    const result = {
+      capturedItems: [
+        ...(defaultContentResult?.capturedItems ?? []),
+        ...iframeResult.capturedItems,
+      ],
+      screenElements: [
+        ...(defaultContentResult ? [defaultContentResult.screenElements] : []),
+        ...iframeResult.screenElements,
+      ],
     };
-  }
 
-  private async createScreenTransition(): Promise<ScreenTransition | null> {
-    await this.updateScreenAndOperationSummary();
+    const screenElements = result.screenElements;
+    const pageSource = await this.client.getCurrentPageText();
 
-    const pageText = await this.client.getCurrentPageText();
+    await this.captureScreenTransition();
+    await this.captureOperations(result.capturedItems);
 
-    if (!pageText) {
-      return null;
-    }
-
-    const screenElements = await this.collectAllFrameScreenElements();
-
-    return new ScreenTransition({
-      windowHandle: this._windowHandle,
-      title: this.currentScreenSummary.title,
-      url: this.currentScreenSummary.url,
-      imageData: this.currentOperationSummary.screenshotBase64,
-      pageSource: pageText,
-      clientSize: await this.client.getClientSize(),
-      screenElements,
-    });
+    return { screenElements, pageSource };
   }
 
   public async collectAllFrameScreenElements(): Promise<
@@ -532,7 +399,7 @@ export default class WebBrowserWindow {
     }[]
   > {
     const action = async () =>
-      (await this.client.execute(captureScript.collectScreenElements)) ?? [];
+      (await this.client.execute(captureScripts.collectScreenElements)) ?? [];
 
     const elementsInDefaultContent = {
       iframeIndex: undefined,
@@ -547,351 +414,216 @@ export default class WebBrowserWindow {
     return [...elementsInIFrames, elementsInDefaultContent];
   }
 
-  private capturedDataHasChangeEventFiredByMouseClick(
-    data: Omit<CapturedData, "eventInfo">
-  ) {
-    if (data.operation.type !== "change") {
-      return false;
-    }
+  private async captureOperations(
+    capturedItems: SuspendedCapturedItem[]
+  ): Promise<void> {
+    for (const item of capturedItems) {
+      if (await this.client.alertIsVisible()) {
+        break;
+      }
 
-    const elementType = data.operation.elementInfo.attributes.type
-      ? data.operation.elementInfo.attributes.type.toLowerCase()
-      : "";
-    const elementTagname = data.operation.elementInfo.tagname.toLowerCase();
-    if (
-      !(
-        elementTagname === "input" &&
-        (elementType === "radio" || elementType === "checkbox")
-      )
-    ) {
-      return false;
+      await this.registerCapturedItem(item, true);
+      await this.refireSuspendedEvent(item);
     }
-
-    const elementXPath = data.operation.elementInfo.xpath;
-    const normalizedXPath = this.normalizeXPath(elementXPath);
-    const normalizedPrevXPath = this.normalizeXPath(
-      this.currentOperationSummary.elementXPath
-    );
-    if (
-      !(
-        this.currentOperationSummary.type === "click" &&
-        normalizedXPath === normalizedPrevXPath
-      )
-    ) {
-      return false;
-    }
-
-    return true;
   }
 
-  private normalizeXPath(before: string) {
-    return before.replace(/\[1\]/g, "");
+  private async captureScreenTransition(): Promise<void> {
+    const currentUrl = await this.client.getCurrentUrl();
+    const isUrlChanged =
+      currentUrl !== "" && this.currentScreenSummary.url !== currentUrl;
+    const isDocumentLoadingCompleted =
+      await this.client.isCurrentDocumentLoadingCompleted();
+    const isScreenObserved =
+      (await this.client.execute(captureScripts.isCurrentScreenObserved)) ??
+      false;
+
+    await this.client.execute(captureScripts.observeCurrentScreen);
+
+    if (!isDocumentLoadingCompleted || (isScreenObserved && !isUrlChanged)) {
+      return;
+    }
+
+    const screenTransition = await this.createScreenTransition();
+
+    if (!screenTransition) {
+      return;
+    }
+
+    this.onGetScreenTransition(screenTransition);
+
+    if (isUrlChanged) {
+      // Add URL to the history for browser back/forward.
+      if (this.screenTransitionHistory.isLocked) {
+        this.screenTransitionHistory.unlock();
+      } else {
+        this.screenTransitionHistory.add(this.currentScreenSummary.url);
+      }
+    }
+
+    this.onHistoryChanged({
+      canGoBack: this.canDoBrowserBack(),
+      canGoForward: this.canDoBrowserForward(),
+    });
   }
 
-  private async convertToCapturedOperations(
-    capturedDatas: (Omit<CapturedData, "eventInfo"> & {
+  private async updateScreenSummary() {
+    const url = await this.client.getCurrentUrl();
+    if (url === "") {
+      return;
+    }
+
+    const title = await this.client.getCurrentTitle();
+
+    const urlParser = new URL(url);
+    const location = urlParser.pathname + urlParser.search;
+    this.currentScreenSummary = {
+      url,
+      title,
+      location,
+      screenshotBase64: await this.getScreenshot(),
+    };
+  }
+
+  private async createScreenTransition(): Promise<ScreenTransition | null> {
+    await this.updateScreenSummary();
+
+    const pageText = await this.client.getCurrentPageText();
+
+    if (!pageText) {
+      return null;
+    }
+
+    const screenElements = await this.collectAllFrameScreenElements();
+
+    return new ScreenTransition({
+      windowHandle: this._windowHandle,
+      title: this.currentScreenSummary.title,
+      url: this.currentScreenSummary.url,
+      imageData: this.currentScreenSummary.screenshotBase64,
+      pageSource: pageText,
+      clientSize: await this.client.getClientSize(),
+      screenElements,
+    });
+  }
+
+  private async convertToOperation(
+    capturedItem: CapturedItem & {
       elements: {
         iframeIndex?: number;
         elements: CapturedElementInfo[];
       }[];
-    })[],
+    },
     clientSize: { width: number; height: number },
     shouldTakeScreenshot: boolean
   ) {
-    const filteredDatas = capturedDatas.filter((data) => {
-      // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
-      if (
-        data.operation.type === "click" &&
-        data.operation.elementInfo.tagname.toLowerCase() === "select"
-      ) {
-        return false;
-      }
-
-      // Ignore the click event when clicking an input element of calendar type.
-      if (
-        data.operation.type === "click" &&
-        (data.operation.elementInfo.attributes.type === "date" ||
-          data.operation.elementInfo.attributes.type === "datetime-local")
-      ) {
-        return false;
-      }
-
-      // Ignore the change event that is fired after the click event of radio button or checkbox.
-      if (this.capturedDataHasChangeEventFiredByMouseClick(data)) {
-        return false;
-      }
-
-      return true;
-    });
-
-    if (filteredDatas.length === 0) {
-      return [];
+    if (isIgnoreOperation(capturedItem.operation, this.prevCapturedOperation)) {
+      this.prevCapturedOperation = capturedItem.operation;
+      return;
     }
 
     // Take a screenshot.
     let screenShotBase64 = "";
     if (shouldTakeScreenshot) {
-      const boundingRects = filteredDatas.map(
-        (data) => data.operation.elementInfo.boundingRect
-      );
+      const boundingRect = capturedItem.operation.elementInfo.boundingRect;
 
       const action = () =>
-        new MarkedScreenShotTaker(this.client).takeScreenshotWithMarkOf(
-          boundingRects
+        new MarkedScreenShotTaker(this.client).takeScreenshotWithMarkOf([
+          boundingRect,
+        ]);
+
+      if (capturedItem.iframe !== undefined) {
+        const results = await this.client.doActionInIframes(
+          "takeScreenshot",
+          action,
+          { iframeIndexes: [capturedItem.iframe.index] }
         );
 
-      for (const data of filteredDatas) {
-        if (data.iframe !== undefined) {
-          const results = await this.client.doActionInIframes(
-            "takeScreenshot",
-            action,
-            { iframeIndexes: [data.iframe.index] }
-          );
-
-          screenShotBase64 =
-            results.find(({ iframe }) => iframe.index === data.iframe?.index)
-              ?.result ?? "";
-        } else {
-          screenShotBase64 = await action();
-        }
+        screenShotBase64 =
+          results.find(
+            ({ iframe }) => iframe.index === capturedItem.iframe?.index
+          )?.result ?? "";
+      } else {
+        screenShotBase64 = await action();
       }
     }
 
-    return Promise.all(
-      filteredDatas.map(async (data) => {
-        this.currentOperationSummary = {
-          screenshotBase64: screenShotBase64,
-          elementXPath: data.operation.elementInfo.xpath,
-          type: data.operation.type,
-        };
+    this.currentScreenSummary.screenshotBase64 = screenShotBase64;
+    this.prevCapturedOperation = capturedItem.operation;
 
-        const elementInfo: ElementInfo = {
-          tagname: data.operation.elementInfo.tagname,
-          text: data.operation.elementInfo.text,
-          value: data.operation.elementInfo.value,
-          xpath: data.operation.elementInfo.xpath,
-          attributes: data.operation.elementInfo.attributes,
-          boundingRect: data.operation.elementInfo.boundingRect,
-          iframe: data.iframe,
-          innerHeight: data.operation.elementInfo.innerHeight,
-          innerWidth: data.operation.elementInfo.innerWidth,
-          outerHeight: data.operation.elementInfo.outerHeight,
-          outerWidth: data.operation.elementInfo.outerWidth,
-        };
-        if (data.operation.elementInfo.checked !== undefined) {
-          elementInfo.checked = data.operation.elementInfo.checked;
-        }
-
-        let pageSource = "";
-        const action = () => this.client.getCurrentPageText();
-
-        if (data.iframe !== undefined) {
-          const results = await this.client.doActionInIframes(
-            "getCurrentPageText",
-            action,
-            { iframeIndexes: [data.iframe.index] }
-          );
-
-          pageSource =
-            results.find(({ iframe }) => iframe.index === data.iframe?.index)
-              ?.result ?? "";
-        } else {
-          pageSource = await action();
-        }
-        if (data.operation.url !== (await this.client.getCurrentUrl())) {
-          pageSource = "";
-        }
-
-        return this.createCapturedOperation({
-          input: data.operation.input,
-          type: data.operation.type,
-          scrollPosition: data.operation.scrollPosition,
-          clientSize,
-          elementInfo,
-          screenElements: data.elements,
-          windowHandle: this._windowHandle,
-          url: data.operation.url,
-          title: data.operation.title,
-          pageSource,
-          timestamp: data.operation.timestamp,
-        });
-      })
-    );
-  }
-
-  private shouldRegisterOperation(
-    operation: Operation,
-    beforeOperation: Operation | null
-  ): boolean {
-    if (beforeOperation === null) {
-      return true;
+    const elementInfo: ElementInfo = {
+      tagname: capturedItem.operation.elementInfo.tagname,
+      text: capturedItem.operation.elementInfo.text,
+      value: capturedItem.operation.elementInfo.value,
+      xpath: capturedItem.operation.elementInfo.xpath,
+      attributes: capturedItem.operation.elementInfo.attributes,
+      boundingRect: capturedItem.operation.elementInfo.boundingRect,
+      iframe: capturedItem.iframe,
+      innerHeight: capturedItem.operation.elementInfo.innerHeight,
+      innerWidth: capturedItem.operation.elementInfo.innerWidth,
+      outerHeight: capturedItem.operation.elementInfo.outerHeight,
+      outerWidth: capturedItem.operation.elementInfo.outerWidth,
+    };
+    if (capturedItem.operation.elementInfo.checked !== undefined) {
+      elementInfo.checked = capturedItem.operation.elementInfo.checked;
     }
 
-    if (beforeOperation.url !== operation.url) {
-      return true;
+    let pageSource = "";
+    const action = () => this.client.getCurrentPageText();
+
+    if (capturedItem.iframe !== undefined) {
+      const results = await this.client.doActionInIframes(
+        "getCurrentPageText",
+        action,
+        { iframeIndexes: [capturedItem.iframe.index] }
+      );
+
+      pageSource =
+        results.find(
+          ({ iframe }) => iframe.index === capturedItem.iframe?.index
+        )?.result ?? "";
+    } else {
+      pageSource = await action();
+    }
+    if (capturedItem.operation.url !== (await this.client.getCurrentUrl())) {
+      pageSource = "";
     }
 
-    if (beforeOperation.elementInfo?.attributes.for === undefined) {
-      return true;
-    }
-
-    if (
-      beforeOperation.elementInfo?.attributes.for !==
-      operation.elementInfo?.attributes.id
-    ) {
-      return true;
-    }
-
-    if (beforeOperation.elementInfo?.tagname.toUpperCase() !== "LABEL") {
-      return true;
-    }
-
-    if (operation.elementInfo?.tagname.toUpperCase() !== "INPUT") {
-      return true;
-    }
-
-    if (
-      !["CHECKBOX", "RADIO"].includes(
-        operation.elementInfo?.attributes.type.toUpperCase()
-      )
-    ) {
-      return true;
-    }
-    return false;
+    return this.createCapturedOperation({
+      input: capturedItem.operation.input,
+      type: capturedItem.operation.type,
+      scrollPosition: capturedItem.operation.scrollPosition,
+      clientSize,
+      elementInfo,
+      screenElements: capturedItem.elements,
+      windowHandle: this._windowHandle,
+      url: capturedItem.operation.url,
+      title: capturedItem.operation.title,
+      pageSource,
+      timestamp: capturedItem.operation.timestamp,
+    });
   }
 
-  private async injectFunctionToGetAttributesFromElement(): Promise<
-    boolean | null
-  > {
-    return await this.client.execute(
-      captureScript.setFunctionToGetAttributesFromElement
-    );
-  }
-
-  private async injectFunctionToCollectVisibleElements(): Promise<
-    boolean | null
-  > {
-    return await this.client.execute(
-      captureScript.setFunctionToCollectVisibleElements
-    );
-  }
-
-  private async injectFunctionToExtractElements(): Promise<boolean | null> {
-    return await this.client.execute(
-      captureScript.setFunctionToExtractElements
-    );
-  }
-
-  private async injectFunctionToEnqueueEventForReFire(): Promise<
-    boolean | null
-  > {
-    return await this.client.execute(
-      captureScript.setFunctionToEnqueueEventForReFire
-    );
-  }
-
-  private async injectFunctionToBuildOperationInfo(): Promise<boolean | null> {
-    return await this.client.execute(
-      captureScript.setFunctionToBuildOperationInfo
-    );
-  }
-
-  private async injectFunctionToHandleCapturedEvent(
-    ignoreElementIds: string[],
-    captureType: "polling" | "push",
-    iframe?: {
-      index: number;
-      boundingRect: {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-      };
-      innerHeight: number;
-      innerWidth: number;
-      outerHeight: number;
-      outerWidth: number;
-    }
-  ): Promise<boolean | null> {
-    return await this.client.execute(
-      captureScript.setFunctionToHandleCapturedEvent,
-      { ignoreElementIds, captureType, iframe }
-    );
-  }
-
-  private async resetEventListeners(): Promise<boolean | null> {
-    return await this.client.execute(captureScript.resetEventListeners);
-  }
-
-  private async pullCapturedDatasEveryIframe(): Promise<
-    SuspendedCapturedData[]
-  > {
-    const action = () => this.pullCapturedDatas();
-
-    const defaultContentCapturedDatas = await action();
-    const iframeCapturedDatas = (
-      await this.client.doActionInIframes("pullCapturedDatas", action)
-    ).flatMap(({ result }) => result);
-
-    return [...defaultContentCapturedDatas, ...iframeCapturedDatas];
-  }
-
-  private async refireSuspendedEvent(capturedData: SuspendedCapturedData) {
+  private async refireSuspendedEvent(capturedItem: SuspendedCapturedItem) {
     const action = async () => {
-      if (capturedData.suspendedEvent.refireType === "inputDate") {
+      if (capturedItem.suspendedEvent.refireType === "inputDate") {
         await this.client.sendKeys(
-          capturedData.operation.elementInfo.xpath,
+          capturedItem.operation.elementInfo.xpath,
           Key.SPACE
         );
       } else {
-        await capturedData.suspendedEvent.refire();
+        await this.client.execute(
+          captureScripts.refireEvent,
+          capturedItem.suspendedEvent.eventInfo
+        );
       }
     };
 
-    if (capturedData.iframe !== undefined) {
+    if (capturedItem.iframe !== undefined) {
       await this.client.doActionInIframes("refireSuspendedEvent", action, {
-        iframeIndexes: [capturedData.iframe.index],
+        iframeIndexes: [capturedItem.iframe.index],
       });
     } else {
       await action();
     }
-  }
-
-  private async pullCapturedDatas() {
-    const capturedDatas =
-      (await this.client.execute(captureScript.pullCapturedDatas)) ?? [];
-
-    const getRefireType = (data: CapturedData) => {
-      if (
-        data.operation.elementInfo.tagname === "INPUT" &&
-        data.operation.type === "click" &&
-        data.operation.elementInfo.attributes["type"] &&
-        (data.operation.elementInfo.attributes["type"] === "date" ||
-          data.operation.elementInfo.attributes["type"] === "datetime-local")
-      ) {
-        return "inputDate";
-      }
-      return "";
-    };
-
-    const refire = async (eventInfo: EventInfo) => {
-      LoggingService.debug(`Refire event.`);
-      LoggingService.debug(`eventInfo = ${JSON.stringify(eventInfo)}`);
-
-      await this.client.execute(captureScript.refireEvent, eventInfo);
-    };
-
-    return capturedDatas
-      .filter((data) => data.eventInfo.targetXPath !== "")
-      .map((data) => {
-        return {
-          operation: data.operation,
-          iframe: data.iframe,
-          suspendedEvent: {
-            refireType: getRefireType(data),
-            refire: () => refire(data.eventInfo),
-          },
-        };
-      });
   }
 }

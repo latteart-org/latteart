@@ -45,7 +45,7 @@
     "back": "ブラウザバックを行う",
     "forward": "ブラウザフォワードを行う"
   },
-  "history-view": {
+  "test-result-page": {
     "window-title": "テスト結果",
     "edit-intention": "目的の追加・編集",
     "delete-intention": "目的の削除",
@@ -141,7 +141,7 @@
     "create-export-data-succeeded": "データエクスポートが完了しました。",
     "import-data-succeeded": "{returnName}のインポートが完了しました。"
   },
-  "config-view": {
+  "config-page": {
     "device": "デバイス",
     "platform": "プラットフォーム",
     "browser": "ブラウザ",
@@ -338,7 +338,7 @@
       "other": "その他"
     }
   },
-  "start-capture-view": {
+  "start-capture-page": {
     "title": "テスト記録開始",
     "execute-button": "記録を開始する",
     "starting-capture": "記録開始中"
@@ -378,7 +378,7 @@
     "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
     "locale": "言語"
   },
-  "manage-show": {
+  "test-matrix-page": {
     "legend1": "( X / Y )",
     "legend2": "X: 完了セッション数",
     "legend3": "Y: 予定セッション数",
@@ -408,7 +408,7 @@
     "delete-viewPoint-confirm": "テスト観点を削除してよろしいですか？",
     "unselected": "プリセットなし"
   },
-  "manage-progress": {
+  "progress-management": {
     "title": "進捗管理",
     "display-settings-section": "[表示設定]",
     "period": "集計期間:",
@@ -422,7 +422,7 @@
     "completed-sessions": "完了セッション数",
     "incompleted-sessions": "未完了セッション数"
   },
-  "manage-quality": {
+  "quality-management": {
     "title": "品質管理",
     "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
     "filter-section": "[フィルタ]",
@@ -503,7 +503,7 @@
     "delete-session": "セッションを削除してもよろしいですか？",
     "session-name-base": "セッション"
   },
-  "story-list-view": {
+  "stories-review-page": {
     "title": "ストーリー一括レビュー",
     "filter": "ストーリーのフィルタ",
     "clear": "フィルタクリア",
@@ -513,7 +513,7 @@
     "view-point": "テスト観点",
     "do-review": "レビューする"
   },
-  "story-view": {
+  "story-page": {
     "title": "ストーリー",
     "test-matrix": "テストマトリクス",
     "group": "グループ",
@@ -538,9 +538,8 @@
   "manager-history-view": {
     "review": "テスト結果レビュー"
   },
-  "manage-edit-view": {
+  "test-matrix-edit-page": {
     "title": "テストマトリクス編集",
-    "edit-viewPoint": "テスト観点名変更",
     "add-test-matrix": "テストマトリクスを追加",
     "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
     "settings": "設定"
@@ -576,6 +575,7 @@
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
+      "connection_refused": "テスト対象ページへの接続に失敗しました。",
       "add_test_step_failed": "操作の登録に失敗しました。",
       "compress_test_step_screenshot_failed": "操作時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。圧縮が不要な場合は画像圧縮設定でOFFにしてください。",
       "compress_note_screenshot_failed": "バグ・気づき記録時のスクリーンショットの圧縮に失敗しました。設定ファイルにて圧縮コマンドが正しいかご確認ください。",

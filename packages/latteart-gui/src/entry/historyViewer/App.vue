@@ -30,15 +30,15 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { ScreenDefinitionSetting } from "../../lib/common/settings/Settings";
+import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 import {
   MessageProvider,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
-import HistoryDisplay from "@/components/pages/operationHistory/organisms/HistoryDisplay.vue";
+import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import { createI18n } from "@/locale/i18n";
 import VueI18n from "vue-i18n";
-import ErrorHandler from "../../ErrorHandler.vue";
+import ErrorHandler from "@/ErrorHandler.vue";
 import { parseHistoryLog } from "@/lib/common/util";
 import { OperationHistoryState } from "@/store/operationHistory";
 
