@@ -20,34 +20,25 @@
       <span>{{ message("note-list-dialog.note-list") }}</span>
     </template>
     <template v-slot:content>
-      <v-card
-        flat
-        class="pre-wrap break-word"
-        v-for="(note, index) in noteWithTime"
-        :key="index"
-      >
+      <v-card flat class="pre-wrap break-word" v-for="(note, index) in noteWithTime" :key="index">
         <v-card-title primary-title class="pb-0">
           <h3>
             {{ note.value }}
           </h3>
           <v-spacer></v-spacer>
           <div>
-            <span class="label">{{
-              `${message("test-result-page.test-result-name")}:`
-            }}</span>
+            <span class="label">{{ `${message("test-result-page.test-result-name")}:` }}</span>
             <span class="value">{{ note.testResultName }}</span>
-            <span class="label">{{
-              `${message("note-edit.target-sequence")}:`
-            }}</span>
+            <span class="label">{{ `${message("note-edit.target-sequence")}:` }}</span>
             <span class="label">{{ note.sequence }}</span>
           </div>
         </v-card-title>
         <v-card-text>
           <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
           <v-textarea
-            solo
+            variant="solo"
             v-if="note.details"
-            :value="note.details"
+            :model-value="note.details"
             :label="message('note-list-dialog.details')"
             readonly
           >
@@ -65,9 +56,7 @@
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{
-        message("common.ok")
-      }}</v-btn>
+      <v-btn color="blue" dark @click="close()">{{ message("common.ok") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
@@ -97,17 +86,17 @@ export default defineComponent({
           image: { imageFileUrl?: string; videoFrame?: VideoFrame };
         }[]
       >,
-      default: [],
+      default: []
     },
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "note-tag-chip-group": NoteTagChipGroup,
-    "media-display-group": MediaDisplayGroup,
+    "media-display-group": MediaDisplayGroup
   },
   setup(props, context) {
     const isMediaDisplayed = ref<boolean>(false);
@@ -143,9 +132,9 @@ export default defineComponent({
     return {
       isMediaDisplayed,
       noteWithTime,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

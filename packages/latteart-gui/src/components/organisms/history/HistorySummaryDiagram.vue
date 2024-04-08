@@ -40,12 +40,12 @@ export default defineComponent({
     diagramType: { type: String, required: true },
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
     "screen-transition-diagram": ScreenTransitionDiagram,
-    "sequence-diagram": SequenceDiagram,
+    "sequence-diagram": SequenceDiagram
   },
   setup() {
     const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
@@ -53,8 +53,8 @@ export default defineComponent({
 
     return {
       DIAGRAM_TYPE_SEQUENCE,
-      DIAGRAM_TYPE_SCREEN_TRANSITION,
+      DIAGRAM_TYPE_SCREEN_TRANSITION
     };
-  },
+  }
 });
 </script>

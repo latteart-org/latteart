@@ -25,17 +25,9 @@
     </v-card-text>
 
     <v-card-actions>
-      <v-btn
-        :disabled="disabled"
-        :dark="!disabled"
-        color="primary"
-        @click="importData"
-        >{{
-          store.getters.message(
-            "optional-features.project-import.execute-button"
-          )
-        }}</v-btn
-      >
+      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="importData">{{
+        store.getters.message("optional-features.project-import.execute-button")
+      }}</v-btn>
     </v-card-actions>
 
     <information-message-dialog
@@ -65,7 +57,7 @@ export default defineComponent({
   components: {
     "information-message-dialog": InformationMessageDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "import-option": ImportOption,
+    "import-option": ImportOption
   },
   setup() {
     const store = useStore();
@@ -85,7 +77,7 @@ export default defineComponent({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
       selectedOptionConfig: true,
-      targetFile: null,
+      targetFile: null
     });
 
     const disabled = computed(() => {
@@ -119,14 +111,14 @@ export default defineComponent({
       }
 
       store.dispatch("openProgressDialog", {
-        message: store.getters.message("import-export-dialog.importing-data"),
+        message: store.getters.message("import-export-dialog.importing-data")
       });
 
       const targetFile = option.value.targetFile;
       const importOption = {
         selectedOptionProject: option.value.selectedOptionProject,
         selectedOptionTestresult: option.value.selectedOptionTestresult,
-        selectedOptionConfig: option.value.selectedOptionConfig,
+        selectedOptionConfig: option.value.selectedOptionConfig
       };
 
       setTimeout(async () => {
@@ -134,20 +126,16 @@ export default defineComponent({
           const projectFile = await loadFileAsBase64(targetFile);
 
           const source = { projectFile };
-          const { projectId, config } = await store.dispatch(
-            "testManagement/importData",
-            { source, option: importOption }
-          );
+          const { projectId, config } = await store.dispatch("testManagement/importData", {
+            source,
+            option: importOption
+          });
 
           if (projectId) {
             await store.dispatch("testManagement/readProject");
           }
           if (config) {
-            store.commit(
-              "setProjectSettings",
-              { settings: config },
-              { root: true }
-            );
+            store.commit("setProjectSettings", { settings: config }, { root: true });
           }
 
           informationMessageDialogOpened.value = true;
@@ -157,7 +145,7 @@ export default defineComponent({
           informationMessage.value = store.getters.message(
             "import-export-dialog.import-data-succeeded",
             {
-              returnName: projectFile.name,
+              returnName: projectFile.name
             }
           );
         } catch (error) {
@@ -182,8 +170,8 @@ export default defineComponent({
       errorMessage,
       disabled,
       updateOption,
-      importData,
+      importData
     };
-  },
+  }
 });
 </script>

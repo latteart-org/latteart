@@ -23,13 +23,32 @@ import {
 } from "./result";
 import { SettingsForRepository } from "./types";
 
-export class SettingsRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type SettingsRepository = {
   /**
    * Get setting information.
    * @returns Setting information.
    */
+  getSettings(): Promise<RepositoryAccessResult<SettingsForRepository>>;
+
+  /**
+   * Save the setting information.
+   * @param settings  Setting information.
+   * @returns Saved setting information.
+   */
+  putSettings(
+    settings: SettingsForRepository
+  ): Promise<RepositoryAccessResult<SettingsForRepository>>;
+
+  /**
+   * Configuration file output.
+   * @returns Config file URL.
+   */
+  exportSettings(): Promise<RepositoryAccessResult<{ url: string }>>;
+};
+
+export class SettingsRepositoryImpl implements SettingsRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async getSettings(): Promise<
     RepositoryAccessResult<SettingsForRepository>
   > {
@@ -50,11 +69,6 @@ export class SettingsRepository {
     }
   }
 
-  /**
-   * Save the setting information.
-   * @param settings  Setting information.
-   * @returns Saved setting information.
-   */
   public async putSettings(
     settings: SettingsForRepository
   ): Promise<RepositoryAccessResult<SettingsForRepository>> {
@@ -76,10 +90,6 @@ export class SettingsRepository {
     }
   }
 
-  /**
-   * Configuration file output.
-   * @returns Config file URL.
-   */
   public async exportSettings(): Promise<
     RepositoryAccessResult<{ url: string }>
   > {

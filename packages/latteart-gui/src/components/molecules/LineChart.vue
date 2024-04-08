@@ -14,22 +14,88 @@
  limitations under the License.
 -->
 
+<template>
+  <line-chart-impl :data="chartData" :options="chartOptions" />
+</template>
+
 <script lang="ts">
-import { Line, mixins } from "vue-chartjs";
-import Chart from "chart.js";
-import { Prop, Mixins, Component } from "vue-property-decorator";
+import { Line } from "vue-chartjs";
+import { defineComponent, type PropType, computed } from "vue";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Colors
+} from "chart.js";
 
-@Component
-export default class LineChart extends Mixins(Line, mixins.reactiveProp) {
-  @Prop({ type: Object, default: null })
-  public readonly data!: Chart.ChartData;
-  @Prop({ type: Object, default: null })
-  public readonly chartOptions!: Chart.ChartOptions;
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  PointElement,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  Colors
+);
 
-  public mounted(): void {
-    this.renderChart(this.data, this.chartOptions);
+export default defineComponent({
+  props: {
+    data: {
+      type: Object as PropType<{
+        labels: string[];
+        datasets: {
+          label: string;
+          data: number[];
+          borderColor?: string;
+          backgroundColor?: string;
+        }[];
+      }>,
+      default: null
+    },
+    options: {
+      type: Object as PropType<{
+        legend: {
+          position: "top" | "left" | "bottom" | "right" | "chartArea";
+          labels: { boxWidth: number };
+        };
+        scales: {
+          y?: {
+            min?: number;
+            ticks?: { stepSize: number };
+            title?: { display: boolean; text: string };
+          };
+          x?: {
+            min?: number;
+            ticks?: { stepSize: number };
+            title?: { display: boolean; text: string };
+          };
+        };
+        plugins?: { colors?: { forceOverride: boolean } };
+      }>,
+      default: null
+    }
+  },
+  components: {
+    "line-chart-impl": Line
+  },
+  setup(props) {
+    const chartData = computed(() => props.data);
+    const chartOptions = computed(() => {
+      return {
+        ...props.options,
+        maintainAspectRatio: false
+      };
+    });
+
+    return { chartData, chartOptions };
   }
-}
+});
 </script>
 
 <style lang="sass" scoped>

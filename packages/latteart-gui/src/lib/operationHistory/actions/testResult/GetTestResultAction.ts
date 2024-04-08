@@ -14,36 +14,23 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { TestResult } from "../../types";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type TestResult } from "../../types";
+import { type RepositoryService } from "latteart-client";
 
-const GET_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.get_test_result_failed";
+const GET_TEST_RESULT_FAILED_MESSAGE_KEY = "error.operation_history.get_test_result_failed";
 
 export class GetTestResultAction {
   constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "testResultRepository" | "serviceUrl"
-    >
+    private repositoryService: Pick<RepositoryService, "testResultRepository" | "serviceUrl">
   ) {}
 
-  public async getTestResult(
-    testResultId: string
-  ): Promise<ActionResult<TestResult>> {
-    const result =
-      await this.repositoryService.testResultRepository.getTestResult(
-        testResultId
-      );
+  public async getTestResult(testResultId: string): Promise<ActionResult<TestResult>> {
+    const result = await this.repositoryService.testResultRepository.getTestResult(testResultId);
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: GET_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: GET_TEST_RESULT_FAILED_MESSAGE_KEY
       });
     }
 
@@ -64,7 +51,7 @@ export class GetTestResultAction {
           isAutomatic,
           videoFrame,
           imageFileUrl,
-          inputElements,
+          inputElements
         } = testStep.operation;
 
         const operation = {
@@ -81,23 +68,14 @@ export class GetTestResultAction {
           isAutomatic,
           imageFileUrl,
           videoFrame,
-          inputElements,
+          inputElements
         };
 
         return {
           ...testStep,
           operation,
           notices: [...testStep.bugs, ...testStep.notices].map((note) => {
-            const {
-              id,
-              type,
-              value,
-              details,
-              tags,
-              timestamp,
-              imageFileUrl,
-              videoFrame,
-            } = note;
+            const { id, type, value, details, tags, timestamp, imageFileUrl, videoFrame } = note;
 
             return {
               id,
@@ -107,12 +85,12 @@ export class GetTestResultAction {
               tags,
               timestamp,
               imageFileUrl,
-              videoFrame,
+              videoFrame
             };
           }),
-          bugs: [],
+          bugs: []
         };
-      }),
+      })
     });
   }
 }

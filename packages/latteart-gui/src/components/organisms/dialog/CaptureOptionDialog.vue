@@ -39,11 +39,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false },
+    opened: { type: Boolean, default: false }
   },
   components: {
     "execute-dialog": ExecuteDialog,
-    "capture-option": CaptureOption,
+    "capture-option": CaptureOption
   },
   setup(props, context) {
     const store = useStore();
@@ -59,7 +59,7 @@ export default defineComponent({
       mediaType: "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: "",
+      firstTestPurposeDetails: ""
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -105,8 +105,8 @@ export default defineComponent({
       updateOption,
       isOkButtonDisabled,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

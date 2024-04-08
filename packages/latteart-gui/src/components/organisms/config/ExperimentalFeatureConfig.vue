@@ -16,7 +16,7 @@
     <v-row>
       <v-col class="pt-0">
         <span style="display: inline-flex; align-items: center"
-          ><v-icon color="yellow darken-3" left>warning</v-icon
+          ><v-icon color="yellow-darken-3" start>warning</v-icon
           >{{ store.getters.message("config-page.experimental-warning") }}</span
         >
       </v-col>
@@ -37,9 +37,7 @@
           false-value="polling"
         >
         </v-checkbox>
-        <span class="pl-8">{{
-          store.getters.message("config-page.attention")
-        }}</span>
+        <span class="pl-8">{{ store.getters.message("config-page.attention") }}</span>
         <p class="pl-8">
           {{ store.getters.message("config-page.attention-video") }}
         </p>
@@ -60,16 +58,16 @@ export default defineComponent({
     experimentalFeatureSetting: {
       type: Object as PropType<ExperimentalFeatureSetting>,
       default: null,
-      required: true,
+      required: true
     },
     isCapturing: { type: Boolean, default: true, required: true },
-    isReplaying: { type: Boolean, default: true, required: true },
+    isReplaying: { type: Boolean, default: true, required: true }
   },
   setup(props, context) {
     const store = useStore();
 
     const tempConfig = ref<ExperimentalFeatureSetting>({
-      ...props.experimentalFeatureSetting,
+      ...props.experimentalFeatureSetting
     });
 
     const updateTempConfig = () => {
@@ -81,7 +79,7 @@ export default defineComponent({
     const saveConfig = () => {
       if (props.opened) {
         context.emit("save-config", {
-          experimentalFeatureSetting: tempConfig.value,
+          experimentalFeatureSetting: tempConfig.value
         });
       }
     };
@@ -90,7 +88,7 @@ export default defineComponent({
       get: (): "polling" | "push" => tempConfig.value.captureArch,
       set: (captureArch: "polling" | "push") => {
         tempConfig.value = { ...tempConfig.value, captureArch };
-      },
+      }
     });
 
     const { experimentalFeatureSetting } = toRefs(props);
@@ -99,8 +97,8 @@ export default defineComponent({
 
     return {
       store,
-      captureArch,
+      captureArch
     };
-  },
+  }
 });
 </script>

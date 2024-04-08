@@ -17,16 +17,12 @@
 <template>
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
-      <v-list-item-title>{{
-        store.getters.message("test-result-page.delete-test-result")
-      }}</v-list-item-title>
+      <v-list-item-title>{{ $t("test-result-page.delete-test-result") }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="
-        store.getters.message('test-result-page.delete-test-result-title')
-      "
+      :title="$t('test-result-page.delete-test-result-title')"
       :message="confirmMessage"
       :onAccept="deleteTestResult"
       @close="confirmDialogOpened = false"
@@ -34,10 +30,8 @@
 
     <information-message-dialog
       :opened="informationMessageDialogOpened"
-      :title="store.getters.message('common.confirm')"
-      :message="
-        store.getters.message('test-result-page.delete-test-result-succeeded')
-      "
+      :title="$t('common.confirm')"
+      :message="$t('test-result-page.delete-test-result-succeeded')"
       @close="informationMessageDialogOpened = false"
     ></information-message-dialog>
 
@@ -53,19 +47,21 @@
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
     "confirm-dialog": ConfirmDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
+    "information-message-dialog": InformationMessageDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const confirmDialogOpened = ref(false);
     const confirmMessage = ref("");
@@ -77,70 +73,57 @@ export default defineComponent({
 
     const isDisabled = computed((): boolean => {
       return (
-        isCapturing.value ||
-        isReplaying.value ||
-        isResuming.value ||
-        testResultInfo.value.id === ""
+        isCapturing.value || isReplaying.value || isResuming.value || testResultInfo.value.id === ""
       );
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const testResultInfo = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo;
+      return operationHistoryStore.testResultInfo;
     });
 
     const openConfirmDialog = async () => {
-      const sessions: string[] = await store.dispatch(
-        "operationHistory/getSessionIds"
-      );
+      const sessions: string[] = (await operationHistoryStore.getSessionIds()) ?? [];
 
       confirmMessage.value =
         sessions.length > 0
-          ? store.getters.message(
-              "test-result-page.delete-test-result-associated-session-message",
-              { value: testResultInfo.value.name }
-            )
-          : store.getters.message(
-              "test-result-page.delete-test-result-message",
-              { value: testResultInfo.value.name }
-            );
+          ? rootStore.message("test-result-page.delete-test-result-associated-session-message", {
+              value: testResultInfo.value.name
+            })
+          : rootStore.message("test-result-page.delete-test-result-message", {
+              value: testResultInfo.value.name
+            });
       confirmDialogOpened.value = true;
     };
 
     const deleteTestResult = async (): Promise<void> => {
-      await store.dispatch("openProgressDialog", {
-        message: store.getters.message("remote-access.delete-testresults"),
+      rootStore.openProgressDialog({
+        message: rootStore.message("remote-access.delete-testresults")
       });
 
       try {
-        await store.dispatch("operationHistory/deleteTestResults", {
-          testResultIds: [testResultInfo.value.id],
+        await operationHistoryStore.deleteTestResults({
+          testResultIds: [testResultInfo.value.id]
         });
-        store.commit("operationHistory/removeStoringTestResultInfos", {
-          testResultInfos: [
-            { id: testResultInfo.value.id, name: testResultInfo.value.name },
-          ],
+        operationHistoryStore.removeStoringTestResultInfos({
+          testResultInfos: [{ id: testResultInfo.value.id, name: testResultInfo.value.name }]
         });
-        await store.dispatch("operationHistory/clearTestResult");
-        store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-        store.commit("operationHistory/clearElementCoverages");
-        store.commit("operationHistory/clearInputValueTable");
-        await store.dispatch("captureControl/resetTimer");
+        operationHistoryStore.clearTestResult();
+        operationHistoryStore.clearScreenTransitionDiagramGraph();
+        operationHistoryStore.clearElementCoverages();
+        operationHistoryStore.clearInputValueTable();
+        captureControlStore.resetTimer();
 
         informationMessageDialogOpened.value = true;
       } catch (error) {
@@ -151,12 +134,12 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        await store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
     return {
-      store,
+      t: rootStore.message,
       confirmDialogOpened,
       confirmMessage,
       informationMessageDialogOpened,
@@ -164,8 +147,8 @@ export default defineComponent({
       errorMessage,
       isDisabled,
       openConfirmDialog,
-      deleteTestResult,
+      deleteTestResult
     };
-  },
+  }
 });
 </script>

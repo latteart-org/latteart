@@ -17,52 +17,49 @@
 <template>
   <div>
     <v-btn
-      fab
-      small
+      variant="elevated"
+      icon="arrow_forward"
+      size="small"
       @click="browserForward"
       :disabled="isDisabled"
-      :title="store.getters.message('navigate.forward')"
+      :title="$t('navigate.forward')"
       class="mx-2"
     >
-      <v-icon dark>arrow_forward</v-icon>
     </v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserForward.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const canDoBrowserForward = computed(() => {
-      return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateForward ?? false
-      );
+      return captureControlStore.captureSession?.canNavigateForward ?? false;
     });
 
     const browserForward = (): void => {
-      store.dispatch("captureControl/browserForward");
+      captureControlStore.browserForward();
     };
 
     return {
-      store,
+      t: rootStore.message,
       isDisabled,
-      browserForward,
+      browserForward
     };
-  },
+  }
 });
 </script>

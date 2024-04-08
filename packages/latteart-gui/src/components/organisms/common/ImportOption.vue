@@ -18,11 +18,7 @@
     <v-container fluid id="import-option">
       <v-row>
         <v-col cols="12">
-          {{
-            store.getters.message(
-              "import-export-dialog.select-project-file-label"
-            )
-          }}
+          {{ store.getters.message("import-export-dialog.select-project-file-label") }}
         </v-col>
 
         <v-col cols="12" class="pl-2 pr-2 pt-2">
@@ -31,11 +27,7 @@
             :details-message="option.targetFile ? option.targetFile.name : ''"
             @select="selectImportFile"
           >
-            {{
-              store.getters.message(
-                "import-export-dialog.select-project-file-button"
-              )
-            }}
+            {{ store.getters.message("import-export-dialog.select-project-file-button") }}
           </select-file-button>
         </v-col>
 
@@ -45,9 +37,7 @@
             v-model="option.selectedOptionProject"
           />
           <v-checkbox
-            :label="
-              store.getters.message('import-export-dialog.testresult-data')
-            "
+            :label="store.getters.message('import-export-dialog.testresult-data')"
             v-model="option.selectedOptionTestresult"
           />
           <v-checkbox
@@ -67,7 +57,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "select-file-button": SelectFileButton,
+    "select-file-button": SelectFileButton
   },
   setup(_, context) {
     const store = useStore();
@@ -81,7 +71,7 @@ export default defineComponent({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
       selectedOptionConfig: true,
-      targetFile: null,
+      targetFile: null
     });
 
     const update = (): void => {
@@ -97,9 +87,9 @@ export default defineComponent({
     return {
       store,
       option,
-      selectImportFile,
+      selectImportFile
     };
-  },
+  }
 });
 </script>
 

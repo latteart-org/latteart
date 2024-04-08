@@ -27,49 +27,44 @@
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
     singleLine: { type: Boolean, default: false, required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
 
     const isDisabled = computed((): boolean => {
       return isCapturing.value || isReplaying.value || isResuming.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const url = computed({
-      get: (): string =>
-        ((store.state as any).captureControl as CaptureControlState).url,
+      get: (): string => captureControlStore.url,
       set: (value: string) => {
-        store.commit("captureControl/setUrl", { url: value });
-      },
+        captureControlStore.url = value;
+      }
     });
 
     return {
       isDisabled,
-      url,
+      url
     };
-  },
+  }
 });
 </script>

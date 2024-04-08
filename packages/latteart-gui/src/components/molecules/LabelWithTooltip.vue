@@ -17,10 +17,10 @@
 <template>
   <div>
     <div class="container">
-      <p :title="text" class="label">{{ text }}</p>
-      <v-tooltip bottom v-if="tooltip !== ''">
-        <template v-slot:activator="{ on }">
-          <v-icon size="16" v-on="on" class="icon-info">info</v-icon>
+      <p :title="title" class="label pt-0">{{ title }}</p>
+      <v-tooltip location="end" v-if="tooltip !== ''">
+        <template v-slot:activator="{ props }">
+          <v-icon size="16" v-bind="props" class="icon-info">info</v-icon>
         </template>
         <span class="description-tooltip">{{ tooltip }}</span>
       </v-tooltip>
@@ -29,13 +29,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent } from "vue";
 
-@Component
-export default class LabelWithTooltip extends Vue {
-  @Prop({ type: String, default: "" }) public readonly tooltip!: string;
-  @Prop({ type: String, default: "" }) public readonly text!: string;
-}
+export default defineComponent({
+  props: {
+    tooltip: { type: String, default: "", required: true },
+    title: { type: String, default: "", required: true }
+  }
+});
 </script>
 
 <style lang="sass" scoped>

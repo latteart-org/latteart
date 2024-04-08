@@ -17,19 +17,13 @@
 <template>
   <div>
     <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
-      <v-list-item-title>{{
-        store.getters.message("test-result-page.compare-test-result")
-      }}</v-list-item-title>
+      <v-list-item-title>{{ $t("test-result-page.compare-test-result") }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="
-        store.getters.message('test-result-page.compare-test-result-title')
-      "
-      :message="
-        store.getters.message('test-result-page.compare-test-result-message')
-      "
+      :title="$t('test-result-page.compare-test-result-title')"
+      :message="$t('test-result-page.compare-test-result-message')"
       :onAccept="compareHistory"
       @close="confirmDialogOpened = false"
     />
@@ -53,23 +47,25 @@ import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import {
-  TestResultComparisonResult,
-  TestResultSummary,
+  type TestResultComparisonResult,
+  type TestResultSummary
 } from "@/lib/operationHistory/types";
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
 import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
-    "comparison-result-dialog": ComparisonResultDialog,
+    "comparison-result-dialog": ComparisonResultDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const confirmDialogOpened = ref(false);
     const errorMessageDialogOpened = ref(false);
@@ -88,32 +84,27 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const testResultId = computed((): string => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.id;
+      return operationHistoryStore.testResultInfo.id;
     });
 
     const parentTestResultId = computed((): string => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.parentTestResultId;
+      return operationHistoryStore.testResultInfo.parentTestResultId;
     });
 
     const operations = computed((): OperationForGUI[] => {
-      return store.getters["operationHistory/getOperations"]();
+      return operationHistoryStore.getOperations();
     });
 
     const openConfirmDialog = () => {
@@ -121,39 +112,26 @@ export default defineComponent({
     };
 
     const compareHistory = async (): Promise<void> => {
-      await store.dispatch("openProgressDialog", {
-        message: store.getters.message(
-          "test-result-page.comparing-test-result"
-        ),
+      rootStore.openProgressDialog({
+        message: rootStore.message("test-result-page.comparing-test-result")
       });
 
       try {
-        const testResults: TestResultSummary[] = await store.dispatch(
-          "operationHistory/getTestResults"
-        );
+        const testResults: TestResultSummary[] = await operationHistoryStore.getTestResults();
         if (testResults.length === 0) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        const { actualTestResultId, expectedTestResultId } =
-          findCompareTargets(testResults);
+        const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        comparisonResult.value = await store.dispatch(
-          "operationHistory/compareTestResults",
-          { actualTestResultId, expectedTestResultId }
-        );
+        comparisonResult.value = await operationHistoryStore.compareTestResults({
+          actualTestResultId,
+          expectedTestResultId
+        });
         resultDialogOpened.value = true;
       } catch (error) {
         if (error instanceof Error) {
@@ -163,7 +141,7 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        await store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
@@ -178,12 +156,12 @@ export default defineComponent({
 
       return {
         actualTestResultId: testResultId.value,
-        expectedTestResultId: expectedTestResult?.id ?? undefined,
+        expectedTestResultId: expectedTestResult?.id ?? undefined
       };
     };
 
     return {
-      store,
+      t: rootStore.message,
       confirmDialogOpened,
       errorMessageDialogOpened,
       errorMessage,
@@ -191,8 +169,8 @@ export default defineComponent({
       comparisonResult,
       isDisabled,
       openConfirmDialog,
-      compareHistory,
+      compareHistory
     };
-  },
+  }
 });
 </script>

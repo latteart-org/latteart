@@ -22,104 +22,109 @@
         :scaleUpDisabled="isMaxSize"
         :scaleDownDisabled="isMinSize"
       ></svg-pan-zoom>
-      <div ref="graph" class="graphDisplay"></div>
+      <div ref="graphRef" class="graphDisplay"></div>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import SVGPanZoom from "@/components/molecules/SVGPanZoom.vue";
+import { defineComponent, onMounted, onUpdated, nextTick, ref, toRefs, watch } from "vue";
 
-@Component({
-  components: {
-    "svg-pan-zoom": SVGPanZoom,
+export default defineComponent({
+  props: {
+    graph: { type: Element, required: true }
   },
-})
-export default class MermaidGraphRenderer extends Vue {
-  @Prop() public readonly graph!: Element;
+  components: {
+    "svg-pan-zoom": SVGPanZoom
+  },
+  setup(props) {
+    const svgScalePercentage = ref(100);
+    const isMaxSize = ref(false);
+    const isMinSize = ref(false);
 
-  private svgScalePercentage = 100;
-  private isMaxSize = false;
-  private isMinSize = false;
+    const graphRef = ref<HTMLElement>();
 
-  private mounted() {
-    this.renderGraph();
-  }
-
-  private updated() {
-    this.$nextTick(() => {
-      this.adaptSvgScale();
+    onMounted(() => {
+      renderGraph();
     });
-  }
 
-  @Watch("graph")
-  private renderGraph() {
-    this.updateGraphElement();
-    this.$nextTick(() => {
-      this.adaptSvgScale();
+    onUpdated(() => {
+      nextTick(() => {
+        adaptSvgScale();
+      });
     });
+
+    const renderGraph = () => {
+      updateGraphElement();
+      nextTick(() => {
+        adaptSvgScale();
+      });
+    };
+
+    const adaptSvgScale = () => {
+      adaptSvgScaleOfSequence();
+    };
+
+    const setIsMaxSizeAndIsMinSizeOfSequence = () => {
+      if (svgScalePercentage.value <= 10) {
+        isMinSize.value = true;
+      } else {
+        isMinSize.value = false;
+      }
+
+      const graph = graphRef.value;
+      if (!graph || !graph.children) {
+        return;
+      }
+      const svg = graph.children[0] as any;
+      const maxWidth = Number(svg.style.maxWidth.split("px")[0]);
+      const width = Number(svg.style.width.split("px")[0]);
+      if (width >= maxWidth) {
+        isMaxSize.value = true;
+      } else {
+        isMaxSize.value = false;
+      }
+    };
+
+    const updateGraphElement = () => {
+      const element = graphRef.value;
+      if (!element) {
+        return;
+      }
+
+      element.textContent = "";
+      element.insertAdjacentElement("afterbegin", props.graph);
+    };
+
+    const changeSvgScale = (scaleMode: string) => {
+      if ("up" === scaleMode && !isMaxSize.value) {
+        svgScalePercentage.value += 10;
+      } else if ("down" === scaleMode && !isMinSize.value) {
+        svgScalePercentage.value -= 10;
+      } else {
+        return;
+      }
+      adaptSvgScale();
+    };
+
+    const adaptSvgScaleOfSequence = () => {
+      if (!graphRef.value) {
+        return;
+      }
+
+      const svg = graphRef.value.children[0] as any;
+      svg.style.width = `${svg.style.maxWidth.split("px")[0] * svgScalePercentage.value * 0.01}px`;
+
+      setIsMaxSizeAndIsMinSizeOfSequence();
+    };
+
+    const { graph } = toRefs(props);
+    watch(graph, renderGraph);
+
+    return { isMaxSize, isMinSize, graphRef, changeSvgScale };
   }
-
-  private adaptSvgScale() {
-    this.adaptSvgScaleOfSequence();
-  }
-
-  private setIsMaxSizeAndIsMinSizeOfSequence() {
-    if (this.svgScalePercentage <= 10) {
-      this.isMinSize = true;
-    } else {
-      this.isMinSize = false;
-    }
-
-    const graph = this.$refs.graph as HTMLElement;
-    if (!graph || !graph.children) {
-      return;
-    }
-    const svg = graph.children[0] as any;
-    const maxWidth = Number(svg.style.maxWidth.split("px")[0]);
-    const width = Number(svg.style.width.split("px")[0]);
-    if (width >= maxWidth) {
-      this.isMaxSize = true;
-    } else {
-      this.isMaxSize = false;
-    }
-  }
-
-  private updateGraphElement() {
-    const element = this.$refs.graph as HTMLElement;
-    if (!element) {
-      return;
-    }
-
-    element.textContent = "";
-    element.insertAdjacentElement("afterbegin", this.graph);
-  }
-
-  private changeSvgScale(scaleMode: string) {
-    if ("up" === scaleMode && !this.isMaxSize) {
-      this.svgScalePercentage += 10;
-    } else if ("down" === scaleMode && !this.isMinSize) {
-      this.svgScalePercentage -= 10;
-    } else {
-      return;
-    }
-    this.adaptSvgScale();
-  }
-
-  private adaptSvgScaleOfSequence() {
-    if (!this.$refs.graph) {
-      return;
-    }
-
-    const svg = (this.$refs.graph as HTMLElement).children[0] as any;
-    svg.style.width = `${
-      svg.style.maxWidth.split("px")[0] * this.svgScalePercentage * 0.01
-    }px`;
-
-    this.setIsMaxSizeAndIsMinSizeOfSequence();
-  }
-}
+});
 </script>
 
 <style lang="sass" scoped>

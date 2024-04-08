@@ -25,21 +25,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import AlertDialog from "@/components/molecules/AlertDialog.vue";
+import { defineComponent } from "vue";
 
-@Component({
-  components: {
-    "alert-dialog": AlertDialog,
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    message: { type: String, default: "", required: true }
   },
-})
-export default class InformationMessageDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
+  components: {
+    "alert-dialog": AlertDialog
+  },
+  setup(_, context) {
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private close(): void {
-    this.$emit("close");
+    return { close };
   }
-}
+});
 </script>

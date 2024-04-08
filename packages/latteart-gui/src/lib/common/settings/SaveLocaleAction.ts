@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
 export class SaveLocaleAction {
   public async saveLocale(locale: string): Promise<ActionResult<string>> {
-    const putLocaleResult = await new LocalStorageSettingRepository().putLocale(
-      locale
-    );
+    const putLocaleResult = await new LocalStorageSettingRepository().putLocale(locale);
 
     if (putLocaleResult.isFailure()) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });

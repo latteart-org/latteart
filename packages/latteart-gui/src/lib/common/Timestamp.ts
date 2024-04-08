@@ -90,26 +90,15 @@ export class TimestampImpl implements Timestamp {
   }
 
   public isSameOrBefore(other: Timestamp): boolean {
-    return this.time.isSameOrBefore(
-      other.format(TimestampImpl.dateFormat),
-      "day"
-    );
+    return this.time.isSameOrBefore(other.format(TimestampImpl.dateFormat), "day");
   }
 
   public isSameOrAfter(other: Timestamp): boolean {
-    return this.time.isSameOrAfter(
-      other.format(TimestampImpl.dateFormat),
-      "day"
-    );
+    return this.time.isSameOrAfter(other.format(TimestampImpl.dateFormat), "day");
   }
 
   public isSameDayAs(other: number): boolean {
-    return (
-      dayjs
-        .unix(other)
-        .startOf("day")
-        .diff(this.time.startOf("day"), "days") === 0
-    );
+    return dayjs.unix(other).startOf("day").diff(this.time.startOf("day"), "days") === 0;
   }
 
   public offset(epochMilliseconds: number): Timestamp {
@@ -117,8 +106,7 @@ export class TimestampImpl implements Timestamp {
   }
 
   private timestampToString(timestamp: string | number): string {
-    const stringTimestamp =
-      typeof timestamp === "number" ? String(timestamp) : timestamp;
+    const stringTimestamp = typeof timestamp === "number" ? String(timestamp) : timestamp;
 
     return this.suppressZero(stringTimestamp);
   }
@@ -136,11 +124,7 @@ export class TimestampImpl implements Timestamp {
       const m = Number(stringDate[2]) - 1;
       const d = Number(stringDate[3]);
       const dateInfo = new Date(y, m, d);
-      return (
-        y == dateInfo.getFullYear() &&
-        m == dateInfo.getMonth() &&
-        d == dateInfo.getDate()
-      );
+      return y == dateInfo.getFullYear() && m == dateInfo.getMonth() && d == dateInfo.getDate();
     }
     return false;
   }

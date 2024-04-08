@@ -16,33 +16,29 @@
 
 <template>
   <v-container fluid class="ma-0 fill-height align-start">
-    <v-row
-      no-gutters
-      align="center"
-      :style="{ height: '70px', 'max-width': '100%' }"
-    >
+    <v-row no-gutters align="center" :style="{ height: '70px', 'max-width': '100%' }">
       <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
           class="mr-3"
           :label="message('test-result-page.test-result-name')"
           :items="testResults"
-          item-text="name"
+          item-title="name"
           item-value="id"
-          :value="currentTestResultId"
-          @change="changeCurrentTestResultId"
+          :model-value="currentTestResultId"
+          @update:model-value="changeCurrentTestResultId"
           hide-details
-          dense
+          density="compact"
       /></v-col>
       <v-col :style="buildStyle">
         <v-select
           class="mr-3"
           :label="message('test-result-page.test-purpose')"
           :items="testPurposes"
-          item-text="text"
+          item-title="text"
           item-value="value"
           v-model="selectedTestPurposeIndex"
           hide-details
-          dense
+          density="compact"
       /></v-col>
       <v-col cols="auto" v-if="!isViewerMode">
         <v-btn class="mr-1" :disabled="!graph" @click="editTestPurpose">{{
@@ -55,10 +51,7 @@
       id="sequence-diagram-container"
       :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
     >
-      <mermaid-graph-renderer
-        v-if="graphElement"
-        :graph="graphElement"
-      ></mermaid-graph-renderer>
+      <mermaid-graph-renderer v-if="graphElement" :graph="graphElement"></mermaid-graph-renderer>
     </v-row>
 
     <error-message-dialog
@@ -84,12 +77,12 @@ export default defineComponent({
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
     "mermaid-graph-renderer": MermaidGraphRenderer,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props) {
     const store = useStore();
@@ -115,16 +108,12 @@ export default defineComponent({
     });
 
     const testPurposes = computed(() => {
-      return operationHistoryState.value.sequenceDiagramGraphs.map(
-        ({ testPurpose }, index) => {
-          return {
-            text:
-              testPurpose?.value ??
-              props.message("test-result-page.no-test-purpose"),
-            value: index,
-          };
-        }
-      );
+      return operationHistoryState.value.sequenceDiagramGraphs.map(({ testPurpose }, index) => {
+        return {
+          text: testPurpose?.value ?? props.message("test-result-page.no-test-purpose"),
+          value: index
+        };
+      });
     });
 
     const graph = computed(() => {
@@ -145,21 +134,18 @@ export default defineComponent({
       try {
         if (isViewerMode.value) {
           await store.dispatch("operationHistory/loadTestResultForSnapshot", {
-            testResultId,
+            testResultId
           });
         } else {
           await store.dispatch("operationHistory/loadTestResult", {
-            testResultId,
+            testResultId
           });
 
-          await store.dispatch(
-            "operationHistory/updateModelsFromSequenceView",
-            { testResultId }
-          );
+          await store.dispatch("operationHistory/updateModelsFromSequenceView", { testResultId });
         }
 
         store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
+          setCanUpdateModels: false
         });
         store.dispatch("operationHistory/selectOperation", { sequence: 1 });
 
@@ -180,25 +166,20 @@ export default defineComponent({
         return;
       }
 
-      operationHistoryState.value.openNoteEditDialog(
-        "intention",
-        graph.value.sequence
-      );
+      operationHistoryState.value.openNoteEditDialog("intention", graph.value.sequence);
     };
 
     const buildStyle = computed(() => {
       const buttonWidth = isViewerMode.value ? "0px" : "160px";
       const selectBoxNum = testResults.value.length > 1 ? 2 : 1;
       return {
-        "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`,
+        "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`
       };
     });
 
     onMounted(() => {
       selectedTestPurposeIndex.value = 0;
-      const sequenceDiagram = document.getElementById(
-        "sequence-diagram-container"
-      ) as any;
+      const sequenceDiagram = document.getElementById("sequence-diagram-container") as any;
       sequenceDiagram.oncontextmenu = () => false;
     });
 
@@ -216,9 +197,9 @@ export default defineComponent({
       graphElement,
       changeCurrentTestResultId,
       editTestPurpose,
-      buildStyle,
+      buildStyle
     };
-  },
+  }
 });
 </script>
 

@@ -27,7 +27,7 @@ export default class Report {
     intentionValue: "Intention",
     intentionDetails: "IntentionDetails",
     bugValue: "Bug",
-    bugDetails: "BugDetails",
+    bugDetails: "BugDetails"
   };
   private _rows: ReportRow[] = [];
 

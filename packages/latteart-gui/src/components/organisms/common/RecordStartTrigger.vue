@@ -29,21 +29,23 @@
 <script lang="ts">
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { TimestampImpl } from "@/lib/common/Timestamp";
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
-import { useRouter } from "vue-router/composables";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   props: {
-    initial: { type: Boolean, default: false },
+    initial: { type: Boolean, default: false }
   },
   components: {
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
     const router = useRouter();
 
     const errorMessageDialogOpened = ref(false);
@@ -59,89 +61,78 @@ export default defineComponent({
       );
     });
 
-    const captureControlState = computed(() => {
-      return (store.state as any).captureControl as CaptureControlState;
-    });
-
     const url = computed((): string => {
-      return captureControlState.value.url;
+      return captureControlStore.url;
     });
 
     const testResultName = computed((): string => {
-      return captureControlState.value.testResultName;
+      return captureControlStore.testResultName;
     });
 
     const isCapturing = computed((): boolean => {
-      return captureControlState.value.isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return captureControlState.value.isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return captureControlState.value.isResuming;
+      return captureControlStore.isResuming;
     });
 
     const urlIsValid = computed((): boolean => {
-      return store.getters["captureControl/urlIsValid"]();
+      return captureControlStore.urlIsValid;
     });
 
     const startCapture = async (): Promise<void> => {
-      store.dispatch("operationHistory/clearTestResult", null, {
-        root: true,
-      });
+      operationHistoryStore.clearTestResult();
 
       goToHistoryView();
 
       try {
-        await store.dispatch("openProgressDialog", {
-          message: store.getters.message("start-capture-page.starting-capture"),
+        await rootStore.openProgressDialog({
+          message: rootStore.message("start-capture-page.starting-capture")
         });
 
         if (props.initial) {
           await resetHistory();
         }
 
-        if (
-          ((store.state as any).operationHistory as OperationHistoryState)
-            .testResultInfo.id === ""
-        ) {
-          await store.dispatch("operationHistory/createTestResult", {
+        if (operationHistoryStore.testResultInfo.id === "") {
+          await operationHistoryStore.createTestResult({
             initialUrl: url.value,
-            name: testResultName.value,
+            name: testResultName.value
           });
         }
 
-        const history = (
-          (store.state as any).operationHistory as OperationHistoryState
-        ).history;
+        const history = operationHistoryStore.history;
         const startTime = new TimestampImpl().epochMilliseconds();
 
         if (history.length === 0) {
-          await store.dispatch("operationHistory/changeCurrentTestResult", {
+          await operationHistoryStore.changeCurrentTestResult({
             startTime,
-            initialUrl: url.value,
+            initialUrl: url.value
           });
         } else if (history.length > 0) {
-          await store.dispatch("operationHistory/changeCurrentTestResult", {
+          await operationHistoryStore.changeCurrentTestResult({
             startTime,
-            initialUrl: "",
+            initialUrl: ""
           });
         }
 
-        await store.dispatch("captureControl/startCapture", {
+        await captureControlStore.startCapture({
           url: url.value,
           callbacks: {
             onEnd: async (error?: Error) => {
-              await store.dispatch("closeProgressDialog");
+              rootStore.closeProgressDialog();
 
               if (error) {
                 goToHistoryView();
                 throw error;
               }
-            },
-          },
+            }
+          }
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -150,23 +141,23 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        await store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
     const resetHistory = async () => {
-      await store.dispatch("operationHistory/clearTestResult");
-      store.commit("operationHistory/clearStoringTestResultInfos");
-      store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-      store.commit("operationHistory/clearElementCoverages");
-      store.commit("operationHistory/clearInputValueTable");
-      await store.dispatch("captureControl/resetTimer");
+      operationHistoryStore.clearTestResult();
+      operationHistoryStore.storingTestResultInfos = [];
+      operationHistoryStore.clearScreenTransitionDiagramGraph();
+      operationHistoryStore.clearElementCoverages();
+      operationHistoryStore.clearInputValueTable();
+      captureControlStore.resetTimer();
     };
 
     const goToHistoryView = () => {
       const targetPath = "/test-result";
 
-      if (router.currentRoute.path !== targetPath) {
+      if (router.currentRoute.value.path !== targetPath) {
         router.push({ path: targetPath }).catch((err: Error) => {
           if (err.name !== "NavigationDuplicated") {
             throw err;
@@ -179,8 +170,8 @@ export default defineComponent({
       errorMessageDialogOpened,
       errorMessage,
       isDisabled,
-      startCapture,
+      startCapture
     };
-  },
+  }
 });
 </script>

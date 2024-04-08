@@ -26,16 +26,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, ref } from "vue";
 
-@Component
-export default class PopupImage extends Vue {
-  @Prop({ type: String, default: "" }) public readonly imageFileUrl!: string;
+export default defineComponent({
+  props: {
+    imageFileUrl: { type: String, default: "" }
+  },
+  setup() {
+    const imageFileOpened = ref(false);
 
-  private imageFileOpened = false;
+    const openImageFile = () => {
+      imageFileOpened.value = true;
+    };
 
-  private openImageFile() {
-    this.imageFileOpened = true;
+    return { imageFileOpened, openImageFile };
   }
-}
+});
 </script>

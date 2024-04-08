@@ -44,7 +44,7 @@
       :style="{
         height: '100%',
         'overflow-y': 'scroll',
-        'padding-bottom': '150px',
+        'padding-bottom': '150px'
       }"
     >
       <v-data-table
@@ -53,7 +53,7 @@
         :items="inputValues"
         :search="search"
         class="elevation-1"
-        :items-per-page.sync="pagination"
+        v-model:items-per-page="pagination"
         hide-default-header
       >
         <template v-slot:header="{ props: { headers } }">
@@ -71,11 +71,9 @@
             >
               {{ header.text }}
               <v-icon
-                v-if="
-                  index > 2 && !isViewerMode && hasInputElements(header.index)
-                "
+                v-if="index > 2 && !isViewerMode && hasInputElements(header.index)"
                 class="mx-1"
-                color="blue lighten-3"
+                color="blue-lighten-3"
                 @click="registerAutofillSetting(header.index)"
                 >control_point</v-icon
               >
@@ -83,7 +81,7 @@
                 v-if="header.notes.length > 0"
                 :title="message('app.note')"
                 class="mx-1"
-                color="purple lighten-3"
+                color="purple-lighten-3"
                 @click="
                   selectedColumnNotes = header.notes;
                   opened = true;
@@ -103,8 +101,7 @@
               <p v-if="header.targetScreenDef">
                 <b>[{{ header.sourceScreenDef }}]</b><br />
                 ↓<br />
-                {{ header.trigger.eventType }}: {{ header.trigger.elementText
-                }}<br />
+                {{ header.trigger.eventType }}: {{ header.trigger.elementText }}<br />
                 ↓<br />
                 <b>[{{ header.targetScreenDef }}]</b><br />
               </p>
@@ -121,36 +118,30 @@
             :class="{
               'hidden-row': elementTypeIsHidden(props.item.elementType),
               'hidden-display-none':
-                shouldHideHiddenElements &&
-                elementTypeIsHidden(props.item.elementType),
+                shouldHideHiddenElements && elementTypeIsHidden(props.item.elementType)
             }"
             @click="selectRow(props.index)"
             :key="props.index"
           >
-            <td class="text-xs-center">
-              <span v-if="elementTypeIsHidden(props.item.elementType)"
-                >(hidden) </span
+            <td class="text-center">
+              <span v-if="elementTypeIsHidden(props.item.elementType)">(hidden) </span
               >{{ props.item.elementId }}
             </td>
-            <td class="text-xs-center">{{ props.item.elementName }}</td>
-            <td class="text-xs-center">{{ props.item.elementType }}</td>
+            <td class="text-center">{{ props.item.elementName }}</td>
+            <td class="text-center">{{ props.item.elementType }}</td>
             <td
-              class="text-xs-center"
+              class="text-center"
               :style="{
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
-                  (props.item[`set${index}`]
-                    ? props.item[`set${index}`].isDefaultValue
-                    : true)
+                  (props.item[`set${index}`] ? props.item[`set${index}`].isDefaultValue : true)
                     ? 'rgba(0,0,0,0.12)'
-                    : 'rgba(0,0,0,0)',
+                    : 'rgba(0,0,0,0)'
               }"
               v-for="(_, index) in screenTransitions"
               :key="index"
             >
-              {{
-                props.item[`set${index}`] ? props.item[`set${index}`].value : ""
-              }}
+              {{ props.item[`set${index}`] ? props.item[`set${index}`].value : "" }}
             </td>
           </tr>
         </template>
@@ -182,11 +173,7 @@ type InputValue = {
         image: { imageFileUrl?: string; videoFrame?: VideoFrame };
         elementInfo: Pick<
           ElementInfo,
-          | "boundingRect"
-          | "innerHeight"
-          | "innerWidth"
-          | "outerHeight"
-          | "outerWidth"
+          "boundingRect" | "innerHeight" | "innerWidth" | "outerHeight" | "outerWidth"
         >;
       }
     | { value: string; isDefaultValue: boolean }
@@ -197,11 +184,11 @@ export default defineComponent({
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "note-list-dialog": NoteListDialog,
+    "note-list-dialog": NoteListDialog
   },
   setup(props) {
     const store = useStore();
@@ -241,12 +228,12 @@ export default defineComponent({
               targetScreenDef: "",
               trigger: {
                 elementText: "",
-                eventType: "",
+                eventType: ""
               },
               notes: [],
-              operationHistory: [],
-            },
-          ],
+              operationHistory: []
+            }
+          ]
         },
         {
           values: [
@@ -257,12 +244,12 @@ export default defineComponent({
               targetScreenDef: "",
               trigger: {
                 elementText: "",
-                eventType: "",
+                eventType: ""
               },
               notes: [],
-              operationHistory: [],
-            },
-          ],
+              operationHistory: []
+            }
+          ]
         },
         {
           values: [
@@ -273,41 +260,36 @@ export default defineComponent({
               targetScreenDef: "",
               trigger: {
                 elementText: "",
-                eventType: "",
+                eventType: ""
               },
               notes: [],
-              operationHistory: [],
-            },
-          ],
+              operationHistory: []
+            }
+          ]
         },
         {
-          values: inputValueTable.value.headerColumns.map(
-            (screenTransition, index) => {
-              return {
-                text: `${screenTransition.index + 1}${props.message(
-                  "input-value.times"
-                )}`,
-                value: `set${screenTransition.index}`,
-                sourceScreenDef: screenTransition.sourceScreenDef,
-                targetScreenDef: screenTransition.targetScreenDef,
-                trigger: screenTransition.trigger,
-                notes: screenTransition.notes.map((note) => {
-                  const testResultName =
-                    operationHistoryState.value.storingTestResultInfos.find(
-                      (testResult) => testResult.id === note.testResultId
-                    )?.name;
+          values: inputValueTable.value.headerColumns.map((screenTransition, index) => {
+            return {
+              text: `${screenTransition.index + 1}${props.message("input-value.times")}`,
+              value: `set${screenTransition.index}`,
+              sourceScreenDef: screenTransition.sourceScreenDef,
+              targetScreenDef: screenTransition.targetScreenDef,
+              trigger: screenTransition.trigger,
+              notes: screenTransition.notes.map((note) => {
+                const testResultName = operationHistoryState.value.storingTestResultInfos.find(
+                  (testResult) => testResult.id === note.testResultId
+                )?.name;
 
-                  return {
-                    ...note,
-                    testResultName,
-                  };
-                }),
-                testPurposes: screenTransition.testPurposes,
-                index,
-              };
-            }
-          ),
-        },
+                return {
+                  ...note,
+                  testResultName
+                };
+              }),
+              testPurposes: screenTransition.testPurposes,
+              index
+            };
+          })
+        }
       ];
     });
 
@@ -358,7 +340,7 @@ export default defineComponent({
       ) {
         if (elementImage.image.imageFileUrl || elementImage.image.videoFrame) {
           store.dispatch("operationHistory/changeScreenImage", {
-            ...elementImage,
+            ...elementImage
           });
         } else {
           store.commit("operationHistory/clearScreenImage");
@@ -372,15 +354,12 @@ export default defineComponent({
 
     const hasInputElements = (index: number): boolean => {
       return (
-        (inputValueTable.value.getScreenTransitions().at(index)?.inputElements
-          .length ?? 0) > 0
+        (inputValueTable.value.getScreenTransitions().at(index)?.inputElements.length ?? 0) > 0
       );
     };
 
     const registerAutofillSetting = (index: number): void => {
-      const screenTransition = inputValueTable.value
-        .getScreenTransitions()
-        .at(index);
+      const screenTransition = inputValueTable.value.getScreenTransitions().at(index);
 
       if (!screenTransition || !screenTransition.trigger) {
         return;
@@ -395,10 +374,10 @@ export default defineComponent({
             xpath: element.xpath.toLowerCase(),
             attributes: element.attributes,
             inputValue: element.defaultValue ?? element.inputs.at(-1) ?? "",
-            iframeIndex: element.iframe?.index,
+            iframeIndex: element.iframe?.index
           };
         }),
-        callback: null,
+        callback: null
       });
     };
 
@@ -417,9 +396,9 @@ export default defineComponent({
       selectRow,
       elementTypeIsHidden,
       hasInputElements,
-      registerAutofillSetting,
+      registerAutofillSetting
     };
-  },
+  }
 });
 </script>
 

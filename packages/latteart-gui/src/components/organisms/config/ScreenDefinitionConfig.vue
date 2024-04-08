@@ -19,37 +19,27 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{
-            store.getters.message(
-              "config-page.screen-def.default-screen-definition"
-            )
-          }}
+          {{ store.getters.message("config-page.screen-def.default-screen-definition") }}
         </h4>
         <v-radio-group
-          :value="tempConfig.screenDefType"
+          :model-value="tempConfig.screenDefType"
           class="py-0 my-0"
-          row
-          @change="changeScreenDefType"
+          inline
+          @update:model-value="changeScreenDefType"
         >
           <v-radio
-            :label="
-              store.getters.message('config-page.screen-def.judgement-title')
-            "
+            :label="store.getters.message('config-page.screen-def.judgement-title')"
             value="title"
           ></v-radio>
           <v-radio
-            :label="
-              store.getters.message('config-page.screen-def.judgement-url')
-            "
+            :label="store.getters.message('config-page.screen-def.judgement-url')"
             value="url"
           ></v-radio>
         </v-radio-group>
       </v-col>
       <v-col cols="12">
         <h4>
-          {{
-            store.getters.message("config-page.screen-def.priority-condition")
-          }}
+          {{ store.getters.message("config-page.screen-def.priority-condition") }}
         </h4>
         <screen-def-unit-container
           :screenDefinition="tempConfig"
@@ -74,17 +64,17 @@ export default defineComponent({
     screenDefinition: {
       type: Object as PropType<ScreenDefinitionSetting>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "screen-def-unit-container": ScreenDefUnitContainer,
+    "screen-def-unit-container": ScreenDefUnitContainer
   },
   setup(props, context) {
     const store = useStore();
 
     const tempConfig = ref<ScreenDefinitionSetting>({
-      ...props.screenDefinition,
+      ...props.screenDefinition
     });
 
     const updateTempConfig = () => {
@@ -99,9 +89,7 @@ export default defineComponent({
       }
     };
 
-    const updateConditionGroups = (
-      conditionGroups: ScreenDefinitionConditionGroup[]
-    ) => {
+    const updateConditionGroups = (conditionGroups: ScreenDefinitionConditionGroup[]) => {
       tempConfig.value = { ...tempConfig.value, conditionGroups };
     };
 
@@ -117,8 +105,8 @@ export default defineComponent({
       store,
       tempConfig,
       updateConditionGroups,
-      changeScreenDefType,
+      changeScreenDefType
     };
-  },
+  }
 });
 </script>

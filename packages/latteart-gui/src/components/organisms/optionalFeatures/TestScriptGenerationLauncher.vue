@@ -24,17 +24,9 @@
       <script-generation-option @update="updateOption" />
     </v-card-text>
     <v-card-actions>
-      <v-btn
-        :disabled="disabled"
-        :dark="!disabled"
-        color="primary"
-        @click="generateTestScript"
-        >{{
-          store.getters.message(
-            "optional-features.test-script-generation.execute-button"
-          )
-        }}</v-btn
-      >
+      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="generateTestScript">{{
+        store.getters.message("optional-features.test-script-generation.execute-button")
+      }}</v-btn>
     </v-card-actions>
 
     <download-link-dialog
@@ -65,7 +57,7 @@ export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "script-generation-option": ScriptGenerationOption,
+    "script-generation-option": ScriptGenerationOption
   },
   setup() {
     const store = useStore();
@@ -88,7 +80,7 @@ export default defineComponent({
     }>({
       testScript: { isSimple: false, useMultiLocator: false },
       testData: { useDataDriven: false, maxGeneration: 0 },
-      buttonDefinitions: [],
+      buttonDefinitions: []
     });
 
     const currentRepositoryUrl = computed(() => {
@@ -118,17 +110,14 @@ export default defineComponent({
       (async () => {
         try {
           store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "manage-header.generating-test-script"
-            ),
+            message: store.getters.message("manage-header.generating-test-script")
           });
           const testScriptInfo = await store.dispatch(
             "testManagement/generateAllSessionTestScripts",
             { option: option.value }
           );
           store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
+          downloadLinkDialogTitle.value = store.getters.message("common.confirm");
           downloadLinkDialogMessage.value = store.getters.message(
             "test-result-page.generate-testscript-succeeded"
           );
@@ -165,9 +154,9 @@ export default defineComponent({
       errorMessage,
       disabled,
       updateOption,
-      generateTestScript,
+      generateTestScript
     };
-  },
+  }
 });
 </script>
 

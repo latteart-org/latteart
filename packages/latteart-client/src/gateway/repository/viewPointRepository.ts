@@ -23,7 +23,31 @@ import {
 } from "./result";
 import { ViewPointForRepository } from "./types";
 
-export class ViewPointRepository {
+export type ViewPointRepository = {
+  getViewPoint(
+    id: string
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  postViewPoint(body: {
+    testMatrixId: string;
+    name: string;
+    index: number;
+    description: string;
+  }): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  patchViewPoint(
+    id: string,
+    body: {
+      name?: string;
+      description?: string;
+      index?: number;
+    }
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  deleteViewPoint(id: string): Promise<RepositoryAccessResult<void>>;
+};
+
+export class ViewPointRepositoryImpl implements ViewPointRepository {
   constructor(private restClient: RESTClient) {}
 
   public async getViewPoint(

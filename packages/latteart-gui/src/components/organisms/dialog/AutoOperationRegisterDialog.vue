@@ -54,11 +54,11 @@ export default defineComponent({
     targetOperations: {
       type: Array as PropType<OperationForGUI[]>,
       default: () => [],
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -99,13 +99,13 @@ export default defineComponent({
             elementInfo: operation.elementInfo,
             title: operation.title,
             url: operation.url,
-            timestamp: operation.timestamp,
+            timestamp: operation.timestamp
           };
         });
       store.dispatch("operationHistory/registerAutoOperation", {
         settingName: settingName.value,
         settingDetails: settingDetails.value,
-        operations: sortedOperations,
+        operations: sortedOperations
       });
 
       context.emit("ok");
@@ -124,8 +124,8 @@ export default defineComponent({
       settingDetails,
       okButtonIsDisabled,
       ok,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

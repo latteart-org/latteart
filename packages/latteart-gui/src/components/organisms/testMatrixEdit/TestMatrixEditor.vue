@@ -21,11 +21,11 @@
         <div class="mt-2 ml-2">{{ testMatrix.name }}</div>
       </v-col>
       <v-col cols="2" style="text-align: right">
-        <v-btn small @click="testMatrixBeingEdited = testMatrix">
+        <v-btn size="small" @click="testMatrixBeingEdited = testMatrix">
           {{ $store.getters.message("test-matrix-edit-page.settings") }}
         </v-btn>
         <v-btn
-          small
+          size="small"
           color="red"
           dark
           @click="openConfirmDialogToDeleteTestMatrix"
@@ -44,20 +44,20 @@
             :key="group.id"
             class="py-0 elevation-0"
           >
-            <v-expansion-panel-header class="py-0">
+            <v-expansion-panel-title class="py-0">
               <v-row>
                 <v-col cols="10">
                   <div
                     v-if="expandedPanelIndex !== index"
                     :title="group.name"
-                    class="ellipsis"
+                    class="text-truncate"
                   >
                     {{ group.name }}
                   </div>
                   <v-text-field
                     :id="`groupNameTextField${index}`"
                     v-if="expandedPanelIndex === index"
-                    :value="group.name"
+                    :model-value="group.name"
                     @click="$event.stopPropagation()"
                     @change="(value) => renameGroup(group.id, value)"
                   ></v-text-field>
@@ -67,19 +67,17 @@
                   <v-btn
                     v-if="expandedPanelIndex === index"
                     @click.stop="openConfirmDialogToDeleteGroup(group.id)"
-                    small
+                    size="small"
                     color="error"
                     class="mr-4"
-                    >{{
-                      $store.getters.message("group-edit-list.delete")
-                    }}</v-btn
+                    >{{ $store.getters.message("group-edit-list.delete") }}</v-btn
                   >
                 </v-col>
               </v-row>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
               <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
-            </v-expansion-panel-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels> </v-col
     ></v-row>
@@ -128,12 +126,12 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    testMatrixId: { type: String, default: "", required: true },
+    testMatrixId: { type: String, default: "", required: true }
   },
   components: {
     "group-editor": GroupEditor,
     "test-matrix-dialog": TestMatrixDialog,
-    "confirm-dialog": ConfirmDialog,
+    "confirm-dialog": ConfirmDialog
   },
   setup(props) {
     const store = useStore();
@@ -198,39 +196,31 @@ export default defineComponent({
       confirmDialogTitle.value = store.getters.message(
         "test-matrix-edit-page.delete-test-matrix-confirm"
       );
-      confirmDialogMessage.value = store.getters.message(
-        "common.delete-warning"
-      );
+      confirmDialogMessage.value = store.getters.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         store.dispatch("testManagement/deleteTestMatrix", {
-          testMatrixId: props.testMatrixId,
+          testMatrixId: props.testMatrixId
         });
       };
 
       confirmDialogOpened.value = true;
     };
 
-    const updateTestMatrix = async (
-      obj: UpdateTestMatrixObject
-    ): Promise<void> => {
+    const updateTestMatrix = async (obj: UpdateTestMatrixObject): Promise<void> => {
       store.dispatch("testManagement/updateTestMatrix", {
         id: obj.testMatrix.id,
         name: obj.testMatrix.name,
-        viewPoints: obj.viewPoints,
+        viewPoints: obj.viewPoints
       });
     };
 
     const openConfirmDialogToDeleteGroup = (groupId: string): void => {
-      confirmDialogTitle.value = store.getters.message(
-        "group-edit-list.delete-group-confirm"
-      );
-      confirmDialogMessage.value = store.getters.message(
-        "common.delete-warning"
-      );
+      confirmDialogTitle.value = store.getters.message("group-edit-list.delete-group-confirm");
+      confirmDialogMessage.value = store.getters.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         store.dispatch("testManagement/deleteGroup", {
           testMatrixId: props.testMatrixId,
-          groupId,
+          groupId
         });
       };
 
@@ -240,7 +230,7 @@ export default defineComponent({
     const addNewGroup = async (): Promise<void> => {
       await store.dispatch("testManagement/addNewGroup", {
         testMatrixId: props.testMatrixId,
-        groupName: groupName.value,
+        groupName: groupName.value
       });
       groupName.value = "";
     };
@@ -249,7 +239,7 @@ export default defineComponent({
       store.dispatch("testManagement/updateGroup", {
         testMatrixId: props.testMatrixId,
         groupId: id,
-        name,
+        name
       });
     };
 
@@ -273,8 +263,8 @@ export default defineComponent({
       updateTestMatrix,
       openConfirmDialogToDeleteGroup,
       addNewGroup,
-      renameGroup,
+      renameGroup
     };
-  },
+  }
 });
 </script>

@@ -14,32 +14,21 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
-const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.import_export.create-export-data-error";
+const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY = "error.import_export.create-export-data-error";
 
 export class ExportTestResultAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}
 
-  public async exportWithTestResult(
-    testResultId: string
-  ): Promise<ActionResult<string>> {
+  public async exportWithTestResult(testResultId: string): Promise<ActionResult<string>> {
     const postTestResultForExportResult =
-      await this.repositoryService.testResultRepository.postTestResultForExport(
-        testResultId
-      );
+      await this.repositoryService.testResultRepository.postTestResultForExport(testResultId);
 
     if (postTestResultForExportResult.isFailure()) {
       return new ActionFailure({
-        messageKey: EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY
       });
     }
 

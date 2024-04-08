@@ -22,14 +22,19 @@ import {
   createConnectionRefusedFailure,
 } from "./result";
 
-export class ScreenshotRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type ScreenshotRepository = {
   /**
    * Get screenshots of the specified test result.
    * @param testResultId  Test Result ID.
    * @returns URL of the screenshots archive.
    */
+  getScreenshots(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+};
+
+export class ScreenshotRepositoryImpl implements ScreenshotRepository {
+  constructor(private restClient: RESTClient) {}
 
   public async getScreenshots(
     testResultId: string

@@ -23,7 +23,18 @@ import {
 } from "./result";
 import { SessionForRepository, StoryForRepository } from "./types";
 
-export class StoryRepository {
+export type StoryRepository = {
+  patchStory(
+    id: string,
+    body: {
+      status?: string;
+    }
+  ): Promise<RepositoryAccessResult<StoryForRepository>>;
+
+  getStory(id: string): Promise<RepositoryAccessResult<StoryForRepository>>;
+};
+
+export class StoryRepositoryImpl implements StoryRepository {
   constructor(private restClient: RESTClient) {}
 
   public async patchStory(

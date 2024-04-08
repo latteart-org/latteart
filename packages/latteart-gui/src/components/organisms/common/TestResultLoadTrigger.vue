@@ -28,9 +28,10 @@
 
 <script lang="ts">
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -38,14 +39,16 @@ export default defineComponent({
     testResultIds: {
       type: Array as PropType<string[]>,
       default: () => [],
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -55,33 +58,28 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const loadTestResults = async (...testResultIds: string[]) => {
       try {
-        await store.dispatch("operationHistory/loadTestResultSummaries", {
-          testResultIds,
+        await operationHistoryStore.loadTestResultSummaries({
+          testResultIds
         });
 
-        await store.dispatch("operationHistory/loadTestResult", {
-          testResultId: testResultIds[0],
+        await operationHistoryStore.loadTestResult({
+          testResultId: testResultIds[0]
         });
 
-        store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
-        });
+        operationHistoryStore.canUpdateModels = false;
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);
@@ -99,10 +97,8 @@ export default defineComponent({
       }
 
       try {
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message(
-            "test-result-page.loading-test-results"
-          ),
+        rootStore.openProgressDialog({
+          message: rootStore.message("test-result-page.loading-test-results")
         });
 
         await loadTestResults(...props.testResultIds);
@@ -114,7 +110,7 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
@@ -122,8 +118,8 @@ export default defineComponent({
       errorMessageDialogOpened,
       errorMessage,
       isDisabled,
-      loadHistory,
+      loadHistory
     };
-  },
+  }
 });
 </script>

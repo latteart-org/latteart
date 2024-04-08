@@ -63,11 +63,11 @@ import { CaptureControlState } from "@/store/captureControl";
 export default defineComponent({
   props: {
     color: { type: String, default: "", required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
+    "information-message-dialog": InformationMessageDialog
   },
   setup() {
     const store = useStore();
@@ -93,13 +93,11 @@ export default defineComponent({
     const targetUrl = ref(url.value);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const updateUrl = () => {
@@ -133,12 +131,12 @@ export default defineComponent({
     const startRemoteConnection = (targetUrl: string) => {
       (async () => {
         store.dispatch("openProgressDialog", {
-          message: store.getters.message("remote-access.connecting-remote-url"),
+          message: store.getters.message("remote-access.connecting-remote-url")
         });
 
         try {
           const url = await store.dispatch("connectRepository", {
-            targetUrl,
+            targetUrl
           });
 
           await initialize();
@@ -148,7 +146,7 @@ export default defineComponent({
           informationMessage.value = store.getters.message(
             "remote-access.connect-remote-url-succeeded",
             {
-              url,
+              url
             }
           );
           remoteUrl.value = url;
@@ -180,8 +178,8 @@ export default defineComponent({
       targetUrl,
       isCapturing,
       isReplaying,
-      connect,
+      connect
     };
-  },
+  }
 });
 </script>

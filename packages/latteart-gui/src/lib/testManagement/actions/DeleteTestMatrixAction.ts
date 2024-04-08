@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
 export class DeleteTestMatrixAction {
   public async deleteTestMatrix(
@@ -27,22 +23,15 @@ export class DeleteTestMatrixAction {
       projectId: string;
       testMatrixId: string;
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "testMatrixRepository" | "projectRepository"
-    >
+    repositoryService: Pick<RepositoryService, "testMatrixRepository" | "projectRepository">
   ): Promise<ActionResult<void>> {
-    await repositoryService.testMatrixRepository.deleteTestMatrix(
-      payload.testMatrixId
-    );
+    await repositoryService.testMatrixRepository.deleteTestMatrix(payload.testMatrixId);
 
-    const projectResult = await repositoryService.projectRepository.getProject(
-      payload.projectId
-    );
+    const projectResult = await repositoryService.projectRepository.getProject(payload.projectId);
 
     if (projectResult.isFailure()) {
       return new ActionFailure({
-        messageKey: projectResult.error.message ?? "",
+        messageKey: projectResult.error.message ?? ""
       });
     }
 

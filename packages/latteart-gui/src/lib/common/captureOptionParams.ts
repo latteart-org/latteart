@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { SettingsForRepository } from "latteart-client";
-import { DeviceSettings } from "./settings/Settings";
+import { type SettingsForRepository } from "latteart-client";
+import { type DeviceSettings } from "./settings/Settings";
 
 export type CaptureOptionParams = {
   url: string;

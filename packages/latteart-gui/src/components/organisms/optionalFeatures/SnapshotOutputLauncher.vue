@@ -21,17 +21,9 @@
     }}</v-card-title>
 
     <v-card-actions>
-      <v-btn
-        :disabled="disabled"
-        :dark="!disabled"
-        color="primary"
-        @click="outputSnapshot"
-        >{{
-          store.getters.message(
-            "optional-features.snapshot-output.execute-button"
-          )
-        }}</v-btn
-      >
+      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="outputSnapshot">{{
+        store.getters.message("optional-features.snapshot-output.execute-button")
+      }}</v-btn>
     </v-card-actions>
 
     <download-link-dialog
@@ -61,7 +53,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup() {
     const store = useStore();
@@ -83,8 +75,7 @@ export default defineComponent({
     });
 
     const hasTestMatrix = computed((): boolean => {
-      const testMatrices: TestMatrix[] =
-        store.getters["testManagement/getTestMatrices"]();
+      const testMatrices: TestMatrix[] = store.getters["testManagement/getTestMatrices"]();
 
       return testMatrices.length > 0;
     });
@@ -92,21 +83,15 @@ export default defineComponent({
     const outputSnapshot = () => {
       (async () => {
         store.dispatch("openProgressDialog", {
-          message: store.getters.message("manage-header.creating-snapshot"),
+          message: store.getters.message("manage-header.creating-snapshot")
         });
 
         try {
-          const snapshotUrl = await store.dispatch(
-            "testManagement/writeSnapshot"
-          );
+          const snapshotUrl = await store.dispatch("testManagement/writeSnapshot");
 
           downloadLinkDialogOpened.value = true;
-          downloadLinkDialogTitle.value = store.getters.message(
-            "manage-header.output-html"
-          );
-          downloadLinkDialogMessage.value = store.getters.message(
-            "manage.print-html-succeeded"
-          );
+          downloadLinkDialogTitle.value = store.getters.message("manage-header.output-html");
+          downloadLinkDialogMessage.value = store.getters.message("manage.print-html-succeeded");
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${snapshotUrl}`;
         } catch (error) {
@@ -132,8 +117,8 @@ export default defineComponent({
       errorMessageDialogOpened,
       errorMessage,
       disabled,
-      outputSnapshot,
+      outputSnapshot
     };
-  },
+  }
 });
 </script>

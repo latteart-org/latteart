@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import MermaidGraph from "../mermaidGraph/MermaidGraph";
+import type MermaidGraph from "../mermaidGraph/MermaidGraph";
 import SequenceDiagramGraphExtender from "../mermaidGraph/extender/SequenceDiagramGraphExtender";
 import TextUtil from "./TextUtil";
-import { SequenceView, SequenceViewNode } from "latteart-client";
+import { type SequenceView, type SequenceViewNode } from "latteart-client";
 
 type NoteInfo = {
   sequence: number;
@@ -31,10 +31,7 @@ export type SequenceDiagramGraphCallback = {
   onClickEdge: (sequences: number[]) => void;
   onClickScreenRect: (sequence: number) => void;
   onClickNote: (note: NoteInfo) => void;
-  onRightClickNote: (
-    note: NoteInfo,
-    eventInfo: { clientX: number; clientY: number }
-  ) => void;
+  onRightClickNote: (note: NoteInfo, eventInfo: { clientX: number; clientY: number }) => void;
 };
 
 type SourceNode = {
@@ -94,14 +91,10 @@ export async function convertToSequenceDiagramGraphs(
 > {
   const testStepIdToSequence = new Map(
     view.scenarios
-      .flatMap(({ nodes }) =>
-        nodes.flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
-      )
+      .flatMap(({ nodes }) => nodes.flatMap(({ testSteps }) => testSteps.map(({ id }) => id)))
       .map((id, index) => [id, index + 1])
   );
-  const windowIdToName = new Map(
-    view.windows.map(({ id, name }) => [id, name])
-  );
+  const windowIdToName = new Map(view.windows.map(({ id, name }) => [id, name]));
 
   const graphBuilder = createGraphBuilder(
     windowIdToName,
@@ -113,10 +106,7 @@ export async function convertToSequenceDiagramGraphs(
     const nodeScreenIds = scenario.nodes.map(({ screenId }) => screenId);
     const screens = view.screens.filter(({ id }) => nodeScreenIds.includes(id));
 
-    const { graph, disabledNodeIndexes } = graphBuilder.build(
-      screens,
-      scenario.nodes
-    );
+    const { graph, disabledNodeIndexes } = graphBuilder.build(screens, scenario.nodes);
 
     const firstTestStepId = scenario.nodes.at(0)?.testSteps.at(0)?.id ?? "";
     const firstSequence = testStepIdToSequence.get(firstTestStepId) ?? 0;
@@ -129,7 +119,7 @@ export async function convertToSequenceDiagramGraphs(
         ? { value: testPurpose.value, details: testPurpose.details }
         : undefined,
       graph,
-      disabledNodeIndexes,
+      disabledNodeIndexes
     };
   });
 }
@@ -147,16 +137,12 @@ function createGraphBuilder(
         return { disabledNodeIndexes: [] };
       }
 
-      const sourceNodes = createSourceNodes(
-        nodes,
-        windowIdToName,
-        testStepIdToSequence
-      );
+      const sourceNodes = createSourceNodes(nodes, windowIdToName, testStepIdToSequence);
 
       const graphText = buildGraphText({
         screens,
         nodes: sourceNodes,
-        testStepIdToSequence,
+        testStepIdToSequence
       });
 
       const notes = sourceNodes
@@ -172,7 +158,7 @@ function createGraphBuilder(
               index,
               type: note.tags.includes("bug") ? "bug" : "notice",
               details: note.details ?? "",
-              value: note.value,
+              value: note.value
             };
           });
         });
@@ -185,7 +171,7 @@ function createGraphBuilder(
           target: {
             title: "",
             url: "",
-            screenDef: (nextNode ?? node).screenId,
+            screenDef: (nextNode ?? node).screenId
           },
           sequences: node.testSteps.flatMap((testStep) => {
             const sequence = testStepIdToSequence.get(testStep.id);
@@ -195,7 +181,7 @@ function createGraphBuilder(
             }
 
             return [sequence];
-          }),
+          })
         };
       });
 
@@ -205,7 +191,7 @@ function createGraphBuilder(
             notes,
             screens,
             nodes: sourceNodes,
-            testStepIdToSequence,
+            testStepIdToSequence
           })
         : {
             extendGraph: () => {
@@ -213,7 +199,7 @@ function createGraphBuilder(
             },
             clearEvent: () => {
               /* nothing */
-            },
+            }
           };
 
       const disabledNodeIndexes = sourceNodes
@@ -226,7 +212,7 @@ function createGraphBuilder(
       console.debug(graphText);
 
       return { graph: { graphText, graphExtender }, disabledNodeIndexes };
-    },
+    }
   };
 }
 
@@ -235,9 +221,7 @@ function createSourceNodes(
   windowIdToName: Map<string, string>,
   testStepIdToSequence: Map<string, number>
 ) {
-  const firstSequence = testStepIdToSequence.get(
-    nodes.at(0)?.testSteps.at(0)?.id ?? ""
-  );
+  const firstSequence = testStepIdToSequence.get(nodes.at(0)?.testSteps.at(0)?.id ?? "");
   if (firstSequence === undefined) {
     return [];
   }
@@ -252,14 +236,12 @@ function createSourceNodes(
 
         if (beforeNode?.windowId !== node.windowId) {
           const windowName = windowIdToName.get(node.windowId);
-          const sequence = testStepIdToSequence.get(
-            node.testSteps.at(0)?.id ?? ""
-          );
+          const sequence = testStepIdToSequence.get(node.testSteps.at(0)?.id ?? "");
 
           if (windowName !== undefined && sequence !== undefined) {
             acc.push({
               window: { sequence, text: windowName },
-              nodes: [],
+              nodes: []
             });
           }
         }
@@ -280,7 +262,7 @@ function createSourceNodes(
         window,
         screenId,
         testSteps,
-        disabled,
+        disabled
       };
     })
   );
@@ -301,26 +283,20 @@ function buildGraphText(source: {
       nextNode
     );
 
-    const screenIndex = source.screens.findIndex(
-      ({ id }) => id === node.screenId
-    );
-    const beforeScreenIndex = source.screens.findIndex(
-      ({ id }) => id === beforeNode?.screenId
-    );
+    const screenIndex = source.screens.findIndex(({ id }) => id === node.screenId);
+    const beforeScreenIndex = source.screens.findIndex(({ id }) => id === beforeNode?.screenId);
 
     const contextTexts = (() => {
       const lines = [
         ...buildCommentTexts(node, source.testStepIdToSequence, "right"),
-        ...screenTransitionTexts,
+        ...screenTransitionTexts
       ];
 
       return lines.length === 0
         ? [
             `Note ${
-              screenIndex >= 1 && screenIndex >= beforeScreenIndex
-                ? "left"
-                : "right"
-            } of ${node.screenId}: DUMMY_COMMENT;`,
+              screenIndex >= 1 && screenIndex >= beforeScreenIndex ? "left" : "right"
+            } of ${node.screenId}: DUMMY_COMMENT;`
           ]
         : lines;
     })();
@@ -328,7 +304,7 @@ function buildGraphText(source: {
     const nodeTexts = [
       `activate ${node.screenId};`,
       ...contextTexts,
-      `deactivate ${node.screenId};`,
+      `deactivate ${node.screenId};`
     ];
 
     const scenarioItemTexts = [
@@ -350,7 +326,7 @@ function buildGraphText(source: {
         }
 
         return [];
-      })(),
+      })()
     ];
 
     return [...acc, ...scenarioItemTexts];
@@ -359,10 +335,7 @@ function buildGraphText(source: {
   const screenTexts = source.screens.map(({ id, name }) => {
     const lineLength = 15;
     return `participant ${id} as ${TextUtil.escapeSpecialCharacters(
-      TextUtil.lineBreak(
-        TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength * 3),
-        lineLength
-      )
+      TextUtil.lineBreak(TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength * 3), lineLength)
     )};`;
   });
 
@@ -385,9 +358,7 @@ function buildCommentTexts(
             .join("")}`,
           16
         );
-        const value = TextUtil.escapeSpecialCharacters(
-          TextUtil.lineBreak(note.value, 16)
-        );
+        const value = TextUtil.escapeSpecialCharacters(TextUtil.lineBreak(note.value, 16));
 
         return `Note ${position} of ${node.screenId}: ${tags}<br/>-<br/>${value};`;
       }) ?? []
@@ -416,16 +387,11 @@ function buildScreenTransitionTexts(
   const sequence = testStepIdToSequence.get(lastTestStep?.id ?? "");
   const operationType = lastTestStep?.type;
   const targetElement = TextUtil.escapeSpecialCharacters(
-    TextUtil.ellipsis(
-      TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""),
-      20
-    )
+    TextUtil.ellipsis(TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""), 20)
   );
   const screenTransitionTrigger = node.disabled
     ? "screen transition"
     : `(${sequence})${operationType}: ${targetElement}`;
 
-  return [
-    `${node.screenId} ->> ${nextNode.screenId}: ${screenTransitionTrigger};`,
-  ];
+  return [`${node.screenId} ->> ${nextNode.screenId}: ${screenTransitionTrigger};`];
 }

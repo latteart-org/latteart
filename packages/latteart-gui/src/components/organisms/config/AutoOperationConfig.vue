@@ -38,7 +38,7 @@
 <script lang="ts">
 import {
   AutoOperationSetting as AutoOperationSettingConfig,
-  AutoOperationConditionGroup,
+  AutoOperationConditionGroup
 } from "@/lib/operationHistory/types";
 import AutoOperationContainer from "./AutoOperationContainer.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
@@ -51,17 +51,17 @@ export default defineComponent({
     autoOperationSetting: {
       type: Object as PropType<AutoOperationSettingConfig>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "auto-operation-container": AutoOperationContainer,
+    "auto-operation-container": AutoOperationContainer
   },
   setup(props, context) {
     const store = useStore();
 
     const tempConfig = ref<AutoOperationSettingConfig>({
-      ...props.autoOperationSetting,
+      ...props.autoOperationSetting
     });
 
     const updateTempConfig = (): void => {
@@ -89,7 +89,7 @@ export default defineComponent({
         if (index === i) {
           return {
             ...group,
-            ...conditionGroup,
+            ...conditionGroup
           };
         }
         return group;
@@ -99,9 +99,7 @@ export default defineComponent({
 
     const deleteConditionGroup = (index: number) => {
       const config = { ...tempConfig.value };
-      config.conditionGroups = config.conditionGroups.filter(
-        (c, i) => index !== i
-      );
+      config.conditionGroups = config.conditionGroups.filter((c, i) => index !== i);
       tempConfig.value = config;
     };
 
@@ -113,8 +111,8 @@ export default defineComponent({
       store,
       conditionGroups,
       updateConditionGroup,
-      deleteConditionGroup,
+      deleteConditionGroup
     };
-  },
+  }
 });
 </script>

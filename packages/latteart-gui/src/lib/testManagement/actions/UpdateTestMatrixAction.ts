@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type TestMatrix } from "@/lib/testManagement/types";
 
 export class UpdateTestMatrixAction {
   public async updateTestMatrix(
@@ -41,14 +37,13 @@ export class UpdateTestMatrixAction {
     >
   ): Promise<ActionResult<TestMatrix[]>> {
     if (payload.newTestMatrix.name !== payload.oldTestMatrix.name) {
-      const testMatrixResult =
-        await repositoryService.testMatrixRepository.patchTestMatrix(
-          payload.newTestMatrix.id,
-          payload.newTestMatrix.name
-        );
+      const testMatrixResult = await repositoryService.testMatrixRepository.patchTestMatrix(
+        payload.newTestMatrix.id,
+        payload.newTestMatrix.name
+      );
       if (testMatrixResult.isFailure()) {
         return new ActionFailure({
-          messageKey: testMatrixResult.error.message ?? "",
+          messageKey: testMatrixResult.error.message ?? ""
         });
       }
     }
@@ -56,23 +51,20 @@ export class UpdateTestMatrixAction {
     await Promise.all(
       payload.newViewPoints.map(async (newViewPoint) => {
         if (!newViewPoint.id) {
-          const result =
-            await repositoryService.viewPointRepository.postViewPoint({
-              testMatrixId: payload.oldTestMatrix.id,
-              name: newViewPoint.name,
-              description: newViewPoint.description,
-              index: newViewPoint.index,
-            });
+          const result = await repositoryService.viewPointRepository.postViewPoint({
+            testMatrixId: payload.oldTestMatrix.id,
+            name: newViewPoint.name,
+            description: newViewPoint.description,
+            index: newViewPoint.index
+          });
           if (result.isFailure()) {
             return new ActionFailure({
-              messageKey: result.error.message ?? "",
+              messageKey: result.error.message ?? ""
             });
           }
           return result.data;
         }
-        const oldViewPoint = payload.oldTestMatrix.viewPoints.find(
-          (v) => v.id === newViewPoint.id
-        );
+        const oldViewPoint = payload.oldTestMatrix.viewPoints.find((v) => v.id === newViewPoint.id);
         if (!oldViewPoint) {
           throw new Error();
         }
@@ -82,18 +74,17 @@ export class UpdateTestMatrixAction {
             newViewPoint.description !== oldViewPoint.description ||
             newViewPoint.index !== oldViewPoint.index)
         ) {
-          const result =
-            await repositoryService.viewPointRepository.patchViewPoint(
-              newViewPoint.id,
-              {
-                name: newViewPoint.name,
-                description: newViewPoint.description,
-                index: newViewPoint.index,
-              }
-            );
+          const result = await repositoryService.viewPointRepository.patchViewPoint(
+            newViewPoint.id,
+            {
+              name: newViewPoint.name,
+              description: newViewPoint.description,
+              index: newViewPoint.index
+            }
+          );
           if (result.isFailure()) {
             return new ActionFailure({
-              messageKey: result.error.message ?? "",
+              messageKey: result.error.message ?? ""
             });
           }
           return result.data;
@@ -102,29 +93,23 @@ export class UpdateTestMatrixAction {
       })
     );
 
-    const deleteList = payload.oldTestMatrix.viewPoints.filter(
-      (oldViewPoint) => {
-        return !payload.newViewPoints.find((newViewPoint) => {
-          return oldViewPoint.id === newViewPoint.id;
-        });
-      }
-    );
+    const deleteList = payload.oldTestMatrix.viewPoints.filter((oldViewPoint) => {
+      return !payload.newViewPoints.find((newViewPoint) => {
+        return oldViewPoint.id === newViewPoint.id;
+      });
+    });
 
     await Promise.all(
       deleteList.map(async (viewPoint) => {
-        return await repositoryService.viewPointRepository.deleteViewPoint(
-          viewPoint.id
-        );
+        return await repositoryService.viewPointRepository.deleteViewPoint(viewPoint.id);
       })
     );
 
-    const projectResult = await repositoryService.projectRepository.getProject(
-      payload.projectId
-    );
+    const projectResult = await repositoryService.projectRepository.getProject(payload.projectId);
 
     if (projectResult.isFailure()) {
       return new ActionFailure({
-        messageKey: projectResult.error.message ?? "",
+        messageKey: projectResult.error.message ?? ""
       });
     }
     return new ActionSuccess(projectResult.data.testMatrices);

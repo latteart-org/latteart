@@ -16,7 +16,7 @@
 
 import { TimestampImpl } from "../common/Timestamp";
 import { convertInputValue } from "../common/util";
-import { ElementInfo, VideoFrame } from "latteart-client";
+import { type ElementInfo, type VideoFrame } from "latteart-client";
 
 /**
  * Class that handles operation information.
@@ -152,21 +152,13 @@ export class OperationForGUI {
       args.overrideParams.sequence !== undefined
         ? args.overrideParams.sequence
         : args.other.sequence,
-      args.overrideParams.input !== undefined
-        ? args.overrideParams.input
-        : args.other.input,
-      args.overrideParams.type !== undefined
-        ? args.overrideParams.type
-        : args.other.type,
+      args.overrideParams.input !== undefined ? args.overrideParams.input : args.other.input,
+      args.overrideParams.type !== undefined ? args.overrideParams.type : args.other.type,
       args.overrideParams.elementInfo !== undefined
         ? args.overrideParams.elementInfo
         : args.other.elementInfo,
-      args.overrideParams.title !== undefined
-        ? args.overrideParams.title
-        : args.other.title,
-      args.overrideParams.url !== undefined
-        ? args.overrideParams.url
-        : args.other.url,
+      args.overrideParams.title !== undefined ? args.overrideParams.title : args.other.title,
+      args.overrideParams.url !== undefined ? args.overrideParams.url : args.other.url,
       args.overrideParams.screenDef !== undefined
         ? args.overrideParams.screenDef
         : args.other.screenDef,

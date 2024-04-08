@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
-import { AutofillConditionGroup } from "../types";
+import { type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type AutofillConditionGroup } from "../types";
 
 export class AutofillTestAction {
   public extractMatchingAutofillConditionGroup(
@@ -28,9 +28,7 @@ export class AutofillTestAction {
         conditionGroup.url === url &&
         conditionGroup.title === title &&
         conditionGroup.isEnabled &&
-        conditionGroup.inputValueConditions.some(
-          (inputValue) => inputValue.isEnabled
-        )
+        conditionGroup.inputValueConditions.some((inputValue) => inputValue.isEnabled)
       );
     });
 

@@ -51,22 +51,21 @@ export default defineComponent({
     screenDefinition: {
       type: Object as PropType<ScreenDefinitionSetting>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
     "screen-def-unit": ScreenDefUnit,
-    draggable: draggable,
+    draggable: draggable
   },
   setup(props, context) {
     const store = useStore();
 
     const conditionGroups = computed({
-      get: (): ScreenDefinitionConditionGroup[] =>
-        props.screenDefinition?.conditionGroups ?? [],
+      get: (): ScreenDefinitionConditionGroup[] => props.screenDefinition?.conditionGroups ?? [],
       set: (conditionGroups: ScreenDefinitionConditionGroup[]) => {
         context.emit("update-condition-groups", conditionGroups);
-      },
+      }
     });
 
     const changeOrder = () => {
@@ -83,17 +82,15 @@ export default defineComponent({
             isEnabled: true,
             definitionType: "url",
             matchType: "contains",
-            word: "",
-          },
-        ],
+            word: ""
+          }
+        ]
       });
       conditionGroups.value = targetConditionGroups;
     };
 
     const deleteConditionGroup = (groupIndex: number) => {
-      conditionGroups.value = conditionGroups.value.filter(
-        (g, i) => i !== groupIndex
-      );
+      conditionGroups.value = conditionGroups.value.filter((g, i) => i !== groupIndex);
     };
 
     const updateConditionGroup = (conditionGroupWithindex: {
@@ -101,9 +98,7 @@ export default defineComponent({
       index: number;
     }) => {
       conditionGroups.value = conditionGroups.value.map((c, i) => {
-        return conditionGroupWithindex.index !== i
-          ? c
-          : conditionGroupWithindex.conditionGroup;
+        return conditionGroupWithindex.index !== i ? c : conditionGroupWithindex.conditionGroup;
       });
     };
 
@@ -113,9 +108,9 @@ export default defineComponent({
       changeOrder,
       addConditionGroup,
       deleteConditionGroup,
-      updateConditionGroup,
+      updateConditionGroup
     };
-  },
+  }
 });
 </script>
 

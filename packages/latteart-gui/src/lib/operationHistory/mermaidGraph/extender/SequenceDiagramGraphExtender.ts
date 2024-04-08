@@ -15,27 +15,19 @@
  */
 
 import * as d3 from "d3";
-import MermaidGraphExtender from "./MermaidGraphExtender";
+import type MermaidGraphExtender from "./MermaidGraphExtender";
 
 /**
  * A class that extends the mermaid sequence diagram.
  */
-export default class SequenceDiagramGraphExtender
-  implements MermaidGraphExtender
-{
+export default class SequenceDiagramGraphExtender implements MermaidGraphExtender {
   private callback: {
     onClickActivationBox: (index: number) => void;
     onClickEdge: (index: number) => void;
     onClickScreenRect: (index: number) => void;
     onClickNote: (index: number) => void;
-    onRightClickNote: (
-      index: number,
-      eventInfo: { clientX: number; clientY: number }
-    ) => void;
-    onRightClickLoopArea: (
-      index: number,
-      eventInfo: { clientX: number; clientY: number }
-    ) => void;
+    onRightClickNote: (index: number, eventInfo: { clientX: number; clientY: number }) => void;
+    onRightClickLoopArea: (index: number, eventInfo: { clientX: number; clientY: number }) => void;
   };
   private tooltipTextsOfNote: string[];
   private tooltipTextsOfLoopArea: string[];
@@ -58,10 +50,7 @@ export default class SequenceDiagramGraphExtender
       onClickEdge: (index: number) => void;
       onClickScreenRect: (index: number) => void;
       onClickNote: (index: number) => void;
-      onRightClickNote: (
-        index: number,
-        eventInfo: { clientX: number; clientY: number }
-      ) => void;
+      onRightClickNote: (index: number, eventInfo: { clientX: number; clientY: number }) => void;
       onRightClickLoopArea: (
         index: number,
         eventInfo: { clientX: number; clientY: number }
@@ -99,7 +88,7 @@ export default class SequenceDiagramGraphExtender
       },
       onRightClickLoopArea: () => {
         /* Do nothing. */
-      },
+      }
     };
   }
 
@@ -108,10 +97,7 @@ export default class SequenceDiagramGraphExtender
    * Bind a callback function to an element, change the color of the element, etc.
    * @param element  Svg element to draw the graph.
    */
-  public extendGraph(
-    element: Element,
-    disabledNodeIndexes: number[] = []
-  ): void {
+  public extendGraph(element: Element, disabledNodeIndexes: number[] = []): void {
     const svg = d3.select(element as d3.BaseType);
 
     // Omitted if the actor display name is long.
@@ -146,9 +132,7 @@ export default class SequenceDiagramGraphExtender
 
     // When pressing activation box.
     svg.selectAll("g>rect.activation0").each((_, i, nodes) => {
-      const activationBoxArea = d3.select(
-        (nodes[i] as Node).parentNode as d3.BaseType
-      );
+      const activationBoxArea = d3.select((nodes[i] as Node).parentNode as d3.BaseType);
 
       if (disabledNodeIndexes.includes(i)) {
         activationBoxArea.select("rect").classed("disabled", true);
@@ -177,25 +161,16 @@ export default class SequenceDiagramGraphExtender
         loopTexts.on("contextmenu", (event: MouseEvent) => {
           this.callback.onRightClickLoopArea(i, {
             clientX: event.clientX,
-            clientY: event.clientY,
+            clientY: event.clientY
           });
         });
-        loopTexts
-          .select("tspan")
-          .style("fill", "black")
-          .style("font-weight", null);
+        loopTexts.select("tspan").style("fill", "black").style("font-weight", null);
 
         loopTexts.on("mouseover", () => {
-          loopTexts
-            .select("tspan")
-            .style("fill", "red")
-            .style("font-weight", "bold");
+          loopTexts.select("tspan").style("fill", "red").style("font-weight", "bold");
         });
         loopTexts.on("mouseout", () => {
-          loopTexts
-            .select("tspan")
-            .style("fill", "black")
-            .style("font-weight", null);
+          loopTexts.select("tspan").style("fill", "black").style("font-weight", null);
         });
 
         const loopLines = d3
@@ -216,17 +191,12 @@ export default class SequenceDiagramGraphExtender
           .select((nodes[i] as Node).parentNode as d3.BaseType)
           .selectAll("text.loopText");
 
-        loopTexts
-          .select("tspan")
-          .style("fill", "rgb(155 153 153)")
-          .style("font-weight", null);
+        loopTexts.select("tspan").style("fill", "rgb(155 153 153)").style("font-weight", null);
       });
 
     // (Screen) When pressing the lifeline.
     svg.selectAll("g>rect.actor").each((_, i, nodes) => {
-      const targetRectElement = d3.select(
-        (nodes[i] as Node).parentNode as d3.BaseType
-      );
+      const targetRectElement = d3.select((nodes[i] as Node).parentNode as d3.BaseType);
 
       targetRectElement.on("click", () => {
         const actorIndex = i % (nodes.length / 2);
@@ -263,7 +233,7 @@ export default class SequenceDiagramGraphExtender
       g.on("contextmenu", (event: MouseEvent) => {
         this.callback.onRightClickNote(i, {
           clientX: event.clientX,
-          clientY: event.clientY,
+          clientY: event.clientY
         });
       });
     });

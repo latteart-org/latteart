@@ -16,13 +16,9 @@
 
 <template>
   <div>
-    <v-chip
-      v-for="(tag, index) in tags"
-      :key="index"
-      :color="getTagsColor(tag)"
-      small
-      >{{ tag }}</v-chip
-    >
+    <v-chip v-for="(tag, index) in tags" :key="index" :color="getTagsColor(tag)" size="small">{{
+      tag
+    }}</v-chip>
   </div>
 </template>
 
@@ -32,7 +28,7 @@ import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   props: {
-    tags: { type: Array, default: [], required: true },
+    tags: { type: Array, default: [], required: true }
   },
   setup() {
     const bugColor = ref("");
@@ -49,8 +45,8 @@ export default defineComponent({
     };
 
     return {
-      getTagsColor,
+      getTagsColor
     };
-  },
+  }
 });
 </script>

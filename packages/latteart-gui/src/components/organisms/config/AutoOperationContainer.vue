@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-container pa-4 style="background-color: #eee">
+  <v-container class="pa-4" style="background-color: #eee">
     <v-row>
       <v-col cols="1" align="right">
         <v-checkbox
           :style="{ maxWidth: '40px' }"
-          :input-value="conditionGroup.isEnabled"
-          @change="(isEnabled) => updateconditionGroup({ isEnabled })"
+          :model-value="conditionGroup.isEnabled"
+          @update:model-value="(isEnabled) => updateconditionGroup({ isEnabled })"
           class="default-flex"
         >
         </v-checkbox>
@@ -29,7 +29,7 @@
       <v-col cols="8">
         <v-text-field
           :label="store.getters.message('config-page.autoOperation.name')"
-          :value="conditionGroup.settingName"
+          :model-value="conditionGroup.settingName"
           @change="(settingName) => updateconditionGroup({ settingName })"
         ></v-text-field>
       </v-col>
@@ -49,7 +49,7 @@
         <v-textarea
           hide-details
           :label="store.getters.message('config-page.autoOperation.details')"
-          :value="conditionGroup.details"
+          :model-value="conditionGroup.details"
           @change="(details) => updateconditionGroup({ details })"
           class="px-1"
         ></v-textarea>
@@ -78,22 +78,20 @@ export default defineComponent({
     conditionGroup: {
       type: Object as PropType<AutoOperationConditionGroup>,
       default: null,
-      required: true,
+      required: true
     },
-    index: { type: Number, default: null, required: true },
+    index: { type: Number, default: null, required: true }
   },
   components: {
     "screen-def-unit": ScreenDefUnit,
-    "auto-operation-dialog": AutoOperationDialog,
+    "auto-operation-dialog": AutoOperationDialog
   },
   setup(props, context) {
     const store = useStore();
 
     const dialogOpened = ref(false);
 
-    const updateconditionGroup = (
-      conditionGroup: Partial<AutoOperationConditionGroup>
-    ) => {
+    const updateconditionGroup = (conditionGroup: Partial<AutoOperationConditionGroup>) => {
       context.emit("update-condition-group", conditionGroup, props.index);
     };
 
@@ -105,8 +103,8 @@ export default defineComponent({
       store,
       dialogOpened,
       updateconditionGroup,
-      deleteConditionGroup,
+      deleteConditionGroup
     };
-  },
+  }
 });
 </script>

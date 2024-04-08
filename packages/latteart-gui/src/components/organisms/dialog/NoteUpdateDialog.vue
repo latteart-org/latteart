@@ -31,10 +31,7 @@
 </template>
 
 <script lang="ts">
-import {
-  NoteDialogInfo,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
+import { NoteDialogInfo, OperationWithNotes } from "@/lib/operationHistory/types";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NoteCommonDialog from "@/components/organisms/dialog/NoteCommonDialog.vue";
@@ -44,11 +41,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "note-common-dialog": NoteCommonDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -64,7 +61,7 @@ export default defineComponent({
       imageFilePath: "",
       sequence: 1,
       maxSequence: 1,
-      videoFilePath: "",
+      videoFilePath: ""
     });
 
     const initialize = () => {
@@ -72,9 +69,8 @@ export default defineComponent({
         return;
       }
 
-      const selectedOperationNote = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote;
+      const selectedOperationNote = ((store.state as any).operationHistory as OperationHistoryState)
+        .selectedOperationNote;
       const sequence = selectedOperationNote.sequence as number;
       const index = selectedOperationNote.index as number;
       const historyItem: OperationWithNotes =
@@ -86,9 +82,7 @@ export default defineComponent({
           historyItem.operation.videoFrame?.time ??
           0;
         const videoUrl =
-          historyItem.notices[index].videoFrame?.url ??
-          historyItem.operation.videoFrame?.url ??
-          "";
+          historyItem.notices[index].videoFrame?.url ?? historyItem.operation.videoFrame?.url ?? "";
         const videoFilePath = videoUrl ? `${videoUrl}#t=${time}` : "";
 
         noteInfo.value = {
@@ -101,10 +95,9 @@ export default defineComponent({
               ? historyItem.notices[index].imageFilePath
               : historyItem.operation.imageFilePath,
           sequence: sequence,
-          maxSequence: (
-            (store.state as any).operationHistory as OperationHistoryState
-          ).history.length,
-          videoFilePath,
+          maxSequence: ((store.state as any).operationHistory as OperationHistoryState).history
+            .length,
+          videoFilePath
         };
       }
     };
@@ -114,7 +107,7 @@ export default defineComponent({
         close();
         try {
           await store.dispatch("operationHistory/editNote", {
-            noteEditInfo,
+            noteEditInfo
           });
         } catch (error) {
           if (error instanceof Error) {
@@ -139,8 +132,8 @@ export default defineComponent({
       errorMessage,
       noteInfo,
       editNote,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

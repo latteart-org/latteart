@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
 export class DeleteSessionAction {
   public async deleteSession(
@@ -36,7 +32,7 @@ export class DeleteSessionAction {
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: result.error.message ?? "",
+        messageKey: result.error.message ?? ""
       });
     }
 

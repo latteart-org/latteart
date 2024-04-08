@@ -28,37 +28,39 @@
     "
     strong
   >
-    <template>
-      <span class="pre-wrap break-word">{{ message }}</span>
-    </template>
+    <span class="pre-wrap break-word">{{ message }}</span>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { defineComponent } from "vue";
+import type { PropType } from "vue";
 
-@Component({
-  components: {
-    "execute-dialog": ExecuteDialog,
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    message: { type: String, default: "", required: true },
+    onAccept: { type: Function as PropType<() => void>, required: true }
   },
-})
-export default class ConfirmDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
-  @Prop(Function) public readonly onAccept!: () => void;
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
+  setup(props, context) {
+    const accept = (): void => {
+      props.onAccept();
+    };
 
-  private accept(): void {
-    this.onAccept();
-  }
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private close(): void {
-    this.$emit("close");
+    return { accept, cancel, close };
   }
-}
+});
 </script>

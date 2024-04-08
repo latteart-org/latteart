@@ -28,65 +28,55 @@
     <template>
       <v-list class="note-details-dialog">
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>{{
-              store.getters.message("note-details-dialog.summary")
-            }}</v-list-item-title>
-            <p class="break-all">{{ summary }}</p>
-          </v-list-item-content>
+          <v-list-item-title>{{
+            store.getters.message("note-details-dialog.summary")
+          }}</v-list-item-title>
+          <p class="break-all">{{ summary }}</p>
         </v-list-item>
 
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>{{
-              store.getters.message("note-details-dialog.details")
-            }}</v-list-item-title>
-            <p class="break-all pre-wrap">{{ details }}</p>
-          </v-list-item-content>
+          <v-list-item-title>{{
+            store.getters.message("note-details-dialog.details")
+          }}</v-list-item-title>
+          <p class="break-all pre-wrap">{{ details }}</p>
         </v-list-item>
 
         <v-list-item class="mb-2">
-          <v-list-item-content>
-            <v-list-item-title>{{
-              store.getters.message("note-details-dialog.tags")
-            }}</v-list-item-title>
-            <v-combobox
-              v-model="newTags"
-              :hide-no-data="!search"
-              :items="tagsItem"
-              :search-input.sync="search"
-              hide-selected
-              hide-details
-              multiple
-              small-chips
-              :readonly="isViewerMode"
-            >
-              <template v-slot:no-data>
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      No results matching "<strong>{{ search }}</strong
-                      >". Press <kbd>enter</kbd> to create a new one
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{ attrs, item, parent, selected }">
-                <v-chip
-                  v-if="item === Object(item)"
-                  v-bind="attrs"
-                  :color="item.color"
-                  :input-value="selected"
-                  small
-                >
-                  <span class="pr-2">{{ item.text }} </span>
-                  <v-icon small @click="parent.selectItem(item)"
-                    >$delete</v-icon
-                  >
-                </v-chip>
-              </template>
-            </v-combobox>
-          </v-list-item-content>
+          <v-list-item-title>{{
+            store.getters.message("note-details-dialog.tags")
+          }}</v-list-item-title>
+          <v-combobox
+            v-model="newTags"
+            :hide-no-data="!search"
+            :items="tagsItem"
+            v-model:search-input="search"
+            hide-selected
+            hide-details
+            multiple
+            small-chips
+            :readonly="isViewerMode"
+          >
+            <template v-slot:no-data>
+              <v-list-item>
+                <v-list-item-title>
+                  No results matching "<strong>{{ search }}</strong
+                  >". Press <kbd>enter</kbd> to create a new one
+                </v-list-item-title>
+              </v-list-item>
+            </template>
+            <template v-slot:selection="{ attrs, item, parent, selected }">
+              <v-chip
+                v-if="item === Object(item)"
+                v-bind="attrs"
+                :color="item.color"
+                :model-value="selected"
+                size="small"
+              >
+                <span class="pr-2">{{ item.text }} </span>
+                <v-icon size="small" @click="parent.selectItem(item)">$delete</v-icon>
+              </v-chip>
+            </template>
+          </v-combobox>
         </v-list-item>
 
         <media-display-group
@@ -106,10 +96,7 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import {
-  NoteTagItem,
-  noteTagPreset,
-} from "@/lib/operationHistory/NoteTagPreset";
+import { NoteTagItem, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
 import { defineComponent, ref, toRefs, watch, inject, nextTick } from "vue";
@@ -126,15 +113,15 @@ export default defineComponent({
     tags: {
       type: Array as PropType<string[]>,
       default: [],
-      required: true,
+      required: true
     },
     imageFilePath: { type: String, default: "", required: true },
-    videoUrl: { type: String, default: "", required: true },
+    videoUrl: { type: String, default: "", required: true }
   },
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "media-display-group": MediaDisplayGroup,
+    "media-display-group": MediaDisplayGroup
   },
   setup(props, context) {
     const store = useStore();
@@ -162,7 +149,7 @@ export default defineComponent({
 
         return {
           text: tag,
-          color: "#E0E0E0",
+          color: "#E0E0E0"
         };
       });
 
@@ -179,7 +166,7 @@ export default defineComponent({
         if (typeof v === "string") {
           v = {
             text: v,
-            color: "#E0E0E0",
+            color: "#E0E0E0"
           };
 
           newTags.value.push(v);
@@ -196,7 +183,7 @@ export default defineComponent({
           noteId: props.noteId,
           value: props.summary,
           details: props.details,
-          tags: newTags.value.map((tag) => tag.text),
+          tags: newTags.value.map((tag) => tag.text)
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -228,9 +215,9 @@ export default defineComponent({
       isViewerMode,
       isMediaDisplayed,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

@@ -23,14 +23,30 @@ import {
 } from "./result";
 import { SettingsForRepository } from "./types";
 
-export class ImportProjectRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type ImportProjectRepository = {
   /**
    * Import project or testresult or all.
    * @param importFileName  Import file name.
    * @param selectOption  Select options.
    */
+  postProjects(
+    source: { projectFile: { data: string; name: string } },
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
+  ): Promise<
+    RepositoryAccessResult<{
+      projectId: string;
+      config?: SettingsForRepository;
+    }>
+  >;
+};
+
+export class ImportProjectRepositoryImpl implements ImportProjectRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async postProjects(
     source: { projectFile: { data: string; name: string } },
     selectOption: {

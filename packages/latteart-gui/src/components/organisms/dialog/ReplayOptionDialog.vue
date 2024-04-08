@@ -17,12 +17,10 @@
 <template>
   <div>
     <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        store.getters.message("replay-option.start-replay")
-      }}</template>
+      <template v-slot:title>{{ $t("replay-option.start-replay") }}</template>
       <template v-slot:content>
         <v-checkbox
-          :label="store.getters.message('replay-option.replay-capture')"
+          :label="$t('replay-option.replay-capture')"
           v-model="isResultSavingEnabled"
           hide-details
         ></v-checkbox>
@@ -31,25 +29,22 @@
           <v-card-text>
             <v-text-field
               :disabled="!isResultSavingEnabled"
-              :label="store.getters.message('replay-option.test-result-name')"
+              :label="$t('replay-option.test-result-name')"
               v-model="testResultName"
               hide-details
             ></v-text-field>
           </v-card-text>
         </v-card>
 
-        <p
-          v-if="savingReplayResultsWarningMessage !== ''"
-          class="alert-message"
-        >
+        <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
           {{ savingReplayResultsWarningMessage }}
         </p>
 
         <v-checkbox
           :disabled="!isResultSavingEnabled"
           :label="
-            store.getters.message('replay-option.replay-compare', {
-              sourceTestResultName,
+            $t('replay-option.replay-compare', {
+              sourceTestResultName
             })
           "
           v-model="isComparisonEnabled"
@@ -61,21 +56,22 @@
         <v-spacer></v-spacer>
         <v-btn
           :disabled="okButtonIsDisabled"
-          :dark="!okButtonIsDisabled"
+          variant="elevated"
           color="blue"
           @click="
             ok();
             close();
           "
         >
-          {{ store.getters.message("common.ok") }}
+          {{ $t("common.ok") }}
         </v-btn>
         <v-btn
+          variant="elevated"
           @click="
             cancel();
             close();
           "
-          >{{ store.getters.message("common.cancel") }}</v-btn
+          >{{ $t("common.cancel") }}</v-btn
         >
       </template>
     </scrollable-dialog>
@@ -91,20 +87,23 @@
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "scrollable-dialog": ScrollableDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const testResultName = ref("");
     const isResultSavingEnabled = ref(false);
@@ -121,17 +120,13 @@ export default defineComponent({
     });
 
     const savingReplayResultsWarningMessage = computed((): string => {
-      return store.state.projectSettings.config.captureMediaSetting
-        .mediaType === "video"
-        ? store.getters.message(
-            "replay-option.saving-replay-results-warning-message"
-          )
+      return rootStore.projectSettings.config.captureMediaSetting.mediaType === "video"
+        ? rootStore.message("replay-option.saving-replay-results-warning-message")
         : "";
     });
 
     const hasIgnoredOperations = computed((): boolean => {
-      const operations: OperationForGUI[] =
-        store.getters["operationHistory/getOperations"]();
+      const operations: OperationForGUI[] = operationHistoryStore.getOperations();
 
       return operations.some(({ type }, index) => {
         if (index > 0 && type === "start_capturing") {
@@ -147,8 +142,7 @@ export default defineComponent({
     });
 
     const sourceTestResultName = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.name;
+      return operationHistoryStore.testResultInfo.name;
     });
 
     const initialize = () => {
@@ -160,23 +154,17 @@ export default defineComponent({
       isResultSavingEnabled.value = false;
       isComparisonEnabled.value = false;
       alertMessage.value = hasIgnoredOperations.value
-        ? store.getters.message("replay-option.ignored-operations-alert")
+        ? rootStore.message("replay-option.ignored-operations-alert")
         : "";
     };
 
     const ok = () => {
       try {
-        store.commit("captureControl/setReplayOption", {
-          replayOption: {
-            testResultName: isResultSavingEnabled.value
-              ? testResultName.value
-              : "",
-            resultSavingEnabled: isResultSavingEnabled.value,
-            comparisonEnabled: isResultSavingEnabled.value
-              ? isComparisonEnabled.value
-              : false,
-          },
-        });
+        captureControlStore.replayOption = {
+          testResultName: isResultSavingEnabled.value ? testResultName.value : "",
+          resultSavingEnabled: isResultSavingEnabled.value,
+          comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
+        };
 
         context.emit("ok");
       } catch (error) {
@@ -201,7 +189,7 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
+      t: rootStore.message,
       testResultName,
       isResultSavingEnabled,
       isComparisonEnabled,
@@ -213,9 +201,9 @@ export default defineComponent({
       sourceTestResultName,
       ok,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

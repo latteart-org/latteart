@@ -17,14 +17,10 @@
       position: 'relative',
       display: 'flex',
       'max-height': '100%',
-      'aspect-ratio': aspectRatio,
+      'aspect-ratio': aspectRatio
     }"
   >
-    <video
-      ref="video"
-      controls
-      :style="{ 'max-height': '100%', 'max-width': '100%' }"
-    >
+    <video ref="videoRef" controls :style="{ 'max-height': '100%', 'max-width': '100%' }">
       <source type="video/webm" />
     </video>
     <slot></slot>
@@ -32,82 +28,86 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Component, Watch } from "vue-property-decorator";
-@Component
-export default class VideoDisplay extends Vue {
-  @Prop({ type: String, default: "" })
-  public readonly videoUrl!: string;
-  @Prop({ type: Boolean, default: false })
-  public readonly pictureInPicture!: boolean;
-  private aspectRatio = 0;
-  mounted() {
-    const video = this.$refs.video as HTMLVideoElement;
-    video.addEventListener("playing", this.notifyPlaying);
-    video.addEventListener(
-      "enterpictureinpicture",
-      this.notifyEnterPictureInPicture
-    );
-    video.addEventListener(
-      "leavepictureinpicture",
-      this.notifyLeavePictureInPicture
-    );
-    video.addEventListener("loadedmetadata", this.updateAspectRatio);
-    video.src = this.videoUrl;
-  }
-  beforeDestroy() {
-    const video = this.$refs.video as HTMLVideoElement;
-    video.removeEventListener("playing", this.notifyPlaying);
-    video.removeEventListener(
-      "enterpictureinpicture",
-      this.notifyEnterPictureInPicture
-    );
-    video.removeEventListener(
-      "leavepictureinpicture",
-      this.notifyLeavePictureInPicture
-    );
-    video.removeEventListener("loadedmetadata", this.updateAspectRatio);
-  }
-  @Watch("videoUrl")
-  private updateVideoUrl(): void {
-    const videoElement = this.$refs.video as HTMLVideoElement;
-    videoElement.pause();
-    videoElement.src = this.videoUrl;
-    videoElement.load();
-  }
-  @Watch("pictureInPicture")
-  private switchPictureInPicture(): void {
-    if (this.pictureInPicture) {
-      this.enterPictureInPicture();
-    } else {
-      this.exitPictureInPicture();
-    }
-  }
+import { defineComponent, onMounted, onBeforeUnmount, ref, toRefs, watch } from "vue";
 
-  private updateAspectRatio() {
-    const videoElement = this.$refs.video as HTMLVideoElement;
-    console.log("w: " + videoElement.videoWidth);
-    console.log("h: " + videoElement.videoHeight);
-    this.aspectRatio = videoElement.videoWidth / videoElement.videoHeight;
+export default defineComponent({
+  props: {
+    videoUrl: { type: String, default: "" },
+    pictureInPicture: { type: Boolean, default: false }
+  },
+  setup(props, context) {
+    const aspectRatio = ref(0);
+    const videoRef = ref<any>();
+
+    onMounted(() => {
+      const video = videoRef.value as HTMLVideoElement;
+      video.addEventListener("playing", notifyPlaying);
+      video.addEventListener("enterpictureinpicture", notifyEnterPictureInPicture);
+      video.addEventListener("leavepictureinpicture", notifyLeavePictureInPicture);
+      video.addEventListener("loadedmetadata", updateAspectRatio);
+      video.src = props.videoUrl;
+    });
+
+    onBeforeUnmount((): void => {
+      const video = videoRef.value as HTMLVideoElement;
+      video.removeEventListener("playing", notifyPlaying);
+      video.removeEventListener("enterpictureinpicture", notifyEnterPictureInPicture);
+      video.removeEventListener("leavepictureinpicture", notifyLeavePictureInPicture);
+      video.removeEventListener("loadedmetadata", updateAspectRatio);
+    });
+
+    const updateVideoUrl = (): void => {
+      const videoElement = videoRef.value as HTMLVideoElement;
+      videoElement.pause();
+      videoElement.src = props.videoUrl;
+      videoElement.load();
+    };
+
+    const switchPictureInPicture = (): void => {
+      if (props.pictureInPicture) {
+        enterPictureInPicture();
+      } else {
+        exitPictureInPicture();
+      }
+    };
+
+    const updateAspectRatio = () => {
+      const videoElement = videoRef.value as HTMLVideoElement;
+      console.log("w: " + videoElement.videoWidth);
+      console.log("h: " + videoElement.videoHeight);
+      aspectRatio.value = videoElement.videoWidth / videoElement.videoHeight;
+    };
+
+    const enterPictureInPicture = async (): Promise<void> => {
+      if (!document.pictureInPictureElement) {
+        const video = videoRef.value as HTMLVideoElement;
+        await video.requestPictureInPicture();
+      }
+    };
+
+    const exitPictureInPicture = async (): Promise<void> => {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      }
+    };
+
+    const notifyPlaying = () => {
+      context.emit("playing");
+    };
+
+    const notifyEnterPictureInPicture = () => {
+      context.emit("enterPictureInPicture");
+    };
+
+    const notifyLeavePictureInPicture = () => {
+      context.emit("leavePictureInPicture");
+    };
+
+    const { videoUrl, pictureInPicture } = toRefs(props);
+    watch(videoUrl, updateVideoUrl);
+    watch(pictureInPicture, switchPictureInPicture);
+
+    return { aspectRatio, videoRef };
   }
-  private async enterPictureInPicture(): Promise<void> {
-    if (!document.pictureInPictureElement) {
-      const video = this.$refs.video as HTMLVideoElement;
-      await video.requestPictureInPicture();
-    }
-  }
-  private async exitPictureInPicture(): Promise<void> {
-    if (document.pictureInPictureElement) {
-      await document.exitPictureInPicture();
-    }
-  }
-  private notifyPlaying() {
-    this.$emit("playing");
-  }
-  private notifyEnterPictureInPicture() {
-    this.$emit("enterPictureInPicture");
-  }
-  private notifyLeavePictureInPicture() {
-    this.$emit("leavePictureInPicture");
-  }
-}
+});
 </script>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ElementInfo } from "latteart-client";
+import { type ElementInfo } from "latteart-client";
 import { OperationForGUI } from "../operationHistory/OperationForGUI";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
 
@@ -80,9 +80,7 @@ export const parseJsonBlob = async <T>(blob: Blob): Promise<T> => {
  * @param targetFile target file.
  * @returns base64 data and filename.
  */
-export const loadFileAsBase64 = (
-  targetFile: File
-): Promise<{ data: string; name: string }> => {
+export const loadFileAsBase64 = (targetFile: File): Promise<{ data: string; name: string }> => {
   return new Promise<{ data: string; name: string }>((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -103,10 +101,7 @@ export const loadFileAsBase64 = (
  * @param target  Search target.
  * @returns Search results
  */
-export const findValueRecursively = (
-  keyPath: string[],
-  target: { [key: string]: any }
-): any => {
+export const findValueRecursively = (keyPath: string[], target: { [key: string]: any }): any => {
   const head = keyPath[0];
   const tail = keyPath.slice(1);
 
@@ -129,10 +124,7 @@ export const findValueRecursively = (
  * @param input  Input value.
  * @returns Input value
  */
-export const convertInputValue = (
-  elementInfo: ElementInfo | null,
-  input: string
-): string => {
+export const convertInputValue = (elementInfo: ElementInfo | null, input: string): string => {
   if (!elementInfo) {
     return "";
   }
@@ -157,26 +149,21 @@ export const parseHistoryLog = (historyItems: any[]) => {
         overrideParams: {
           imageFilePath: item.operation.imageFileUrl,
           keywordSet: new Set(
-            (
-              item.operation.keywordTexts as (
-                | string
-                | { tagname: string; value: string }
-              )[]
-            )?.map((keywordText) => {
-              return typeof keywordText === "string"
-                ? keywordText
-                : keywordText.value;
-            }) ?? []
-          ),
-        },
+            (item.operation.keywordTexts as (string | { tagname: string; value: string })[])?.map(
+              (keywordText) => {
+                return typeof keywordText === "string" ? keywordText : keywordText.value;
+              }
+            ) ?? []
+          )
+        }
       }),
       bugs:
         item.bugs?.map((bug: any) =>
           NoteForGUI.createFromOtherNote({
             other: bug,
             overrideParams: {
-              imageFilePath: bug.imageFileUrl,
-            },
+              imageFilePath: bug.imageFileUrl
+            }
           })
         ) ?? [],
       notices:
@@ -184,13 +171,11 @@ export const parseHistoryLog = (historyItems: any[]) => {
           NoteForGUI.createFromOtherNote({
             other: notice,
             overrideParams: {
-              imageFilePath: notice.imageFileUrl,
-            },
+              imageFilePath: notice.imageFileUrl
+            }
           })
         ) ?? [],
-      intention: item.intention
-        ? NoteForGUI.createFromOtherNote({ other: item.intention })
-        : null,
+      intention: item.intention ? NoteForGUI.createFromOtherNote({ other: item.intention }) : null
     };
   });
 };

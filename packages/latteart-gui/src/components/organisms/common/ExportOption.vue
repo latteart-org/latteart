@@ -43,7 +43,7 @@ export default defineComponent({
     const option = ref({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
-      selectedOptionConfig: true,
+      selectedOptionConfig: true
     });
 
     const update = (): void => {
@@ -54,9 +54,9 @@ export default defineComponent({
 
     return {
       store,
-      option,
+      option
     };
-  },
+  }
 });
 </script>
 

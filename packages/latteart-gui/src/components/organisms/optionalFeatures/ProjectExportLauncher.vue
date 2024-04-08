@@ -25,17 +25,9 @@
     </v-card-text>
 
     <v-card-actions>
-      <v-btn
-        :disabled="disabled"
-        :dark="!disabled"
-        color="primary"
-        @click="exportData"
-        >{{
-          store.getters.message(
-            "optional-features.project-export.execute-button"
-          )
-        }}</v-btn
-      >
+      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="exportData">{{
+        store.getters.message("optional-features.project-export.execute-button")
+      }}</v-btn>
     </v-card-actions>
 
     <download-link-dialog
@@ -66,7 +58,7 @@ export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "export-option": ExportOption,
+    "export-option": ExportOption
   },
   setup() {
     const store = useStore();
@@ -82,7 +74,7 @@ export default defineComponent({
     const option = ref({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
-      selectedOptionConfig: true,
+      selectedOptionConfig: true
     });
 
     const disabled = computed(() => {
@@ -108,16 +100,13 @@ export default defineComponent({
     const exportData = () => {
       (async () => {
         store.dispatch("openProgressDialog", {
-          message: store.getters.message(
-            "import-export-dialog.creating-export-data"
-          ),
+          message: store.getters.message("import-export-dialog.creating-export-data")
         });
 
         try {
-          const exportDataUrl = await store.dispatch(
-            "testManagement/exportData",
-            { option: option.value }
-          );
+          const exportDataUrl = await store.dispatch("testManagement/exportData", {
+            option: option.value
+          });
 
           downloadLinkDialogOpened.value = true;
           downloadLinkDialogTitle.value = store.getters.message(
@@ -152,8 +141,8 @@ export default defineComponent({
       errorMessage,
       disabled,
       updateOption,
-      exportData,
+      exportData
     };
-  },
+  }
 });
 </script>

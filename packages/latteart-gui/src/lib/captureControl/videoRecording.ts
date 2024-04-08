@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import { TestResultAccessor, Video } from "latteart-client";
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "../common/ActionResult";
+import { type TestResultAccessor, type Video } from "latteart-client";
+import { ActionFailure, type ActionResult, ActionSuccess } from "../common/ActionResult";
 
 export type VideoRecorder = {
   readonly recordingVideo?: Video & { startTimestamp: number };
@@ -27,9 +23,7 @@ export type VideoRecorder = {
   updateVideo(): Promise<void>;
 };
 
-export function createVideoRecorder(
-  testResult: TestResultAccessor
-): VideoRecorder {
+export function createVideoRecorder(testResult: TestResultAccessor): VideoRecorder {
   return new VideoRecorderImpl(testResult);
 }
 
@@ -41,38 +35,32 @@ class VideoRecorderImpl implements VideoRecorder {
     this.mediaRecorder = null;
   }
 
-  public get recordingVideo():
-    | (Video & { startTimestamp: number })
-    | undefined {
+  public get recordingVideo(): (Video & { startTimestamp: number }) | undefined {
     return this.videoInfo;
   }
 
   public async startRecording(): Promise<ActionResult<void>> {
-    const { startTimestamp, mediaRecorder } =
-      await this.startMediaRecorder().catch((error) => {
-        console.error(error);
-        return { startTimestamp: 0, mediaRecorder: null };
-      });
+    const { startTimestamp, mediaRecorder } = await this.startMediaRecorder().catch((error) => {
+      console.error(error);
+      return { startTimestamp: 0, mediaRecorder: null };
+    });
 
     if (!mediaRecorder) {
       return new ActionFailure({
-        messageKey: "error.capture_control.start_video_recording_failed",
+        messageKey: "error.capture_control.start_video_recording_failed"
       });
     }
 
-    const videoTrackSettings = mediaRecorder.stream
-      .getVideoTracks()
-      .at(0)
-      ?.getSettings();
+    const videoTrackSettings = mediaRecorder.stream.getVideoTracks().at(0)?.getSettings();
 
     const createVideoResult = await this.testResult.createVideo({
       width: videoTrackSettings?.width ?? 0,
-      height: videoTrackSettings?.height ?? 0,
+      height: videoTrackSettings?.height ?? 0
     });
 
     if (createVideoResult.isFailure()) {
       return new ActionFailure({
-        messageKey: `error.operation_history.${createVideoResult.error.errorCode}`,
+        messageKey: `error.operation_history.${createVideoResult.error.errorCode}`
       });
     }
 
@@ -115,7 +103,7 @@ class VideoRecorderImpl implements VideoRecorder {
   private async startMediaRecorder() {
     const stream = await navigator.mediaDevices.getDisplayMedia({
       audio: false,
-      video: { frameRate: 10 },
+      video: { frameRate: 10 }
     });
     const tracks = [...stream.getTracks()];
     const mediaStream = new MediaStream(tracks);
@@ -126,13 +114,13 @@ class VideoRecorderImpl implements VideoRecorder {
     }>((resolve) => {
       const mediaRecorder = new MediaRecorder(mediaStream, {
         mimeType: "video/webm; codecs=vp9",
-        videoBitsPerSecond: 2048000,
+        videoBitsPerSecond: 2048000
       });
 
       mediaRecorder.onstart = () => {
         resolve({
           startTimestamp: new Date().getTime(),
-          mediaRecorder: mediaRecorder,
+          mediaRecorder: mediaRecorder
         });
       };
 

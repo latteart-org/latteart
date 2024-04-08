@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 import SessionDataConverter from "../SessionDataConverter";
-import { Story } from "../types";
+import { type Story } from "../types";
 
 export class UpdateStoryAction {
   public async updateStory(
@@ -31,22 +27,19 @@ export class UpdateStoryAction {
     },
     repositoryService: Pick<RepositoryService, "storyRepository" | "serviceUrl">
   ): Promise<ActionResult<Story>> {
-    const result = await repositoryService.storyRepository.patchStory(
-      payload.id,
-      {
-        status: payload.status,
-      }
-    );
+    const result = await repositoryService.storyRepository.patchStory(payload.id, {
+      status: payload.status
+    });
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: result.error.message ?? "",
+        messageKey: result.error.message ?? ""
       });
     }
 
     const sessions = result.data.sessions.map((session) => {
       return new SessionDataConverter().convertToSession({
-        ...session,
+        ...session
       });
     });
 

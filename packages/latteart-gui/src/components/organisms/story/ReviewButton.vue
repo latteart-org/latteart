@@ -44,52 +44,45 @@ export default defineComponent({
     story: {
       type: Object as PropType<Story>,
       default: () => ({ sessions: [] }),
-      required: true,
+      required: true
     },
     sessionIds: {
       type: Array as PropType<string[]>,
       default: () => [],
-      required: true,
+      required: true
     },
-    disabled: { type: Boolean, default: false, required: true },
+    disabled: { type: Boolean, default: false, required: true }
   },
   components: {
-    "test-result-load-trigger": TestResultLoadTrigger,
+    "test-result-load-trigger": TestResultLoadTrigger
   },
   setup(props) {
     const store = useStore();
     const router = useRouter();
 
-    const toReviewPage = async (
-      loadTestResults: () => Promise<void>
-    ): Promise<void> => {
+    const toReviewPage = async (loadTestResults: () => Promise<void>): Promise<void> => {
       await loadTestResults();
 
       store.commit("testManagement/setTempStory", { story: props.story });
 
       router.push({
         path: `../review`,
-        query: { sessionIds: props.sessionIds },
+        query: { sessionIds: props.sessionIds }
       });
     };
 
     const testResultIds = computed(() => {
-      const sessions = StoryService.getTargetSessions(
-        props.story,
-        props.sessionIds
-      );
+      const sessions = StoryService.getTargetSessions(props.story, props.sessionIds);
       return (
-        sessions
-          ?.map((session) => session.testResultFiles.map((result) => result.id))
-          .flat() ?? []
+        sessions?.map((session) => session.testResultFiles.map((result) => result.id)).flat() ?? []
       );
     });
 
     return {
       store,
       toReviewPage,
-      testResultIds,
+      testResultIds
     };
-  },
+  }
 });
 </script>

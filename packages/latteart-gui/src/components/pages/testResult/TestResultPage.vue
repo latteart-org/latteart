@@ -15,34 +15,31 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
-    <v-app-bar color="white" flat absolute height="64px">
+  <v-container fluid class="fill-height pa-0">
+    <v-app-bar color="white" flat absolute :height="64">
       <test-result-header />
     </v-app-bar>
 
     <v-container
+      class="fill-height py-0"
       fluid
-      fill-height
-      py-0
       :style="{
-        'margin-top': '4px',
-        'max-height': 'calc(100vh - 64px - 64px)',
+        'max-height': 'calc(100vh - 64px - 64px)'
       }"
     >
       <v-row class="fill-height">
-        <history-display
-          :locale="store.state.i18n?.locale"
+        <!-- <history-display
+          :locale="locale"
           :changeWindowTitle="changeWindowTitle"
           :rawHistory="history"
           :message="messageProvider"
-          :screenDefinitionConfig="screenDefinitionConfig"
           scriptGenerationEnabled
           operationContextEnabled
-        ></history-display>
+        ></history-display> -->
       </v-row>
     </v-container>
 
-    <v-footer absolute height="64px">
+    <v-footer absolute :height="64" class="pa-0">
       <test-result-footer />
     </v-footer>
 
@@ -52,68 +49,61 @@
 </template>
 
 <script lang="ts">
-import {
-  OperationHistory,
-  MessageProvider,
-} from "@/lib/operationHistory/types";
-import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { type OperationHistory, type MessageProvider } from "@/lib/operationHistory/types";
+// import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import TestResultHeader from "@/components/organisms/testResult/TestResultHeader.vue";
 import TestResultFooter from "@/components/organisms/testResult/TestResultFooter.vue";
-import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";
-import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
-import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
 import CompletionDialog from "@/components/organisms/dialog/CompletionDialog.vue";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
     "test-result-header": TestResultHeader,
     "test-result-footer": TestResultFooter,
-    "history-display": HistoryDisplay,
-    "confirm-dialog": ConfirmDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    // "history-display": HistoryDisplay,
     "autofill-select-dialog": AutofillSelectDialog,
-    "note-register-dialog": NoteRegisterDialog,
-    "note-update-dialog": NoteUpdateDialog,
-    "completion-dialog": CompletionDialog,
+    "completion-dialog": CompletionDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
     const route = useRoute();
 
     const screenDefinitionConfig = computed(() => {
-      return store.state.projectSettings.config.screenDefinition;
+      return rootStore.projectSettings.config.screenDefinition;
     });
 
     const messageProvider = computed((): MessageProvider => {
-      return store.getters.message;
+      return rootStore.message;
     });
 
     const history = computed((): OperationHistory => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .history;
+      return operationHistoryStore.history;
     });
 
     const changeWindowTitle = (windowTitle: string) => {
-      const windowTitlePrefix = store.getters.message(route.meta?.title ?? "");
-      store.dispatch("changeWindowTitle", {
-        title: `${windowTitlePrefix} [${windowTitle}]`,
+      const windowTitlePrefix = rootStore.message(route.meta?.title ?? "");
+      rootStore.changeWindowTitle({
+        title: `${windowTitlePrefix} [${windowTitle}]`
       });
     };
 
+    const locale = computed((): "" | "ja" | "en" => {
+      return rootStore.getLocale();
+    });
+
     return {
-      store,
+      locale,
       screenDefinitionConfig,
       messageProvider,
       history,
-      changeWindowTitle,
+      changeWindowTitle
     };
-  },
+  }
 });
 </script>
 <style lang="sass" scoped>

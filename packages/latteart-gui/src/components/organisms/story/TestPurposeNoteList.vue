@@ -17,13 +17,11 @@
 <template>
   <div class="mt-0 pt-0">
     <v-card class="ma-2">
-      <v-card-title>{{
-        store.getters.message("test-purpose-note-list.title")
-      }}</v-card-title>
+      <v-card-title>{{ store.getters.message("test-purpose-note-list.title") }}</v-card-title>
       <v-btn
         v-if="displayedItems.length > 0"
         class="ml-10"
-        small
+        size="small"
         @click="openAllTestPurposes()"
         >{{
           isAllSelect
@@ -41,9 +39,7 @@
         </span>
         <v-list expand class="pt-0">
           <v-list-group
-            v-for="(
-              testPurpose, testPurposeIndex
-            ) in displayedItem.testPurposes"
+            v-for="(testPurpose, testPurposeIndex) in displayedItem.testPurposes"
             v-model="selectedItems[itemIndex][testPurposeIndex]"
             :key="testPurpose.title"
             value="true"
@@ -51,52 +47,30 @@
             two-line
             :id="`testPurposeArea${testPurposeIndex}`"
             :prepend-icon="
-              selectedItems[itemIndex][testPurposeIndex]
-                ? 'arrow_drop_up'
-                : 'arrow_drop_down'
+              selectedItems[itemIndex][testPurposeIndex] ? 'arrow_drop_up' : 'arrow_drop_down'
             "
             :append-icon="null"
           >
             <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title
-                  ><span :title="testPurpose.value">{{
-                    testPurpose.value
-                  }}</span></v-list-item-title
-                >
-                <v-list-item-subtitle>{{
-                  testPurpose.details
-                }}</v-list-item-subtitle>
-              </v-list-item-content>
+              <v-list-item-title
+                ><span :title="testPurpose.value">{{ testPurpose.value }}</span></v-list-item-title
+              >
+              <v-list-item-subtitle>{{ testPurpose.details }}</v-list-item-subtitle>
+
               <v-list-item-action>
                 <v-btn
-                  @click.stop="
-                    openTestPurposeDetails(
-                      testPurpose.value,
-                      testPurpose.details
-                    )
-                  "
-                  >{{
-                    store.getters.message("test-purpose-note-list.details")
-                  }}</v-btn
+                  @click.stop="openTestPurposeDetails(testPurpose.value, testPurpose.details)"
+                  >{{ store.getters.message("test-purpose-note-list.details") }}</v-btn
                 >
               </v-list-item-action>
             </template>
-            <v-list-item
-              two-line
-              link
-              v-for="(note, i) in testPurpose.notes"
-              :key="i"
-            >
-              <v-list-item-content>
-                <v-list-item-title
-                  ><span :title="note.value">{{
-                    note.value
-                  }}</span></v-list-item-title
-                ><v-list-item-subtitle>
-                  <note-tag-chip-group :tags="note.tags"></note-tag-chip-group
-                ></v-list-item-subtitle>
-              </v-list-item-content>
+            <v-list-item lines="two" link v-for="(note, i) in testPurpose.notes" :key="i">
+              <v-list-item-title
+                ><span :title="note.value">{{ note.value }}</span></v-list-item-title
+              ><v-list-item-subtitle>
+                <note-tag-chip-group :tags="note.tags"></note-tag-chip-group
+              ></v-list-item-subtitle>
+
               <v-list-item-action>
                 <v-btn
                   @click="
@@ -109,9 +83,7 @@
                       note.tags
                     )
                   "
-                  >{{
-                    store.getters.message("test-purpose-note-list.details")
-                  }}</v-btn
+                  >{{ store.getters.message("test-purpose-note-list.details") }}</v-btn
                 >
               </v-list-item-action>
             </v-list-item>
@@ -135,35 +107,29 @@
     />
 
     <scrollable-dialog :opened="testPurposeOpened">
-      <template v-slot:title>{{
-        store.getters.message("note-details-dialog.details")
-      }}</template>
+      <template v-slot:title>{{ store.getters.message("note-details-dialog.details") }}</template>
 
       <template v-slot:content>
         <v-list class="note-details-dialog">
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>{{
-                store.getters.message("note-details-dialog.summary")
-              }}</v-list-item-title>
-              <p class="break-all">{{ summary }}</p>
-            </v-list-item-content>
+            <v-list-item-title>{{
+              store.getters.message("note-details-dialog.summary")
+            }}</v-list-item-title>
+            <p class="break-all">{{ summary }}</p>
           </v-list-item>
 
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>{{
-                store.getters.message("note-details-dialog.details")
-              }}</v-list-item-title>
-              <p class="break-all pre-wrap">{{ details }}</p>
-            </v-list-item-content>
+            <v-list-item-title>{{
+              store.getters.message("note-details-dialog.details")
+            }}</v-list-item-title>
+            <p class="break-all pre-wrap">{{ details }}</p>
           </v-list-item>
         </v-list>
       </template>
 
       <template v-slot:footer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="testPurposeOpened = false">{{
+        <v-btn color="primary" variant="text" @click="testPurposeOpened = false">{{
           store.getters.message("common.close")
         }}</v-btn>
       </template>
@@ -203,17 +169,17 @@ export default defineComponent({
   props: {
     testPurposes: {
       type: Array as PropType<Session["testPurposes"]>,
-      default: [],
+      default: []
     },
     testResult: {
       type: Array as PropType<Session["testResultFiles"]>,
-      default: [],
-    },
+      default: []
+    }
   },
   components: {
     "note-details-dialog": NoteDetailsDialog,
     "note-tag-chip-group": NoteTagChipGroup,
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -280,17 +246,13 @@ export default defineComponent({
       });
     };
 
-    const createDisplayedTestPurposes = (
-      testPurposes: Session["testPurposes"]
-    ) => {
+    const createDisplayedTestPurposes = (testPurposes: Session["testPurposes"]) => {
       displayedItems.value = testPurposes
         .map((testPurpose) => {
           const value =
             testPurpose.value !== ""
               ? testPurpose.value
-              : (store.getters.message(
-                  "test-purpose-note-list.no-test-purpose"
-                ) as string);
+              : (store.getters.message("test-purpose-note-list.no-test-purpose") as string);
           const notes = testPurpose.notes.map((note) => {
             const { id, type, value, details, tags, imageFileUrl } = note;
 
@@ -301,27 +263,24 @@ export default defineComponent({
               details,
               tags,
               imageFileUrl,
-              videoUrl: note.videoFrame
-                ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
-                : "",
+              videoUrl: note.videoFrame ? `${note.videoFrame.url}#t=${note.videoFrame.time}` : ""
             };
           });
 
           return {
-            testPurpose: { ...testPurpose, value, notes },
+            testPurpose: { ...testPurpose, value, notes }
           };
         })
         .reduce((acu, cur) => {
           const displayedItem = acu.find(
-            (testPurpose) =>
-              testPurpose.testResultId === cur.testPurpose.testResultId
+            (testPurpose) => testPurpose.testResultId === cur.testPurpose.testResultId
           );
           if (displayedItem) {
             displayedItem.testPurposes.push(cur.testPurpose);
           } else {
             acu.push({
               testResultId: cur.testPurpose.testResultId,
-              testPurposes: [cur.testPurpose],
+              testPurposes: [cur.testPurpose]
             });
           }
           return acu;
@@ -364,9 +323,9 @@ export default defineComponent({
       openTestPurposeDetails,
       openNoteDetails,
       openAllTestPurposes,
-      reload,
+      reload
     };
-  },
+  }
 });
 </script>
 

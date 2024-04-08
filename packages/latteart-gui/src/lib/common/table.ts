@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-export function filterTableRows<T>(
-  rows: T[],
-  predicates: ((item: T) => boolean)[]
-): T[] {
+export function filterTableRows<T>(rows: T[], predicates: ((item: T) => boolean)[]): T[] {
   return rows.filter((row) => {
     return predicates.every((filteringPredicate) => {
       return filteringPredicate(row);
@@ -25,11 +22,7 @@ export function filterTableRows<T>(
   });
 }
 
-export function sortTableRows<T>(
-  rows: T[],
-  sortBy: string,
-  sortDesc: boolean = false
-): T[] {
+export function sortTableRows<T>(rows: T[], sortBy: string, sortDesc: boolean = false): T[] {
   return rows.slice().sort((rowA, rowB) => {
     const valueA =
       sortBy.split(".").reduce((acc: any, pathItem) => {

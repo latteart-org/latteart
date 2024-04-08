@@ -23,6 +23,8 @@ export type NoteTagItem = { text: string; color: string };
 export const noteTagPreset: NoteTagPreset = {
   items: [
     { text: "bug", color: "#FF8A80" },
-    { text: "reported", color: "#E0E0E0" },
-  ],
+    { text: "reported", color: "#E0E0E0" }
+  ]
 };
+
+export const defaultNoteTagColor = "#E0E0E0";

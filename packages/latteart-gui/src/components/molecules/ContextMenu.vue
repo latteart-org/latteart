@@ -20,15 +20,11 @@
     :position-x="x"
     :position-y="y"
     :top="top"
-    close-on-click
+    :persistent="false"
     close-on-content-click
   >
     <v-list>
-      <v-list-item
-        v-for="item in items"
-        :key="item.label"
-        @click="item.onClick"
-      >
+      <v-list-item v-for="item in items" :key="item.label" @click="item.onClick">
         <v-list-item-title>{{ item.label }}</v-list-item-title>
       </v-list-item>
     </v-list>
@@ -36,28 +32,37 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import { useStore } from "@/store";
+import type { PropType } from "vue";
 
-@Component
-export default class ContextMenu extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Number, default: 0 }) public readonly x!: number;
-  @Prop({ type: Number, default: 0 }) public readonly y!: number;
-  @Prop({ type: Boolean, default: false }) public readonly top!: boolean;
-  @Prop({ type: Array, default: [] }) public readonly items!: [
-    { label: string; onClick: () => void }
-  ];
-
-  private get show() {
-    return this.opened;
-  }
-
-  private set show(opened) {
-    if (!opened) {
-      this.$emit("contextMenuClose");
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    x: { type: Number, default: 0, required: true },
+    y: { type: Number, default: 0, required: true },
+    top: { type: Boolean, default: false },
+    items: {
+      type: Array as PropType<{ label: string; onClick: () => void }[]>,
+      default: [],
+      required: true
     }
+  },
+  setup(props, context) {
+    const store = useStore();
+
+    const show = computed({
+      get: () => props.opened,
+      set: (opened) => {
+        if (!opened) {
+          context.emit("contextMenuClose");
+        }
+      }
+    });
+
+    return { store, show };
   }
-}
+});
 </script>
 
 <style lang="sass">

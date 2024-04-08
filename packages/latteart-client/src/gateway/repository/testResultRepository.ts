@@ -31,13 +31,77 @@ import {
   NoteForRepository,
 } from "./types";
 
-export class TestResultRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type TestResultRepository = {
   /**
    * Delete test results.
    * @param testResultIds  Test result ids.
    */
+  deleteTestResults(
+    testResultIds: string[]
+  ): Promise<RepositoryAccessResult<void>>;
+
+  /**
+   * Creates export data with the specified test results.
+   * @param testResultId  Test result ID.
+   * @param shouldSaveTemporary Whether to save temporary.
+   * @returns Test script URL.
+   */
+  postTestResultForExport(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+
+  /**
+   * Create an empty test result.
+   * @param name  Test result name.
+   * @returns  Created test result information.
+   */
+  postEmptyTestResult(option?: {
+    initialUrl?: string;
+    name?: string;
+    parentTestResultId?: string;
+  }): Promise<RepositoryAccessResult<{ id: string; name: string }>>;
+
+  /**
+   * Get a list of test results.
+   * @returns List of test results.
+   */
+  getTestResults(): Promise<
+    RepositoryAccessResult<TestResultSummaryForRepository[]>
+  >;
+
+  /**
+   * Get the test result of the specified test result ID.
+   * @param testResultId  Test result ID.
+   */
+  getTestResult(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<TestResultForRepository>>;
+
+  patchTestResult(
+    testResultId: string,
+    name?: string,
+    startTime?: number,
+    initialUrl?: string
+  ): Promise<RepositoryAccessResult<TestResultForRepository>>;
+
+  getSessionIds(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<Array<string>>>;
+
+  generateSequenceView(
+    testResultId: string,
+    option?: TestResultViewOptionForRepository
+  ): Promise<RepositoryAccessResult<SequenceViewForRepository>>;
+
+  generateGraphView(
+    testResultIds: string[],
+    option?: TestResultViewOptionForRepository
+  ): Promise<RepositoryAccessResult<GraphViewForRepository>>;
+};
+
+export class TestResultRepositoryImpl implements TestResultRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async deleteTestResults(
     testResultIds: string[]
   ): Promise<RepositoryAccessResult<void>> {
@@ -66,12 +130,6 @@ export class TestResultRepository {
     }
   }
 
-  /**
-   * Creates export data with the specified test results.
-   * @param testResultId  Test result ID.
-   * @param shouldSaveTemporary Whether to save temporary.
-   * @returns Test script URL.
-   */
   public async postTestResultForExport(
     testResultId: string
   ): Promise<RepositoryAccessResult<{ url: string }>> {
@@ -92,11 +150,6 @@ export class TestResultRepository {
     }
   }
 
-  /**
-   * Create an empty test result.
-   * @param name  Test result name.
-   * @returns  Created test result information.
-   */
   public async postEmptyTestResult(
     option: {
       initialUrl?: string;
@@ -120,10 +173,6 @@ export class TestResultRepository {
     }
   }
 
-  /**
-   * Get a list of test results.
-   * @returns List of test results.
-   */
   public async getTestResults(): Promise<
     RepositoryAccessResult<TestResultSummaryForRepository[]>
   > {
@@ -145,10 +194,6 @@ export class TestResultRepository {
     }
   }
 
-  /**
-   * Get the test result of the specified test result ID.
-   * @param testResultId  Test result ID.
-   */
   public async getTestResult(
     testResultId: string
   ): Promise<RepositoryAccessResult<TestResultForRepository>> {

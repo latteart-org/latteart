@@ -16,19 +16,13 @@
     <v-row>
       <v-col cols="12">
         <v-radio-group
-          :value="tempConfig.imageCompression.format"
+          :model-value="tempConfig.imageCompression.format"
           class="py-0 my-0"
-          @change="changeCaptureFormat"
+          @update:model-value="changeCaptureFormat"
           :disabled="captureArch === 'push'"
         >
-          <v-radio
-            :label="store.getters.message('config-page.png')"
-            value="png"
-          ></v-radio>
-          <v-radio
-            :label="store.getters.message('config-page.webp')"
-            value="webp"
-          ></v-radio>
+          <v-radio :label="store.getters.message('config-page.png')" value="png"></v-radio>
+          <v-radio :label="store.getters.message('config-page.webp')" value="webp"></v-radio>
         </v-radio-group>
       </v-col>
     </v-row>
@@ -47,22 +41,19 @@ export default defineComponent({
     captureMediaSetting: {
       type: Object as PropType<CaptureMediaSetting>,
       default: null,
-      required: true,
+      required: true
     },
-    isCapturing: { type: Boolean, required: true },
+    isCapturing: { type: Boolean, required: true }
   },
   setup(props, context) {
     const store = useStore();
 
     const tempConfig = ref<CaptureMediaSetting>({
-      ...props.captureMediaSetting,
+      ...props.captureMediaSetting
     });
 
     const captureArch = computed(() => {
-      return (
-        store.state.projectSettings.config.experimentalFeatureSetting
-          .captureArch ?? "polling"
-      );
+      return store.state.projectSettings.config.experimentalFeatureSetting.captureArch ?? "polling";
     });
 
     const updateTempConfig = () => {
@@ -89,8 +80,8 @@ export default defineComponent({
       store,
       tempConfig,
       captureArch,
-      changeCaptureFormat,
+      changeCaptureFormat
     };
-  },
+  }
 });
 </script>

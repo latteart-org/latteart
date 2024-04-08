@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import MermaidGraphExtender from "./extender/MermaidGraphExtender";
+import type MermaidGraphExtender from "./extender/MermaidGraphExtender";
 
 export default interface MermaidGraph {
   graphText: string;

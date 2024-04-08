@@ -37,9 +37,7 @@ export type TestScriptOption = {
   }[];
 };
 
-export class TestScriptRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type TestScriptRepository = {
   /**
    * Create a test script with the specified project ID.
    * @param projectId  Project ID.
@@ -47,6 +45,31 @@ export class TestScriptRepository {
    * @params body.testSuite  TestSuite.
    * @returns Test script URL.
    */
+  postTestscriptsWithProjectId(
+    projectId: string,
+    option: TestScriptOption
+  ): Promise<
+    RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
+  >;
+
+  /**
+   * Create a test script with the specified test results.
+   * @param testResultId  Test result ID.
+   * @param body.pageObjects  Page objects.
+   * @param body.testSuite  Test suite.
+   * @returns Test script URL.
+   */
+  postTestscriptsWithTestResultId(
+    testResultId: string,
+    option: TestScriptOption
+  ): Promise<
+    RepositoryAccessResult<{ url: string; invalidOperationTypeExists: boolean }>
+  >;
+};
+
+export class TestScriptRepositoryImpl implements TestScriptRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async postTestscriptsWithProjectId(
     projectId: string,
     option: TestScriptOption
@@ -74,13 +97,6 @@ export class TestScriptRepository {
     }
   }
 
-  /**
-   * Create a test script with the specified test results.
-   * @param testResultId  Test result ID.
-   * @param body.pageObjects  Page objects.
-   * @param body.testSuite  Test suite.
-   * @returns Test script URL.
-   */
   public async postTestscriptsWithTestResultId(
     testResultId: string,
     option: TestScriptOption

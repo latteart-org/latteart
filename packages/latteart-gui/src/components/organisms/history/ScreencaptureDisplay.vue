@@ -15,13 +15,7 @@
 -->
 
 <template>
-  <v-container
-    v-if="screenshotUrl"
-    fluid
-    pa-0
-    fill-height
-    style="position: relative"
-  >
+  <v-container v-if="screenshotUrl" fluid class="pa-0" fill-height style="position: relative">
     <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
 
     <a
@@ -32,7 +26,7 @@
       class="screenshot-button"
       ref="dllink"
     >
-      <v-btn color="white" class="screenshot-button" fab small>
+      <v-btn color="white" class="screenshot-button" fab size="small">
         <v-icon>image</v-icon>
       </v-btn></a
     >
@@ -47,15 +41,13 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "screen-shot-display": ScreenShotDisplay,
+    "screen-shot-display": ScreenShotDisplay
   },
   setup() {
     const store = useStore();
 
     const operationHistoryState = computed(() => {
-      return (
-        ((store.state as any).operationHistory as OperationHistoryState) ?? null
-      );
+      return ((store.state as any).operationHistory as OperationHistoryState) ?? null;
     });
 
     const selectedOperationInfo = computed(() => {
@@ -94,9 +86,9 @@ export default defineComponent({
     return {
       screenshotName,
       imageInfo,
-      screenshotUrl,
+      screenshotUrl
     };
-  },
+  }
 });
 </script>
 

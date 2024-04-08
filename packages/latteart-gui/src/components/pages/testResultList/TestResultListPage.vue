@@ -15,56 +15,49 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-4 style="overflow-y: scroll">
-    <v-container fluid pa-0 class="align-self-start">
+  <v-container fluid fill-height class="pa-4" style="overflow-y: scroll">
+    <v-container fluid class="align-self-start pa-0">
       <v-card flat height="100%">
         <v-card-text>
           <test-result-import-trigger @update="loadTestResultSummaries">
             <template v-slot:activator="{ on, isDisabled }">
-              <v-btn @click="on" :disabled="isDisabled">{{
-                store.getters.message(
-                  "import-export-dialog.test-result-import-title"
-                )
+              <v-btn @click="on" :disabled="isDisabled" variant="elevated">{{
+                $t("import-export-dialog.test-result-import-title")
               }}</v-btn>
             </template>
           </test-result-import-trigger>
 
-          <v-text-field
-            v-model="search"
-            label="Search"
-            clearable
-          ></v-text-field>
+          <v-text-field v-model="search" label="Search" clearable></v-text-field>
 
           <v-data-table
+            show-select
             v-model="selectedTestResults"
             :headers="headers"
             :items="testResults"
-            item-key="id"
-            show-select
-            :page.sync="page"
-            :items-per-page.sync="itemsPerPage"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
+            item-value="id"
+            v-model:page="page"
+            v-model:items-per-page="itemsPerPage"
+            v-model:sort-by="syncSortBy"
             :search="search"
             :custom-filter="filterItems"
           >
             <template v-slot:[`item.actions`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
+              <td :class="{ ellipsis: true }">
                 <test-result-load-trigger :testResultIds="[item.id]">
                   <template v-slot:activator="{ on, disabled }">
                     <v-btn
                       icon
-                      large
+                      size="large"
                       color="primary"
+                      variant="text"
                       @click="goToHistoryView(on)"
                       :disabled="disabled"
-                      :title="store.getters.message('test-result-list.load')"
+                      :title="$t('test-result-list.load')"
                     >
                       <v-icon>open_in_browser</v-icon>
                     </v-btn>
                   </template>
                 </test-result-load-trigger>
-
                 <test-result-name-edit-trigger
                   :testResultId="item.id"
                   :testResultName="item.name"
@@ -73,11 +66,12 @@
                   <template v-slot:activator="{ on, disabled }">
                     <v-btn
                       icon
-                      large
+                      size="large"
                       color="primary"
+                      variant="text"
                       @click="on"
                       :disabled="disabled"
-                      :title="store.getters.message('test-result-list.edit')"
+                      :title="$t('test-result-list.edit')"
                     >
                       <v-icon>edit</v-icon>
                     </v-btn>
@@ -87,7 +81,7 @@
             </template>
 
             <template v-slot:[`item.name`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
+              <td :class="{ ellipsis: true }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
@@ -99,7 +93,7 @@
             </template>
 
             <template v-slot:[`item.initialUrl`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
+              <td :class="{ ellipsis: true }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
@@ -111,32 +105,26 @@
             </template>
 
             <template v-slot:[`item.testingTime`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
-                <div
-                  :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
-                >
+              <td :class="{ ellipsis: true }">
+                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
                   {{ millisecondsToHHmmss(item.testingTime) }}
                 </div>
               </td>
             </template>
 
             <template v-slot:[`item.creationTimestamp`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
-                <div
-                  :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
-                >
+              <td :class="{ ellipsis: true }">
+                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
                   {{ millisecondsToDateFormat(item.creationTimestamp) }}
                 </div>
               </td>
             </template>
 
             <template v-slot:[`item.testPurposes`]="{ item }">
-              <td :class="{ ellipsis: true }" :style="{ 'max-width': 0 }">
+              <td :class="{ ellipsis: true }">
                 <li
-                  v-for="testPurpose in item.testPurposes.slice(0, 3)"
-                  :key="testPurpose.creationTimestamp"
+                  v-for="(testPurpose, index) in item.testPurposes.slice(0, 3)"
+                  :key="index"
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%' }"
                   :title="testPurpose.value"
@@ -146,19 +134,16 @@
                 <span v-if="item.testPurposes.length > 3">… and more</span>
               </td>
             </template>
-          </v-data-table></v-card-text
-        >
+          </v-data-table>
+        </v-card-text>
 
         <v-card-actions>
           <v-btn
             :disabled="isDisabled"
+            variant="elevated"
             @click="confirmDialogOpened = true"
             color="error"
-            >{{
-              store.getters.message(
-                "test-result-navigation-drawer.delete-test-results"
-              )
-            }}</v-btn
+            >{{ $t("test-result-navigation-drawer.delete-test-results") }}</v-btn
           >
         </v-card-actions>
       </v-card>
@@ -166,28 +151,16 @@
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="
-        store.getters.message(
-          'test-result-navigation-drawer.delete-test-results'
-        )
-      "
-      :message="
-        store.getters.message(
-          'test-result-navigation-drawer.delete-test-result-message'
-        )
-      "
+      :title="$t('test-result-navigation-drawer.delete-test-results')"
+      :message="$t('test-result-navigation-drawer.delete-test-result-message')"
       :onAccept="deleteTestResults"
       @close="confirmDialogOpened = false"
     />
 
     <information-message-dialog
       :opened="informationDialogOpened"
-      :title="store.getters.message('common.confirm')"
-      :message="
-        store.getters.message(
-          'test-result-navigation-drawer.delete-test-result-succeeded'
-        )
-      "
+      :title="$t('common.confirm')"
+      :message="$t('test-result-navigation-drawer.delete-test-result-succeeded')"
       @close="informationDialogOpened = false"
     />
 
@@ -201,8 +174,7 @@
 
 <script lang="ts">
 import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
-import { TestResultSummary } from "@/lib/operationHistory/types";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { type TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
@@ -210,8 +182,10 @@ import TestResultImportTrigger from "@/components/organisms/common/TestResultImp
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 import TestResultNameEditTrigger from "@/components/organisms/common/TestResultNameEditTrigger.vue";
 import { computed, defineComponent, ref, onBeforeUnmount } from "vue";
-import { useStore } from "@/store";
-import { useRoute, useRouter } from "vue-router/composables";
+import { useRoute, useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
@@ -220,10 +194,12 @@ export default defineComponent({
     "error-message-dialog": ErrorMessageDialog,
     "test-result-import-trigger": TestResultImportTrigger,
     "test-result-load-trigger": TestResultLoadTrigger,
-    "test-result-name-edit-trigger": TestResultNameEditTrigger,
+    "test-result-name-edit-trigger": TestResultNameEditTrigger
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
     const route = useRoute();
     const router = useRouter();
 
@@ -239,36 +215,41 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: "",
+          title: "",
           value: "actions",
           width: "120",
-          sortable: false,
+          sortable: false
         },
         {
-          text: store.getters.message("test-result-list.name"),
+          title: rootStore.message("test-result-list.name"),
           value: "name",
           width: "280",
+          sortable: true
         },
         {
-          text: store.getters.message("test-result-list.url"),
+          title: rootStore.message("test-result-list.url"),
           value: "initialUrl",
           width: "450",
+          sortable: true
         },
         {
-          text: store.getters.message("test-result-list.testing-time"),
+          title: rootStore.message("test-result-list.testing-time"),
           value: "testingTime",
           width: "120",
+          sortable: true
         },
         {
-          text: store.getters.message("test-result-list.creation-timestamp"),
+          title: rootStore.message("test-result-list.creation-timestamp"),
           value: "creationTimestamp",
           width: "170",
+          sortable: true
         },
         {
-          text: store.getters.message("test-result-list.test-purpose"),
+          title: rootStore.message("test-result-list.test-purpose"),
           value: "testPurposes",
           width: "450",
-        },
+          sortable: true
+        }
       ];
     });
 
@@ -276,24 +257,22 @@ export default defineComponent({
       return selectedTestResults.value.length === 0;
     });
 
-    const operationHistoryState = computed(() => {
-      return (store.state as any).operationHistory as OperationHistoryState;
-    });
-
-    const search = ref(operationHistoryState.value.testResultListOption.search);
+    const search = ref(operationHistoryStore.testResultListOption.search);
     const page = ref<number>(1);
-    const itemsPerPage = ref<number>(
-      operationHistoryState.value.testResultListOption.itemsPerPage
-    );
-    const sortBy = ref(operationHistoryState.value.testResultListOption.sortBy);
-    const sortDesc = ref(
-      operationHistoryState.value.testResultListOption.sortDesc
+    const itemsPerPage = ref<number>(operationHistoryStore.testResultListOption.itemsPerPage);
+    const syncSortBy = ref(
+      operationHistoryStore.testResultListOption.sortBy === ""
+        ? []
+        : [
+            {
+              key: operationHistoryStore.testResultListOption.sortBy,
+              order: operationHistoryStore.testResultListOption.sortDesc ? "desc" : "asc"
+            } as const
+          ]
     );
 
     const loadTestResultSummaries = async () => {
-      testResults.value = await store
-        .dispatch("operationHistory/getTestResults")
-        .catch(() => []);
+      testResults.value = await operationHistoryStore.getTestResults().catch(() => []);
     };
 
     const filterItems = (
@@ -328,19 +307,15 @@ export default defineComponent({
     };
 
     const deleteTestResults = async () => {
-      await store.dispatch("openProgressDialog", {
-        message: store.getters.message(
-          "test-result-navigation-drawer.deleting-test-results"
-        ),
+      rootStore.openProgressDialog({
+        message: rootStore.message("test-result-navigation-drawer.deleting-test-results")
       });
       try {
-        const targetTestResultIds = selectedTestResults.value.map(
-          ({ id }) => id
-        );
+        const targetTestResultIds = selectedTestResults.value.map(({ id }) => id);
 
         // Delete selected test results.
-        await store.dispatch("operationHistory/deleteTestResults", {
-          testResultIds: targetTestResultIds,
+        await operationHistoryStore.deleteTestResults({
+          testResultIds: targetTestResultIds
         });
 
         await loadTestResultSummaries();
@@ -348,24 +323,20 @@ export default defineComponent({
         selectedTestResults.value = [];
 
         // Clear display information if it contains test results you are viewing.
-        if (
-          targetTestResultIds.includes(
-            operationHistoryState.value.testResultInfo.id
-          )
-        ) {
-          store.commit("operationHistory/removeStoringTestResultInfos", {
+        if (targetTestResultIds.includes(operationHistoryStore.testResultInfo.id)) {
+          operationHistoryStore.removeStoringTestResultInfos({
             testResultInfos: [
               {
-                id: operationHistoryState.value.testResultInfo.id,
-                name: operationHistoryState.value.testResultInfo.name,
-              },
-            ],
+                id: operationHistoryStore.testResultInfo.id,
+                name: operationHistoryStore.testResultInfo.name
+              }
+            ]
           });
-          await store.dispatch("operationHistory/clearTestResult");
-          store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-          store.commit("operationHistory/clearElementCoverages");
-          store.commit("operationHistory/clearInputValueTable");
-          await store.dispatch("captureControl/resetTimer");
+          operationHistoryStore.clearTestResult();
+          operationHistoryStore.clearScreenTransitionDiagramGraph();
+          operationHistoryStore.clearElementCoverages();
+          operationHistoryStore.clearInputValueTable();
+          captureControlStore.resetTimer();
         }
         informationDialogOpened.value = true;
       } catch (error) {
@@ -376,7 +347,7 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        await store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
@@ -391,28 +362,33 @@ export default defineComponent({
     };
 
     onBeforeUnmount(() => {
-      store.commit("operationHistory/setTestResultListOption", {
+      operationHistoryStore.testResultListOption = {
         search: search.value,
         page: page.value,
         itemsPerPage: itemsPerPage.value,
-        sortBy: sortBy.value,
-        sortDesc: sortDesc.value,
-      });
+        sortBy: syncSortBy.value.length > 0 ? syncSortBy.value[0].key : "",
+        sortDesc:
+          syncSortBy.value.length > 0
+            ? syncSortBy.value[0].order === "desc"
+              ? true
+              : false
+            : false
+      };
     });
 
     (async () => {
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
       await loadTestResultSummaries();
 
       // Page must be initialized after all test results are present.
-      page.value = operationHistoryState.value.testResultListOption.page;
+      page.value = operationHistoryStore.testResultListOption.page;
     })();
 
     return {
-      store,
+      t: rootStore.message,
       confirmDialogOpened,
       informationDialogOpened,
       errorDialogOpened,
@@ -422,8 +398,7 @@ export default defineComponent({
       search,
       page,
       itemsPerPage,
-      sortBy,
-      sortDesc,
+      syncSortBy,
       headers,
       isDisabled,
       loadTestResultSummaries,
@@ -431,8 +406,8 @@ export default defineComponent({
       millisecondsToHHmmss,
       millisecondsToDateFormat,
       deleteTestResults,
-      goToHistoryView,
+      goToHistoryView
     };
-  },
+  }
 });
 </script>

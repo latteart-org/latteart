@@ -15,10 +15,10 @@
 -->
 
 <template>
-  <v-container fluid pa-0>
+  <v-container fluid class="pa-0">
     <v-radio-group
       v-model="mediaType"
-      row
+      inline
       hide-details
       class="mt-0 mb-3"
       v-if="imageFileUrl || videoUrl"
@@ -60,11 +60,11 @@ export default defineComponent({
   props: {
     imageFileUrl: { type: String },
     videoUrl: { type: String },
-    message: { type: Function as PropType<MessageProvider> },
+    message: { type: Function as PropType<MessageProvider> }
   },
   components: {
     "popup-image": PopupImage,
-    "video-display": VideoDisplay,
+    "video-display": VideoDisplay
   },
   setup(props) {
     const store = useStore();
@@ -75,8 +75,8 @@ export default defineComponent({
 
     return {
       store,
-      mediaType,
+      mediaType
     };
-  },
+  }
 });
 </script>

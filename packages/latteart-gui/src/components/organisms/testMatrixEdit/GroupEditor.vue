@@ -23,7 +23,7 @@
       :headers="headers"
       sort-icon=""
       hide-actions
-      :options.sync="options"
+      v-model:options="options"
       :grid-column-number="8"
       hide-default-header
     >
@@ -43,7 +43,7 @@
         <tr>
           <td class="px-0 py-0 my-0" style="width: 52px">
             <v-btn
-              text
+              variant="text"
               icon
               class="mt-3"
               @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
@@ -56,41 +56,33 @@
               <v-col cols="11" class="pr-0">
                 <v-text-field
                   :id="`testTargetNameTextField${group.id}${props.item.id}`"
-                  :value="props.item.name"
+                  :model-value="props.item.name"
                   @change="(value) => renameTestTarget(value, props.item.id)"
                 ></v-text-field>
               </v-col>
               <v-col cols="1" align-self="center" class="pa-0 ma-0">
                 <v-btn
-                  small
-                  text
+                  size="small"
+                  variant="text"
                   icon
                   class="ml-0 pl-0 mb-0 pb-0"
-                  :disabled="
-                    spinButtonToChangeOrderIsDisabled(props.item.id, 'up')
-                  "
+                  :disabled="spinButtonToChangeOrderIsDisabled(props.item.id, 'up')"
                   @click="changeTestTargetOrder(props.item.id, 'up')"
                   ><v-icon>arrow_drop_up</v-icon></v-btn
                 >
                 <v-btn
-                  small
-                  text
+                  size="small"
+                  variant="text"
                   icon
                   class="ml-0 pl-0 mt-0 pt-0"
-                  :disabled="
-                    spinButtonToChangeOrderIsDisabled(props.item.id, 'down')
-                  "
+                  :disabled="spinButtonToChangeOrderIsDisabled(props.item.id, 'down')"
                   @click="changeTestTargetOrder(props.item.id, 'down')"
                   ><v-icon>arrow_drop_down</v-icon></v-btn
                 >
               </v-col>
             </v-row>
           </td>
-          <td
-            v-for="(viewPoint, index) in viewPoints"
-            :key="index"
-            class="py-0 pr-2"
-          >
+          <td v-for="(viewPoint, index) in viewPoints" :key="index" class="py-0 pr-2">
             <number-field
               arrowOnly
               @updateNumberFieldValue="
@@ -98,7 +90,7 @@
                   updatePlan({
                     testTargetId: props.item.id,
                     viewPointId: viewPoint.id,
-                    newValue: value,
+                    newValue: value
                   })
               "
               :id="`${group.id}_${props.item.id}_${viewPoint.id}`"
@@ -122,7 +114,7 @@
       <v-col cols="2" class="d-flex align-center"
         ><v-btn
           :id="`createTestTargetButton${group.id}`"
-          small
+          size="small"
           @click="addNewTestTarget"
           v-bind:disabled="newTestTargetName === ''"
           >{{ store.getters.message("group-edit-info.add") }}</v-btn
@@ -141,13 +133,7 @@
 </template>
 
 <script lang="ts">
-import {
-  Group,
-  Plan,
-  TestMatrix,
-  TestTarget,
-  ViewPoint,
-} from "@/lib/testManagement/types";
+import { Group, Plan, TestMatrix, TestTarget, ViewPoint } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import NumberField from "@/components/molecules/NumberField.vue";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
@@ -158,13 +144,13 @@ import { useStore } from "@/store";
 export default defineComponent({
   props: {
     testMatrixId: { type: String, default: "", required: true },
-    groupId: { type: String, default: "", required: true },
+    groupId: { type: String, default: "", required: true }
   },
   components: {
     "number-field": NumberField,
     "confirm-dialog": ConfirmDialog,
     "fixed-data-table": FixedDataTable,
-    "label-with-tooltip": LabelWithTooltip,
+    "label-with-tooltip": LabelWithTooltip
   },
   setup(props) {
     const store = useStore();
@@ -181,16 +167,14 @@ export default defineComponent({
     const newTestTargetName = ref("");
 
     const group = computed((): Group | undefined => {
-      return store.getters["testManagement/findGroup"](
-        props.testMatrixId,
-        props.groupId
-      );
+      return store.getters["testManagement/findGroup"](props.testMatrixId, props.groupId);
     });
 
     const viewPoints = computed((): ViewPoint[] => {
-      const testMatrix: TestMatrix | undefined = store.getters[
-        "testManagement/findTestMatrix"
-      ](props.testMatrixId, props.groupId);
+      const testMatrix: TestMatrix | undefined = store.getters["testManagement/findTestMatrix"](
+        props.testMatrixId,
+        props.groupId
+      );
 
       return testMatrix?.viewPoints ?? [];
     });
@@ -211,7 +195,7 @@ export default defineComponent({
           value: "delete",
           align: "center",
           sortable: false,
-          class: ["text-xs-center", "py-1"],
+          class: ["text-xs-center", "py-1"]
         });
 
         headers.push({
@@ -220,7 +204,7 @@ export default defineComponent({
           sortable: false,
           text: store.getters.message("group-edit-info.target"),
           class: ["text-xs-center", "py-1"],
-          width: "250",
+          width: "250"
         });
 
         viewPoints.value.forEach((viewPoint: ViewPoint) => {
@@ -231,7 +215,7 @@ export default defineComponent({
             sortable: false,
             align: "center",
             width: "180",
-            class: ["text-xs-center", "py-1", "ellipsis_short"],
+            class: ["text-xs-center", "py-1", "ellipsis_short"]
           });
         });
         return headers;
@@ -246,7 +230,7 @@ export default defineComponent({
       return group.value.testTargets.map((testTarget: TestTarget) => {
         const item: { [key: string]: string | number } = {
           name: testTarget.name,
-          id: testTarget.id,
+          id: testTarget.id
         };
 
         testTarget.plans.forEach((plan: Plan) => {
@@ -257,20 +241,14 @@ export default defineComponent({
       });
     });
 
-    const openConfirmDialogToDeleteTestTarget = (
-      testTargetId: string
-    ): void => {
-      confirmDialogTitle.value = store.getters.message(
-        "group-edit-info.delete-target-confirm"
-      );
-      confirmDialogMessage.value = store.getters.message(
-        "common.delete-warning"
-      );
+    const openConfirmDialogToDeleteTestTarget = (testTargetId: string): void => {
+      confirmDialogTitle.value = store.getters.message("group-edit-info.delete-target-confirm");
+      confirmDialogMessage.value = store.getters.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         store.dispatch("testManagement/deleteTestTarget", {
           testMatrixId: props.testMatrixId,
           groupId: props.groupId,
-          testTargetId: testTargetId,
+          testTargetId: testTargetId
         });
       };
 
@@ -281,7 +259,7 @@ export default defineComponent({
       await store.dispatch("testManagement/addNewTestTarget", {
         testMatrixId: props.testMatrixId,
         groupId: props.groupId,
-        testTargetName: newTestTargetName.value,
+        testTargetName: newTestTargetName.value
       });
 
       newTestTargetName.value = "";
@@ -295,11 +273,9 @@ export default defineComponent({
         return false;
       }
 
-      const index = group.value.testTargets.findIndex(
-        (testTarget: TestTarget) => {
-          return testTarget.id === testTargetId;
-        }
-      );
+      const index = group.value.testTargets.findIndex((testTarget: TestTarget) => {
+        return testTarget.id === testTargetId;
+      });
 
       if (index === -1) {
         return false;
@@ -312,10 +288,7 @@ export default defineComponent({
       }
     };
 
-    const changeTestTargetOrder = async (
-      testTargetId: string,
-      type: "up" | "down"
-    ) => {
+    const changeTestTargetOrder = async (testTargetId: string, type: "up" | "down") => {
       if (!group.value) {
         return;
       }
@@ -331,8 +304,8 @@ export default defineComponent({
         groupId: props.groupId,
         testTargets: [
           { id: t1.id, index: type === "up" ? t1.index - 1 : t1.index + 1 },
-          { id: t2.id, index: type === "up" ? t2.index + 1 : t1.index - 1 },
-        ],
+          { id: t2.id, index: type === "up" ? t2.index + 1 : t1.index - 1 }
+        ]
       });
     };
 
@@ -343,7 +316,7 @@ export default defineComponent({
       await store.dispatch("testManagement/updateTestTargets", {
         testMatrixId: props.testMatrixId,
         groupId: props.groupId,
-        testTargets: [{ id: testTargetId, name: testTargetName }],
+        testTargets: [{ id: testTargetId, name: testTargetName }]
       });
     };
 
@@ -362,7 +335,7 @@ export default defineComponent({
 
             return {
               viewPointId: plan.viewPointId,
-              value: args.newValue,
+              value: args.newValue
             };
           });
 
@@ -376,9 +349,9 @@ export default defineComponent({
           testTargets: [
             {
               id: args.testTargetId,
-              plans: newPlans,
-            },
-          ],
+              plans: newPlans
+            }
+          ]
         });
       })();
     };
@@ -400,8 +373,8 @@ export default defineComponent({
       spinButtonToChangeOrderIsDisabled,
       changeTestTargetOrder,
       renameTestTarget,
-      updatePlan,
+      updatePlan
     };
-  },
+  }
 });
 </script>

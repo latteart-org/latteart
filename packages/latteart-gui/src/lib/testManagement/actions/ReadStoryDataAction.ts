@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { Story } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type Story } from "../types";
 import SessionDataConverter from "../SessionDataConverter";
 
-const READ_STORY_DATA_FAILED_MESSAGE_KEY =
-  "error.test_management.read_story_data_failed";
+const READ_STORY_DATA_FAILED_MESSAGE_KEY = "error.test_management.read_story_data_failed";
 
 export class ReadStoryDataAction {
   constructor(
@@ -33,22 +28,18 @@ export class ReadStoryDataAction {
       "storyRepository" | "testResultRepository" | "serviceUrl"
     >
   ) {}
-  public async readStory(payload: {
-    id: string;
-  }): Promise<ActionResult<Story>> {
-    const result = await this.repositoryService.storyRepository.getStory(
-      payload.id
-    );
+  public async readStory(payload: { id: string }): Promise<ActionResult<Story>> {
+    const result = await this.repositoryService.storyRepository.getStory(payload.id);
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: READ_STORY_DATA_FAILED_MESSAGE_KEY,
+        messageKey: READ_STORY_DATA_FAILED_MESSAGE_KEY
       });
     }
 
     const sessions = result.data.sessions.map((session) => {
       return new SessionDataConverter().convertToSession({
-        ...session,
+        ...session
       });
     });
 

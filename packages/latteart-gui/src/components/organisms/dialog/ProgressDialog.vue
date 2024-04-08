@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-dialog max-width="500" persistent :value="opened">
+  <v-dialog max-width="500" persistent :model-value="opened">
     <v-card color="primary" dark>
       <v-card-text>
         {{ message }}
@@ -31,25 +31,25 @@
 </template>
 
 <script lang="ts">
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const opened = computed((): boolean => {
-      return store.state.progressDialog.opened;
+      return rootStore.progressDialog.opened;
     });
 
     const message = computed((): string => {
-      return store.state.progressDialog.message ?? "";
+      return rootStore.progressDialog.message ?? "";
     });
 
     return {
       opened,
-      message,
+      message
     };
-  },
+  }
 });
 </script>

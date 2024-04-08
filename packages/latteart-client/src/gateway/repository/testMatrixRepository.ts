@@ -23,7 +23,25 @@ import {
 } from "./result";
 import { TestMatrixForRepository } from "./types";
 
-export class TestMatrixRepository {
+export type TestMatrixRepository = {
+  getTestMatrix(
+    id: string
+  ): Promise<RepositoryAccessResult<TestMatrixForRepository>>;
+
+  postTestMatrix(body: {
+    projectId: string;
+    name: string;
+  }): Promise<RepositoryAccessResult<TestMatrixForRepository>>;
+
+  patchTestMatrix(
+    id: string,
+    name: string
+  ): Promise<RepositoryAccessResult<TestMatrixForRepository>>;
+
+  deleteTestMatrix(id: string): Promise<RepositoryAccessResult<void>>;
+};
+
+export class TestMatrixRepositoryImpl implements TestMatrixRepository {
   constructor(private restClient: RESTClient) {}
 
   public async getTestMatrix(

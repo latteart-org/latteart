@@ -15,11 +15,9 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
+  <v-container fluid class="pa-0 fill-height">
     <v-container
-      class="align-self-start"
-      pa-8
-      pt-4
+      class="align-self-start pa-8 pt-4"
       fluid
       v-if="hasTestMatrix"
       style="height: calc(100% - 148px); overflow-y: scroll"
@@ -29,22 +27,19 @@
           <v-row>
             <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
-                ><v-icon>filter_list_alt</v-icon
-                >{{ store.getters.message("test-matrix-page.search") }}</span
+                ><v-icon>filter_list_alt</v-icon>{{ $t("test-matrix-page.search") }}</span
               ></v-col
             >
             <v-col>
               <v-text-field
                 v-model="search"
-                :label="store.getters.message('test-matrix-page.tester-name')"
+                :label="$t('test-matrix-page.tester-name')"
                 clearable
               ></v-text-field></v-col></v-row
         ></v-col>
         <v-col cols="auto" style="align-self: end">
           <v-checkbox
-            :label="
-              store.getters.message('test-matrix-page.incomplete-sessions')
-            "
+            :label="$t('test-matrix-page.incomplete-sessions')"
             v-model="isCompletionFilterEnabled"
             class="mt-2"
           ></v-checkbox>
@@ -68,9 +63,9 @@
     </v-container>
 
     <v-footer
-      absolute
+      :absolute="true"
       height="148px"
-      color="latteart-main"
+      color="#424242"
       class="responsive-footer"
       style="overflow-y: hidden"
     >
@@ -80,47 +75,35 @@
 </template>
 
 <script lang="ts">
-import { TestMatrix } from "@/lib/testManagement/types";
+import { type TestMatrix } from "@/lib/testManagement/types";
 import TabSelector from "@/components/molecules/TabSelector.vue";
 import LegendViewer from "@/components/organisms/testMatrix/LegendViewer.vue";
 import TestMatrixViewer from "@/components/organisms/testMatrix/TestMatrixViewer.vue";
-import { TestManagementState } from "@/store/testManagement";
 import { computed, defineComponent, onBeforeUnmount, ref, watch } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRootStore } from "@/stores/root";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
     "legend-viewer": LegendViewer,
     "tab-selector": TabSelector,
-    "test-matrix-viewer": TestMatrixViewer,
+    "test-matrix-viewer": TestMatrixViewer
   },
   setup(_, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
 
     const selectedTestMatrixId = ref("");
 
-    const testManagementState = computed(() => {
-      return (store.state as any).testManagement as TestManagementState;
-    });
-
-    const search = ref(testManagementState.value.testMatrixFilter.search);
+    const search = ref(testManagementStore.testMatrixFilter.search);
     const isCompletionFilterEnabled = ref(
-      testManagementState.value.testMatrixFilter.isCompletionFilterEnabled
+      testManagementStore.testMatrixFilter.isCompletionFilterEnabled
     );
 
     const testMatrices = computed((): TestMatrix[] => {
-      const targetTestMatrices =
-        store.getters["testManagement/getTestMatrices"]();
-
-      if (targetTestMatrices.length > 0) {
-        selectedTestMatrixId.value = targetTestMatrices[0].id;
-      } else {
-        selectedTestMatrixId.value = "";
-      }
-
-      return targetTestMatrices;
+      return testManagementStore.getTestMatrices();
     });
 
     const hasTestMatrix = computed((): boolean => {
@@ -128,13 +111,19 @@ export default defineComponent({
     });
 
     const selectTestMatrix = (id: string): void => {
-      const targetTestMatrix = testMatrices.value.find(
-        (testMatrix) => testMatrix.id === id
-      );
+      const targetTestMatrix = testMatrices.value.find((testMatrix) => testMatrix.id === id);
       if (!targetTestMatrix) {
         return;
       }
       selectedTestMatrixId.value = targetTestMatrix.id;
+    };
+
+    const setSelectedTestMatrixId = () => {
+      if (testMatrices.value.length > 0) {
+        selectedTestMatrixId.value = testMatrices.value[0].id;
+      } else {
+        selectedTestMatrixId.value = "";
+      }
     };
 
     const noticeTestMatrixChanged = () => {
@@ -146,27 +135,26 @@ export default defineComponent({
         "latteart-management-selectedTestMatrixIdOnViewer",
         selectedTestMatrixId.value
       );
-      store.commit("testManagement/setTestMatrixFilter", {
+      testManagementStore.setTestMatrixFilter({
         search: search.value,
-        isCompletionFilterEnabled: isCompletionFilterEnabled.value,
+        isCompletionFilterEnabled: isCompletionFilterEnabled.value
       });
     });
 
+    watch(testMatrices, setSelectedTestMatrixId);
     watch(selectedTestMatrixId, noticeTestMatrixChanged);
 
     (async () => {
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
-      if (!store.state.progressDialog.opened) {
-        await store.dispatch("testManagement/readProject");
+      if (!rootStore.progressDialog.opened) {
+        await testManagementStore.readProject();
       }
 
       const testMatrixId =
-        localStorage.getItem(
-          "latteart-management-selectedTestMatrixIdOnViewer"
-        ) ??
+        localStorage.getItem("latteart-management-selectedTestMatrixIdOnViewer") ??
         testMatrices.value[0]?.id ??
         "";
       if (testMatrices.value.find((tm) => tm.id === testMatrixId)) {
@@ -175,14 +163,14 @@ export default defineComponent({
     })();
 
     return {
-      store,
+      t: rootStore.message,
       selectedTestMatrixId,
       search,
       isCompletionFilterEnabled,
       testMatrices,
       hasTestMatrix,
-      selectTestMatrix,
+      selectTestMatrix
     };
-  },
+  }
 });
 </script>

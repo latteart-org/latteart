@@ -26,7 +26,7 @@
     @keydown="cancelKeydown"
   >
     <v-card>
-      <v-card-title class="headline" primary-title>
+      <v-card-title class="text-h5" primary-title>
         <slot name="title"></slot>
       </v-card-title>
       <v-divider></v-divider>
@@ -44,36 +44,40 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { defineComponent, ref, toRefs, watch } from "vue";
 
-@Component
-export default class ScrollableDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: Boolean, default: false }) public readonly fullscreen!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly noTransition!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly content!: string;
-  @Prop({ type: String, default: "" }) public readonly footer!: string;
-  @Prop({ type: Number, default: 500 }) public readonly maxWidth!: number;
+export default defineComponent({
+  props: {
+    opened: { type: Boolean, default: false },
+    fullscreen: { type: Boolean, default: false },
+    noTransition: { type: Boolean, default: false },
+    title: { type: String, default: "" },
+    content: { type: String, default: "" },
+    footer: { type: String, default: "" },
+    maxWidth: { type: Number, default: 500 }
+  },
+  setup(props) {
+    const openedDialog = ref(false);
 
-  private openedDialog = false;
+    const changeOpenedDialog = (newValue: boolean) => {
+      setTimeout(() => {
+        openedDialog.value = newValue;
+      }, 100);
+    };
 
-  created() {
-    if (this.opened) {
-      this.changeOpenedDialog(this.opened);
-    }
+    const cancelKeydown = (event: Event) => {
+      event.stopPropagation();
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, changeOpenedDialog);
+    (() => {
+      if (props.opened) {
+        changeOpenedDialog(props.opened);
+      }
+    })();
+
+    return { openedDialog, cancelKeydown };
   }
-
-  @Watch("opened")
-  private changeOpenedDialog(newValue: boolean) {
-    setTimeout(() => {
-      this.openedDialog = newValue;
-    }, 100);
-  }
-
-  private cancelKeydown(event: Event) {
-    event.stopPropagation();
-  }
-}
+});
 </script>

@@ -65,7 +65,7 @@ export default defineComponent({
   props: {
     opened: { type: Boolean, required: true },
     includeTags: { type: Array as PropType<string[]>, required: true },
-    defaultTagList: { type: Array as PropType<string[]>, required: true },
+    defaultTagList: { type: Array as PropType<string[]>, required: true }
   },
   setup(props, context) {
     const store = useStore();
@@ -86,7 +86,7 @@ export default defineComponent({
         ...tempIncludeTags.value.sort(sortFunc),
         ...props.defaultTagList
           .filter((defaultTag) => !tempIncludeTags.value.includes(defaultTag))
-          .sort(sortFunc),
+          .sort(sortFunc)
       ];
     });
 
@@ -105,9 +105,9 @@ export default defineComponent({
       store,
       tempIncludeTags,
       displayedTagList,
-      changeValue,
+      changeValue
     };
-  },
+  }
 });
 </script>
 

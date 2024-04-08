@@ -26,9 +26,7 @@
       <v-container>
         <v-row class="mt-2">
           <v-text-field
-            :label="
-              store.getters.message('test-matrix-dialog.test-matrix-name')
-            "
+            :label="store.getters.message('test-matrix-dialog.test-matrix-name')"
             v-model="testMatrix.name"
             class="pt-0"
           ></v-text-field>
@@ -36,19 +34,17 @@
         <v-row>
           <v-card>
             <v-card-title>
-              {{
-                store.getters.message("test-matrix-dialog.setting-viewPoint")
-              }}
+              {{ store.getters.message("test-matrix-dialog.setting-viewPoint") }}
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row v-if="isCreate">
                   <v-select
                     v-model="selectedViewPointsPresetId"
-                    @change="changeSelectedViewPoints"
+                    @update:model-value="changeSelectedViewPoints"
                     :label="store.getters.message('test-matrix-dialog.preset')"
                     :items="viewPointsPresetsWithUnselected"
-                    item-text="name"
+                    item-title="name"
                     item-value="id"
                   ></v-select>
                 </v-row>
@@ -58,14 +54,12 @@
                       v-for="(tempViewPoint, index) in tempViewPoints"
                       :key="tempViewPoint.key + index"
                     >
-                      <v-expansion-panel-header>
+                      <v-expansion-panel-title>
                         <v-row>
                           <v-col cols="9">
                             <v-text-field
                               :placeholder="
-                                store.getters.message(
-                                  'test-matrix-dialog.viewPoint-name'
-                                )
+                                store.getters.message('test-matrix-dialog.viewPoint-name')
                               "
                               v-model="tempViewPoint.name"
                               @click="(e) => e.stopPropagation()"
@@ -83,7 +77,7 @@
                           </v-col>
                           <v-col cols="2" align-self="center">
                             <v-btn
-                              text
+                              variant="text"
                               icon
                               color="error"
                               @click="deleteTempViewPoint(index)"
@@ -91,26 +85,24 @@
                             >
                           </v-col>
                         </v-row>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      </v-expansion-panel-title>
+                      <v-expansion-panel-text>
                         <div class="view-point-description">
                           <v-textarea
-                            outlined
+                            variant="outlined"
                             rows="3"
                             v-model="tempViewPoint.description"
                             :placeholder="
-                              store.getters.message(
-                                'test-matrix-dialog.view-point-description'
-                              )
+                              store.getters.message('test-matrix-dialog.view-point-description')
                             "
                           ></v-textarea>
                         </div>
-                      </v-expansion-panel-content>
+                      </v-expansion-panel-text>
                     </v-expansion-panel>
                   </v-expansion-panels>
                 </v-row>
                 <v-row>
-                  <v-btn small @click="createTempViewPoint" class="mt-4">{{
+                  <v-btn size="small" @click="createTempViewPoint" class="mt-4">{{
                     store.getters.message("test-matrix-dialog.new-viewPoint")
                   }}</v-btn>
                 </v-row>
@@ -136,12 +128,12 @@ export default defineComponent({
   props: {
     testMatrixBeingEdited: {
       type: Object as PropType<TestMatrix>,
-      default: { name: "", id: "", viewPoints: [] },
-    },
+      default: { name: "", id: "", viewPoints: [] }
+    }
   },
   components: {
     "execute-dialog": ExecuteDialog,
-    "up-down-arrows": UpDownArrows,
+    "up-down-arrows": UpDownArrows
   },
   setup(props, context) {
     const store = useStore();
@@ -168,7 +160,7 @@ export default defineComponent({
       presets.push({
         id: "",
         name: store.getters.message("test-matrix-dialog.unselected"),
-        viewPoints: [],
+        viewPoints: []
       });
       selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
 
@@ -187,9 +179,7 @@ export default defineComponent({
     });
 
     const dialogTitle = computed((): string => {
-      const key = `test-matrix-dialog.${
-        isCreate.value ? "create-test-matrix" : "edit-test-matrix"
-      }`;
+      const key = `test-matrix-dialog.${isCreate.value ? "create-test-matrix" : "edit-test-matrix"}`;
       return store.getters.message(key);
     });
 
@@ -199,7 +189,7 @@ export default defineComponent({
       }
       testMatrix.value = {
         name: initTestMatrix.name,
-        id: initTestMatrix.id,
+        id: initTestMatrix.id
       };
       if (isCreate.value) {
         selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
@@ -212,7 +202,7 @@ export default defineComponent({
               name: viewPoint.name,
               index: index,
               id: viewPoint.id,
-              description: viewPoint.description,
+              description: viewPoint.description
             };
           })
           .sort((v1, v2) => {
@@ -231,7 +221,7 @@ export default defineComponent({
         name: "",
         description: "",
         index: tempViewPoints.value.length,
-        id: null,
+        id: null
       });
     };
 
@@ -251,7 +241,7 @@ export default defineComponent({
           name: viewPoint.name,
           description: viewPoint.description,
           index,
-          id: null,
+          id: null
         };
       });
     };
@@ -264,7 +254,7 @@ export default defineComponent({
         .map((viewPoint, index) => {
           return {
             ...viewPoint,
-            index,
+            index
           };
         });
     };
@@ -278,7 +268,7 @@ export default defineComponent({
         isCreate: isCreate.value,
         testMatrix: {
           name: testMatrix.value.name,
-          id: testMatrix.value.id,
+          id: testMatrix.value.id
         },
         viewPoints: tempViewPoints.value
           .filter((tempViewPoint) => {
@@ -289,9 +279,9 @@ export default defineComponent({
               name: tempViewPoint.name,
               id: tempViewPoint.id,
               description: tempViewPoint.description,
-              index: tempViewPoint.index,
+              index: tempViewPoint.index
             };
-          }),
+          })
       };
       context.emit("updateTestMatrix", updateTestMatrixObject);
 
@@ -336,9 +326,9 @@ export default defineComponent({
       closeDialog,
       update,
       upViewPoint,
-      downViewPoint,
+      downViewPoint
     };
-  },
+  }
 });
 </script>
 

@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container v-if="videoUrl" fluid fill-height pa-0>
+  <v-container v-if="videoUrl" fluid fill-height class="pa-0">
     <video-display
       :videoUrl="videoUrl"
       :pictureInPicture="isPipMode"
@@ -36,7 +36,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "video-display": VideoDisplay,
+    "video-display": VideoDisplay
   },
   setup() {
     const store = useStore();
@@ -44,9 +44,7 @@ export default defineComponent({
     const isRectDisplayed = ref(false);
 
     const operationHistoryState = computed(() => {
-      return (
-        ((store.state as any).operationHistory as OperationHistoryState) ?? null
-      );
+      return ((store.state as any).operationHistory as OperationHistoryState) ?? null;
     });
 
     const isPipMode = computed(() => {
@@ -66,11 +64,7 @@ export default defineComponent({
         display: string;
       } => {
         const screenImage = operationHistoryState.value.screenImage;
-        if (
-          !screenImage ||
-          !screenImage.background.video ||
-          !screenImage.overlay?.markerRect
-        ) {
+        if (!screenImage || !screenImage.background.video || !screenImage.overlay?.markerRect) {
           return { display: "none" };
         }
         const { width, height, offset, markerRect } = screenImage.overlay;
@@ -79,7 +73,7 @@ export default defineComponent({
           left: `${(markerRect.left / width) * 100}%`,
           width: `${(markerRect.width / width) * 100}%`,
           height: `${(markerRect.height / height) * 100}%`,
-          display: "block",
+          display: "block"
         };
       }
     );
@@ -99,7 +93,7 @@ export default defineComponent({
         isRectDisplayed.value = false;
       }
       store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
-        isDisplayed: isPipMode,
+        isDisplayed: isPipMode
       });
     };
 
@@ -117,9 +111,9 @@ export default defineComponent({
       isPipMode,
       rectStyle,
       videoUrl,
-      togglePipMode,
+      togglePipMode
     };
-  },
+  }
 });
 </script>
 

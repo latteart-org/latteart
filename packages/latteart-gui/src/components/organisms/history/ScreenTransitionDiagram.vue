@@ -18,10 +18,7 @@
   <v-container>
     <v-row justify="end" id="screen-transition-diagram-container">
       <v-col cols="12" class="pt-0">
-        <mermaid-graph-renderer
-          v-if="graph"
-          :graph="graph"
-        ></mermaid-graph-renderer>
+        <mermaid-graph-renderer v-if="graph" :graph="graph"></mermaid-graph-renderer>
       </v-col>
     </v-row>
   </v-container>
@@ -41,11 +38,11 @@ export default defineComponent({
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "mermaid-graph-renderer": MermaidGraphRenderer,
+    "mermaid-graph-renderer": MermaidGraphRenderer
   },
   setup() {
     const store = useStore();
@@ -55,9 +52,9 @@ export default defineComponent({
     });
 
     return {
-      graph,
+      graph
     };
-  },
+  }
 });
 </script>
 

@@ -72,12 +72,12 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -101,9 +101,8 @@ export default defineComponent({
         return;
       }
 
-      const sequence = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote.sequence as number;
+      const sequence = ((store.state as any).operationHistory as OperationHistoryState)
+        .selectedOperationNote.sequence as number;
       const historyItem: OperationWithNotes =
         store.getters["operationHistory/findHistoryItem"](sequence);
 
@@ -128,7 +127,7 @@ export default defineComponent({
       isSaveWarning.value = false;
 
       store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence: null, index: null },
+        selectedOperationNote: { sequence: null, index: null }
       });
     };
 
@@ -139,17 +138,17 @@ export default defineComponent({
         note: newNote.value,
         noteDetails: newNoteDetails.value,
         shouldTakeScreenshot: false,
-        tags: [],
+        tags: []
       };
       (async () => {
         try {
           if (oldNote.value === "") {
             await store.dispatch("operationHistory/addTestPurpose", {
-              noteEditInfo: args,
+              noteEditInfo: args
             });
           } else {
             await store.dispatch("operationHistory/editTestPurpose", {
-              noteEditInfo: args,
+              noteEditInfo: args
             });
           }
         } catch (error) {
@@ -171,10 +170,7 @@ export default defineComponent({
       context.emit("close");
     };
 
-    const updateNewTargetSequence = (data: {
-      id: string;
-      value: number;
-    }): void => {
+    const updateNewTargetSequence = (data: { id: string; value: number }): void => {
       newTargetSequence.value = data.value;
       isSaveWarning.value = checkDuplicatedBySequence();
     };
@@ -199,9 +195,7 @@ export default defineComponent({
 
     const collectTestPurposeSequences = computed((): number[] => {
       const seqs = [];
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = ((store.state as any).operationHistory as OperationHistoryState).history;
 
       for (const operationWithNotes of history) {
         if (!operationWithNotes.intention) {
@@ -266,9 +260,9 @@ export default defineComponent({
       cancel,
       close,
       updateNewTargetSequence,
-      canSave,
+      canSave
     };
-  },
+  }
 });
 </script>
 

@@ -16,15 +16,9 @@
 
 <template>
   <scrollable-dialog :opened="opened" :maxWidth="2000">
-    <template v-slot:title>{{
-      store.getters.message("config-page.autoOperation.title")
-    }}</template>
+    <template v-slot:title>{{ store.getters.message("config-page.autoOperation.title") }}</template>
     <template v-slot:content>
-      <v-data-table
-        :headers="headers"
-        :items="viewOperations"
-        :options.sync="options"
-      >
+      <v-data-table :headers="headers" :items="viewOperations" v-model:options="options">
         <template v-slot:items="props">
           <tr>
             <td>{{ props.item.sequence }}</td>
@@ -41,9 +35,7 @@
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
-      <v-btn color="white" @click="close()">{{
-        store.getters.message("common.close")
-      }}</v-btn>
+      <v-btn color="white" @click="close()">{{ store.getters.message("common.close") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
@@ -62,13 +54,13 @@ export default defineComponent({
     autoOperations: {
       type: Array as PropType<OperationForGUI[]>,
       default: [],
-      required: true,
+      required: true
     },
     page: { type: Number, default: 1 },
-    itemsPerPage: { type: Number, default: -1 },
+    itemsPerPage: { type: Number, default: -1 }
   },
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -81,7 +73,7 @@ export default defineComponent({
 
     const options = ref<{ page: number; itemsPerPage: number }>({
       page: props.page,
-      itemsPerPage: props.itemsPerPage,
+      itemsPerPage: props.itemsPerPage
     });
 
     const headers = computed(() => {
@@ -89,43 +81,43 @@ export default defineComponent({
         {
           text: store.getters.message(`operation.sequence`),
           sortable: false,
-          value: "sequence",
+          value: "sequence"
         },
         {
           text: store.getters.message(`operation.title`),
           sortable: false,
-          value: "title",
+          value: "title"
         },
         {
           text: store.getters.message(`operation.url`),
           sortable: false,
-          value: "url",
+          value: "url"
         },
         {
           text: store.getters.message(`operation.tagname`),
           sortable: false,
-          value: "tag",
+          value: "tag"
         },
         {
           text: store.getters.message(`operation.name`),
           sortable: false,
-          value: "tagname",
+          value: "tagname"
         },
         {
           text: store.getters.message(`operation.text`),
           sortable: false,
-          value: "text",
+          value: "text"
         },
         {
           text: store.getters.message(`operation.type`),
           sortable: false,
-          value: "type",
+          value: "type"
         },
         {
           text: store.getters.message(`operation.input`),
           sortable: false,
-          value: "input",
-        },
+          value: "input"
+        }
       ];
     });
 
@@ -137,15 +129,10 @@ export default defineComponent({
           url: operation.url,
           tag: operation.elementInfo?.tagname ?? "",
           tagname: operation.elementInfo?.attributes.name ?? "",
-          text: operation.elementInfo?.text
-            ? operation.elementInfo.text.substring(0, 60)
-            : "",
+          text: operation.elementInfo?.text ? operation.elementInfo.text.substring(0, 60) : "",
           type: operation.type,
-          input: convertInputValue(
-            operation.elementInfo,
-            operation.input
-          ).substring(0, 60),
-          iframeIndex: operation.elementInfo?.iframe?.index,
+          input: convertInputValue(operation.elementInfo, operation.input).substring(0, 60),
+          iframeIndex: operation.elementInfo?.iframe?.index
         };
       });
     });
@@ -162,8 +149,8 @@ export default defineComponent({
       options,
       headers,
       viewOperations,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

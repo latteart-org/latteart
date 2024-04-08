@@ -1,109 +1,99 @@
-import {
-  TestTargetGroupRepository,
-  TestTargetRepository,
-} from "latteart-client";
-import { RESTClient } from "latteart-client";
-import { UpdateTestTargetsAction } from "@/lib/testManagement/actions/UpdateTestTargetsAction";
+import { TestTargetGroupRepositoryImpl, TestTargetRepositoryImpl } from 'latteart-client'
+import { type RESTClient } from 'latteart-client'
+import { UpdateTestTargetsAction } from '@/lib/testManagement/actions/UpdateTestTargetsAction'
 
 const baseRestClient: RESTClient = {
-  serverUrl: "",
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  httpPut: jest.fn(),
-  httpPatch: jest.fn(),
-  httpDelete: jest.fn(),
-  httpGetFile: jest.fn(),
-};
+  serverUrl: '',
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  httpPut: vi.fn(),
+  httpPatch: vi.fn(),
+  httpDelete: vi.fn(),
+  httpGetFile: vi.fn()
+}
 
-describe("UpdateTestTargetsAction", () => {
-  describe("#updateTestTargets", () => {
-    it("TestTarget更新", async () => {
+describe('UpdateTestTargetsAction', () => {
+  describe('#updateTestTargets', () => {
+    it('TestTarget更新', async () => {
       const testTargetResponse = {
         ...baseRestClient,
-        httpPatch: jest.fn().mockResolvedValue({
+        httpPatch: vi.fn().mockResolvedValue({
           status: 200,
           data: {
-            id: "testTargetId",
-            name: "testTargetName",
+            id: 'testTargetId',
+            name: 'testTargetName',
             index: 0,
-            plans: [],
-          },
-        }),
-      };
+            plans: []
+          }
+        })
+      }
       const testTargetGroupResponse = {
         ...baseRestClient,
-        httpGet: jest.fn().mockResolvedValue({
+        httpGet: vi.fn().mockResolvedValue({
           status: 200,
           data: {
-            id: "groupId",
-            name: "groupName",
+            id: 'groupId',
+            name: 'groupName',
             index: 0,
             testTargets: [
               {
-                id: "testTargetId",
-                name: "testTargetName",
+                id: 'testTargetId',
+                name: 'testTargetName',
                 index: 0,
-                plans: [],
-              },
-            ],
-          },
-        }),
-      };
+                plans: []
+              }
+            ]
+          }
+        })
+      }
 
       const args = {
-        projectId: "projectId",
-        testMatrixId: "testMatrixId",
-        groupId: "groupId",
+        projectId: 'projectId',
+        testMatrixId: 'testMatrixId',
+        groupId: 'groupId',
         testTargets: [
           {
-            id: "testTargetId",
-            name: "testTargetName",
+            id: 'testTargetId',
+            name: 'testTargetName',
             index: 0,
-            plans: [],
-          },
-        ],
-      };
+            plans: []
+          }
+        ]
+      }
 
-      const result = await new UpdateTestTargetsAction().updateTestTargets(
-        args,
-        {
-          testTargetRepository: new TestTargetRepository(testTargetResponse),
-          testTargetGroupRepository: new TestTargetGroupRepository(
-            testTargetGroupResponse
-          ),
-        }
-      );
+      const result = await new UpdateTestTargetsAction().updateTestTargets(args, {
+        testTargetRepository: new TestTargetRepositoryImpl(testTargetResponse),
+        testTargetGroupRepository: new TestTargetGroupRepositoryImpl(testTargetGroupResponse)
+      })
 
       if (result.isFailure()) {
-        throw result.error;
+        throw result.error
       }
 
       expect(testTargetResponse.httpPatch).toBeCalledWith(
-        "api/v1/projects/projectId/test-targets/testTargetId",
+        'api/v1/projects/projectId/test-targets/testTargetId',
         {
-          name: "testTargetName",
+          name: 'testTargetName',
           index: 0,
-          plans: [],
+          plans: []
         }
-      );
+      )
 
-      expect(testTargetGroupResponse.httpGet).toBeCalledWith(
-        "api/v1/test-target-groups/groupId"
-      );
+      expect(testTargetGroupResponse.httpGet).toBeCalledWith('api/v1/test-target-groups/groupId')
 
       expect(result.data).toEqual({
-        id: "groupId",
-        name: "groupName",
+        id: 'groupId',
+        name: 'groupName',
         index: 0,
         testTargets: [
           {
-            id: "testTargetId",
-            name: "testTargetName",
+            id: 'testTargetId',
+            name: 'testTargetName',
             index: 0,
-            plans: [],
-          },
-        ],
-      });
-    });
-  });
-});
+            plans: []
+          }
+        ]
+      })
+    })
+  })
+})

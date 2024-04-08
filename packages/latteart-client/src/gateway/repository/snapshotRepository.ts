@@ -23,14 +23,21 @@ import {
 } from "./result";
 import { SnapshotConfigForRepository } from "./types";
 
-export class SnapshotRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type SnapshotRepository = {
   /**
    * Create a snapshot of the specified project ID.
    * @param projectId  Project ID.
    * @returns URL of the snapshot.
    */
+  postSnapshots(
+    projectId: string,
+    snapshotConfig: SnapshotConfigForRepository
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+};
+
+export class SnapshotRepositoryImpl implements SnapshotRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async postSnapshots(
     projectId: string,
     snapshotConfig: SnapshotConfigForRepository

@@ -15,17 +15,13 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
-    <splitpanes
-      horizontal
-      @resized="resize('vertical', $event)"
-      class="default-theme"
-    >
+  <v-container fluid fill-height class="pa-0">
+    <splitpanes horizontal @resized="resize('vertical', $event)" class="default-theme">
       <pane
         :size="verticalPaneSize"
         :class="{
           'disp-coverage': dispCoverage,
-          'hidden-coverage': !dispCoverage,
+          'hidden-coverage': !dispCoverage
         }"
       >
         <div style="position: relative" class="pt-2">
@@ -49,12 +45,7 @@
             <v-container fluid fill-height class="pa-0 ma-0">
               <v-row no-gutters>
                 <v-col cols="12">
-                  <v-radio-group
-                    v-model="diagramType"
-                    row
-                    class="py-0"
-                    hide-details
-                  >
+                  <v-radio-group v-model="diagramType" inline class="py-0" hide-details>
                     <v-radio
                       :label="message('test-result-page.sequence')"
                       :value="DIAGRAM_TYPE_SEQUENCE"
@@ -90,13 +81,13 @@
             </v-container>
           </pane>
           <pane>
-            <v-container fluid pa-0 fill-height style="position: relative">
+            <v-container fluid class="pa-0" fill-height style="position: relative">
               <template>
                 <v-row no-gutters>
                   <v-col cols="12">
                     <v-radio-group
                       v-model="displayedMediaType"
-                      row
+                      inline
                       class="py-0 pl-2"
                       hide-details
                       v-if="hasStillImage || hasVideo"
@@ -116,9 +107,7 @@
                 </v-row>
                 <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
                   <v-col cols="12" class="fill-height pl-2">
-                    <screencapture-display
-                      v-if="displayedMediaType === 'image'"
-                    />
+                    <screencapture-display v-if="displayedMediaType === 'image'" />
                     <screencast-display v-else />
                   </v-col>
                 </v-row>
@@ -167,10 +156,7 @@
       @close="noteRegisterDialogOpened = false"
     />
 
-    <note-update-dialog
-      :opened="noteUpdateDialogOpened"
-      @close="noteUpdateDialogOpened = false"
-    />
+    <note-update-dialog :opened="noteUpdateDialogOpened" @close="noteUpdateDialogOpened = false" />
 
     <context-menu
       :opened="contextMenuOpened"
@@ -189,7 +175,7 @@ import {
   OperationHistory,
   ScreenDef,
   MessageProvider,
-  OperationWithNotes,
+  OperationWithNotes
 } from "@/lib/operationHistory/types";
 import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
 import OperationList from "@/components/organisms/history/OperationList.vue";
@@ -204,15 +190,7 @@ import TestPurposeEditDialog from "@/components/organisms/dialog/TestPurposeEdit
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
-import {
-  computed,
-  defineComponent,
-  onMounted,
-  ref,
-  nextTick,
-  watch,
-  inject,
-} from "vue";
+import { computed, defineComponent, onMounted, ref, nextTick, watch, inject } from "vue";
 import { useStore } from "@/store";
 import type { PropType } from "vue";
 
@@ -222,11 +200,11 @@ export default defineComponent({
     locale: { type: String, default: "ja" },
     rawHistory: {
       type: Array as PropType<OperationHistory>,
-      default: [],
+      default: []
     },
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
+      required: true
     },
     operationContextEnabled: { type: Boolean, default: false },
     screenDefinitionConfig: {
@@ -239,17 +217,17 @@ export default defineComponent({
         return {
           screenDefType: "title",
           isRegex: false,
-          screenDefList: [],
+          screenDefList: []
         };
-      },
+      }
     },
     changeWindowTitle: {
       type: Function as PropType<(windowTitle: string) => void>,
       default: (windowTitle: string) => {
         document.title = `operation viewer [${windowTitle}]`;
-      },
+      }
     },
-    testResultId: { type: String, default: "" },
+    testResultId: { type: String, default: "" }
   },
   components: {
     "history-summary-diagram": HistorySummaryDiagram,
@@ -265,7 +243,7 @@ export default defineComponent({
     "confirm-dialog": ConfirmDialog,
     "context-menu": ContextMenu,
     "note-register-dialog": NoteRegisterDialog,
-    "note-update-dialog": NoteUpdateDialog,
+    "note-update-dialog": NoteUpdateDialog
   },
   setup(props) {
     const store = useStore();
@@ -324,7 +302,7 @@ export default defineComponent({
 
       contextMenuItems.value.push({
         label: store.getters.message("test-result-page.edit-notice", {
-          value: note.value,
+          value: note.value
         }),
         onClick: () => {
           if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
@@ -337,45 +315,37 @@ export default defineComponent({
 
           contextMenuOpened.value = false;
           store.commit("operationHistory/setTmpNoteInfoForEdit", {
-            tmpNoteInfoForEdit: null,
+            tmpNoteInfoForEdit: null
           });
-        },
+        }
       });
       contextMenuItems.value.push({
         label: store.getters.message("test-result-page.delete-notice", {
-          value: note.value,
+          value: note.value
         }),
         onClick: () => {
           if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
-            (store.state as any).operationHistory.deleteNote(
-              note.type,
-              note.sequence,
-              note.index
-            );
+            (store.state as any).operationHistory.deleteNote(note.type, note.sequence, note.index);
           }
 
           contextMenuOpened.value = false;
           store.commit("operationHistory/setTmpNoteInfoForEdit", {
-            tmpNoteInfoForEdit: null,
+            tmpNoteInfoForEdit: null
           });
-        },
+        }
       });
 
       store.commit("operationHistory/setTmpNoteInfoForEdit", {
         tmpNoteInfoForEdit: {
           noteType: note.type,
           sequence: note.sequence,
-          index: note.index,
-        },
+          index: note.index
+        }
       });
       contextMenuOpened.value = true;
     };
 
-    const openNoteEditDialog = (
-      noteType: string,
-      sequence: number,
-      index?: number
-    ) => {
+    const openNoteEditDialog = (noteType: string, sequence: number, index?: number) => {
       const historyItem: OperationWithNotes =
         store.getters["operationHistory/findHistoryItem"](sequence);
       if (historyItem === undefined) {
@@ -386,8 +356,8 @@ export default defineComponent({
           store.commit("operationHistory/selectOperationNote", {
             selectedOperationNote: {
               sequence: sequence ?? null,
-              index: index ?? null,
-            },
+              index: index ?? null
+            }
           });
           testPurposeEditDialogOpened.value = true;
           return;
@@ -396,8 +366,8 @@ export default defineComponent({
           store.commit("operationHistory/selectOperationNote", {
             selectedOperationNote: {
               sequence: sequence ?? null,
-              index: index ?? null,
-            },
+              index: index ?? null
+            }
           });
 
           if (index !== undefined) {
@@ -419,17 +389,13 @@ export default defineComponent({
       index?: number
     ) => {
       if (noteType === "intention") {
-        confirmDialogTitle.value = store.getters.message(
-          "test-result-page.delete-intention"
-        );
+        confirmDialogTitle.value = store.getters.message("test-result-page.delete-intention");
         confirmDialogMessage.value = store.getters.message(
           "test-result-page.delete-intention-message",
           { value: title }
         );
       } else {
-        confirmDialogTitle.value = store.getters.message(
-          "test-result-page.delete-notice-title"
-        );
+        confirmDialogTitle.value = store.getters.message("test-result-page.delete-notice-title");
         confirmDialogMessage.value = store.getters.message(
           "test-result-page.delete-notice-message",
           { value: title }
@@ -448,14 +414,14 @@ export default defineComponent({
           switch (noteType) {
             case "intention":
               store.dispatch("operationHistory/deleteTestPurpose", {
-                sequence,
+                sequence
               });
               return;
             case "bug":
             case "notice":
               store.dispatch("operationHistory/deleteNotice", {
                 sequence,
-                index,
+                index
               });
               return;
             default:
@@ -482,18 +448,14 @@ export default defineComponent({
 
     const setPaneSize = (key: "vertical" | "horizontal", value: number) => {
       localStorage.setItem(
-        key === "vertical"
-          ? verticalPaneSizeKey.value
-          : horizontalPaneSizeKey.value,
+        key === "vertical" ? verticalPaneSizeKey.value : horizontalPaneSizeKey.value,
         value.toString()
       );
     };
 
     const getPaneSize = (key: "vertical" | "horizontal"): string | null => {
       return localStorage.getItem(
-        key === "vertical"
-          ? verticalPaneSizeKey.value
-          : horizontalPaneSizeKey.value
+        key === "vertical" ? verticalPaneSizeKey.value : horizontalPaneSizeKey.value
       );
     };
 
@@ -509,17 +471,15 @@ export default defineComponent({
       return [...props.rawHistory];
     });
 
-    const selectedOperationInfo = computed(
-      (): { sequence: number; doScroll: boolean } => {
-        return operationHistoryState.value.selectedOperationInfo;
-      }
-    );
+    const selectedOperationInfo = computed((): { sequence: number; doScroll: boolean } => {
+      return operationHistoryState.value.selectedOperationInfo;
+    });
 
     const displayedMediaType = computed({
       get: (): "image" | "video" => mediaType.value,
       set: (type: "image" | "video") => {
         mediaType.value = type;
-      },
+      }
     });
 
     const updateMediaType = () => {
@@ -563,20 +523,18 @@ export default defineComponent({
         }
 
         await store.dispatch("operationHistory/updateModelsFromSequenceView", {
-          testResultId,
+          testResultId
         });
 
-        const testResultIds =
-          operationHistoryState.value.storingTestResultInfos.map(
-            ({ id }) => id
-          );
+        const testResultIds = operationHistoryState.value.storingTestResultInfos.map(
+          ({ id }) => id
+        );
         await store.dispatch("operationHistory/updateModelsFromGraphView", {
-          testResultIds:
-            testResultIds.length === 0 ? [testResultId] : testResultIds,
+          testResultIds: testResultIds.length === 0 ? [testResultId] : testResultIds
         });
 
         store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
+          setCanUpdateModels: false
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -595,9 +553,7 @@ export default defineComponent({
           props.changeWindowTitle(props.message("sequence.window-title"));
           return;
         case DIAGRAM_TYPE_SCREEN_TRANSITION.value:
-          props.changeWindowTitle(
-            props.message("screen-transition.window-title")
-          );
+          props.changeWindowTitle(props.message("screen-transition.window-title"));
           return;
         case DIAGRAM_TYPE_ELEMENT_COVERAGE.value:
           props.changeWindowTitle(props.message("coverage.window-title"));
@@ -607,10 +563,7 @@ export default defineComponent({
       }
     };
 
-    const onChangeHistory = (
-      newValue: OperationHistory,
-      oldValue: OperationHistory
-    ) => {
+    const onChangeHistory = (newValue: OperationHistory, oldValue: OperationHistory) => {
       if (oldValue.length === 0) {
         selectFirstOperation();
       } else if (newValue.length !== oldValue.length) {
@@ -638,7 +591,7 @@ export default defineComponent({
     const selectOperation = (sequence: number, doScroll: boolean) => {
       store.dispatch("operationHistory/selectOperation", {
         sequence,
-        doScroll,
+        doScroll
       });
     };
 
@@ -658,17 +611,17 @@ export default defineComponent({
 
     onMounted(async () => {
       store.commit("operationHistory/setOpenNoteEditDialogFunction", {
-        openNoteEditDialog: openNoteEditDialog,
+        openNoteEditDialog: openNoteEditDialog
       });
       store.commit("operationHistory/setOpenNoteDeleteConfirmDialogFunction", {
-        openNoteDeleteConfirmDialog: openNoteDeleteConfirmDialog,
+        openNoteDeleteConfirmDialog: openNoteDeleteConfirmDialog
       });
       store.commit("operationHistory/setOpenNoteMenu", {
-        menu: openNoteMenu,
+        menu: openNoteMenu
       });
 
       store.commit("operationHistory/setDeleteNoteFunction", {
-        deleteNote: deleteNote,
+        deleteNote: deleteNote
       });
       await updateTestResultViewModel();
     });
@@ -716,9 +669,9 @@ export default defineComponent({
       canUpdateModels,
       updateTestResultViewModel,
       selectOperation,
-      resize,
+      resize
     };
-  },
+  }
 });
 </script>
 

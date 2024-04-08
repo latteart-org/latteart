@@ -14,35 +14,27 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { SnapshotConfig } from "@/lib/common/settings/Settings";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type SnapshotConfig } from "@/lib/common/settings/Settings";
 
-const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY =
-  "error.test_management.write_snapshot_failed";
+const WRITE_SNAPSHOT_FAILED_MESSAGE_KEY = "error.test_management.write_snapshot_failed";
 
 export class WriteSnapshotAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "snapshotRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "snapshotRepository">) {}
 
   public async writeSnapshot(
     projectId: string,
     snapshotConfig: SnapshotConfig
   ): Promise<ActionResult<{ url: string }>> {
-    const postSnapshotsResult =
-      await this.repositoryService.snapshotRepository.postSnapshots(
-        projectId,
-        snapshotConfig
-      );
+    const postSnapshotsResult = await this.repositoryService.snapshotRepository.postSnapshots(
+      projectId,
+      snapshotConfig
+    );
 
     if (postSnapshotsResult.isFailure()) {
       return new ActionFailure({
-        messageKey: WRITE_SNAPSHOT_FAILED_MESSAGE_KEY,
+        messageKey: WRITE_SNAPSHOT_FAILED_MESSAGE_KEY
       });
     }
 

@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { Group } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type Group } from "../types";
 
 export class DeleteTestTargetAction {
   public async deleteTestTarget(
@@ -30,10 +26,7 @@ export class DeleteTestTargetAction {
       groupId: string;
       testTargetId: string;
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "testTargetRepository" | "testTargetGroupRepository"
-    >
+    repositoryService: Pick<RepositoryService, "testTargetRepository" | "testTargetGroupRepository">
   ): Promise<ActionResult<Group>> {
     await repositoryService.testTargetRepository.deleteTestTarget(
       payload.projectId,
@@ -41,13 +34,11 @@ export class DeleteTestTargetAction {
     );
 
     const testTargetGroupResult =
-      await repositoryService.testTargetGroupRepository.getTestTargetGroup(
-        payload.groupId
-      );
+      await repositoryService.testTargetGroupRepository.getTestTargetGroup(payload.groupId);
 
     if (testTargetGroupResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testTargetGroupResult.error.message ?? "",
+        messageKey: testTargetGroupResult.error.message ?? ""
       });
     }
 

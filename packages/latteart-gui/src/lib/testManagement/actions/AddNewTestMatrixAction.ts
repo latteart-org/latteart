@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { TestMatrix } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type TestMatrix } from "../types";
 
 export class AddNewTestMatrixAction {
   public async addTestMatrix(
@@ -33,20 +29,16 @@ export class AddNewTestMatrixAction {
         description: string;
       }[];
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "testMatrixRepository" | "viewPointRepository"
-    >
+    repositoryService: Pick<RepositoryService, "testMatrixRepository" | "viewPointRepository">
   ): Promise<ActionResult<TestMatrix>> {
-    const testMatrixResult =
-      await repositoryService.testMatrixRepository.postTestMatrix({
-        projectId: payload.projectId,
-        name: payload.testMatrixName,
-      });
+    const testMatrixResult = await repositoryService.testMatrixRepository.postTestMatrix({
+      projectId: payload.projectId,
+      name: payload.testMatrixName
+    });
 
     if (testMatrixResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testMatrixResult.error.message ?? "",
+        messageKey: testMatrixResult.error.message ?? ""
       });
     }
 
@@ -58,7 +50,7 @@ export class AddNewTestMatrixAction {
           testMatrixId: testMatrix.id as string,
           name: viewPoint.name,
           index: viewPoint.index,
-          description: viewPoint.description,
+          description: viewPoint.description
         });
       })
     );
@@ -75,7 +67,7 @@ export class AddNewTestMatrixAction {
       name: testMatrix.name,
       index: testMatrix.index,
       groups: [],
-      viewPoints,
+      viewPoints
     });
   }
 }

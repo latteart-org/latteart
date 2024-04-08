@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { OperationHistory } from "./types";
+import { type OperationHistory } from "./types";
 import { NoteForGUI } from "./NoteForGUI";
 
 /**
@@ -49,7 +49,7 @@ export default class OperationHistorySelector {
 
         acc.push({
           intention: current.intention,
-          history: [current],
+          history: [current]
         });
 
         return acc;

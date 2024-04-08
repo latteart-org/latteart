@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="store.getters.message('app.record-note')"
+      :title="$t('app.record-note')"
       @accept="
         saveNote();
         close();
@@ -30,135 +30,77 @@
       :acceptButtonDisabled="!canSave"
       :maxWidth="800"
     >
-      <template>
-        <h3 class="title mb-0">
-          {{ store.getters.message("note-edit.note-for-current-purpose") }}
-        </h3>
+      <h3 class="text-h6 mb-0">
+        {{ $t("note-edit.note-for-current-purpose") }}
+      </h3>
 
-        <v-card flat>
-          <v-card-text>
-            <v-radio-group v-model="shouldRecordAsIssue">
-              <v-radio
-                :label="store.getters.message('note-edit.no-problem')"
-                :value="false"
-              ></v-radio>
-              <v-radio
-                :label="store.getters.message('note-edit.problem-occured')"
-                :value="true"
-              ></v-radio>
+      <v-card flat>
+        <v-card-text>
+          <v-radio-group v-model="shouldRecordAsIssue">
+            <v-radio :label="$t('note-edit.no-problem')" :value="false"></v-radio>
+            <v-radio :label="$t('note-edit.problem-occured')" :value="true"></v-radio>
+          </v-radio-group>
+          <div v-if="shouldRecordAsIssue">
+            <v-text-field :label="$t('note-edit.summary')" v-model="newNote"></v-text-field>
+            <v-textarea :label="$t('note-edit.details')" v-model="newNoteDetails"></v-textarea>
+
+            <note-tag-select-box
+              :label="$t('note-edit.tags')"
+              v-model="newTags"
+            ></note-tag-select-box>
+
+            <h4>{{ $t("note-edit.take-screenshot") }}</h4>
+            <v-radio-group
+              v-model="shouldTakeScreenshot"
+              inline
+              hide-details
+              class="mt-2"
+              :disabled="!screenshot && !video"
+            >
+              <v-radio :label="$t('note-edit.previous-screen')" :value="false"></v-radio>
+              <v-radio :label="$t('note-edit.current-screen')" :value="true"></v-radio>
             </v-radio-group>
-            <div v-if="shouldRecordAsIssue">
-              <v-text-field
-                :label="store.getters.message('note-edit.summary')"
-                v-model="newNote"
-              ></v-text-field>
-              <v-textarea
-                :label="store.getters.message('note-edit.details')"
-                v-model="newNoteDetails"
-              ></v-textarea>
 
-              <v-combobox
-                :label="store.getters.message('note-edit.tags')"
-                v-model="newTags"
-                :hide-no-data="!search"
-                :items="tagsItem"
-                :search-input.sync="search"
-                multiple
-                small-chips
-                hide-selected
-              >
-                <template v-slot:no-data>
-                  <v-list-item>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        No results matching "<strong>{{ search }}</strong
-                        >". Press <kbd>enter</kbd> to create a new one
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ attrs, item, parent, selected }">
-                  <v-chip
-                    v-if="item === Object(item)"
-                    v-bind="attrs"
-                    :color="item.color"
-                    :input-value="selected"
-                    small
-                  >
-                    <span class="pr-2">{{ item.text }} </span>
-                    <v-icon small @click="parent.selectItem(item)"
-                      >$delete</v-icon
-                    >
-                  </v-chip>
-                </template>
-              </v-combobox>
-              <h4>{{ store.getters.message("note-edit.take-screenshot") }}</h4>
-              <v-radio-group
-                v-model="shouldTakeScreenshot"
-                row
-                hide-details
-                class="mt-2"
-                :disabled="!screenshot && !video"
-              >
-                <v-radio
-                  :label="store.getters.message('note-edit.previous-screen')"
-                  :value="false"
-                ></v-radio>
-                <v-radio
-                  :label="store.getters.message('note-edit.current-screen')"
-                  :value="true"
-                ></v-radio>
-              </v-radio-group>
+            <div v-if="!shouldTakeScreenshot">
+              <v-btn class="mx-2 my-3" :disabled="!screenshot" @click="showStillImage">{{
+                $t("note-edit.check-still-Image")
+              }}</v-btn>
 
-              <div v-if="!shouldTakeScreenshot">
-                <v-btn
-                  class="mx-2 my-3"
-                  :disabled="!screenshot"
-                  @click="showStillImage"
-                  >{{
-                    store.getters.message("note-edit.check-still-Image")
-                  }}</v-btn
-                >
+              <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
+                $t("note-edit.check-video")
+              }}</v-btn>
 
-                <v-btn
-                  class="mx-2 my-3"
-                  :disabled="!video"
-                  @click="showVideo"
-                  >{{ store.getters.message("note-edit.check-video") }}</v-btn
-                >
+              <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
 
-                <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
-
-                <video-display v-if="isVideoVisible" :videoUrl="video" />
-              </div>
+              <video-display v-if="isVideoVisible" :videoUrl="video" />
             </div>
-          </v-card-text>
-        </v-card>
+          </div>
+        </v-card-text>
+      </v-card>
 
-        <h3 class="title mb-0">
-          {{ store.getters.message("note-edit.next-purpose") }}
-        </h3>
+      <h3 class="text-h6 mb-0">
+        {{ $t("note-edit.next-purpose") }}
+      </h3>
 
-        <v-card flat>
-          <v-card-text>
-            <v-text-field
-              :disabled="shouldContinueSameTestPurpose"
-              :label="store.getters.message('note-edit.summary')"
-              v-model="newTestPurpose"
-            ></v-text-field>
-            <v-textarea
-              :disabled="shouldContinueSameTestPurpose"
-              :label="store.getters.message('note-edit.details')"
-              v-model="newTestPurposeDetails"
-            ></v-textarea>
+      <v-card flat>
+        <v-card-text>
+          <v-text-field
+            :disabled="shouldContinueSameTestPurpose"
+            :label="$t('note-edit.summary')"
+            v-model="newTestPurpose"
+          ></v-text-field>
+          <v-textarea
+            :disabled="shouldContinueSameTestPurpose"
+            :label="$t('note-edit.details')"
+            v-model="newTestPurposeDetails"
+          ></v-textarea>
 
-            <v-checkbox
-              v-model="shouldContinueSameTestPurpose"
-              :label="store.getters.message('note-edit.continue-same-purpose')"
-            ></v-checkbox>
-          </v-card-text>
-        </v-card>
-      </template>
+          <v-checkbox
+            v-model="shouldContinueSameTestPurpose"
+            :label="$t('note-edit.continue-same-purpose')"
+          ></v-checkbox>
+        </v-card-text>
+      </v-card>
     </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -169,38 +111,36 @@
 </template>
 
 <script lang="ts">
-import { NoteEditInfo } from "@/lib/captureControl/types";
-import NumberField from "@/components/molecules/NumberField.vue";
+import { type NoteEditInfo } from "@/lib/captureControl/types";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import {
-  NoteTagItem,
-  noteTagPreset,
-} from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
-    "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
     "video-display": VideoDisplay,
     "popup-image": PopupImage,
+    "note-tag-select-box": NoteTagSelectBox
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
-    const search = ref(null);
     const newNote = ref("");
     const newNoteDetails = ref("");
-    const newTags = ref<NoteTagItem[]>([]);
+    const newTags = ref<string[]>([]);
     const newTargetSequence = ref<number | null>(null);
     const maxSequence = ref<number | null>(null);
     const shouldTakeScreenshot = ref(false);
@@ -217,27 +157,19 @@ export default defineComponent({
     const isImageVisible = ref(false);
     const isVideoVisible = ref(false);
 
-    const tagsItem = ref(noteTagPreset.items);
-
     const initialize = () => {
       if (!props.opened) {
         return;
       }
 
-      const sequence = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote.sequence as number;
-      const targetOperation = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history[sequence - 1].operation;
+      const sequence = operationHistoryStore.selectedOperationNote.sequence ?? 0;
+      const targetOperation = operationHistoryStore.history[sequence - 1].operation;
 
       newNote.value = "";
       newNoteDetails.value = "";
       newTags.value = [];
       newTargetSequence.value = sequence;
-      maxSequence.value = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history.length;
+      maxSequence.value = operationHistoryStore.history.length;
       shouldTakeScreenshot.value = false;
       shouldRecordAsIssue.value = false;
       newTestPurpose.value = "";
@@ -253,26 +185,7 @@ export default defineComponent({
       isImageVisible.value = false;
       isVideoVisible.value = false;
 
-      store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence: null, index: null },
-      });
-    };
-
-    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
-      if (val.length === prev.length) return;
-
-      newTags.value = val.map((v) => {
-        if (typeof v === "string") {
-          v = {
-            text: v,
-            color: "#E0E0E0",
-          };
-
-          newTags.value.push(v);
-        }
-
-        return v;
-      });
+      operationHistoryStore.selectedOperationNote = { sequence: null, index: null };
     };
 
     const saveNote = () => {
@@ -283,8 +196,8 @@ export default defineComponent({
             newSequence: newTargetSequence.value,
             note: newNote.value,
             noteDetails: newNoteDetails.value,
-            tags: newTags.value.map((tag) => tag.text),
-            shouldTakeScreenshot: shouldTakeScreenshot.value,
+            tags: newTags.value.map((tag) => tag),
+            shouldTakeScreenshot: shouldTakeScreenshot.value
           } as NoteEditInfo;
 
           const intentionInfo = {
@@ -293,18 +206,18 @@ export default defineComponent({
             note: newTestPurpose.value,
             noteDetails: newTestPurposeDetails.value,
             tags: [],
-            shouldTakeScreenshot: false,
+            shouldTakeScreenshot: false
           } as NoteEditInfo;
 
           if (shouldRecordAsIssue.value) {
-            await store.dispatch("captureControl/takeNote", {
-              noteEditInfo: noteInfo,
+            captureControlStore.takeNote({
+              noteEditInfo: noteInfo
             });
           }
 
           if (!shouldContinueSameTestPurpose.value) {
-            await store.dispatch("captureControl/setNextTestPurpose", {
-              noteEditInfo: intentionInfo,
+            captureControlStore.setNextTestPurpose({
+              noteEditInfo: intentionInfo
             });
           }
         } catch (error) {
@@ -374,11 +287,9 @@ export default defineComponent({
 
     const { opened } = toRefs(props);
     watch(opened, initialize);
-    watch(newTags, changeTags);
 
     return {
-      store,
-      search,
+      t: rootStore.message,
       newNote,
       newNoteDetails,
       newTags,
@@ -393,14 +304,13 @@ export default defineComponent({
       errorMessage,
       isImageVisible,
       isVideoVisible,
-      tagsItem,
       saveNote,
       cancel,
       close,
       canSave,
       showStillImage,
-      showVideo,
+      showVideo
     };
-  },
+  }
 });
 </script>

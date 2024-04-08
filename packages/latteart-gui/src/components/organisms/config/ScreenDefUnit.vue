@@ -23,33 +23,23 @@
             <v-container>
               <v-row>
                 <v-checkbox
-                  :input-value="conditionGroup.isEnabled"
-                  @change="
-                    (value) => updateConditionGroup({ isEnabled: value })
-                  "
+                  :model-value="conditionGroup.isEnabled"
+                  @update:model-value="(value) => updateConditionGroup({ isEnabled: value })"
                   class="default-flex"
                 >
                 </v-checkbox>
                 <v-text-field
-                  :label="
-                    store.getters.message('config-page.screen-def.screen-name')
-                  "
-                  :value="conditionGroup.screenName"
-                  @change="
-                    (value) => updateConditionGroup({ screenName: value })
-                  "
+                  :label="store.getters.message('config-page.screen-def.screen-name')"
+                  :model-value="conditionGroup.screenName"
+                  @change="(value) => updateConditionGroup({ screenName: value })"
                 ></v-text-field>
                 <v-btn @click="deleteConditionGroup" color="error"
-                  >{{
-                    store.getters.message(
-                      "config-page.screen-def.delete-definition"
-                    )
-                  }}
+                  >{{ store.getters.message("config-page.screen-def.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
-                <v-btn small class="mt-3" @click="addCondition">{{
+                <v-btn size="small" class="mt-3" @click="addCondition">{{
                   store.getters.message("config-page.screen-def.add-condition")
                 }}</v-btn
                 ><span class="description">{{
@@ -72,10 +62,8 @@
 
                 <v-col cols="1" style="text-align: center">
                   <v-checkbox
-                    :input-value="item.isEnabled"
-                    @change="
-                      (value) => updateCondition(index, { isEnabled: value })
-                    "
+                    :model-value="item.isEnabled"
+                    @update:model-value="(value) => updateCondition(index, { isEnabled: value })"
                     style="display: inline-block"
                   ></v-checkbox>
                 </v-col>
@@ -83,13 +71,12 @@
                 <template v-if="store.getters.getLocale() === 'ja'">
                   <v-col cols="2">
                     <v-select
-                      :value="item.definitionType"
-                      @change="
-                        (value) =>
-                          updateCondition(index, { definitionType: value })
+                      :model-value="item.definitionType"
+                      @update:model-value="
+                        (value) => updateCondition(index, { definitionType: value })
                       "
                       :items="definitionTypeList"
-                      item-text="label"
+                      item-title="label"
                       item-value="value"
                       class="select-with-word"
                     ></v-select
@@ -98,10 +85,8 @@
 
                   <v-col cols="4">
                     <v-text-field
-                      :value="item.word"
-                      @change="
-                        (value) => updateCondition(index, { word: value })
-                      "
+                      :model-value="item.word"
+                      @change="(value) => updateCondition(index, { word: value })"
                       class="select-with-word"
                     ></v-text-field>
                     <span style="margin-left: 10px">という</span>
@@ -109,12 +94,10 @@
 
                   <v-col cols="3">
                     <v-select
-                      :value="item.matchType"
-                      @change="
-                        (value) => updateCondition(index, { matchType: value })
-                      "
+                      :model-value="item.matchType"
+                      @update:model-value="(value) => updateCondition(index, { matchType: value })"
                       :items="matchType"
-                      item-text="label"
+                      item-title="label"
                       item-value="value"
                     ></v-select>
                   </v-col>
@@ -123,13 +106,12 @@
                 <template v-if="store.getters.getLocale() === 'en'">
                   <v-col cols="2">
                     <v-select
-                      :value="item.definitionType"
-                      @change="
-                        (value) =>
-                          updateCondition(index, { definitionType: value })
+                      :model-value="item.definitionType"
+                      @update:model-value="
+                        (value) => updateCondition(index, { definitionType: value })
                       "
                       :items="definitionTypeList"
-                      item-text="label"
+                      item-title="label"
                       item-value="value"
                       class="select-with-word"
                     ></v-select>
@@ -137,22 +119,18 @@
 
                   <v-col cols="3" class="pr-4">
                     <v-select
-                      :value="item.matchType"
-                      @change="
-                        (value) => updateCondition(index, { matchType: value })
-                      "
+                      :model-value="item.matchType"
+                      @update:model-value="(value) => updateCondition(index, { matchType: value })"
                       :items="matchType"
-                      item-text="label"
+                      item-title="label"
                       item-value="value"
                     ></v-select>
                   </v-col>
 
                   <v-col cols="4" class="pl-4">
                     <v-text-field
-                      :value="item.word"
-                      @change="
-                        (value) => updateCondition(index, { word: value })
-                      "
+                      :model-value="item.word"
+                      @change="(value) => updateCondition(index, { word: value })"
                     ></v-text-field>
                   </v-col>
                 </template>
@@ -160,7 +138,7 @@
                 <v-col cols="1">
                   <v-btn
                     v-if="conditionGroup.conditions.length > 1"
-                    text
+                    variant="text"
                     icon
                     @click="deleteCondition(index)"
                     color="error"
@@ -180,7 +158,7 @@
 import {
   ScreenDefinitionConditionGroup,
   ScreenDefinitionType,
-  ScreenMatchType,
+  ScreenMatchType
 } from "@/lib/operationHistory/types";
 import { computed, defineComponent } from "vue";
 import { useStore } from "@/store";
@@ -191,56 +169,52 @@ export default defineComponent({
     conditionGroup: {
       type: Object as PropType<ScreenDefinitionConditionGroup>,
       default: { isEnabled: false, screenName: "", conditions: [] },
-      required: true,
+      required: true
     },
-    index: { type: Number, default: -1, required: true },
+    index: { type: Number, default: -1, required: true }
   },
   setup(props, context) {
     const store = useStore();
 
-    const definitionTypeList = computed(
-      (): { value: string; label: string }[] => {
-        return [
-          {
-            value: "url",
-            label: store.getters.message("config-page.screen-def.url"),
-          },
-          {
-            value: "title",
-            label: store.getters.message("config-page.screen-def.title"),
-          },
-          {
-            value: "keyword",
-            label: store.getters.message("config-page.screen-def.keyword"),
-          },
-        ];
-      }
-    );
+    const definitionTypeList = computed((): { value: string; label: string }[] => {
+      return [
+        {
+          value: "url",
+          label: store.getters.message("config-page.screen-def.url")
+        },
+        {
+          value: "title",
+          label: store.getters.message("config-page.screen-def.title")
+        },
+        {
+          value: "keyword",
+          label: store.getters.message("config-page.screen-def.keyword")
+        }
+      ];
+    });
 
     const matchType = computed((): { value: string; label: string }[] => {
       return [
         {
           value: "contains",
-          label: store.getters.message("config-page.screen-def.contains"),
+          label: store.getters.message("config-page.screen-def.contains")
         },
         {
           value: "equals",
-          label: store.getters.message("config-page.screen-def.equals"),
+          label: store.getters.message("config-page.screen-def.equals")
         },
         {
           value: "regex",
-          label: store.getters.message("config-page.screen-def.regex"),
-        },
+          label: store.getters.message("config-page.screen-def.regex")
+        }
       ];
     });
 
-    const updateConditionGroup = (
-      group: Partial<ScreenDefinitionConditionGroup>
-    ) => {
+    const updateConditionGroup = (group: Partial<ScreenDefinitionConditionGroup>) => {
       const conditionGroup = { ...props.conditionGroup, ...group };
       context.emit("update-condition-group", {
         conditionGroup,
-        index: props.index,
+        index: props.index
       });
     };
 
@@ -257,7 +231,7 @@ export default defineComponent({
         ...props.conditionGroup,
         conditions: props.conditionGroup.conditions.map((c, i) => {
           return i !== index ? c : { ...c, ...condition };
-        }),
+        })
       };
       updateConditionGroup(conditionGroup);
     };
@@ -271,9 +245,9 @@ export default defineComponent({
             isEnabled: true,
             definitionType: "url",
             matchType: "contains",
-            word: "",
-          },
-        ],
+            word: ""
+          }
+        ]
       };
       updateConditionGroup(conditionGroup);
     };
@@ -281,9 +255,7 @@ export default defineComponent({
     const deleteCondition = (conditionIndex: number): void => {
       const conditionGroup = {
         ...props.conditionGroup,
-        conditions: props.conditionGroup.conditions.filter(
-          (c, i) => i !== conditionIndex
-        ),
+        conditions: props.conditionGroup.conditions.filter((c, i) => i !== conditionIndex)
       };
       updateConditionGroup(conditionGroup);
     };
@@ -300,9 +272,9 @@ export default defineComponent({
       updateCondition,
       addCondition,
       deleteCondition,
-      deleteConditionGroup,
+      deleteConditionGroup
     };
-  },
+  }
 });
 </script>
 

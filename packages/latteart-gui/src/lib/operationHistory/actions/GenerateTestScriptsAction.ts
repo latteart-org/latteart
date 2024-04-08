@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import {
-  RepositoryService,
-  TestScriptOption,
-  RepositoryAccessResult,
+  type RepositoryService,
+  type TestScriptOption,
+  type RepositoryAccessResult
 } from "latteart-client";
-import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
+import { type ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 
-const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY =
-  "error.operation_history.save_test_scripts_failed";
+const GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY = "error.operation_history.save_test_scripts_failed";
 const NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY =
   "error.operation_history.save_test_scripts_no_section_error";
 const NO_OPERATION_ERROR_MESSAGE_KEY =
@@ -107,11 +102,10 @@ export class GenerateTestScriptsAction {
   > {
     const testScriptOption = this.buildTestScriptOption(screenDefinitionConfig);
 
-    const result =
-      await this.repositoryService.testScriptRepository.postTestscriptsWithProjectId(
-        projectId,
-        testScriptOption
-      );
+    const result = await this.repositoryService.testScriptRepository.postTestscriptsWithProjectId(
+      projectId,
+      testScriptOption
+    );
 
     return this.createActionResult(result);
   }
@@ -130,27 +124,25 @@ export class GenerateTestScriptsAction {
         return new ActionFailure({
           messageKey: this.option.testScript.isSimple
             ? NO_OPERATION_ERROR_MESSAGE_KEY
-            : NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY,
+            : NO_SCREEN_TRANSITION_ERROR_MESSAGE_KEY
         });
       }
 
       return new ActionFailure({
-        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY,
+        messageKey: GENERATE_TEST_SCRIPTS_FAILED_MESSAGE_KEY
       });
     }
 
     const outputUrl = result.data.url;
     const data = {
       outputUrl,
-      invalidOperationTypeExists: result.data.invalidOperationTypeExists,
+      invalidOperationTypeExists: result.data.invalidOperationTypeExists
     };
 
     return new ActionSuccess(data);
   }
 
-  private buildTestScriptOption(
-    screenDefinitionConfig: ScreenDefinitionSetting
-  ): TestScriptOption {
+  private buildTestScriptOption(screenDefinitionConfig: ScreenDefinitionSetting): TestScriptOption {
     const viewOption = {
       node: {
         unit: screenDefinitionConfig.screenDefType,
@@ -163,16 +155,16 @@ export class GenerateTestScriptsAction {
                 return {
                   target: condition.definitionType,
                   method: condition.matchType,
-                  value: condition.word,
+                  value: condition.word
                 };
               });
 
             return {
               name: group.screenName,
-              conditions,
+              conditions
             };
-          }),
-      },
+          })
+      }
     };
 
     const testScriptOption = {
@@ -180,7 +172,7 @@ export class GenerateTestScriptsAction {
       useMultiLocator: this.option.testScript.useMultiLocator,
       testData: this.option.testData,
       view: viewOption,
-      buttonDefinitions: this.option.buttonDefinitions,
+      buttonDefinitions: this.option.buttonDefinitions
     };
 
     return testScriptOption;

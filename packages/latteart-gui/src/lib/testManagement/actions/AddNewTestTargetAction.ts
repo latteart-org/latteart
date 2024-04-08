@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { TestTarget } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type TestTarget } from "../types";
 
 export class AddNewTestTargetAction {
   public async addNewTestTarget(
@@ -32,18 +28,17 @@ export class AddNewTestTargetAction {
     },
     repositoryService: Pick<RepositoryService, "testTargetRepository">
   ): Promise<ActionResult<TestTarget>> {
-    const testTargetResult =
-      await repositoryService.testTargetRepository.postTestTarget(
-        payload.projectId,
-        {
-          testTargetGroupId: payload.groupId,
-          name: payload.testTargetName,
-        }
-      );
+    const testTargetResult = await repositoryService.testTargetRepository.postTestTarget(
+      payload.projectId,
+      {
+        testTargetGroupId: payload.groupId,
+        name: payload.testTargetName
+      }
+    );
 
     if (testTargetResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testTargetResult.error.message ?? "",
+        messageKey: testTargetResult.error.message ?? ""
       });
     }
 

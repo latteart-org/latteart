@@ -19,14 +19,12 @@
     <v-btn
       :disabled="isDisabled"
       color="blue"
-      :dark="!isDisabled"
+      icon="video_library"
       @click="autoOperationSelectDialogOpened = true"
-      fab
-      small
-      :title="store.getters.message('app.auto-operation')"
+      size="small"
+      :title="$t('app.auto-operation')"
       class="mx-2"
     >
-      <v-icon>video_library</v-icon>
     </v-btn>
 
     <auto-operation-select-dialog
@@ -45,20 +43,21 @@
 </template>
 
 <script lang="ts">
-import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationSelectDialog from "@/components/organisms/dialog/AutoOperationSelectDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
     "auto-operation-select-dialog": AutoOperationSelectDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const autoOperationSelectDialogOpened = ref(false);
     const errorDialogOpened = ref(false);
@@ -66,41 +65,38 @@ export default defineComponent({
 
     const autoOperationConditionGroups = computed(() => {
       const conditionGroups: AutoOperationConditionGroup[] =
-        store.state.projectSettings.config.autoOperationSetting.conditionGroups;
+        rootStore.projectSettings.config.autoOperationSetting.conditionGroups;
       return conditionGroups.filter((group) => {
         return group.isEnabled;
       });
     });
 
     const isDisabled = computed((): boolean => {
-      return (
-        !((store.state as any).captureControl as CaptureControlState)
-          .isCapturing || autoOperationConditionGroups.value.length < 1
-      );
+      return !captureControlStore.isCapturing || autoOperationConditionGroups.value.length < 1;
     });
 
     const runAutoOperations = async (index: number) => {
       try {
-        const tempOperations = autoOperationConditionGroups.value[
-          index
-        ].autoOperations.map((operation) => {
-          return {
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
-            timestamp: operation.timestamp,
-          };
-        });
+        const tempOperations = autoOperationConditionGroups.value[index].autoOperations.map(
+          (operation) => {
+            return {
+              input: operation.input,
+              type: operation.type,
+              elementInfo: operation.elementInfo,
+              title: operation.title,
+              url: operation.url,
+              timestamp: operation.timestamp
+            };
+          }
+        );
 
-        await store.dispatch("captureControl/runAutoOperations", {
-          operations: tempOperations,
+        await captureControlStore.runAutoOperations({
+          operations: tempOperations
         });
-        store.commit("captureControl/setCompletionDialog", {
-          title: store.getters.message("auto-operation.done-title"),
-          message: store.getters.message("auto-operation.done-auto-operations"),
-        });
+        captureControlStore.completionDialogData = {
+          title: rootStore.message("auto-operation.done-title"),
+          message: rootStore.message("auto-operation.done-auto-operations")
+        };
       } catch (error) {
         if (error instanceof Error) {
           errorDialogOpened.value = true;
@@ -114,14 +110,14 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: rootStore.message,
       autoOperationSelectDialogOpened,
       errorDialogOpened,
       errorDialogMessage,
       autoOperationConditionGroups,
       isDisabled,
-      runAutoOperations,
+      runAutoOperations
     };
-  },
+  }
 });
 </script>

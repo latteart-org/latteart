@@ -16,43 +16,38 @@
 <template>
   <v-card flat class="pa-0">
     <v-card-text>
+      <v-text-field :label="$t('app.url')" v-model="captureOption.url" />
       <v-text-field
-        :label="store.getters.message('app.url')"
-        v-model="captureOption.url"
-      />
-      <v-text-field
-        :label="store.getters.message('app.test-result-name')"
+        :label="$t('app.test-result-name')"
         v-model="captureOption.testResultName"
       ></v-text-field>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ store.getters.message("config-page.device") }}
+      {{ $t("config-page.device") }}
     </v-card-subtitle>
 
     <v-card-text>
       <v-select
-        :label="store.getters.message('config-page.platform')"
+        :label="$t('config-page.platform')"
         :items="platforms"
         v-model="captureOption.platform"
       ></v-select>
 
-      <v-card class="pa-2 mb-4" outlined v-show="isMobileSelected">
+      <v-card class="pa-2 mb-4" variant="outlined" v-show="isMobileSelected">
         <v-card-text>
-          <v-btn @click="updateDevices">{{
-            store.getters.message("config-page.update-device")
-          }}</v-btn>
+          <v-btn @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
           <v-select
-            :label="store.getters.message('config-page.select-device')"
+            :label="$t('config-page.select-device')"
             v-model="captureOption.device"
             :items="devices"
-            item-text="modelNumber"
+            item-title="modelNumber"
             item-value="deviceName"
-            :no-data-text="store.getters.message('config-page.no-device')"
+            :no-data-text="$t('config-page.no-device')"
             return-object
           ></v-select>
           <v-text-field
-            :label="store.getters.message('config-page.os-version')"
+            :label="$t('config-page.os-version')"
             v-model="captureOption.device.osVersion"
             readonly
           ></v-text-field>
@@ -60,7 +55,7 @@
       </v-card>
 
       <v-select
-        :label="store.getters.message('config-page.browser')"
+        :label="$t('config-page.browser')"
         :items="browsers"
         v-model="captureOption.browser"
       ></v-select>
@@ -76,13 +71,13 @@
         :value="captureOption.waitTimeForStartupReload"
         :maxValue="60"
         :minValue="0"
-        :label="store.getters.message('config-page.reload-setting')"
-        :suffix="store.getters.message('config-page.reload-suffix')"
+        :label="$t('config-page.reload-setting')"
+        :suffix="$t('config-page.reload-suffix')"
       ></number-field>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ store.getters.message("config-page.media-type") }}
+      {{ $t("config-page.media-type") }}
     </v-card-subtitle>
 
     <v-card-text class="mb-3">
@@ -90,48 +85,38 @@
         v-model="captureOption.mediaType"
         :disabled="isMediaTypeDisabled"
         class="py-0 my-0"
-        row
-        :hint="store.getters.message('config-page.capture-media-config-hint')"
+        inline
+        :hint="$t('config-page.capture-media-config-hint')"
         persistent-hint
       >
-        <v-radio
-          :label="store.getters.message('config-page.still-image')"
-          value="image"
-        />
-        <v-radio
-          :label="store.getters.message('config-page.video')"
-          value="video"
-        />
+        <v-radio :label="$t('config-page.still-image')" value="image" />
+        <v-radio :label="$t('config-page.video')" value="video" />
       </v-radio-group>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ store.getters.message("test-option.title") }}
+      {{ $t("test-option.title") }}
     </v-card-subtitle>
 
     <v-card-text>
       <v-checkbox
         class="mt-0"
-        :label="store.getters.message('test-option.use-test-purpose')"
+        :label="$t('test-option.use-test-purpose')"
         v-model="captureOption.shouldRecordTestPurpose"
       ></v-checkbox>
 
-      <v-card
-        class="pa-2 mb-4"
-        outlined
-        v-show="captureOption.shouldRecordTestPurpose"
-      >
+      <v-card class="pa-2 mb-4" variant="outlined" v-show="captureOption.shouldRecordTestPurpose">
         <v-card-subtitle>
-          {{ store.getters.message("test-option.first-test-purpose") }}
+          {{ $t("test-option.first-test-purpose") }}
         </v-card-subtitle>
 
         <v-card-text>
           <v-text-field
-            :label="store.getters.message('note-edit.summary')"
+            :label="$t('note-edit.summary')"
             v-model="captureOption.firstTestPurpose"
           ></v-text-field>
           <v-textarea
-            :label="store.getters.message('note-edit.details')"
+            :label="$t('note-edit.details')"
             v-model="captureOption.firstTestPurposeDetails"
           ></v-textarea>
         </v-card-text>
@@ -148,41 +133,36 @@
 
 <script lang="ts">
 import NumberField from "@/components/molecules/NumberField.vue";
-import { SettingsForRepository } from "latteart-client";
-import { DeviceSettings } from "@/lib/common/settings/Settings";
+import { type SettingsForRepository } from "latteart-client";
+import { type DeviceSettings } from "@/lib/common/settings/Settings";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
-import { CaptureControlState } from "@/store/captureControl";
+import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import { computed, defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
     "number-field": NumberField,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(_, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const platforms = ref<DeviceSettings["platformName"][]>([
-      "PC",
-      "Android",
-      "iOS",
-    ]);
+    const platforms = ref<DeviceSettings["platformName"][]>(["PC", "Android", "iOS"]);
 
-    const devices = ref<
-      { deviceName: string; modelNumber: string; osVersion: string }[]
-    >([]);
+    const devices = ref<{ deviceName: string; modelNumber: string; osVersion: string }[]>([]);
 
     const projectSettings = computed((): SettingsForRepository | undefined => {
-      return store.state.projectSettings;
+      return rootStore.projectSettings;
     });
 
     const deviceSettings = computed((): DeviceSettings | undefined => {
-      return store.state.deviceSettings;
+      return rootStore.deviceSettings;
     });
 
     const captureOption = ref<CaptureOptionParams>({
@@ -192,15 +172,14 @@ export default defineComponent({
       device: deviceSettings.value?.device ?? {
         deviceName: "",
         modelNumber: "",
-        osVersion: "",
+        osVersion: ""
       },
       waitTimeForStartupReload: 0,
       browser: deviceSettings.value?.browser ?? "Chrome",
-      mediaType:
-        projectSettings.value?.config.captureMediaSetting.mediaType ?? "image",
+      mediaType: projectSettings.value?.config.captureMediaSetting.mediaType ?? "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: "",
+      firstTestPurposeDetails: ""
     });
 
     const browsers = computed((): DeviceSettings["browser"][] => {
@@ -211,22 +190,16 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const captureArch = computed(() => {
-      return (
-        projectSettings.value?.config.experimentalFeatureSetting.captureArch ??
-        "polling"
-      );
+      return projectSettings.value?.config.experimentalFeatureSetting.captureArch ?? "polling";
     });
 
     const isMediaTypeDisabled = computed(() => {
       return (
-        isCapturing.value ||
-        captureArch.value === "push" ||
-        captureOption.value.platform !== "PC"
+        isCapturing.value || captureArch.value === "push" || captureOption.value.platform !== "PC"
       );
     });
 
@@ -245,7 +218,7 @@ export default defineComponent({
           : "",
         firstTestPurposeDetails: captureOption.value.shouldRecordTestPurpose
           ? captureOption.value.firstTestPurposeDetails
-          : "",
+          : ""
       });
     };
 
@@ -255,9 +228,7 @@ export default defineComponent({
 
     const updateDevices = async () => {
       try {
-        devices.value = [
-          ...(await recognizeDevices(captureOption.value.platform)),
-        ];
+        devices.value = [...(await recognizeDevices(captureOption.value.platform))];
         captureOption.value.device = getDefaultDevice(devices.value);
       } catch (error) {
         if (error instanceof Error) {
@@ -274,18 +245,14 @@ export default defineComponent({
     const getDefaultDevice = (
       devices: { deviceName: string; modelNumber: string; osVersion: string }[]
     ) => {
-      return devices.length > 0
-        ? devices[0]
-        : { deviceName: "", modelNumber: "", osVersion: "" };
+      return devices.length > 0 ? devices[0] : { deviceName: "", modelNumber: "", osVersion: "" };
     };
 
     const recognizeDevices = async (
       platformName: string
-    ): Promise<
-      { deviceName: string; modelNumber: string; osVersion: string }[]
-    > => {
-      return store.dispatch("captureControl/recognizeDevices", {
-        platformName,
+    ): Promise<{ deviceName: string; modelNumber: string; osVersion: string }[]> => {
+      return captureControlStore.recognizeDevices({
+        platformName
       });
     };
 
@@ -294,7 +261,7 @@ export default defineComponent({
     watch(() => captureOption.value.platform, updateDevices);
 
     return {
-      store,
+      t: rootStore.message,
       errorMessageDialogOpened,
       errorMessage,
       platforms,
@@ -303,8 +270,8 @@ export default defineComponent({
       browsers,
       isMediaTypeDisabled,
       isMobileSelected,
-      updateDevices,
+      updateDevices
     };
-  },
+  }
 });
 </script>

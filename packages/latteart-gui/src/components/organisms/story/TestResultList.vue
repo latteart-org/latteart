@@ -17,12 +17,7 @@
 <template>
   <v-card flat height="100%">
     <v-card-title class="pt-0">
-      <v-text-field
-        v-model="search"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <v-text-field v-model="search" label="Search" single-line hide-details></v-text-field>
     </v-card-title>
 
     <v-data-table
@@ -46,22 +41,18 @@
           v-ripple
         >
           <v-menu rounded="lg" offset-x open-on-hover>
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <div
-                v-on="on"
-                v-bind="attrs"
+                v-bind="props"
                 :style="{
                   height: '100%',
                   display: 'flex',
                   'align-items': 'center',
-                  cursor: 'pointer',
+                  cursor: 'pointer'
                 }"
                 :title="store.getters.message('test-result-list.load')"
               >
-                <div
-                  :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
-                >
+                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
                   {{ item.name }}
                 </div>
               </div>
@@ -70,17 +61,16 @@
             <v-card :style="{ 'max-width': '420px' }">
               <v-list>
                 <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title v-if="!isEditing" :title="item.name">{{
-                      item.name
-                    }}</v-list-item-title>
-                    <v-list-item-title v-else
-                      ><v-text-field
-                        v-bind:value="item.name"
-                        v-on:input="changeTestResultName"
-                        @click.stop
-                    /></v-list-item-title>
-                  </v-list-item-content>
+                  <v-list-item-title v-if="!isEditing" :title="item.name">{{
+                    item.name
+                  }}</v-list-item-title>
+                  <v-list-item-title v-else
+                    ><v-text-field
+                      v-bind:model-value="item.name"
+                      v-on:update:model-value="changeTestResultName"
+                      @click.stop
+                  /></v-list-item-title>
+
                   <v-list-item-action v-if="editable">
                     <v-btn
                       v-if="!isEditing"
@@ -92,9 +82,7 @@
                     <v-btn
                       v-else
                       icon
-                      @click.stop="
-                        editTestResultName(item.id, newTestResultName)
-                      "
+                      @click.stop="editTestResultName(item.id, newTestResultName)"
                       :title="store.getters.message('test-result-list.edit')"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
@@ -106,59 +94,47 @@
 
               <v-list>
                 <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      store.getters.message("test-result-list.url")
-                    }}</v-list-item-title>
-                    <v-list-item-subtitle :title="item.initialUrl">
-                      {{ item.initialUrl }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
+                  <v-list-item-title>{{
+                    store.getters.message("test-result-list.url")
+                  }}</v-list-item-title>
+                  <v-list-item-subtitle :title="item.initialUrl">
+                    {{ item.initialUrl }}
+                  </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      store.getters.message("test-result-list.testing-time")
-                    }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ millisecondsToHHmmss(item.testingTime) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
+                  <v-list-item-title>{{
+                    store.getters.message("test-result-list.testing-time")
+                  }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ millisecondsToHHmmss(item.testingTime) }}
+                  </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item v-if="item.testPurposes.length > 0">
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      store.getters.message("test-result-list.test-purpose")
-                    }}</v-list-item-title>
-                    <v-list-item-subtitle
-                      v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
-                      :key="i"
-                    >
-                      <li :title="testPurpose.value" class="ellipsis">
-                        {{ testPurpose.value }}
-                      </li>
-                    </v-list-item-subtitle>
-                    <v-list-item-subtitle
-                      class="pl-5"
-                      v-if="item.testPurposes.length > 5"
-                      >… and more</v-list-item-subtitle
-                    >
-                  </v-list-item-content>
+                  <v-list-item-title>{{
+                    store.getters.message("test-result-list.test-purpose")
+                  }}</v-list-item-title>
+                  <v-list-item-subtitle
+                    v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
+                    :key="i"
+                  >
+                    <li :title="testPurpose.value" class="text-truncate">
+                      {{ testPurpose.value }}
+                    </li>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle class="pl-5" v-if="item.testPurposes.length > 5"
+                    >… and more</v-list-item-subtitle
+                  >
                 </v-list-item>
 
                 <v-list-item v-if="item.creationTimestamp > 0">
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      store.getters.message(
-                        "test-result-list.creation-timestamp"
-                      )
-                    }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ millisecondsToDateFormat(item.creationTimestamp) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
+                  <v-list-item-title>{{
+                    store.getters.message("test-result-list.creation-timestamp")
+                  }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ millisecondsToDateFormat(item.creationTimestamp) }}
+                  </v-list-item-subtitle>
                 </v-list-item>
               </v-list>
             </v-card>
@@ -184,11 +160,11 @@ export default defineComponent({
     items: {
       type: Array as PropType<TestResultSummary[]>,
       default: [],
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -205,8 +181,8 @@ export default defineComponent({
       return [
         {
           text: store.getters.message("test-result-list.name"),
-          value: "name",
-        },
+          value: "name"
+        }
       ];
     });
 
@@ -217,29 +193,21 @@ export default defineComponent({
     const updateCheckedTestResults = (): void => {
       const checkedTestResults = selectedTestResults.value.map(({ id }) => id);
       store.commit("operationHistory/setCheckedTestResults", {
-        checkedTestResults,
+        checkedTestResults
       });
     };
 
-    const editTestResultName = async (
-      testResultId: string,
-      testResultName: string
-    ) => {
+    const editTestResultName = async (testResultId: string, testResultName: string) => {
       if (isEditing.value) {
-        if (
-          newTestResultName.value !== "" &&
-          oldTestResultName.value !== testResultName
-        ) {
+        if (newTestResultName.value !== "" && oldTestResultName.value !== testResultName) {
           await store.dispatch("operationHistory/changeTestResultName", {
             testResultId,
-            testResultName,
+            testResultName
           });
-          const targetIndex = testResults.value.findIndex(
-            ({ id }) => id === testResultId
-          );
+          const targetIndex = testResults.value.findIndex(({ id }) => id === testResultId);
           testResults.value.splice(targetIndex, 1, {
             ...testResults.value[targetIndex],
-            name: testResultName,
+            name: testResultName
           });
           newTestResultName.value = "";
         }
@@ -283,9 +251,9 @@ export default defineComponent({
       changeTestResultName,
       millisecondsToHHmmss,
       millisecondsToDateFormat,
-      clickRowItem,
+      clickRowItem
     };
-  },
+  }
 });
 </script>
 

@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
 export class ExportConfigAction {
   constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "settingRepository" | "projectRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "settingRepository" | "projectRepository">
   ) {}
 
   public async exportSettings(): Promise<ActionResult<{ url: string }>> {
-    const result =
-      await this.repositoryService.settingRepository.exportSettings();
+    const result = await this.repositoryService.settingRepository.exportSettings();
 
     if (result.isFailure()) {
       return new ActionFailure({ messageKey: "" });

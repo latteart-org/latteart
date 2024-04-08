@@ -17,52 +17,49 @@
 <template>
   <div>
     <v-btn
-      fab
-      small
+      variant="elevated"
+      icon="arrow_back"
+      size="small"
       @click="browserBack"
       :disabled="isDisabled"
-      :title="store.getters.message('navigate.back')"
+      :title="$t('navigate.back')"
       class="mx-2"
     >
-      <v-icon dark>arrow_back</v-icon>
     </v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserBack.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const canDoBrowserBack = computed(() => {
-      return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateBack ?? false
-      );
+      return captureControlStore.captureSession?.canNavigateBack ?? false;
     });
 
     const browserBack = (): void => {
-      store.dispatch("captureControl/browserBack");
+      captureControlStore.browserBack();
     };
 
     return {
-      store,
+      t: rootStore.message,
       isDisabled,
-      browserBack,
+      browserBack
     };
-  },
+  }
 });
 </script>

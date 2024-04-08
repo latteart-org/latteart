@@ -14,37 +14,24 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
-const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.import_test_result_failed";
+const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY = "error.operation_history.import_test_result_failed";
 
 export class ImportTestResultAction {
-  constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "importTestResultRepository"
-    >
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "importTestResultRepository">) {}
 
   public async import(
     source: { testResultFile: { data: string; name: string } },
     dest?: { testResultId?: string }
   ): Promise<ActionResult<{ testResultId: string }>> {
     const postTestResultResult =
-      await this.repositoryService.importTestResultRepository.postTestResult(
-        source,
-        dest
-      );
+      await this.repositoryService.importTestResultRepository.postTestResult(source, dest);
 
     if (postTestResultResult.isFailure()) {
       return new ActionFailure({
-        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY
       });
     }
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import MermaidGraph from "../mermaidGraph/MermaidGraph";
+import type MermaidGraph from "../mermaidGraph/MermaidGraph";
 import TextUtil from "./TextUtil";
 import FlowChartGraphExtender from "../mermaidGraph/extender/FlowChartGraphExtender";
-import { GraphView, VideoFrame } from "latteart-client";
-import InputValueTable, { ScreenTransition } from "../InputValueTable";
+import { type GraphView, type VideoFrame } from "latteart-client";
+import InputValueTable, { type ScreenTransition } from "../InputValueTable";
 
 export type FlowChartGraphCallback = {
   onClickEdge: (edge: {
@@ -85,9 +85,7 @@ type GraphSource = {
  */
 export async function convertToScreenTransitionDiagramGraph(
   view: GraphView,
-  createFlowChartGraphExtender?: (
-    source: FlowChartGraphExtenderSource
-  ) => FlowChartGraphExtender
+  createFlowChartGraphExtender?: (source: FlowChartGraphExtenderSource) => FlowChartGraphExtender
 ): Promise<{ graph: MermaidGraph }> {
   const graphModel = extractGraphSources(view);
 
@@ -100,9 +98,7 @@ export async function convertToScreenTransitionDiagramGraph(
     )}"];`;
   });
   const graphTextLines = createGraphTextLines(edges);
-  const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join(
-    "\n"
-  );
+  const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join("\n");
 
   const graphExtender = createFlowChartGraphExtender
     ? createFlowChartGraphExtender({ edges, screens })
@@ -112,7 +108,7 @@ export async function convertToScreenTransitionDiagramGraph(
         },
         clearEvent: () => {
           /* nothing */
-        },
+        }
       };
 
   console.debug(graphText);
@@ -127,10 +123,7 @@ function extractGraphSources(view: GraphView): GraphSource {
     view.nodes
       .flatMap(({ testSteps }) =>
         testSteps.map(({ id, imageFileUrl, videoFrame, testResultId }) => {
-          const image =
-            imageFileUrl || videoFrame
-              ? { imageFileUrl, videoFrame }
-              : undefined;
+          const image = imageFileUrl || videoFrame ? { imageFileUrl, videoFrame } : undefined;
           return { id, image, testResultId };
         })
       )
@@ -145,35 +138,29 @@ function extractGraphSources(view: GraphView): GraphSource {
   );
 
   const filteredNodes = view.nodes.map((node) => {
-    const filteredTestSteps = node.testSteps.filter(
-      (testStep, index, array) => {
-        if (testStep.type === "open_window") {
-          return false;
-        }
-
-        if (
-          testStep.type === "switch_window" &&
-          index > 0 &&
-          array.at(index - 1)?.type === "open_window"
-        ) {
-          return false;
-        }
-
-        return true;
+    const filteredTestSteps = node.testSteps.filter((testStep, index, array) => {
+      if (testStep.type === "open_window") {
+        return false;
       }
-    );
+
+      if (
+        testStep.type === "switch_window" &&
+        index > 0 &&
+        array.at(index - 1)?.type === "open_window"
+      ) {
+        return false;
+      }
+
+      return true;
+    });
 
     return { ...node, testSteps: filteredTestSteps };
   });
 
   const screens = filteredNodes
     .map(({ screenId, testSteps }) => {
-      const testStep = testSteps.find(
-        ({ imageFileUrl, videoFrame }) => imageFileUrl || videoFrame
-      );
-      const sequenceAndImage = testStepIdToSequenceAndImage.get(
-        testStep?.id ?? ""
-      );
+      const testStep = testSteps.find(({ imageFileUrl, videoFrame }) => imageFileUrl || videoFrame);
+      const sequenceAndImage = testStepIdToSequenceAndImage.get(testStep?.id ?? "");
       const sequence = sequenceAndImage?.sequence ?? 0;
       const image = sequenceAndImage?.image;
       return { screenId, sequence, image };
@@ -223,15 +210,14 @@ function extractGraphSources(view: GraphView): GraphSource {
             ? {
                 xpath: targetElement.xpath,
                 text: targetElement.text,
-                iframe: targetElement.iframe,
+                iframe: targetElement.iframe
               }
             : undefined,
-          sequence:
-            testStepIdToSequenceAndImage.get(lastTestStep.id)?.sequence ?? 0,
+          sequence: testStepIdToSequenceAndImage.get(lastTestStep.id)?.sequence ?? 0,
           image: testStepIdToSequenceAndImage.get(lastTestStep.id)?.image,
           input: lastTestStep.input,
           pageUrl: lastTestStep.pageUrl,
-          pageTitle: lastTestStep.pageTitle,
+          pageTitle: lastTestStep.pageTitle
         }
       : undefined;
 
@@ -260,8 +246,8 @@ function extractGraphSources(view: GraphView): GraphSource {
         {
           ...element,
           defaultValue: value,
-          inputs,
-        },
+          inputs
+        }
       ];
     });
 
@@ -272,9 +258,10 @@ function extractGraphSources(view: GraphView): GraphSource {
           return [];
         }
         const sequenceAndImage = (() => {
-          const sequenceAndImage = testStepIdToSequenceAndImage.get(
-            testStep.id
-          ) ?? { sequence: 0, image: undefined };
+          const sequenceAndImage = testStepIdToSequenceAndImage.get(testStep.id) ?? {
+            sequence: 0,
+            image: undefined
+          };
 
           if (!note.imageFileUrl && !note.videoFrame) {
             return sequenceAndImage;
@@ -284,8 +271,8 @@ function extractGraphSources(view: GraphView): GraphSource {
             sequence: sequenceAndImage.sequence,
             image: {
               imageFileUrl: note.imageFileUrl,
-              videoFrame: note.videoFrame,
-            },
+              videoFrame: note.videoFrame
+            }
           };
         })();
 
@@ -294,8 +281,8 @@ function extractGraphSources(view: GraphView): GraphSource {
             ...note,
             ...sequenceAndImage,
             tags: note.tags ?? [],
-            testResultId: testStep.testResultId,
-          },
+            testResultId: testStep.testResultId
+          }
         ];
       });
     });
@@ -309,8 +296,8 @@ function extractGraphSources(view: GraphView): GraphSource {
         trigger,
         inputElements,
         notes,
-        testPurposes,
-      },
+        testPurposes
+      }
     ];
   });
 
@@ -341,7 +328,7 @@ function extractGraphSources(view: GraphView): GraphSource {
         sourceScreenId: detail.sourceScreen.id,
         destScreenId: detail.destScreen.id,
         trigger: detail.trigger,
-        details: [detail],
+        details: [detail]
       });
     }
 
@@ -350,12 +337,10 @@ function extractGraphSources(view: GraphView): GraphSource {
 
   return {
     screens: screens.map((screen) => {
-      const details = edgeDetails.filter(
-        ({ sourceScreen }) => sourceScreen.id === screen.id
-      );
+      const details = edgeDetails.filter(({ sourceScreen }) => sourceScreen.id === screen.id);
       return { ...screen, details };
     }),
-    edges,
+    edges
   };
 }
 

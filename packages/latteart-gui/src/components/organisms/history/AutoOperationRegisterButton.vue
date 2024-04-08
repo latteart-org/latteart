@@ -21,7 +21,7 @@
       color="blue"
       :dark="!isDisabled"
       @click="registerDialogOpened = true"
-      small
+      size="small"
       class="mx-2"
       >{{ store.getters.message("app.register-operation") }}
     </v-btn>
@@ -54,7 +54,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "auto-operation-register-dialog": AutoOperationRegisterDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup() {
     const store = useStore();
@@ -64,16 +64,15 @@ export default defineComponent({
     const errorMessage = ref("");
 
     const targetOperations = computed((): OperationForGUI[] => {
-      return (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).checkedOperations.map((item) => {
-        return item.operation;
-      });
+      return ((store.state as any).operationHistory as OperationHistoryState).checkedOperations.map(
+        (item) => {
+          return item.operation;
+        }
+      );
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isDisabled = computed((): boolean => {
@@ -102,8 +101,8 @@ export default defineComponent({
       targetOperations,
       isDisabled,
       clearCheckedOperations,
-      openInvalidTypeErrorDialog,
+      openInvalidTypeErrorDialog
     };
-  },
+  }
 });
 </script>
