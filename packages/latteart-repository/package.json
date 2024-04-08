@@ -45,7 +45,7 @@
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "tsoa": "^5.1.1",
-    "typeorm": "^0.2.37",
+    "typeorm": "^0.3.20",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.0"
   },
