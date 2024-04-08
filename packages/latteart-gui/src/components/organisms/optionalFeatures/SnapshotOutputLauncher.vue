@@ -16,13 +16,11 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{
-      store.getters.message("optional-features.snapshot-output.title")
-    }}</v-card-title>
+    <v-card-title>{{ $t("optional-features.snapshot-output.title") }}</v-card-title>
 
     <v-card-actions>
-      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="outputSnapshot">{{
-        store.getters.message("optional-features.snapshot-output.execute-button")
+      <v-btn variant="elevated" :disabled="disabled" color="primary" @click="outputSnapshot">{{
+        $t("optional-features.snapshot-output.execute-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -30,9 +28,9 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
-      :downloadMessage="store.getters.message('common.download-link')"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
+      :download-message="$t('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
     <error-message-dialog
@@ -46,9 +44,10 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { type TestMatrix } from "@/lib/testManagement/types";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
@@ -56,7 +55,8 @@ export default defineComponent({
     "error-message-dialog": ErrorMessageDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const downloadLinkDialogOpened = ref(false);
     const downloadLinkDialogTitle = ref("");
@@ -67,7 +67,7 @@ export default defineComponent({
     const errorMessage = ref("");
 
     const currentRepositoryUrl = computed(() => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl ?? "";
     });
 
     const disabled = computed(() => {
@@ -75,23 +75,23 @@ export default defineComponent({
     });
 
     const hasTestMatrix = computed((): boolean => {
-      const testMatrices: TestMatrix[] = store.getters["testManagement/getTestMatrices"]();
+      const testMatrices: TestMatrix[] = testManagementStore.getTestMatrices();
 
       return testMatrices.length > 0;
     });
 
     const outputSnapshot = () => {
       (async () => {
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message("manage-header.creating-snapshot")
+        rootStore.openProgressDialog({
+          message: rootStore.message("manage-header.creating-snapshot")
         });
 
         try {
-          const snapshotUrl = await store.dispatch("testManagement/writeSnapshot");
+          const snapshotUrl = await testManagementStore.writeSnapshot();
 
           downloadLinkDialogOpened.value = true;
-          downloadLinkDialogTitle.value = store.getters.message("manage-header.output-html");
-          downloadLinkDialogMessage.value = store.getters.message("manage.print-html-succeeded");
+          downloadLinkDialogTitle.value = rootStore.message("manage-header.output-html");
+          downloadLinkDialogMessage.value = rootStore.message("manage.print-html-succeeded");
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${snapshotUrl}`;
         } catch (error) {
@@ -102,13 +102,13 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
         }
       })();
     };
 
     return {
-      store,
+      t: rootStore.message,
       downloadLinkDialogOpened,
       downloadLinkDialogTitle,
       downloadLinkDialogMessage,

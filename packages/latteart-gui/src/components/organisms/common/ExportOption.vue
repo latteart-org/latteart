@@ -15,30 +15,30 @@
 -->
 <template>
   <v-card flat class="pa-0">
-    <v-container class="px-0" fluid id="export-option">
+    <v-container id="export-option" class="px-0" fluid>
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.project-data')"
         v-model="option.selectedOptionProject"
+        :label="$t('import-export-dialog.project-data')"
       />
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.testresult-data')"
         v-model="option.selectedOptionTestresult"
+        :label="$t('import-export-dialog.testresult-data')"
       />
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.config-data')"
         v-model="option.selectedOptionConfig"
+        :label="$t('import-export-dialog.config-data')"
       />
     </v-container>
   </v-card>
 </template>
 
 <script lang="ts">
+import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup(_, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const option = ref({
       selectedOptionProject: true,
@@ -53,7 +53,7 @@ export default defineComponent({
     watch(option, update, { deep: true });
 
     return {
-      store,
+      t: rootStore.message,
       option
     };
   }

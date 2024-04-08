@@ -16,17 +16,15 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{
-      store.getters.message("optional-features.project-import.title")
-    }}</v-card-title>
+    <v-card-title>{{ $t("optional-features.project-import.title") }}</v-card-title>
 
     <v-card-text>
       <import-option @update="updateOption" />
     </v-card-text>
 
     <v-card-actions>
-      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="importData">{{
-        store.getters.message("optional-features.project-import.execute-button")
+      <v-btn variant="elevated" :disabled="disabled" color="primary" @click="importData">{{
+        $t("optional-features.project-import.execute-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -51,7 +49,8 @@ import ImportOption from "@/components/organisms/common/ImportOption.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import { loadFileAsBase64 } from "@/lib/common/util";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
   components: {
@@ -60,7 +59,8 @@ export default defineComponent({
     "import-option": ImportOption
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const informationMessageDialogOpened = ref(false);
     const informationTitle = ref("");
@@ -110,8 +110,8 @@ export default defineComponent({
         return;
       }
 
-      store.dispatch("openProgressDialog", {
-        message: store.getters.message("import-export-dialog.importing-data")
+      rootStore.openProgressDialog({
+        message: rootStore.message("import-export-dialog.importing-data")
       });
 
       const targetFile = option.value.targetFile;
@@ -126,23 +126,21 @@ export default defineComponent({
           const projectFile = await loadFileAsBase64(targetFile);
 
           const source = { projectFile };
-          const { projectId, config } = await store.dispatch("testManagement/importData", {
+          const { projectId, config } = await testManagementStore.importData({
             source,
             option: importOption
           });
 
           if (projectId) {
-            await store.dispatch("testManagement/readProject");
+            await testManagementStore.readProject();
           }
           if (config) {
-            store.commit("setProjectSettings", { settings: config }, { root: true });
+            rootStore.setProjectSettings({ settings: config });
           }
 
           informationMessageDialogOpened.value = true;
-          informationTitle.value = store.getters.message(
-            "import-export-dialog.project-import-title"
-          );
-          informationMessage.value = store.getters.message(
+          informationTitle.value = rootStore.message("import-export-dialog.project-import-title");
+          informationMessage.value = rootStore.message(
             "import-export-dialog.import-data-succeeded",
             {
               returnName: projectFile.name
@@ -156,13 +154,13 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
         }
       }, 300);
     };
 
     return {
-      store,
+      t: rootStore.message,
       informationMessageDialogOpened,
       informationTitle,
       informationMessage,

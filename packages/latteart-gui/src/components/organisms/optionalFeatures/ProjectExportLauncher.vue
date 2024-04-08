@@ -16,17 +16,15 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{
-      store.getters.message("optional-features.project-export.title")
-    }}</v-card-title>
+    <v-card-title>{{ $t("optional-features.project-export.title") }}</v-card-title>
 
     <v-card-text>
       <export-option @update="updateOption" />
     </v-card-text>
 
     <v-card-actions>
-      <v-btn :disabled="disabled" :dark="!disabled" color="primary" @click="exportData">{{
-        store.getters.message("optional-features.project-export.execute-button")
+      <v-btn variant="elevated" :disabled="disabled" color="primary" @click="exportData">{{
+        $t("optional-features.project-export.execute-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -34,8 +32,8 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
 
@@ -51,8 +49,9 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExportOption from "@/components/organisms/common/ExportOption.vue";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
@@ -61,7 +60,8 @@ export default defineComponent({
     "export-option": ExportOption
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const downloadLinkDialogOpened = ref(false);
     const downloadLinkDialogTitle = ref("");
@@ -86,7 +86,7 @@ export default defineComponent({
     });
 
     const currentRepositoryUrl = computed(() => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl ?? "";
     });
 
     const updateOption = (updateOption: {
@@ -99,20 +99,20 @@ export default defineComponent({
 
     const exportData = () => {
       (async () => {
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message("import-export-dialog.creating-export-data")
+        rootStore.openProgressDialog({
+          message: rootStore.message("import-export-dialog.creating-export-data")
         });
 
         try {
-          const exportDataUrl = await store.dispatch("testManagement/exportData", {
+          const exportDataUrl = await testManagementStore.exportData({
             option: option.value
           });
 
           downloadLinkDialogOpened.value = true;
-          downloadLinkDialogTitle.value = store.getters.message(
+          downloadLinkDialogTitle.value = rootStore.message(
             "import-export-dialog.project-export-title"
           );
-          downloadLinkDialogMessage.value = store.getters.message(
+          downloadLinkDialogMessage.value = rootStore.message(
             "import-export-dialog.create-export-data-succeeded"
           );
           downloadLinkDialogAlertMessage.value = "";
@@ -125,13 +125,13 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
         }
       })();
     };
 
     return {
-      store,
+      t: rootStore.message,
       downloadLinkDialogOpened,
       downloadLinkDialogTitle,
       downloadLinkDialogMessage,

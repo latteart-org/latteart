@@ -54,28 +54,24 @@ import ProjectExportLauncher from "@/components/organisms/optionalFeatures/Proje
 import ProjectImportLauncher from "@/components/organisms/optionalFeatures/ProjectImportLauncher.vue";
 import SnapshotOutputLauncher from "@/components/organisms/optionalFeatures/SnapshotOutputLauncher.vue";
 import TestScriptGenerationlauncher from "@/components/organisms/optionalFeatures/TestScriptGenerationLauncher.vue";
+import { useRootStore } from "@/stores/root";
 import { defineComponent } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
     "snapshot-output-launcher": SnapshotOutputLauncher,
     "test-script-generation-launcher": TestScriptGenerationlauncher,
     "project-import-launcher": ProjectImportLauncher,
-    "project-export-launcher": ProjectExportLauncher,
+    "project-export-launcher": ProjectExportLauncher
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
     const route = useRoute();
 
-    store.dispatch("changeWindowTitle", {
-      title: store.getters.message(route.meta?.title ?? ""),
+    rootStore.changeWindowTitle({
+      title: rootStore.message(route.meta?.title ?? "")
     });
-
-    return {
-      store,
-    };
-  },
+  }
 });
 </script>

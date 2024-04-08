@@ -16,6 +16,7 @@
 
 import PageFrame from "@/components/pages/PageFrame.vue";
 import RootPage from "@/components/pages/RootPage.vue";
+import OptionalFeaturesPage from "@/components/pages/optionalFeatures/OptionalFeaturesPage.vue";
 import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
@@ -81,6 +82,11 @@ const defaultRoutes = [
             name: "qualityManagementPage",
             component: QualityManagementPage,
             meta: { title: "quality-management.title" }
+          },
+          {
+            path: "optional-features",
+            component: OptionalFeaturesPage,
+            meta: { title: "optional-features.title" }
           }
         ]
       }

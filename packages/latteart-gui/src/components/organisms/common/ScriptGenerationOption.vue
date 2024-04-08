@@ -16,12 +16,12 @@
 <template>
   <v-card flat class="pa-0">
     <v-checkbox
-      :label="$t('test-result-page.generate-simple-testscript')"
       v-model="testGenerationOption.testScript.isSimple"
+      :label="$t('test-result-page.generate-simple-testscript')"
     >
     </v-checkbox>
     <v-checkbox v-model="testGenerationOption.testScript.useMultiLocator" class="mt-0">
-      <template v-slot:label>
+      <template #label>
         <div>
           {{ $t("test-result-page.use-multi-locator1") }}
           <a href="https://github.com/latteart-org/multi-locator" target="_blank" @click.stop
@@ -30,7 +30,7 @@
         </div>
       </template>
     </v-checkbox>
-    <v-container fluid class="pa-1" fill-height id="simple-test-script-generation">
+    <v-container id="simple-test-script-generation" fluid class="pa-1" fill-height>
       <v-row>
         <v-col cols="12" class="pb-2">
           <p
@@ -53,7 +53,7 @@
           >
             {{ $t("test-result-page.custom-button-tags") }}
             <v-tooltip location="top">
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <v-icon size="15" v-bind="props" class="icon-info">info</v-icon>
               </template>
               <span>{{
@@ -65,19 +65,19 @@
           </span>
 
           <v-combobox
-            :items="customButtonCandidateTags"
             v-model:search-input="search"
             v-model="testGenerationOption.customButtonTags"
+            :items="customButtonCandidateTags"
             :class="{ 'pt-0': true, 'mt-0': true }"
             multiple
             hide-selected
             closable-chips
             append-icon="refresh"
+            :disabled="testGenerationOption.testScript.isSimple"
             @click:append="resetCustomButtonTags"
             @update:model-value="clearSearchText"
-            :disabled="testGenerationOption.testScript.isSimple"
           >
-            <template v-slot:no-data>
+            <template #no-data>
               <v-list-item v-if="search">
                 <v-list-item-title>
                   No results matching "<strong>{{ search }}</strong
@@ -89,7 +89,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-container fluid class="pa-1" fill-height id="max-test-data-generation">
+    <v-container id="max-test-data-generation" fluid class="pa-1" fill-height>
       <v-row>
         <v-col cols="12" class="pb-2">
           <p
@@ -103,22 +103,22 @@
         </v-col>
         <v-col cols="12" class="pl-2">
           <v-checkbox
+            v-model="testGenerationOption.testData.useDataDriven"
             :label="$t('test-result-page.method-data-driven')"
             :disabled="testGenerationOption.testScript.isSimple"
-            v-model="testGenerationOption.testData.useDataDriven"
           >
           </v-checkbox>
         </v-col>
         <v-col cols="12" class="pl-2">
           <number-field
             :value="testGenerationOption.testData.maxGeneration"
-            @updateNumberFieldValue="updateMaxGeneration"
             :label="$t('test-result-page.max-generation')"
             :disabled="
               !testGenerationOption.testData.useDataDriven ||
               testGenerationOption.testScript.isSimple
             "
-            :minValue="0"
+            :min-value="0"
+            @update-number-field-value="updateMaxGeneration"
           >
           </number-field>
         </v-col>
