@@ -14,13 +14,44 @@
  * limitations under the License.
  */
 
+import PageFrame from "@/components/pages/PageFrame.vue";
 import ViewerRootPage from "@/components/pages/ViewerRootPage.vue";
+import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
+import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
+import TestMatrixPage from "@/components/pages/testMatrix/TestMatrixPage.vue";
 
 const snapshotRoutes = [
   {
     path: "/",
     name: "root",
-    component: ViewerRootPage
+    component: ViewerRootPage,
+    children: [
+      {
+        path: "page",
+        name: "pageFrame",
+        component: PageFrame,
+        children: [
+          {
+            path: "test-matrix",
+            name: "testMatrixPage",
+            component: TestMatrixPage,
+            meta: { title: "manage-header.top" }
+          },
+          {
+            path: "progress-management",
+            name: "progressManagementPage",
+            component: ProgressManagementPage,
+            meta: { title: "progress-management.title" }
+          },
+          {
+            path: "quality-management",
+            name: "qualityManagementPage",
+            component: QualityManagementPage,
+            meta: { title: "quality-management.title" }
+          }
+        ]
+      }
+    ]
   }
 ];
 

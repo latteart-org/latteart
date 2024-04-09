@@ -20,24 +20,21 @@
       <v-card flat height="100%">
         <v-card-text>
           <v-data-table
+            v-model="checkedItemIds"
             :show-select="!isViewerMode"
             :headers="headers"
             :items="storyItems"
             :items-per-page="10"
-            v-model="checkedItems"
-            item-key="sequence"
+            item-value="id"
           >
-            <template v-slot:top>
-              <v-card class="mb-4 pa-4" outlined>
+            <template #top>
+              <v-card class="mb-4 pa-4" variant="outlined">
                 <v-container fluid>
                   <span style="color: rgba(0, 0, 0, 0.6)"
-                    ><v-icon>filter_list_alt</v-icon
-                    >{{
-                      store.getters.message("stories-review-page.filter")
-                    }}</span
+                    ><v-icon>filter_list_alt</v-icon>{{ $t("stories-review-page.filter") }}</span
                   >
-                  <v-btn @click="filterClear" class="ml-4">{{
-                    store.getters.message("stories-review-page.clear")
+                  <v-btn variant="elevated" class="ml-4" @click="filterClear">{{
+                    $t("stories-review-page.clear")
                   }}</v-btn>
                   <v-row>
                     <v-col cols="3">
@@ -45,11 +42,7 @@
                         <v-text-field
                           v-model="testMatrixFilterValue"
                           type="text"
-                          :label="
-                            store.getters.message(
-                              'stories-review-page.test-matrix'
-                            )
-                          "
+                          :label="$t('stories-review-page.test-matrix')"
                           hide-details
                         >
                         </v-text-field>
@@ -61,9 +54,7 @@
                         <v-text-field
                           v-model="groupFilterValue"
                           type="text"
-                          :label="
-                            store.getters.message('stories-review-page.group')
-                          "
+                          :label="$t('stories-review-page.group')"
                           hide-details
                         >
                         </v-text-field>
@@ -75,11 +66,7 @@
                         <v-text-field
                           v-model="testTargetFilterValue"
                           type="text"
-                          :label="
-                            store.getters.message(
-                              'stories-review-page.test-target'
-                            )
-                          "
+                          :label="$t('stories-review-page.test-target')"
                           hide-details
                         >
                         </v-text-field>
@@ -91,11 +78,7 @@
                         <v-text-field
                           v-model="viewPointFilterValue"
                           type="text"
-                          :label="
-                            store.getters.message(
-                              'stories-review-page.view-point'
-                            )
-                          "
+                          :label="$t('stories-review-page.view-point')"
                           hide-details
                         >
                         </v-text-field>
@@ -106,22 +89,22 @@
               </v-card>
             </template>
 
-            <template v-slot:[`item.testMatrix.name`]="{ item }">
+            <template #[`item.testMatrix.name`]="{ item }">
               <td :title="item.testMatrix.name">
                 {{ item.testMatrix.name.substring(0, 60) }}
               </td>
             </template>
-            <template v-slot:[`item.group.name`]="{ item }">
+            <template #[`item.group.name`]="{ item }">
               <td :title="item.group.name">
                 {{ item.group.name.substring(0, 60) }}
               </td>
             </template>
-            <template v-slot:[`item.testTarget.name`]="{ item }">
+            <template #[`item.testTarget.name`]="{ item }">
               <td :title="item.testTarget.name">
                 {{ item.testTarget.name.substring(0, 60) }}
               </td>
             </template>
-            <template v-slot:[`item.viewPoint.name`]="{ item }">
+            <template #[`item.viewPoint.name`]="{ item }">
               <td :title="item.viewPoint.name">
                 {{ item.viewPoint.name.substring(0, 60) }}
               </td>
@@ -130,19 +113,15 @@
         </v-card-text>
 
         <v-card-actions>
-          <test-result-load-trigger
-            v-if="!isViewerMode"
-            :testResultIds="targetTestResultIds"
-          >
-            <template v-slot:activator="{ on }">
+          <test-result-load-trigger v-if="!isViewerMode" :test-result-ids="targetTestResultIds">
+            <template #activator="{ on }">
               <v-btn
-                @click="review(on)"
-                :disabled="checkedItems.length === 0"
+                variant="elevated"
+                :disabled="checkedItemIds.length === 0"
                 color="primary"
                 class="ma-1"
-                >{{
-                  store.getters.message("stories-review-page.do-review")
-                }}</v-btn
+                @click="review(on)"
+                >{{ $t("stories-review-page.do-review") }}</v-btn
               >
             </template>
           </test-result-load-trigger>
@@ -159,20 +138,22 @@
 
 <script lang="ts">
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
+import { type Story, type TestMatrix } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 import { computed, defineComponent, ref, inject } from "vue";
-import { useStore } from "@/store";
-import { useRoute, useRouter } from "vue-router/composables";
+import { useRoute, useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "test-result-load-trigger": TestResultLoadTrigger,
+    "test-result-load-trigger": TestResultLoadTrigger
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
     const router = useRouter();
 
@@ -186,74 +167,62 @@ export default defineComponent({
 
     const isViewerMode = inject("isViewerMode") ?? false;
 
-    const checkedItems = ref<
-      {
-        sequence: number;
-        testMatrix: { id: string; name: string };
-        group: { id: string; name: string };
-        testTarget: { id: string; name: string };
-        viewPoint: { id: string; name: string };
-      }[]
-    >([]);
+    const checkedItemIds = ref<string[]>([]);
 
     const headers = computed(() => {
       return [
         {
-          text: store.getters.message("stories-review-page.test-matrix"),
+          title: rootStore.message("stories-review-page.test-matrix"),
           value: "testMatrix.name",
-          filter: testMatrixFilter,
+          filter: testMatrixFilter
         },
         {
-          text: store.getters.message("stories-review-page.group"),
+          title: rootStore.message("stories-review-page.group"),
           value: "group.name",
-          filter: groupFilter,
+          filter: groupFilter
         },
         {
-          text: store.getters.message("stories-review-page.test-target"),
+          title: rootStore.message("stories-review-page.test-target"),
           value: "testTarget.name",
-          filter: testTargetFilter,
+          filter: testTargetFilter
         },
         {
-          text: store.getters.message("stories-review-page.view-point"),
+          title: rootStore.message("stories-review-page.view-point"),
           value: "viewPoint.name",
-          filter: viewPointFilter,
-        },
+          filter: viewPointFilter
+        }
       ];
     });
 
     const storyItems = computed(() => {
-      let sequence = 0;
       return testMatrices.value
         .flatMap((matrix) => {
           return matrix.groups.flatMap((group) => {
             return group.testTargets.flatMap((target) => {
               return target.plans.map((plan) => {
-                sequence = sequence + 1;
                 return {
-                  sequence,
+                  id: `${matrix.id}_${group.id}_${target.id}_${plan.viewPointId}`,
                   testMatrix: { id: matrix.id, name: matrix.name },
                   group: { id: group.id, name: group.name },
                   testTarget: { id: target.id, name: target.name },
                   viewPoint: {
                     id: plan.viewPointId,
-                    name: getViewPointName(plan.viewPointId),
-                  },
+                    name: getViewPointName(plan.viewPointId)
+                  }
                 };
               });
             });
           });
         })
-        .filter((story) =>
-          hasTestResult(story.viewPoint.id, story.testTarget.id)
-        );
+        .filter((story) => hasTestResult(story.viewPoint.id, story.testTarget.id));
     });
 
     const testMatrices = computed((): TestMatrix[] => {
-      return store.getters["testManagement/getTestMatrices"]();
+      return testManagementStore.getTestMatrices();
     });
 
     const stories = computed((): Story[] => {
-      return store.getters["testManagement/getStories"]();
+      return testManagementStore.getStories();
     });
 
     const viewPoints = computed(() => {
@@ -296,15 +265,9 @@ export default defineComponent({
       return viewPoint.includes(viewPointFilterValue.value);
     };
 
-    const hasTestResult = (
-      viewPointId: string,
-      testTargetId: string
-    ): boolean => {
+    const hasTestResult = (viewPointId: string, testTargetId: string): boolean => {
       const target = stories.value.find((story) => {
-        return (
-          story.viewPointId === viewPointId &&
-          story.testTargetId === testTargetId
-        );
+        return story.viewPointId === viewPointId && story.testTargetId === testTargetId;
       });
       if (!target) {
         return false;
@@ -322,18 +285,23 @@ export default defineComponent({
     };
 
     const targetTestResultIds = computed(() => {
-      const targetStories: Story[] = checkedItems.value.map(
-        ({ testTarget, viewPoint, testMatrix }) => {
-          return store.getters[
-            "testManagement/findStoryByTestTargetAndViewPointId"
-          ](testTarget.id, viewPoint.id, testMatrix.id);
-        }
-      );
+      const targetStories: Story[] = checkedItemIds.value.flatMap((id) => {
+        const storyItem = storyItems.value.find((item) => item.id === id);
 
-      return (
-        StoryService.collectTestResultIdsFromSession(targetStories)
-          ?.testResultIds ?? []
-      );
+        if (!storyItem) {
+          return [];
+        }
+
+        return [
+          testManagementStore.findStoryByTestTargetAndViewPointId(
+            storyItem.testTarget.id,
+            storyItem.viewPoint.id,
+            storyItem.testMatrix.id
+          )
+        ];
+      });
+
+      return StoryService.collectTestResultIdsFromSession(targetStories)?.testResultIds ?? [];
     });
 
     const review = async (loadTestResults: () => Promise<void>) => {
@@ -347,13 +315,13 @@ export default defineComponent({
     };
 
     (async () => {
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
     })();
 
     return {
-      store,
+      t: rootStore.message,
       testMatrixFilterValue,
       groupFilterValue,
       testTargetFilterValue,
@@ -361,14 +329,14 @@ export default defineComponent({
       errorMessageDialogOpened,
       errorMessage,
       isViewerMode,
-      checkedItems,
+      checkedItemIds,
       headers,
       storyItems,
       filterClear,
       targetTestResultIds,
-      review,
+      review
     };
-  },
+  }
 });
 </script>
 <style lang="sass" scoped>
