@@ -16,8 +16,8 @@
 
 <template>
   <div>
-    <test-result-load-trigger :testResultIds="testResultIds">
-      <template v-slot:activator="{ on }">
+    <test-result-load-trigger :test-result-ids="testResultIds">
+      <template #activator="{ on }">
         <v-btn
           v-if="story.sessions.length > 0"
           :disabled="disabled"
@@ -40,6 +40,9 @@ import { useRouter } from "vue-router";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "test-result-load-trigger": TestResultLoadTrigger
+  },
   props: {
     story: {
       type: Object as PropType<Story>,
@@ -53,9 +56,6 @@ export default defineComponent({
     },
     disabled: { type: Boolean, default: false, required: true }
   },
-  components: {
-    "test-result-load-trigger": TestResultLoadTrigger
-  },
   setup(props) {
     const rootStore = useRootStore();
     const testManagementStore = useTestManagementStore();
@@ -67,7 +67,7 @@ export default defineComponent({
       testManagementStore.setTempStory({ story: props.story });
 
       router.push({
-        path: `../review`,
+        name: "reviewPage",
         query: { sessionIds: props.sessionIds }
       });
     };

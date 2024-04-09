@@ -27,6 +27,7 @@ import TestResultPage from "@/components/pages/testResult/TestResultPage.vue";
 import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
 import { useTestManagementStore } from "@/stores/testManagement";
 import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
+import ReviewPage from "@/components/pages/review/ReviewPage.vue";
 
 const defaultRoutes = [
   {
@@ -48,6 +49,27 @@ const defaultRoutes = [
 
           testManagementStore.setRecentReviewQuery({
             query: null
+          });
+          next();
+        }
+      },
+      {
+        path: "review",
+        name: "reviewPage",
+        component: ReviewPage,
+        meta: { title: "manager-history-view.review" },
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
+          const testManagementStore = useTestManagementStore();
+
+          testManagementStore.setRecentReviewQuery({
+            query: {
+              sessionIds: to.query.sessionIds as string[],
+              testResultIds: to.query.testResultIds as string[]
+            }
           });
           next();
         }

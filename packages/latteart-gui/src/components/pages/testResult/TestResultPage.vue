@@ -28,14 +28,14 @@
       }"
     >
       <v-row class="fill-height">
-        <!-- <history-display
+        <history-display
           :locale="locale"
-          :changeWindowTitle="changeWindowTitle"
-          :rawHistory="history"
+          :change-window-title="changeWindowTitle"
+          :raw-history="history"
           :message="messageProvider"
-          scriptGenerationEnabled
-          operationContextEnabled
-        ></history-display> -->
+          script-generation-enabled
+          operation-context-enabled
+        ></history-display>
       </v-row>
     </v-container>
 
@@ -50,7 +50,7 @@
 
 <script lang="ts">
 import { type OperationHistory, type MessageProvider } from "@/lib/operationHistory/types";
-// import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
+import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import TestResultHeader from "@/components/organisms/testResult/TestResultHeader.vue";
 import TestResultFooter from "@/components/organisms/testResult/TestResultFooter.vue";
 import AutofillSelectDialog from "@/components/organisms/dialog/AutofillSelectDialog.vue";
@@ -64,7 +64,7 @@ export default defineComponent({
   components: {
     "test-result-header": TestResultHeader,
     "test-result-footer": TestResultFooter,
-    // "history-display": HistoryDisplay,
+    "history-display": HistoryDisplay,
     "autofill-select-dialog": AutofillSelectDialog,
     "completion-dialog": CompletionDialog
   },

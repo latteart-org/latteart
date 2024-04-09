@@ -18,7 +18,10 @@ import PageFrame from "@/components/pages/PageFrame.vue";
 import ViewerRootPage from "@/components/pages/ViewerRootPage.vue";
 import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
+import SnapshotReviewPage from "@/components/pages/review/SnapshotReviewPage.vue";
 import TestMatrixPage from "@/components/pages/testMatrix/TestMatrixPage.vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 
 const snapshotRoutes = [
   {
@@ -26,6 +29,27 @@ const snapshotRoutes = [
     name: "root",
     component: ViewerRootPage,
     children: [
+      {
+        path: "review",
+        name: "reviewPage",
+        component: SnapshotReviewPage,
+        meta: { title: "manager-history-view.review" },
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
+          const testManagementStore = useTestManagementStore();
+
+          testManagementStore.setRecentReviewQuery({
+            query: {
+              sessionIds: to.query.sessionIds as string[],
+              testResultIds: to.query.testResultIds as string[]
+            }
+          });
+          next();
+        }
+      },
       {
         path: "page",
         name: "pageFrame",
