@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('start-capture-page.title')"
+    :title="$t('start-capture-page.title')"
     @accept="
       execute();
       close();
@@ -24,18 +24,16 @@
     @cancel="close()"
     :acceptButtonDisabled="isOkButtonDisabled"
   >
-    <template>
-      <capture-option v-if="isOptionDisplayed" @update="updateOption" />
-    </template>
+    <capture-option v-if="isOptionDisplayed" @update="updateOption" />
   </execute-dialog>
 </template>
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -46,7 +44,7 @@ export default defineComponent({
     "capture-option": CaptureOption
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const isOptionDisplayed = ref<boolean>(false);
     const captureOption = ref<CaptureOptionParams>({
@@ -100,7 +98,7 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      store,
+      t: rootStore.message,
       isOptionDisplayed,
       updateOption,
       isOkButtonDisabled,

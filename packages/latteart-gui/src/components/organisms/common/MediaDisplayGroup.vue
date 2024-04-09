@@ -24,20 +24,12 @@
       v-if="imageFileUrl || videoUrl"
     >
       <v-radio
-        :label="
-          message
-            ? message('media-display-group.image')
-            : store.getters.message('media-display-group.image')
-        "
+        :label="message ? message('media-display-group.image') : $t('media-display-group.image')"
         value="image"
         :disabled="!imageFileUrl"
       ></v-radio>
       <v-radio
-        :label="
-          message
-            ? message('media-display-group.video')
-            : store.getters.message('media-display-group.video')
-        "
+        :label="message ? message('media-display-group.video') : $t('media-display-group.video')"
         value="video"
         :disabled="!videoUrl"
       ></v-radio>
@@ -51,10 +43,9 @@
 <script lang="ts">
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
-import { MessageProvider } from "@/lib/operationHistory/types";
-import { defineComponent, ref } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { type MessageProvider } from "@/lib/operationHistory/types";
+import { useRootStore } from "@/stores/root";
+import { defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -67,14 +58,14 @@ export default defineComponent({
     "video-display": VideoDisplay
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const mediaType = ref<"image" | "video">("image");
 
     mediaType.value = props.imageFileUrl ? "image" : "video";
 
     return {
-      store,
+      t: rootStore.message,
       mediaType
     };
   }

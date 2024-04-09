@@ -24,23 +24,17 @@
       v-model="selectedTestResults"
       :headers="headers"
       :items="testResults"
-      item-key="id"
+      item-value="id"
       :show-select="deletable"
-      hide-default-footer
-      :items-per-page="-1"
+      items-per-page="-1"
       :search="search"
       height="calc(100% - 64px)"
       :style="{ height: '100%', width: '100%' }"
       fixed-header
     >
       <template v-slot:[`item.name`]="{ item }">
-        <td
-          :class="{ ellipsis: true }"
-          :style="{ 'max-width': 0 }"
-          @click="clickRowItem(item.id, item.name)"
-          v-ripple
-        >
-          <v-menu rounded="lg" offset-x open-on-hover>
+        <td :class="{ ellipsis: true }" @click="clickRowItem(item.id, item.name)" v-ripple>
+          <v-menu location="start" open-on-hover>
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
@@ -50,7 +44,7 @@
                   'align-items': 'center',
                   cursor: 'pointer'
                 }"
-                :title="store.getters.message('test-result-list.load')"
+                :title="$t('test-result-list.load')"
               >
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
                   {{ item.name }}
@@ -76,14 +70,14 @@
                       v-if="!isEditing"
                       icon
                       @click.stop="editTestResultName(item.id, item.name)"
-                      :title="store.getters.message('test-result-list.edit')"
+                      :title="$t('test-result-list.edit')"
                       ><v-icon>edit</v-icon></v-btn
                     >
                     <v-btn
                       v-else
                       icon
                       @click.stop="editTestResultName(item.id, newTestResultName)"
-                      :title="store.getters.message('test-result-list.edit')"
+                      :title="$t('test-result-list.edit')"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>
@@ -94,27 +88,21 @@
 
               <v-list>
                 <v-list-item>
-                  <v-list-item-title>{{
-                    store.getters.message("test-result-list.url")
-                  }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("test-result-list.url") }}</v-list-item-title>
                   <v-list-item-subtitle :title="item.initialUrl">
                     {{ item.initialUrl }}
                   </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item>
-                  <v-list-item-title>{{
-                    store.getters.message("test-result-list.testing-time")
-                  }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("test-result-list.testing-time") }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ millisecondsToHHmmss(item.testingTime) }}
                   </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item v-if="item.testPurposes.length > 0">
-                  <v-list-item-title>{{
-                    store.getters.message("test-result-list.test-purpose")
-                  }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("test-result-list.test-purpose") }}</v-list-item-title>
                   <v-list-item-subtitle
                     v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
                     :key="i"
@@ -130,7 +118,7 @@
 
                 <v-list-item v-if="item.creationTimestamp > 0">
                   <v-list-item-title>{{
-                    store.getters.message("test-result-list.creation-timestamp")
+                    $t("test-result-list.creation-timestamp")
                   }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ millisecondsToDateFormat(item.creationTimestamp) }}
@@ -141,17 +129,17 @@
           </v-menu>
         </td>
       </template>
+      <template #bottom />
     </v-data-table>
   </v-card>
 </template>
 
 <script lang="ts">
 import { formatDateTime, formatTime } from "@/lib/common/Timestamp";
-import { TestResultSummary } from "@/lib/operationHistory/types";
-import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { type TestResultSummary } from "@/lib/operationHistory/types";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -159,15 +147,13 @@ export default defineComponent({
     editable: { type: Boolean, default: false },
     items: {
       type: Array as PropType<TestResultSummary[]>,
-      default: [],
+      default: () => [],
       required: true
     }
   },
-  components: {
-    "error-message-dialog": ErrorMessageDialog
-  },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const selectedTestResults = ref<TestResultSummary[]>([]);
     const search = ref("");
@@ -180,7 +166,7 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: store.getters.message("test-result-list.name"),
+          title: rootStore.message("test-result-list.name"),
           value: "name"
         }
       ];
@@ -192,15 +178,13 @@ export default defineComponent({
 
     const updateCheckedTestResults = (): void => {
       const checkedTestResults = selectedTestResults.value.map(({ id }) => id);
-      store.commit("operationHistory/setCheckedTestResults", {
-        checkedTestResults
-      });
+      operationHistoryStore.checkedTestResults = checkedTestResults;
     };
 
     const editTestResultName = async (testResultId: string, testResultName: string) => {
       if (isEditing.value) {
         if (newTestResultName.value !== "" && oldTestResultName.value !== testResultName) {
-          await store.dispatch("operationHistory/changeTestResultName", {
+          await operationHistoryStore.changeTestResultName({
             testResultId,
             testResultName
           });
@@ -240,7 +224,7 @@ export default defineComponent({
     watch(selectedTestResults, updateCheckedTestResults);
 
     return {
-      store,
+      t: rootStore.message,
       selectedTestResults,
       search,
       isEditing,

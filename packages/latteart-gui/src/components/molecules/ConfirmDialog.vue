@@ -34,8 +34,7 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { defineComponent } from "vue";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {

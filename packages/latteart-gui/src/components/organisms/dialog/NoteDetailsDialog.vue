@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('note-details-dialog.details')"
+    :title="$t('note-details-dialog.details')"
     @accept="
       execute();
       close();
@@ -25,67 +25,29 @@
     @cancel="close()"
     :acceptButtonDisabled="isViewerMode"
   >
-    <template>
-      <v-list class="note-details-dialog">
-        <v-list-item>
-          <v-list-item-title>{{
-            store.getters.message("note-details-dialog.summary")
-          }}</v-list-item-title>
-          <p class="break-all">{{ summary }}</p>
-        </v-list-item>
+    <v-list class="note-details-dialog">
+      <v-list-item>
+        <v-list-item-title>{{ $t("note-details-dialog.summary") }}</v-list-item-title>
+        <p class="break-all">{{ summary }}</p>
+      </v-list-item>
 
-        <v-list-item>
-          <v-list-item-title>{{
-            store.getters.message("note-details-dialog.details")
-          }}</v-list-item-title>
-          <p class="break-all pre-wrap">{{ details }}</p>
-        </v-list-item>
+      <v-list-item>
+        <v-list-item-title>{{ $t("note-details-dialog.details") }}</v-list-item-title>
+        <p class="break-all pre-wrap">{{ details }}</p>
+      </v-list-item>
 
-        <v-list-item class="mb-2">
-          <v-list-item-title>{{
-            store.getters.message("note-details-dialog.tags")
-          }}</v-list-item-title>
-          <v-combobox
-            v-model="newTags"
-            :hide-no-data="!search"
-            :items="tagsItem"
-            v-model:search-input="search"
-            hide-selected
-            hide-details
-            multiple
-            small-chips
-            :readonly="isViewerMode"
-          >
-            <template v-slot:no-data>
-              <v-list-item>
-                <v-list-item-title>
-                  No results matching "<strong>{{ search }}</strong
-                  >". Press <kbd>enter</kbd> to create a new one
-                </v-list-item-title>
-              </v-list-item>
-            </template>
-            <template v-slot:selection="{ attrs, item, parent, selected }">
-              <v-chip
-                v-if="item === Object(item)"
-                v-bind="attrs"
-                :color="item.color"
-                :model-value="selected"
-                size="small"
-              >
-                <span class="pr-2">{{ item.text }} </span>
-                <v-icon size="small" @click="parent.selectItem(item)">$delete</v-icon>
-              </v-chip>
-            </template>
-          </v-combobox>
-        </v-list-item>
+      <v-list-item class="mb-2">
+        <v-list-item-title>{{ $t("note-details-dialog.tags") }}</v-list-item-title>
+        <note-tag-select-box v-model="newTags" :readonly="isViewerMode" />
+      </v-list-item>
 
-        <media-display-group
-          v-if="isMediaDisplayed"
-          :imageFileUrl="imageFilePath"
-          :videoUrl="videoUrl"
-        />
-      </v-list>
-    </template>
+      <media-display-group
+        v-if="isMediaDisplayed"
+        :imageFileUrl="imageFilePath"
+        :videoUrl="videoUrl"
+      />
+    </v-list>
+
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -96,12 +58,13 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { NoteTagItem, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
-import { defineComponent, ref, toRefs, watch, inject, nextTick } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { defineComponent, ref, toRefs, watch, inject, nextTick, type PropType } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRootStore } from "@/stores/root";
+import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
   props: {
@@ -112,7 +75,7 @@ export default defineComponent({
     details: { type: String, default: "", required: true },
     tags: {
       type: Array as PropType<string[]>,
-      default: [],
+      default: () => [],
       required: true
     },
     imageFilePath: { type: String, default: "", required: true },
@@ -121,19 +84,21 @@ export default defineComponent({
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "media-display-group": MediaDisplayGroup
+    "media-display-group": MediaDisplayGroup,
+    "note-tag-select-box": NoteTagSelectBox
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
     const search = ref(null);
-    const newTags = ref<NoteTagItem[]>([]);
+    const newTags = ref<string[]>([]);
     const tagsItem = ref(noteTagPreset.items);
 
-    const isViewerMode = inject("isViewerMode") ?? false;
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const isMediaDisplayed = ref<boolean>(false);
 
@@ -141,17 +106,7 @@ export default defineComponent({
       if (!props.opened) {
         return;
       }
-      newTags.value = props.tags.map((tag) => {
-        const targetTagItem = tagsItem.value.find((item) => item.text === tag);
-        if (targetTagItem) {
-          return targetTagItem;
-        }
-
-        return {
-          text: tag,
-          color: "#E0E0E0"
-        };
-      });
+      newTags.value = props.tags;
 
       isMediaDisplayed.value = false;
       nextTick(() => {
@@ -159,31 +114,14 @@ export default defineComponent({
       });
     };
 
-    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
-      if (val.length === prev.length) return;
-
-      newTags.value = val.map((v) => {
-        if (typeof v === "string") {
-          v = {
-            text: v,
-            color: "#E0E0E0"
-          };
-
-          newTags.value.push(v);
-        }
-
-        return v;
-      });
-    };
-
     const execute = async () => {
       try {
-        await store.dispatch("testManagement/updateNotes", {
+        await testManagementStore.updateNotes({
           testResultId: props.testResultId,
           noteId: props.noteId,
           value: props.summary,
           details: props.details,
-          tags: newTags.value.map((tag) => tag.text)
+          tags: newTags.value.map((tag) => tag)
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -203,10 +141,9 @@ export default defineComponent({
 
     const { opened } = toRefs(props);
     watch(opened, initialize);
-    watch(newTags, changeTags);
 
     return {
-      store,
+      t: rootStore.message,
       errorMessageDialogOpened,
       errorMessage,
       search,

@@ -15,64 +15,64 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
-    <v-container fluid pa-0 class="align-self-start">
+  <v-container fluid class="fill-height pa-8" style="overflow-y: scroll">
+    <v-container fluid class="align-self-start pa-0">
       <v-row v-if="story">
         <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.test-matrix')"
-            :value="testMatrixName"
+            :label="$t('story-page.test-matrix')"
+            :model-value="testMatrixName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.group')"
-            :value="groupName"
+            :label="$t('story-page.group')"
+            :model-value="groupName"
           ></v-text-field>
         </v-col>
         <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.test-target')"
-            :value="testTargetName"
+            :label="$t('story-page.test-target')"
+            :model-value="testTargetName"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.viewPoint')"
-            :value="viewPointName"
+            :label="$t('story-page.viewPoint')"
+            :model-value="viewPointName"
           ></v-text-field>
           <v-select
             class="pt-0"
             :items="statuses"
-            item-text="text"
+            item-title="text"
             item-value="value"
-            :value="story.status"
-            :label="store.getters.message('story-page.status')"
+            :model-value="story.status"
+            :label="$t('story-page.status')"
             :readonly="isViewerMode"
-            @change="updateStatus"
+            @update:model-value="updateStatus"
           ></v-select>
         </v-col>
         <v-col cols="3">
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.planned-session')"
-            :value="countPlannedSessions()"
+            :label="$t('story-page.planned-session')"
+            :model-value="countPlannedSessions()"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.completed-session')"
+            :label="$t('story-page.completed-session')"
             v-model="doneSessionNum"
           ></v-text-field>
           <v-text-field
             class="pt-0"
             readonly
-            :label="store.getters.message('story-page.bug-count')"
+            :label="$t('story-page.bug-count')"
             v-model="extractionBugNum"
           ></v-text-field>
         </v-col>
@@ -86,8 +86,8 @@
           <v-select
             :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
-            :label="store.getters.message('story-page.review-target')"
-            item-text="displayName"
+            :label="$t('story-page.review-target')"
+            item-title="displayName"
             item-value="id"
             :multiple="!isViewerMode"
             v-model="reviewTargetSessionIds"
@@ -96,50 +96,51 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-expansion-panels
-            class="py-0 mb-2"
-            v-model="sessionPanelExpantionStates"
-            multiple
-          >
+          <v-expansion-panels class="py-0 mb-2" v-model="sessionPanelExpantionStates" multiple>
             <v-expansion-panel
-              v-for="(session, index) in story.sessions"
+              v-for="(session, index) in story?.sessions"
               :key="session.id"
               class="py-0"
             >
-              <v-expansion-panel-header class="py-0">
-                <div>
-                  {{
-                    `${store.getters.message(
-                      "session-list.session-name-base"
-                    )} ${index + 1}`
-                  }}
-                </div>
-                <div @click="$event.stopPropagation()">
-                  <v-checkbox
-                    :input-value="session.isDone"
-                    @change="(value) => changeSessionStatus(session.id, value)"
-                    :label="store.getters.message('session-list.complete')"
-                    :readonly="isViewerMode"
-                    :id="`completedSessionCheckBox${index}`"
-                  ></v-checkbox>
-                </div>
-                <v-btn
-                  :disabled="isCapturing || isReplaying"
-                  v-if="!isViewerMode"
-                  @click="
-                    $event.stopPropagation();
-                    openConfirmDialogToDeleteSession(session.id);
-                  "
-                  small
-                  >{{ store.getters.message("session-list.delete") }}</v-btn
-                >
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <session-info
-                  :storyId="story.id"
-                  :sessionId="session.id"
-                ></session-info>
-              </v-expansion-panel-content>
+              <v-expansion-panel-title class="py-0">
+                <v-row>
+                  <v-col class="d-flex align-center">
+                    <div>
+                      {{ `${$t("session-list.session-name-base")} ${index + 1}` }}
+                    </div>
+                  </v-col>
+                  <v-col class="d-flex align-center">
+                    <div @click="$event.stopPropagation()">
+                      <v-checkbox
+                        :model-value="session.isDone"
+                        @update:model-value="
+                          (value) => changeSessionStatus(session.id, value ?? false)
+                        "
+                        :label="$t('session-list.complete')"
+                        :readonly="isViewerMode"
+                        :id="`completedSessionCheckBox${index}`"
+                        hide-details
+                      ></v-checkbox>
+                    </div>
+                  </v-col>
+                  <v-col class="d-flex align-center">
+                    <v-btn
+                      :disabled="isCapturing || isReplaying"
+                      v-if="!isViewerMode"
+                      @click="
+                        $event.stopPropagation();
+                        openConfirmDialogToDeleteSession(session.id);
+                      "
+                      size="small"
+                      block
+                      >{{ $t("session-list.delete") }}</v-btn
+                    >
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <session-info :storyId="story?.id" :sessionId="session.id"></session-info>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-col>
@@ -151,7 +152,7 @@
             v-if="!isViewerMode"
             @click="addNewSession"
             id="addSessionButton"
-            >{{ store.getters.message("story-page.add-session") }}</v-btn
+            >{{ $t("story-page.add-session") }}</v-btn
           >
         </v-col>
       </v-row>
@@ -168,34 +169,37 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   Plan,
   TestMatrix,
   TestTarget,
   ViewPoint,
   Story,
-  Session,
+  Session
 } from "@/lib/testManagement/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import ReviewButton from "@/components/organisms/story/ReviewButton.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import SessionInfo from "@/components/organisms/story/SessionInfo.vue";
-import { CaptureControlState } from "@/store/captureControl";
 import { computed, defineComponent, onBeforeUnmount, ref, inject } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
     "session-info": SessionInfo,
     "review-button": ReviewButton,
-    "confirm-dialog": ConfirmDialog,
+    "confirm-dialog": ConfirmDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
+    const captureControlStore = useCaptureControlStore();
     const route = useRoute();
 
-    const isViewerMode = inject("isViewerMode") ?? false;
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const confirmDialogOpened = ref(false);
     const confirmDialogTitle = ref("");
@@ -209,11 +213,12 @@ export default defineComponent({
     const sessionPanelExpantionStates = ref<number[]>([]);
 
     const storyId = computed((): string => {
-      return route.params.id;
+      const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+      return id;
     });
 
     const story = computed((): Story | undefined => {
-      return store.getters["testManagement/findStory"](storyId.value);
+      return testManagementStore.findStory(storyId.value);
     });
 
     const reviewableSessions = computed(
@@ -225,24 +230,21 @@ export default defineComponent({
           return [];
         }
 
-        const reviewableSessions: Session[] = store.getters[
-          "testManagement/collectReviewableSessions"
-        ](story.value.id);
+        const reviewableSessions: Session[] = testManagementStore.collectReviewableSessions(
+          story.value.id
+        );
 
         return reviewableSessions.map((session) => {
           const sessionNameSuffix =
-            story.value?.sessions.findIndex(({ id }) => id === session.id) ??
-            -1;
+            story.value?.sessions.findIndex(({ id }) => id === session.id) ?? -1;
 
-          const testResultName = session.testResultFiles
-            .map((result) => result.name)
-            .join(", ");
+          const testResultName = session.testResultFiles.map((result) => result.name).join(", ");
 
           return {
             id: session.id,
-            displayName: `${store.getters.message("story-page.session")}${
+            displayName: `${rootStore.message("story-page.session")}${
               sessionNameSuffix + 1
-            }${testResultName ? ` (${testResultName})` : ""}`,
+            }${testResultName ? ` (${testResultName})` : ""}`
           };
         });
       }
@@ -261,9 +263,7 @@ export default defineComponent({
       }
 
       const targetGroup = testMatrix.value.groups.find((group) => {
-        return group.testTargets.some(
-          (target) => target.id === testTarget.value?.id
-        );
+        return group.testTargets.some((target) => target.id === testTarget.value?.id);
       });
 
       if (!targetGroup) {
@@ -276,35 +276,25 @@ export default defineComponent({
     const statuses = computed(() => {
       return [
         {
-          text: store.getters.message(
-            `viewPoint-status.${CHARTER_STATUS.OUT_OF_SCOPE.id}`
-          ),
-          value: CHARTER_STATUS.OUT_OF_SCOPE.id,
+          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.OUT_OF_SCOPE.id}`),
+          value: CHARTER_STATUS.OUT_OF_SCOPE.id
         },
         {
-          text: store.getters.message(
-            `viewPoint-status.${CHARTER_STATUS.OK.id}`
-          ),
-          value: CHARTER_STATUS.OK.id,
+          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.OK.id}`),
+          value: CHARTER_STATUS.OK.id
         },
         {
-          text: store.getters.message(
-            `viewPoint-status.${CHARTER_STATUS.NG.id}`
-          ),
-          value: CHARTER_STATUS.NG.id,
+          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.NG.id}`),
+          value: CHARTER_STATUS.NG.id
         },
         {
-          text: store.getters.message(
-            `viewPoint-status.${CHARTER_STATUS.ONGOING.id}`
-          ),
-          value: CHARTER_STATUS.ONGOING.id,
+          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.ONGOING.id}`),
+          value: CHARTER_STATUS.ONGOING.id
         },
         {
-          text: store.getters.message(
-            `viewPoint-status.${CHARTER_STATUS.PENDING.id}`
-          ),
-          value: CHARTER_STATUS.PENDING.id,
-        },
+          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.PENDING.id}`),
+          value: CHARTER_STATUS.PENDING.id
+        }
       ];
     });
 
@@ -323,9 +313,7 @@ export default defineComponent({
             return bugNum;
           }
 
-          bugNum += currentSession.notes.filter((note) =>
-            (note.tags ?? []).includes("bug")
-          ).length;
+          bugNum += currentSession.notes.filter((note) => (note.tags ?? []).includes("bug")).length;
 
           return bugNum;
         }, 0) ?? 0
@@ -333,9 +321,7 @@ export default defineComponent({
     });
 
     const testMatrix = computed((): TestMatrix | undefined => {
-      return store.getters["testManagement/findTestMatrix"](
-        story.value?.testMatrixId ?? ""
-      );
+      return testManagementStore.findTestMatrix(story.value?.testMatrixId ?? "");
     });
 
     const testTarget = computed((): TestTarget | undefined => {
@@ -385,13 +371,11 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const countPlannedSessions = (): number => {
@@ -402,39 +386,35 @@ export default defineComponent({
     };
 
     const updateStatus = (value: string) => {
-      store.dispatch("testManagement/updateStory", {
+      testManagementStore.updateStory({
         storyId: storyId.value,
         params: {
-          status: value,
-        },
+          status: value
+        }
       });
     };
 
     const addNewSession = () => {
-      store.dispatch("testManagement/addNewSession", {
-        storyId: storyId.value,
+      testManagementStore.addNewSession({
+        storyId: storyId.value
       });
     };
 
     const changeSessionStatus = (sessionId: string, isDone: boolean): void => {
-      store.dispatch("testManagement/updateSession", {
+      testManagementStore.updateSession({
         storyId: storyId.value,
         sessionId,
-        params: { isDone },
+        params: { isDone }
       });
     };
 
     const openConfirmDialogToDeleteSession = (sessionId: string) => {
-      confirmDialogTitle.value = store.getters.message(
-        "session-list.delete-session"
-      );
-      confirmDialogMessage.value = store.getters.message(
-        "common.delete-warning"
-      );
+      confirmDialogTitle.value = rootStore.message("session-list.delete-session");
+      confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
-        store.dispatch("testManagement/deleteSession", {
+        testManagementStore.deleteSession({
           storyId: storyId.value,
-          sessionId,
+          sessionId
         });
       };
 
@@ -459,29 +439,29 @@ export default defineComponent({
 
     (async () => {
       if (!isViewerMode) {
-        await store.dispatch("testManagement/readStory", {
-          storyId: route.params.id,
+        await testManagementStore.readStory({
+          storyId: Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
         });
       }
 
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
       sessionPanelExpantionStates.value =
-        JSON.parse(
-          localStorage.getItem(sessionPanelExpantionStatesKey.value) as string
-        ) ??
+        JSON.parse(localStorage.getItem(sessionPanelExpantionStatesKey.value) as string) ??
         story.value?.sessions.map((_, index) => index) ??
         [];
 
-      store.commit("testManagement/addRecentStory", {
-        story: story.value,
-      });
+      if (story.value) {
+        testManagementStore.addRecentStory({
+          story: story.value
+        });
+      }
     })();
 
     return {
-      store,
+      t: rootStore.message,
       isViewerMode,
       confirmDialogOpened,
       confirmDialogTitle,
@@ -505,8 +485,8 @@ export default defineComponent({
       updateStatus,
       addNewSession,
       changeSessionStatus,
-      openConfirmDialogToDeleteSession,
+      openConfirmDialogToDeleteSession
     };
-  },
+  }
 });
 </script>

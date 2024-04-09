@@ -23,7 +23,7 @@
           :disabled="disabled"
           color="info"
           @click="toReviewPage(on)"
-          >{{ store.getters.message("story-page.do-review") }}</v-btn
+          >{{ $t("story-page.do-review") }}</v-btn
         >
       </template>
     </test-result-load-trigger>
@@ -31,13 +31,13 @@
 </template>
 
 <script lang="ts">
-import { Story } from "@/lib/testManagement/types";
+import { type Story } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
-import { useRouter } from "vue-router/composables";
+import { computed, defineComponent, type PropType } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -57,13 +57,14 @@ export default defineComponent({
     "test-result-load-trigger": TestResultLoadTrigger
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
     const toReviewPage = async (loadTestResults: () => Promise<void>): Promise<void> => {
       await loadTestResults();
 
-      store.commit("testManagement/setTempStory", { story: props.story });
+      testManagementStore.setTempStory({ story: props.story });
 
       router.push({
         path: `../review`,
@@ -79,7 +80,7 @@ export default defineComponent({
     });
 
     return {
-      store,
+      t: rootStore.message,
       toReviewPage,
       testResultIds
     };

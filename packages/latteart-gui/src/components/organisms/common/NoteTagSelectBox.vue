@@ -22,6 +22,7 @@
     :items="tagSelectionItems"
     v-model:search="search"
     multiple
+    :readonly="readonly"
   >
     <template v-slot:no-data>
       <v-list-item>
@@ -45,12 +46,13 @@ import { defineComponent, ref, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
-    label: { type: String, default: "", required: true },
-    modelValue: { type: Array as PropType<string[]>, default: () => [], required: true }
+    label: { type: String, default: "" },
+    modelValue: { type: Array as PropType<string[]>, default: () => [], required: true },
+    readonly: { type: Boolean, default: false }
   },
   emits: ["update:modelValue"],
-  setup(_, context) {
-    const selectedTags = ref<string[]>([]);
+  setup(props, context) {
+    const selectedTags = ref<string[]>(props.modelValue);
     const search = ref(null);
     const tagSelectionItems = ref(noteTagPreset.items.map(({ text }) => text));
 
