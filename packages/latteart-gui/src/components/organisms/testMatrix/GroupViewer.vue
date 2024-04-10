@@ -27,9 +27,9 @@
         <tr>
           <th
             v-for="(header, index) in columns"
+            :key="index"
             :width="header.width"
             :class="header.headerProps?.class"
-            :key="index"
           >
             <label-with-tooltip :title="header.title" :tooltip="header.headerProps?.tooltip" />
           </th></tr
@@ -52,7 +52,7 @@
                 })
               "
               :plan="props.item[val.id]"
-              :displayedStories="displayedStories"
+              :displayed-stories="displayedStories"
             ></sessions-status>
           </td>
         </tr>
@@ -78,6 +78,11 @@ import { useRootStore } from "@/stores/root";
 import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
+  components: {
+    "sessions-status": SessionsStatus,
+    "fixed-data-table": FixedDataTable,
+    "label-with-tooltip": LabelWithTooltip
+  },
   props: {
     group: {
       type: Object as PropType<Group>,
@@ -94,11 +99,6 @@ export default defineComponent({
       type: Array as PropType<string[] | null>,
       default: null
     }
-  },
-  components: {
-    "sessions-status": SessionsStatus,
-    "fixed-data-table": FixedDataTable,
-    "label-with-tooltip": LabelWithTooltip
   },
   setup(props) {
     const rootStore = useRootStore();

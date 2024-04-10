@@ -17,26 +17,23 @@
 <template>
   <v-container fluid class="py-0 px-3">
     <fixed-data-table
-      :headers-length="300"
-      v-if="group.testTargets.length > 0"
+      v-if="group && group.testTargets.length > 0"
       :items="items"
       :headers="headers"
-      sort-icon=""
+      :item-per-page="-1"
       hide-actions
-      v-model:options="options"
       :grid-column-number="8"
-      hide-default-header
     >
-      <template #header="props">
+      <template #headers="{ columns }">
         <tr>
           <th
-            v-for="(header, index) in props.props.headers"
-            :width="header.width"
-            :class="header.class"
+            v-for="(header, index) in columns"
             :key="index"
+            :width="header.width"
+            :class="header.headerProps?.class"
             style="border-bottom: solid 1px #ddd"
           >
-            <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
+            <label-with-tooltip :title="header.title" :tooltip="header.headerProps?.tooltip" />
           </th></tr
       ></template>
       <template #item="props">
@@ -46,18 +43,18 @@
               variant="text"
               icon
               class="mt-3"
-              @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
               color="error"
+              @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
               ><v-icon>delete</v-icon></v-btn
             >
           </td>
-          <td class="pl-0 pr-1 py-0 my-0 test-target-name-td">
+          <td class="pl-0 pr-1 py-0 my-0">
             <v-row>
               <v-col cols="11" class="pr-0">
                 <v-text-field
                   :id="`testTargetNameTextField${group.id}${props.item.id}`"
                   :model-value="props.item.name"
-                  @change="(value) => renameTestTarget(value, props.item.id)"
+                  @change="(value: any) => renameTestTarget(value, props.item.id)"
                 ></v-text-field>
               </v-col>
               <v-col cols="1" align-self="center" class="pa-0 ma-0">
@@ -84,8 +81,11 @@
           </td>
           <td v-for="(viewPoint, index) in viewPoints" :key="index" class="py-0 pr-2">
             <number-field
-              arrowOnly
-              @updateNumberFieldValue="
+              :id="`${group.id}_${props.item.id}_${viewPoint.id}`"
+              arrow-only
+              :value="props.item[viewPoint.id]"
+              :min-value="0"
+              @update-number-field-value="
                 ({ value }) =>
                   updatePlan({
                     testTargetId: props.item.id,
@@ -93,9 +93,6 @@
                     newValue: value
                   })
               "
-              :id="`${group.id}_${props.item.id}_${viewPoint.id}`"
-              :value="props.item[viewPoint.id]"
-              :minValue="0"
             ></number-field>
           </td>
         </tr>
@@ -105,19 +102,18 @@
     <v-row>
       <v-col cols="2"
         ><v-text-field
-          :id="`newTestTargetNameTextField${group.id}`"
+          :id="`newTestTargetNameTextField${group?.id}`"
           v-model="newTestTargetName"
-          :label="store.getters.message('group-edit-info.target')"
-          height="24"
+          :label="$t('group-edit-info.target')"
         ></v-text-field
       ></v-col>
       <v-col cols="2" class="d-flex align-center"
         ><v-btn
-          :id="`createTestTargetButton${group.id}`"
+          :id="`createTestTargetButton${group?.id}`"
           size="small"
+          :disabled="newTestTargetName === ''"
           @click="addNewTestTarget"
-          v-bind:disabled="newTestTargetName === ''"
-          >{{ store.getters.message("group-edit-info.add") }}</v-btn
+          >{{ $t("group-edit-info.add") }}</v-btn
         ></v-col
       >
     </v-row>
@@ -126,34 +122,36 @@
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
   </v-container>
 </template>
 
 <script lang="ts">
-import { Group, Plan, TestMatrix, TestTarget, ViewPoint } from "@/lib/testManagement/types";
+import type { Group, Plan, TestMatrix, TestTarget, ViewPoint } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import NumberField from "@/components/molecules/NumberField.vue";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
-  props: {
-    testMatrixId: { type: String, default: "", required: true },
-    groupId: { type: String, default: "", required: true }
-  },
   components: {
     "number-field": NumberField,
     "confirm-dialog": ConfirmDialog,
     "fixed-data-table": FixedDataTable,
     "label-with-tooltip": LabelWithTooltip
   },
+  props: {
+    testMatrixId: { type: String, default: "", required: true },
+    groupId: { type: String, default: "", required: true }
+  },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const confirmDialogOpened = ref(false);
     const confirmDialogTitle = ref("");
@@ -167,60 +165,51 @@ export default defineComponent({
     const newTestTargetName = ref("");
 
     const group = computed((): Group | undefined => {
-      return store.getters["testManagement/findGroup"](props.testMatrixId, props.groupId);
+      return testManagementStore.findGroup(props.testMatrixId, props.groupId);
     });
 
     const viewPoints = computed((): ViewPoint[] => {
-      const testMatrix: TestMatrix | undefined = store.getters["testManagement/findTestMatrix"](
-        props.testMatrixId,
-        props.groupId
+      const testMatrix: TestMatrix | undefined = testManagementStore.findTestMatrix(
+        props.testMatrixId
       );
 
       return testMatrix?.viewPoints ?? [];
     });
 
-    const headers = computed(
-      (): {
-        value?: string;
-        align?: string;
-        sortable?: boolean;
-        class?: string[];
-        text?: string;
-        description?: string;
-        width?: string;
-      }[] => {
-        const headers = [];
+    const headers = computed(() => {
+      const headers = [];
 
+      headers.push({
+        value: "delete",
+        align: "center" as const,
+        sortable: false,
+        headerProps: { class: "text-xs-center py-1" }
+      });
+
+      headers.push({
+        value: "name",
+        align: "center" as const,
+        sortable: false,
+        title: rootStore.message("group-edit-info.target"),
+        headerProps: { class: "text-xs-center py-1" },
+        width: "250"
+      });
+
+      viewPoints.value.forEach((viewPoint: ViewPoint) => {
         headers.push({
-          value: "delete",
-          align: "center",
+          title: viewPoint.name,
+          value: viewPoint.id,
           sortable: false,
-          class: ["text-xs-center", "py-1"]
+          align: "center" as const,
+          width: "180",
+          headerProps: {
+            class: "text-xs-center py-1 ellipsis_short",
+            tooltip: viewPoint.description
+          }
         });
-
-        headers.push({
-          value: "name",
-          align: "center",
-          sortable: false,
-          text: store.getters.message("group-edit-info.target"),
-          class: ["text-xs-center", "py-1"],
-          width: "250"
-        });
-
-        viewPoints.value.forEach((viewPoint: ViewPoint) => {
-          headers.push({
-            text: viewPoint.name,
-            tooltip: viewPoint.description,
-            value: viewPoint.id,
-            sortable: false,
-            align: "center",
-            width: "180",
-            class: ["text-xs-center", "py-1", "ellipsis_short"]
-          });
-        });
-        return headers;
-      }
-    );
+      });
+      return headers;
+    });
 
     const items = computed((): { [key: string]: string | number }[] => {
       if (!group.value) {
@@ -242,10 +231,10 @@ export default defineComponent({
     });
 
     const openConfirmDialogToDeleteTestTarget = (testTargetId: string): void => {
-      confirmDialogTitle.value = store.getters.message("group-edit-info.delete-target-confirm");
-      confirmDialogMessage.value = store.getters.message("common.delete-warning");
+      confirmDialogTitle.value = rootStore.message("group-edit-info.delete-target-confirm");
+      confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
-        store.dispatch("testManagement/deleteTestTarget", {
+        testManagementStore.deleteTestTarget({
           testMatrixId: props.testMatrixId,
           groupId: props.groupId,
           testTargetId: testTargetId
@@ -256,7 +245,7 @@ export default defineComponent({
     };
 
     const addNewTestTarget = async (): Promise<void> => {
-      await store.dispatch("testManagement/addNewTestTarget", {
+      await testManagementStore.addNewTestTarget({
         testMatrixId: props.testMatrixId,
         groupId: props.groupId,
         testTargetName: newTestTargetName.value
@@ -299,7 +288,7 @@ export default defineComponent({
       const t1 = group.value.testTargets[index];
       const t2 = group.value.testTargets[type === "up" ? index - 1 : index + 1];
 
-      await store.dispatch("testManagement/updateTestTargets", {
+      await testManagementStore.updateTestTargets({
         testMatrixId: props.testMatrixId,
         groupId: props.groupId,
         testTargets: [
@@ -313,7 +302,7 @@ export default defineComponent({
       testTargetName: string,
       testTargetId: string
     ): Promise<void> => {
-      await store.dispatch("testManagement/updateTestTargets", {
+      await testManagementStore.updateTestTargets({
         testMatrixId: props.testMatrixId,
         groupId: props.groupId,
         testTargets: [{ id: testTargetId, name: testTargetName }]
@@ -343,7 +332,7 @@ export default defineComponent({
           return;
         }
 
-        await store.dispatch("testManagement/updateTestTargets", {
+        await testManagementStore.updateTestTargets({
           testMatrixId: props.testMatrixId,
           groupId: props.groupId,
           testTargets: [
@@ -357,7 +346,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: rootStore.message,
       confirmDialogOpened,
       confirmDialogTitle,
       confirmDialogMessage,

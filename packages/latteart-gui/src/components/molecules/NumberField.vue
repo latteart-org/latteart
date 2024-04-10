@@ -20,26 +20,26 @@
       <div class="wrap">
         <div class="text-wrap">
           <v-text-field
+            :id="`numberField${id}_text`"
+            ref="textField"
             :mask="mask"
             :label="label"
             :suffix="suffix"
-            :id="`numberField${id}_text`"
             :model-value="internalValue"
-            @update:model-value="(value) => update(value)"
-            @blur="onBlur"
             :readonly="arrowOnly"
             :disabled="disabled"
-            ref="textField"
+            @update:model-value="(value) => update(value)"
+            @blur="onBlur"
           ></v-text-field>
         </div>
         <div class="button-wrap">
           <button
             :id="`numberField${id}_increaseButton`"
             class="py-0 my-0 px-0 mx-0"
+            :disabled="disabled"
             @click="increase"
             @blur="onBlur"
             @mousedown="onMouseDown"
-            :disabled="disabled"
           >
             <v-icon size="small">keyboard_arrow_up</v-icon>
           </button>
@@ -47,10 +47,10 @@
             :id="`numberField${id}_decreaseButton`"
             icon
             class="py-0 my-0 px-0 mx-0"
+            :disabled="disabled"
             @click="decrease"
             @blur="onBlur"
             @mousedown="onMouseDown"
-            :disabled="disabled"
           >
             <v-icon size="small">keyboard_arrow_down</v-icon>
           </button>
@@ -193,7 +193,7 @@ button:focus
   background-color: #DDD
 
 .wrap
-  display: table
+  display: flex
   minWidth: 100px
 
 .text-wrap
@@ -203,4 +203,5 @@ button:focus
 
 .button-wrap
   width: 25px
+  align-self: center
 </style>
