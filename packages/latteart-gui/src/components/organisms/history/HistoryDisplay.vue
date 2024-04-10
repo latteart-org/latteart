@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid fill-height class="pa-0">
+  <v-container fluid class="pa-0 fill-height">
     <splitpanes horizontal @resized="resize('vertical', $event)" class="default-theme">
       <pane
         :size="verticalPaneSize"
@@ -28,8 +28,8 @@
           <v-btn
             color="blue"
             :loading="updating"
-            :dark="canUpdateModels"
             :disabled="!canUpdateModels"
+            variant="elevated"
             @click="updateTestResultViewModel"
             >{{ message("test-result-page.update-model-and-coverage") }}</v-btn
           >
@@ -67,15 +67,17 @@
                 ref="mermaidGraphDisplay"
               >
                 <v-col cols="12" class="pt-0 fill-height">
+                  <!--
                   <element-coverage
                     v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     :message="message"
                   ></element-coverage>
-                  <history-summary-diagram
+                  -->
+                  <!-- <history-summary-diagram
                     v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     :diagramType="diagramType"
                     :message="message"
-                  ></history-summary-diagram>
+                  ></history-summary-diagram> -->
                 </v-col>
               </v-row>
             </v-container>
@@ -107,8 +109,8 @@
                 </v-row>
                 <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
                   <v-col cols="12" class="fill-height pl-2">
-                    <screencapture-display v-if="displayedMediaType === 'image'" />
-                    <screencast-display v-else />
+                    <!-- <screencapture-display v-if="displayedMediaType === 'image'" />
+                    <screencast-display v-else /> -->
                   </v-col>
                 </v-row>
               </template>
@@ -117,7 +119,7 @@
         </splitpanes>
       </pane>
       <pane v-if="!dispCoverage" style="z-index: 6">
-        <operation-list
+        <!-- <operation-list
           v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
           :displayedOperations="displayedOperations"
           :onSelectOperation="selectOperation"
@@ -125,12 +127,12 @@
           :selectedOperationInfo="selectedOperationInfo"
           :message="message"
           :operationContextEnabled="operationContextEnabled"
-        ></operation-list>
+        ></operation-list> -->
 
-        <decision-table
+        <!--<decision-table
           v-if="diagramType === DIAGRAM_TYPE_SCREEN_TRANSITION"
           :message="message"
-        ></decision-table>
+        ></decision-table>-->
       </pane>
     </splitpanes>
     <error-message-dialog
@@ -171,28 +173,27 @@
 <script lang="ts">
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
-import {
+import type {
   OperationHistory,
-  ScreenDef,
   MessageProvider,
   OperationWithNotes
 } from "@/lib/operationHistory/types";
-import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
-import OperationList from "@/components/organisms/history/OperationList.vue";
-import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
-import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
+// import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
+// import OperationList from "@/components/organisms/history/OperationList.vue";
+// import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
+// import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
-import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
+// import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
+// import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
 import TestPurposeEditDialog from "@/components/organisms/dialog/TestPurposeEditDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
 import NoteUpdateDialog from "@/components/organisms/dialog/NoteUpdateDialog.vue";
 import { computed, defineComponent, onMounted, ref, nextTick, watch, inject } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   props: {
@@ -200,27 +201,13 @@ export default defineComponent({
     locale: { type: String, default: "ja" },
     rawHistory: {
       type: Array as PropType<OperationHistory>,
-      default: []
+      default: () => []
     },
     message: {
       type: Function as PropType<MessageProvider>,
       required: true
     },
     operationContextEnabled: { type: Boolean, default: false },
-    screenDefinitionConfig: {
-      type: Object as PropType<{
-        screenDefType: string;
-        isRegex: boolean;
-        screenDefList: ScreenDef[];
-      }>,
-      default: () => {
-        return {
-          screenDefType: "title",
-          isRegex: false,
-          screenDefList: []
-        };
-      }
-    },
     changeWindowTitle: {
       type: Function as PropType<(windowTitle: string) => void>,
       default: (windowTitle: string) => {
@@ -230,12 +217,12 @@ export default defineComponent({
     testResultId: { type: String, default: "" }
   },
   components: {
-    "history-summary-diagram": HistorySummaryDiagram,
-    "operation-list": OperationList,
-    "element-coverage": ElementCoverage,
-    "decision-table": DecisionTable,
-    "screencast-display": ScreencastDisplay,
-    "screencapture-display": ScreencaptureDisplay,
+    // "history-summary-diagram": HistorySummaryDiagram,
+    // "operation-list": OperationList,
+    // "element-coverage": ElementCoverage,
+    // "decision-table": DecisionTable,
+    // "screencast-display": ScreencastDisplay,
+    // "screencapture-display": ScreencaptureDisplay,
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
@@ -246,7 +233,8 @@ export default defineComponent({
     "note-update-dialog": NoteUpdateDialog
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -301,74 +289,60 @@ export default defineComponent({
       contextMenuItems.value = [];
 
       contextMenuItems.value.push({
-        label: store.getters.message("test-result-page.edit-notice", {
+        label: rootStore.message("test-result-page.edit-notice", {
           value: note.value
         }),
         onClick: () => {
-          if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
-            (store.state as any).operationHistory.openNoteEditDialog(
-              note.type,
-              note.sequence,
-              note.index
-            );
+          if (operationHistoryStore.tmpNoteInfoForEdit) {
+            operationHistoryStore.openNoteEditDialog(note.type, note.sequence, note.index);
           }
 
           contextMenuOpened.value = false;
-          store.commit("operationHistory/setTmpNoteInfoForEdit", {
-            tmpNoteInfoForEdit: null
-          });
+          operationHistoryStore.tmpNoteInfoForEdit = null;
         }
       });
       contextMenuItems.value.push({
-        label: store.getters.message("test-result-page.delete-notice", {
+        label: rootStore.message("test-result-page.delete-notice", {
           value: note.value
         }),
         onClick: () => {
-          if ((store.state as any).operationHistory.tmpNoteInfoForEdit) {
-            (store.state as any).operationHistory.deleteNote(note.type, note.sequence, note.index);
+          if (operationHistoryStore.tmpNoteInfoForEdit) {
+            operationHistoryStore.deleteNote(note.type, note.sequence, note.index);
           }
 
           contextMenuOpened.value = false;
-          store.commit("operationHistory/setTmpNoteInfoForEdit", {
-            tmpNoteInfoForEdit: null
-          });
+          operationHistoryStore.tmpNoteInfoForEdit = null;
         }
       });
 
-      store.commit("operationHistory/setTmpNoteInfoForEdit", {
-        tmpNoteInfoForEdit: {
-          noteType: note.type,
-          sequence: note.sequence,
-          index: note.index
-        }
-      });
+      operationHistoryStore.tmpNoteInfoForEdit = {
+        noteType: note.type,
+        sequence: note.sequence,
+        index: note.index
+      };
       contextMenuOpened.value = true;
     };
 
     const openNoteEditDialog = (noteType: string, sequence: number, index?: number) => {
-      const historyItem: OperationWithNotes =
-        store.getters["operationHistory/findHistoryItem"](sequence);
+      const historyItem: OperationWithNotes | undefined =
+        operationHistoryStore.findHistoryItem(sequence);
       if (historyItem === undefined) {
         return;
       }
       switch (noteType) {
         case "intention":
-          store.commit("operationHistory/selectOperationNote", {
-            selectedOperationNote: {
-              sequence: sequence ?? null,
-              index: index ?? null
-            }
-          });
+          operationHistoryStore.selectedOperationNote = {
+            sequence: sequence ?? null,
+            index: index ?? null
+          };
           testPurposeEditDialogOpened.value = true;
           return;
         case "bug":
         case "notice":
-          store.commit("operationHistory/selectOperationNote", {
-            selectedOperationNote: {
-              sequence: sequence ?? null,
-              index: index ?? null
-            }
-          });
+          operationHistoryStore.selectedOperationNote = {
+            sequence: sequence ?? null,
+            index: index ?? null
+          };
 
           if (index !== undefined) {
             noteUpdateDialogOpened.value = true;
@@ -389,17 +363,16 @@ export default defineComponent({
       index?: number
     ) => {
       if (noteType === "intention") {
-        confirmDialogTitle.value = store.getters.message("test-result-page.delete-intention");
-        confirmDialogMessage.value = store.getters.message(
+        confirmDialogTitle.value = rootStore.message("test-result-page.delete-intention");
+        confirmDialogMessage.value = rootStore.message(
           "test-result-page.delete-intention-message",
           { value: title }
         );
       } else {
-        confirmDialogTitle.value = store.getters.message("test-result-page.delete-notice-title");
-        confirmDialogMessage.value = store.getters.message(
-          "test-result-page.delete-notice-message",
-          { value: title }
-        );
+        confirmDialogTitle.value = rootStore.message("test-result-page.delete-notice-title");
+        confirmDialogMessage.value = rootStore.message("test-result-page.delete-notice-message", {
+          value: title
+        });
       }
 
       confirmDialogAccept.value = () => {
@@ -413,13 +386,13 @@ export default defineComponent({
         try {
           switch (noteType) {
             case "intention":
-              store.dispatch("operationHistory/deleteTestPurpose", {
+              operationHistoryStore.deleteTestPurpose({
                 sequence
               });
               return;
             case "bug":
             case "notice":
-              store.dispatch("operationHistory/deleteNotice", {
+              operationHistoryStore.deleteNotice({
                 sequence,
                 index
               });
@@ -464,7 +437,7 @@ export default defineComponent({
     });
 
     const operationHistoryState = computed(() => {
-      return (store.state as any).operationHistory as OperationHistoryState;
+      return operationHistoryStore;
     });
 
     const history = computed((): OperationHistory => {
@@ -522,20 +495,18 @@ export default defineComponent({
           return;
         }
 
-        await store.dispatch("operationHistory/updateModelsFromSequenceView", {
+        await operationHistoryStore.updateModelsFromSequenceView({
           testResultId
         });
 
         const testResultIds = operationHistoryState.value.storingTestResultInfos.map(
           ({ id }) => id
         );
-        await store.dispatch("operationHistory/updateModelsFromGraphView", {
+        await operationHistoryStore.updateModelsFromGraphView({
           testResultIds: testResultIds.length === 0 ? [testResultId] : testResultIds
         });
 
-        store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false
-        });
+        operationHistoryStore.canUpdateModels = false;
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);
@@ -589,7 +560,7 @@ export default defineComponent({
     };
 
     const selectOperation = (sequence: number, doScroll: boolean) => {
-      store.dispatch("operationHistory/selectOperation", {
+      operationHistoryStore.selectOperation({
         sequence,
         doScroll
       });
@@ -610,19 +581,11 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      store.commit("operationHistory/setOpenNoteEditDialogFunction", {
-        openNoteEditDialog: openNoteEditDialog
-      });
-      store.commit("operationHistory/setOpenNoteDeleteConfirmDialogFunction", {
-        openNoteDeleteConfirmDialog: openNoteDeleteConfirmDialog
-      });
-      store.commit("operationHistory/setOpenNoteMenu", {
-        menu: openNoteMenu
-      });
+      operationHistoryStore.openNoteEditDialog = openNoteEditDialog;
+      operationHistoryStore.openNoteDeleteConfirmDialog = openNoteDeleteConfirmDialog;
+      operationHistoryStore.openNoteMenu = openNoteMenu;
+      operationHistoryStore.deleteNote = deleteNote;
 
-      store.commit("operationHistory/setDeleteNoteFunction", {
-        deleteNote: deleteNote
-      });
       await updateTestResultViewModel();
     });
 

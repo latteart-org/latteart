@@ -15,14 +15,7 @@
 -->
 
 <template>
-  <v-menu
-    v-model="show"
-    :position-x="x"
-    :position-y="y"
-    :top="top"
-    :persistent="false"
-    close-on-content-click
-  >
+  <v-menu v-model="show" :target="[x, y]" :top="top" :persistent="false" close-on-content-click>
     <v-list>
       <v-list-item v-for="item in items" :key="item.label" @click="item.onClick">
         <v-list-item-title>{{ item.label }}</v-list-item-title>
@@ -33,7 +26,6 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -44,13 +36,11 @@ export default defineComponent({
     top: { type: Boolean, default: false },
     items: {
       type: Array as PropType<{ label: string; onClick: () => void }[]>,
-      default: [],
+      default: () => [],
       required: true
     }
   },
   setup(props, context) {
-    const store = useStore();
-
     const show = computed({
       get: () => props.opened,
       set: (opened) => {
@@ -60,7 +50,7 @@ export default defineComponent({
       }
     });
 
-    return { store, show };
+    return { show };
   }
 });
 </script>
