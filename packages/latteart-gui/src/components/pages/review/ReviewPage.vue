@@ -23,6 +23,7 @@
       <screenshots-download-button v-slot="slotProps">
         <v-btn
           variant="elevated"
+          color="primary"
           :disabled="slotProps.obj.isDisabled"
           class="ma-2"
           @click="slotProps.obj.execute"
@@ -32,6 +33,7 @@
       </screenshots-download-button>
       <v-btn
         id="scriptGenerateButton"
+        color="primary"
         variant="elevated"
         class="ma-2"
         @click="scriptGenerationOptionDialogIsOpened = true"
