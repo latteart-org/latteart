@@ -15,23 +15,17 @@
 -->
 
 <template>
-  <v-container fluid v-if="testMatrix">
+  <v-container v-if="testMatrix" fluid>
     <v-row>
       <v-col cols="10">
         <div class="mt-2 ml-2">{{ testMatrix.name }}</div>
       </v-col>
       <v-col cols="2" style="text-align: right">
         <v-btn size="small" @click="testMatrixBeingEdited = testMatrix">
-          {{ $store.getters.message("test-matrix-edit-page.settings") }}
+          {{ $t("test-matrix-edit-page.settings") }}
         </v-btn>
-        <v-btn
-          size="small"
-          color="red"
-          dark
-          @click="openConfirmDialogToDeleteTestMatrix"
-          class="ml-2"
-        >
-          {{ $store.getters.message("common.delete") }}
+        <v-btn size="small" color="red" class="ml-2" @click="openConfirmDialogToDeleteTestMatrix">
+          {{ $t("common.delete") }}
         </v-btn>
       </v-col>
     </v-row>
@@ -39,10 +33,11 @@
       <v-col>
         <v-expansion-panels v-model="expandedPanelIndex">
           <v-expansion-panel
-            :id="`groupEditAreaToggle${index}`"
             v-for="(group, index) in testMatrix.groups"
+            :id="`groupEditAreaToggle${index}`"
             :key="group.id"
             class="py-0 elevation-0"
+            :value="index"
           >
             <v-expansion-panel-title class="py-0">
               <v-row>
@@ -55,86 +50,86 @@
                     {{ group.name }}
                   </div>
                   <v-text-field
-                    :id="`groupNameTextField${index}`"
                     v-if="expandedPanelIndex === index"
+                    :id="`groupNameTextField${index}`"
                     :model-value="group.name"
                     @click="$event.stopPropagation()"
-                    @change="(value) => renameGroup(group.id, value)"
+                    @change="(value: any) => renameGroup(group.id, value)"
                   ></v-text-field>
                 </v-col>
 
                 <v-col cols="2" class="align-self-center d-flex justify-end">
                   <v-btn
                     v-if="expandedPanelIndex === index"
-                    @click.stop="openConfirmDialogToDeleteGroup(group.id)"
                     size="small"
                     color="error"
                     class="mr-4"
-                    >{{ $store.getters.message("group-edit-list.delete") }}</v-btn
+                    @click.stop="openConfirmDialogToDeleteGroup(group.id)"
+                    >{{ $t("group-edit-list.delete") }}</v-btn
                   >
                 </v-col>
               </v-row>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
-              <group-editor :testMatrixId="testMatrixId" :groupId="group.id" />
+              <group-editor :test-matrix-id="testMatrixId" :group-id="group.id" />
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels> </v-col
     ></v-row>
     <v-row>
       <v-col cols="2"
-        ><v-text-field
-          v-model="groupName"
-          :label="this.$store.getters.message('group-edit-list.name')"
+        ><v-text-field v-model="groupName" :label="$t('group-edit-list.name')"
       /></v-col>
 
       <v-col cols="10"
         ><v-btn
           id="createGroupButton"
-          @click="addNewGroup"
           class="my-4"
           :disabled="groupName === ''"
-          >{{ $store.getters.message("group-edit-list.add") }}</v-btn
+          @click="addNewGroup"
+          >{{ $t("group-edit-list.add") }}</v-btn
         ></v-col
       >
     </v-row>
 
     <test-matrix-dialog
-      :testMatrixBeingEdited="testMatrixBeingEdited"
-      @closeDialog="testMatrixBeingEdited = null"
-      @updateTestMatrix="updateTestMatrix"
+      :test-matrix-being-edited="testMatrixBeingEdited"
+      @close-dialog="testMatrixBeingEdited = null"
+      @update-test-matrix="updateTestMatrix"
     />
 
     <confirm-dialog
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
   </v-container>
 </template>
 
 <script lang="ts">
-import { TestMatrix } from "@/lib/testManagement/types";
+import { type TestMatrix } from "@/lib/testManagement/types";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import TestMatrixDialog from "../dialog/TestMatrixDialog.vue";
-import { UpdateTestMatrixObject } from "./ManageEditTypes";
+import { type UpdateTestMatrixObject } from "./ManageEditTypes";
 import GroupEditor from "./GroupEditor.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
-  props: {
-    testMatrixId: { type: String, default: "", required: true }
-  },
   components: {
     "group-editor": GroupEditor,
     "test-matrix-dialog": TestMatrixDialog,
     "confirm-dialog": ConfirmDialog
   },
+  props: {
+    testMatrixId: { type: String, default: "", required: true }
+  },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const testMatrixBeingEdited = ref<TestMatrix | null>(null);
 
@@ -154,7 +149,7 @@ export default defineComponent({
     });
 
     const testMatrix = computed((): TestMatrix | undefined => {
-      return store.getters["testManagement/findTestMatrix"](props.testMatrixId);
+      return testManagementStore.findTestMatrix(props.testMatrixId);
     });
 
     const initializePanels = () => {
@@ -193,12 +188,12 @@ export default defineComponent({
     };
 
     const openConfirmDialogToDeleteTestMatrix = () => {
-      confirmDialogTitle.value = store.getters.message(
+      confirmDialogTitle.value = rootStore.message(
         "test-matrix-edit-page.delete-test-matrix-confirm"
       );
-      confirmDialogMessage.value = store.getters.message("common.delete-warning");
+      confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
-        store.dispatch("testManagement/deleteTestMatrix", {
+        testManagementStore.deleteTestMatrix({
           testMatrixId: props.testMatrixId
         });
       };
@@ -207,18 +202,18 @@ export default defineComponent({
     };
 
     const updateTestMatrix = async (obj: UpdateTestMatrixObject): Promise<void> => {
-      store.dispatch("testManagement/updateTestMatrix", {
-        id: obj.testMatrix.id,
+      testManagementStore.updateTestMatrix({
+        id: obj.testMatrix.id ?? "",
         name: obj.testMatrix.name,
         viewPoints: obj.viewPoints
       });
     };
 
     const openConfirmDialogToDeleteGroup = (groupId: string): void => {
-      confirmDialogTitle.value = store.getters.message("group-edit-list.delete-group-confirm");
-      confirmDialogMessage.value = store.getters.message("common.delete-warning");
+      confirmDialogTitle.value = rootStore.message("group-edit-list.delete-group-confirm");
+      confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
-        store.dispatch("testManagement/deleteGroup", {
+        testManagementStore.deleteGroup({
           testMatrixId: props.testMatrixId,
           groupId
         });
@@ -228,7 +223,7 @@ export default defineComponent({
     };
 
     const addNewGroup = async (): Promise<void> => {
-      await store.dispatch("testManagement/addNewGroup", {
+      await testManagementStore.addNewGroup({
         testMatrixId: props.testMatrixId,
         groupName: groupName.value
       });
@@ -236,7 +231,7 @@ export default defineComponent({
     };
 
     const renameGroup = (id: string, name: string): void => {
-      store.dispatch("testManagement/updateGroup", {
+      testManagementStore.updateGroup({
         testMatrixId: props.testMatrixId,
         groupId: id,
         name
@@ -250,7 +245,7 @@ export default defineComponent({
     initializePanels();
 
     return {
-      store,
+      t: rootStore.message,
       testMatrixBeingEdited,
       confirmDialogOpened,
       confirmDialogTitle,

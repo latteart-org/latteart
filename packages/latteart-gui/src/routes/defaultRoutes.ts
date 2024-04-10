@@ -28,6 +28,7 @@ import TestResultListPage from "@/components/pages/testResultList/TestResultList
 import { useTestManagementStore } from "@/stores/testManagement";
 import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import ReviewPage from "@/components/pages/review/ReviewPage.vue";
+import TestMatrixEditPage from "@/components/pages/testMatrixEdit/TestMatrixEditPage.vue";
 
 const defaultRoutes = [
   {
@@ -94,6 +95,12 @@ const defaultRoutes = [
             name: "testMatrixPage",
             component: TestMatrixPage,
             meta: { title: "manage-header.top" }
+          },
+          {
+            path: "test-matrix-edit",
+            name: "testMatrixEditPage",
+            component: TestMatrixEditPage,
+            meta: { title: "test-matrix-edit-page.title" }
           },
           {
             path: "stories-review",

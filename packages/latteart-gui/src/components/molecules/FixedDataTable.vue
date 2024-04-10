@@ -18,7 +18,7 @@
     <template v-for="(slot, name) of $slots" #[name]="props">
       <slot :name="name" v-bind="props"></slot>
     </template>
-    <template #bottom v-if="hideActions" />
+    <template v-if="hideActions" #bottom />
   </v-data-table>
 </template>
 

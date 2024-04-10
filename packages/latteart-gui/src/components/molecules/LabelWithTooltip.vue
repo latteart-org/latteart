@@ -15,16 +15,14 @@
 -->
 
 <template>
-  <div>
-    <div class="container">
-      <p :title="title" class="label pt-0">{{ title }}</p>
-      <v-tooltip location="end" v-if="tooltip !== ''">
-        <template v-slot:activator="{ props }">
-          <v-icon size="16" v-bind="props" class="icon-info">info</v-icon>
-        </template>
-        <span class="description-tooltip">{{ tooltip }}</span>
-      </v-tooltip>
-    </div>
+  <div class="container" style="width: inherit">
+    <p :title="title" class="label pt-0">{{ title }}</p>
+    <v-tooltip v-if="tooltip !== ''" location="end">
+      <template #activator="{ props }">
+        <v-icon size="16" v-bind="props" class="icon-info">info</v-icon>
+      </template>
+      <span class="description-tooltip">{{ tooltip }}</span>
+    </v-tooltip>
   </div>
 </template>
 
