@@ -16,11 +16,11 @@
 
 <template>
   <v-app>
-    <v-navigation-drawer :rail="mini" @click="mini = false" permanent>
+    <v-navigation-drawer :rail="mini" permanent @click="mini = false">
       <v-list-item prepend-avatar="/src/assets/logo.png" class="px-2">
         <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
 
-        <template v-slot:append>
+        <template #append>
           <v-btn variant="flat" icon="chevron_left" @click.stop="mini = !mini"></v-btn>
         </template>
       </v-list-item>
@@ -91,7 +91,7 @@
 
           <v-list-item
             v-if="recentReviewQuery"
-            :to="{ path: '/page/review', query: recentReviewQuery }"
+            :to="{ path: '/review', query: recentReviewQuery }"
             :title="$t('manager-history-view.review')"
             exact
             prepend-icon="pageview"

@@ -18,7 +18,8 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="store.getters.message('app.record-intention')"
+      :title="$t('app.record-intention')"
+      :accept-button-disabled="!canSave"
       @accept="
         saveTestPurpose();
         close();
@@ -27,30 +28,21 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="!canSave"
     >
-      <template>
-        <number-field
-          v-if="oldSequence !== null"
-          :label="store.getters.message('note-edit.target-sequence')"
-          :value="newTargetSequence"
-          :minValue="1"
-          :maxValue="maxSequence"
-          @input="updateNewTargetSequence"
-          :disabled="oldNote === ''"
-        ></number-field>
-        <p v-if="isSaveWarning" class="warningMessage">
-          {{ store.getters.message("note-edit.save-warning") }}
-        </p>
-        <v-text-field
-          :label="store.getters.message('note-edit.summary')"
-          v-model="newNote"
-        ></v-text-field>
-        <v-textarea
-          :label="store.getters.message('note-edit.details')"
-          v-model="newNoteDetails"
-        ></v-textarea>
-      </template>
+      <number-field
+        v-if="oldSequence !== null"
+        :label="$t('note-edit.target-sequence')"
+        :value="newTargetSequence ?? undefined"
+        :min-value="1"
+        :max-value="maxSequence ?? undefined"
+        :disabled="oldNote === ''"
+        @input="updateNewTargetSequence"
+      ></number-field>
+      <p v-if="isSaveWarning" class="warningMessage">
+        {{ $t("note-edit.save-warning") }}
+      </p>
+      <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
+      <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
     </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -61,26 +53,26 @@
 </template>
 
 <script lang="ts">
-import { NoteEditInfo } from "@/lib/captureControl/types";
-import { OperationWithNotes } from "@/lib/operationHistory/types";
+import { type NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog
   },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
+  },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const oldNote = ref("");
     const oldNoteDetails = ref("");
@@ -101,10 +93,8 @@ export default defineComponent({
         return;
       }
 
-      const sequence = ((store.state as any).operationHistory as OperationHistoryState)
-        .selectedOperationNote.sequence as number;
-      const historyItem: OperationWithNotes =
-        store.getters["operationHistory/findHistoryItem"](sequence);
+      const sequence = operationHistoryStore.selectedOperationNote.sequence ?? 0;
+      const historyItem = operationHistoryStore.findHistoryItem(sequence);
 
       if (!historyItem || !historyItem.intention) {
         // new note
@@ -120,15 +110,11 @@ export default defineComponent({
       newNoteDetails.value = oldNoteDetails.value;
       oldSequence.value = sequence;
       newTargetSequence.value = oldSequence.value;
-      maxSequence.value = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history.length;
+      maxSequence.value = operationHistoryStore.history.length;
 
       isSaveWarning.value = false;
 
-      store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence: null, index: null }
-      });
+      operationHistoryStore.selectedOperationNote = { sequence: null, index: null };
     };
 
     const saveTestPurpose = () => {
@@ -143,11 +129,11 @@ export default defineComponent({
       (async () => {
         try {
           if (oldNote.value === "") {
-            await store.dispatch("operationHistory/addTestPurpose", {
+            await operationHistoryStore.addTestPurpose({
               noteEditInfo: args
             });
           } else {
-            await store.dispatch("operationHistory/editTestPurpose", {
+            await operationHistoryStore.editTestPurpose({
               noteEditInfo: args
             });
           }
@@ -195,7 +181,7 @@ export default defineComponent({
 
     const collectTestPurposeSequences = computed((): number[] => {
       const seqs = [];
-      const history = ((store.state as any).operationHistory as OperationHistoryState).history;
+      const history = operationHistoryStore.history;
 
       for (const operationWithNotes of history) {
         if (!operationWithNotes.intention) {
@@ -246,7 +232,7 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
+      t: rootStore.message,
       oldNote,
       newNote,
       newNoteDetails,
