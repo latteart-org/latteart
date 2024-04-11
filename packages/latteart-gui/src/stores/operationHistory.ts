@@ -305,7 +305,7 @@ export type OperationHistoryState = {
   /**
    * The function to delete a note.
    */
-  deleteNote: (noteType: string, sequence: number, index?: number) => void;
+  deleteNote: (noteType: string, sequence: number, index: number) => void;
 
   /**
    * The function to open the menu for note.
@@ -313,8 +313,9 @@ export type OperationHistoryState = {
   openNoteMenu: (
     note: {
       sequence: number;
-      index?: number;
+      index: number;
       type: string;
+      value: string;
     },
     eventInfo: {
       clientX: number;
@@ -1390,7 +1391,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
             onClickScreenRect: (sequence: number) => {
               this.selectOperation({ sequence, doScroll: false });
             },
-            onClickNote: (note: { sequence: number; type: string; details: string }) => {
+            onClickNote: (note: { sequence: number; index: number; type: string }) => {
               if (!!note && (note.type === "notice" || note.type === "bug")) {
                 this.selectOperation({
                   sequence: note.sequence,

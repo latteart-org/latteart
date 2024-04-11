@@ -42,7 +42,7 @@
           @resized="resize('horizontal', $event)"
         >
           <pane :size="horizontalPaneSize">
-            <v-container fluid class="pa-0 ma-0 fill-height">
+            <v-container fluid class="pa-0 ma-0" style="height: 100%">
               <v-row no-gutters>
                 <v-col cols="12">
                   <v-radio-group v-model="diagramType" inline class="py-0" hide-details>
@@ -64,7 +64,7 @@
               <v-row
                 ref="mermaidGraphDisplay"
                 no-gutters
-                :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
+                :style="{ 'overflow-y': 'auto', height: 'calc(100% - 40px)' }"
               >
                 <v-col cols="12" class="pt-0 fill-height">
                   <element-coverage
@@ -72,11 +72,11 @@
                     :message="message"
                   ></element-coverage>
 
-                  <!-- <history-summary-diagram
+                  <history-summary-diagram
                     v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
-                    :diagramType="diagramType"
+                    :diagram-type="diagramType"
                     :message="message"
-                  ></history-summary-diagram> -->
+                  ></history-summary-diagram>
                 </v-col>
               </v-row>
             </v-container>
@@ -175,7 +175,7 @@ import type {
   MessageProvider,
   OperationWithNotes
 } from "@/lib/operationHistory/types";
-// import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
+import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
 // import OperationList from "@/components/organisms/history/OperationList.vue";
 import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
 // import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
@@ -194,7 +194,7 @@ import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
-    // "history-summary-diagram": HistorySummaryDiagram,
+    "history-summary-diagram": HistorySummaryDiagram,
     // "operation-list": OperationList,
     "element-coverage": ElementCoverage,
     // "decision-table": DecisionTable,
@@ -268,7 +268,6 @@ export default defineComponent({
 
     const openNoteMenu = (
       note: {
-        id: number;
         sequence: number;
         index: number;
         type: string;
