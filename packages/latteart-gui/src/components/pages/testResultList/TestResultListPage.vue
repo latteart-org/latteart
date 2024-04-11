@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="pa-4 fill-height" style="overflow-y: scroll">
+  <v-container fluid class="pa-4">
     <v-container fluid class="align-self-start pa-0">
       <v-card flat height="100%">
         <v-card-text>

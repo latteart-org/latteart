@@ -16,10 +16,10 @@
 <template>
   <v-card flat class="pa-0">
     <v-card-text>
-      <v-text-field :label="$t('app.url')" v-model="captureOption.url" />
+      <v-text-field v-model="captureOption.url" :label="$t('app.url')" />
       <v-text-field
-        :label="$t('app.test-result-name')"
         v-model="captureOption.testResultName"
+        :label="$t('app.test-result-name')"
       ></v-text-field>
     </v-card-text>
 
@@ -29,17 +29,17 @@
 
     <v-card-text>
       <v-select
+        v-model="captureOption.platform"
         :label="$t('config-page.platform')"
         :items="platforms"
-        v-model="captureOption.platform"
       ></v-select>
 
-      <v-card class="pa-2 mb-4" variant="outlined" v-show="isMobileSelected">
+      <v-card v-show="isMobileSelected" class="pa-2 mb-4" variant="outlined">
         <v-card-text>
           <v-btn @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
           <v-select
-            :label="$t('config-page.select-device')"
             v-model="captureOption.device"
+            :label="$t('config-page.select-device')"
             :items="devices"
             item-title="modelNumber"
             item-value="deviceName"
@@ -47,32 +47,32 @@
             return-object
           ></v-select>
           <v-text-field
-            :label="$t('config-page.os-version')"
             v-model="captureOption.device.osVersion"
+            :label="$t('config-page.os-version')"
             readonly
           ></v-text-field>
         </v-card-text>
       </v-card>
 
       <v-select
+        v-model="captureOption.browser"
         :label="$t('config-page.browser')"
         :items="browsers"
-        v-model="captureOption.browser"
       ></v-select>
 
       <number-field
         v-show="isMobileSelected"
-        arrowOnly
-        @updateNumberFieldValue="
+        arrow-only
+        :value="captureOption.waitTimeForStartupReload"
+        :max-value="60"
+        :min-value="0"
+        :label="$t('config-page.reload-setting')"
+        :suffix="$t('config-page.reload-suffix')"
+        @update-number-field-value="
           ({ value }) => {
             captureOption.waitTimeForStartupReload = value;
           }
         "
-        :value="captureOption.waitTimeForStartupReload"
-        :maxValue="60"
-        :minValue="0"
-        :label="$t('config-page.reload-setting')"
-        :suffix="$t('config-page.reload-suffix')"
       ></number-field>
     </v-card-text>
 
@@ -100,24 +100,25 @@
 
     <v-card-text>
       <v-checkbox
+        v-model="captureOption.shouldRecordTestPurpose"
         class="mt-0"
         :label="$t('test-option.use-test-purpose')"
-        v-model="captureOption.shouldRecordTestPurpose"
+        hide-details
       ></v-checkbox>
 
-      <v-card class="pa-2 mb-4" variant="outlined" v-show="captureOption.shouldRecordTestPurpose">
+      <v-card v-show="captureOption.shouldRecordTestPurpose" class="pa-2 mb-4" variant="outlined">
         <v-card-subtitle>
           {{ $t("test-option.first-test-purpose") }}
         </v-card-subtitle>
 
         <v-card-text>
           <v-text-field
-            :label="$t('note-edit.summary')"
             v-model="captureOption.firstTestPurpose"
+            :label="$t('note-edit.summary')"
           ></v-text-field>
           <v-textarea
-            :label="$t('note-edit.details')"
             v-model="captureOption.firstTestPurposeDetails"
+            :label="$t('note-edit.details')"
           ></v-textarea>
         </v-card-text>
       </v-card>

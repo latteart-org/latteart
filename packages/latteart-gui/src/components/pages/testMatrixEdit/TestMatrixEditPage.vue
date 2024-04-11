@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-container fluid class="fill-height pa-0">
-    <v-container fluid class="align-self-start pa-8" style="height: 100%; overflow-y: scroll">
+  <v-container fluid class="pa-0">
+    <v-container fluid class="align-self-start pa-8" style="height: 100%">
       <v-btn @click="openTestMatrixDialogInCreateMode">{{
         $t("test-matrix-edit-page.add-test-matrix")
       }}</v-btn>

@@ -17,9 +17,9 @@
 <template>
   <v-container fluid class="pa-0 fill-height">
     <v-container
+      v-if="hasTestMatrix"
       class="align-self-start pa-8 pt-4"
       fluid
-      v-if="hasTestMatrix"
       style="height: calc(100% - 148px); overflow-y: scroll"
     >
       <v-row>
@@ -39,8 +39,8 @@
         ></v-col>
         <v-col cols="auto" style="align-self: end">
           <v-checkbox
-            :label="$t('test-matrix-page.incomplete-sessions')"
             v-model="isCompletionFilterEnabled"
+            :label="$t('test-matrix-page.incomplete-sessions')"
             class="mt-2"
           ></v-checkbox>
         </v-col>
@@ -48,16 +48,16 @@
       </v-row>
 
       <tab-selector
-        :selectedItemId="selectedTestMatrixId"
+        :selected-item-id="selectedTestMatrixId"
         :items="testMatrices"
         @select="(id) => selectTestMatrix(id)"
       ></tab-selector>
 
       <v-card class="pa-2">
         <test-matrix-viewer
-          :testMatrixId="selectedTestMatrixId"
+          :test-matrix-id="selectedTestMatrixId"
           :search="search"
-          :completionFilter="isCompletionFilterEnabled"
+          :completion-filter="isCompletionFilterEnabled"
         ></test-matrix-viewer>
       </v-card>
     </v-container>
