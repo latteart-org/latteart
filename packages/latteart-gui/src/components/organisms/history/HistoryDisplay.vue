@@ -82,37 +82,35 @@
             </v-container>
           </pane>
           <pane>
-            <v-container fluid class="pa-0 fill-height" style="position: relative">
-              <template>
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <v-radio-group
-                      v-if="hasStillImage || hasVideo"
-                      v-model="displayedMediaType"
-                      inline
-                      class="py-0 pl-2"
-                      hide-details
-                    >
-                      <v-radio
-                        :label="message('test-result-page.image')"
-                        value="image"
-                        :disabled="!hasStillImage"
-                      ></v-radio>
-                      <v-radio
-                        :label="message('test-result-page.video')"
-                        value="video"
-                        :disabled="!hasVideo"
-                      ></v-radio>
-                    </v-radio-group>
-                  </v-col>
-                </v-row>
-                <v-row no-gutters :style="{ height: 'calc(100% - 70px)' }">
-                  <v-col cols="12" class="fill-height pl-2">
-                    <!-- <screencapture-display v-if="displayedMediaType === 'image'" />
-                    <screencast-display v-else /> -->
-                  </v-col>
-                </v-row>
-              </template>
+            <v-container fluid class="pa-0" style="height: 100%; position: relative">
+              <v-row no-gutters style="height: 40px">
+                <v-col cols="12">
+                  <v-radio-group
+                    v-if="hasStillImage || hasVideo"
+                    v-model="displayedMediaType"
+                    inline
+                    class="py-0 pl-2"
+                    hide-details
+                  >
+                    <v-radio
+                      :label="message('test-result-page.image')"
+                      value="image"
+                      :disabled="!hasStillImage"
+                    ></v-radio>
+                    <v-radio
+                      :label="message('test-result-page.video')"
+                      value="video"
+                      :disabled="!hasVideo"
+                    ></v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+              <v-row no-gutters :style="{ height: 'calc(100% - 40px)' }">
+                <v-col cols="12" class="fill-height pa-2">
+                  <screencapture-display v-if="displayedMediaType === 'image'" />
+                  <screencast-display v-else />
+                </v-col>
+              </v-row>
             </v-container>
           </pane>
         </splitpanes>
@@ -183,8 +181,8 @@ import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue"
 // import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
-// import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
-// import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
+import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
+import ScreencaptureDisplay from "@/components/organisms/history/ScreencaptureDisplay.vue";
 import TestPurposeEditDialog from "@/components/organisms/dialog/TestPurposeEditDialog.vue";
 import ContextMenu from "@/components/molecules/ContextMenu.vue";
 import NoteRegisterDialog from "@/components/organisms/dialog/NoteRegisterDialog.vue";
@@ -200,8 +198,8 @@ export default defineComponent({
     // "operation-list": OperationList,
     "element-coverage": ElementCoverage,
     // "decision-table": DecisionTable,
-    // "screencast-display": ScreencastDisplay,
-    // "screencapture-display": ScreencaptureDisplay,
+    "screencast-display": ScreencastDisplay,
+    "screencapture-display": ScreencaptureDisplay,
     Splitpanes,
     Pane,
     "error-message-dialog": ErrorMessageDialog,
