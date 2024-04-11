@@ -18,31 +18,29 @@
   <execute-dialog
     :opened="opened"
     :title="$t('auto-operation-select-dialog.title')"
+    :accept-button-disabled="okButtonIsDisabled"
     @accept="
       ok();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="okButtonIsDisabled"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ $t("auto-operation-select-dialog.message") }}
-      </div>
-      <v-select
-        :label="$t('auto-operation-select-dialog.name')"
-        :items="selectList"
-        v-model="selectedItem"
-        item-title="settingName"
-        item-value="value"
-      ></v-select>
-      <v-textarea
-        :label="$t('auto-operation-select-dialog.details')"
-        readonly
-        no-resize
-        :model-value="selectedItem ? selectedItem.details : ''"
-      ></v-textarea>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ $t("auto-operation-select-dialog.message") }}
+    </div>
+    <v-select
+      v-model="selectedItem"
+      :label="$t('auto-operation-select-dialog.name')"
+      :items="selectList"
+      item-title="settingName"
+      item-value="value"
+    ></v-select>
+    <v-textarea
+      :label="$t('auto-operation-select-dialog.details')"
+      readonly
+      no-resize
+      :model-value="selectedItem ? selectedItem.details : ''"
+    ></v-textarea>
   </execute-dialog>
 </template>
 
@@ -54,6 +52,9 @@ import type { PropType } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     autoOperationConditionGroups: {
@@ -61,9 +62,6 @@ export default defineComponent({
       default: () => [],
       required: true
     }
-  },
-  components: {
-    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const rootStore = useRootStore();

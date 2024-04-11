@@ -24,18 +24,16 @@
     "
     @cancel="close()"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ message }}
-      </div>
-      <v-select
-        :label="$t('autofill-select-dialog.form-label')"
-        :items="selectList"
-        item-title="settingName"
-        item-value="index"
-        @update:model-value="selectGroup"
-      ></v-select>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ message }}
+    </div>
+    <v-select
+      :label="$t('autofill-select-dialog.form-label')"
+      :items="selectList"
+      item-title="settingName"
+      item-value="index"
+      @update:model-value="selectGroup"
+    ></v-select>
   </execute-dialog>
 </template>
 

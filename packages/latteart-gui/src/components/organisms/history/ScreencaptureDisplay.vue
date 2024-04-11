@@ -15,43 +15,36 @@
 -->
 
 <template>
-  <v-container v-if="screenshotUrl" fluid class="pa-0" fill-height style="position: relative">
-    <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
+  <v-container v-if="screenshotUrl" fluid class="pa-0 fill-height" style="position: relative">
+    <popup-image :image-file-url="imageInfo.decode"></popup-image>
 
     <a
+      ref="dllink"
       :href="screenshotUrl"
       :download="screenshotName"
       target="_blank"
       rel="noopener noreferrer"
       class="screenshot-button"
-      ref="dllink"
     >
-      <v-btn color="white" class="screenshot-button" fab size="small">
-        <v-icon>image</v-icon>
-      </v-btn></a
-    >
+      <v-btn color="white" icon="image" size="small"> </v-btn
+    ></a>
   </v-container>
 </template>
 
 <script lang="ts">
-import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
+import PopupImage from "@/components/molecules/PopupImage.vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "screen-shot-display": ScreenShotDisplay
+    "popup-image": PopupImage
   },
   setup() {
-    const store = useStore();
-
-    const operationHistoryState = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState) ?? null;
-    });
+    const operationHistoryStore = useOperationHistoryStore();
 
     const selectedOperationInfo = computed(() => {
-      return operationHistoryState.value.selectedOperationInfo;
+      return operationHistoryStore.selectedOperationInfo;
     });
 
     const screenshotName = computed((): string => {
@@ -63,7 +56,7 @@ export default defineComponent({
     });
 
     const displayedScreenshotUrl = computed((): string => {
-      const screenImage = operationHistoryState.value.screenImage;
+      const screenImage = operationHistoryStore.screenImage;
       if (!screenImage) {
         return "";
       }

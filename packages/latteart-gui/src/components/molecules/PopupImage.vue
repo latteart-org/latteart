@@ -15,14 +15,12 @@
 -->
 
 <template>
-  <div>
-    <v-img :src="imageFileUrl" @click="openImageFile" style="cursor: pointer" />
-    <v-dialog v-model="imageFileOpened">
-      <v-card>
-        <v-img :src="imageFileUrl" />
-      </v-card>
-    </v-dialog>
-  </div>
+  <v-img :src="imageFileUrl" style="cursor: pointer" @click="openImageFile" />
+  <v-dialog v-model="imageFileOpened">
+    <v-card>
+      <v-img :src="imageFileUrl" />
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">

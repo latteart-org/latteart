@@ -24,15 +24,13 @@
     "
     @cancel="close()"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ message }}
-      </div>
-      <v-text-field
-        v-model="settingName"
-        :label="$t('autofill-register-dialog.form-label')"
-      ></v-text-field>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ message }}
+    </div>
+    <v-text-field
+      v-model="settingName"
+      :label="$t('autofill-register-dialog.form-label')"
+    ></v-text-field>
   </execute-dialog>
 </template>
 
