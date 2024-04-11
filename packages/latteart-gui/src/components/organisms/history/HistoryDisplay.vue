@@ -16,7 +16,7 @@
 
 <template>
   <v-container fluid class="pa-0 fill-height">
-    <splitpanes horizontal @resized="resize('vertical', $event)" class="default-theme">
+    <splitpanes horizontal class="default-theme" @resized="resize('vertical', $event)">
       <pane
         :size="verticalPaneSize"
         :class="{
@@ -38,11 +38,11 @@
           }}</span>
         </div>
         <splitpanes
-          @resized="resize('horizontal', $event)"
           :style="{ height: 'calc(100% - 44px)' }"
+          @resized="resize('horizontal', $event)"
         >
           <pane :size="horizontalPaneSize">
-            <v-container fluid fill-height class="pa-0 ma-0">
+            <v-container fluid class="pa-0 ma-0 fill-height">
               <v-row no-gutters>
                 <v-col cols="12">
                   <v-radio-group v-model="diagramType" inline class="py-0" hide-details>
@@ -62,17 +62,16 @@
                 </v-col>
               </v-row>
               <v-row
+                ref="mermaidGraphDisplay"
                 no-gutters
                 :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
-                ref="mermaidGraphDisplay"
               >
                 <v-col cols="12" class="pt-0 fill-height">
-                  <!--
                   <element-coverage
                     v-if="diagramType === DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     :message="message"
                   ></element-coverage>
-                  -->
+
                   <!-- <history-summary-diagram
                     v-if="diagramType !== DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     :diagramType="diagramType"
@@ -83,16 +82,16 @@
             </v-container>
           </pane>
           <pane>
-            <v-container fluid class="pa-0" fill-height style="position: relative">
+            <v-container fluid class="pa-0 fill-height" style="position: relative">
               <template>
                 <v-row no-gutters>
                   <v-col cols="12">
                     <v-radio-group
+                      v-if="hasStillImage || hasVideo"
                       v-model="displayedMediaType"
                       inline
                       class="py-0 pl-2"
                       hide-details
-                      v-if="hasStillImage || hasVideo"
                     >
                       <v-radio
                         :label="message('test-result-page.image')"
@@ -145,7 +144,7 @@
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
 
@@ -165,7 +164,7 @@
       :x="contextMenuX"
       :y="contextMenuY"
       :items="contextMenuItems"
-      @contextMenuClose="contextMenuOpened = false"
+      @context-menu-close="contextMenuOpened = false"
     />
   </v-container>
 </template>
@@ -180,7 +179,7 @@ import type {
 } from "@/lib/operationHistory/types";
 // import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
 // import OperationList from "@/components/organisms/history/OperationList.vue";
-// import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
+import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
 // import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
@@ -196,6 +195,22 @@ import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
+  components: {
+    // "history-summary-diagram": HistorySummaryDiagram,
+    // "operation-list": OperationList,
+    "element-coverage": ElementCoverage,
+    // "decision-table": DecisionTable,
+    // "screencast-display": ScreencastDisplay,
+    // "screencapture-display": ScreencaptureDisplay,
+    Splitpanes,
+    Pane,
+    "error-message-dialog": ErrorMessageDialog,
+    "test-purpose-edit-dialog": TestPurposeEditDialog,
+    "confirm-dialog": ConfirmDialog,
+    "context-menu": ContextMenu,
+    "note-register-dialog": NoteRegisterDialog,
+    "note-update-dialog": NoteUpdateDialog
+  },
   props: {
     scriptGenerationEnabled: { type: Boolean, default: false },
     locale: { type: String, default: "ja" },
@@ -215,22 +230,6 @@ export default defineComponent({
       }
     },
     testResultId: { type: String, default: "" }
-  },
-  components: {
-    // "history-summary-diagram": HistorySummaryDiagram,
-    // "operation-list": OperationList,
-    // "element-coverage": ElementCoverage,
-    // "decision-table": DecisionTable,
-    // "screencast-display": ScreencastDisplay,
-    // "screencapture-display": ScreencaptureDisplay,
-    Splitpanes,
-    Pane,
-    "error-message-dialog": ErrorMessageDialog,
-    "test-purpose-edit-dialog": TestPurposeEditDialog,
-    "confirm-dialog": ConfirmDialog,
-    "context-menu": ContextMenu,
-    "note-register-dialog": NoteRegisterDialog,
-    "note-update-dialog": NoteUpdateDialog
   },
   setup(props) {
     const rootStore = useRootStore();
