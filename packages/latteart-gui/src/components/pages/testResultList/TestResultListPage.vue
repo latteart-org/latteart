@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-container fluid fill-height class="pa-4" style="overflow-y: scroll">
+  <v-container fluid class="pa-4 fill-height" style="overflow-y: scroll">
     <v-container fluid class="align-self-start pa-0">
       <v-card flat height="100%">
         <v-card-text>
           <test-result-import-trigger @update="loadTestResultSummaries">
-            <template v-slot:activator="{ on, isDisabled }">
-              <v-btn @click="on" :disabled="isDisabled" variant="elevated">{{
+            <template #activator="{ on, isDisabled }">
+              <v-btn :disabled="isDisabled" variant="elevated" @click="on">{{
                 $t("import-export-dialog.test-result-import-title")
               }}</v-btn>
             </template>
@@ -30,48 +30,48 @@
           <v-text-field v-model="search" label="Search" clearable></v-text-field>
 
           <v-data-table
-            show-select
             v-model="selectedTestResults"
-            :headers="headers"
-            :items="testResults"
-            item-value="id"
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
             v-model:sort-by="syncSortBy"
+            show-select
+            :headers="headers"
+            :items="testResults"
+            item-value="id"
             :search="search"
             :custom-filter="filterItems"
           >
-            <template v-slot:[`item.actions`]="{ item }">
+            <template #[`item.actions`]="{ item }">
               <td :class="{ ellipsis: true }">
-                <test-result-load-trigger :testResultIds="[item.id]">
-                  <template v-slot:activator="{ on, disabled }">
+                <test-result-load-trigger :test-result-ids="[item.id]">
+                  <template #activator="{ on, disabled }">
                     <v-btn
                       icon
                       size="large"
                       color="primary"
                       variant="text"
-                      @click="goToHistoryView(on)"
                       :disabled="disabled"
                       :title="$t('test-result-list.load')"
+                      @click="goToHistoryView(on)"
                     >
                       <v-icon>open_in_browser</v-icon>
                     </v-btn>
                   </template>
                 </test-result-load-trigger>
                 <test-result-name-edit-trigger
-                  :testResultId="item.id"
-                  :testResultName="item.name"
+                  :test-result-id="item.id"
+                  :test-result-name="item.name"
                   @update="loadTestResultSummaries"
                 >
-                  <template v-slot:activator="{ on, disabled }">
+                  <template #activator="{ on, disabled }">
                     <v-btn
                       icon
                       size="large"
                       color="primary"
                       variant="text"
-                      @click="on"
                       :disabled="disabled"
                       :title="$t('test-result-list.edit')"
+                      @click="on"
                     >
                       <v-icon>edit</v-icon>
                     </v-btn>
@@ -80,11 +80,11 @@
               </td>
             </template>
 
-            <template v-slot:[`item.name`]="{ item }">
-              <td :class="{ ellipsis: true }">
+            <template #[`item.name`]="{ item }">
+              <td :class="{ ellipsis: true }" style="width: inherit">
                 <div
                   :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
+                  :style="{ 'max-width': '100%', width: 'inherit' }"
                   :title="item.name"
                 >
                   {{ item.name }}
@@ -92,11 +92,11 @@
               </td>
             </template>
 
-            <template v-slot:[`item.initialUrl`]="{ item }">
-              <td :class="{ ellipsis: true }">
+            <template #[`item.initialUrl`]="{ item }">
+              <td :class="{ ellipsis: true }" style="width: inherit">
                 <div
                   :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
+                  :style="{ 'max-width': '100%', width: 'inherit' }"
                   :title="item.initialUrl"
                 >
                   {{ item.initialUrl }}
@@ -104,29 +104,29 @@
               </td>
             </template>
 
-            <template v-slot:[`item.testingTime`]="{ item }">
-              <td :class="{ ellipsis: true }">
-                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
+            <template #[`item.testingTime`]="{ item }">
+              <td :class="{ ellipsis: true }" style="width: inherit">
+                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToHHmmss(item.testingTime) }}
                 </div>
               </td>
             </template>
 
-            <template v-slot:[`item.creationTimestamp`]="{ item }">
-              <td :class="{ ellipsis: true }">
-                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
+            <template #[`item.creationTimestamp`]="{ item }">
+              <td :class="{ ellipsis: true }" style="width: inherit">
+                <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToDateFormat(item.creationTimestamp) }}
                 </div>
               </td>
             </template>
 
-            <template v-slot:[`item.testPurposes`]="{ item }">
-              <td :class="{ ellipsis: true }">
+            <template #[`item.testPurposes`]="{ item }">
+              <td :class="{ ellipsis: true }" style="width: inherit">
                 <li
                   v-for="(testPurpose, index) in item.testPurposes.slice(0, 3)"
                   :key="index"
                   :class="{ ellipsis: true }"
-                  :style="{ 'max-width': '100%' }"
+                  :style="{ 'max-width': '100%', width: 'inherit' }"
                   :title="testPurpose.value"
                 >
                   {{ testPurpose.value }}
@@ -141,8 +141,8 @@
           <v-btn
             :disabled="isDisabled"
             variant="elevated"
-            @click="confirmDialogOpened = true"
             color="error"
+            @click="confirmDialogOpened = true"
             >{{ $t("test-result-navigation-drawer.delete-test-results") }}</v-btn
           >
         </v-card-actions>
@@ -153,7 +153,7 @@
       :opened="confirmDialogOpened"
       :title="$t('test-result-navigation-drawer.delete-test-results')"
       :message="$t('test-result-navigation-drawer.delete-test-result-message')"
-      :onAccept="deleteTestResults"
+      :on-accept="deleteTestResults"
       @close="confirmDialogOpened = false"
     />
 

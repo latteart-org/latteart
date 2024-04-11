@@ -34,15 +34,15 @@ import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "error-message-dialog": ErrorMessageDialog
+  },
   props: {
     testResultIds: {
       type: Array as PropType<string[]>,
       default: () => [],
       required: true
     }
-  },
-  components: {
-    "error-message-dialog": ErrorMessageDialog
   },
   setup(props) {
     const rootStore = useRootStore();
