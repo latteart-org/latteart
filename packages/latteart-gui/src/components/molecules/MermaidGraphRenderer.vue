@@ -18,9 +18,9 @@
   <v-container fluid>
     <v-row justify="start" class="fill-height">
       <svg-pan-zoom
-        @changeSvgScale="changeSvgScale"
-        :scaleUpDisabled="isMaxSize"
-        :scaleDownDisabled="isMinSize"
+        :scale-up-disabled="isMaxSize"
+        :scale-down-disabled="isMinSize"
+        @change-svg-scale="changeSvgScale"
       ></svg-pan-zoom>
       <div ref="graphRef" class="graphDisplay"></div>
     </v-row>
@@ -32,11 +32,11 @@ import SVGPanZoom from "@/components/molecules/SVGPanZoom.vue";
 import { defineComponent, onMounted, onUpdated, nextTick, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
-  props: {
-    graph: { type: Element, required: true }
-  },
   components: {
     "svg-pan-zoom": SVGPanZoom
+  },
+  props: {
+    graph: { type: Element, required: true }
   },
   setup(props) {
     const svgScalePercentage = ref(100);

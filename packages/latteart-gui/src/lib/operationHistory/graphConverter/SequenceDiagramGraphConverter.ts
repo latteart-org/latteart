@@ -21,9 +21,9 @@ import { type SequenceView, type SequenceViewNode } from "latteart-client";
 
 type NoteInfo = {
   sequence: number;
-  index?: number;
+  index: number;
   type: string;
-  details: string;
+  value: string;
 };
 
 export type SequenceDiagramGraphCallback = {

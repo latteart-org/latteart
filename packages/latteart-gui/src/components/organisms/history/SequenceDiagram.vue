@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="ma-0 fill-height align-start">
+  <v-container fluid class="ma-0 pa-0 align-start" style="height: 100%">
     <v-row no-gutters align="center" :style="{ height: '70px', 'max-width': '100%' }">
       <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
@@ -25,30 +25,30 @@
           item-title="name"
           item-value="id"
           :model-value="currentTestResultId"
-          @update:model-value="changeCurrentTestResultId"
           hide-details
           density="compact"
+          @update:model-value="changeCurrentTestResultId"
       /></v-col>
       <v-col :style="buildStyle">
         <v-select
+          v-model="selectedTestPurposeIndex"
           class="mr-3"
           :label="message('test-result-page.test-purpose')"
           :items="testPurposes"
           item-title="text"
           item-value="value"
-          v-model="selectedTestPurposeIndex"
           hide-details
           density="compact"
       /></v-col>
-      <v-col cols="auto" v-if="!isViewerMode">
+      <v-col v-if="!isViewerMode" cols="auto">
         <v-btn class="mr-1" :disabled="!graph" @click="editTestPurpose">{{
           message("test-result-page.edit-test-purpose")
         }}</v-btn></v-col
       >
     </v-row>
     <v-row
-      no-gutters
       id="sequence-diagram-container"
+      no-gutters
       :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
     >
       <mermaid-graph-renderer v-if="graphElement" :graph="graphElement"></mermaid-graph-renderer>
@@ -63,29 +63,26 @@
 </template>
 
 <script lang="ts">
-/* tslint:disable:max-line-length */
-
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { computed, defineComponent, onMounted, ref, watch, inject } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
+  components: {
+    "mermaid-graph-renderer": MermaidGraphRenderer,
+    "error-message-dialog": ErrorMessageDialog
+  },
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
       required: true
     }
   },
-  components: {
-    "mermaid-graph-renderer": MermaidGraphRenderer,
-    "error-message-dialog": ErrorMessageDialog
-  },
   setup(props) {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -95,20 +92,16 @@ export default defineComponent({
       return inject("isViewerMode") ?? false;
     });
 
-    const operationHistoryState = computed(() => {
-      return (store.state as any).operationHistory as OperationHistoryState;
-    });
-
     const currentTestResultId = computed(() => {
-      return operationHistoryState.value.testResultInfo.id;
+      return operationHistoryStore.testResultInfo.id;
     });
 
     const testResults = computed(() => {
-      return operationHistoryState.value.storingTestResultInfos;
+      return operationHistoryStore.storingTestResultInfos;
     });
 
     const testPurposes = computed(() => {
-      return operationHistoryState.value.sequenceDiagramGraphs.map(({ testPurpose }, index) => {
+      return operationHistoryStore.sequenceDiagramGraphs.map(({ testPurpose }, index) => {
         return {
           text: testPurpose?.value ?? props.message("test-result-page.no-test-purpose"),
           value: index
@@ -117,7 +110,7 @@ export default defineComponent({
     });
 
     const graph = computed(() => {
-      const graphs = operationHistoryState.value.sequenceDiagramGraphs;
+      const graphs = operationHistoryStore.sequenceDiagramGraphs;
 
       return graphs.at(selectedTestPurposeIndex.value);
     });
@@ -133,21 +126,19 @@ export default defineComponent({
     const changeCurrentTestResultId = async (testResultId: string) => {
       try {
         if (isViewerMode.value) {
-          await store.dispatch("operationHistory/loadTestResultForSnapshot", {
+          await operationHistoryStore.loadTestResultForSnapshot({
             testResultId
           });
         } else {
-          await store.dispatch("operationHistory/loadTestResult", {
+          await operationHistoryStore.loadTestResult({
             testResultId
           });
 
-          await store.dispatch("operationHistory/updateModelsFromSequenceView", { testResultId });
+          await operationHistoryStore.updateModelsFromSequenceView({ testResultId });
         }
 
-        store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false
-        });
-        store.dispatch("operationHistory/selectOperation", { sequence: 1 });
+        operationHistoryStore.canUpdateModels = false;
+        operationHistoryStore.selectOperation({ sequence: 1, doScroll: false });
 
         selectedTestPurposeIndex.value = 0;
       } catch (error) {
@@ -166,7 +157,7 @@ export default defineComponent({
         return;
       }
 
-      operationHistoryState.value.openNoteEditDialog("intention", graph.value.sequence);
+      operationHistoryStore.openNoteEditDialog("intention", graph.value.sequence);
     };
 
     const buildStyle = computed(() => {
