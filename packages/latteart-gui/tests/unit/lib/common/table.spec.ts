@@ -5,8 +5,9 @@ describe("filterTableRows", () => {
     const rows = [
       { a: "hoge", b: "huga" },
       { a: "hoge", b: "piyo" },
-      { a: "foo", b: "bar" },
+      { a: "foo", b: "bar" }
     ];
+
     const predicate1 = (item: { a: string; b: string }) => item.a === "hoge";
     const predicate2 = (item: { a: string; b: string }) => item.b === "huga";
 
@@ -26,23 +27,30 @@ describe("sortTableRows", () => {
     const rows = [
       { a: "ccc", b: 3, c: { d: "ccc" }, e: "bbb" },
       { a: "bbb", b: 2, c: { d: "bbb" }, e: "aaa" },
-      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" },
+      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" }
     ];
 
     // 文字列型の列
-    expect(sortTableRows(rows, "a")).toEqual([rows[2], rows[1], rows[0]]);
+    expect(sortTableRows(rows, [{ key: "a", order: "asc" }])).toEqual([rows[2], rows[1], rows[0]]);
+
+    // 文字列型の列（降順）
+    expect(sortTableRows(rows, [{ key: "a", order: "desc" }])).toEqual([rows[0], rows[1], rows[2]]);
 
     // 数値型の列
-    expect(sortTableRows(rows, "b")).toEqual([rows[2], rows[1], rows[0]]);
+    expect(sortTableRows(rows, [{ key: "b", order: "asc" }])).toEqual([rows[2], rows[1], rows[0]]);
 
     // ネストしたキーを持つ列が引けること
-    expect(sortTableRows(rows, "c.d")).toEqual([rows[2], rows[1], rows[0]]);
+    expect(sortTableRows(rows, [{ key: "c.d", order: "asc" }])).toEqual([
+      rows[2],
+      rows[1],
+      rows[0]
+    ]);
 
     // 同じ値のもの同士は順番が入れ替わらないこと
-    expect(sortTableRows(rows, "e")).toEqual([rows[1], rows[2], rows[0]]);
+    expect(sortTableRows(rows, [{ key: "e", order: "asc" }])).toEqual([rows[1], rows[2], rows[0]]);
 
     // パスが空文字の場合は順番が変わらないこと
-    expect(sortTableRows(rows, "")).toEqual(rows);
+    expect(sortTableRows(rows, [{ key: "", order: "asc" }])).toEqual(rows);
 
     const rows2: {
       a: string;
@@ -52,10 +60,14 @@ describe("sortTableRows", () => {
     }[] = [
       { a: "ccc", b: 3, c: { d: "ccc" }, e: "aaa" },
       { a: "bbb", b: 2, c: null, e: "aaa" },
-      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" },
+      { a: "aaa", b: 1, c: { d: "aaa" }, e: "aaa" }
     ];
 
     // ネストしたキーを持つ列(一部の親要素がnull)
-    expect(sortTableRows(rows2, "c.d")).toEqual([rows2[1], rows2[2], rows2[0]]);
+    expect(sortTableRows(rows2, [{ key: "c.d", order: "asc" }])).toEqual([
+      rows2[1],
+      rows2[2],
+      rows2[0]
+    ]);
   });
 });
