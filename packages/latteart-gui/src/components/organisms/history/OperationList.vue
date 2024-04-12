@@ -45,7 +45,7 @@
             :items="displayedHistoryItems"
             :search="search"
             :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
-            @click:row="(event: any, obj: any) => onSelectOperations(obj.item.index)"
+            @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
             @contextmenu:row="
               (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
             "

@@ -130,18 +130,6 @@ const defaultRoutes = [
             name: "storyPage",
             component: StoryPage,
             meta: { title: "story-page.title" }
-          },
-          {
-            path: "review",
-            name: "reviewPage",
-            component: ReviewPage,
-            meta: { title: "manager-history-view.review" },
-            beforeEnter: (to: string, from: string, next: () => void) => {
-              useTestManagementStore().setRecentReviewQuery({
-                query: (to as any).query
-              });
-              next();
-            }
           }
         ]
       }
