@@ -126,10 +126,10 @@
           :operation-context-enabled="operationContextEnabled"
         ></operation-list>
 
-        <!--<decision-table
+        <decision-table
           v-if="diagramType === DIAGRAM_TYPE_SCREEN_TRANSITION"
           :message="message"
-        ></decision-table>-->
+        ></decision-table>
       </pane>
     </splitpanes>
     <error-message-dialog
@@ -178,7 +178,7 @@ import type {
 import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
 import OperationList from "@/components/organisms/history/OperationList.vue";
 import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
-// import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
+import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ScreencastDisplay from "@/components/organisms/history/ScreencastDisplay.vue";
@@ -197,7 +197,7 @@ export default defineComponent({
     "history-summary-diagram": HistorySummaryDiagram,
     "operation-list": OperationList,
     "element-coverage": ElementCoverage,
-    // "decision-table": DecisionTable,
+    "decision-table": DecisionTable,
     "screencast-display": ScreencastDisplay,
     "screencapture-display": ScreencaptureDisplay,
     Splitpanes,

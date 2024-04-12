@@ -17,9 +17,9 @@
 <template>
   <div class="pb-1">
     <v-chip
-      variant="elevated"
       v-for="(tag, index) in tags"
       :key="index"
+      variant="elevated"
       :color="getTagsColor(tag)"
       size="small"
       >{{ tag }}</v-chip

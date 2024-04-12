@@ -16,11 +16,11 @@
 
 <template>
   <v-dialog
+    v-model="openedDialog"
     scrollable
     persistent
     max-height="800"
     :max-width="maxWidth"
-    v-model="openedDialog"
     :transition="noTransition ? false : 'dialog-transition'"
     :fullscreen="fullscreen"
     @keydown="cancelKeydown"
