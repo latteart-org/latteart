@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-container class="align-self-start">
-    <v-row class="mt-2">
+  <v-container class="pa-8">
+    <v-row>
       <v-col cols="12">
         {{ $t("quality-management.attention") }}
       </v-col>
@@ -69,7 +69,7 @@
     </v-row>
     <v-row>
       <v-col cols="12">
-        <quality-chart :qualityData="qualityDatas" :totalBugNum="totalBugNum"></quality-chart>
+        <quality-chart :quality-data="qualityDatas" :total-bug-num="totalBugNum"></quality-chart>
       </v-col>
     </v-row>
     <v-row>
@@ -103,7 +103,7 @@
     <v-row>
       <v-col cols="12">
         <v-data-table :headers="headers" :items="items" item-key="name">
-          <template v-slot:item="props">
+          <template #item="props">
             <tr>
               <td
                 v-for="(val, index) in headers"

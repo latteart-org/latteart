@@ -15,37 +15,35 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
-    <v-container class="align-self-start">
-      <v-row>
-        <v-col cols="12">
-          <v-card class="pa-0">
-            <snapshot-output-launcher />
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-card class="pa-0">
-            <test-script-generation-launcher />
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-card class="pa-0">
-            <project-import-launcher />
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-card class="pa-0">
-            <project-export-launcher />
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-container class="pa-8">
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <snapshot-output-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <test-script-generation-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <project-import-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <project-export-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

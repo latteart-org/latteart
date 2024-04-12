@@ -15,25 +15,22 @@
 -->
 
 <template>
-  <v-container fluid fill-height class="pa-8">
-    <v-container class="align-self-start">
-      <v-card class="pa-2">
-        <capture-option @update="updateOption" />
+  <v-container fluid>
+    <v-container class="pa-0">
+      <capture-option @update="updateOption" />
 
-        <v-card-actions>
-          <record-start-trigger initial>
-            <template v-slot:activator="{ on }">
-              <v-btn
-                :disabled="isExecuteButtonDisabled"
-                variant="elevated"
-                color="primary"
-                @click="execute(on)"
-                >{{ $t("start-capture-page.execute-button") }}</v-btn
-              >
-            </template>
-          </record-start-trigger>
-        </v-card-actions>
-      </v-card>
+      <record-start-trigger initial>
+        <template #activator="{ on }">
+          <v-btn
+            class="ma-4"
+            :disabled="isExecuteButtonDisabled"
+            variant="elevated"
+            color="primary"
+            @click="execute(on)"
+            >{{ $t("start-capture-page.execute-button") }}</v-btn
+          >
+        </template>
+      </record-start-trigger>
     </v-container>
   </v-container>
 </template>

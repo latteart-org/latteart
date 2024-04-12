@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <v-container class="align-self-start">
-    <v-row class="mt-2">
+  <v-container class="pa-8">
+    <v-row>
       <v-col cols="12">
         {{ $t("progress-management.display-settings-section") }}
       </v-col>
