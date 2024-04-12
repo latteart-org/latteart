@@ -25,7 +25,6 @@ import {
   CreateTestStepResponse,
   PatchTestStepResponse,
 } from "@/interfaces/TestSteps";
-import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
@@ -38,6 +37,7 @@ import {
 } from "./helper/entityToResponse";
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { VideoEntity } from "@/entities/VideoEntity";
+import { DataSource } from "typeorm";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -68,6 +68,7 @@ export interface TestStepService {
 
 export class TestStepServiceImpl implements TestStepService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
@@ -86,11 +87,12 @@ export class TestStepServiceImpl implements TestStepService {
     requestBody: CreateTestStepDto
   ): Promise<CreateTestStepResponse> {
     // update test result.
-    const testResultEntity = await getRepository(
-      TestResultEntity
-    ).findOneOrFail(testResultId, {
-      relations: ["coverageSources"],
-    });
+    const testResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneOrFail({
+        where: { id: testResultId },
+        relations: ["coverageSources"],
+      });
 
     const screenElements = requestBody.screenElements
       .map((screenElement) => {
@@ -159,23 +161,25 @@ export class TestStepServiceImpl implements TestStepService {
         };
       })
       .filter(({ value }) => value);
-    const newTestStepEntity = await getRepository(TestStepEntity).save({
-      pageTitle: requestBody.title,
-      pageUrl: requestBody.url,
-      operationType: requestBody.type,
-      operationInput: requestBody.input,
-      operationElement: JSON.stringify(requestBody.elementInfo),
-      inputElements: JSON.stringify(inputElements),
-      windowHandle: requestBody.windowHandle,
-      keywordTexts: JSON.stringify(keywordTexts),
-      timestamp: requestBody.timestamp,
-      testResult: savedTestResultEntity,
-      isAutomatic: !!requestBody.isAutomatic,
-      scrollPositionX: requestBody.scrollPosition?.x,
-      scrollPositionY: requestBody.scrollPosition?.y,
-      clientSizeWidth: requestBody.clientSize?.width,
-      clientSizeHeight: requestBody.clientSize?.height,
-    });
+    const newTestStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .save({
+        pageTitle: requestBody.title,
+        pageUrl: requestBody.url,
+        operationType: requestBody.type,
+        operationInput: requestBody.input,
+        operationElement: JSON.stringify(requestBody.elementInfo),
+        inputElements: JSON.stringify(inputElements),
+        windowHandle: requestBody.windowHandle,
+        keywordTexts: JSON.stringify(keywordTexts),
+        timestamp: requestBody.timestamp,
+        testResult: savedTestResultEntity,
+        isAutomatic: !!requestBody.isAutomatic,
+        scrollPositionX: requestBody.scrollPosition?.x,
+        scrollPositionY: requestBody.scrollPosition?.y,
+        clientSizeWidth: requestBody.clientSize?.width,
+        clientSizeHeight: requestBody.clientSize?.height,
+      });
 
     if (requestBody.imageData) {
       const fileName = `${newTestStepEntity.id}.png`;
@@ -191,16 +195,18 @@ export class TestStepServiceImpl implements TestStepService {
     }
 
     if (requestBody.videoId) {
-      const video = await getRepository(VideoEntity).findOneOrFail(
-        requestBody.videoId
-      );
+      const video = await this.dataSource
+        .getRepository(VideoEntity)
+        .findOneByOrFail({
+          id: requestBody.videoId,
+        });
       newTestStepEntity.video = video;
       newTestStepEntity.videoTime = requestBody.videoTime ?? 0;
     }
 
-    const savedTestStepEntity = await getRepository(TestStepEntity).save(
-      newTestStepEntity
-    );
+    const savedTestStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .save(newTestStepEntity);
 
     // result operation.
     const operation = convertToTestStepOperation(savedTestStepEntity);
@@ -231,7 +237,11 @@ export class TestStepServiceImpl implements TestStepService {
     const noteEntities = (
       await Promise.all(
         noteIds.map(async (noteId) => {
-          const noteEntity = await getRepository(NoteEntity).findOne(noteId);
+          const noteEntity = await this.dataSource
+            .getRepository(NoteEntity)
+            .findOneBy({
+              id: noteId,
+            });
 
           return noteEntity ? [noteEntity] : [];
         })
@@ -240,9 +250,9 @@ export class TestStepServiceImpl implements TestStepService {
 
     testStepEntity.notes = [...noteEntities];
 
-    const updatedTestStepEntity = await getRepository(TestStepEntity).save(
-      testStepEntity
-    );
+    const updatedTestStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .save(testStepEntity);
 
     return testStepEntityToResponse(updatedTestStepEntity);
   }
@@ -254,14 +264,16 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await this.getTestStepEntity(testStepId);
 
     const noteEntity = testPurposeId
-      ? (await getRepository(TestPurposeEntity).findOne(testPurposeId)) ?? null
+      ? (await this.dataSource.getRepository(TestPurposeEntity).findOneBy({
+          id: testPurposeId,
+        })) ?? null
       : null;
 
     testStepEntity.testPurpose = noteEntity;
 
-    const updatedTestStepEntity = await getRepository(TestStepEntity).save(
-      testStepEntity
-    );
+    const updatedTestStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .save(testStepEntity);
 
     return testStepEntityToResponse(updatedTestStepEntity);
   }
@@ -269,12 +281,12 @@ export class TestStepServiceImpl implements TestStepService {
   public async getTestStepOperation(
     testStepId: string
   ): Promise<GetTestStepResponse["operation"]> {
-    const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
-      testStepId,
-      {
+    const testStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .findOneOrFail({
+        where: { id: testStepId },
         relations: ["screenshot", "video"],
-      }
-    );
+      });
 
     return convertToTestStepOperation(testStepEntity);
   }
@@ -282,12 +294,12 @@ export class TestStepServiceImpl implements TestStepService {
   public async getTestStepScreenshot(
     testStepId: string
   ): Promise<{ id: string; fileUrl: string }> {
-    const testStepEntity = await getRepository(TestStepEntity).findOne(
-      testStepId,
-      {
+    const testStepEntity = await this.dataSource
+      .getRepository(TestStepEntity)
+      .findOne({
+        where: { id: testStepId },
         relations: ["screenshot", "video"],
-      }
-    );
+      });
 
     return {
       id: testStepEntity?.screenshot?.id ?? "",
@@ -296,7 +308,8 @@ export class TestStepServiceImpl implements TestStepService {
   }
 
   private async getTestStepEntity(testStepId: string) {
-    return getRepository(TestStepEntity).findOneOrFail(testStepId, {
+    return this.dataSource.getRepository(TestStepEntity).findOneOrFail({
+      where: { id: testStepId },
       relations: ["notes", "testPurpose", "screenshot", "video"],
     });
   }
@@ -328,7 +341,7 @@ export class TestStepServiceImpl implements TestStepService {
 
     testResultEntity.lastUpdateTimestamp = testStepTimeStamp;
 
-    return await getRepository(TestResultEntity).save({
+    return await this.dataSource.getRepository(TestResultEntity).save({
       ...testResultEntity,
     });
   }

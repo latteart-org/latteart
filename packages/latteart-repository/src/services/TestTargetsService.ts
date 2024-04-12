@@ -19,15 +19,19 @@ import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { TestTarget } from "@/interfaces/TestTargets";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
 import { TestProgressServiceImpl } from "./TestProgressService";
+import { DataSource } from "typeorm";
 
 export class TestTargetService {
+  constructor(private dataSource: DataSource) {}
+
   public async get(testTargetId: string): Promise<TestTarget> {
-    const testTarget = await getRepository(TestTargetEntity).findOne(
-      testTargetId,
-      { relations: ["testTargetGroup"] }
-    );
+    const testTarget = await this.dataSource
+      .getRepository(TestTargetEntity)
+      .findOne({
+        where: { id: testTargetId },
+        relations: ["testTargetGroup"],
+      });
 
     if (!testTarget) {
       throw new Error(`TestTarget not found. ${testTargetId}`);
@@ -43,12 +47,12 @@ export class TestTargetService {
     },
     transactionRunner: TransactionRunner
   ): Promise<TestTarget> {
-    const testTargetGroup = await getRepository(TestTargetGroupEntity).findOne(
-      body.testTargetGroupId,
-      {
+    const testTargetGroup = await this.dataSource
+      .getRepository(TestTargetGroupEntity)
+      .findOne({
+        where: { id: body.testTargetGroupId },
         relations: ["testTargets", "testMatrix", "testMatrix.viewPoints"],
-      }
-    );
+      });
     if (!testTargetGroup) {
       throw new Error(`TestTargetGroup not found. ${body.testTargetGroupId}`);
     }
@@ -102,8 +106,10 @@ export class TestTargetService {
     },
     transactionRunner: TransactionRunner
   ): Promise<TestTarget> {
-    const testTargetRepository = getRepository(TestTargetEntity);
-    const testTarget = await testTargetRepository.findOne(testTargetId, {
+    const testTargetRepository =
+      this.dataSource.getRepository(TestTargetEntity);
+    const testTarget = await testTargetRepository.findOne({
+      where: { id: testTargetId },
       relations: ["stories"],
     });
     if (!testTarget) {
@@ -144,7 +150,7 @@ export class TestTargetService {
 
     const storyIds = testTarget.stories.map((story) => story.id);
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       ...storyIds
     );
@@ -156,8 +162,10 @@ export class TestTargetService {
     testTargetId: string,
     transactionRunner: TransactionRunner
   ): Promise<void> {
-    const testTargetRepository = getRepository(TestTargetEntity);
-    const testTarget = await testTargetRepository.findOne(testTargetId, {
+    const testTargetRepository =
+      this.dataSource.getRepository(TestTargetEntity);
+    const testTarget = await testTargetRepository.findOne({
+      where: { id: testTargetId },
       relations: ["testTargetGroup"],
     });
     if (!testTarget) {
@@ -169,8 +177,10 @@ export class TestTargetService {
 
       const testTargetGroup = await transactionalEntityManager.findOne(
         TestTargetGroupEntity,
-        testTarget.testTargetGroup.id,
-        { relations: ["testTargets"] }
+        {
+          where: { id: testTarget.testTargetGroup.id },
+          relations: ["testTargets"],
+        }
       );
       if (!testTargetGroup) {
         throw new Error(
@@ -189,16 +199,18 @@ export class TestTargetService {
           })
       );
     });
-    await getRepository(TestTargetEntity).delete(testTargetId);
+    await this.dataSource.getRepository(TestTargetEntity).delete(testTargetId);
     return;
   }
 
   private async testTargetIdToResponse(
     testTargetId: string
   ): Promise<TestTarget> {
-    const testTarget = await getRepository(TestTargetEntity).findOne(
-      testTargetId
-    );
+    const testTarget = await this.dataSource
+      .getRepository(TestTargetEntity)
+      .findOneBy({
+        id: testTargetId,
+      });
     if (!testTarget) {
       throw new Error(`TestTarget not found. ${testTargetId}`);
     }

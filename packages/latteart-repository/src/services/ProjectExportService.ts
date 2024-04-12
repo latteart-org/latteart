@@ -15,15 +15,17 @@
  */
 
 import { TestResultEntity } from "@/entities/TestResultEntity";
-import { getRepository } from "typeorm";
 import { ConfigsService } from "./ConfigsService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
 import { serializeTestResult } from "./helper/testResultExportHelper";
 import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
 import { TestResultService } from "./TestResultService";
+import { DataSource } from "typeorm";
 
 export class ProjectExportService {
+  constructor(private dataSource: DataSource) {}
+
   public async export(
     projectId: string,
     includeProject: boolean,
@@ -65,7 +67,9 @@ export class ProjectExportService {
   private async extractTestResultsExportData(service: {
     testResultService: TestResultService;
   }) {
-    const testResultEntities = await getRepository(TestResultEntity).find();
+    const testResultEntities = await this.dataSource
+      .getRepository(TestResultEntity)
+      .find();
     return await Promise.all(
       testResultEntities.map(async (testResultEntity) => {
         const testResult =

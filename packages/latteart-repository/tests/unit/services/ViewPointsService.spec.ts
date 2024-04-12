@@ -1,7 +1,9 @@
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { TransactionRunner } from "@/TransactionRunner";
 import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { ViewPointsService } from "@/services/ViewPointsService";
@@ -9,7 +11,7 @@ import { ViewPointsService } from "@/services/ViewPointsService";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -19,22 +21,26 @@ afterEach(async () => {
 describe("ViewPointsService", () => {
   describe("#get", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const viewPointEntity = await getRepository(ViewPointEntity).save({
+      const viewPointEntity = await TestDataSource.getRepository(
+        ViewPointEntity
+      ).save({
         name: "viewPointName",
         description: "",
         index: 0,
         testMatrices: [testMatrixEntity],
       });
 
-      const result = await new ViewPointsService().get(viewPointEntity.id);
+      const result = await new ViewPointsService(TestDataSource).get(
+        viewPointEntity.id
+      );
 
       expect(result).toEqual({
         id: viewPointEntity.id,
@@ -46,7 +52,7 @@ describe("ViewPointsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new ViewPointsService().get(dummyId);
+        await new ViewPointsService(TestDataSource).get(dummyId);
       } catch (e) {
         expect((e as Error).message).toEqual(`ViewPoint not found. ${dummyId}`);
       }
@@ -55,27 +61,29 @@ describe("ViewPointsService", () => {
 
   describe("#post", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const result = await new ViewPointsService().post(
+      const result = await new ViewPointsService(TestDataSource).post(
         {
           testMatrixId: testMatrixEntity.id,
           index: 0,
           name: "viewPointName",
           description: "description",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const testTarget = await getRepository(ViewPointEntity).findOne(
-        result.id
-      );
+      const testTarget = await TestDataSource.getRepository(
+        ViewPointEntity
+      ).findOneBy({
+        id: result.id,
+      });
 
       expect(result).toEqual({
         id: testTarget?.id,
@@ -88,14 +96,14 @@ describe("ViewPointsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new ViewPointsService().post(
+        await new ViewPointsService(TestDataSource).post(
           {
             testMatrixId: dummyId,
             index: 3,
             name: "viewPointName3",
             description: "description3",
           },
-          new TransactionRunner()
+          new TransactionRunner(TestDataSource)
         );
       } catch (e) {
         expect((e as Error).message).toEqual(
@@ -107,33 +115,38 @@ describe("ViewPointsService", () => {
 
   describe("#patch", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const viewPointEntity = await new ViewPointsService().post(
+      const viewPointEntity = await new ViewPointsService(TestDataSource).post(
         {
           testMatrixId: testMatrixEntity.id,
           index: 0,
           name: "viewPointName",
           description: "description",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const result = await new ViewPointsService().patch(viewPointEntity.id, {
-        name: "viewPointName2",
-        index: 2,
-        description: "description2",
+      const result = await new ViewPointsService(TestDataSource).patch(
+        viewPointEntity.id,
+        {
+          name: "viewPointName2",
+          index: 2,
+          description: "description2",
+        }
+      );
+
+      const testTarget = await TestDataSource.getRepository(
+        ViewPointEntity
+      ).findOneBy({
+        id: result.id,
       });
-
-      const testTarget = await getRepository(ViewPointEntity).findOne(
-        result.id
-      );
 
       expect(result).toEqual({
         id: testTarget?.id,
@@ -146,7 +159,7 @@ describe("ViewPointsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new ViewPointsService().patch(dummyId, {
+        await new ViewPointsService(TestDataSource).patch(dummyId, {
           name: "viewPointName2",
           index: 2,
           description: "description2",
@@ -159,51 +172,51 @@ describe("ViewPointsService", () => {
 
   describe("#delete", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const target0 = await new ViewPointsService().post(
+      const target0 = await new ViewPointsService(TestDataSource).post(
         {
           testMatrixId: testMatrixEntity.id,
           index: 0,
           name: "viewPointName",
           description: "description",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const target1 = await new ViewPointsService().post(
+      const target1 = await new ViewPointsService(TestDataSource).post(
         {
           testMatrixId: testMatrixEntity.id,
           index: 1,
           name: "viewPointName1",
           description: "description1",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const target2 = await new ViewPointsService().post(
+      const target2 = await new ViewPointsService(TestDataSource).post(
         {
           testMatrixId: testMatrixEntity.id,
           index: 2,
           name: "viewPointName2",
           description: "description2",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      await new ViewPointsService().delete(target1.id);
+      await new ViewPointsService(TestDataSource).delete(target1.id);
 
-      const viewPointRepository = getRepository(ViewPointEntity);
+      const viewPointRepository = TestDataSource.getRepository(ViewPointEntity);
       const result = await viewPointRepository.find();
 
-      const t0 = await viewPointRepository.findOne(target0.id);
-      const t2 = await viewPointRepository.findOne(target2.id);
+      const t0 = await viewPointRepository.findOneBy({ id: target0.id });
+      const t2 = await viewPointRepository.findOneBy({ id: target2.id });
 
       expect((result ?? [])[0]).toEqual({
         id: t0?.id,

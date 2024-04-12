@@ -3,8 +3,10 @@ import { TestStepEntity } from "@/entities/TestStepEntity";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampService } from "@/services/TimestampService";
 import { ConfigsService } from "@/services/ConfigsService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { CreateTestStepDto } from "@/interfaces/TestSteps";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
@@ -13,7 +15,7 @@ import { NoteEntity } from "@/entities/NoteEntity";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -43,19 +45,21 @@ describe("TestStepService", () => {
     it("テストステップを1件取得する", async () => {
       timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
-      const service = new TestStepServiceImpl({
+      const service = new TestStepServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(TestDataSource),
       });
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
       const noteEntity = new NoteEntity();
       noteEntity.id = "note1";
 
-      const testStepEntity = await getRepository(TestStepEntity).save(
+      const testStepEntity = await TestDataSource.getRepository(
+        TestStepEntity
+      ).save(
         new TestStepEntity({
           testResult: testResultEntity,
           notes: [noteEntity],
@@ -95,10 +99,10 @@ describe("TestStepService", () => {
         .mockReturnValue("testStep.png");
       timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
-      const service = new TestStepServiceImpl({
+      const service = new TestStepServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(TestDataSource),
       });
 
       const element1 = {
@@ -121,7 +125,9 @@ describe("TestStepService", () => {
         screenElements: JSON.stringify(defaultScreenElements),
       });
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(
         new TestResultEntity({
           coverageSources: [coverageSourceEntity],
           startTimestamp: 1,
@@ -167,9 +173,9 @@ describe("TestStepService", () => {
         requestBody
       );
 
-      const testTargetTestResult = await getRepository(
+      const testTargetTestResult = await TestDataSource.getRepository(
         TestResultEntity
-      ).findOne(testResultEntity.id);
+      ).findOneBy({ id: testResultEntity.id });
 
       expect(testTargetTestResult?.testingTime).toEqual(90);
       expect(testTargetTestResult?.lastUpdateTimestamp).toEqual(
@@ -203,21 +209,21 @@ describe("TestStepService", () => {
     it("テストステップにnoteを1件追加する", async () => {
       timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
-      const service = new TestStepServiceImpl({
+      const service = new TestStepServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(TestDataSource),
       });
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
-      const testStepEntity = await getRepository(TestStepEntity).save(
-        new TestStepEntity({ testResult: testResultEntity })
-      );
+      const testStepEntity = await TestDataSource.getRepository(
+        TestStepEntity
+      ).save(new TestStepEntity({ testResult: testResultEntity }));
 
-      const noteEntity = await getRepository(NoteEntity).save({
+      const noteEntity = await TestDataSource.getRepository(NoteEntity).save({
         value: "value",
         details: "details",
         timestamp: timestampService.epochMilliseconds(),

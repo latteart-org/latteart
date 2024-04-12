@@ -47,6 +47,7 @@ import {
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results")
 @Tags("test-results")
@@ -67,12 +68,12 @@ export class TestResultsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    return new TestResultServiceImpl({
+    return new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,
@@ -108,12 +109,12 @@ export class TestResultsController extends Controller {
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
-      const testResult = await new TestResultServiceImpl({
+      const testResult = await new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
-        testStep: new TestStepServiceImpl({
+        testStep: new TestStepServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
-          config: new ConfigsService(),
+          config: new ConfigsService(AppDataSource),
         }),
         screenshotFileRepository,
         workingFileRepository,
@@ -167,12 +168,12 @@ export class TestResultsController extends Controller {
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
-      const result = await new TestResultServiceImpl({
+      const result = await new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
-        testStep: new TestStepServiceImpl({
+        testStep: new TestStepServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
-          config: new ConfigsService(),
+          config: new ConfigsService(AppDataSource),
         }),
         screenshotFileRepository,
         workingFileRepository,
@@ -219,12 +220,12 @@ export class TestResultsController extends Controller {
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
-      return await new TestResultServiceImpl({
+      return await new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
-        testStep: new TestStepServiceImpl({
+        testStep: new TestStepServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
-          config: new ConfigsService(),
+          config: new ConfigsService(AppDataSource),
         }),
         screenshotFileRepository,
         workingFileRepository,
@@ -264,12 +265,12 @@ export class TestResultsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    const service = new TestResultServiceImpl({
+    const service = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,
@@ -306,7 +307,9 @@ export class TestResultsController extends Controller {
   ): Promise<ListSessionResponse> {
     console.log("TestResultsController - getSessionIds");
 
-    return new SessionsService().getSessionIdentifiers(testResultId);
+    return new SessionsService(AppDataSource).getSessionIdentifiers(
+      testResultId
+    );
   }
 
   /**
@@ -332,12 +335,12 @@ export class TestResultsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    const service = new TestResultServiceImpl({
+    const service = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,

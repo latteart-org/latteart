@@ -28,6 +28,7 @@ import {
 } from "tsoa";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/screenshots")
 @Tags("test-results")
@@ -51,7 +52,7 @@ export class ScreenshotsController extends Controller {
     const tempFileRepository = fileRepositoryManager.getRepository("temp");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     try {
-      const url = await new ScreenshotsService().getScreenshots(
+      const url = await new ScreenshotsService(AppDataSource).getScreenshots(
         testResultId,
         tempFileRepository,
         workingFileRepository,

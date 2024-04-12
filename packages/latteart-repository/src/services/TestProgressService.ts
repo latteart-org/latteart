@@ -17,16 +17,13 @@
 import { TestProgressEntity } from "@/entities/TestProgressEntity";
 import {
   Between,
-  getRepository,
+  DataSource,
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
 } from "typeorm";
 import { StoryEntity } from "@/entities/StoryEntity";
-import {
-  dateToFormattedString,
-  unixtimeToFormattedString,
-} from "@/domain/timeUtil";
+import { dateToFormattedString, unixtimeToDate } from "@/domain/timeUtil";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectsServiceImpl } from "./ProjectsService";
 
@@ -65,6 +62,8 @@ export interface TestProgressService {
 }
 
 export class TestProgressServiceImpl implements TestProgressService {
+  constructor(private dataSource: DataSource) {}
+
   public async saveTodayTestProgresses(
     projectId: string,
     ...storyIds: string[]
@@ -73,7 +72,9 @@ export class TestProgressServiceImpl implements TestProgressService {
 
     if (targetEntities.length > 0) {
       // update test progress
-      await getRepository(TestProgressEntity).save(targetEntities);
+      await this.dataSource
+        .getRepository(TestProgressEntity)
+        .save(targetEntities);
     } else {
       // register test progress
       await this.registerProjectTestProgresses(projectId);
@@ -84,29 +85,26 @@ export class TestProgressServiceImpl implements TestProgressService {
     storyIds: string[],
     filter: { since?: number; until?: number } = {}
   ): Promise<DailyTestProgress[]> {
-    const testProgressRepository = getRepository(TestProgressEntity);
+    const testProgressRepository =
+      this.dataSource.getRepository(TestProgressEntity);
 
     const since =
-      filter.since !== undefined
-        ? unixtimeToFormattedString(filter.since, "YYYY-MM-DD HH:mm:ss")
-        : undefined;
+      filter.since !== undefined ? unixtimeToDate(filter.since) : undefined;
     const until =
-      filter.until !== undefined
-        ? unixtimeToFormattedString(filter.until, "YYYY-MM-DD HH:mm:ss")
-        : undefined;
+      filter.until !== undefined ? unixtimeToDate(filter.until) : undefined;
 
     const periodCondition =
       since && until
         ? { date: Between(since, until) }
         : since
-        ? { date: MoreThanOrEqual(since) }
-        : until
-        ? { date: LessThanOrEqual(until) }
-        : {};
+          ? { date: MoreThanOrEqual(since) }
+          : until
+            ? { date: LessThanOrEqual(until) }
+            : {};
 
     const entities = await testProgressRepository.find({
       where: {
-        story: In(storyIds),
+        story: { id: In(storyIds) },
         ...periodCondition,
       },
       order: { date: "ASC" },
@@ -152,7 +150,9 @@ export class TestProgressServiceImpl implements TestProgressService {
     projectId: string,
     filter: { since?: number; until?: number } = {}
   ): Promise<DailyTestProgress[]> {
-    const project = await new ProjectsServiceImpl().getProject(projectId);
+    const project = await new ProjectsServiceImpl(this.dataSource).getProject(
+      projectId
+    );
 
     const storyIds = project.stories.map((story) => story.id);
 
@@ -164,15 +164,17 @@ export class TestProgressServiceImpl implements TestProgressService {
   ): Promise<void> {
     const storyProgresses = await Promise.all(
       storyIds.map(async (storyId) => {
-        const storyRepository = getRepository(StoryEntity);
-        const story = await storyRepository.findOneOrFail(storyId, {
+        const storyRepository = this.dataSource.getRepository(StoryEntity);
+        const story = await storyRepository.findOneOrFail({
+          where: { id: storyId },
           relations: ["sessions"],
         });
 
-        const testTargetRepository = getRepository(TestTargetEntity);
-        const testTarget = await testTargetRepository.findOneOrFail(
-          story.testTargetId
-        );
+        const testTargetRepository =
+          this.dataSource.getRepository(TestTargetEntity);
+        const testTarget = await testTargetRepository.findOneByOrFail({
+          id: story.testTargetId,
+        });
         const plans: { viewPointId: string; value: number }[] = JSON.parse(
           testTarget.text
         );
@@ -193,7 +195,8 @@ export class TestProgressServiceImpl implements TestProgressService {
       })
     );
 
-    const testProgressRepository = getRepository(TestProgressEntity);
+    const testProgressRepository =
+      this.dataSource.getRepository(TestProgressEntity);
 
     await testProgressRepository.save(storyProgresses);
   }
@@ -201,7 +204,9 @@ export class TestProgressServiceImpl implements TestProgressService {
   private async registerProjectTestProgresses(
     projectId: string
   ): Promise<void> {
-    const project = await new ProjectsServiceImpl().getProject(projectId);
+    const project = await new ProjectsServiceImpl(this.dataSource).getProject(
+      projectId
+    );
 
     const storyIds = project.stories.map((story) => story.id);
 
@@ -211,13 +216,13 @@ export class TestProgressServiceImpl implements TestProgressService {
   private async collectUpdateTargetEntities(...storyIds: string[]) {
     const _d = new Date();
     const d = new Date(_d.getFullYear(), _d.getMonth(), _d.getDate(), 0, 0, 0);
-    const today = dateToFormattedString(d, "YYYY-MM-DD HH:mm");
 
-    const testProgressRepository = getRepository(TestProgressEntity);
+    const testProgressRepository =
+      this.dataSource.getRepository(TestProgressEntity);
     const entitiesWithStoryId = await Promise.all(
       storyIds.map(async (storyId) => {
         const entity = await testProgressRepository.findOne({
-          where: { story: storyId, createdAt: MoreThanOrEqual(today) },
+          where: { story: { id: storyId }, createdAt: MoreThanOrEqual(d) },
           order: { createdAt: "DESC" },
         });
 
@@ -254,15 +259,18 @@ export class TestProgressServiceImpl implements TestProgressService {
   }
 
   private async getNewTestProgress(storyId: string) {
-    const { sessions, viewPointId, testTargetId } = await getRepository(
-      StoryEntity
-    ).findOneOrFail(storyId, {
-      relations: ["sessions"],
-    });
+    const { sessions, viewPointId, testTargetId } = await this.dataSource
+      .getRepository(StoryEntity)
+      .findOneOrFail({
+        where: { id: storyId },
+        relations: ["sessions"],
+      });
 
-    const testTarget = await getRepository(TestTargetEntity).findOneOrFail(
-      testTargetId
-    );
+    const testTarget = await this.dataSource
+      .getRepository(TestTargetEntity)
+      .findOneByOrFail({
+        id: testTargetId,
+      });
     const plans: { viewPointId: string; value: number }[] = JSON.parse(
       testTarget.text
     );
