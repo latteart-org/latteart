@@ -24,54 +24,61 @@
     <v-col cols="12" align-self="center" style="height: 40px">
       <auto-operation-register-button v-if="!isViewerMode" />
     </v-col>
-    <v-row
-      align-content="space-around"
-      justify="end"
-      class="fill-height"
-      style="height: calc(100% - 90px)"
-      no-gutters
-    >
+    <v-row align-content="space-around" justify="end" style="height: calc(100% - 90px)" no-gutters>
       <v-col cols="12" :style="{ height: '100%' }">
-        <v-container fluid fill-height>
+        <v-container fluid class="fill-height">
           <v-data-table
+            v-model:sort-by="sortBy"
+            v-model="checkedItems"
+            v-model:page="page"
+            v-model:items-per-page="itemsPerPage"
+            :row-props="appendClass"
             height="calc(100% - 59px)"
             :style="{ height: '100%', width: '100%' }"
-            dense
+            density="compact"
             fixed-header
             :show-select="!isViewerMode"
             item-key="operation.sequence"
-            v-model:sort-by="sortBy"
-            v-model:sort-desc="sortDesc"
-            :custom-sort="(items) => items"
+            :custom-sort="(items: any) => items"
             must-sort
             :headers="headers"
             :items="displayedHistoryItems"
-            v-model="checkedItems"
             :search="search"
-            v-model:page="page"
-            v-model:items-per-page="itemsPerPage"
             :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
-            @click:row="(item) => onSelectOperations(item.index)"
+            @click:row="(event: any, obj: any) => onSelectOperations(obj.item.index)"
             @contextmenu:row="
-              (event, item) => contextmenu(item.item.operation.sequence, event, item)
+              (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
             "
           >
-            <template v-slot:[`item.data-table-select`]="{ isSelected, select, item }">
-              <td :class="createCssClassForRow(item.index)">
-                <v-checkbox-btn :value="isSelected" @input="select($event)" />
+            <template #[`header.data-table-select`]>
+              <v-checkbox-btn
+                :model-value="checkboxStatus.allChecked"
+                :true-value="true"
+                :false-value="false"
+                :indeterminate="checkboxStatus.indeterminate"
+                @input="checkAllItems"
+              />
+            </template>
+            <template #[`item.data-table-select`]="props">
+              <td>
+                <v-checkbox-btn
+                  :model-value="checkedItems.includes(props.item.index)"
+                  :true-value="true"
+                  :false-value="false"
+                  class="controlSize"
+                  @input="updateCheckedItem(props.item.index)"
+                />
               </td>
             </template>
 
-            <template v-slot:[`item.operation.sequence`]="{ item }">
-              <td
-                :class="[createCssClassForRow(item.index), `sequence_${item.operation.sequence}`]"
-              >
+            <template #[`item.operation.sequence`]="{ item }">
+              <td :class="`sequence_${item.operation.sequence}`">
                 {{ item.operation.sequence }}
               </td>
             </template>
 
-            <template v-slot:[`item.notes`]="{ item }">
-              <td :class="createCssClassForRow(item.index)">
+            <template #[`item.notes`]="{ item }">
+              <td>
                 <v-icon v-if="item.notes.intention" :title="message('app.intention')" color="blue"
                   >event_note</v-icon
                 >
@@ -84,65 +91,44 @@
               </td>
             </template>
 
-            <template v-slot:[`item.operation.title`]="{ item }">
-              <td
-                :title="item.operation.title"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.title`]="{ item }">
+              <td :title="item.operation.title" :class="{ ellipsis: true }">
                 {{ item.operation.title.substring(0, 60) }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.elementInfo.tagname`]="{ item }">
-              <td
-                :title="item.operation.elementInfo.tagname"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.elementInfo.tagname`]="{ item }">
+              <td :title="item.operation.elementInfo.tagname" :class="{ ellipsis: true }">
                 {{ item.operation.elementInfo.tagname }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.elementInfo.attributes.name`]="{ item }">
-              <td
-                :title="item.operation.elementInfo.attributes.name"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.elementInfo.attributes.name`]="{ item }">
+              <td :title="item.operation.elementInfo.attributes.name" :class="{ ellipsis: true }">
                 {{ item.operation.elementInfo.attributes.name }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.elementInfo.text`]="{ item }">
-              <td
-                :title="item.operation.elementInfo.text"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.elementInfo.text`]="{ item }">
+              <td :title="item.operation.elementInfo.text" :class="{ ellipsis: true }">
                 {{ item.operation.elementInfo.text.substring(0, 60) }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.type`]="{ item }">
-              <td
-                :title="item.operation.type"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.type`]="{ item }">
+              <td :title="item.operation.type" :class="{ ellipsis: true }">
                 {{ item.operation.type }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.inputValue`]="{ item }">
-              <td
-                :title="item.operation.inputValue"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.inputValue`]="{ item }">
+              <td :title="item.operation.inputValue" :class="{ ellipsis: true }">
                 {{ item.operation.inputValue.substring(0, 60) }}
               </td>
             </template>
 
-            <template v-slot:[`item.operation.timestamp`]="{ item }">
-              <td
-                :title="formatTimestamp(item.operation.timestamp)"
-                :class="{ ...createCssClassForRow(item.index), ellipsis: true }"
-              >
+            <template #[`item.operation.timestamp`]="{ item }">
+              <td :title="formatTimestamp(item.operation.timestamp)" :class="{ ellipsis: true }">
                 {{ formatTimestamp(item.operation.timestamp) }}
               </td>
             </template>
@@ -157,18 +143,18 @@
           ><v-icon>search</v-icon>{{ message("operation.search") }}</span
         >
         <v-checkbox
+          v-model="isPurposeFilterEnabled"
           class="search-checkbox pl-4"
           :label="message('operation.purpose')"
-          v-model="isPurposeFilterEnabled"
         ></v-checkbox>
         <v-checkbox
+          v-model="isNoteFilterEnabled"
           class="search-checkbox"
           :label="message('operation.notice')"
-          v-model="isNoteFilterEnabled"
         ></v-checkbox>
         <v-text-field
-          class="pl-4"
           v-model="search"
+          class="pl-4"
           :label="message('operation.query')"
         ></v-text-field>
       </v-row>
@@ -178,21 +164,20 @@
       :opened="contextMenuOpened"
       :x="contextMenuX"
       :y="contextMenuY"
-      :operationInfo="contextMenuInfo"
-      @operationContextMenuClose="contextMenuOpened = false"
+      :operation-info="contextMenuInfo"
+      @operation-context-menu-close="contextMenuOpened = false"
     />
   </v-row>
 </template>
 
 <script lang="ts">
-import { OperationHistory, MessageProvider } from "@/lib/operationHistory/types";
+import type { OperationHistory, MessageProvider } from "@/lib/operationHistory/types";
 import OperationContextMenu from "./OperationContextMenu.vue";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
 import { filterTableRows, sortTableRows } from "@/lib/common/table";
-import { OperationHistoryState } from "@/store/operationHistory";
 import {
   computed,
   defineComponent,
@@ -204,9 +189,9 @@ import {
   onBeforeUnmount,
   watch
 } from "vue";
-import { useStore } from "@/store";
-import { useVuetify } from "@/composables/useVuetify";
 import type { PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useGoTo } from "vuetify";
 
 type ElementInfoForDisplay = {
   tagname: string;
@@ -231,10 +216,14 @@ type HistoryItemForDisplay = {
 };
 
 export default defineComponent({
+  components: {
+    "operation-context-menu": OperationContextMenu,
+    "auto-operation-register-button": AutoOperationRegisterButton
+  },
   props: {
     history: {
       type: Array as PropType<OperationHistory>,
-      default: [],
+      default: () => [],
       required: true
     },
     selectedOperationInfo: {
@@ -250,19 +239,14 @@ export default defineComponent({
     },
     displayedOperations: {
       type: Array as PropType<number[]>,
-      default: [],
+      default: () => [],
       required: true
     },
     message: { type: Function as PropType<MessageProvider>, required: true },
     operationContextEnabled: { type: Boolean, default: false, required: true }
   },
-  components: {
-    "operation-context-menu": OperationContextMenu,
-    "auto-operation-register-button": AutoOperationRegisterButton
-  },
   setup(props) {
-    const store = useStore();
-    const vuetify = useVuetify();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const isViewerMode = inject("isViewerMode") ?? false;
 
@@ -282,67 +266,130 @@ export default defineComponent({
       selectedSequences: []
     });
 
-    const checkedItems = ref<HistoryItemForDisplay[]>([]);
+    const checkedItems = ref<number[]>([]);
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(100);
     const itemsPerPageOptions = ref<number[]>([100, 200, 500, 1000]);
-    const sortBy = ref("operation.sequence");
-    const sortDesc = ref(false);
+    const sortBy = ref<{ key: string; order: "asc" | "desc" }[]>([
+      { key: "operation.sequence", order: "asc" }
+    ]);
+
+    const numberOfDisplayedItems = computed(() => {
+      return itemsPerPage.value === -1 ? displayedHistoryItems.value.length : itemsPerPage.value;
+    });
+
+    const updateCheckedItem = (index: number) => {
+      if (!checkedItems.value.includes(index)) {
+        checkedItems.value = [...checkedItems.value, index];
+      } else {
+        checkedItems.value = checkedItems.value.filter((n) => n !== index);
+      }
+    };
+
+    const checkAllItems = () => {
+      const start = (page.value - 1) * numberOfDisplayedItems.value;
+      const _end = start + (numberOfDisplayedItems.value - 1);
+      const end =
+        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+      const items: number[] = [];
+      const add = !checkboxStatus.value.allChecked;
+      for (let i = start; i <= end; i++) {
+        const index = displayedHistoryItems.value[i].index;
+        if (!checkedItems.value.includes(index)) {
+          if (add) {
+            items.push(index);
+          }
+        } else {
+          if (!add) {
+            items.push(index);
+          }
+        }
+      }
+      checkedItems.value = add
+        ? [...checkedItems.value, ...items]
+        : checkedItems.value.filter((n) => !items.includes(n));
+    };
+
+    const checkboxStatus = computed(() => {
+      const start = (page.value - 1) * numberOfDisplayedItems.value;
+      const _end = start + (numberOfDisplayedItems.value - 1);
+      const end =
+        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+      let include = false;
+      let notInclude = false;
+      for (let i = start; i <= end; i++) {
+        const index = displayedHistoryItems.value[i].index;
+        if (checkedItems.value.includes(index)) {
+          include = true;
+        } else {
+          notInclude = true;
+        }
+        if (include && notInclude) {
+          break;
+        }
+      }
+      return {
+        allChecked: !notInclude,
+        indeterminate: include && notInclude
+      };
+    });
 
     const headers = computed(
       (): {
-        text: string;
+        title: string;
         value: string;
-        class?: string;
         width?: string;
         sortable?: boolean;
       }[] => {
         return [
           {
-            text: props.message("operation.sequence"),
+            title: props.message("operation.sequence"),
             value: "operation.sequence",
-            width: "70",
-            class: "seq-col"
+            width: "70"
           },
           {
-            text: "",
+            title: "",
             value: "notes",
-            class: "icon-col",
             width: "90",
             sortable: false
           },
-          { text: props.message("operation.title"), value: "operation.title" },
+          { title: props.message("operation.title"), value: "operation.title", sortable: true },
           {
-            text: props.message("operation.tagname"),
-            value: "operation.elementInfo.tagname"
+            title: props.message("operation.tagname"),
+            value: "operation.elementInfo.tagname",
+            sortable: true
           },
           {
-            text: props.message("operation.name"),
-            value: "operation.elementInfo.attributes.name"
+            title: props.message("operation.name"),
+            value: "operation.elementInfo.attributes.name",
+            sortable: true
           },
           {
-            text: props.message("operation.text"),
-            value: "operation.elementInfo.text"
+            title: props.message("operation.text"),
+            value: "operation.elementInfo.text",
+            sortable: true
           },
-          { text: props.message("operation.type"), value: "operation.type" },
+          { title: props.message("operation.type"), value: "operation.type", sortable: true },
           {
-            text: props.message("operation.input"),
-            value: "operation.inputValue"
+            title: props.message("operation.input"),
+            value: "operation.inputValue",
+            sortable: true
           },
           {
-            text: props.message("operation.timestamp"),
-            value: "operation.timestamp"
+            title: props.message("operation.timestamp"),
+            value: "operation.timestamp",
+            sortable: true
           }
         ];
       }
     );
 
-    const createCssClassForRow = (itemIndex: number) => {
+    const appendClass = (obj: any) => {
       return {
-        selected: selectedOperationIndexes.value.includes(itemIndex),
-        marked: autoOperationIndexes.value.includes(itemIndex),
-        disabled: disabledOperationIndexes.value.includes(itemIndex)
+        class: `${selectedOperationIndexes.value.includes(obj.item.index) ? "selected" : ""} ${
+          autoOperationIndexes.value.includes(obj.item.index) ? "marked" : ""
+        } ${disabledOperationIndexes.value.includes(obj.item.index) ? "disabled" : ""}`
       };
     };
 
@@ -359,14 +406,14 @@ export default defineComponent({
         return;
       }
 
-      page.value = Math.floor(index / itemsPerPage.value) + 1;
+      page.value = Math.floor(index / numberOfDisplayedItems.value) + 1;
 
       nextTick(() => {
         const seqElement = document.querySelector(
           `.sequence_${props.selectedOperationInfo.sequence}`
         );
 
-        const dataTableElement = document.querySelector(".v-data-table__wrapper");
+        const dataTableElement = document.querySelector(".v-table__wrapper");
         if (seqElement && dataTableElement) {
           dataTableElement.scrollTop = (seqElement as HTMLElement).offsetTop - 32;
         }
@@ -415,7 +462,6 @@ export default defineComponent({
           autoOperationIndexes.push(index);
         }
       }
-      console.log(autoOperationIndexes);
       return autoOperationIndexes;
     });
 
@@ -475,11 +521,11 @@ export default defineComponent({
         noteFilterPredicate
       ]);
 
-      return sortTableRows(filteredItems, sortBy.value, sortDesc.value);
+      return sortTableRows(filteredItems, sortBy.value);
     });
 
     const getCheckedItems = computed((): { index: number; operation: OperationForGUI }[] => {
-      return ((store.state as any).operationHistory as OperationHistoryState).checkedOperations;
+      return operationHistoryStore.checkedOperations;
     });
 
     const displayedOperationFilterPredicate = (item: HistoryItemForDisplay) => {
@@ -546,12 +592,15 @@ export default defineComponent({
     };
 
     const updateCheckedOperationList = (): void => {
-      const checkedOperations = checkedItems.value.map(({ index, operation }) => {
-        return { index, operation };
-      });
-      store.commit("operationHistory/setCheckedOperations", {
-        checkedOperations
-      });
+      const checkedOperations = displayedHistoryItems.value
+        .filter((_, index) => {
+          return checkedItems.value.includes(index);
+        })
+        .map((v) => {
+          return { index: v.index, operation: v.operation };
+        });
+
+      operationHistoryStore.checkedOperations = checkedOperations;
     };
 
     const contextmenu = (itemSequence: number, event: MouseEvent) => {
@@ -602,19 +651,28 @@ export default defineComponent({
 
     const switchTablePage = (itemIndex: number) => {
       const perPage =
-        itemsPerPage.value > 0 ? itemsPerPage.value : displayedHistoryItems.value.length;
+        numberOfDisplayedItems.value > 0
+          ? numberOfDisplayedItems.value
+          : displayedHistoryItems.value.length;
 
       page.value = Math.floor(itemIndex / perPage) + 1;
     };
 
+    const goto = useGoTo({
+      container: ".v-table__wrapper:first-child",
+      duration: 100
+    });
+
     const scrollToTableRow = (itemIndex: number) => {
       const perPage =
-        itemsPerPage.value > 0 ? itemsPerPage.value : displayedHistoryItems.value.length;
+        numberOfDisplayedItems.value > 0
+          ? numberOfDisplayedItems.value
+          : displayedHistoryItems.value.length;
       const rowIndex = Math.floor(itemIndex % perPage);
       const rowHeight = 29;
       const rowTop = rowIndex * rowHeight;
       const rowBottom = rowTop + rowHeight;
-      const container = document.querySelector(".v-data-table__wrapper:first-child");
+      const container = document.querySelector(".v-table__wrapper:first-child");
       const scrollTop = container?.scrollTop ?? 0;
       const clientHeight = container?.clientHeight ?? 0;
       const scrollBottom = scrollTop + (clientHeight - 32);
@@ -626,14 +684,11 @@ export default defineComponent({
             ? scrollTop + rowBottom - scrollBottom
             : scrollTop;
 
-      vuetify.goTo(destScrollTop, {
-        container: ".v-data-table__wrapper:first-child",
-        duration: 100
-      });
+      goto(destScrollTop);
     };
 
     const pageForward = () => {
-      const destIndex = currentItemIndex.value + itemsPerPage.value;
+      const destIndex = currentItemIndex.value + numberOfDisplayedItems.value;
       const destItem =
         displayedHistoryItems.value[
           destIndex > displayedHistoryItems.value.length - 1
@@ -642,8 +697,13 @@ export default defineComponent({
         ];
 
       if (destItem) {
+        if (
+          page.value >
+          Math.floor(displayedHistoryItems.value.length / numberOfDisplayedItems.value) + 1
+        ) {
+          page.value++;
+        }
         onSelectOperations(destItem.index);
-        page.value++;
         nextTick(() => {
           resetPosition();
         });
@@ -651,12 +711,14 @@ export default defineComponent({
     };
 
     const pageBack = () => {
-      const destIndex = currentItemIndex.value - itemsPerPage.value;
+      const destIndex = currentItemIndex.value - numberOfDisplayedItems.value;
       const destItem = displayedHistoryItems.value[destIndex < 0 ? 0 : destIndex];
 
       if (destItem) {
+        if (page.value > 1) {
+          page.value--;
+        }
         onSelectOperations(destItem.index);
-        page.value--;
         nextTick(() => {
           resetPosition();
         });
@@ -704,6 +766,10 @@ export default defineComponent({
     initializeSelectedSequences();
 
     return {
+      selectedSequences,
+      checkAllItems,
+      checkboxStatus,
+      appendClass,
       isViewerMode,
       isPurposeFilterEnabled,
       isNoteFilterEnabled,
@@ -717,22 +783,28 @@ export default defineComponent({
       itemsPerPage,
       itemsPerPageOptions,
       sortBy,
-      sortDesc,
       headers,
-      createCssClassForRow,
       formatTimestamp,
       onSelectOperations,
       displayedHistoryItems,
       contextmenu,
-      cancelKeydown
+      cancelKeydown,
+      updateCheckedItem,
+      currentItemIndex
     };
   }
 });
 </script>
 
 <style lang="sass" scoped>
-td
-  height: inherit !important
+:deep(.v-data-table__tr)
+  height: 32px !important
+
+:deep(.v-data-table__td)
+  height: 32px !important
+
+.controlSize
+  --v-selection-control-size: 26px !important
 
 .ellipsis
   overflow: hidden
@@ -784,4 +856,7 @@ td
   background-color: lemonchiffon !important
   font-weight: bold
   color: chocolate
+
+.v-data-table__td .v-data-table-column--align-start
+  padding: 0
 </style>

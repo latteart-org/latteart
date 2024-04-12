@@ -116,15 +116,15 @@
         </splitpanes>
       </pane>
       <pane v-if="!dispCoverage" style="z-index: 6">
-        <!-- <operation-list
+        <operation-list
           v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
-          :displayedOperations="displayedOperations"
-          :onSelectOperation="selectOperation"
+          :displayed-operations="displayedOperations"
+          :on-select-operation="selectOperation"
           :history="history"
-          :selectedOperationInfo="selectedOperationInfo"
+          :selected-operation-info="selectedOperationInfo"
           :message="message"
-          :operationContextEnabled="operationContextEnabled"
-        ></operation-list> -->
+          :operation-context-enabled="operationContextEnabled"
+        ></operation-list>
 
         <!--<decision-table
           v-if="diagramType === DIAGRAM_TYPE_SCREEN_TRANSITION"
@@ -176,7 +176,7 @@ import type {
   OperationWithNotes
 } from "@/lib/operationHistory/types";
 import HistorySummaryDiagram from "@/components/organisms/history/HistorySummaryDiagram.vue";
-// import OperationList from "@/components/organisms/history/OperationList.vue";
+import OperationList from "@/components/organisms/history/OperationList.vue";
 import ElementCoverage from "@/components/organisms/history/ElementCoverage.vue";
 // import DecisionTable from "@/components/organisms/history/DecisionTable.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
@@ -195,7 +195,7 @@ import { useOperationHistoryStore } from "@/stores/operationHistory";
 export default defineComponent({
   components: {
     "history-summary-diagram": HistorySummaryDiagram,
-    // "operation-list": OperationList,
+    "operation-list": OperationList,
     "element-coverage": ElementCoverage,
     // "decision-table": DecisionTable,
     "screencast-display": ScreencastDisplay,
