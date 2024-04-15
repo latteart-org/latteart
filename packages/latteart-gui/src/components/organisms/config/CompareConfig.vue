@@ -20,7 +20,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
-          :label="store.getters.message('config-page.comparison-exclude-items-enabled')"
+          :label="$t('config-page.comparison-exclude-items-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -32,17 +32,17 @@
           item-title="text"
           item-value="value"
           :menu-props="{ maxHeight: '400' }"
-          :label="store.getters.message('config-page.comparison-exclude-items-value')"
+          :label="$t('config-page.comparison-exclude-items-value')"
           multiple
-          @update:model-value="changeExcludeItems"
           :disabled="!isExcludeItemsEnabled"
           class="px-1"
+          @update:model-value="changeExcludeItems"
         ></v-select>
       </v-col>
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
-          :label="store.getters.message('config-page.comparison-exclude-elements-enabled')"
+          :label="$t('config-page.comparison-exclude-elements-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -52,11 +52,11 @@
           v-model="excludeElements"
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
-          :label="store.getters.message('config-page.comparison-exclude-elements-tagname')"
+          :label="$t('config-page.comparison-exclude-elements-tagname')"
           multiple
-          @update:model-value="changeExcludeElements"
           :disabled="!isExcludeElementsEnabled"
           class="px-1"
+          @update:model-value="changeExcludeElements"
         ></v-select>
       </v-col>
     </v-row>
@@ -64,9 +64,9 @@
 </template>
 
 <script lang="ts">
-import { TestResultComparisonSetting } from "@/lib/common/settings/Settings";
+import { type TestResultComparisonSetting } from "@/lib/common/settings/Settings";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -84,8 +84,9 @@ export default defineComponent({
       required: true
     }
   },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
+    const t = useRootStore().message;
 
     const excludeItemValues = ref<string[]>([]);
     const excludeElementTags = ref<string[]>([]);
@@ -99,25 +100,25 @@ export default defineComponent({
     };
 
     const tempTags = computed(() => {
-      return props.tags.sort();
+      return [...props.tags].sort();
     });
 
     const tempExcludeItems = computed((): { text: string; value: string }[] => {
       return [
         {
-          text: `${store.getters.message("test-result-comparison-items.title")}`,
+          text: `${t("test-result-comparison-items.title")}`,
           value: "title"
         },
         {
-          text: `${store.getters.message("test-result-comparison-items.url")}`,
+          text: `${t("test-result-comparison-items.url")}`,
           value: "url"
         },
         {
-          text: `${store.getters.message("test-result-comparison-items.elementTexts")}`,
+          text: `${t("test-result-comparison-items.elementTexts")}`,
           value: "elementTexts"
         },
         {
-          text: `${store.getters.message("test-result-comparison-items.screenshot")}`,
+          text: `${t("test-result-comparison-items.screenshot")}`,
           value: "screenshot"
         }
       ];
@@ -219,7 +220,7 @@ export default defineComponent({
     watch(setting, updateTempSetting);
 
     return {
-      store,
+      t,
       tempTags,
       tempExcludeItems,
       isExcludeItemsEnabled,

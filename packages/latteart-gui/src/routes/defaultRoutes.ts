@@ -29,6 +29,7 @@ import { useTestManagementStore } from "@/stores/testManagement";
 import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import ReviewPage from "@/components/pages/review/ReviewPage.vue";
 import TestMatrixEditPage from "@/components/pages/testMatrixEdit/TestMatrixEditPage.vue";
+import ConfigPage from "@/components/pages/config/ConfigPage.vue";
 
 const defaultRoutes = [
   {
@@ -130,7 +131,11 @@ const defaultRoutes = [
             name: "storyPage",
             component: StoryPage,
             meta: { title: "story-page.title" }
-          }
+          },          {
+            path: "config",
+            component: ConfigPage,
+            meta: { title: "manage-header.capture-config" }
+          },
         ]
       }
     ]

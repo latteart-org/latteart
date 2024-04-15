@@ -17,7 +17,7 @@
       <v-col class="pt-0">
         <span style="display: inline-flex; align-items: center"
           ><v-icon color="yellow-darken-3" start>warning</v-icon
-          >{{ store.getters.message("config-page.experimental-warning") }}</span
+          >{{ $t("config-page.experimental-warning") }}</span
         >
       </v-col>
     </v-row>
@@ -25,11 +25,11 @@
     <v-row>
       <v-col class="pt-0">
         <h4>
-          {{ store.getters.message("config-page.recording-method") }}
+          {{ $t("config-page.recording-method") }}
         </h4>
         <v-checkbox
           v-model="captureArch"
-          :label="store.getters.message('config-page.capture-arch')"
+          :label="$t('config-page.capture-arch')"
           :disabled="isCapturing || isReplaying"
           hide-details
           class="py-0 my-0"
@@ -37,9 +37,9 @@
           false-value="polling"
         >
         </v-checkbox>
-        <span class="pl-8">{{ store.getters.message("config-page.attention") }}</span>
+        <span class="pl-8">{{ $t("config-page.attention") }}</span>
         <p class="pl-8">
-          {{ store.getters.message("config-page.attention-video") }}
+          {{ $t("config-page.attention-video") }}
         </p>
       </v-col>
     </v-row>
@@ -47,10 +47,10 @@
 </template>
 
 <script lang="ts">
-import { ExperimentalFeatureSetting } from "@/lib/common/settings/Settings";
+import { type ExperimentalFeatureSetting } from "@/lib/common/settings/Settings";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -63,9 +63,8 @@ export default defineComponent({
     isCapturing: { type: Boolean, default: true, required: true },
     isReplaying: { type: Boolean, default: true, required: true }
   },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempConfig = ref<ExperimentalFeatureSetting>({
       ...props.experimentalFeatureSetting
     });
@@ -96,7 +95,7 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
+      t: useRootStore().message,
       captureArch
     };
   }
