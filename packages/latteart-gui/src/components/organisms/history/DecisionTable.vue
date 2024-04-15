@@ -313,7 +313,7 @@ export default defineComponent({
     });
 
     const filterByWord = (_: any, search: string, item: any) => {
-      const columns = Object.entries(item.raw);
+      const columns = Object.entries(item.raw as InputValue);
       return columns
         .filter(([columnName]) => {
           return columnName !== "media";
