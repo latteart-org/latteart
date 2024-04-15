@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container pa-8 style="overflow-y: scroll">
+  <v-container class="pa-8">
     <v-row justify="start" class="fill-height">
       <v-col>
         <v-row>

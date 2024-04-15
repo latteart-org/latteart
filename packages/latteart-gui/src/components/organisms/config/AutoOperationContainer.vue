@@ -23,7 +23,7 @@
           :model-value="conditionGroup.isEnabled"
           class="default-flex"
           @update:model-value="
-            (isEnabled) => updateconditionGroup({ isEnabled: !(isEnabled === null) })
+            (isEnabled) => updateConditionGroup({ isEnabled: !(isEnabled === null) })
           "
         >
         </v-checkbox>
@@ -32,7 +32,7 @@
         <v-text-field
           :label="$t('config-page.autoOperation.name')"
           :model-value="conditionGroup.settingName"
-          @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
+          @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
         ></v-text-field>
       </v-col>
       <v-col cols="3" class="d-flex align-center pt-0">
@@ -53,7 +53,7 @@
           :label="$t('config-page.autoOperation.details')"
           :model-value="conditionGroup.details"
           class="px-1"
-          @change="(e: any) => updateconditionGroup({ details: e.target._value })"
+          @change="(e: any) => updateConditionGroup({ details: e.target._value })"
         ></v-textarea>
       </v-col>
       <v-col cols="2" />
@@ -91,7 +91,7 @@ export default defineComponent({
   setup(props, context) {
     const dialogOpened = ref(false);
 
-    const updateconditionGroup = (conditionGroup: Partial<AutoOperationConditionGroup>) => {
+    const updateConditionGroup = (conditionGroup: Partial<AutoOperationConditionGroup>) => {
       context.emit("update-condition-group", conditionGroup, props.index);
     };
 
@@ -102,7 +102,7 @@ export default defineComponent({
     return {
       t: useRootStore().message,
       dialogOpened,
-      updateconditionGroup,
+      updateConditionGroup,
       deleteConditionGroup
     };
   }

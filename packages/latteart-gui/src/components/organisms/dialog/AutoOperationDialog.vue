@@ -81,42 +81,42 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: t(`operation.sequence`),
+          title: t(`operation.sequence`),
           sortable: false,
           value: "sequence"
         },
         {
-          text: t(`operation.title`),
+          title: t(`operation.title`),
           sortable: false,
           value: "title"
         },
         {
-          text: t(`operation.url`),
+          title: t(`operation.url`),
           sortable: false,
           value: "url"
         },
         {
-          text: t(`operation.tagname`),
+          title: t(`operation.tagname`),
           sortable: false,
           value: "tag"
         },
         {
-          text: t(`operation.name`),
+          title: t(`operation.name`),
           sortable: false,
           value: "tagname"
         },
         {
-          text: t(`operation.text`),
+          title: t(`operation.text`),
           sortable: false,
           value: "text"
         },
         {
-          text: t(`operation.type`),
+          title: t(`operation.type`),
           sortable: false,
           value: "type"
         },
         {
-          text: t(`operation.input`),
+          title: t(`operation.input`),
           sortable: false,
           value: "input"
         }
