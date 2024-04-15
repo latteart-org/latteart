@@ -15,12 +15,12 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened" :maxWidth="800">
-    <template v-slot:title>
+  <scrollable-dialog :opened="opened" :max-width="800">
+    <template #title>
       <span>{{ message("note-list-dialog.note-list") }}</span>
     </template>
-    <template v-slot:content>
-      <v-card flat class="pre-wrap break-word" v-for="(note, index) in noteWithTime" :key="index">
+    <template #content>
+      <v-card v-for="(note, index) in noteWithTime" :key="index" flat class="pre-wrap break-word">
         <v-card-title primary-title class="pb-0">
           <h3>
             {{ note.value }}
@@ -36,8 +36,8 @@
         <v-card-text>
           <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
           <v-textarea
-            variant="solo"
             v-if="note.details"
+            variant="solo"
             :model-value="note.details"
             :label="message('note-list-dialog.details')"
             readonly
@@ -46,31 +46,35 @@
 
           <media-display-group
             v-if="isMediaDisplayed"
-            :imageFileUrl="note.image.imageFileUrl"
-            :videoUrl="note.videoUrl"
+            :image-file-url="note.image.imageFileUrl"
+            :video-url="note.videoUrl"
             :message="message"
           />
         </v-card-text>
         <v-divider v-if="index + 1 !== noteWithTime.length"></v-divider>
       </v-card>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{ message("common.ok") }}</v-btn>
+      <v-btn variant="elevated" color="blue" @click="close()">{{ message("common.ok") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
-import { VideoFrame } from "latteart-client";
+import { type VideoFrame } from "latteart-client";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
-import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, nextTick, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "scrollable-dialog": ScrollableDialog,
+    "note-tag-chip-group": NoteTagChipGroup,
+    "media-display-group": MediaDisplayGroup
+  },
   props: {
     opened: { type: Boolean, default: false },
     notes: {
@@ -86,17 +90,12 @@ export default defineComponent({
           image: { imageFileUrl?: string; videoFrame?: VideoFrame };
         }[]
       >,
-      default: []
+      default: () => []
     },
     message: {
       type: Function as PropType<MessageProvider>,
       required: true
     }
-  },
-  components: {
-    "scrollable-dialog": ScrollableDialog,
-    "note-tag-chip-group": NoteTagChipGroup,
-    "media-display-group": MediaDisplayGroup
   },
   setup(props, context) {
     const isMediaDisplayed = ref<boolean>(false);

@@ -17,11 +17,11 @@
 <template>
   <v-container fluid class="pa-0">
     <v-radio-group
+      v-if="imageFileUrl || videoUrl"
       v-model="mediaType"
       inline
       hide-details
       class="mt-0 mb-3"
-      v-if="imageFileUrl || videoUrl"
     >
       <v-radio
         :label="message ? message('media-display-group.image') : $t('media-display-group.image')"
@@ -35,8 +35,8 @@
       ></v-radio>
     </v-radio-group>
 
-    <popup-image v-show="mediaType === 'image'" :imageFileUrl="imageFileUrl" />
-    <video-display v-show="mediaType === 'video'" :videoUrl="videoUrl" />
+    <popup-image v-show="mediaType === 'image'" :image-file-url="imageFileUrl" />
+    <video-display v-show="mediaType === 'video'" :video-url="videoUrl" />
   </v-container>
 </template>
 
@@ -48,14 +48,14 @@ import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "popup-image": PopupImage,
+    "video-display": VideoDisplay
+  },
   props: {
     imageFileUrl: { type: String },
     videoUrl: { type: String },
     message: { type: Function as PropType<MessageProvider> }
-  },
-  components: {
-    "popup-image": PopupImage,
-    "video-display": VideoDisplay
   },
   setup(props) {
     const rootStore = useRootStore();
