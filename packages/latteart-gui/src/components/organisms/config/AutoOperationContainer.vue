@@ -21,24 +21,26 @@
         <v-checkbox
           :style="{ maxWidth: '40px' }"
           :model-value="conditionGroup.isEnabled"
-          @update:model-value="(isEnabled) => updateconditionGroup({ isEnabled })"
           class="default-flex"
+          @update:model-value="
+            (isEnabled) => updateconditionGroup({ isEnabled: !(isEnabled === null) })
+          "
         >
         </v-checkbox>
       </v-col>
       <v-col cols="8">
         <v-text-field
-          :label="store.getters.message('config-page.autoOperation.name')"
+          :label="$t('config-page.autoOperation.name')"
           :model-value="conditionGroup.settingName"
-          @change="(settingName) => updateconditionGroup({ settingName })"
+          @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
         ></v-text-field>
       </v-col>
       <v-col cols="3" class="d-flex align-center pt-0">
-        <v-btn @click="dialogOpened = true">{{
-          store.getters.message("config-page.autoOperation.details-list")
+        <v-btn variant="elevated" @click="dialogOpened = true">{{
+          $t("config-page.autoOperation.details-list")
         }}</v-btn>
-        <v-btn @click="deleteConditionGroup" color="error" class="ml-4">{{
-          store.getters.message("common.delete")
+        <v-btn variant="elevated" color="error" class="ml-4" @click="deleteConditionGroup">{{
+          $t("common.delete")
         }}</v-btn>
       </v-col>
     </v-row>
@@ -48,32 +50,34 @@
       <v-col cols="9">
         <v-textarea
           hide-details
-          :label="store.getters.message('config-page.autoOperation.details')"
+          :label="$t('config-page.autoOperation.details')"
           :model-value="conditionGroup.details"
-          @change="(details) => updateconditionGroup({ details })"
           class="px-1"
+          @change="(e: any) => updateconditionGroup({ details: e.target._value })"
         ></v-textarea>
       </v-col>
       <v-col cols="2" />
     </v-row>
     <auto-operation-dialog
       :opened="dialogOpened"
-      :autoOperations="conditionGroup.autoOperations"
-      :itemsPerPage="10"
+      :auto-operations="conditionGroup.autoOperations"
+      :items-per-page="10"
       @close="dialogOpened = false"
     />
   </v-container>
 </template>
 
 <script lang="ts">
-import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationDialog from "../dialog/AutoOperationDialog.vue";
-import ScreenDefUnit from "./ScreenDefUnit.vue";
 import { defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "auto-operation-dialog": AutoOperationDialog
+  },
   props: {
     conditionGroup: {
       type: Object as PropType<AutoOperationConditionGroup>,
@@ -82,13 +86,9 @@ export default defineComponent({
     },
     index: { type: Number, default: null, required: true }
   },
-  components: {
-    "screen-def-unit": ScreenDefUnit,
-    "auto-operation-dialog": AutoOperationDialog
-  },
-  setup(props, context) {
-    const store = useStore();
+  emits: ["delete-condition-group", "update-condition-group"],
 
+  setup(props, context) {
     const dialogOpened = ref(false);
 
     const updateconditionGroup = (conditionGroup: Partial<AutoOperationConditionGroup>) => {
@@ -100,7 +100,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: useRootStore().message,
       dialogOpened,
       updateconditionGroup,
       deleteConditionGroup

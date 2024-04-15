@@ -24,61 +24,59 @@
               <v-row>
                 <v-checkbox
                   :model-value="conditionGroup.isEnabled"
-                  @update:model-value="(value) => updateConditionGroup({ isEnabled: value })"
                   class="default-flex"
+                  @update:model-value="
+                    (value) => updateConditionGroup({ isEnabled: !(value === null) })
+                  "
                 >
                 </v-checkbox>
                 <v-text-field
-                  :label="store.getters.message('config-page.screen-def.screen-name')"
+                  :label="t('config-page.screen-def.screen-name')"
                   :model-value="conditionGroup.screenName"
-                  @change="(value) => updateConditionGroup({ screenName: value })"
+                  @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
                 ></v-text-field>
-                <v-btn @click="deleteConditionGroup" color="error"
-                  >{{ store.getters.message("config-page.screen-def.delete-definition") }}
+                <v-btn variant="elevated" color="error" @click="deleteConditionGroup"
+                  >{{ t("config-page.screen-def.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
-                <v-btn size="small" class="mt-3" @click="addCondition">{{
-                  store.getters.message("config-page.screen-def.add-condition")
+                <v-btn variant="elevated" size="small" class="mt-3" @click="addCondition">{{
+                  t("config-page.screen-def.add-condition")
                 }}</v-btn
-                ><span class="description">{{
-                  store.getters.message("config-page.screen-def.description")
-                }}</span>
+                ><span class="description">{{ t("config-page.screen-def.description") }}</span>
               </v-row>
 
               <v-row
-                v-for="(item, index) in conditionGroup.conditions"
-                :key="index"
+                v-for="(item, i) in conditionGroup.conditions"
+                :key="i"
                 class="conditions-area conditions-row"
                 align="center"
               >
                 <v-col cols="1" style="text-align: right">
-                  <span v-if="index > 0">{{
-                    store.getters.message("config-page.screen-def.and")
-                  }}</span>
-                  <span v-else>　　</span>
+                  <span v-if="i > 0">{{ t("config-page.screen-def.and") }}</span>
+                  <span v-else> </span>
                 </v-col>
 
                 <v-col cols="1" style="text-align: center">
                   <v-checkbox
                     :model-value="item.isEnabled"
-                    @update:model-value="(value) => updateCondition(index, { isEnabled: value })"
                     style="display: inline-block"
+                    @update:model-value="
+                      (value) => updateCondition(i, { isEnabled: !(value === null) })
+                    "
                   ></v-checkbox>
                 </v-col>
 
-                <template v-if="store.getters.getLocale() === 'ja'">
+                <template v-if="store.getLocale() === 'ja'">
                   <v-col cols="2">
                     <v-select
                       :model-value="item.definitionType"
-                      @update:model-value="
-                        (value) => updateCondition(index, { definitionType: value })
-                      "
                       :items="definitionTypeList"
                       item-title="label"
                       item-value="value"
                       class="select-with-word"
+                      @update:model-value="(value) => updateCondition(i, { definitionType: value })"
                     ></v-select
                     ><span style="margin-left: 10px">に</span>
                   </v-col>
@@ -86,8 +84,8 @@
                   <v-col cols="4">
                     <v-text-field
                       :model-value="item.word"
-                      @change="(value) => updateCondition(index, { word: value })"
                       class="select-with-word"
+                      @change="(e: any) => updateCondition(i, { word: e.target._value })"
                     ></v-text-field>
                     <span style="margin-left: 10px">という</span>
                   </v-col>
@@ -95,42 +93,40 @@
                   <v-col cols="3">
                     <v-select
                       :model-value="item.matchType"
-                      @update:model-value="(value) => updateCondition(index, { matchType: value })"
                       :items="matchType"
                       item-title="label"
                       item-value="value"
+                      @update:model-value="(value) => updateCondition(i, { matchType: value })"
                     ></v-select>
                   </v-col>
                 </template>
 
-                <template v-if="store.getters.getLocale() === 'en'">
+                <template v-if="store.getLocale() === 'en'">
                   <v-col cols="2">
                     <v-select
                       :model-value="item.definitionType"
-                      @update:model-value="
-                        (value) => updateCondition(index, { definitionType: value })
-                      "
                       :items="definitionTypeList"
                       item-title="label"
                       item-value="value"
                       class="select-with-word"
+                      @update:model-value="(value) => updateCondition(i, { definitionType: value })"
                     ></v-select>
                   </v-col>
 
                   <v-col cols="3" class="pr-4">
                     <v-select
                       :model-value="item.matchType"
-                      @update:model-value="(value) => updateCondition(index, { matchType: value })"
                       :items="matchType"
                       item-title="label"
                       item-value="value"
+                      @update:model-value="(value) => updateCondition(i, { matchType: value })"
                     ></v-select>
                   </v-col>
 
                   <v-col cols="4" class="pl-4">
                     <v-text-field
                       :model-value="item.word"
-                      @change="(value) => updateCondition(index, { word: value })"
+                      @change="(e: any) => updateCondition(i, { word: e.target._value })"
                     ></v-text-field>
                   </v-col>
                 </template>
@@ -140,8 +136,8 @@
                     v-if="conditionGroup.conditions.length > 1"
                     variant="text"
                     icon
-                    @click="deleteCondition(index)"
                     color="error"
+                    @click="deleteCondition(i)"
                     ><v-icon>delete</v-icon></v-btn
                   >
                 </v-col>
@@ -155,40 +151,44 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   ScreenDefinitionConditionGroup,
   ScreenDefinitionType,
   ScreenMatchType
 } from "@/lib/operationHistory/types";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
   props: {
     conditionGroup: {
       type: Object as PropType<ScreenDefinitionConditionGroup>,
-      default: { isEnabled: false, screenName: "", conditions: [] },
+      default: () => {
+        return { isEnabled: false, screenName: "", conditions: [] };
+      },
       required: true
     },
     index: { type: Number, default: -1, required: true }
   },
+  emits: ["update-condition-group", "delete-condition-group"],
   setup(props, context) {
-    const store = useStore();
+    const store = useRootStore();
+    const t = store.message;
 
     const definitionTypeList = computed((): { value: string; label: string }[] => {
       return [
         {
           value: "url",
-          label: store.getters.message("config-page.screen-def.url")
+          label: t("config-page.screen-def.url")
         },
         {
           value: "title",
-          label: store.getters.message("config-page.screen-def.title")
+          label: t("config-page.screen-def.title")
         },
         {
           value: "keyword",
-          label: store.getters.message("config-page.screen-def.keyword")
+          label: t("config-page.screen-def.keyword")
         }
       ];
     });
@@ -197,15 +197,15 @@ export default defineComponent({
       return [
         {
           value: "contains",
-          label: store.getters.message("config-page.screen-def.contains")
+          label: t("config-page.screen-def.contains")
         },
         {
           value: "equals",
-          label: store.getters.message("config-page.screen-def.equals")
+          label: t("config-page.screen-def.equals")
         },
         {
           value: "regex",
-          label: store.getters.message("config-page.screen-def.regex")
+          label: t("config-page.screen-def.regex")
         }
       ];
     });
@@ -265,6 +265,7 @@ export default defineComponent({
     };
 
     return {
+      t,
       store,
       definitionTypeList,
       matchType,

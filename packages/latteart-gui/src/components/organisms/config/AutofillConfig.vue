@@ -20,34 +20,34 @@
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupRegistrationDialog"
-          :label="store.getters.message('config-page.autofill.auto-popup-registration')"
+          :label="$t('config-page.autofill.auto-popup-registration')"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupSelectionDialog"
-          :label="store.getters.message('config-page.autofill.auto-popup-selection')"
+          :label="$t('config-page.autofill.auto-popup-selection')"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
-        <v-btn @click="addConditionGroup">{{
-          store.getters.message("config-page.autofill.add-setting")
+        <v-btn variant="elevated" @click="addConditionGroup">{{
+          $t("config-page.autofill.add-setting")
         }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
         <autofill-input-value-container
           v-for="(group, index) in conditionGroups"
           :key="index"
-          :conditionGroup="group"
+          :condition-group="group"
           :index="index"
+          class="mt-4"
           @add-condition="addCondition"
           @update-condition-group="updateConditionGroup"
           @update-condition="updateCondition"
           @delete-condition-group="deleteConditionGroup"
           @delete-condition="deleteCondition"
-          class="mt-4"
         ></autofill-input-value-container>
       </v-col>
     </v-row>
@@ -55,17 +55,20 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   AutofillSetting as AutofillSettingConfig,
   AutofillCondition,
   AutofillConditionGroup
 } from "@/lib/operationHistory/types";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "autofill-input-value-container": AutofillInputValueContainer
+  },
   props: {
     opened: { type: Boolean, required: true },
     autofillSetting: {
@@ -74,12 +77,8 @@ export default defineComponent({
       required: true
     }
   },
-  components: {
-    "autofill-input-value-container": AutofillInputValueContainer
-  },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempConfig = ref<AutofillSettingConfig>({ ...props.autofillSetting });
 
     const updateTempConfig = (): void => {
@@ -194,7 +193,7 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
+      t: useRootStore().message,
       conditionGroups,
       autoPopupRegistrationDialog,
       autoPopupSelectionDialog,

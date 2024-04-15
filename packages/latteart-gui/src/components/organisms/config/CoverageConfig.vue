@@ -17,9 +17,9 @@
 <template>
   <v-row class="px-4">
     <div class="head-label">
-      {{ store.getters.message("config-page.include-coverage") }}
+      {{ $t("config-page.include-coverage") }}
     </div>
-    <v-col v-if="displayedTagList <= 0">
+    <v-col v-if="displayedTagList.length <= 0">
       <v-card color="#EEE">
         <v-card-text>
           <v-row align="center">
@@ -28,13 +28,7 @@
         </v-card-text>
       </v-card>
     </v-col>
-    <v-col
-      cols="1"
-      style="width: 150px"
-      v-for="tag in displayedTagList"
-      v-bind:key="tag"
-      class="pa-1"
-    >
+    <v-col v-for="tag in displayedTagList" :key="tag" cols="1" style="width: 150px" class="pa-1">
       <v-card class="ma-1 pa-1" color="#EEE">
         <v-card-text class="my-0 py-0">
           <v-row align="center" class="ma-0 pa-0">
@@ -45,8 +39,8 @@
               <v-checkbox
                 v-model="tempIncludeTags"
                 :value="tag"
-                @click="changeValue(tag)"
                 readonly
+                @click="changeValue(tag)"
               />
             </v-col>
           </v-row>
@@ -57,8 +51,8 @@
 </template>
 
 <script lang="ts">
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -67,9 +61,8 @@ export default defineComponent({
     includeTags: { type: Array as PropType<string[]>, required: true },
     defaultTagList: { type: Array as PropType<string[]>, required: true }
   },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempIncludeTags = ref(props.includeTags);
 
     const displayedTagList = computed(() => {
@@ -83,7 +76,7 @@ export default defineComponent({
       };
 
       return [
-        ...tempIncludeTags.value.sort(sortFunc),
+        ...Array.from(tempIncludeTags.value).sort(sortFunc),
         ...props.defaultTagList
           .filter((defaultTag) => !tempIncludeTags.value.includes(defaultTag))
           .sort(sortFunc)
@@ -102,7 +95,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: useRootStore().message,
       tempIncludeTags,
       displayedTagList,
       changeValue
