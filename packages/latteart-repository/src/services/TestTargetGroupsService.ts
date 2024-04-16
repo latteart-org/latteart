@@ -18,14 +18,18 @@ import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { TestTargetGroup } from "@/interfaces/TestTargetGroups";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
+import { DataSource } from "typeorm";
 
 export class TestTargetGroupsService {
+  constructor(private dataSource: DataSource) {}
+
   public async get(testTargetGroupId: string): Promise<TestTargetGroup> {
-    const testTargetGroup = await getRepository(TestTargetGroupEntity).findOne(
-      testTargetGroupId,
-      { relations: ["testTargets"] }
-    );
+    const testTargetGroup = await this.dataSource
+      .getRepository(TestTargetGroupEntity)
+      .findOne({
+        where: { id: testTargetGroupId },
+        relations: ["testTargets"],
+      });
 
     if (!testTargetGroup) {
       throw new Error(`TestTargetGroup not found. ${testTargetGroupId}`);
@@ -38,12 +42,12 @@ export class TestTargetGroupsService {
     testMatrixId: string;
     name: string;
   }): Promise<TestTargetGroup> {
-    const testMatrix = await getRepository(TestMatrixEntity).findOne(
-      body.testMatrixId,
-      {
+    const testMatrix = await this.dataSource
+      .getRepository(TestMatrixEntity)
+      .findOne({
+        where: { id: body.testMatrixId },
         relations: ["testTargetGroups"],
-      }
-    );
+      });
     if (!testMatrix) {
       throw new Error(`TestMatrix not found. ${body.testMatrixId}`);
     }
@@ -52,9 +56,9 @@ export class TestTargetGroupsService {
     testTargetGroup.index = testMatrix.testTargetGroups.length;
     testTargetGroup.testMatrix = testMatrix;
 
-    const savedTestTargetGroup = await getRepository(
-      TestTargetGroupEntity
-    ).save(testTargetGroup);
+    const savedTestTargetGroup = await this.dataSource
+      .getRepository(TestTargetGroupEntity)
+      .save(testTargetGroup);
     return this.testTargetGroupIdEntityToResponse(savedTestTargetGroup.id);
   }
 
@@ -62,10 +66,12 @@ export class TestTargetGroupsService {
     testTargetGroupId: string,
     body: { name: string }
   ): Promise<TestTargetGroup> {
-    const testTargetGroupRepository = getRepository(TestTargetGroupEntity);
-    let testTargetGroup = await testTargetGroupRepository.findOne(
-      testTargetGroupId
+    const testTargetGroupRepository = this.dataSource.getRepository(
+      TestTargetGroupEntity
     );
+    let testTargetGroup = await testTargetGroupRepository.findOneBy({
+      id: testTargetGroupId,
+    });
     if (!testTargetGroup) {
       throw new Error(`TestTargetGroup not found. ${testTargetGroupId}`);
     }
@@ -80,11 +86,13 @@ export class TestTargetGroupsService {
     testTargetGroupId: string,
     transactionRunner: TransactionRunner
   ): Promise<void> {
-    const testTargetGroupRepository = getRepository(TestTargetGroupEntity);
-    const testTargetGroup = await testTargetGroupRepository.findOne(
-      testTargetGroupId,
-      { relations: ["testMatrix"] }
+    const testTargetGroupRepository = this.dataSource.getRepository(
+      TestTargetGroupEntity
     );
+    const testTargetGroup = await testTargetGroupRepository.findOne({
+      where: { id: testTargetGroupId },
+      relations: ["testMatrix"],
+    });
 
     if (!testTargetGroup) {
       throw new Error(`TestTargetGroup not found. ${testTargetGroupId}`);
@@ -97,8 +105,10 @@ export class TestTargetGroupsService {
       );
       const testMatrix = await transactionalEntityManager.findOne(
         TestMatrixEntity,
-        testTargetGroup.testMatrix.id,
-        { relations: ["testTargetGroups"] }
+        {
+          where: { id: testTargetGroup.testMatrix.id },
+          relations: ["testTargetGroups"],
+        }
       );
 
       if (!testMatrix) {
@@ -125,10 +135,12 @@ export class TestTargetGroupsService {
   private async testTargetGroupIdEntityToResponse(
     testTargetGroupId: string
   ): Promise<TestTargetGroup> {
-    const testTargetGroup = await getRepository(TestTargetGroupEntity).findOne(
-      testTargetGroupId,
-      { relations: ["testTargets"] }
-    );
+    const testTargetGroup = await this.dataSource
+      .getRepository(TestTargetGroupEntity)
+      .findOne({
+        where: { id: testTargetGroupId },
+        relations: ["testTargets"],
+      });
 
     if (!testTargetGroup) {
       throw new Error(`TestTargetGroup not found. ${testTargetGroupId}`);

@@ -45,6 +45,7 @@ import {
   createSnapshotViewerTemplate,
 } from "@/gateways/viewerTemplate";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -99,13 +100,13 @@ export class SnapshotsController extends Controller {
       history: createHistoryViewerTemplate(),
     };
 
-    const testStepService = new TestStepServiceImpl({
+    const testStepService = new TestStepServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
-      config: new ConfigsService(),
+      config: new ConfigsService(AppDataSource),
     });
 
-    const testResultService = new TestResultServiceImpl({
+    const testResultService = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
       testStep: testStepService,
       screenshotFileRepository,
@@ -114,12 +115,12 @@ export class SnapshotsController extends Controller {
       videoFileRepository,
     });
 
-    const noteService = new NotesServiceImpl({
+    const noteService = new NotesServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
     });
 
-    const testPurposeService = new TestPurposeServiceImpl();
+    const testPurposeService = new TestPurposeServiceImpl(AppDataSource);
 
     const issueReportService = new IssueReportServiceImpl({
       issueReportCreator: new IssueReportCreatorImpl(),
@@ -137,10 +138,10 @@ export class SnapshotsController extends Controller {
         testStep: testStepService,
         note: noteService,
         testPurpose: testPurposeService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
         issueReport: issueReportService,
         attachedFileRepository,
-        testProgress: new TestProgressServiceImpl(),
+        testProgress: new TestProgressServiceImpl(AppDataSource),
         workingFileRepository,
         viewerTemplate,
       }
@@ -148,7 +149,7 @@ export class SnapshotsController extends Controller {
 
     return new SnapshotsService({
       snapshotFileRepository: snapshotFileRepositoryService,
-      project: new ProjectsServiceImpl(),
+      project: new ProjectsServiceImpl(AppDataSource),
     });
   }
 }

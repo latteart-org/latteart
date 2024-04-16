@@ -34,6 +34,7 @@ import {
 } from "../interfaces/Projects";
 import { ProjectsServiceImpl } from "../services/ProjectsService";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects")
 @Tags("projects")
@@ -45,7 +46,7 @@ export class ProjectsController extends Controller {
   @SuccessResponse(200, "Success")
   @Get()
   public async getProjectIdentifiers(): Promise<ProjectListResponse[]> {
-    return new ProjectsServiceImpl().getProjectIdentifiers();
+    return new ProjectsServiceImpl(AppDataSource).getProjectIdentifiers();
   }
 
   /**
@@ -57,7 +58,7 @@ export class ProjectsController extends Controller {
   @Post()
   public async createProject(): Promise<{ id: string; name: string }> {
     try {
-      return await new ProjectsServiceImpl().createProject();
+      return await new ProjectsServiceImpl(AppDataSource).createProject();
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Save project failed.", error);
@@ -82,7 +83,7 @@ export class ProjectsController extends Controller {
     @Path() projectId: string
   ): Promise<GetProjectResponse> {
     try {
-      return await new ProjectsServiceImpl().getProject(projectId);
+      return await new ProjectsServiceImpl(AppDataSource).getProject(projectId);
     } catch (error: any) {
       if (error instanceof Error) {
         createLogger().error("Get project failed.", error);
@@ -116,10 +117,9 @@ export class ProjectsController extends Controller {
   ): Promise<GetTestProgressResponse[]> {
     try {
       const filter = { since, until };
-      return await new TestProgressServiceImpl().collectProjectDailyTestProgresses(
-        projectId,
-        filter
-      );
+      return await new TestProgressServiceImpl(
+        AppDataSource
+      ).collectProjectDailyTestProgresses(projectId, filter);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get test progress failed.", error);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { EntityManager, getManager } from "typeorm";
+import { DataSource, EntityManager } from "typeorm";
 import { createLogger } from "./logger/logger";
 
 export class TransactionRunner {
@@ -24,7 +24,10 @@ export class TransactionRunner {
     ) => Promise<unknown>;
   }[] = [];
 
-  constructor(private maxRetry: number = 20) {}
+  constructor(
+    private dataSource: DataSource,
+    private maxRetry: number = 20
+  ) {}
 
   async waitAndRun(
     runInTransaction: (
@@ -45,7 +48,7 @@ export class TransactionRunner {
       }
 
       try {
-        const result = await getManager().transaction(
+        const result = await this.dataSource.transaction(
           queueItem.runInTransaction
         );
 

@@ -23,8 +23,8 @@ import {
   UpdateNoteResponse,
   CreateNoteResponse,
 } from "@/interfaces/Notes";
-import { getRepository } from "typeorm";
 import { testPurposeEntityToResponse } from "./helper/entityToResponse";
+import { DataSource } from "typeorm";
 
 export interface TestPurposeService {
   createTestPurpose(
@@ -40,24 +40,26 @@ export interface TestPurposeService {
 }
 
 export class TestPurposeServiceImpl implements TestPurposeService {
+  constructor(private dataSource: DataSource) {}
+
   public async createTestPurpose(
     testResultId: string,
     requestBody: CreateNoteDto
   ): Promise<CreateNoteResponse> {
-    const testResultEntity = await getRepository(
-      TestResultEntity
-    ).findOneOrFail(testResultId);
+    const testResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneByOrFail({ id: testResultId });
 
-    const registeredTestPurposeEntity = await getRepository(
-      TestPurposeEntity
-    ).save(
-      new TestPurposeEntity({
-        title: requestBody.value,
-        details: requestBody.details,
-        testResult: testResultEntity,
-        testSteps: [],
-      })
-    );
+    const registeredTestPurposeEntity = await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .save(
+        new TestPurposeEntity({
+          title: requestBody.value,
+          details: requestBody.details,
+          testResult: testResultEntity,
+          testSteps: [],
+        })
+      );
 
     return testPurposeEntityToResponse(registeredTestPurposeEntity);
   }
@@ -65,9 +67,11 @@ export class TestPurposeServiceImpl implements TestPurposeService {
   public async getTestPurpose(
     testPurposeId: string
   ): Promise<GetNoteResponse | undefined> {
-    const testPurposeEntity = await getRepository(TestPurposeEntity).findOne(
-      testPurposeId
-    );
+    const testPurposeEntity = await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .findOneBy({
+        id: testPurposeId,
+      });
 
     if (!testPurposeEntity) {
       return undefined;
@@ -80,25 +84,30 @@ export class TestPurposeServiceImpl implements TestPurposeService {
     testPurposeId: string,
     requestBody: UpdateNoteDto
   ): Promise<UpdateNoteResponse> {
-    const testPurposeEntity = await getRepository(
-      TestPurposeEntity
-    ).findOneOrFail(testPurposeId);
+    const testPurposeEntity = await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .findOneByOrFail({ id: testPurposeId });
 
     testPurposeEntity.title = requestBody.value;
     testPurposeEntity.details = requestBody.details;
 
-    await getRepository(TestPurposeEntity).save(testPurposeEntity);
+    await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .save(testPurposeEntity);
 
     return testPurposeEntityToResponse(testPurposeEntity);
   }
 
   public async deleteTestPurpose(testPurposeId: string): Promise<void> {
-    const testPurposeEntity = await getRepository(
-      TestPurposeEntity
-    ).findOneOrFail(testPurposeId, {
-      relations: ["testResult", "testSteps"],
-    });
+    const testPurposeEntity = await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .findOneOrFail({
+        where: { id: testPurposeId },
+        relations: ["testResult", "testSteps"],
+      });
 
-    await getRepository(TestPurposeEntity).remove(testPurposeEntity);
+    await this.dataSource
+      .getRepository(TestPurposeEntity)
+      .remove(testPurposeEntity);
   }
 }

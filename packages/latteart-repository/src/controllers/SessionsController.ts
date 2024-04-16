@@ -36,6 +36,7 @@ import {
 import { SessionsService } from "../services/SessionsService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -54,7 +55,7 @@ export class SessionsController extends Controller {
     @Body() requestBody: { storyId: string }
   ): Promise<PostSessionResponse> {
     try {
-      return await new SessionsService().postSession(
+      return await new SessionsService(AppDataSource).postSession(
         projectId,
         requestBody.storyId
       );
@@ -92,7 +93,7 @@ export class SessionsController extends Controller {
     const attachedFileRepository =
       fileRepositoryManager.getRepository("attachedFile");
     try {
-      return await new SessionsService().patchSession(
+      return await new SessionsService(AppDataSource).patchSession(
         projectId,
         sessionId,
         requestBody,
@@ -129,7 +130,10 @@ export class SessionsController extends Controller {
     @Path() sessionId: string
   ): Promise<void> {
     try {
-      await new SessionsService().deleteSession(projectId, sessionId);
+      await new SessionsService(AppDataSource).deleteSession(
+        projectId,
+        sessionId
+      );
       return;
     } catch (error) {
       if (error instanceof Error) {

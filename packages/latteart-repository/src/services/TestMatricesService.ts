@@ -19,15 +19,19 @@ import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
 import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { TestMatrix } from "@/interfaces/TestMatrices";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
 import { testMatrixEntityToResponse } from "./helper/entityToResponse";
+import { DataSource } from "typeorm";
 
 export class TestMatricesService {
+  constructor(private dataSource: DataSource) {}
+
   public async get(testMatrixId: string): Promise<TestMatrix> {
-    const testMatrix = await getRepository(TestMatrixEntity).findOne(
-      testMatrixId,
-      { relations: ["testTargetGroups", "viewPoints"] }
-    );
+    const testMatrix = await this.dataSource
+      .getRepository(TestMatrixEntity)
+      .findOne({
+        where: { id: testMatrixId },
+        relations: ["testTargetGroups", "viewPoints"],
+      });
 
     if (!testMatrix) {
       throw new Error(`TestMatrix not found. ${testMatrixId}`);
@@ -40,19 +44,19 @@ export class TestMatricesService {
     projectId: string;
     name: string;
   }): Promise<TestMatrix> {
-    const projectEntity = await getRepository(ProjectEntity).findOne(
-      body.projectId,
-      {
+    const projectEntity = await this.dataSource
+      .getRepository(ProjectEntity)
+      .findOne({
+        where: { id: body.projectId },
         relations: ["testMatrices"],
-      }
-    );
+      });
     if (!projectEntity) {
       throw new Error(`Project not found. ${body.projectId}`);
     }
     const nextIndex = projectEntity.testMatrices.length;
-    const testMatrix = await getRepository(TestMatrixEntity).save(
-      new TestMatrixEntity(body.name, nextIndex, projectEntity)
-    );
+    const testMatrix = await this.dataSource
+      .getRepository(TestMatrixEntity)
+      .save(new TestMatrixEntity(body.name, nextIndex, projectEntity));
     return this.entityToResponse(testMatrix.id);
   }
 
@@ -60,8 +64,9 @@ export class TestMatricesService {
     testMatrixId: string,
     body: { name: string }
   ): Promise<TestMatrix> {
-    const testMatrixRepository = getRepository(TestMatrixEntity);
-    let testMatrix = await testMatrixRepository.findOne(testMatrixId);
+    const testMatrixRepository =
+      this.dataSource.getRepository(TestMatrixEntity);
+    let testMatrix = await testMatrixRepository.findOneBy({ id: testMatrixId });
     if (!testMatrix) {
       throw new Error(`TestMatrix not found. ${testMatrixId}`);
     }
@@ -76,8 +81,10 @@ export class TestMatricesService {
     testMatrixId: string,
     transactionRunner: TransactionRunner
   ): Promise<void> {
-    const testMatrixRepository = getRepository(TestMatrixEntity);
-    const testMatrix = await testMatrixRepository.findOne(testMatrixId, {
+    const testMatrixRepository =
+      this.dataSource.getRepository(TestMatrixEntity);
+    const testMatrix = await testMatrixRepository.findOne({
+      where: { id: testMatrixId },
       relations: ["project", "viewPoints"],
     });
     if (!testMatrix) {
@@ -94,13 +101,10 @@ export class TestMatricesService {
         })
       );
       await transactionalEntityManager.delete(TestMatrixEntity, testMatrixId);
-      const project = await transactionalEntityManager.findOne(
-        ProjectEntity,
-        testMatrix.project.id,
-        {
-          relations: ["testMatrices"],
-        }
-      );
+      const project = await transactionalEntityManager.findOne(ProjectEntity, {
+        where: { id: testMatrix.project.id },
+        relations: ["testMatrices"],
+      });
       if (!project) {
         throw new Error(`Project not found.: ${testMatrix.project.id}`);
       }
@@ -121,16 +125,16 @@ export class TestMatricesService {
   }
 
   private async entityToResponse(testMatrixId: string): Promise<TestMatrix> {
-    const testMatrix = await getRepository(TestMatrixEntity).findOne(
-      testMatrixId,
-      {
+    const testMatrix = await this.dataSource
+      .getRepository(TestMatrixEntity)
+      .findOne({
+        where: { id: testMatrixId },
         relations: [
           "testTargetGroups",
           "testTargetGroups.testTargets",
           "viewPoints",
         ],
-      }
-    );
+      });
     if (!testMatrix) {
       throw new Error(`TestMatrix not found. ${testMatrix}`);
     }

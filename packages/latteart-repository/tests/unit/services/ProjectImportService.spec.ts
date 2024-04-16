@@ -5,7 +5,10 @@ import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
 import { TimestampService } from "@/services/TimestampService";
 import { TransactionRunner } from "@/TransactionRunner";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import {
   createTimestampServiceMock,
   createTestResultServiceMock,
@@ -16,7 +19,6 @@ import {
   createImportFileRepositoryMock,
 } from "../../helper/createServiceMock";
 import { ProgressData, Project } from "@/interfaces/Projects";
-import { getRepository } from "typeorm";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
@@ -26,7 +28,7 @@ import { ConfigsService } from "@/services/ConfigsService";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -89,12 +91,15 @@ describe("ProjectImportService", () => {
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
-      const testResultImportService = new TestResultImportServiceImpl({
-        importFileRepository,
-        screenshotFileRepository,
-        videoFileRepository,
-        timestamp: timestampService,
-      });
+      const testResultImportService = new TestResultImportServiceImpl(
+        TestDataSource,
+        {
+          importFileRepository,
+          screenshotFileRepository,
+          videoFileRepository,
+          timestamp: timestampService,
+        }
+      );
 
       const importFile = { data: "data", name: "importFileName" };
       const option = {
@@ -116,7 +121,7 @@ describe("ProjectImportService", () => {
           attachedFileRepository,
           notesService,
           testPurposeService,
-          transactionRunner: new TransactionRunner(),
+          transactionRunner: new TransactionRunner(TestDataSource),
           testResultImportService,
           importFileRepository,
         }
@@ -147,12 +152,15 @@ describe("ProjectImportService", () => {
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
-      const testResultImportService = new TestResultImportServiceImpl({
-        importFileRepository,
-        screenshotFileRepository,
-        videoFileRepository,
-        timestamp: timestampService,
-      });
+      const testResultImportService = new TestResultImportServiceImpl(
+        TestDataSource,
+        {
+          importFileRepository,
+          screenshotFileRepository,
+          videoFileRepository,
+          timestamp: timestampService,
+        }
+      );
 
       const importFile = { data: "data", name: "importFileName" };
       const option = {
@@ -174,7 +182,7 @@ describe("ProjectImportService", () => {
           attachedFileRepository,
           notesService,
           testPurposeService,
-          transactionRunner: new TransactionRunner(),
+          transactionRunner: new TransactionRunner(TestDataSource),
           testResultImportService,
           importFileRepository,
         }
@@ -293,10 +301,14 @@ describe("ProjectImportService", () => {
       const projectId = await service["importProject"](projectData, new Map(), {
         timestampService,
         attachedFileRepository: attachedFileRepositoryService,
-        transactionRunner: new TransactionRunner(),
+        transactionRunner: new TransactionRunner(TestDataSource),
       });
 
-      const project = await getRepository(ProjectEntity).findOne(projectId);
+      const project = await TestDataSource.getRepository(
+        ProjectEntity
+      ).findOneBy({
+        id: projectId,
+      });
 
       expect(projectId).toEqual(project?.id);
     });

@@ -27,24 +27,27 @@ import {
 } from "@/interfaces/Sessions";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
-import { In, getRepository } from "typeorm";
+import { DataSource, In } from "typeorm";
 import { TestProgressServiceImpl } from "./TestProgressService";
 import { TimestampService } from "./TimestampService";
 
 export class SessionsService {
+  constructor(private dataSource: DataSource) {}
+
   public async postSession(
     projectId: string,
     storyId: string
   ): Promise<PostSessionResponse> {
-    const storyRepository = getRepository(StoryEntity);
-    const story = await storyRepository.findOne(storyId, {
+    const storyRepository = this.dataSource.getRepository(StoryEntity);
+    const story = await storyRepository.findOne({
+      where: { id: storyId },
       relations: ["sessions"],
     });
     if (!story) {
       throw new Error(`Story not found. ${storyId}`);
     }
 
-    const session = await getRepository(SessionEntity).save(
+    const session = await this.dataSource.getRepository(SessionEntity).save(
       new SessionEntity({
         name: "",
         memo: "",
@@ -57,7 +60,7 @@ export class SessionsService {
       })
     );
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       storyId
     );
@@ -74,8 +77,9 @@ export class SessionsService {
       attachedFileRepository: FileRepository;
     }
   ): Promise<PatchSessionResponse> {
-    const sessionRepository = getRepository(SessionEntity);
-    const updateTargetSession = await sessionRepository.findOne(sessionId, {
+    const sessionRepository = this.dataSource.getRepository(SessionEntity);
+    const updateTargetSession = await sessionRepository.findOne({
+      where: { id: sessionId },
       relations: ["testResults", "story", "attachedFiles"],
     });
     if (!updateTargetSession) {
@@ -107,15 +111,17 @@ export class SessionsService {
 
     if (requestBody.testResultFiles) {
       if (requestBody.testResultFiles.length > 0) {
-        const testResults = await getRepository(TestResultEntity).find({
-          where: {
-            id: In(
-              requestBody.testResultFiles.map(
-                (testResultFile) => testResultFile.id
-              )
-            ),
-          },
-        });
+        const testResults = await this.dataSource
+          .getRepository(TestResultEntity)
+          .find({
+            where: {
+              id: In(
+                requestBody.testResultFiles.map(
+                  (testResultFile) => testResultFile.id
+                )
+              ),
+            },
+          });
         if (testResults.length !== requestBody.testResultFiles.length) {
           throw new Error(
             `test result not found. request(${requestBody.testResultFiles.map(
@@ -130,7 +136,7 @@ export class SessionsService {
     }
     const result = await sessionRepository.save(updateTargetSession);
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       result.story.id
     );
@@ -142,13 +148,16 @@ export class SessionsService {
     projectId: string,
     sessionId: string
   ): Promise<void> {
-    const sessionRepository = getRepository(SessionEntity);
+    const sessionRepository = this.dataSource.getRepository(SessionEntity);
     const storyId = (
-      await sessionRepository.findOneOrFail(sessionId, { relations: ["story"] })
+      await sessionRepository.findOneOrFail({
+        where: { id: sessionId },
+        relations: ["story"],
+      })
     ).story.id;
     await sessionRepository.delete(sessionId);
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       storyId
     );
@@ -159,9 +168,9 @@ export class SessionsService {
   public async getSessionIdentifiers(
     testResultId: string
   ): Promise<ListSessionResponse> {
-    const testResultEntity = await getRepository(
-      TestResultEntity
-    ).findOneOrFail(testResultId, { relations: ["sessions"] });
+    const testResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneOrFail({ where: { id: testResultId }, relations: ["sessions"] });
 
     return testResultEntity.sessions?.map(({ id }) => id) ?? [];
   }
@@ -205,6 +214,7 @@ export class SessionsService {
 
         result.push(
           new AttachedFileEntity({
+            sessionId: existsSession.id,
             session: existsSession,
             name: attachedFile.name,
             fileUrl: attachedFileImageUrl,
@@ -216,7 +226,8 @@ export class SessionsService {
   }
 
   private async entityToResponse(sessionId: string): Promise<Session> {
-    const session = await getRepository(SessionEntity).findOne(sessionId, {
+    const session = await this.dataSource.getRepository(SessionEntity).findOne({
+      where: { id: sessionId },
       relations: [
         "attachedFiles",
         "testResults",

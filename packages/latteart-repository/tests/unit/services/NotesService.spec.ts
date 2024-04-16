@@ -2,15 +2,17 @@ import { TestResultEntity } from "@/entities/TestResultEntity";
 import { CreateNoteDto, UpdateNoteDto } from "@/interfaces/Notes";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TimestampService } from "@/services/TimestampService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { NoteEntity } from "@/entities/NoteEntity";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -37,14 +39,14 @@ describe("NotesService", () => {
   };
   describe("#createNote", () => {
     it("メモを1件新規追加する", async () => {
-      const service = new NotesServiceImpl({
+      const service = new NotesServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       });
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
       const requestBody: CreateNoteDto = {
         type: "notice",
@@ -68,16 +70,16 @@ describe("NotesService", () => {
 
   describe("#updateNote", () => {
     it("メモ1件の内容を更新する", async () => {
-      const service = new NotesServiceImpl({
+      const service = new NotesServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       });
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
-      const noteEntity = await getRepository(NoteEntity).save(
+      const noteEntity = await TestDataSource.getRepository(NoteEntity).save(
         new NoteEntity({
           testResult: testResultEntity,
         })
@@ -105,14 +107,14 @@ describe("NotesService", () => {
 
   describe("#deleteNote", () => {
     it("指定のIDのnoteを削除する", async () => {
-      const service = new NotesServiceImpl({
+      const service = new NotesServiceImpl(TestDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       });
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
       const note1 = await service.createNote(testResultEntity.id, {
         type: "notice",
@@ -128,7 +130,7 @@ describe("NotesService", () => {
 
       await service.deleteNote(note1.id);
 
-      const result = await getRepository(NoteEntity).find();
+      const result = await TestDataSource.getRepository(NoteEntity).find();
 
       expect((result ?? []).length).toEqual(1);
 

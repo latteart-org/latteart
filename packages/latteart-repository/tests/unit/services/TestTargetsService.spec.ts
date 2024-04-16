@@ -1,7 +1,9 @@
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { TransactionRunner } from "@/TransactionRunner";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { TestTargetService } from "@/services/TestTargetsService";
@@ -11,7 +13,7 @@ import { ViewPointEntity } from "@/entities/ViewPointEntity";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -21,15 +23,15 @@ afterEach(async () => {
 describe("TestTargetService", () => {
   describe("#get", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -37,14 +39,18 @@ describe("TestTargetService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const testTargetEntity = await getRepository(TestTargetEntity).save({
+      const testTargetEntity = await TestDataSource.getRepository(
+        TestTargetEntity
+      ).save({
         name: "testTargetName",
         index: 0,
         testTargetGroup: testTargetGroupEntity,
         text: "[]",
       });
 
-      const result = await new TestTargetService().get(testTargetEntity.id);
+      const result = await new TestTargetService(TestDataSource).get(
+        testTargetEntity.id
+      );
 
       expect(result).toEqual({
         id: testTargetEntity.id,
@@ -56,7 +62,7 @@ describe("TestTargetService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetService().get(dummyId);
+        await new TestTargetService(TestDataSource).get(dummyId);
       } catch (e) {
         expect((e as Error).message).toEqual(
           `TestTarget not found. ${dummyId}`
@@ -67,22 +73,24 @@ describe("TestTargetService", () => {
 
   describe("#post", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const viewPointEntity = await getRepository(ViewPointEntity).save({
+      const viewPointEntity = await TestDataSource.getRepository(
+        ViewPointEntity
+      ).save({
         name: "viewPointName",
         description: "",
         index: 0,
         testMatrices: [testMatrixEntity],
       });
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -90,18 +98,20 @@ describe("TestTargetService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const result = await new TestTargetService().post(
+      const result = await new TestTargetService(TestDataSource).post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const testTarget = await getRepository(TestTargetEntity).findOne(
-        result.id,
-        { relations: ["stories"] }
-      );
+      const testTarget = await TestDataSource.getRepository(
+        TestTargetEntity
+      ).findOne({
+        where: { id: result.id },
+        relations: ["stories"],
+      });
 
       expect(result).toEqual({
         id: testTarget?.id,
@@ -129,12 +139,12 @@ describe("TestTargetService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetService().post(
+        await new TestTargetService(TestDataSource).post(
           {
             testTargetGroupId: dummyId,
             name: "testTargetName",
           },
-          new TransactionRunner()
+          new TransactionRunner(TestDataSource)
         );
       } catch (e) {
         expect((e as Error).message).toEqual(
@@ -146,22 +156,24 @@ describe("TestTargetService", () => {
 
   describe("#patch", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const viewPointEntity = await getRepository(ViewPointEntity).save({
+      const viewPointEntity = await TestDataSource.getRepository(
+        ViewPointEntity
+      ).save({
         name: "viewPointName",
         description: "",
         index: 0,
         testMatrices: [testMatrixEntity],
       });
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -169,15 +181,15 @@ describe("TestTargetService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const testTarget = await new TestTargetService().post(
+      const testTarget = await new TestTargetService(TestDataSource).post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const result = await new TestTargetService().patch(
+      const result = await new TestTargetService(TestDataSource).patch(
         projectEntity.id,
         testTarget.id,
         {
@@ -185,12 +197,12 @@ describe("TestTargetService", () => {
           index: 2,
           plans: [{ viewPointId: viewPointEntity.id, value: 1 }],
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const testTargetEntityResult = await getRepository(
+      const testTargetEntityResult = await TestDataSource.getRepository(
         TestTargetEntity
-      ).findOne(result.id, { relations: ["stories"] });
+      ).findOne({ where: { id: result.id }, relations: ["stories"] });
 
       expect(result).toEqual({
         id: result.id,
@@ -219,13 +231,13 @@ describe("TestTargetService", () => {
       const projectId = "projectId";
       const dummyId = "dummyId";
       try {
-        await new TestTargetService().patch(
+        await new TestTargetService(TestDataSource).patch(
           projectId,
           dummyId,
           {
             name: "testTargetService",
           },
-          new TransactionRunner()
+          new TransactionRunner(TestDataSource)
         );
       } catch (e) {
         expect((e as Error).message).toEqual(`TestTargetnot found. ${dummyId}`);
@@ -235,16 +247,17 @@ describe("TestTargetService", () => {
 
   describe("#delete", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixRepository = getRepository(TestMatrixEntity);
+      const testMatrixRepository =
+        TestDataSource.getRepository(TestMatrixEntity);
       const testMatrixEntity = await testMatrixRepository.save(
         new TestMatrixEntity("testMatrixName", 0, projectEntity)
       );
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -252,46 +265,53 @@ describe("TestTargetService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      await getRepository(ViewPointEntity).save({
+      await TestDataSource.getRepository(ViewPointEntity).save({
         name: "viewPointName",
         description: "",
         index: 0,
         testMatrices: [testMatrixEntity],
       });
 
-      const target0 = await new TestTargetService().post(
+      const target0 = await new TestTargetService(TestDataSource).post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName0",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
-      const target1 = await new TestTargetService().post(
+      const target1 = await new TestTargetService(TestDataSource).post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName1",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
-      const target2 = await new TestTargetService().post(
+      const target2 = await new TestTargetService(TestDataSource).post(
         {
           testTargetGroupId: testTargetGroupEntity.id,
           name: "testTargetName2",
         },
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      await new TestTargetService().delete(target1.id, new TransactionRunner());
+      await new TestTargetService(TestDataSource).delete(
+        target1.id,
+        new TransactionRunner(TestDataSource)
+      );
 
-      const result = await testMatrixRepository.findOne(testMatrixEntity.id, {
+      const result = await testMatrixRepository.findOne({
+        where: { id: testMatrixEntity.id },
         relations: ["testTargetGroups", "testTargetGroups.testTargets"],
       });
 
-      const testTargetRepository = getRepository(TestTargetEntity);
-      const t0 = await testTargetRepository.findOne(target0.id, {
+      const testTargetRepository =
+        TestDataSource.getRepository(TestTargetEntity);
+      const t0 = await testTargetRepository.findOne({
+        where: { id: target0.id },
         relations: ["stories"],
       });
-      const t2 = await testTargetRepository.findOne(target2.id, {
+      const t2 = await testTargetRepository.findOne({
+        where: { id: target2.id },
         relations: ["stories"],
       });
 
@@ -323,7 +343,10 @@ describe("TestTargetService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetService().delete(dummyId, new TransactionRunner());
+        await new TestTargetService(TestDataSource).delete(
+          dummyId,
+          new TransactionRunner(TestDataSource)
+        );
       } catch (e) {
         expect((e as Error).message).toEqual(
           `TestTarget not found. ${dummyId}`

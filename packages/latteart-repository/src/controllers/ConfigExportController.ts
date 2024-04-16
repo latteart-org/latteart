@@ -30,6 +30,7 @@ import {
 import { ConfigExportService } from "@/services/ConfigExportService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/configs/export")
 @Tags("projects")
@@ -52,7 +53,7 @@ export class ConfigExportController extends Controller {
     const exportFileRepository = fileRepositoryManager.getRepository("export");
 
     const result = await new ConfigExportService().export(projectId, {
-      configService: new ConfigsService(),
+      configService: new ConfigsService(AppDataSource),
       timestampService: new TimestampServiceImpl(),
       exportFileRepository,
     });
