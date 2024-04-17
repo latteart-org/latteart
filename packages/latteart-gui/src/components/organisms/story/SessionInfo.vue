@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="pt-0" v-if="session">
+  <v-container v-if="session" fluid class="pt-0">
     <v-card class="ma-2" color="blue-grey-lighten-4">
       <v-card-title>{{ $t("session-info.charter") }}</v-card-title>
 
@@ -24,15 +24,15 @@
           class="pt-0"
           :label="$t('session-info.tester-name')"
           :model-value="session.testerName"
-          @update:model-value="(value) => updateSession({ testerName: value })"
           :readonly="isViewerMode"
+          @change="(e: any) => updateSession({ testerName: e.target._value })"
         ></v-text-field>
         <v-textarea
           class="pt-0"
           :label="$t('session-info.memo')"
           :model-value="memo"
-          @update:model-value="(value) => updateSession({ memo: value, testItem: '' })"
           :readonly="isViewerMode"
+          @change="(e: any) => updateSession({ memo: e.target._value, testItem: '' })"
         ></v-textarea>
       </v-card-text>
     </v-card>
@@ -57,12 +57,12 @@
                       millisecondsToHHmmss(file.testingTime)
                     }})
 
-                    <test-result-load-trigger :testResultIds="[file.id]">
-                      <template v-slot:activator="{ on }">
+                    <test-result-load-trigger :test-result-ids="[file.id]">
+                      <template #activator="{ on }">
                         <v-btn
+                          v-if="!isViewerMode"
                           variant="text"
                           icon
-                          v-if="!isViewerMode"
                           :title="$t('session-info.open-test-result')"
                           @click="openCaptureTool(on)"
                           ><v-icon>launch</v-icon></v-btn
@@ -71,20 +71,20 @@
                     </test-result-load-trigger>
 
                     <v-btn
+                      v-if="!isViewerMode"
                       class="mr-0"
                       variant="text"
                       icon
-                      v-if="!isViewerMode"
                       :title="$t('session-info.update-test-results-title')"
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
 
                     <v-btn
+                      v-if="!isViewerMode"
                       variant="text"
                       icon
                       color="error"
-                      v-if="!isViewerMode"
                       :title="$t('session-info.remove-test-results-title')"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
@@ -97,10 +97,10 @@
                 <v-row dense justify="end">
                   <v-col cols="auto">
                     <record-start-trigger v-if="!isViewerMode">
-                      <template v-slot:activator="{ on }">
+                      <template #activator="{ on }">
                         <v-btn
-                          variant="elevated"
                           id="openCaptureToolButton"
+                          variant="elevated"
                           @click="openCaptureOptionDialog"
                           >{{ $t("session-info.start-capture") }}</v-btn
                         >
@@ -116,10 +116,10 @@
                   </v-col>
                   <v-col cols="auto">
                     <v-btn
-                      variant="elevated"
                       v-if="!isViewerMode"
-                      @click="openTestResultSelectionDialog"
                       id="resultLogFileInputButton"
+                      variant="elevated"
+                      @click="openTestResultSelectionDialog"
                       >{{ $t("session-info.import") }}</v-btn
                     >
                   </v-col>
@@ -157,15 +157,15 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
-                  variant="elevated"
                   v-if="!isViewerMode"
+                  variant="elevated"
                   @click="($refs.attachedFile as HTMLInputElement).click()"
                   >{{ $t("session-info.add-file") }}</v-btn
                 >
                 <input
+                  ref="attachedFile"
                   type="file"
                   style="display: none"
-                  ref="attachedFile"
                   @change="addAttachedFile"
                 />
               </v-card-actions>
@@ -176,8 +176,8 @@
         <v-row>
           <v-col cols="12">
             <test-purpose-note-list
-              :testPurposes="session.testPurposes"
-              :testResult="session.testResultFiles"
+              :test-purposes="session.testPurposes"
+              :test-result="session.testResultFiles"
               @reload="reload()"
             />
           </v-col>
@@ -192,13 +192,13 @@
     </v-dialog>
 
     <scrollable-dialog :opened="testResultSelectionDialogOpened">
-      <template v-slot:title>{{ $t("session-info.result-list") }}</template>
+      <template #title>{{ $t("session-info.result-list") }}</template>
 
-      <template v-slot:content>
+      <template #content>
         <test-result-list :items="unrelatedTestResults" @click-item="addTestResultToSession" />
       </template>
 
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
         <v-btn color="primary" variant="text" @click="testResultSelectionDialogOpened = false">{{
           $t("common.close")
@@ -216,7 +216,7 @@
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
   </v-container>
@@ -244,10 +244,6 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    storyId: { type: String, default: "", required: true },
-    sessionId: { type: String, default: "", required: true }
-  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
@@ -257,6 +253,10 @@ export default defineComponent({
     "record-start-trigger": RecordStartTrigger,
     "capture-option-dialog": CaptureOptionDialog,
     "test-result-load-trigger": TestResultLoadTrigger
+  },
+  props: {
+    storyId: { type: String, default: "", required: true },
+    sessionId: { type: String, default: "", required: true }
   },
   setup(props) {
     const rootStore = useRootStore();
