@@ -54,7 +54,7 @@
                 <v-text-field
                   :id="`testTargetNameTextField${group.id}${props.item.id}`"
                   :model-value="props.item.name"
-                  @change="(value: any) => renameTestTarget(value, props.item.id)"
+                  @change="(e: any) => renameTestTarget(e.target._value, props.item.id)"
                 ></v-text-field>
               </v-col>
               <v-col cols="1" align-self="center" class="pa-0 ma-0">

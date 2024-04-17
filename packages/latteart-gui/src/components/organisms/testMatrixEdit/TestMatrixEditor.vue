@@ -54,7 +54,7 @@
                     :id="`groupNameTextField${index}`"
                     :model-value="group.name"
                     @click="$event.stopPropagation()"
-                    @change="(value: any) => renameGroup(group.id, value)"
+                    @change="(e: any) => renameGroup(group.id, e.target._value)"
                   ></v-text-field>
                 </v-col>
 
