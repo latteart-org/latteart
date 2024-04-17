@@ -26,7 +26,7 @@
                   :model-value="conditionGroup.isEnabled"
                   class="default-flex"
                   @update:model-value="
-                    (value) => updateConditionGroup({ isEnabled: !(value === null) })
+                    (value) => updateConditionGroup({ isEnabled: value ?? !(value === null) })
                   "
                 >
                 </v-checkbox>
@@ -63,7 +63,7 @@
                     :model-value="item.isEnabled"
                     style="display: inline-block"
                     @update:model-value="
-                      (value) => updateCondition(i, { isEnabled: !(value === null) })
+                      (value) => updateCondition(i, { isEnabled: value ?? !(value === null) })
                     "
                   ></v-checkbox>
                 </v-col>
