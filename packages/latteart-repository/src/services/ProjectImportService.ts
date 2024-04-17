@@ -328,7 +328,6 @@ export class ProjectImportService {
                       service.attachedFileRepository.getFileUrl(fileName);
                     attachedFileEntities.push(
                       new AttachedFileEntity({
-                        sessionId: newSessionEntity.id,
                         session: newSessionEntity,
                         name: attachedFileBeforeSaving.name,
                         fileUrl: attachedFileImageUrl,

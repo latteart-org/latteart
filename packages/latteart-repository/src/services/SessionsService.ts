@@ -214,7 +214,6 @@ export class SessionsService {
 
         result.push(
           new AttachedFileEntity({
-            sessionId: existsSession.id,
             session: existsSession,
             name: attachedFile.name,
             fileUrl: attachedFileImageUrl,
