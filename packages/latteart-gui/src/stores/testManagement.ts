@@ -564,29 +564,6 @@ export const useTestManagementStore = defineStore("testManagement", {
     },
 
     /**
-     * Get test results from the repository.
-     * @param context Action context.
-     * @returns Test results.
-     */
-    async getTestResults(): Promise<TestResultSummary[]> {
-      const rootStore = useRootStore();
-
-      if (!rootStore.repositoryService) {
-        throw new Error("repository service is not active.");
-      }
-
-      const result = await new GetTestResultListAction(
-        rootStore.repositoryService
-      ).getTestResults();
-
-      if (result.isFailure()) {
-        throw new Error(rootStore.message(result.error.messageKey, result.error.variables ?? {}));
-      }
-
-      return result.data;
-    },
-
-    /**
      * Load project and update the State.
      * @param context Action context.
      */

@@ -24,32 +24,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useRootStore } from "@/stores/root";
-import { useRoute } from "vue-router";
 import ErrorHandler from "@/components/organisms/common/ErrorHandler.vue";
 
 export default defineComponent({
   components: {
     "error-handler": ErrorHandler
   },
-  setup() {
-    const rootStore = useRootStore();
-    const route = useRoute();
-
-    (() => {
-      if (route.query.capture) {
-        rootStore.setCaptureClServiceDispatcherConfig({
-          serviceUrl: route.query.capture.toString()
-        });
-      }
-
-      if (route.query.repository) {
-        rootStore.setRepositoryServiceUrl({
-          url: route.query.repository.toString()
-        });
-      }
-    })();
-  }
+  setup() {}
 });
 </script>
 

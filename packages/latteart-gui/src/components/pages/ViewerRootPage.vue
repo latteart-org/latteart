@@ -17,7 +17,7 @@
 <template>
   <v-app>
     <v-navigation-drawer :rail="mini" permanent @click="mini = false">
-      <v-list-item prepend-avatar="/src/assets/logo.png" class="px-2">
+      <v-list-item prepend-avatar="@/assets/logo.png" class="px-2">
         <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
 
         <template #append>
@@ -35,7 +35,7 @@
         <v-list-item
           :disabled="!hasTestMatrix"
           to="/page/test-matrix"
-          :title="$t('manage-header.top')"
+          :title.attr="$t('manage-header.top')"
           exact
           prepend-icon="calendar_today"
         >
@@ -45,7 +45,7 @@
         <v-list-item
           :disabled="!hasSession"
           to="/page/progress-management"
-          :title="$t('progress-management.title')"
+          :title.attr="$t('progress-management.title')"
           exact
           prepend-icon="waterfall_chart"
         >
@@ -55,7 +55,7 @@
         <v-list-item
           :disabled="!hasSession"
           to="/page/quality-management"
-          :title="$t('quality-management.title')"
+          :title.attr="$t('quality-management.title')"
           exact
           prepend-icon="show_chart"
         >
@@ -73,7 +73,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title="`${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${story.testTargetName} ${story.viewPointName}`"
             exact
             prepend-icon="assignment"
           >
@@ -92,7 +92,7 @@
           <v-list-item
             v-if="recentReviewQuery"
             :to="{ path: '/review', query: recentReviewQuery }"
-            :title="$t('manager-history-view.review')"
+            :title.attr="$t('manager-history-view.review')"
             exact
             prepend-icon="pageview"
           >

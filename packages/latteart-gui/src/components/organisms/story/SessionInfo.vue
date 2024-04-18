@@ -308,7 +308,7 @@ export default defineComponent({
         message: rootStore.message("session-info.call-test-results")
       });
       try {
-        testResults.value = await testManagementStore.getTestResults();
+        testResults.value = await operationHistoryStore.getTestResults();
       } finally {
         rootStore.closeProgressDialog();
       }
