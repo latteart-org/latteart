@@ -25,6 +25,9 @@ import { SessionEntity } from "./SessionEntity";
 
 @Entity("ATTACHED_FILES")
 export class AttachedFileEntity {
+  @PrimaryColumn({ name: "session_id" })
+  sessionId!: string;
+
   @ManyToOne(() => SessionEntity, (session) => session.attachedFiles, {
     orphanedRowAction: "delete",
     onDelete: "CASCADE",
