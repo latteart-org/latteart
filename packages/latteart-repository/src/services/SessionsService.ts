@@ -27,9 +27,10 @@ import {
 } from "@/interfaces/Sessions";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
-import { DataSource, In } from "typeorm";
+import { DataSource, EntityManager, In } from "typeorm";
 import { TestProgressServiceImpl } from "./TestProgressService";
 import { TimestampService } from "./TimestampService";
+import { TransactionRunner } from "@/TransactionRunner";
 
 export class SessionsService {
   constructor(private dataSource: DataSource) {}
@@ -75,6 +76,7 @@ export class SessionsService {
     service: {
       timestampService: TimestampService;
       attachedFileRepository: FileRepository;
+      transactionRunner: TransactionRunner;
     }
   ): Promise<PatchSessionResponse> {
     const sessionRepository = this.dataSource.getRepository(SessionEntity);
@@ -84,14 +86,6 @@ export class SessionsService {
     });
     if (!updateTargetSession) {
       throw new Error(`Session not found: ${sessionId}`);
-    }
-
-    if (requestBody.attachedFiles !== undefined) {
-      updateTargetSession.attachedFiles = await this.updateAttachedFiles(
-        updateTargetSession,
-        requestBody.attachedFiles,
-        service
-      );
     }
 
     if (requestBody.isDone !== undefined) {
@@ -134,14 +128,29 @@ export class SessionsService {
         updateTargetSession.testResults = [];
       }
     }
-    const result = await sessionRepository.save(updateTargetSession);
+    let savedSessionId = "";
+    await service.transactionRunner.waitAndRun(
+      async (transactionalEntityManager) => {
+        const result =
+          await transactionalEntityManager.save(updateTargetSession);
+        savedSessionId = result.id;
 
-    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
-      projectId,
-      result.story.id
+        await new TestProgressServiceImpl(
+          this.dataSource
+        ).saveTodayTestProgresses(projectId, result.story.id);
+
+        if (requestBody.attachedFiles !== undefined) {
+          await this.updateAttachedFiles(
+            result,
+            requestBody.attachedFiles,
+            transactionalEntityManager,
+            service
+          );
+        }
+      }
     );
 
-    return await this.entityToResponse(result.id);
+    return await this.entityToResponse(savedSessionId);
   }
 
   public async deleteSession(
@@ -176,53 +185,65 @@ export class SessionsService {
   }
 
   private async updateAttachedFiles(
-    existsSession: SessionEntity,
+    session: SessionEntity,
     requestAttachedFiles: PatchSessionDto["attachedFiles"],
+    entityManager: EntityManager,
     service: {
       timestampService: TimestampService;
       attachedFileRepository: FileRepository;
     }
-  ): Promise<AttachedFileEntity[]> {
-    if (!requestAttachedFiles) {
-      return [];
-    }
+  ): Promise<void> {
+    const existsAttachedFile = await entityManager.find(AttachedFileEntity, {
+      where: { sessionId: session.id },
+    });
 
-    const existsAttachedFiles = existsSession.attachedFiles ?? [];
-    const result = [];
-
-    for (const attachedFile of requestAttachedFiles) {
-      if (attachedFile.fileUrl) {
-        const existsAttachedFile = existsAttachedFiles.find(
-          (existsAttachedFile) =>
-            existsAttachedFile.fileUrl === attachedFile.fileUrl
-        );
-        if (!existsAttachedFile) {
-          throw new Error(`AttachedFile not found: ${attachedFile.fileUrl}`);
-        }
-        result.push(existsAttachedFile);
-      } else if (attachedFile.fileData) {
+    const addFile = requestAttachedFiles?.filter((newFile) => newFile.fileData);
+    await Promise.all(
+      (addFile ?? []).map(async (file) => {
         const fileName = `${service.timestampService.unix().toString()}_${
-          attachedFile.name
+          file.name
         }`;
-        await service.attachedFileRepository.outputFile(
-          fileName,
-          attachedFile.fileData,
-          "base64"
-        );
         const attachedFileImageUrl =
           service.attachedFileRepository.getFileUrl(fileName);
-
-        result.push(
+        await service.attachedFileRepository.outputFile(
+          fileName,
+          file.fileData as string,
+          "base64"
+        );
+        await entityManager.save(
           new AttachedFileEntity({
-            sessionId: existsSession.id,
-            session: existsSession,
-            name: attachedFile.name,
+            sessionId: session.id,
+            session,
+            name: fileName,
             fileUrl: attachedFileImageUrl,
           })
         );
-      }
+      })
+    );
+
+    let deleteFile: AttachedFileEntity[] = [];
+    if (
+      requestAttachedFiles === undefined ||
+      requestAttachedFiles.length === 0
+    ) {
+      deleteFile = existsAttachedFile;
+    } else {
+      deleteFile = existsAttachedFile.filter(
+        (existsFile) =>
+          !requestAttachedFiles.find(
+            (newFile) => existsFile.name === newFile.name
+          )
+      );
     }
-    return result;
+    await Promise.all(
+      deleteFile.map(async (file) => {
+        await entityManager.delete(AttachedFileEntity, {
+          sessionId: file.sessionId,
+          fileUrl: file.fileUrl,
+          name: file.name,
+        });
+      })
+    );
   }
 
   private async entityToResponse(sessionId: string): Promise<Session> {

@@ -37,6 +37,7 @@ import { SessionsService } from "../services/SessionsService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
 import { AppDataSource } from "@/data-source";
+import { transactionRunner } from "..";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -100,6 +101,7 @@ export class SessionsController extends Controller {
         {
           timestampService: new TimestampServiceImpl(),
           attachedFileRepository,
+          transactionRunner,
         }
       );
     } catch (error) {
