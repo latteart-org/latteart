@@ -64,39 +64,39 @@
             :model-value="countPlannedSessions()"
           ></v-text-field>
           <v-text-field
+            v-model="doneSessionNum"
             class="pt-0"
             readonly
             :label="$t('story-page.completed-session')"
-            v-model="doneSessionNum"
           ></v-text-field>
           <v-text-field
+            v-model="extractionBugNum"
             class="pt-0"
             readonly
             :label="$t('story-page.bug-count')"
-            v-model="extractionBugNum"
           ></v-text-field>
         </v-col>
         <v-col cols="3">
           <review-button
             :disabled="!canReviewSession"
             :story="story"
-            :sessionIds="reviewTargetSessionIds"
+            :session-ids="reviewTargetSessionIds"
           ></review-button>
 
           <v-select
+            v-model="reviewTargetSessionIds"
             :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
             :label="$t('story-page.review-target')"
             item-title="displayName"
             item-value="id"
             :multiple="!isViewerMode"
-            v-model="reviewTargetSessionIds"
           ></v-select>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-expansion-panels class="py-0 mb-2" v-model="sessionPanelExpantionStates" multiple>
+          <v-expansion-panels v-model="sessionPanelExpantionStates" class="py-0 mb-2" multiple>
             <v-expansion-panel
               v-for="(session, index) in story?.sessions"
               :key="session.id"
@@ -112,34 +112,34 @@
                   <v-col class="d-flex align-center">
                     <div @click="$event.stopPropagation()">
                       <v-checkbox
+                        :id="`completedSessionCheckBox${index}`"
                         :model-value="session.isDone"
+                        :label="$t('session-list.complete')"
+                        :readonly="isViewerMode"
+                        hide-details
                         @update:model-value="
                           (value) => changeSessionStatus(session.id, value ?? false)
                         "
-                        :label="$t('session-list.complete')"
-                        :readonly="isViewerMode"
-                        :id="`completedSessionCheckBox${index}`"
-                        hide-details
                       ></v-checkbox>
                     </div>
                   </v-col>
                   <v-col class="d-flex align-center">
                     <v-btn
-                      :disabled="isCapturing || isReplaying"
                       v-if="!isViewerMode"
+                      :disabled="isCapturing || isReplaying"
+                      size="small"
+                      block
                       @click="
                         $event.stopPropagation();
                         openConfirmDialogToDeleteSession(session.id);
                       "
-                      size="small"
-                      block
                       >{{ $t("session-list.delete") }}</v-btn
                     >
                   </v-col>
                 </v-row>
               </v-expansion-panel-title>
               <v-expansion-panel-text>
-                <session-info :storyId="story?.id" :sessionId="session.id"></session-info>
+                <session-info :story-id="story?.id" :session-id="session.id"></session-info>
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -148,10 +148,10 @@
       <v-row>
         <v-col>
           <v-btn
-            :disabled="isCapturing || isReplaying"
             v-if="!isViewerMode"
-            @click="addNewSession"
             id="addSessionButton"
+            :disabled="isCapturing || isReplaying"
+            @click="addNewSession"
             >{{ $t("story-page.add-session") }}</v-btn
           >
         </v-col>
@@ -162,7 +162,7 @@
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
   </v-container>
