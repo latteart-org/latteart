@@ -136,12 +136,12 @@
                 <ul v-for="(file, index) in session.attachedFiles" :key="index">
                   <li v-if="isViewerMode">
                     <a :href="file.fileUrl" target="_blank" rel="noopener"
-                      ><span class="break-all">{{ file.name }}</span></a
+                      ><span class="file-link break-all">{{ file.name }}</span></a
                     >
                   </li>
                   <li v-else>
                     <a @click="openAttachedFile(file)"
-                      ><span class="break-all">{{ file.name }}</span></a
+                      ><span class="file-link break-all">{{ file.name }}</span></a
                     >
                     <v-btn
                       variant="text"
@@ -581,4 +581,8 @@ export default defineComponent({
   white-space: pre-wrap
 .break-all
   word-break: break-all
+
+.file-link
+  color: #1976d2
+  cursor: pointer
 </style>
