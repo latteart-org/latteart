@@ -209,7 +209,7 @@ export default defineComponent({
     const errorDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const selectedTestResults = ref<TestResultSummary[]>([]);
+    const selectedTestResults = ref<string[]>([]);
     const testResults = ref<TestResultSummary[]>([]);
 
     const headers = computed(() => {
@@ -311,7 +311,7 @@ export default defineComponent({
         message: rootStore.message("test-result-navigation-drawer.deleting-test-results")
       });
       try {
-        const targetTestResultIds = selectedTestResults.value.map(({ id }) => id);
+        const targetTestResultIds = selectedTestResults.value;
 
         // Delete selected test results.
         await operationHistoryStore.deleteTestResults({
