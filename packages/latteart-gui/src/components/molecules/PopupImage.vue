@@ -16,7 +16,7 @@
 
 <template>
   <div>
-    <v-img :src="imageFileUrl" v-bind="$attrs" style="cursor: pointer" @click="openImageFile" />
+    <v-img :src="imageFileUrl" style="cursor: pointer" @click="openImageFile" />
     <v-dialog v-model="imageFileOpened">
       <v-card>
         <v-img :src="imageFileUrl" />
