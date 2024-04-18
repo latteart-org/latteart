@@ -9,7 +9,7 @@ import { TimestampService } from "@/services/TimestampService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
-import { transactionRunner } from "@/index";
+import { TransactionRunner } from "@/TransactionRunner";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -204,6 +204,6 @@ function createServiceMock(params: { doneDate: string }) {
   return {
     timestampService,
     attachedFileRepository,
-    transactionRunner,
+    transactionRunner: new TransactionRunner(TestDataSource),
   };
 }
