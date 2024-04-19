@@ -173,23 +173,19 @@ export default defineComponent({
       return [
         {
           title: rootStore.message("stories-review-page.test-matrix"),
-          value: "testMatrix.name",
-          filter: testMatrixFilter
+          value: "testMatrix.name"
         },
         {
           title: rootStore.message("stories-review-page.group"),
-          value: "group.name",
-          filter: groupFilter
+          value: "group.name"
         },
         {
           title: rootStore.message("stories-review-page.test-target"),
-          value: "testTarget.name",
-          filter: testTargetFilter
+          value: "testTarget.name"
         },
         {
           title: rootStore.message("stories-review-page.view-point"),
-          value: "viewPoint.name",
-          filter: viewPointFilter
+          value: "viewPoint.name"
         }
       ];
     });
@@ -214,7 +210,31 @@ export default defineComponent({
             });
           });
         })
-        .filter((story) => hasTestResult(story.viewPoint.id, story.testTarget.id));
+        .filter((story) => hasTestResult(story.viewPoint.id, story.testTarget.id))
+        .filter((story) => {
+          if (!testMatrixFilterValue.value || testMatrixFilterValue.value === "") {
+            return true;
+          }
+          return story.testMatrix.name.includes(testMatrixFilterValue.value);
+        })
+        .filter((story) => {
+          if (!groupFilterValue.value || groupFilterValue.value === "") {
+            return true;
+          }
+          return story.group.name.includes(groupFilterValue.value);
+        })
+        .filter((story) => {
+          if (!testTargetFilterValue.value || testTargetFilterValue.value === "") {
+            return true;
+          }
+          return story.testTarget.name.includes(testTargetFilterValue.value);
+        })
+        .filter((story) => {
+          if (!viewPointFilterValue.value || viewPointFilterValue.value === "") {
+            return true;
+          }
+          return story.viewPoint.name.includes(viewPointFilterValue.value);
+        });
     });
 
     const testMatrices = computed((): TestMatrix[] => {
@@ -235,34 +255,6 @@ export default defineComponent({
 
     const getViewPointName = (viewPointId: string) => {
       return viewPoints.value.find(({ id }) => id === viewPointId)?.name ?? "";
-    };
-
-    const testMatrixFilter = (testMatrix: string) => {
-      if (!testMatrixFilterValue.value) {
-        return true;
-      }
-      return testMatrix.includes(testMatrixFilterValue.value);
-    };
-
-    const groupFilter = (group: string) => {
-      if (!groupFilterValue.value) {
-        return true;
-      }
-      return group.includes(groupFilterValue.value);
-    };
-
-    const testTargetFilter = (testTarget: string) => {
-      if (!testTargetFilterValue.value) {
-        return true;
-      }
-      return testTarget.includes(testTargetFilterValue.value);
-    };
-
-    const viewPointFilter = (viewPoint: string) => {
-      if (!viewPointFilterValue.value) {
-        return true;
-      }
-      return viewPoint.includes(viewPointFilterValue.value);
     };
 
     const hasTestResult = (viewPointId: string, testTargetId: string): boolean => {
