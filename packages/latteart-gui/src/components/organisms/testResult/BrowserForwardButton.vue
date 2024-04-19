@@ -20,10 +20,10 @@
       variant="elevated"
       icon="arrow_forward"
       size="small"
-      @click="browserForward"
       :disabled="isDisabled"
       :title="$t('navigate.forward')"
       class="mx-2"
+      @click="browserForward"
     >
     </v-btn>
   </div>
@@ -31,13 +31,17 @@
 
 <script lang="ts">
 import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
     const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
+    const canDoBrowserForward = ref(false);
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserForward.value;
@@ -47,13 +51,17 @@ export default defineComponent({
       return captureControlStore.isCapturing;
     });
 
-    const canDoBrowserForward = computed(() => {
-      return captureControlStore.captureSession?.canNavigateForward ?? false;
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
     });
 
     const browserForward = (): void => {
       captureControlStore.browserForward();
     };
+
+    watch(historyLength, () => {
+      canDoBrowserForward.value = captureControlStore.captureSession?.canNavigateForward ?? false;
+    });
 
     return {
       t: rootStore.message,
