@@ -20,10 +20,10 @@
       variant="elevated"
       icon="arrow_back"
       size="small"
-      @click="browserBack"
       :disabled="isDisabled"
       :title="$t('navigate.back')"
       class="mx-2"
+      @click="browserBack"
     >
     </v-btn>
   </div>
@@ -31,13 +31,17 @@
 
 <script lang="ts">
 import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
     const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
+    const canDoBrowserBack = ref(false);
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserBack.value;
@@ -47,13 +51,17 @@ export default defineComponent({
       return captureControlStore.isCapturing;
     });
 
-    const canDoBrowserBack = computed(() => {
-      return captureControlStore.captureSession?.canNavigateBack ?? false;
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
     });
 
     const browserBack = (): void => {
       captureControlStore.browserBack();
     };
+
+    watch(historyLength, () => {
+      canDoBrowserBack.value = captureControlStore.captureSession?.canNavigateBack ?? false;
+    });
 
     return {
       t: rootStore.message,
