@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div>
+  <div :style="style">
     <v-img :src="imageFileUrl" style="cursor: pointer" @click="openImageFile" />
     <v-dialog v-model="imageFileOpened">
       <v-card>
@@ -30,16 +30,23 @@ import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   props: {
-    imageFileUrl: { type: String, default: "" }
+    imageFileUrl: { type: String, default: "" },
+    width: { type: String, default: "100%" },
+    height: { type: String, default: "100%" }
   },
-  setup() {
+  setup(props) {
     const imageFileOpened = ref(false);
 
     const openImageFile = () => {
       imageFileOpened.value = true;
     };
 
-    return { imageFileOpened, openImageFile };
+    const style = {
+      width: props.width,
+      height: props.height
+    };
+
+    return { imageFileOpened, openImageFile, style };
   }
 });
 </script>
