@@ -45,17 +45,22 @@ export class TimestampImpl implements Timestamp {
   private time: dayjs.Dayjs;
   private static dateFormat = "YYYY-MM-DD";
 
-  constructor(value?: string | number) {
+  constructor(value?: string | number | Date) {
     if (value) {
-      if (this.isDateFormat(String(value))) {
-        this.time = dayjs(value, TimestampImpl.dateFormat);
+      const dateStr =
+        typeof value === "string" || typeof value === "number"
+          ? value
+          : this.convertDateToString(value);
+
+      if (this.isDateFormat(String(dateStr))) {
+        this.time = dayjs(dateStr, TimestampImpl.dateFormat);
       } else {
-        const stringTimestamp = this.timestampToString(value);
+        const stringTimestamp = this.timestampToString(dateStr);
 
         if (stringTimestamp.length > 10) {
-          this.time = dayjs(value, "x");
+          this.time = dayjs(dateStr, "x");
         } else {
-          this.time = dayjs(value, "X");
+          this.time = dayjs(dateStr, "X");
         }
       }
     } else {
@@ -127,6 +132,10 @@ export class TimestampImpl implements Timestamp {
       return y == dateInfo.getFullYear() && m == dateInfo.getMonth() && d == dateInfo.getDate();
     }
     return false;
+  }
+
+  private convertDateToString(value: Date): string {
+    return value.toLocaleDateString("ja-JP").replace(/\//g, "-");
   }
 }
 

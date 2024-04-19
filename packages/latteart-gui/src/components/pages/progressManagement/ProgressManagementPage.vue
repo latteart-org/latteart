@@ -251,17 +251,13 @@ export default defineComponent({
     const updatePeriod = (value: { start?: Date; end?: Date }) => {
       (async () => {
         if (value.start) {
-          // sv-SE locale returns date string in YYYY-MM-DD format
-          const startDateStr = value.start.toLocaleDateString("sv-SE");
-          startDate.value = new TimestampImpl(startDateStr).format("YYYY-MM-DD");
+          startDate.value = new TimestampImpl(value.start).format("YYYY-MM-DD");
 
           startDateMenu.value = false;
         }
 
         if (value.end) {
-          // sv-SE locale returns date string in YYYY-MM-DD format
-          const endDateStr = value.end.toLocaleDateString("sv-SE");
-          endDate.value = new TimestampImpl(endDateStr).format("YYYY-MM-DD");
+          endDate.value = new TimestampImpl(value.end).format("YYYY-MM-DD");
 
           endDateMenu.value = false;
         }
