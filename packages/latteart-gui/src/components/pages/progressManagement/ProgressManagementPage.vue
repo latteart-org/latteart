@@ -29,7 +29,6 @@
         <v-menu
           v-model="startDateMenu"
           :close-on-content-click="false"
-          :offset="40"
           transition="scale-transition"
           full-width
           min-width="290px"
@@ -42,13 +41,11 @@
               readonly
               v-bind="props"
               class="mx-3"
-              @change="(value: string) => updatePeriod({ start: value })"
             ></v-text-field>
           </template>
           <v-date-picker
-            :value="startDate"
-            @change="(value: string) => updatePeriod({ start: value })"
-            @input="startDateMenu = false"
+            :model-value="new Date(startDate)"
+            @update:model-value="(value: Date) => updatePeriod({ start: value })"
           ></v-date-picker>
         </v-menu>
       </v-col>
@@ -59,7 +56,6 @@
         <v-menu
           v-model="endDateMenu"
           :close-on-content-click="false"
-          :offset="40"
           transition="scale-transition"
           full-width
           min-width="290px"
@@ -72,13 +68,11 @@
               readonly
               v-bind="props"
               class="mx-3"
-              @change="(value: string) => updatePeriod({ end: value })"
             ></v-text-field>
           </template>
           <v-date-picker
-            :value="endDate"
-            @change="(value: string) => updatePeriod({ end: value })"
-            @input="endDateMenu = false"
+            :model-value="new Date(endDate)"
+            @update:model-value="(value: Date) => updatePeriod({ end: value })"
           ></v-date-picker>
         </v-menu>
       </v-col>
@@ -254,14 +248,22 @@ export default defineComponent({
       });
     });
 
-    const updatePeriod = (value: { start?: string; end?: string }) => {
+    const updatePeriod = (value: { start?: Date; end?: Date }) => {
       (async () => {
         if (value.start) {
-          startDate.value = new TimestampImpl(value.start).format("YYYY-MM-DD");
+          // sv-SE locale returns date string in YYYY-MM-DD format
+          const startDateStr = value.start.toLocaleDateString("sv-SE");
+          startDate.value = new TimestampImpl(startDateStr).format("YYYY-MM-DD");
+
+          startDateMenu.value = false;
         }
 
         if (value.end) {
-          endDate.value = new TimestampImpl(value.end).format("YYYY-MM-DD");
+          // sv-SE locale returns date string in YYYY-MM-DD format
+          const endDateStr = value.end.toLocaleDateString("sv-SE");
+          endDate.value = new TimestampImpl(endDateStr).format("YYYY-MM-DD");
+
+          endDateMenu.value = false;
         }
 
         progressDatas.value = await collectProgressDatas();
