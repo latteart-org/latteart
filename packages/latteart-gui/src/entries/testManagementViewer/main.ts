@@ -22,16 +22,14 @@ import i18n from "@/plugins/i18n";
 import { SnapshotDataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 
-declare const snapshot: any;
-declare const dailyTestProgresses: any;
-declare const settings: any;
-
 const app = createApp(App);
 const plugins = collectPlugins("snapshot");
 
 for (const plugin of plugins) {
   app.use(plugin);
 }
+
+app.provide("isViewerMode", true);
 
 // initialize store
 const i18nProvider: I18nProvider = {
@@ -48,11 +46,19 @@ const i18nProvider: I18nProvider = {
   }
 };
 
-const rootStore = useRootStore();
-rootStore.i18nProvider = i18nProvider;
-rootStore.dataLoader = new SnapshotDataLoader({
-  settings,
-  project: { stories: snapshot.stories, testMatrices: snapshot.testMatrices, dailyTestProgresses }
-});
+(async () => {
+  const settings = await (await fetch("./data/latteart.config.json")).json();
+  const snapshot = await (await fetch("./data/project.json")).json();
+  const dailyTestProgresses = await (await fetch("./data/progress.json")).json();
 
-app.mount("#app");
+  i18nProvider.setLocale(settings.locale);
+
+  const rootStore = useRootStore();
+  rootStore.i18nProvider = i18nProvider;
+  rootStore.dataLoader = new SnapshotDataLoader({
+    settings,
+    project: { stories: snapshot.stories, testMatrices: snapshot.testMatrices, dailyTestProgresses }
+  });
+
+  app.mount("#app");
+})();

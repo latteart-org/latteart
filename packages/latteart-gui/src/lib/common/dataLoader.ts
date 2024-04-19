@@ -32,6 +32,7 @@ import { parseHistoryLog } from "./util";
 import type { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import type { ProjectSettings } from "./settings/Settings";
 import { ReadSettingAction } from "./settings/ReadSettingAction";
+import { GetTestResultListAction } from "../operationHistory/actions/testResult/GetTestResultListAction";
 
 export type DataLoader = {
   loadProjectSettings(): Promise<
@@ -44,6 +45,7 @@ export type DataLoader = {
     projectId: string,
     filter?: { period?: { since: Timestamp; until: Timestamp } }
   ): Promise<DailyTestProgressForRepository[]>;
+  loadTestResultSummaries(): Promise<{ id: string; name: string }[]>;
   loadTestResult(testResultId: string): Promise<
     | {
         windows?: { windowHandle: string; title: string }[];
@@ -168,6 +170,19 @@ export class SnapshotDataLoader implements DataLoader {
     return { historyItems };
   }
 
+  async loadTestResultSummaries(): Promise<{ id: string; name: string }[]> {
+    if (!this.source.testResult) {
+      return [];
+    }
+
+    return (this.source.testResult.historyLogs as any).map((historyLog: any) => {
+      return {
+        id: historyLog.testResultId,
+        name: historyLog.testResultName
+      };
+    });
+  }
+
   async loadSequenceView(
     testResultId: string,
     option?: TestResultViewOption
@@ -232,6 +247,16 @@ export class RepositoryDataLoader implements DataLoader {
       projectId,
       filter
     );
+
+    if (result.isFailure()) {
+      return [];
+    }
+
+    return result.data;
+  }
+
+  async loadTestResultSummaries(): Promise<{ id: string; name: string }[]> {
+    const result = await new GetTestResultListAction(this.repositoryService).getTestResults();
 
     if (result.isFailure()) {
       return [];

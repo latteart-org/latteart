@@ -17,7 +17,7 @@
 <template>
   <v-app>
     <v-navigation-drawer :rail="mini" permanent @click="mini = false">
-      <v-list-item prepend-avatar="/src/assets/logo.png" class="px-2">
+      <v-list-item prepend-avatar="@/assets/logo.png" class="px-2">
         <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
 
         <template #append>

@@ -31,7 +31,7 @@ import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref, type PropType } from "vue";
+import { computed, defineComponent, inject, ref, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -48,6 +48,8 @@ export default defineComponent({
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
     const captureControlStore = useCaptureControlStore();
+
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -91,6 +93,10 @@ export default defineComponent({
     };
 
     const loadHistory = async () => {
+      if (isViewerMode) {
+        return;
+      }
+
       if (props.testResultIds.length === 0) {
         return;
       }

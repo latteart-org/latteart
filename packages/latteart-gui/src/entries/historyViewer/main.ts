@@ -22,17 +22,14 @@ import i18n from "@/plugins/i18n";
 import { SnapshotDataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 
-declare const historyLogs: any;
-declare const sequenceViews: any;
-declare const graphView: any;
-declare const settings: any;
-
 const app = createApp(App);
 const plugins = collectPlugins("snapshot");
 
 for (const plugin of plugins) {
   app.use(plugin);
 }
+
+app.provide("isViewerMode", true);
 
 // initialize store
 const i18nProvider: I18nProvider = {
@@ -49,11 +46,20 @@ const i18nProvider: I18nProvider = {
   }
 };
 
-const rootStore = useRootStore();
-rootStore.i18nProvider = i18nProvider;
-rootStore.dataLoader = new SnapshotDataLoader({
-  settings,
-  testResult: { historyLogs, sequenceViews, graphView }
-});
+(async () => {
+  const settings = await (await fetch("../../latteart.config.json")).json();
+  const historyLogs = await (await fetch("./testResult/log.json")).json();
+  const sequenceViews = await (await fetch("./testResult/sequence-view.json")).json();
+  const graphView = await (await fetch("./testResult/graph-view.json")).json();
 
-app.mount("#app");
+  i18nProvider.setLocale(settings.locale);
+
+  const rootStore = useRootStore();
+  rootStore.i18nProvider = i18nProvider;
+  rootStore.dataLoader = new SnapshotDataLoader({
+    settings,
+    testResult: { historyLogs, sequenceViews, graphView }
+  });
+
+  app.mount("#app");
+})();
