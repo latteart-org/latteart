@@ -212,25 +212,25 @@ export default defineComponent({
         })
         .filter((story) => hasTestResult(story.viewPoint.id, story.testTarget.id))
         .filter((story) => {
-          if (!testMatrixFilterValue.value || testMatrixFilterValue.value === "") {
+          if (!testMatrixFilterValue.value) {
             return true;
           }
           return story.testMatrix.name.includes(testMatrixFilterValue.value);
         })
         .filter((story) => {
-          if (!groupFilterValue.value || groupFilterValue.value === "") {
+          if (!groupFilterValue.value) {
             return true;
           }
           return story.group.name.includes(groupFilterValue.value);
         })
         .filter((story) => {
-          if (!testTargetFilterValue.value || testTargetFilterValue.value === "") {
+          if (!testTargetFilterValue.value) {
             return true;
           }
           return story.testTarget.name.includes(testTargetFilterValue.value);
         })
         .filter((story) => {
-          if (!viewPointFilterValue.value || viewPointFilterValue.value === "") {
+          if (!viewPointFilterValue.value) {
             return true;
           }
           return story.viewPoint.name.includes(viewPointFilterValue.value);
