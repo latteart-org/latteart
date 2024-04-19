@@ -45,9 +45,11 @@ export class TimestampImpl implements Timestamp {
   private time: dayjs.Dayjs;
   private static dateFormat = "YYYY-MM-DD";
 
-  constructor(value?: string | number) {
+  constructor(value?: string | number | Date) {
     if (value) {
-      if (this.isDateFormat(String(value))) {
+      if (typeof value !== "string" && typeof value !== "number") {
+        this.time = dayjs(value);
+      } else if (this.isDateFormat(String(value))) {
         this.time = dayjs(value, TimestampImpl.dateFormat);
       } else {
         const stringTimestamp = this.timestampToString(value);
