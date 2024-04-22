@@ -29,7 +29,6 @@
             color="blue"
             :loading="updating"
             :disabled="!canUpdateModels"
-            variant="elevated"
             @click="updateTestResultViewModel"
             >{{ message("test-result-page.update-model-and-coverage") }}</v-btn
           >

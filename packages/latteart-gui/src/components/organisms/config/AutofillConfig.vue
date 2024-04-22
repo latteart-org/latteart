@@ -32,9 +32,7 @@
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
-        <v-btn variant="elevated" @click="addConditionGroup">{{
-          $t("config-page.autofill.add-setting")
-        }}</v-btn>
+        <v-btn @click="addConditionGroup">{{ $t("config-page.autofill.add-setting") }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
         <autofill-input-value-container

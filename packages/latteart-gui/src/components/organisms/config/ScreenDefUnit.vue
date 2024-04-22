@@ -35,13 +35,13 @@
                   :model-value="conditionGroup.screenName"
                   @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
                 ></v-text-field>
-                <v-btn variant="elevated" color="error" @click="deleteConditionGroup"
+                <v-btn color="error" @click="deleteConditionGroup"
                   >{{ t("config-page.screen-def.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
-                <v-btn variant="elevated" size="small" class="mt-3" @click="addCondition">{{
+                <v-btn size="small" class="mt-3" @click="addCondition">{{
                   t("config-page.screen-def.add-condition")
                 }}</v-btn
                 ><span class="description">{{ t("config-page.screen-def.description") }}</span>

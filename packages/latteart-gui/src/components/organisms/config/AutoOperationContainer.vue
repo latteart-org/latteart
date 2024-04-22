@@ -36,10 +36,10 @@
         ></v-text-field>
       </v-col>
       <v-col cols="3" class="d-flex align-center pt-0">
-        <v-btn variant="elevated" @click="dialogOpened = true">{{
+        <v-btn @click="dialogOpened = true">{{
           $t("config-page.autoOperation.details-list")
         }}</v-btn>
-        <v-btn variant="elevated" color="error" class="ml-4" @click="deleteConditionGroup">{{
+        <v-btn color="error" class="ml-4" @click="deleteConditionGroup">{{
           $t("common.delete")
         }}</v-btn>
       </v-col>
