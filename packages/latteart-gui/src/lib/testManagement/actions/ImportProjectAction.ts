@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { ProjectSettings } from "@/lib/common/settings/Settings";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type ProjectSettings } from "@/lib/common/settings/Settings";
+import { type RepositoryService } from "latteart-client";
 
 export class ImportProjectAction {
-  constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "importProjectRepository"
-    >
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "importProjectRepository">) {}
 
   /**
    * Import project or testresult or all.
@@ -43,31 +34,30 @@ export class ImportProjectAction {
       includeConfig: boolean;
     }
   ): Promise<ActionResult<{ projectId: string; config?: ProjectSettings }>> {
-    const postProjectsResult =
-      await this.repositoryService.importProjectRepository.postProjects(
-        source,
-        selectOption
-      );
+    const postProjectsResult = await this.repositoryService.importProjectRepository.postProjects(
+      source,
+      selectOption
+    );
 
     if (postProjectsResult.isFailure()) {
       if (postProjectsResult.error.code === "import_config_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-config-not-exist",
+          messageKey: "error.import_export.import-config-not-exist"
         });
       }
       if (postProjectsResult.error.code === "import_test_result_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-test-result-not-exist",
+          messageKey: "error.import_export.import-test-result-not-exist"
         });
       }
       if (postProjectsResult.error?.code === "import_project_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-project-not-exist",
+          messageKey: "error.import_export.import-project-not-exist"
         });
       }
 
       return new ActionFailure({
-        messageKey: "error.import_export.import-data-error",
+        messageKey: "error.import_export.import-data-error"
       });
     }
 

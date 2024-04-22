@@ -17,17 +17,17 @@
 <template>
   <div>
     <record-start-trigger v-if="!isCapturing">
-      <template v-slot:activator="{ on, isDisabled }">
+      <template #activator="{ on, isDisabled }">
         <v-btn
+          id="startButton"
           :disabled="isDisabled"
           icon
-          text
-          large
-          color="grey darken-3"
-          @click="openOptionDialog"
-          :title="store.getters.message('app.start')"
-          id="startButton"
+          variant="text"
+          size="large"
+          color="grey-darken-3"
+          :title="$t('app.start')"
           class="mx-1"
+          @click="openOptionDialog"
         >
           <v-icon>fiber_manual_record</v-icon>
         </v-btn>
@@ -42,14 +42,14 @@
 
     <v-btn
       v-else
-      icon
-      text
-      large
-      color="red"
-      @click="endCapture"
-      :title="store.getters.message('app.finish')"
       id="endButton"
+      icon
+      variant="text"
+      size="large"
+      color="red"
+      :title="$t('app.finish')"
       class="mx-2"
+      @click="endCapture"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>
@@ -59,23 +59,23 @@
 <script lang="ts">
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import FirstTestPurposeOptionDialog from "@/components/organisms/dialog/FirstTestPurposeOptionDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
     "first-test-purpose-option-dialog": FirstTestPurposeOptionDialog,
-    "record-start-trigger": RecordStartTrigger,
+    "record-start-trigger": RecordStartTrigger
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const optionDialogOpened = ref(false);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const openOptionDialog = () => {
@@ -83,16 +83,16 @@ export default defineComponent({
     };
 
     const endCapture = (): void => {
-      store.dispatch("captureControl/endCapture");
+      captureControlStore.endCapture();
     };
 
     return {
-      store,
+      t: rootStore.message,
       optionDialogOpened,
       isCapturing,
       openOptionDialog,
-      endCapture,
+      endCapture
     };
-  },
+  }
 });
 </script>

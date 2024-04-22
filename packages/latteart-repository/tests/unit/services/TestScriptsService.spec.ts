@@ -7,14 +7,16 @@ import { ServerError } from "@/ServerError";
 import { TestResultService } from "@/services/TestResultService";
 import { TestScriptFileRepositoryService } from "@/services/TestScriptFileRepositoryService";
 import { TestScriptsService } from "@/services/TestScriptsService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { TestScriptOption } from "@/domain/types";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -50,7 +52,7 @@ describe("TestScriptsService", () => {
     describe("テスト結果内の操作群からテストスクリプトを生成する", () => {
       describe("テストケースを1つ以上生成できた場合は、ダウンロード用URLと生成したスクリプト内に無効な操作があるか否かを返す", () => {
         it("無効な操作が無い場合", async () => {
-          const { id: testResultId } = await getRepository(
+          const { id: testResultId } = await TestDataSource.getRepository(
             TestResultEntity
           ).save(
             new TestResultEntity({
@@ -87,7 +89,7 @@ describe("TestScriptsService", () => {
             ...emptyTestScriptFileRepositoryService,
             write: jest.fn().mockResolvedValue("testScriptArchiveUrl"),
           };
-          const service = new TestScriptsService({
+          const service = new TestScriptsService(TestDataSource, {
             testResult: testResultServiceMock,
             testScriptFileRepository: testScriptFileRepositoryServiceMock,
           });
@@ -209,7 +211,7 @@ describe('TestSuite1', () => {
         });
 
         it("無効な操作がある場合", async () => {
-          const { id: testResultId } = await getRepository(
+          const { id: testResultId } = await TestDataSource.getRepository(
             TestResultEntity
           ).save(
             new TestResultEntity({
@@ -237,7 +239,7 @@ describe('TestSuite1', () => {
             ...emptyTestScriptFileRepositoryService,
             write: jest.fn().mockResolvedValue("testScriptArchiveUrl"),
           };
-          const service = new TestScriptsService({
+          const service = new TestScriptsService(TestDataSource, {
             testResult: testResultServiceMock,
             testScriptFileRepository: testScriptFileRepositoryServiceMock,
           });
@@ -357,7 +359,7 @@ describe('TestSuite1', () => {
         const testScriptFileRepositoryServiceMock = {
           ...emptyTestScriptFileRepositoryService,
         };
-        const service = new TestScriptsService({
+        const service = new TestScriptsService(TestDataSource, {
           testResult: {
             ...emptyTestResultService,
           },

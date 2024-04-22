@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { GraphView, VideoFrame } from "latteart-client";
+import { type GraphView, type VideoFrame } from "latteart-client";
 
 export interface InclusionTableItem {
   text: string;
@@ -79,7 +79,7 @@ export function getCoverages(
 
           const operatedElement = {
             id: targetElement.id,
-            ...image,
+            ...image
           };
 
           if (targetElement?.tagname.toLowerCase() !== "select") {
@@ -87,26 +87,24 @@ export function getCoverages(
           }
 
           const input = testStep.input;
-          const optionElement = graphView.store.elements.find(
-            ({ tagname, xpath, attributes }) => {
-              if (tagname.toLowerCase() !== "option") {
-                return false;
-              }
-
-              const optionXPath = xpath.toLowerCase();
-              const selectXPath = targetElement.xpath.toLowerCase();
-              if (!optionXPath.startsWith(`${selectXPath}/option`)) {
-                return false;
-              }
-
-              return input === attributes["value"];
+          const optionElement = graphView.store.elements.find(({ tagname, xpath, attributes }) => {
+            if (tagname.toLowerCase() !== "option") {
+              return false;
             }
-          );
+
+            const optionXPath = xpath.toLowerCase();
+            const selectXPath = targetElement.xpath.toLowerCase();
+            if (!optionXPath.startsWith(`${selectXPath}/option`)) {
+              return false;
+            }
+
+            return input === attributes["value"];
+          });
 
           return optionElement
             ? [operatedElement, { ...image, id: optionElement.id }]
             : [operatedElement];
-        }),
+        })
       };
     })
     .reduce((acc, { screenId, elements }) => {
@@ -120,7 +118,7 @@ export function getCoverages(
         if (foundItem) {
           foundItem.images.push({
             imageFileUrl: element.imageFileUrl,
-            videoFrame: element.videoFrame,
+            videoFrame: element.videoFrame
           });
           continue;
         }
@@ -130,9 +128,9 @@ export function getCoverages(
           images: [
             {
               imageFileUrl: element.imageFileUrl,
-              videoFrame: element.videoFrame,
-            },
-          ],
+              videoFrame: element.videoFrame
+            }
+          ]
         });
       }
 
@@ -144,9 +142,7 @@ export function getCoverages(
   const results = graphView.store.screens.map((screen) => {
     const elements = screen.elementIds
       .flatMap((elementId) => {
-        const element = graphView.store.elements.find(
-          ({ id }) => id === elementId
-        );
+        const element = graphView.store.elements.find(({ id }) => id === elementId);
 
         if (!element || element.attributes["type"] === "hidden") {
           return [];
@@ -175,28 +171,23 @@ export function getCoverages(
             type: element.attributes["type"] ?? "",
             id: element.attributes["id"] ?? "",
             name: element.attributes["name"] ?? "",
-            text: element.text
-              ? element.text
-              : element.attributes["href"] ?? "",
+            text: element.text ? element.text : element.attributes["href"] ?? "",
             operated: operatedElement !== undefined,
             boundingRect: element.boundingRect,
             innerHeight: element.innerHeight,
             innerWidth: element.innerWidth,
             outerHeight: element.outerHeight,
-            outerWidth: element.outerWidth,
-          },
+            outerWidth: element.outerWidth
+          }
         ];
       });
 
-    const percent =
-      (elements.filter((element) => element.operated).length /
-        elements.length) *
-      100;
+    const percent = (elements.filter((element) => element.operated).length / elements.length) * 100;
 
     return {
       screenTitle: screen.name,
       percentage: Number.isNaN(percent) ? 0 : Math.round(percent * 100) / 100,
-      elements,
+      elements
     };
   });
 

@@ -16,85 +16,83 @@
 
 <template>
   <scrollable-dialog :opened="opened">
-    <template v-slot:title>
-      <v-icon v-if="!!iconText" class="mr-2" large :color="iconColor">{{
-        iconText
-      }}</v-icon>
+    <template #title>
+      <v-icon v-if="!!iconText" class="mr-2" size="large" :color="iconColor">{{ iconText }}</v-icon>
       <span>{{ title }}</span>
     </template>
-    <template v-slot:content>
+    <template #content>
       <span class="pre-wrap break-word">{{ message }}</span>
-      <a :href="linkUrl" class="px-2" :download="downloadFileName">{{
-        downloadLinkMessage
-      }}</a>
+      <a :href="linkUrl" class="px-2" :download="downloadFileName">{{ downloadLinkMessage }}</a>
       <p v-if="alertMessage" class="pre-wrap break-word alert-message">
         {{ alertMessage }}
       </p>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{
-        $store.getters.message("common.close")
-      }}</v-btn>
+      <v-btn color="blue" variant="elevated" @click="close()">{{ $t("common.close") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
+import { useRootStore } from "@/stores/root";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import type { PropType } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
-})
-export default class DownloadLinkDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
-  @Prop({ type: String, default: "" }) public readonly alertMessage?: string;
-  @Prop({ type: String, default: "" }) public readonly linkUrl!: string;
-  @Prop({ type: String, default: "" })
-  public readonly downloadFileName!: string;
-  @Prop({ type: Object, default: null }) public readonly iconOpts!: {
-    text: string;
-    color?: string;
-  } | null;
-  @Prop({ type: String, default: "" }) public readonly downloadMessage?: string;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    message: { type: String, default: "", required: true },
+    alertMessage: { type: String, default: "" },
+    linkUrl: { type: String, default: "" },
+    downloadFileName: { type: String, default: "" },
+    iconOpts: {
+      type: Object as PropType<{ text: string; color?: string } | null>
+    },
+    downloadMessage: { type: String, default: "" }
+  },
+  setup(props, context) {
+    const rootStore = useRootStore();
 
-  private iconText = "";
-  private iconColor = "";
-  private downloadLinkMessage = "";
-  private buttonMessage = "";
+    const iconText = ref("");
+    const iconColor = ref("");
+    const downloadLinkMessage = ref("");
 
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
-    }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
 
-    if (this.downloadMessage) {
-      this.downloadLinkMessage = this.downloadMessage;
-    } else {
-      this.downloadLinkMessage = this.$store.getters.message(
-        "common.download-link"
-      );
-    }
+      if (props.downloadMessage) {
+        downloadLinkMessage.value = props.downloadMessage;
+      } else {
+        downloadLinkMessage.value = rootStore.message("common.download-link");
+      }
 
-    if (this.iconOpts) {
-      this.iconText = this.iconOpts.text;
-      this.iconColor = this.iconOpts.color ?? "";
-    } else {
-      this.iconText = "";
-      this.iconColor = "";
-    }
+      if (props.iconOpts) {
+        iconText.value = props.iconOpts.text;
+        iconColor.value = props.iconOpts.color ?? "";
+      } else {
+        iconText.value = "";
+        iconColor.value = "";
+      }
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return { t: rootStore.message, iconText, iconColor, downloadLinkMessage, close };
   }
-
-  private close(): void {
-    this.$emit("close");
-  }
-}
+});
 </script>
 
 <style lang="sass">

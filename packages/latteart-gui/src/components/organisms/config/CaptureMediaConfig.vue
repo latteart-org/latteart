@@ -16,19 +16,13 @@
     <v-row>
       <v-col cols="12">
         <v-radio-group
-          :value="tempConfig.imageCompression.format"
+          :model-value="tempConfig.imageCompression.format"
           class="py-0 my-0"
-          @change="changeCaptureFormat"
           :disabled="captureArch === 'push'"
+          @update:model-value="changeCaptureFormat"
         >
-          <v-radio
-            :label="store.getters.message('config-page.png')"
-            value="png"
-          ></v-radio>
-          <v-radio
-            :label="store.getters.message('config-page.webp')"
-            value="webp"
-          ></v-radio>
+          <v-radio :label="$t('config-page.png')" value="png"></v-radio>
+          <v-radio :label="$t('config-page.webp')" value="webp"></v-radio>
         </v-radio-group>
       </v-col>
     </v-row>
@@ -36,9 +30,9 @@
 </template>
 
 <script lang="ts">
-import { CaptureMediaSetting } from "@/lib/common/settings/Settings";
+import { type CaptureMediaSetting } from "@/lib/common/settings/Settings";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -47,22 +41,19 @@ export default defineComponent({
     captureMediaSetting: {
       type: Object as PropType<CaptureMediaSetting>,
       default: null,
-      required: true,
+      required: true
     },
-    isCapturing: { type: Boolean, required: true },
+    isCapturing: { type: Boolean, required: true }
   },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
+    const rootStore = useRootStore();
     const tempConfig = ref<CaptureMediaSetting>({
-      ...props.captureMediaSetting,
+      ...props.captureMediaSetting
     });
 
     const captureArch = computed(() => {
-      return (
-        store.state.projectSettings.config.experimentalFeatureSetting
-          .captureArch ?? "polling"
-      );
+      return rootStore.projectSettings.config.experimentalFeatureSetting.captureArch ?? "polling";
     });
 
     const updateTempConfig = () => {
@@ -77,7 +68,10 @@ export default defineComponent({
       }
     };
 
-    const changeCaptureFormat = (format: "png" | "webp") => {
+    const changeCaptureFormat = (format: "png" | "webp" | null) => {
+      if (format === null) {
+        return;
+      }
       tempConfig.value = { ...tempConfig.value, imageCompression: { format } };
     };
 
@@ -86,11 +80,11 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
+      t: rootStore.message,
       tempConfig,
       captureArch,
-      changeCaptureFormat,
+      changeCaptureFormat
     };
-  },
+  }
 });
 </script>

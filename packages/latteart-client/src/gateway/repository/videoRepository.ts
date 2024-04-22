@@ -23,7 +23,21 @@ import {
   RepositoryAccessResult,
 } from "./result";
 
-export class VideoRepository {
+export type VideoRepository = {
+  createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<RepositoryAccessResult<Video>>;
+
+  fetchWebm(videoUrl: string): Promise<RepositoryAccessResult<Blob | null>>;
+
+  appendBuffer(
+    videoId: string,
+    buffer: ArrayBuffer
+  ): Promise<RepositoryAccessResult<string>>;
+};
+
+export class VideoRepositoryImpl implements VideoRepository {
   constructor(private restClient: RESTClient) {}
 
   public async createVideo(params: {

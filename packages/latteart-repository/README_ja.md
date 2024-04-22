@@ -19,7 +19,7 @@ $ npm run run
 $ npm run generate:routes
 
 # migrationファイル生成
-$ npm run generate:migration
+$ npm run generate:migration src/migrations/<migrationファイル名>
 ```
 
 ## Web API

@@ -6,7 +6,7 @@
     { "path": "packages/latteart-gui" },
     { "path": "packages/latteart-client" },
     { "path": "packages/latteart-repository" },
-    { "path": "packages/latteart-capture-cl" }
+    { "path": "packages/latteart-capture-cl" },
   ],
   "settings": {
     "files.eol": "\n",
@@ -14,27 +14,24 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.eslint": "explicit",
     },
     "typescript.tsdk": "./node_modules/typescript/lib",
     "typescript.updateImportsOnFileMove.enabled": "always",
     "javascript.updateImportsOnFileMove.enabled": "always",
     "eslint.workingDirectories": [{ "mode": "auto" }],
     "jestrunner.debugOptions": {
-      "args": ["--coverage=false"]
+      "args": ["--coverage=false"],
     },
     "jestrunner.jestPath": "../../node_modules/jest/bin/jest.js",
-    "jestrunner.runOptions": [
-      "--coverage=false"
-    ],
-    "npm.packageManager": "npm"
+    "jestrunner.runOptions": ["--coverage=false"],
+    "npm.packageManager": "npm",
   },
   "extensions": {
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
       "firsttris.vscode-jest-runner",
-      "octref.vetur"
-    ]
-  }
+    ],
+  },
 }

@@ -15,18 +15,10 @@
 -->
 
 <template>
-  <v-row class="d-flex justify-center">
-    <div
-      v-for="(legend, index) in legendInfos"
-      v-bind:key="index"
-      class="manage-show-legend"
-    >
+  <v-row class="d-flex justify-center" style="flex-wrap: nowrap">
+    <div v-for="(legend, index) in legendInfos" :key="index" class="manage-show-legend">
       <v-card class="pt-0 my-3">
-        <v-card-title
-          primary-title
-          class="py-2 my-0"
-          v-bind:class="legend.class"
-        >
+        <v-card-title primary-title class="py-2 my-0" :class="legend.class">
           <p class="card-center">{{ legend.status }}</p>
         </v-card-title>
       </v-card>
@@ -34,20 +26,20 @@
     </div>
 
     <div class="manage-show-legend mt-4">
-      {{ store.getters.message("test-matrix-page.legend1") }}<br />
-      {{ store.getters.message("test-matrix-page.legend2") }}<br />
-      {{ store.getters.message("test-matrix-page.legend3") }}<br />
+      {{ $t("test-matrix-page.legend1") }}<br />
+      {{ $t("test-matrix-page.legend2") }}<br />
+      {{ $t("test-matrix-page.legend3") }}<br />
     </div>
   </v-row>
 </template>
 
 <script lang="ts">
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const legendInfos = computed(
       (): {
@@ -57,41 +49,39 @@ export default defineComponent({
       }[] => {
         return [
           {
-            status: store.getters.message("test-matrix-page.status-ok"),
-            text: store.getters.message("test-matrix-page.text-ok"),
-            class: "status-fine",
+            status: rootStore.message("test-matrix-page.status-ok"),
+            text: rootStore.message("test-matrix-page.text-ok"),
+            class: "status-fine"
           },
           {
-            status: store.getters.message(
-              "test-matrix-page.status-out-of-scope"
-            ),
-            text: store.getters.message("test-matrix-page.text-out-of-scope"),
-            class: "status-fine",
+            status: rootStore.message("test-matrix-page.status-out-of-scope"),
+            text: rootStore.message("test-matrix-page.text-out-of-scope"),
+            class: "status-fine"
           },
           {
-            status: store.getters.message("test-matrix-page.status-ng"),
-            text: store.getters.message("test-matrix-page.text-ng"),
-            class: "status-ng",
+            status: rootStore.message("test-matrix-page.status-ng"),
+            text: rootStore.message("test-matrix-page.text-ng"),
+            class: "status-ng"
           },
           {
-            status: store.getters.message("test-matrix-page.status-ongoing"),
-            text: store.getters.message("test-matrix-page.text-ongoing"),
-            class: "status-warn",
+            status: rootStore.message("test-matrix-page.status-ongoing"),
+            text: rootStore.message("test-matrix-page.text-ongoing"),
+            class: "status-warn"
           },
           {
-            status: store.getters.message("test-matrix-page.status-pending"),
-            text: store.getters.message("test-matrix-page.text-pending"),
-            class: "status-warn",
-          },
+            status: rootStore.message("test-matrix-page.status-pending"),
+            text: rootStore.message("test-matrix-page.text-pending"),
+            class: "status-warn"
+          }
         ];
       }
     );
 
     return {
-      store,
-      legendInfos,
+      t: rootStore.message,
+      legendInfos
     };
-  },
+  }
 });
 </script>
 

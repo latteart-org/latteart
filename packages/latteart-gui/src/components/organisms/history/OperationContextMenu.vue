@@ -18,14 +18,13 @@
   <div>
     <v-menu
       v-model="show"
-      :position-x="x"
-      :position-y="y"
-      top
-      close-on-click
+      :target="[x, y]"
+      location="top"
+      :persistent="false"
       close-on-content-click
     >
-      <v-list subheader>
-        <v-subheader>{{ store.getters.message("app.intention") }}</v-subheader>
+      <v-list>
+        <v-list-subheader>{{ $t("app.intention") }}</v-list-subheader>
         <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
@@ -34,12 +33,8 @@
           <v-list-item-title>{{ intention.label }}</v-list-item-title>
         </v-list-item>
 
-        <v-subheader>{{ store.getters.message("app.notice") }}</v-subheader>
-        <v-list-item
-          v-for="notice in noticeItems"
-          :key="notice.label"
-          @click="notice.onClick"
-        >
+        <v-list-subheader>{{ $t("app.notice") }}</v-list-subheader>
+        <v-list-item v-for="notice in noticeItems" :key="notice.label" @click="notice.onClick">
           <v-list-item-title>{{ notice.label }}</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -50,9 +45,9 @@
 <script lang="ts">
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -65,12 +60,16 @@ export default defineComponent({
         sequence: number;
         selectedSequences: number[];
       }>,
-      default: { sequence: -1, selectedSequences: [] },
-      required: true,
-    },
+      default: () => {
+        return { sequence: -1, selectedSequences: [] };
+      },
+      required: true
+    }
   },
+  emits: ["operationContextMenuClose"],
   setup(props, context) {
-    const store = useStore();
+    const t = useRootStore().message;
+    const operationHistoryStore = useOperationHistoryStore();
 
     const currentHistoryItem = ref<{
       operation: OperationForGUI;
@@ -81,12 +80,15 @@ export default defineComponent({
     const intentionItems = ref<{ label: string; onClick: () => void }[]>([]);
     const noticeItems = ref<{ label: string; onClick: () => void }[]>([]);
 
+    const updateCurrentHistoryItem = (value: any) => {
+      currentHistoryItem.value = value;
+    };
     const show = computed({
       get: () => {
         if (props.opened) {
-          currentHistoryItem.value = store.getters[
-            "operationHistory/findHistoryItem"
-          ](props.operationInfo.sequence);
+          updateCurrentHistoryItem(
+            operationHistoryStore.findHistoryItem(props.operationInfo.sequence)
+          );
           initializeIntentionMenu();
           initializeNoticesMenu();
         }
@@ -97,32 +99,28 @@ export default defineComponent({
         if (!opened) {
           context.emit("operationContextMenuClose");
         }
-      },
+      }
     });
 
     const initializeIntentionMenu = () => {
       intentionItems.value = [];
 
       intentionItems.value.push({
-        label: store.getters.message("test-result-page.edit-intention"),
+        label: t("test-result-page.edit-intention"),
         onClick: () => {
-          (
-            (store.state as any).operationHistory as OperationHistoryState
-          ).openNoteEditDialog("intention", props.operationInfo.sequence);
-        },
+          operationHistoryStore.openNoteEditDialog("intention", props.operationInfo.sequence);
+        }
       });
       if (currentHistoryItem.value?.intention) {
         intentionItems.value.push({
-          label: store.getters.message("test-result-page.delete-intention"),
+          label: t("test-result-page.delete-intention"),
           onClick: () => {
-            (
-              (store.state as any).operationHistory as OperationHistoryState
-            ).openNoteDeleteConfirmDialog(
+            operationHistoryStore.openNoteDeleteConfirmDialog(
               "intention",
               currentHistoryItem.value?.intention?.value ?? "",
               props.operationInfo.sequence
             );
-          },
+          }
         });
       }
     };
@@ -131,84 +129,68 @@ export default defineComponent({
       noticeItems.value = [];
 
       noticeItems.value.push({
-        label: store.getters.message("test-result-page.add-notice"),
+        label: t("test-result-page.add-notice"),
         onClick: () => {
-          (
-            (store.state as any).operationHistory as OperationHistoryState
-          ).openNoteEditDialog("notice", props.operationInfo.sequence);
-        },
+          operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence);
+        }
       });
-
-      (currentHistoryItem.value?.bugs ?? []).forEach(
-        (bug: NoteForGUI, i: number) => {
-          const value = bug.value;
-          noticeItems.value.push({
-            label: store.getters.message("test-result-page.edit-bug", {
-              value,
-            }),
-            onClick: () => {
-              (
-                (store.state as any).operationHistory as OperationHistoryState
-              ).openNoteEditDialog("bug", props.operationInfo.sequence, i);
-            },
-          });
-          noticeItems.value.push({
-            label: store.getters.message("test-result-page.delete-notice", {
-              value,
-            }),
-            onClick: () => {
-              (
-                (store.state as any).operationHistory as OperationHistoryState
-              ).openNoteDeleteConfirmDialog(
-                "bug",
-                bug.value,
-                props.operationInfo.sequence,
-                i
-              );
-            },
-          });
-        }
-      );
-
-      (currentHistoryItem.value?.notices ?? []).forEach(
-        (notice: NoteForGUI, i: number) => {
-          const value = notice.value;
-          noticeItems.value.push({
-            label: store.getters.message("test-result-page.edit-notice", {
-              value,
-            }),
-            onClick: () => {
-              (
-                (store.state as any).operationHistory as OperationHistoryState
-              ).openNoteEditDialog("notice", props.operationInfo.sequence, i);
-            },
-          });
-          noticeItems.value.push({
-            label: store.getters.message("test-result-page.delete-notice", {
-              value,
-            }),
-            onClick: () => {
-              (
-                (store.state as any).operationHistory as OperationHistoryState
-              ).openNoteDeleteConfirmDialog(
-                "notice",
-                notice.value,
-                props.operationInfo.sequence,
-                i
-              );
-            },
-          });
-        }
-      );
+      (currentHistoryItem.value?.bugs ?? []).forEach((bug: NoteForGUI, i: number) => {
+        const value = bug.value;
+        noticeItems.value.push({
+          label: t("test-result-page.edit-bug", {
+            value
+          }),
+          onClick: () => {
+            operationHistoryStore.openNoteEditDialog("bug", props.operationInfo.sequence, i);
+          }
+        });
+        noticeItems.value.push({
+          label: t("test-result-page.delete-notice", {
+            value
+          }),
+          onClick: () => {
+            operationHistoryStore.openNoteDeleteConfirmDialog(
+              "bug",
+              bug.value,
+              props.operationInfo.sequence,
+              i
+            );
+          }
+        });
+      });
+      (currentHistoryItem.value?.notices ?? []).forEach((notice: NoteForGUI, i: number) => {
+        const value = notice.value;
+        noticeItems.value.push({
+          label: t("test-result-page.edit-notice", {
+            value
+          }),
+          onClick: () => {
+            operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence, i);
+          }
+        });
+        noticeItems.value.push({
+          label: t("test-result-page.delete-notice", {
+            value
+          }),
+          onClick: () => {
+            operationHistoryStore.openNoteDeleteConfirmDialog(
+              "notice",
+              notice.value,
+              props.operationInfo.sequence,
+              i
+            );
+          }
+        });
+      });
     };
 
     return {
-      store,
+      t,
       intentionItems,
       noticeItems,
-      show,
+      show
     };
-  },
+  }
 });
 </script>
 

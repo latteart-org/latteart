@@ -29,23 +29,23 @@
 </template>
 
 <script lang="ts">
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import ScreenTransitionDiagram from "./ScreenTransitionDiagram.vue";
 import SequenceDiagram from "./SequenceDiagram.vue";
 import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "screen-transition-diagram": ScreenTransitionDiagram,
+    "sequence-diagram": SequenceDiagram
+  },
   props: {
     diagramType: { type: String, required: true },
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
-  },
-  components: {
-    "screen-transition-diagram": ScreenTransitionDiagram,
-    "sequence-diagram": SequenceDiagram,
+      required: true
+    }
   },
   setup() {
     const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
@@ -53,8 +53,8 @@ export default defineComponent({
 
     return {
       DIAGRAM_TYPE_SEQUENCE,
-      DIAGRAM_TYPE_SCREEN_TRANSITION,
+      DIAGRAM_TYPE_SCREEN_TRANSITION
     };
-  },
+  }
 });
 </script>

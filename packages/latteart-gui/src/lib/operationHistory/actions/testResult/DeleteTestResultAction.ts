@@ -14,32 +14,21 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
-const DELETE_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.delete_test_result_failed";
+const DELETE_TEST_RESULT_FAILED_MESSAGE_KEY = "error.operation_history.delete_test_result_failed";
 
 export class DeleteTestResultAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}
 
-  public async deleteTestResults(
-    testResultIds: string[]
-  ): Promise<ActionResult<string[]>> {
+  public async deleteTestResults(testResultIds: string[]): Promise<ActionResult<string[]>> {
     const result =
-      await this.repositoryService.testResultRepository.deleteTestResults(
-        testResultIds
-      );
+      await this.repositoryService.testResultRepository.deleteTestResults(testResultIds);
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: DELETE_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: DELETE_TEST_RESULT_FAILED_MESSAGE_KEY
       });
     }
 

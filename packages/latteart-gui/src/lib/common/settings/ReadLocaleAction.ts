@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
 export class ReadLocaleAction {
   public async readLocale(): Promise<ActionResult<string>> {
-    const getLocaleResult =
-      await new LocalStorageSettingRepository().getLocale();
+    const getLocaleResult = await new LocalStorageSettingRepository().getLocale();
 
     if (getLocaleResult.isFailure()) {
       return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });

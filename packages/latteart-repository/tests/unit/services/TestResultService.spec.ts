@@ -4,13 +4,15 @@ import { FileRepository } from "@/interfaces/fileRepository";
 import { CreateTestResultDto } from "@/interfaces/TestResults";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -72,16 +74,18 @@ describe("TestResultService", () => {
 
   describe("#collectAllTestStepIds", () => {
     it("保有するすべてのテストステップIDを取得する", async () => {
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
-      const testStepEntities = await getRepository(TestStepEntity).save([
+      const testStepEntities = await TestDataSource.getRepository(
+        TestStepEntity
+      ).save([
         new TestStepEntity({ testResult: testResultEntity }),
         new TestStepEntity({ testResult: testResultEntity }),
       ]);
 
-      const service = new TestResultServiceImpl({
+      const service = new TestResultServiceImpl(TestDataSource, {
         timestamp: {
           unix: jest.fn(),
           format: jest.fn(),
@@ -106,7 +110,7 @@ describe("TestResultService", () => {
 
   describe("#createTestResult", () => {
     it("テスト結果を1件新規追加する", async () => {
-      const service = new TestResultServiceImpl({
+      const service = new TestResultServiceImpl(TestDataSource, {
         timestamp: {
           unix: jest.fn().mockReturnValue(0),
           format: jest.fn(),

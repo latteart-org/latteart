@@ -18,7 +18,8 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="store.getters.message('test-result-list.edit')"
+      :title="$t('test-result-list.edit')"
+      :accept-button-disabled="okButtonIsDisabled"
       @accept="
         execute();
         close();
@@ -27,32 +28,27 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="okButtonIsDisabled"
     >
-      <template>
-        <v-text-field v-model="testResultName"></v-text-field>
-      </template>
+      <v-text-field v-model="testResultName"></v-text-field>
     </execute-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import NumberField from "@/components/molecules/NumberField.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
-    oldTestResultName: { type: String, default: "", required: true },
-  },
-  components: {
-    "number-field": NumberField,
-    "execute-dialog": ExecuteDialog,
+    oldTestResultName: { type: String, default: "", required: true }
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const testResultName = ref("");
 
@@ -84,13 +80,13 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
+      t: rootStore.message,
       testResultName,
       okButtonIsDisabled,
       execute,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ElementInfo, VideoFrame } from "latteart-client";
+import { type ElementInfo, type VideoFrame } from "latteart-client";
 
 export type InputValueTableHeaderColumn = {
   index: number;
@@ -42,11 +42,7 @@ export type InputValueTableRow = {
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
     elementInfo: Pick<
       ElementInfo,
-      | "boundingRect"
-      | "innerHeight"
-      | "innerWidth"
-      | "outerHeight"
-      | "outerWidth"
+      "boundingRect" | "innerHeight" | "innerWidth" | "outerHeight" | "outerWidth"
     >;
   };
   inputs: { value: string; isDefaultValue: boolean }[];
@@ -146,10 +142,10 @@ export default class InputValueTable {
         targetScreenDef: transition.destScreen?.name ?? "",
         trigger: {
           elementText: transition.trigger?.target?.text ?? "",
-          eventType: transition.trigger?.type ?? "",
+          eventType: transition.trigger?.type ?? ""
         },
         notes: transition.notes,
-        testPurposes: transition.testPurposes,
+        testPurposes: transition.testPurposes
       };
     });
   }
@@ -168,22 +164,20 @@ export default class InputValueTable {
       const attributes = element.attributes;
 
       const inputs = this.screenTransitions.map((screenTransition) => {
-        const inputElement = screenTransition.inputElements.find(
-          ({ id }) => id === element.id
-        );
+        const inputElement = screenTransition.inputElements.find(({ id }) => id === element.id);
         const input = inputElement?.inputs.at(-1);
 
         if (input === undefined) {
           return {
             value: inputElement?.defaultValue ?? "",
-            isDefaultValue: true,
+            isDefaultValue: true
           };
         }
 
         return {
           value: inputElement?.defaultValue ?? input.value,
           image: input.image,
-          isDefaultValue: false,
+          isDefaultValue: false
         };
       });
 
@@ -201,13 +195,13 @@ export default class InputValueTable {
                 innerHeight: element.innerHeight,
                 innerWidth: element.innerWidth,
                 outerHeight: element.outerHeight,
-                outerWidth: element.outerWidth,
-              },
+                outerWidth: element.outerWidth
+              }
             }
           : undefined,
         inputs: inputs.map(({ value, isDefaultValue }) => {
           return { value, isDefaultValue };
-        }),
+        })
       };
     });
   }

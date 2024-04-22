@@ -36,6 +36,7 @@ import {
 } from "tsoa";
 import { transactionRunner } from "..";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("/test-matrices/")
 @Tags("test-matrices")
@@ -55,7 +56,7 @@ export class TestMatricesController extends Controller {
     @Path() testMatrixId: string
   ): Promise<GetTestMatrixResponse> {
     try {
-      return await new TestMatricesService().get(testMatrixId);
+      return await new TestMatricesService(AppDataSource).get(testMatrixId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get testMatrix failed.", error);
@@ -83,7 +84,7 @@ export class TestMatricesController extends Controller {
     @Body() body: { projectId: string; name: string }
   ): Promise<PostTestMatrixResponse> {
     try {
-      return await new TestMatricesService().post(body);
+      return await new TestMatricesService(AppDataSource).post(body);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Post testMatrix failed.", error);
@@ -113,7 +114,10 @@ export class TestMatricesController extends Controller {
     @Body() body: { name: string }
   ): Promise<PatchTestMatrixResponse> {
     try {
-      return await new TestMatricesService().patch(testMatrixId, body);
+      return await new TestMatricesService(AppDataSource).patch(
+        testMatrixId,
+        body
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Patch testMatrix failed.", error);
@@ -138,7 +142,7 @@ export class TestMatricesController extends Controller {
   @Delete("{testMatrixId}")
   public async deleteTestMatrix(@Path() testMatrixId: string): Promise<void> {
     try {
-      return await new TestMatricesService().delete(
+      return await new TestMatricesService(AppDataSource).delete(
         testMatrixId,
         transactionRunner
       );

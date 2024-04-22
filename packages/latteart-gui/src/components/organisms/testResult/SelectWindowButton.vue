@@ -17,15 +17,15 @@
 <template>
   <div>
     <v-btn
-      :disabled="!windowSelectorIsEnabled"
-      fab
-      small
-      @click="isWindowSelectorDialogOpened = true"
-      :title="store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
+      :disabled="!windowSelectorIsEnabled"
+      variant="elevated"
+      icon="tab"
+      size="small"
+      :title="$t('app.target-tab-window')"
       class="mx-2"
+      @click="isWindowSelectorDialogOpened = true"
     >
-      <v-icon dark>tab</v-icon>
     </v-btn>
 
     <window-select-dialog
@@ -37,33 +37,30 @@
 </template>
 
 <script lang="ts">
-import { DeviceSettings } from "@/lib/common/settings/Settings";
-import { CaptureControlState } from "@/store/captureControl";
+import { type DeviceSettings } from "@/lib/common/settings/Settings";
 import WindowSelectDialog from "@/components/organisms/dialog/WindowSelectDialog.vue";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
-    "window-select-dialog": WindowSelectDialog,
+    "window-select-dialog": WindowSelectDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const config = computed((): DeviceSettings => {
-      return store.state.deviceSettings;
-    });
-
-    const captureControlState = computed(() => {
-      return (store.state as any).captureControl as CaptureControlState;
+      return rootStore.deviceSettings;
     });
 
     const isCapturing = computed((): boolean => {
-      return captureControlState.value.isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return captureControlState.value.isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const windowSelectorIsEnabled = computed(() => {
@@ -77,20 +74,18 @@ export default defineComponent({
     });
 
     const isWindowSelectorDialogOpened = computed({
-      get: () => captureControlState.value.isWindowSelectorDialogOpened,
+      get: () => captureControlStore.isWindowSelectorDialogOpened,
       set: (isOpened: boolean) => {
-        store.commit("captureControl/setWindowSelectorDialogOpened", {
-          isOpened,
-        });
-      },
+        captureControlStore.isWindowSelectorDialogOpened = isOpened;
+      }
     });
 
     return {
-      store,
+      t: rootStore.message,
       isReplaying,
       windowSelectorIsEnabled,
-      isWindowSelectorDialogOpened,
+      isWindowSelectorDialogOpened
     };
-  },
+  }
 });
 </script>

@@ -16,42 +16,39 @@
 
 <template>
   <div @click="stopPropagation">
-    <v-btn small text icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
+    <v-btn size="small" variant="text" icon class="ma-0 pa-0" :disabled="upDisabled" @click="up"
       ><v-icon>arrow_drop_up</v-icon></v-btn
     >
-    <v-btn
-      small
-      text
-      icon
-      class="ma-0 pa-0"
-      :disabled="downDisabled"
-      @click="down"
+    <v-btn size="small" variant="text" icon class="ma-0 pa-0" :disabled="downDisabled" @click="down"
       ><v-icon>arrow_drop_down</v-icon></v-btn
     >
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { defineComponent } from "vue";
 
-@Component
-export default class UpDownArrows extends Vue {
-  @Prop({ type: Number, default: null }) public readonly index!: boolean;
-  @Prop({ type: Boolean, default: false }) public readonly upDisabled!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly downDisabled!: boolean;
+export default defineComponent({
+  props: {
+    index: { type: Number, default: null },
+    upDisabled: { type: Boolean, default: false },
+    downDisabled: { type: Boolean, default: false }
+  },
+  setup(props, context) {
+    const up = (): void => {
+      context.emit("up", props.index);
+    };
 
-  private up(): void {
-    this.$emit("up", this.index);
+    const down = (): void => {
+      context.emit("down", props.index);
+    };
+
+    const stopPropagation = (e: Event): void => {
+      e.stopPropagation();
+      e.preventDefault();
+    };
+
+    return { up, down, stopPropagation };
   }
-
-  private down(): void {
-    this.$emit("down", this.index);
-  }
-
-  private stopPropagation(e: Event): void {
-    e.stopPropagation();
-    e.preventDefault();
-  }
-}
+});
 </script>

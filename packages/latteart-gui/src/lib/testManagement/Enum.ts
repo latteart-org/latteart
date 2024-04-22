@@ -16,18 +16,18 @@
 
 export const CHARTER_STATUS: any = {
   OUT_OF_SCOPE: {
-    id: "out-of-scope",
+    id: "out-of-scope"
   },
   OK: {
-    id: "ok",
+    id: "ok"
   },
   NG: {
-    id: "ng",
+    id: "ng"
   },
   ONGOING: {
-    id: "ongoing",
+    id: "ongoing"
   },
   PENDING: {
-    id: "pending",
-  },
+    id: "pending"
+  }
 };

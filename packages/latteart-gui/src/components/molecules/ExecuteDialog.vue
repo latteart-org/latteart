@@ -15,65 +15,69 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened" :maxWidth="maxWidth">
-    <template v-slot:title>{{ title }}</template>
-    <template v-slot:content>
+  <scrollable-dialog :opened="opened" :max-width="maxWidth">
+    <template #title>{{ title }}</template>
+    <template #content>
       <slot />
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
       <v-btn
+        variant="elevated"
         :disabled="disabled"
-        :dark="!disabled"
         :color="strong ? 'red' : 'blue'"
         @click="accept()"
-        >{{ $store.getters.message("common.ok") }}</v-btn
+        >{{ $t("common.ok") }}</v-btn
       >
-      <v-btn color="white" @click="cancel()">{{
-        $store.getters.message("common.cancel")
-      }}</v-btn>
+      <v-btn variant="elevated" color="white" @click="cancel()">{{ $t("common.cancel") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
-})
-export default class ExecuteDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: Boolean, default: false })
-  public readonly acceptButtonDisabled!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly strong!: boolean;
-  @Prop({ type: Number, default: 500 }) public readonly maxWidth!: number;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    acceptButtonDisabled: { type: Boolean, default: false },
+    strong: { type: Boolean, default: false },
+    maxWidth: { type: Number, default: 500 }
+  },
+  setup(props, context) {
+    const rootStore = useRootStore();
 
-  private isExecuted = false;
+    const isExecuted = ref(false);
 
-  private get disabled() {
-    return this.acceptButtonDisabled || this.isExecuted;
+    const disabled = computed(() => {
+      return props.acceptButtonDisabled || isExecuted.value;
+    });
+
+    const changeOpenedDialog = (newValue: boolean) => {
+      if (newValue) {
+        isExecuted.value = false;
+      }
+    };
+
+    const accept = (): void => {
+      isExecuted.value = true;
+      context.emit("accept");
+    };
+
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, changeOpenedDialog);
+
+    return { t: rootStore.message, disabled, accept, cancel };
   }
-
-  @Watch("opened")
-  private changeOpenedDialog(newValue: boolean) {
-    if (newValue) {
-      this.isExecuted = false;
-    }
-  }
-
-  private accept(): void {
-    this.isExecuted = true;
-    this.$emit("accept");
-  }
-
-  private cancel(): void {
-    this.$emit("cancel");
-  }
-}
+});
 </script>

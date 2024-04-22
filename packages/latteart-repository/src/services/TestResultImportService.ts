@@ -16,7 +16,6 @@
 
 import path from "path";
 import { deserializeTestResult } from "@/services/helper/testResultImportHelper";
-import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
@@ -33,6 +32,7 @@ import {
 } from "@/interfaces/exportData";
 import { VideoEntity } from "@/entities/VideoEntity";
 import { VideoFrame } from "@/interfaces/Videos";
+import { DataSource } from "typeorm";
 
 export interface TestResultImportService {
   importTestResult(
@@ -71,6 +71,7 @@ export interface TestResultImportService {
 
 export class TestResultImportServiceImpl implements TestResultImportService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       importFileRepository: ImportFileRepository;
       screenshotFileRepository: FileRepository;
@@ -168,9 +169,9 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     await Promise.all(
       importFileData.fileData.map(async (videoOrScreenshot) => {
         if (videoOrScreenshot.filePath.split(".")[1] === "webm") {
-          const videoEntity = await getRepository(VideoEntity).save(
-            new VideoEntity()
-          );
+          const videoEntity = await this.dataSource
+            .getRepository(VideoEntity)
+            .save(new VideoEntity());
 
           const substrings = videoOrScreenshot.filePath.split(".");
           const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
@@ -186,9 +187,9 @@ export class TestResultImportServiceImpl implements TestResultImportService {
           videoFilePathToEntity.set(videoOrScreenshot.filePath, videoEntity);
           return [videoOrScreenshot.filePath, videoEntity];
         } else {
-          const screenshotEntity = await getRepository(ScreenshotEntity).save(
-            new ScreenshotEntity()
-          );
+          const screenshotEntity = await this.dataSource
+            .getRepository(ScreenshotEntity)
+            .save(new ScreenshotEntity());
           const substrings = videoOrScreenshot.filePath.split(".");
           const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
           const fileName = `${screenshotEntity.id}${fileExt}`;
@@ -208,21 +209,23 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     );
 
     const tagNameToEntity = new Map(
-      (await getRepository(TagEntity).find()).map<[string, TagEntity]>(
-        (tagEntity) => {
-          return [tagEntity.name, tagEntity];
-        }
-      )
+      (await this.dataSource.getRepository(TagEntity).find()).map<
+        [string, TagEntity]
+      >((tagEntity) => {
+        return [tagEntity.name, tagEntity];
+      })
     );
 
-    const newTestResultEntity = await getRepository(TestResultEntity).save(
-      this.createTestResultEntity(
-        testResult,
-        tagNameToEntity,
-        screenshotFilePathToEntity,
-        videoFilePathToEntity
-      )
-    );
+    const newTestResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .save(
+        this.createTestResultEntity(
+          testResult,
+          tagNameToEntity,
+          screenshotFilePathToEntity,
+          videoFilePathToEntity
+        )
+      );
 
     return {
       newTestResultId: newTestResultEntity.id,

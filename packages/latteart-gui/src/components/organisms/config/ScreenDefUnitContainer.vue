@@ -16,57 +16,58 @@
 
 <template>
   <v-container class="mt-4 pt-0">
-    <v-btn @click="addConditionGroup">{{
-      store.getters.message("config-page.screen-def.advanced-add")
+    <v-btn variant="elevated" @click="addConditionGroup">{{
+      $t("config-page.screen-def.advanced-add")
     }}</v-btn>
     <draggable
-      :list="conditionGroups"
+      v-model="conditionGroups"
       @start="dragging = true"
       @end="dragging = false"
       @change="changeOrder"
     >
-      <screen-def-unit
-        v-for="(item, index) in conditionGroups"
-        :key="index + item.screenName"
-        :conditionGroup="item"
-        :index="index"
-        @update-condition-group="updateConditionGroup"
-        @delete-condition-group="deleteConditionGroup"
-      ></screen-def-unit>
+      <template #item="{ element, index }">
+        <screen-def-unit
+          :key="index + element.screenName"
+          :condition-group="element"
+          :index="index"
+          @update-condition-group="updateConditionGroup"
+          @delete-condition-group="deleteConditionGroup"
+        ></screen-def-unit>
+      </template>
     </draggable>
   </v-container>
 </template>
 
 <script lang="ts">
 import ScreenDefUnit from "./ScreenDefUnit.vue";
-import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
+import type { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import draggable from "vuedraggable";
-import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
+import type { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
+import { ref } from "vue";
 
 export default defineComponent({
+  components: {
+    "screen-def-unit": ScreenDefUnit,
+    draggable: draggable
+  },
   props: {
     screenDefinition: {
       type: Object as PropType<ScreenDefinitionSetting>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
-  components: {
-    "screen-def-unit": ScreenDefUnit,
-    draggable: draggable,
-  },
+  emits: ["update-condition-groups"],
   setup(props, context) {
-    const store = useStore();
-
+    const dragging = ref(false);
     const conditionGroups = computed({
-      get: (): ScreenDefinitionConditionGroup[] =>
-        props.screenDefinition?.conditionGroups ?? [],
+      get: (): ScreenDefinitionConditionGroup[] => props.screenDefinition?.conditionGroups ?? [],
       set: (conditionGroups: ScreenDefinitionConditionGroup[]) => {
         context.emit("update-condition-groups", conditionGroups);
-      },
+      }
     });
 
     const changeOrder = () => {
@@ -83,17 +84,15 @@ export default defineComponent({
             isEnabled: true,
             definitionType: "url",
             matchType: "contains",
-            word: "",
-          },
-        ],
+            word: ""
+          }
+        ]
       });
       conditionGroups.value = targetConditionGroups;
     };
 
     const deleteConditionGroup = (groupIndex: number) => {
-      conditionGroups.value = conditionGroups.value.filter(
-        (g, i) => i !== groupIndex
-      );
+      conditionGroups.value = conditionGroups.value.filter((g, i) => i !== groupIndex);
     };
 
     const updateConditionGroup = (conditionGroupWithindex: {
@@ -101,21 +100,20 @@ export default defineComponent({
       index: number;
     }) => {
       conditionGroups.value = conditionGroups.value.map((c, i) => {
-        return conditionGroupWithindex.index !== i
-          ? c
-          : conditionGroupWithindex.conditionGroup;
+        return conditionGroupWithindex.index !== i ? c : conditionGroupWithindex.conditionGroup;
       });
     };
 
     return {
-      store,
+      t: useRootStore().message,
+      dragging,
       conditionGroups,
       changeOrder,
       addConditionGroup,
       deleteConditionGroup,
-      updateConditionGroup,
+      updateConditionGroup
     };
-  },
+  }
 });
 </script>
 

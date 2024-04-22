@@ -16,33 +16,23 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{
-      store.getters.message("optional-features.test-script-generation.title")
-    }}</v-card-title>
+    <v-card-title>{{ $t("optional-features.test-script-generation.title") }}</v-card-title>
 
     <v-card-text>
       <script-generation-option @update="updateOption" />
     </v-card-text>
     <v-card-actions>
-      <v-btn
-        :disabled="disabled"
-        :dark="!disabled"
-        color="primary"
-        @click="generateTestScript"
-        >{{
-          store.getters.message(
-            "optional-features.test-script-generation.execute-button"
-          )
-        }}</v-btn
-      >
+      <v-btn variant="elevated" :disabled="disabled" color="primary" @click="generateTestScript">{{
+        $t("optional-features.test-script-generation.execute-button")
+      }}</v-btn>
     </v-card-actions>
 
     <download-link-dialog
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
 
@@ -58,17 +48,19 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOption from "@/components/organisms/common/ScriptGenerationOption.vue";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
     "download-link-dialog": DownloadLinkDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "script-generation-option": ScriptGenerationOption,
+    "script-generation-option": ScriptGenerationOption
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const downloadLinkDialogOpened = ref(false);
     const downloadLinkDialogTitle = ref("");
@@ -88,11 +80,11 @@ export default defineComponent({
     }>({
       testScript: { isSimple: false, useMultiLocator: false },
       testData: { useDataDriven: false, maxGeneration: 0 },
-      buttonDefinitions: [],
+      buttonDefinitions: []
     });
 
     const currentRepositoryUrl = computed(() => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl ?? "";
     });
 
     const disabled = computed(() => {
@@ -100,7 +92,7 @@ export default defineComponent({
     });
 
     const hasAnySessionHistory = computed((): boolean => {
-      return store.getters["testManagement/anySessionHasHistory"]();
+      return testManagementStore.anySessionHasHistory();
     });
 
     const updateOption = (updateOption: {
@@ -117,23 +109,19 @@ export default defineComponent({
     const generateTestScript = () => {
       (async () => {
         try {
-          store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "manage-header.generating-test-script"
-            ),
+          rootStore.openProgressDialog({
+            message: rootStore.message("manage-header.generating-test-script")
           });
-          const testScriptInfo = await store.dispatch(
-            "testManagement/generateAllSessionTestScripts",
-            { option: option.value }
-          );
-          store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
-          downloadLinkDialogMessage.value = store.getters.message(
+          const testScriptInfo = await testManagementStore.generateAllSessionTestScripts({
+            option: option.value
+          });
+          rootStore.closeProgressDialog();
+          downloadLinkDialogTitle.value = rootStore.message("common.confirm");
+          downloadLinkDialogMessage.value = rootStore.message(
             "test-result-page.generate-testscript-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = store.getters.message(
+            downloadLinkDialogAlertMessage.value = rootStore.message(
               "test-result-page.generate-alert-info"
             );
           } else {
@@ -149,13 +137,13 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
         }
       })();
     };
 
     return {
-      store,
+      t: rootStore.message,
       downloadLinkDialogOpened,
       downloadLinkDialogTitle,
       downloadLinkDialogMessage,
@@ -165,9 +153,9 @@ export default defineComponent({
       errorMessage,
       disabled,
       updateOption,
-      generateTestScript,
+      generateTestScript
     };
-  },
+  }
 });
 </script>
 

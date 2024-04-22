@@ -15,27 +15,22 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
-    <v-container class="align-self-start">
-      <v-card class="pa-2">
-        <capture-option @update="updateOption" />
+  <v-container fluid>
+    <v-container class="pa-0">
+      <capture-option @update="updateOption" />
 
-        <v-card-actions>
-          <record-start-trigger initial>
-            <template v-slot:activator="{ on }">
-              <v-btn
-                :disabled="isExecuteButtonDisabled"
-                :dark="!isExecuteButtonDisabled"
-                color="primary"
-                @click="execute(on)"
-                >{{
-                  store.getters.message("start-capture-page.execute-button")
-                }}</v-btn
-              >
-            </template>
-          </record-start-trigger>
-        </v-card-actions>
-      </v-card>
+      <record-start-trigger initial>
+        <template #activator="{ on }">
+          <v-btn
+            class="ma-4"
+            :disabled="isExecuteButtonDisabled"
+            variant="elevated"
+            color="primary"
+            @click="execute(on)"
+            >{{ $t("start-capture-page.execute-button") }}</v-btn
+          >
+        </template>
+      </record-start-trigger>
     </v-container>
   </v-container>
 </template>
@@ -43,18 +38,20 @@
 <script lang="ts">
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
-import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
     "record-start-trigger": RecordStartTrigger,
-    "capture-option": CaptureOption,
+    "capture-option": CaptureOption
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
     const route = useRoute();
 
     const captureOption = ref<CaptureOptionParams>({
@@ -67,7 +64,7 @@ export default defineComponent({
       mediaType: "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: "",
+      firstTestPurposeDetails: ""
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -88,55 +85,48 @@ export default defineComponent({
     });
 
     const config = computed(() => {
-      return store.state.projectSettings.config;
+      return rootStore.projectSettings.config;
     });
 
     const execute = async (onStart: () => Promise<void>) => {
-      store.commit("captureControl/setUrl", {
-        url: captureOption.value.url,
-      });
-      store.commit("captureControl/setTestResultName", {
-        name: captureOption.value.testResultName,
-      });
-      await store.dispatch("writeDeviceSettings", {
+      captureControlStore.url = captureOption.value.url;
+      captureControlStore.testResultName = captureOption.value.testResultName;
+      await rootStore.writeDeviceSettings({
         config: {
           platformName: captureOption.value.platform,
           device: captureOption.value.device,
           browser: captureOption.value.browser,
-          waitTimeForStartupReload:
-            captureOption.value.waitTimeForStartupReload,
-        },
+          waitTimeForStartupReload: captureOption.value.waitTimeForStartupReload
+        }
       });
-      await store.dispatch("writeConfig", {
+      await rootStore.writeConfig({
         config: {
           ...config.value,
           captureMediaSetting: {
             ...config.value.captureMediaSetting,
-            mediaType: captureOption.value.mediaType,
-          },
-        },
+            mediaType: captureOption.value.mediaType
+          }
+        }
       });
-      store.commit("captureControl/setTestOption", {
-        testOption: {
-          firstTestPurpose: captureOption.value.firstTestPurpose,
-          firstTestPurposeDetails: captureOption.value.firstTestPurposeDetails,
-          shouldRecordTestPurpose: captureOption.value.shouldRecordTestPurpose,
-        },
-      });
+      captureControlStore.testOption = {
+        firstTestPurpose: captureOption.value.firstTestPurpose,
+        firstTestPurposeDetails: captureOption.value.firstTestPurposeDetails,
+        shouldRecordTestPurpose: captureOption.value.shouldRecordTestPurpose
+      };
 
       await onStart();
     };
 
-    store.dispatch("changeWindowTitle", {
-      title: store.getters.message(route.meta?.title ?? ""),
+    rootStore.changeWindowTitle({
+      title: rootStore.message(route.meta?.title ?? "")
     });
 
     return {
-      store,
+      t: rootStore.message,
       updateOption,
       isExecuteButtonDisabled,
-      execute,
+      execute
     };
-  },
+  }
 });
 </script>

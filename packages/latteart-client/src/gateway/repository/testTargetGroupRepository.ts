@@ -23,7 +23,27 @@ import {
 } from "./result";
 import { GroupForRepository } from "./types";
 
-export class TestTargetGroupRepository {
+export type TestTargetGroupRepository = {
+  getTestTargetGroup(
+    id: string
+  ): Promise<RepositoryAccessResult<GroupForRepository>>;
+
+  postTestTargetGroup(body: {
+    testMatrixId: string;
+    name: string;
+  }): Promise<RepositoryAccessResult<GroupForRepository>>;
+
+  patchTestTargetGroup(
+    id: string,
+    name: string
+  ): Promise<RepositoryAccessResult<GroupForRepository>>;
+
+  deleteTestTargetGroup(id: string): Promise<RepositoryAccessResult<void>>;
+};
+
+export class TestTargetGroupRepositoryImpl
+  implements TestTargetGroupRepository
+{
   constructor(private restClient: RESTClient) {}
 
   public async getTestTargetGroup(

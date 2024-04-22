@@ -25,10 +25,10 @@ import {
   GetNoteResponse,
   UpdateNoteResponse,
 } from "@/interfaces/Notes";
-import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { VideoEntity } from "@/entities/VideoEntity";
+import { DataSource } from "typeorm";
 
 export interface NotesService {
   createNote(
@@ -46,6 +46,7 @@ export interface NotesService {
 
 export class NotesServiceImpl implements NotesService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
@@ -56,26 +57,30 @@ export class NotesServiceImpl implements NotesService {
     testResultId: string,
     requestBody: CreateNoteDto
   ): Promise<CreateNoteResponse> {
-    const testResultEntity = await getRepository(
-      TestResultEntity
-    ).findOneOrFail(testResultId);
+    const testResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneByOrFail({ id: testResultId });
 
     const tagEntities = await Promise.all(
       (requestBody.tags ?? []).map(async (tagName) => {
-        const tag = await getRepository(TagEntity).findOne({ name: tagName });
+        const tag = await this.dataSource.getRepository(TagEntity).findOneBy({
+          name: tagName,
+        });
 
         return tag ?? new TagEntity({ name: tagName });
       })
     );
 
-    const registeredNoteEntity = await getRepository(NoteEntity).save({
-      value: requestBody.value,
-      details: requestBody.details,
-      timestamp:
-        requestBody.timestamp ?? this.service.timestamp.epochMilliseconds(),
-      testResult: testResultEntity,
-      tags: tagEntities,
-    });
+    const registeredNoteEntity = await this.dataSource
+      .getRepository(NoteEntity)
+      .save({
+        value: requestBody.value,
+        details: requestBody.details,
+        timestamp:
+          requestBody.timestamp ?? this.service.timestamp.epochMilliseconds(),
+        testResult: testResultEntity,
+        tags: tagEntities,
+      });
 
     if (requestBody.imageData) {
       const fileName = `${registeredNoteEntity.id}.png`;
@@ -96,21 +101,22 @@ export class NotesServiceImpl implements NotesService {
     }
 
     if (requestBody.videoId) {
-      registeredNoteEntity.video = await getRepository(
-        VideoEntity
-      ).findOneOrFail(requestBody.videoId);
+      registeredNoteEntity.video = await this.dataSource
+        .getRepository(VideoEntity)
+        .findOneByOrFail({ id: requestBody.videoId });
       registeredNoteEntity.videoTime = requestBody.videoTime ?? 0;
     }
 
-    const updatedNoteEntity = await getRepository(NoteEntity).save(
-      registeredNoteEntity
-    );
+    const updatedNoteEntity = await this.dataSource
+      .getRepository(NoteEntity)
+      .save(registeredNoteEntity);
 
     return this.convertToResponse(updatedNoteEntity);
   }
 
   public async getNote(noteId: string): Promise<GetNoteResponse | undefined> {
-    const noteEntity = await getRepository(NoteEntity).findOne(noteId, {
+    const noteEntity = await this.dataSource.getRepository(NoteEntity).findOne({
+      where: { id: noteId },
       relations: ["tags", "screenshot", "video"],
     });
 
@@ -125,13 +131,18 @@ export class NotesServiceImpl implements NotesService {
     noteId: string,
     requestBody: UpdateNoteDto
   ): Promise<UpdateNoteResponse> {
-    const noteEntity = await getRepository(NoteEntity).findOneOrFail(noteId, {
-      relations: ["tags", "screenshot", "video"],
-    });
+    const noteEntity = await this.dataSource
+      .getRepository(NoteEntity)
+      .findOneOrFail({
+        where: { id: noteId },
+        relations: ["tags", "screenshot", "video"],
+      });
 
     const tagEntities = await Promise.all(
       (requestBody.tags ?? []).map(async (tagName) => {
-        const tag = await getRepository(TagEntity).findOne({ name: tagName });
+        const tag = await this.dataSource.getRepository(TagEntity).findOneBy({
+          name: tagName,
+        });
 
         return tag ?? new TagEntity({ name: tagName });
       })
@@ -141,23 +152,27 @@ export class NotesServiceImpl implements NotesService {
     noteEntity.details = requestBody.details;
     noteEntity.tags = tagEntities;
 
-    await getRepository(NoteEntity).save(noteEntity);
+    await this.dataSource.getRepository(NoteEntity).save(noteEntity);
 
     return this.convertToResponse(noteEntity);
   }
 
   public async deleteNote(noteId: string): Promise<void> {
-    const noteEntity = await getRepository(NoteEntity).findOneOrFail(noteId, {
-      relations: ["testResult", "tags", "testSteps", "screenshot", "video"],
-    });
+    const noteEntity = await this.dataSource
+      .getRepository(NoteEntity)
+      .findOneOrFail({
+        where: { id: noteId },
+        relations: ["testResult", "tags", "testSteps", "screenshot", "video"],
+      });
 
-    await getRepository(NoteEntity).remove(noteEntity);
+    await this.dataSource.getRepository(NoteEntity).remove(noteEntity);
   }
 
   public async getNoteScreenshot(
     noteId: string
   ): Promise<{ id: string; fileUrl: string }> {
-    const noteEntity = await getRepository(NoteEntity).findOne(noteId, {
+    const noteEntity = await this.dataSource.getRepository(NoteEntity).findOne({
+      where: { id: noteId },
       relations: ["screenshot"],
     });
 

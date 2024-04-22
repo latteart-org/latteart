@@ -1,5 +1,7 @@
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ConfigEntity } from "@/entities/ConfigEntity";
 import { PutConfigDto } from "@/interfaces/Configs";
@@ -7,7 +9,7 @@ import { PutConfigDto } from "@/interfaces/Configs";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -17,7 +19,7 @@ afterEach(async () => {
 describe("ConfigsService", () => {
   describe("#updateConfig", () => {
     it("Configの内容を更新する", async () => {
-      const service = new ConfigsService();
+      const service = new ConfigsService(TestDataSource);
       const settings = {
         viewPointsPreset: [],
         defaultTagList: [],
@@ -40,7 +42,8 @@ describe("ConfigsService", () => {
       newConfig.deviceText = "";
       newConfig.repositoryUrl = "";
 
-      const configEntity = await getRepository(ConfigEntity).save(newConfig);
+      const configEntity =
+        await TestDataSource.getRepository(ConfigEntity).save(newConfig);
 
       const projectId = configEntity.projectId;
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { Group, Plan } from "../types";
+import { type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type Group, type Plan } from "../types";
 
 export class UpdateTestTargetsAction {
   public async updateTestTargets(
@@ -31,23 +31,19 @@ export class UpdateTestTargetsAction {
         plans?: Plan[];
       }[];
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "testTargetRepository" | "testTargetGroupRepository"
-    >
+    repositoryService: Pick<RepositoryService, "testTargetRepository" | "testTargetGroupRepository">
   ): Promise<ActionResult<Group>> {
     await Promise.all(
       payload.testTargets.map(async (testTarget) => {
-        const testTargetResult =
-          await repositoryService.testTargetRepository.patchTestTarget(
-            payload.projectId,
-            testTarget.id,
-            {
-              name: testTarget.name,
-              index: testTarget.index,
-              plans: testTarget.plans,
-            }
-          );
+        const testTargetResult = await repositoryService.testTargetRepository.patchTestTarget(
+          payload.projectId,
+          testTarget.id,
+          {
+            name: testTarget.name,
+            index: testTarget.index,
+            plans: testTarget.plans
+          }
+        );
         if (testTargetResult.isFailure()) {
           throw testTargetResult.error;
         }
@@ -55,10 +51,9 @@ export class UpdateTestTargetsAction {
       })
     );
 
-    const testTargetGroup =
-      await repositoryService.testTargetGroupRepository.getTestTargetGroup(
-        payload.groupId
-      );
+    const testTargetGroup = await repositoryService.testTargetGroupRepository.getTestTargetGroup(
+      payload.groupId
+    );
 
     if (testTargetGroup.isFailure()) {
       throw testTargetGroup.error;

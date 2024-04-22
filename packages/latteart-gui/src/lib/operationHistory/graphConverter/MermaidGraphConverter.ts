@@ -28,7 +28,7 @@ export default class MermaidGraphConverter {
     Mermaid.mermaidAPI.initialize({
       startOnLoad: true,
       theme,
-      fontSize: undefined,
+      fontSize: undefined
     });
   }
 

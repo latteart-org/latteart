@@ -17,28 +17,34 @@
 <template>
   <alert-dialog
     :opened="opened"
-    :title="$store.getters.message('common.error-dialog-title')"
+    :title="$t('common.error-dialog-title')"
     :message="message"
-    :iconOpts="{ text: 'cancel', color: 'red' }"
+    :icon-opts="{ text: 'cancel', color: 'red' }"
     @close="close()"
   />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import AlertDialog from "@/components/molecules/AlertDialog.vue";
+import { useRootStore } from "@/stores/root";
+import { defineComponent } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "alert-dialog": AlertDialog,
+    "alert-dialog": AlertDialog
   },
-})
-export default class ErrorMessageDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    message: { type: String, default: "", required: true }
+  },
+  setup(_, context) {
+    const rootStore = useRootStore();
 
-  private close(): void {
-    this.$emit("close");
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    return { t: rootStore.message, close };
   }
-}
+});
 </script>

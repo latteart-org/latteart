@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
 export class ExportProjectAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "projectRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "projectRepository">) {}
 
   public async export(
     projectId: string,
@@ -35,14 +29,11 @@ export class ExportProjectAction {
     }
   ): Promise<ActionResult<string>> {
     const postProjectForExportResult =
-      await this.repositoryService.projectRepository.postProjectForExport(
-        projectId,
-        selectOption
-      );
+      await this.repositoryService.projectRepository.postProjectForExport(projectId, selectOption);
 
     if (postProjectForExportResult.isFailure()) {
       return new ActionFailure({
-        messageKey: "error.import_export.create-export-data-error",
+        messageKey: "error.import_export.create-export-data-error"
       });
     }
 

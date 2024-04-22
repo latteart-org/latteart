@@ -16,7 +16,7 @@
 
 import { OperationForGUI } from "../operationHistory/OperationForGUI";
 import { NoteForGUI } from "../operationHistory/NoteForGUI";
-import { Note, Operation } from "latteart-client";
+import { type Note, type Operation } from "latteart-client";
 
 export function convertTestStepOperation(
   testStepOperation: Operation,
@@ -33,15 +33,13 @@ export function convertTestStepOperation(
     timestamp: testStepOperation.timestamp,
     keywordSet: new Set(
       testStepOperation.keywordTexts?.map((keywordText) => {
-        return typeof keywordText === "string"
-          ? keywordText
-          : keywordText.value;
+        return typeof keywordText === "string" ? keywordText : keywordText.value;
       }) ?? []
     ),
     sequence,
     isAutomatic: testStepOperation.isAutomatic,
     videoFrame: testStepOperation.videoFrame,
-    inputElements: testStepOperation.inputElements,
+    inputElements: testStepOperation.inputElements
   });
 
   return operation;
@@ -63,7 +61,7 @@ export function convertIntention(
     sequence: sequence,
     value: testStepIntention.value,
     details: testStepIntention.details,
-    tags: testStepIntention.tags,
+    tags: testStepIntention.tags
   });
 
   return intention;
@@ -78,7 +76,7 @@ export function convertNote(note: Note, sequence?: number): NoteForGUI {
     imageFilePath: note.imageFileUrl,
     timestamp: note.timestamp.toString(),
     sequence,
-    videoFrame: note.videoFrame,
+    videoFrame: note.videoFrame
   });
 
   return data;

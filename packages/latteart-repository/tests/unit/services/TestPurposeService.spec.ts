@@ -2,13 +2,15 @@ import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { CreateNoteDto } from "@/interfaces/Notes";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -18,11 +20,11 @@ afterEach(async () => {
 describe("TestPurposeService", () => {
   describe("#createTestPurpose", () => {
     it("テスト目的を1件新規追加する", async () => {
-      const service = new TestPurposeServiceImpl();
+      const service = new TestPurposeServiceImpl(TestDataSource);
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
       const requestBody: CreateNoteDto = {
         type: "intention",
@@ -50,13 +52,15 @@ describe("TestPurposeService", () => {
 
   describe("#updateTestPurpose", () => {
     it("テスト目的1件の内容を更新する", async () => {
-      const service = new TestPurposeServiceImpl();
+      const service = new TestPurposeServiceImpl(TestDataSource);
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
-      const testPurposeEntity = await getRepository(TestPurposeEntity).save(
+      const testPurposeEntity = await TestDataSource.getRepository(
+        TestPurposeEntity
+      ).save(
         new TestPurposeEntity({
           testResult: testResultEntity,
         })
@@ -88,11 +92,11 @@ describe("TestPurposeService", () => {
 
   describe("#deleteTestPurpose", () => {
     it("指定のIDのtestPurposeを削除する", async () => {
-      const service = new TestPurposeServiceImpl();
+      const service = new TestPurposeServiceImpl(TestDataSource);
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity()
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
 
       const purpose1 = await service.createTestPurpose(testResultEntity.id, {
         type: "intention",
@@ -108,7 +112,8 @@ describe("TestPurposeService", () => {
 
       await service.deleteTestPurpose(purpose1.id);
 
-      const result = await getRepository(TestPurposeEntity).find();
+      const result =
+        await TestDataSource.getRepository(TestPurposeEntity).find();
 
       expect((result ?? []).length).toEqual(1);
 

@@ -16,67 +16,65 @@
 
 <template>
   <v-text-field
+    id="outputDirectoryTextField"
+    v-model="testResultName"
     :single-line="singleLine"
     :hide-details="hideDetails"
-    :label="store.getters.message('app.test-result-name')"
+    :label="$t('app.test-result-name')"
     prepend-icon="save_alt"
-    v-model="testResultName"
-    @change="changeCurrentTestResultName"
     :disabled="isDisabled"
-    id="outputDirectoryTextField"
+    @change="changeCurrentTestResultName"
   ></v-text-field>
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
     singleLine: { type: Boolean, default: false, required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const isDisabled = computed((): boolean => {
       return isCapturing.value || isResuming.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const testResultName = computed({
-      get: () =>
-        ((store.state as any).operationHistory as OperationHistoryState)
-          .testResultInfo.name,
+      get: () => operationHistoryStore.testResultInfo.name,
       set: (name: string) => {
-        store.commit("operationHistory/setTestResultName", { name });
-      },
+        operationHistoryStore.testResultInfo.name = name;
+      }
     });
 
     const changeCurrentTestResultName = () => {
-      store.dispatch("operationHistory/changeCurrentTestResult", {
+      operationHistoryStore.changeCurrentTestResult({
         startTime: null,
-        initialUrl: "",
+        initialUrl: ""
       });
     };
 
     return {
-      store,
+      t: rootStore.message,
       isDisabled,
       testResultName,
-      changeCurrentTestResultName,
+      changeCurrentTestResultName
     };
-  },
+  }
 });
 </script>

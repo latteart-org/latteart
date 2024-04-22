@@ -33,6 +33,7 @@ import { TimestampServiceImpl } from "@/services/TimestampService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/test-steps/{testStepId}/compressed-image")
 @Tags("test-results")
@@ -60,19 +61,19 @@ export class CompressedImageController extends Controller {
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
 
-    const testStepService = new TestStepServiceImpl({
+    const testStepService = new TestStepServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
-      config: new ConfigsService(),
+      config: new ConfigsService(AppDataSource),
     });
-    const noteService = new NotesServiceImpl({
+    const noteService = new NotesServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
     });
     const logger = createLogger();
 
     try {
-      return new CompressedImageService({
+      return new CompressedImageService(AppDataSource, {
         screenshotFileRepository,
         testStep: testStepService,
         note: noteService,

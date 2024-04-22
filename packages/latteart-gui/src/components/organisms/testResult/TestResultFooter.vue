@@ -15,28 +15,30 @@
 -->
 
 <template>
-  <v-row justify="start" align="center" class="pl-2 pr-2">
-    <browser-back-button />
-    <browser-forward-button />
+  <v-container fluid class="fill-height py-0">
+    <v-row justify="start" align="center" class="pl-2 pr-2">
+      <browser-back-button />
+      <browser-forward-button />
 
-    <v-divider vertical class="mx-3" />
+      <v-divider vertical class="mx-3" />
 
-    <current-window-info />
-    <v-spacer />
-    <select-window-button />
+      <current-window-info />
+      <v-spacer />
+      <select-window-button />
 
-    <v-divider vertical class="mx-3" />
+      <v-divider vertical class="mx-3" />
 
-    <run-auto-operation-button />
+      <run-auto-operation-button />
 
-    <autofill-button />
+      <autofill-button />
 
-    <note-register-button />
+      <note-register-button />
 
-    <v-divider vertical class="mx-3" />
+      <v-divider vertical class="mx-3" />
 
-    <span class="px-1"><recording-time /></span>
-  </v-row>
+      <span class="px-1"><recording-time /></span>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -59,7 +61,7 @@ export default defineComponent({
     "note-register-button": NoteRegisterButton,
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
-    "run-auto-operation-button": RunAutoOperationButton,
-  },
+    "run-auto-operation-button": RunAutoOperationButton
+  }
 });
 </script>

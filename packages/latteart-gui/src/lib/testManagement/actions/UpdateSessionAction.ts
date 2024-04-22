@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { PatchSession, Session } from "../types";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type PatchSession, type Session } from "../types";
 import SessionDataConverter from "../SessionDataConverter";
 
-const UPDATE_SESSION_FAILED_MESSAGE_KEY =
-  "error.test_management.update_session_failed";
+const UPDATE_SESSION_FAILED_MESSAGE_KEY = "error.test_management.update_session_failed";
 
 export class UpdateSessionAction {
   constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "sessionRepository" | "serviceUrl"
-    >
+    private repositoryService: Pick<RepositoryService, "sessionRepository" | "serviceUrl">
   ) {}
 
   public async updateSession(
@@ -47,13 +39,11 @@ export class UpdateSessionAction {
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: UPDATE_SESSION_FAILED_MESSAGE_KEY,
+        messageKey: UPDATE_SESSION_FAILED_MESSAGE_KEY
       });
     }
 
-    const convertedSession = new SessionDataConverter().convertToSession(
-      result.data
-    );
+    const convertedSession = new SessionDataConverter().convertToSession(result.data);
 
     return new ActionSuccess(convertedSession);
   }

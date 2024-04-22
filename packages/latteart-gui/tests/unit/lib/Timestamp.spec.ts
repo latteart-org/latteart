@@ -33,9 +33,7 @@ describe("Timestamp", () => {
     it("渡された時間(秒)を指定されたフォーマットで値を返す", async () => {
       const timestamp = 1643335656;
 
-      const returnDate: string = new TimestampImpl(timestamp).format(
-        "YYYY-MM-DD"
-      );
+      const returnDate: string = new TimestampImpl(timestamp).format("YYYY-MM-DD");
 
       expect(returnDate).toEqual("2022-01-28");
     });
@@ -43,9 +41,23 @@ describe("Timestamp", () => {
     it("渡された時間(ミリ秒)を指定されたフォーマットで値を返す", async () => {
       const timestamp = 1643335656000;
 
-      const returnDate: string = new TimestampImpl(timestamp).format(
-        "YYYY-MM-DD"
-      );
+      const returnDate: string = new TimestampImpl(timestamp).format("YYYY-MM-DD");
+
+      expect(returnDate).toEqual("2022-01-28");
+    });
+
+    it("渡された時間(String型)を指定されたフォーマットで値を返す", async () => {
+      const date = "2022-01-28";
+
+      const returnDate: string = new TimestampImpl(date).format("YYYY-MM-DD");
+
+      expect(returnDate).toEqual("2022-01-28");
+    });
+
+    it("渡された時間(Date型)を指定されたフォーマットで値を返す", async () => {
+      const date = new Date("2022-01-28");
+
+      const returnDate: string = new TimestampImpl(date).format("YYYY-MM-DD");
 
       expect(returnDate).toEqual("2022-01-28");
     });
@@ -55,9 +67,7 @@ describe("Timestamp", () => {
     it("渡された時間(秒)をミリ秒で値を返す", async () => {
       const timestamp = 1643335656;
 
-      const returnTime: number = new TimestampImpl(
-        timestamp
-      ).epochMilliseconds();
+      const returnTime: number = new TimestampImpl(timestamp).epochMilliseconds();
 
       expect(returnTime).toEqual(1643335656000);
     });
@@ -65,9 +75,7 @@ describe("Timestamp", () => {
     it("渡された時間(ミリ秒)をミリ秒で値を返す", async () => {
       const timestamp = 1643335656000;
 
-      const returnTime: number = new TimestampImpl(
-        timestamp
-      ).epochMilliseconds();
+      const returnTime: number = new TimestampImpl(timestamp).epochMilliseconds();
 
       expect(returnTime).toEqual(1643335656000);
     });
@@ -78,9 +86,7 @@ describe("Timestamp", () => {
       const oldTimestamp = new TimestampImpl(1643335656000);
       const nowTimestamp = 1643335657000;
 
-      const returnTime: number = new TimestampImpl(nowTimestamp).diff(
-        oldTimestamp
-      );
+      const returnTime: number = new TimestampImpl(nowTimestamp).diff(oldTimestamp);
 
       expect(returnTime).toEqual(1000);
     });
@@ -91,9 +97,7 @@ describe("Timestamp", () => {
       const oldTimestamp = new TimestampImpl(1643335656000);
       const nowTimestamp = 1643335657000;
 
-      const returnTime: string = new TimestampImpl(nowTimestamp).diffFormat(
-        oldTimestamp
-      );
+      const returnTime: string = new TimestampImpl(nowTimestamp).diffFormat(oldTimestamp);
 
       expect(returnTime).toEqual("00:00:01");
     });
@@ -105,10 +109,7 @@ describe("Timestamp", () => {
       const end = new TimestampImpl("2022-01-29");
       const now = 1643252856;
 
-      const isBetweenDay: boolean = new TimestampImpl(now).isBetween(
-        start,
-        end
-      );
+      const isBetweenDay: boolean = new TimestampImpl(now).isBetween(start, end);
 
       expect(isBetweenDay).toBeTruthy();
     });

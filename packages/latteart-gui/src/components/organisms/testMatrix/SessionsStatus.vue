@@ -16,9 +16,9 @@
 
 <template>
   <v-card v-if="displayed" class="py-0 my-3" @click="toStory">
-    <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
+    <v-card-title primary-title class="py-1 my-0" :class="cardStyle">
       <p class="card-center">
-        {{ store.getters.message(`test-matrix-page.status-${status}`) }}
+        {{ $t(`test-matrix-page.status-${status}`) }}
       </p>
     </v-card-title>
     <v-divider light></v-divider>
@@ -29,12 +29,12 @@
 </template>
 
 <script lang="ts">
-import { Story, Session } from "@/lib/testManagement/types";
+import { type Session } from "@/lib/testManagement/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import { useRouter } from "vue-router/composables";
-import type { PropType } from "vue";
+import { computed, defineComponent, type PropType } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -42,32 +42,31 @@ export default defineComponent({
     id: { type: String, default: "", required: true },
     displayedStories: {
       type: Array as PropType<string[] | null>,
-      default: null,
-    },
+      default: null
+    }
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
-    const story = computed((): Story => {
-      return store.getters["testManagement/findStory"](props.id);
+    const story = computed(() => {
+      return testManagementStore.findStory(props.id);
     });
 
-    const cardStyle = computed(
-      (): "" | "status-fine" | "status-ng" | "status-warn" => {
-        switch (status.value) {
-          case CHARTER_STATUS.OUT_OF_SCOPE.id:
-          case CHARTER_STATUS.OK.id:
-            return "status-fine";
-          case CHARTER_STATUS.NG.id:
-            return "status-ng";
-          case CHARTER_STATUS.ONGOING.id:
-          case CHARTER_STATUS.PENDING.id:
-            return "status-warn";
-        }
-        return "";
+    const cardStyle = computed((): "" | "status-fine" | "status-ng" | "status-warn" => {
+      switch (status.value) {
+        case CHARTER_STATUS.OUT_OF_SCOPE.id:
+        case CHARTER_STATUS.OK.id:
+          return "status-fine";
+        case CHARTER_STATUS.NG.id:
+          return "status-ng";
+        case CHARTER_STATUS.ONGOING.id:
+        case CHARTER_STATUS.PENDING.id:
+          return "status-warn";
       }
-    );
+      return "";
+    });
 
     const status = computed(() => {
       if (story.value) {
@@ -93,7 +92,7 @@ export default defineComponent({
     const toStory = (): void => {
       router.push({
         name: "storyPage",
-        params: { id: props.id },
+        params: { id: props.id }
       });
     };
 
@@ -104,14 +103,14 @@ export default defineComponent({
     });
 
     return {
+      t: rootStore.message,
       displayed,
-      store,
       cardStyle,
       status,
       done,
-      toStory,
+      toStory
     };
-  },
+  }
 });
 </script>
 

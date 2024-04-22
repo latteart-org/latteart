@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Story, Session } from "@/lib/testManagement/types";
+import { type Story, type Session } from "@/lib/testManagement/types";
 
 /**
  * Returns session information with the specified session ID from within the story.
@@ -22,10 +22,7 @@ import { Story, Session } from "@/lib/testManagement/types";
  * @param sessionId  Search target session id.
  * @returns session information.
  */
-export function getTargetSessions(
-  story: Story,
-  sessionIds: string[]
-): Session[] | null {
+export function getTargetSessions(story: Story, sessionIds: string[]): Session[] | null {
   const targetSessions = story.sessions.filter((session: Session) => {
     return sessionIds.includes(session.id);
   });

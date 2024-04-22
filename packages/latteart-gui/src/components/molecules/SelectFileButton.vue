@@ -15,13 +15,13 @@
 -->
 <template>
   <div>
-    <v-btn @click="$refs.fileInput.click()">
+    <v-btn @click="($refs.fileInput as HTMLInputElement).click()">
       <slot />
     </v-btn>
     <input
+      ref="fileInput"
       type="file"
       style="display: none"
-      ref="fileInput"
       :accept="accept"
       @change="selectFile"
     />
@@ -30,25 +30,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent } from "vue";
 
-@Component
-export default class SelectFileButton extends Vue {
-  @Prop({ type: String }) public readonly accept?: string;
-  @Prop({ type: String, default: "" }) public readonly detailsMessage!: string;
+export default defineComponent({
+  props: {
+    accept: { type: String },
+    detailsMessage: { type: String, default: "" }
+  },
+  setup(_, context) {
+    const selectFile = (event: Event): void => {
+      if (!event.target) {
+        return;
+      }
 
-  private selectFile(event: Event): void {
-    if (!event.target) {
-      return;
-    }
+      const target = event.target as HTMLInputElement;
 
-    const target = event.target as HTMLInputElement;
+      const targetFile = (target.files ?? [])[0];
 
-    const targetFile = (target.files ?? [])[0];
+      target.value = "";
 
-    target.value = "";
+      context.emit("select", targetFile);
+    };
 
-    this.$emit("select", targetFile);
+    return { selectFile };
   }
-}
+});
 </script>

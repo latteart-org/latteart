@@ -23,9 +23,7 @@ import {
 } from "./result";
 import { TestResultComparisonResultForRepository } from "./types";
 
-export class TestResultComparisonRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type TestResultComparisonRepository = {
   /**
    * Compare test results.
    * @param actualTestResultId  Actual test result id.
@@ -33,6 +31,21 @@ export class TestResultComparisonRepository {
    * @param option  Option.
    * @returns  Test result comparison result.
    */
+  compareTestResults(
+    actualTestResultId: string,
+    expectedTestResultId: string,
+    option?: {
+      excludeItems?: ("title" | "url" | "elementTexts" | "screenshot")[];
+      excludeElements?: { tagname: string }[];
+    }
+  ): Promise<RepositoryAccessResult<TestResultComparisonResultForRepository>>;
+};
+
+export class TestResultComparisonRepositoryImpl
+  implements TestResultComparisonRepository
+{
+  constructor(private restClient: RESTClient) {}
+
   public async compareTestResults(
     actualTestResultId: string,
     expectedTestResultId: string,

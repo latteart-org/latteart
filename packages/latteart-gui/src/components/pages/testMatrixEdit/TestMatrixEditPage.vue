@@ -15,22 +15,17 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
-    <v-container
-      fluid
-      pa-8
-      class="align-self-start"
-      style="height: 100%; overflow-y: scroll"
-    >
+  <v-container fluid class="pa-0">
+    <v-container fluid class="align-self-start pa-8" style="height: 100%">
       <v-btn @click="openTestMatrixDialogInCreateMode">{{
-        store.getters.message("test-matrix-edit-page.add-test-matrix")
+        $t("test-matrix-edit-page.add-test-matrix")
       }}</v-btn>
 
-      <v-container v-if="hasTestMatrix" pa-0 fluid>
+      <v-container v-if="hasTestMatrix" class="pa-0" fluid>
         <v-row class="mt-2">
           <v-col class="pb-0">
             <tab-selector
-              :selectedItemId="selectedTestMatrixId"
+              :selected-item-id="selectedTestMatrixId"
               :items="testMatrices"
               @select="(id) => selectTestMatrix(id)"
             ></tab-selector>
@@ -40,9 +35,7 @@
         <v-row>
           <v-col class="pt-0">
             <v-card class="pa-2">
-              <test-matrix-editor
-                :testMatrixId="selectedTestMatrixId"
-              ></test-matrix-editor>
+              <test-matrix-editor :test-matrix-id="selectedTestMatrixId"></test-matrix-editor>
             </v-card>
           </v-col>
         </v-row>
@@ -50,9 +43,9 @@
     </v-container>
 
     <test-matrix-dialog
-      :testMatrixBeingEdited="testMatrixBeingEdited"
-      @closeDialog="closeTestMatrixDialog"
-      @updateTestMatrix="addNewTestMatrix"
+      :test-matrix-being-edited="testMatrixBeingEdited"
+      @close-dialog="closeTestMatrixDialog"
+      @update-test-matrix="addNewTestMatrix"
     >
     </test-matrix-dialog>
   </v-container>
@@ -60,36 +53,31 @@
 
 <script lang="ts">
 import TestMatrixDialog from "@/components/organisms/dialog/TestMatrixDialog.vue";
-import { UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
-import { TestMatrix } from "@/lib/testManagement/types";
+import { type UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
+import { type TestMatrix } from "@/lib/testManagement/types";
 import TestMatrixEditor from "@/components/organisms/testMatrixEdit/TestMatrixEditor.vue";
 import TabSelector from "@/components/molecules/TabSelector.vue";
-import {
-  computed,
-  defineComponent,
-  onBeforeUnmount,
-  ref,
-  watch,
-  nextTick,
-} from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { computed, defineComponent, onBeforeUnmount, ref, watch, nextTick } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
     "test-matrix-dialog": TestMatrixDialog,
     "test-matrix-editor": TestMatrixEditor,
-    "tab-selector": TabSelector,
+    "tab-selector": TabSelector
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
 
     const selectedTestMatrixId = ref("");
     const testMatrixBeingEdited = ref<TestMatrix | null>(null);
 
     const testMatrices = computed((): TestMatrix[] => {
-      return store.getters["testManagement/getTestMatrices"]();
+      return testManagementStore.getTestMatrices();
     });
 
     const hasTestMatrix = computed((): boolean => {
@@ -117,7 +105,7 @@ export default defineComponent({
         id: "",
         index: 0,
         groups: [],
-        viewPoints: [],
+        viewPoints: []
       };
     };
 
@@ -125,13 +113,11 @@ export default defineComponent({
       testMatrixBeingEdited.value = null;
     };
 
-    const addNewTestMatrix = async (
-      obj: UpdateTestMatrixObject
-    ): Promise<void> => {
+    const addNewTestMatrix = async (obj: UpdateTestMatrixObject): Promise<void> => {
       (async () => {
-        await store.dispatch("testManagement/addNewTestMatrix", {
+        await testManagementStore.addNewTestMatrix({
           name: obj.testMatrix.name,
-          viewPoints: obj.viewPoints,
+          viewPoints: obj.viewPoints
         });
         selectTestMatrix(testMatrices.value[testMatrices.value.length - 1].id);
       })();
@@ -139,9 +125,7 @@ export default defineComponent({
 
     const readTestMatrixIdFromLocalStorage = (): string => {
       const testMatrixId =
-        localStorage.getItem(
-          "latteart-management-selectedTestMatrixIdOnEditor"
-        ) ??
+        localStorage.getItem("latteart-management-selectedTestMatrixIdOnEditor") ??
         testMatrices.value[0]?.id ??
         "";
 
@@ -160,17 +144,17 @@ export default defineComponent({
     watch(testMatrices, chantSelectedTestMatrix);
 
     (async () => {
-      await store.dispatch("testManagement/readProject");
+      await testManagementStore.readProject();
 
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
       selectTestMatrix(readTestMatrixIdFromLocalStorage());
     })();
 
     return {
-      store,
+      t: rootStore.message,
       selectedTestMatrixId,
       testMatrixBeingEdited,
       testMatrices,
@@ -178,8 +162,8 @@ export default defineComponent({
       selectTestMatrix,
       openTestMatrixDialogInCreateMode,
       closeTestMatrixDialog,
-      addNewTestMatrix,
+      addNewTestMatrix
     };
-  },
+  }
 });
 </script>

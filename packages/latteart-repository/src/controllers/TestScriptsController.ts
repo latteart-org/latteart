@@ -35,6 +35,7 @@ import { CreateTestScriptDto } from "../interfaces/TestScripts";
 import { TestScriptsService } from "../services/TestScriptsService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/test-scripts")
 @Tags("test-results")
@@ -64,12 +65,12 @@ export class TestScriptsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    const testResultService = new TestResultServiceImpl({
+    const testResultService = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,
@@ -86,7 +87,7 @@ export class TestScriptsController extends Controller {
       });
 
     try {
-      return await new TestScriptsService({
+      return await new TestScriptsService(AppDataSource, {
         testResult: testResultService,
         testScriptFileRepository: testScriptFileRepositoryService,
       }).createTestScriptByTestResult(testResultId, requestBody);

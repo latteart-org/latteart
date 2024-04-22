@@ -15,18 +15,19 @@
 -->
 
 <template>
-  <v-row justify="space-between" class="fill-height" id="decision-table">
+  <v-row id="decision-table" justify="space-between" class="fill-height pr-2">
     <v-col cols="12" class="pb-0">
       <v-checkbox
-        class="checkbox-gray-out"
         v-model="shouldGrayOutNotInputValueCell"
+        class="checkbox-gray-out"
         :label="message('input-value.gray-out-not-input-value-cell')"
+        hide-details
       ></v-checkbox>
     </v-col>
-    <v-col cols="12" class="pb-0">
+    <v-col cols="12" class="py-0">
       <v-checkbox
-        class="checkbox-hide-elements"
         v-model="shouldHideHiddenElements"
+        class="checkbox-hide-elements"
         :label="message('input-value.hide-hidden-elements')"
         hide-details
       ></v-checkbox>
@@ -44,48 +45,45 @@
       :style="{
         height: '100%',
         'overflow-y': 'scroll',
-        'padding-bottom': '150px',
+        'padding-bottom': '150px'
       }"
     >
       <v-data-table
+        v-model:items-per-page="pagination"
         :headers="headers"
         :custom-filter="filterByWord"
         :items="inputValues"
         :search="search"
         class="elevation-1"
-        :items-per-page.sync="pagination"
-        hide-default-header
       >
-        <template v-slot:header="{ props: { headers } }">
+        <template #headers="{ columns }">
           <tr class="tr-times">
             <th
+              v-for="(header, index) in columns"
+              :key="index"
               :style="
                 index <= 2
                   ? { borderBottom: '1px solid rgba(0,0,0,0.12)' }
                   : { borderBottom: '0px' }
               "
-              :class="{ 'column-width': index <= 2 }"
+              :class="{ 'column-width': index <= 2, 'text-center': true }"
               :rowspan="index <= 2 ? 2 : 1"
-              v-for="(header, index) in headers.flatMap((item) => item.values)"
-              :key="index"
             >
-              {{ header.text }}
+              {{ header.title }}
               <v-icon
-                v-if="
-                  index > 2 && !isViewerMode && hasInputElements(header.index)
-                "
+                v-if="index > 2 && !isViewerMode && hasInputElements(header.headerProps?.index)"
                 class="mx-1"
-                color="blue lighten-3"
-                @click="registerAutofillSetting(header.index)"
+                color="blue-lighten-3"
+                @click="registerAutofillSetting(header.headerProps?.index)"
                 >control_point</v-icon
               >
               <v-icon
-                v-if="header.notes.length > 0"
+                v-if="header.headerProps?.notes.length > 0"
                 :title="message('app.note')"
                 class="mx-1"
-                color="purple lighten-3"
+                color="purple-lighten-3"
                 @click="
-                  selectedColumnNotes = header.notes;
+                  selectedColumnNotes = header?.headerProps?.notes;
                   opened = true;
                 "
                 >announcement</v-icon
@@ -94,63 +92,55 @@
           </tr>
           <tr>
             <th
-              :style="{ borderBottom: '1px solid rgba(0,0,0,0.12)' }"
-              v-for="(header, index) in headers
-                .flatMap((item) => item.values)
-                .filter((_, i) => i > 2)"
+              v-for="(header, index) in columns.filter((_, i) => i > 2)"
               :key="index"
+              :style="{ borderBottom: '1px solid rgba(0,0,0,0.12)', 'align-content': 'start' }"
+              class="text-center"
             >
-              <p v-if="header.targetScreenDef">
-                <b>[{{ header.sourceScreenDef }}]</b><br />
+              <p v-if="header?.headerProps?.targetScreenDef">
+                <b>[{{ header?.headerProps?.sourceScreenDef }}]</b><br />
                 ↓<br />
-                {{ header.trigger.eventType }}: {{ header.trigger.elementText
-                }}<br />
+                {{ header?.headerProps?.trigger.eventType }}:
+                {{ header?.headerProps?.trigger.elementText }}<br />
                 ↓<br />
-                <b>[{{ header.targetScreenDef }}]</b><br />
+                <b>[{{ header?.headerProps?.targetScreenDef }}]</b><br />
               </p>
               <p v-else>
-                <b>[{{ header.sourceScreenDef }}]</b><br />
+                <b>[{{ header?.headerProps?.sourceScreenDef }}]</b><br />
                 ↓<br />
                 {{ message("input-value.end-of-test") }}<br />
               </p>
             </th>
           </tr>
         </template>
-        <template v-slot:item="props">
+        <template #item="props">
           <tr
+            :key="props.index"
             :class="{
-              'hidden-row': elementTypeIsHidden(props.item.elementType),
-              'hidden-display-none':
-                shouldHideHiddenElements &&
-                elementTypeIsHidden(props.item.elementType),
+              'hidden-row': elementTypeIsHidden(props.item),
+              'hidden-display-none': shouldHideHiddenElements && elementTypeIsHidden(props.item)
             }"
             @click="selectRow(props.index)"
-            :key="props.index"
           >
-            <td class="text-xs-center">
-              <span v-if="elementTypeIsHidden(props.item.elementType)"
-                >(hidden) </span
+            <td class="text-center">
+              <span v-if="elementTypeIsHidden(props.item)">(hidden) </span
               >{{ props.item.elementId }}
             </td>
-            <td class="text-xs-center">{{ props.item.elementName }}</td>
-            <td class="text-xs-center">{{ props.item.elementType }}</td>
+            <td class="text-center">{{ props.item.elementName }}</td>
+            <td class="text-center">{{ props.item.elementType }}</td>
             <td
-              class="text-xs-center"
+              v-for="(_, index) in screenTransitions"
+              :key="index"
+              class="text-center"
               :style="{
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
-                  (props.item[`set${index}`]
-                    ? props.item[`set${index}`].isDefaultValue
-                    : true)
+                  (props.item[`set${index}`] ? props.item[`set${index}`].isDefaultValue : true)
                     ? 'rgba(0,0,0,0.12)'
-                    : 'rgba(0,0,0,0)',
+                    : 'rgba(0,0,0,0)'
               }"
-              v-for="(_, index) in screenTransitions"
-              :key="index"
             >
-              {{
-                props.item[`set${index}`] ? props.item[`set${index}`].value : ""
-              }}
+              {{ props.item[`set${index}`] ? props.item[`set${index}`].value : "" }}
             </td>
           </tr>
         </template>
@@ -166,14 +156,13 @@
 </template>
 
 <script lang="ts">
-import { MessageProvider } from "@/lib/operationHistory/types";
-import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import NoteListDialog from "../dialog/NoteListDialog.vue";
-import { ElementInfo, VideoFrame } from "latteart-client";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { computed, defineComponent, ref, inject } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import type { ElementInfo, VideoFrame } from "latteart-client";
+import { computed, defineComponent, ref, inject, type PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRootStore } from "@/stores/root";
 
 type InputValue = {
   [key: string]:
@@ -182,11 +171,7 @@ type InputValue = {
         image: { imageFileUrl?: string; videoFrame?: VideoFrame };
         elementInfo: Pick<
           ElementInfo,
-          | "boundingRect"
-          | "innerHeight"
-          | "innerWidth"
-          | "outerHeight"
-          | "outerWidth"
+          "boundingRect" | "innerHeight" | "innerWidth" | "outerHeight" | "outerWidth"
         >;
       }
     | { value: string; isDefaultValue: boolean }
@@ -194,17 +179,19 @@ type InputValue = {
 };
 
 export default defineComponent({
+  components: {
+    "note-list-dialog": NoteListDialog
+  },
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
-  },
-  components: {
-    "note-list-dialog": NoteListDialog,
+      required: true
+    }
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const shouldGrayOutNotInputValueCell = ref(true);
     const shouldHideHiddenElements = ref(true);
@@ -218,12 +205,8 @@ export default defineComponent({
       return inject("isViewerMode") ?? false;
     });
 
-    const operationHistoryState = computed((): OperationHistoryState => {
-      return (store.state as any).operationHistory;
-    });
-
-    const inputValueTable = computed((): InputValueTable => {
-      return operationHistoryState.value.inputValueTable;
+    const inputValueTable = computed(() => {
+      return operationHistoryStore.inputValueTable;
     });
 
     const screenTransitions = computed(() => {
@@ -233,85 +216,88 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          values: [
+          children: [
             {
-              text: props.message("input-value.element-id"),
+              title: props.message("input-value.element-id"),
               value: "elementId",
-              sourceScreenDef: "",
-              targetScreenDef: "",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-              notes: [],
-              operationHistory: [],
-            },
-          ],
+              headerProps: {
+                sourceScreenDef: "",
+                targetScreenDef: "",
+                trigger: {
+                  elementText: "",
+                  eventType: ""
+                },
+                notes: [],
+                operationHistory: []
+              }
+            }
+          ]
         },
         {
-          values: [
+          children: [
             {
-              text: props.message("input-value.element-name"),
+              title: props.message("input-value.element-name"),
               value: "elementName",
-              sourceScreenDef: "",
-              targetScreenDef: "",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-              notes: [],
-              operationHistory: [],
-            },
-          ],
+              headerProps: {
+                sourceScreenDef: "",
+                targetScreenDef: "",
+                trigger: {
+                  elementText: "",
+                  eventType: ""
+                },
+                notes: [],
+                operationHistory: []
+              }
+            }
+          ]
         },
         {
-          values: [
+          children: [
             {
-              text: "type",
+              title: "type",
               value: "elementType",
-              sourceScreenDef: "",
-              targetScreenDef: "",
-              trigger: {
-                elementText: "",
-                eventType: "",
-              },
-              notes: [],
-              operationHistory: [],
-            },
-          ],
+              headerProps: {
+                sourceScreenDef: "",
+                targetScreenDef: "",
+                trigger: {
+                  elementText: "",
+                  eventType: ""
+                },
+                notes: [],
+                operationHistory: []
+              }
+            }
+          ]
         },
         {
-          values: inputValueTable.value.headerColumns.map(
-            (screenTransition, index) => {
-              return {
-                text: `${screenTransition.index + 1}${props.message(
-                  "input-value.times"
-                )}`,
-                value: `set${screenTransition.index}`,
+          children: inputValueTable.value.headerColumns.map((screenTransition, index) => {
+            return {
+              title: `${screenTransition.index + 1}${props.message("input-value.times")}`,
+              value: `set${screenTransition.index}`,
+              headerProps: {
                 sourceScreenDef: screenTransition.sourceScreenDef,
                 targetScreenDef: screenTransition.targetScreenDef,
                 trigger: screenTransition.trigger,
                 notes: screenTransition.notes.map((note) => {
-                  const testResultName =
-                    operationHistoryState.value.storingTestResultInfos.find(
-                      (testResult) => testResult.id === note.testResultId
-                    )?.name;
+                  const testResultName = operationHistoryStore.storingTestResultInfos.find(
+                    (testResult) => testResult.id === note.testResultId
+                  )?.name;
 
                   return {
                     ...note,
-                    testResultName,
+                    testResultName
                   };
                 }),
                 testPurposes: screenTransition.testPurposes,
-                index,
-              };
-            }
-          ),
-        },
+                index
+              }
+            };
+          })
+        }
       ];
     });
 
-    const inputValues = computed((): InputValue[] => {
+    const inputValues = computed(() => {
       return inputValueTable.value.rows.map(
         ({ inputs, elementName, elementId, elementType, elementImage }) => {
           return inputs.reduce(
@@ -326,8 +312,8 @@ export default defineComponent({
       );
     });
 
-    const filterByWord = (_: any, search: string, item: InputValue) => {
-      const columns = Object.entries(item);
+    const filterByWord = (_: any, search: string, item: any) => {
+      const columns = Object.entries(item.raw as InputValue);
       return columns
         .filter(([columnName]) => {
           return columnName !== "media";
@@ -341,8 +327,8 @@ export default defineComponent({
             return columnValue.includes(search);
           }
 
-          if ("value" in columnValue) {
-            return columnValue.value.includes(search);
+          if (typeof columnValue === "object" && "value" in columnValue) {
+            return (columnValue.value as string).includes(search);
           }
 
           return false;
@@ -357,49 +343,51 @@ export default defineComponent({
         "elementInfo" in elementImage
       ) {
         if (elementImage.image.imageFileUrl || elementImage.image.videoFrame) {
-          store.dispatch("operationHistory/changeScreenImage", {
-            ...elementImage,
+          operationHistoryStore.changeScreenImage({
+            ...elementImage
           });
         } else {
-          store.commit("operationHistory/clearScreenImage");
+          operationHistoryStore.screenImage = null;
         }
       }
     };
 
-    const elementTypeIsHidden = (elementType: string): boolean => {
-      return elementType === "hidden";
+    const elementTypeIsHidden = (item: InputValue): boolean => {
+      if (item.elementType) {
+        return item.elementType === "hidden";
+      }
+      return false;
     };
 
     const hasInputElements = (index: number): boolean => {
       return (
-        (inputValueTable.value.getScreenTransitions().at(index)?.inputElements
-          .length ?? 0) > 0
+        (inputValueTable.value.getScreenTransitions().at(index)?.inputElements.length ?? 0) > 0
       );
     };
 
     const registerAutofillSetting = (index: number): void => {
-      const screenTransition = inputValueTable.value
-        .getScreenTransitions()
-        .at(index);
+      const screenTransition = inputValueTable.value.getScreenTransitions().at(index);
 
       if (!screenTransition || !screenTransition.trigger) {
         return;
       }
 
-      store.commit("captureControl/setAutofillRegisterDialog", {
+      captureControlStore.autofillRegisterDialogData = {
         title: screenTransition.trigger.pageTitle,
         url: screenTransition.trigger.pageUrl,
-        message: store.getters.message("input-value.autofill-dialog-message"),
+        message: rootStore.message("input-value.autofill-dialog-message"),
         inputElements: screenTransition.inputElements?.map((element) => {
           return {
             xpath: element.xpath.toLowerCase(),
             attributes: element.attributes,
-            inputValue: element.defaultValue ?? element.inputs.at(-1) ?? "",
-            iframeIndex: element.iframe?.index,
+            inputValue: element.defaultValue ?? element.inputs.at(-1)?.value ?? "",
+            iframeIndex: element.iframe?.index
           };
         }),
-        callback: null,
-      });
+        callback: () => {
+          /* Do nothing */
+        }
+      };
     };
 
     return {
@@ -417,9 +405,9 @@ export default defineComponent({
       selectRow,
       elementTypeIsHidden,
       hasInputElements,
-      registerAutofillSetting,
+      registerAutofillSetting
     };
-  },
+  }
 });
 </script>
 

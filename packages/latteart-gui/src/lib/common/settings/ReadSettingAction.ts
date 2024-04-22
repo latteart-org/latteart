@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
-import { ProjectSettings, ViewSettings } from "@/lib/common/settings/Settings";
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService, TestScriptOption } from "latteart-client";
+import { type ProjectSettings, type ViewSettings } from "@/lib/common/settings/Settings";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService, type TestScriptOption } from "latteart-client";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
 export class ReadSettingAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "settingRepository">
-  ) {}
-
-  public async readProjectSettings(): Promise<ActionResult<ProjectSettings>> {
-    const getSettingsResult =
-      await this.repositoryService.settingRepository.getSettings();
+  public async readProjectSettings(
+    repositoryService: Pick<RepositoryService, "settingRepository">
+  ): Promise<ActionResult<ProjectSettings>> {
+    const getSettingsResult = await repositoryService.settingRepository.getSettings();
 
     if (getSettingsResult.isFailure()) {
       return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
@@ -50,7 +43,7 @@ export class ReadSettingAction {
     }
 
     return new ActionSuccess({
-      autofill: getAutoPopupSettingsResult.data,
+      autofill: getAutoPopupSettingsResult.data
     });
   }
 

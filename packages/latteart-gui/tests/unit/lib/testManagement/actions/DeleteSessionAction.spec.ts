@@ -1,45 +1,45 @@
-import { SessionRepository } from "latteart-client";
-import { RESTClient } from "latteart-client";
-import { DeleteSessionAction } from "@/lib/testManagement/actions/DeleteSessionAction";
+import { SessionRepositoryImpl } from 'latteart-client'
+import { type RESTClient } from 'latteart-client'
+import { DeleteSessionAction } from '@/lib/testManagement/actions/DeleteSessionAction'
 
 const baseRestClient: RESTClient = {
-  serverUrl: "",
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  httpPut: jest.fn(),
-  httpPatch: jest.fn(),
-  httpDelete: jest.fn(),
-  httpGetFile: jest.fn(),
-};
+  serverUrl: '',
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  httpPut: vi.fn(),
+  httpPatch: vi.fn(),
+  httpDelete: vi.fn(),
+  httpGetFile: vi.fn()
+}
 
-describe("DeleteSessionAction", () => {
-  describe("#deleteSession", () => {
-    it("Sessionを削除する", async () => {
+describe('DeleteSessionAction', () => {
+  describe('#deleteSession', () => {
+    it('Sessionを削除する', async () => {
       const deleteSessionResponse = {
         ...baseRestClient,
-        httpDelete: jest.fn().mockResolvedValue({
-          status: 204,
-        }),
-      };
+        httpDelete: vi.fn().mockResolvedValue({
+          status: 204
+        })
+      }
 
       const args = {
-        projectId: "projectId",
-        sessionId: "sessionId",
-      };
+        projectId: 'projectId',
+        sessionId: 'sessionId'
+      }
 
       const result = await new DeleteSessionAction().deleteSession(args, {
-        sessionRepository: new SessionRepository(deleteSessionResponse),
-      });
+        sessionRepository: new SessionRepositoryImpl(deleteSessionResponse)
+      })
 
       if (result.isFailure()) {
-        throw result.error;
+        throw result.error
       }
 
       expect(deleteSessionResponse.httpDelete).toBeCalledWith(
-        "api/v1/projects/projectId/sessions/sessionId"
-      );
+        'api/v1/projects/projectId/sessions/sessionId'
+      )
 
-      expect(result.data).toEqual(undefined);
-    });
-  });
-});
+      expect(result.data).toEqual(undefined)
+    })
+  })
+})

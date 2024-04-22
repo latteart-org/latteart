@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { TestResultSummary } from "../../types";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type TestResultSummary } from "../../types";
 
 const GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY =
   "error.operation_history.get_test_result_list_failed";
 
 export class GetTestResultListAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}
 
   public async getTestResults(): Promise<ActionResult<TestResultSummary[]>> {
-    const getTestResultsResult =
-      await this.repositoryService.testResultRepository.getTestResults();
+    const getTestResultsResult = await this.repositoryService.testResultRepository.getTestResults();
 
     if (getTestResultsResult.isFailure()) {
       return new ActionFailure({
-        messageKey: GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY,
+        messageKey: GET_TEST_RESULT_LIST_FAILED_MESSAGE_KEY
       });
     }
 

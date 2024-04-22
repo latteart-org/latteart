@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <div>
-    <v-img :src="imageFileUrl" @click="openImageFile" style="cursor: pointer" />
+  <div :style="style">
+    <v-img :src="imageFileUrl" style="cursor: pointer" @click="openImageFile" />
     <v-dialog v-model="imageFileOpened">
       <v-card>
         <v-img :src="imageFileUrl" />
@@ -26,16 +26,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, ref } from "vue";
 
-@Component
-export default class PopupImage extends Vue {
-  @Prop({ type: String, default: "" }) public readonly imageFileUrl!: string;
+export default defineComponent({
+  props: {
+    imageFileUrl: { type: String, default: "" },
+    width: { type: String, default: "100%" },
+    height: { type: String, default: "100%" }
+  },
+  setup(props) {
+    const imageFileOpened = ref(false);
 
-  private imageFileOpened = false;
+    const openImageFile = () => {
+      imageFileOpened.value = true;
+    };
 
-  private openImageFile() {
-    this.imageFileOpened = true;
+    const style = {
+      width: props.width,
+      height: props.height
+    };
+
+    return { imageFileOpened, openImageFile, style };
   }
-}
+});
 </script>

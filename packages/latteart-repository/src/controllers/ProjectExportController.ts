@@ -37,6 +37,7 @@ import { ProjectsServiceImpl } from "@/services/ProjectsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/export")
 @Tags("projects")
@@ -58,7 +59,7 @@ export class ProjectExportController extends Controller {
     @Body() requestBody: CreateProjectExportDto
   ): Promise<{ url: string }> {
     try {
-      const configService = new ConfigsService();
+      const configService = new ConfigsService(AppDataSource);
       const timestampService = new TimestampServiceImpl();
       const fileRepositoryManager = await createFileRepositoryManager();
       const screenshotFileRepository =
@@ -74,9 +75,9 @@ export class ProjectExportController extends Controller {
         workingFileRepository,
         timestamp: timestampService,
       });
-      const testResultService = new TestResultServiceImpl({
+      const testResultService = new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
-        testStep: new TestStepServiceImpl({
+        testStep: new TestStepServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
           config: configService,
@@ -87,11 +88,11 @@ export class ProjectExportController extends Controller {
         videoFileRepository,
       });
 
-      const testProgressService = new TestProgressServiceImpl();
+      const testProgressService = new TestProgressServiceImpl(AppDataSource);
 
-      const projectService = new ProjectsServiceImpl();
+      const projectService = new ProjectsServiceImpl(AppDataSource);
 
-      const url = await new ProjectExportService().export(
+      const url = await new ProjectExportService(AppDataSource).export(
         projectId,
         requestBody.includeProject,
         requestBody.includeTestResults,

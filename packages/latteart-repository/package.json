@@ -21,7 +21,7 @@
     "postgenerate:routes": "prettier --write src/routes/routes.ts",
     "generate:apidoc": "tsoa spec",
     "generate:migration": "npm run typeorm migration:generate --",
-    "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js --config cli_ormconfig.ts",
+    "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
     "lint": "eslint src tests",
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix src tests",
@@ -45,7 +45,7 @@
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.2",
     "tsoa": "^5.1.1",
-    "typeorm": "^0.2.37",
+    "typeorm": "^0.3.20",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.0"
   },

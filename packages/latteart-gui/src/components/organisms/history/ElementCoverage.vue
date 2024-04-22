@@ -16,38 +16,32 @@
 
 <template>
   <v-container>
-    <v-row
-      justify="end"
-      v-for="(coverage, index) in coverages"
-      :key="index"
-      class="py-2"
-    >
+    <v-row v-for="(coverage, index) in coverages" :key="index" justify="end" class="py-2">
       <v-expansion-panels>
         <v-expansion-panel>
-          <v-expansion-panel-header class="py-4 fullwidth">
+          <v-expansion-panel-title class="py-4 fullwidth">
             <div class="fullwidth">
-              <p class="subtitle-1 font-weight-bold mb-0">
+              <p class="text-subtitle-1 font-weight-bold mb-0">
                 <span class="ellipsis-title" :title="coverage.screenTitle">{{
                   coverage.screenTitle
                 }}</span>
               </p>
               coverage: {{ coverage.percentage }} %
             </div>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
             <v-data-table
-              hide-default-footer
               :headers="headers[index]"
               :items="coverage.elements"
               class="elevation-1"
               :items-per-page="-1"
             >
-              <template v-slot:item="props">
+              <template #item="props">
                 <tr
-                  :key="props.item.sequence"
+                  :key="props.item.id"
                   :class="{
                     covered: props.item.operated,
-                    missed: !props.item.operated,
+                    missed: !props.item.operated
                   }"
                   @click="selectElement(props.item)"
                 >
@@ -55,18 +49,17 @@
                   <td>{{ props.item.type }}</td>
                   <td>{{ props.item.id }}</td>
                   <td>{{ props.item.name }}</td>
-                  <td :title="props.item.text">
-                    <div class="ellipsis">{{ props.item.text }}</div>
+                  <td :title="props.item.text" class="w-75">
+                    <div class="text-truncate" style="width: inherit">{{ props.item.text }}</div>
                   </td>
                   <td>
-                    <v-icon v-if="props.item.operated" small class="mr-2"
-                      >done</v-icon
-                    >
+                    <v-icon v-if="props.item.operated" size="small" class="mr-2">done</v-icon>
                   </td>
                 </tr>
               </template>
+              <template #bottom />
             </v-data-table>
-          </v-expansion-panel-content>
+          </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
     </v-row>
@@ -74,60 +67,55 @@
 </template>
 
 <script lang="ts">
-import { MessageProvider } from "@/lib/operationHistory/types";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { VideoFrame } from "latteart-client";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { type MessageProvider } from "@/lib/operationHistory/types";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { type VideoFrame } from "latteart-client";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
+      required: true
+    }
   },
   setup(props) {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const coverages = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .elementCoverages;
+      return operationHistoryStore.elementCoverages;
     });
 
     const headers = computed(() => {
-      const headers: Array<
-        Array<{ text: string; value: string; sortable: boolean }>
-      > = [];
+      const headers: Array<Array<{ title: string; value: string; sortable: boolean }>> = [];
       coverages.value.forEach(() => {
         headers.push([
           {
-            text: props.message("coverage.tagname"),
+            title: props.message("coverage.tagname"),
             value: "tagname",
-            sortable: true,
+            sortable: true
           },
           {
-            text: props.message("coverage.type"),
+            title: props.message("coverage.type"),
             value: "type",
-            sortable: true,
+            sortable: true
           },
-          { text: props.message("coverage.id"), value: "id", sortable: true },
+          { title: props.message("coverage.id"), value: "id", sortable: true },
           {
-            text: props.message("coverage.name"),
+            title: props.message("coverage.name"),
             value: "name",
-            sortable: true,
+            sortable: true
           },
           {
-            text: props.message("coverage.text"),
+            title: props.message("coverage.text"),
             value: "text",
-            sortable: true,
+            sortable: true
           },
           {
-            text: props.message("coverage.operated"),
+            title: props.message("coverage.operated"),
             value: "operated",
-            sortable: true,
-          },
+            sortable: true
+          }
         ]);
       });
       return headers;
@@ -148,30 +136,30 @@ export default defineComponent({
       outerWidth?: number;
     }) => {
       if (element.imageFileUrl || element.videoFrame) {
-        store.dispatch("operationHistory/changeScreenImage", {
+        operationHistoryStore.changeScreenImage({
           image: {
             imageFileUrl: element.imageFileUrl,
-            videoFrame: element.videoFrame,
+            videoFrame: element.videoFrame
           },
           elementInfo: {
             boundingRect: element.boundingRect,
             innerHeight: element.innerHeight,
             innerWidth: element.innerWidth,
             outerHeight: element.outerHeight,
-            outerWidth: element.outerWidth,
-          },
+            outerWidth: element.outerWidth
+          }
         });
       } else {
-        store.commit("operationHistory/clearScreenImage");
+        operationHistoryStore.screenImage == null;
       }
     };
 
     return {
       coverages,
       headers,
-      selectElement,
+      selectElement
     };
-  },
+  }
 });
 </script>
 

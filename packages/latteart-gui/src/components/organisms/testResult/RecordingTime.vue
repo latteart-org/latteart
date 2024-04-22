@@ -21,22 +21,20 @@
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
 
     const currentTime = computed((): string => {
-      return ((store.state as any).captureControl as CaptureControlState).timer
-        .now;
+      return captureControlStore.timer.now;
     });
 
     return {
-      currentTime,
+      currentTime
     };
-  },
+  }
 });
 </script>

@@ -14,38 +14,29 @@
  * limitations under the License.
  */
 
-import { ProjectSettings, ViewSettings } from "@/lib/common/settings/Settings";
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService, TestScriptOption } from "latteart-client";
+import { type ProjectSettings, type ViewSettings } from "@/lib/common/settings/Settings";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService, type TestScriptOption } from "latteart-client";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
 export class SaveSettingAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "settingRepository">
-  ) {}
-
   public async saveProjectSettings(
-    settings: ProjectSettings
+    settings: ProjectSettings,
+    repositoryService: Pick<RepositoryService, "settingRepository">
   ): Promise<ActionResult<ProjectSettings>> {
     const putSettingsRequest = {
       ...settings,
       config: {
         ...settings.config,
         autofillSetting: {
-          conditionGroups: settings.config.autofillSetting.conditionGroups,
-        },
-      },
+          conditionGroups: settings.config.autofillSetting.conditionGroups
+        }
+      }
     };
     const putSettingsResult =
-      await this.repositoryService.settingRepository.putSettings(
-        putSettingsRequest
-      );
+      await repositoryService.settingRepository.putSettings(putSettingsRequest);
 
     if (putSettingsResult.isFailure()) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
@@ -56,36 +47,33 @@ export class SaveSettingAction {
       config: {
         ...putSettingsResult.data.config,
         autofillSetting: {
-          ...putSettingsResult.data.config.autofillSetting,
-        },
-      },
+          ...putSettingsResult.data.config.autofillSetting
+        }
+      }
     };
 
     return new ActionSuccess(savedSettings);
   }
 
-  public async saveViewSettings(
-    settings: ViewSettings
-  ): Promise<ActionResult<ViewSettings>> {
+  public async saveViewSettings(settings: ViewSettings): Promise<ActionResult<ViewSettings>> {
     const putAutoPopupSettingsResult =
-      await new LocalStorageSettingRepository().putAutoPopupSettings(
-        settings.autofill
-      );
+      await new LocalStorageSettingRepository().putAutoPopupSettings(settings.autofill);
 
     if (putAutoPopupSettingsResult.isFailure()) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
     }
 
     return new ActionSuccess({
-      autofill: putAutoPopupSettingsResult.data,
+      autofill: putAutoPopupSettingsResult.data
     });
   }
 
   public async saveTestScriptOption(
     option: Pick<TestScriptOption, "buttonDefinitions">
   ): Promise<ActionResult<Pick<TestScriptOption, "buttonDefinitions">>> {
-    const putTestScriptOptionResult =
-      await new LocalStorageSettingRepository().putTestScriptOption(option);
+    const putTestScriptOptionResult = await new LocalStorageSettingRepository().putTestScriptOption(
+      option
+    );
 
     if (putTestScriptOptionResult.isFailure()) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });

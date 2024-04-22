@@ -32,6 +32,7 @@ import {
 } from "tsoa";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -59,12 +60,12 @@ export class TestResultExportController extends Controller {
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
     const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-    const testResultService = new TestResultServiceImpl({
+    const testResultService = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,

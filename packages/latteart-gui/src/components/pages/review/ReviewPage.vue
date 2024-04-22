@@ -15,58 +15,54 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
-    <v-app-bar color="latteart-main" dark absolute flat>
-      <v-toolbar-title>{{
-        store.getters.message("manager-history-view.review")
-      }}</v-toolbar-title>
+  <v-container fluid class="fill-height pa-0">
+    <v-app-bar color="#424242" absolute flat>
+      <v-toolbar-title>{{ $t("manager-history-view.review") }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <screenshots-download-button v-slot:default="slotProps">
+      <screenshots-download-button v-slot="slotProps">
         <v-btn
-          :disabled="slotProps.obj.isDisabled"
+          variant="elevated"
           color="primary"
-          :dark="!slotProps.obj.processing"
-          @click="slotProps.obj.execute"
+          :disabled="slotProps.obj.isDisabled"
           class="ma-2"
+          @click="slotProps.obj.execute"
         >
-          {{ store.getters.message("test-result-page.export-screenshots") }}
+          {{ $t("test-result-page.export-screenshots") }}
         </v-btn>
       </screenshots-download-button>
       <v-btn
         id="scriptGenerateButton"
         color="primary"
-        @click="scriptGenerationOptionDialogIsOpened = true"
+        variant="elevated"
         class="ma-2"
-        >{{ store.getters.message("manage-header.generate-script") }}</v-btn
+        @click="scriptGenerationOptionDialogIsOpened = true"
+        >{{ $t("manage-header.generate-script") }}</v-btn
       >
     </v-app-bar>
 
-    <v-container fluid pa-0 style="height: 100%">
+    <v-container fluid class="fill-height pa-0">
       <history-display
-        :changeWindowTitle="changeWindowTitle"
-        :rawHistory="testResult.history"
+        :change-window-title="changeWindowTitle"
+        :raw-history="testResult.history"
         :message="messageProvider"
-        :screenDefinitionConfig="screenDefinitionConfig"
-        :scriptGenerationEnabled="!isViewerMode"
-        :testResultId="testResultId"
-        operationContextEnabled
+        :script-generation-enabled="!isViewerMode"
+        :test-result-id="testResultId"
+        operation-context-enabled
       ></history-display>
     </v-container>
 
     <execute-dialog
       :opened="dialogOpened"
       :title="dialogTitle"
+      :accept-button-disabled="dialogValue === ''"
       @accept="
         acceptEditDialog();
         closeDialog();
       "
       @cancel="closeDialog()"
-      :acceptButtonDisabled="dialogValue === ''"
     >
-      <template>
-        <v-text-field v-model="dialogValue" class="pt-0"></v-text-field>
-      </template>
+      <v-text-field v-model="dialogValue" class="pt-0"></v-text-field>
     </execute-dialog>
 
     <script-generation-option-dialog
@@ -80,8 +76,8 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
 
@@ -94,17 +90,17 @@
 </template>
 
 <script lang="ts">
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import HistoryDisplay from "@/components/organisms/history/HistoryDisplay.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/components/organisms/dialog/ScriptGenerationOptionDialog.vue";
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ScreenshotsDownloadButton from "@/components/organisms/common/ScreenshotsDownloadButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { computed, defineComponent, ref, inject } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
@@ -113,10 +109,11 @@ export default defineComponent({
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
     "download-link-dialog": DownloadLinkDialog,
-    "screenshots-download-button": ScreenshotsDownloadButton,
+    "screenshots-download-button": ScreenshotsDownloadButton
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
     const route = useRoute();
 
     const dialogOpened = ref(false);
@@ -136,7 +133,7 @@ export default defineComponent({
     const isViewerMode = inject("isViewerMode") ?? false;
 
     const generateTestScript = (option: {
-      testScript: { isSimple: boolean };
+      testScript: { isSimple: boolean; useMultiLocator: boolean };
       testData: { useDataDriven: boolean; maxGeneration: number };
       buttonDefinitions: {
         tagname: string;
@@ -145,31 +142,27 @@ export default defineComponent({
     }) => {
       (async () => {
         isGeneratingTestScripts.value = true;
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message(
-            "manage-header.generating-test-script"
-          ),
+        rootStore.openProgressDialog({
+          message: rootStore.message("manage-header.generating-test-script")
         });
 
         try {
-          const testScriptInfo = await store.dispatch(
-            "operationHistory/generateTestScripts",
-            {
-              option,
-            }
-          );
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
-          downloadLinkDialogMessage.value = store.getters.message(
+          const testScriptInfo = await operationHistoryStore.generateTestScripts({
+            option
+          });
+          downloadLinkDialogTitle.value = rootStore.message("common.confirm");
+          downloadLinkDialogMessage.value = rootStore.message(
             "test-result-page.generate-testscript-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = store.getters.message(
+            downloadLinkDialogAlertMessage.value = rootStore.message(
               "test-result-page.generate-alert-info"
             );
           }
 
-          downloadLinkDialogLinkUrl.value = `${store.state.repositoryService.serviceUrl}/${testScriptInfo.outputUrl}`;
+          downloadLinkDialogLinkUrl.value = rootStore.repositoryService
+            ? `${rootStore.repositoryService.serviceUrl}/${testScriptInfo.outputUrl}`
+            : "";
           scriptGenerationOptionDialogIsOpened.value = false;
           downloadLinkDialogOpened.value = true;
         } catch (error) {
@@ -180,7 +173,7 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
           scriptGenerationOptionDialogIsOpened.value = false;
           isGeneratingTestScripts.value = false;
         }
@@ -188,30 +181,23 @@ export default defineComponent({
     };
 
     const testResultId = computed((): string => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.id;
+      return operationHistoryStore.testResultInfo.id;
     });
 
     const testResult = computed(() => {
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = operationHistoryStore.history;
 
       return { history };
     });
 
-    const screenDefinitionConfig = computed(() => {
-      return store.state.projectSettings.config.screenDefinition;
-    });
-
     const messageProvider = computed((): MessageProvider => {
-      return store.getters.message;
+      return rootStore.message;
     });
 
     const changeWindowTitle = (windowTitle: string) => {
-      const windowTitlePrefix = store.getters.message(route.meta?.title ?? "");
-      store.dispatch("changeWindowTitle", {
-        title: `${windowTitlePrefix} [${windowTitle}]`,
+      const windowTitlePrefix = rootStore.message(route.meta?.title ?? "");
+      rootStore.changeWindowTitle({
+        title: `${windowTitlePrefix} [${windowTitle}]`
       });
     };
 
@@ -225,7 +211,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: rootStore.message,
       dialogOpened,
       dialogTitle,
       dialogValue,
@@ -241,12 +227,11 @@ export default defineComponent({
       generateTestScript,
       testResultId,
       testResult,
-      screenDefinitionConfig,
       messageProvider,
       changeWindowTitle,
       acceptEditDialog,
-      closeDialog,
+      closeDialog
     };
-  },
+  }
 });
 </script>

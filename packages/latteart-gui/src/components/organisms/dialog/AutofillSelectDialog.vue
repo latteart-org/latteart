@@ -17,60 +17,53 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('autofill-select-dialog.title')"
+    :title="$t('autofill-select-dialog.title')"
     @accept="
       accept();
       close();
     "
     @cancel="close()"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ message }}
-      </div>
-      <v-select
-        :label="store.getters.message('autofill-select-dialog.form-label')"
-        :items="selectList"
-        item-text="settingName"
-        item-value="index"
-        @change="selectGroup"
-      ></v-select>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ message }}
+    </div>
+    <v-select
+      :label="$t('autofill-select-dialog.form-label')"
+      :items="selectList"
+      item-title="settingName"
+      item-value="index"
+      @update:model-value="selectGroup"
+    ></v-select>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { watch } from "vue";
 
 export default defineComponent({
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const selectedIndex = ref(-1);
     const opened = ref(false);
 
-    const dialogData = computed(
-      (): {
-        autofillConditionGroups: AutofillConditionGroup[];
-        message: string;
-      } | null => {
-        const data = (
-          (store.state as any).captureControl as CaptureControlState
-        )?.autofillSelectDialogData;
-        opened.value = !!data?.autofillConditionGroups;
-        return (
-          ((store.state as any).captureControl as CaptureControlState)
-            ?.autofillSelectDialogData ?? null
-        );
-      }
-    );
+    const dialogData = computed(() => {
+      return captureControlStore.autofillSelectDialogData ?? null;
+    });
+
+    watch(dialogData, () => {
+      const data = captureControlStore.autofillSelectDialogData;
+      opened.value = !!data?.autofillConditionGroups;
+    });
 
     const autofillConditionGroups = computed((): AutofillConditionGroup[] => {
       return dialogData.value?.autofillConditionGroups ?? [];
@@ -80,16 +73,14 @@ export default defineComponent({
       return dialogData.value?.message ?? "";
     });
 
-    const selectList = computed(
-      (): { settingName: string; index: number }[] => {
-        return (autofillConditionGroups.value ?? []).map((group, index) => {
-          return {
-            settingName: group.settingName,
-            index,
-          };
-        });
-      }
-    );
+    const selectList = computed((): { settingName: string; index: number }[] => {
+      return (autofillConditionGroups.value ?? []).map((group, index) => {
+        return {
+          settingName: group.settingName,
+          index
+        };
+      });
+    });
 
     const selectGroup = (index: number) => {
       selectedIndex.value = index;
@@ -99,9 +90,8 @@ export default defineComponent({
       if (autofillConditionGroups.value === null || selectedIndex.value < 0) {
         return;
       }
-      await store.dispatch("captureControl/autofill", {
-        autofillConditionGroup:
-          autofillConditionGroups.value[selectedIndex.value],
+      await captureControlStore.autofill({
+        autofillConditionGroup: autofillConditionGroups.value[selectedIndex.value]
       });
       await close();
     };
@@ -109,20 +99,20 @@ export default defineComponent({
     const close = async (): Promise<void> => {
       opened.value = false;
       await new Promise((s) => setTimeout(s, 300));
-      store.commit("captureControl/setAutofillSelectDialog", {
-        autofillConditionGroups: null,
-      });
+      captureControlStore.autofillSelectDialogData = {
+        autofillConditionGroups: null
+      };
     };
 
     return {
-      store,
+      t: rootStore.message,
       opened,
       message,
       selectList,
       selectGroup,
       accept,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

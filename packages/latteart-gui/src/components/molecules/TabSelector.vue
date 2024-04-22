@@ -15,47 +15,44 @@
 -->
 
 <template>
-  <v-tabs
-    dark
-    background-color="latteart-main"
-    show-arrows
-    :value="selectedItemIndex"
-  >
-    <v-tabs-slider color="yellow"></v-tabs-slider>
-    <v-tab dark v-for="item in items" :key="item.id" @click="select(item.id)">
+  <v-tabs bg-color="#424242" slider-color="yellow" show-arrows :model-value="selectedItemIndex">
+    <v-tab v-for="item in items" :key="item.id" dark @click="select(item.id)">
       {{ wordOmitted(item.name, 10) }}
     </v-tab>
   </v-tabs>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { computed, defineComponent, type PropType } from "vue";
 
-@Component
-export default class TabSelector extends Vue {
-  @Prop({ type: Array, default: [] })
-  public readonly items!: { id: string; name: string }[];
-  @Prop({ type: String, default: "" })
-  public readonly selectedItemId!: string;
+export default defineComponent({
+  props: {
+    items: {
+      type: Array as PropType<{ id: string; name: string }[]>,
+      default: () => []
+    },
+    selectedItemId: { type: String, default: "" }
+  },
+  setup(props, context) {
+    const selectedItemIndex = computed(() => {
+      const index = props.items.findIndex((item) => item.id === props.selectedItemId);
 
-  private get selectedItemIndex() {
-    const index = this.items.findIndex(
-      (item) => item.id === this.selectedItemId
-    );
+      return index < 0 ? null : index;
+    });
 
-    return index < 0 ? null : index;
+    const select = (id: string): void => {
+      context.emit("select", id);
+    };
+
+    const wordOmitted = (word: string, length: number): string => {
+      if (word.length > length) {
+        return `${word.substr(0, length)}...`;
+      }
+
+      return word;
+    };
+
+    return { selectedItemIndex, select, wordOmitted };
   }
-
-  private select(id: string): void {
-    this.$emit("select", id);
-  }
-
-  private wordOmitted(word: string, length: number): string {
-    if (word.length > length) {
-      return `${word.substr(0, length)}...`;
-    }
-
-    return word;
-  }
-}
+});
 </script>

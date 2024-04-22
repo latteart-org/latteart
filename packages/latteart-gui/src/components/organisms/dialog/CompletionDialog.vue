@@ -19,39 +19,37 @@
     :opened="opened"
     :title="title"
     :message="message"
-    :iconOpts="{ text: 'info', color: 'blue' }"
+    :icon-opts="{ text: 'info', color: 'blue' }"
     @close="close()"
   />
 </template>
 
 <script lang="ts">
+import { useCaptureControlStore } from "@/stores/captureControl";
 import AlertDialog from "../../molecules/AlertDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
-import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   components: {
-    "alert-dialog": AlertDialog,
+    "alert-dialog": AlertDialog
   },
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
 
     const opened = ref(false);
-
-    const captureControlState = computed(() => {
-      return (store.state as any).captureControl as CaptureControlState;
-    });
 
     const completionDialogData = computed(
       (): {
         title: string;
         message: string;
       } | null => {
-        opened.value = !!captureControlState.value?.completionDialogData;
-        return captureControlState.value?.completionDialogData ?? null;
+        return captureControlStore.completionDialogData ?? null;
       }
     );
+
+    watch(completionDialogData, () => {
+      opened.value = !!captureControlStore.completionDialogData;
+    });
 
     const title = computed((): string => {
       return completionDialogData.value?.title ?? "aa";
@@ -64,15 +62,15 @@ export default defineComponent({
     const close = async (): Promise<void> => {
       opened.value = false;
       await new Promise((s) => setTimeout(s, 300));
-      store.commit("captureControl/setCompletionDialog", null);
+      captureControlStore.completionDialogData = null;
     };
 
     return {
       opened,
       title,
       message,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

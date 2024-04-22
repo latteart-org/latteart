@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { ProjectEntity } from "./ProjectEntity";
 
 @Entity("SNAPSHOTS")
 export class SnapshotEntity {
-  @ManyToOne(() => ProjectEntity, (project) => project.snapshots, {
-    primary: true,
-  })
+  @PrimaryColumn({ name: "project_id" })
+  projectId!: string;
+
+  @ManyToOne(() => ProjectEntity, (project) => project.snapshots)
   @JoinColumn({ name: "project_id" })
   project!: ProjectEntity;
 

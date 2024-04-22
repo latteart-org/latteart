@@ -20,11 +20,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
-          :label="
-            store.getters.message(
-              'config-page.comparison-exclude-items-enabled'
-            )
-          "
+          :label="$t('config-page.comparison-exclude-items-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -33,26 +29,20 @@
         <v-select
           v-model="excludeItems"
           :items="tempExcludeItems"
-          item-text="text"
+          item-title="text"
           item-value="value"
           :menu-props="{ maxHeight: '400' }"
-          :label="
-            store.getters.message('config-page.comparison-exclude-items-value')
-          "
+          :label="$t('config-page.comparison-exclude-items-value')"
           multiple
-          @change="changeExcludeItems"
           :disabled="!isExcludeItemsEnabled"
           class="px-1"
+          @update:model-value="changeExcludeItems"
         ></v-select>
       </v-col>
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
-          :label="
-            store.getters.message(
-              'config-page.comparison-exclude-elements-enabled'
-            )
-          "
+          :label="$t('config-page.comparison-exclude-elements-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -62,15 +52,11 @@
           v-model="excludeElements"
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
-          :label="
-            store.getters.message(
-              'config-page.comparison-exclude-elements-tagname'
-            )
-          "
+          :label="$t('config-page.comparison-exclude-elements-tagname')"
           multiple
-          @change="changeExcludeElements"
           :disabled="!isExcludeElementsEnabled"
           class="px-1"
+          @update:model-value="changeExcludeElements"
         ></v-select>
       </v-col>
     </v-row>
@@ -78,9 +64,9 @@
 </template>
 
 <script lang="ts">
-import { TestResultComparisonSetting } from "@/lib/common/settings/Settings";
+import { type TestResultComparisonSetting } from "@/lib/common/settings/Settings";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -88,24 +74,25 @@ export default defineComponent({
     tags: {
       type: Array as PropType<string[]>,
       default: () => [],
-      required: true,
+      required: true
     },
     setting: {
       type: Object as PropType<TestResultComparisonSetting>,
       default: () => {
         /** nothing */
       },
-      required: true,
-    },
+      required: true
+    }
   },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
+    const t = useRootStore().message;
 
     const excludeItemValues = ref<string[]>([]);
     const excludeElementTags = ref<string[]>([]);
     const tempSetting = ref<TestResultComparisonSetting>({
       excludeItems: { isEnabled: false, values: [] },
-      excludeElements: { isEnabled: false, values: [] },
+      excludeElements: { isEnabled: false, values: [] }
     });
 
     const updateTempSetting = () => {
@@ -113,33 +100,27 @@ export default defineComponent({
     };
 
     const tempTags = computed(() => {
-      return props.tags.sort();
+      return [...props.tags].sort();
     });
 
     const tempExcludeItems = computed((): { text: string; value: string }[] => {
       return [
         {
-          text: `${store.getters.message(
-            "test-result-comparison-items.title"
-          )}`,
-          value: "title",
+          text: `${t("test-result-comparison-items.title")}`,
+          value: "title"
         },
         {
-          text: `${store.getters.message("test-result-comparison-items.url")}`,
-          value: "url",
+          text: `${t("test-result-comparison-items.url")}`,
+          value: "url"
         },
         {
-          text: `${store.getters.message(
-            "test-result-comparison-items.elementTexts"
-          )}`,
-          value: "elementTexts",
+          text: `${t("test-result-comparison-items.elementTexts")}`,
+          value: "elementTexts"
         },
         {
-          text: `${store.getters.message(
-            "test-result-comparison-items.screenshot"
-          )}`,
-          value: "screenshot",
-        },
+          text: `${t("test-result-comparison-items.screenshot")}`,
+          value: "screenshot"
+        }
       ];
     });
 
@@ -150,15 +131,15 @@ export default defineComponent({
           testResultComparison: {
             excludeItems: {
               isEnabled,
-              values: props.setting.excludeItems.values,
+              values: props.setting.excludeItems.values
             },
             excludeElements: {
               isEnabled: props.setting.excludeElements.isEnabled,
-              values: props.setting.excludeElements.values,
-            },
-          },
+              values: props.setting.excludeElements.values
+            }
+          }
         });
-      },
+      }
     });
 
     const isExcludeElementsEnabled = computed({
@@ -168,30 +149,29 @@ export default defineComponent({
           testResultComparison: {
             excludeItems: {
               isEnabled: props.setting.excludeItems.isEnabled,
-              values: props.setting.excludeItems.values,
+              values: props.setting.excludeItems.values
             },
             excludeElements: {
               isEnabled,
-              values: props.setting.excludeElements.values,
-            },
-          },
+              values: props.setting.excludeElements.values
+            }
+          }
         });
-      },
+      }
     });
 
     const excludeItems = computed({
       get: (): string[] => props.setting.excludeItems.values,
       set: (items: string[]) => {
         excludeItemValues.value = items;
-      },
+      }
     });
 
     const excludeElements = computed({
-      get: (): string[] =>
-        props.setting.excludeElements.values.map(({ tagname }) => tagname),
+      get: (): string[] => props.setting.excludeElements.values.map(({ tagname }) => tagname),
       set: (tags: string[]) => {
         excludeElementTags.value = tags;
-      },
+      }
     });
 
     const changeExcludeItems = () => {
@@ -203,13 +183,13 @@ export default defineComponent({
         testResultComparison: {
           excludeItems: {
             isEnabled: props.setting.excludeItems.isEnabled,
-            values: tmpList,
+            values: tmpList
           },
           excludeElements: {
             isEnabled: props.setting.excludeElements.isEnabled,
-            values: props.setting.excludeElements.values,
-          },
-        },
+            values: props.setting.excludeElements.values
+          }
+        }
       });
     };
 
@@ -226,13 +206,13 @@ export default defineComponent({
         testResultComparison: {
           excludeItems: {
             isEnabled: props.setting.excludeItems.isEnabled,
-            values: props.setting.excludeItems.values,
+            values: props.setting.excludeItems.values
           },
           excludeElements: {
             isEnabled: props.setting.excludeElements.isEnabled,
-            values: tmpList,
-          },
-        },
+            values: tmpList
+          }
+        }
       });
     };
 
@@ -240,7 +220,7 @@ export default defineComponent({
     watch(setting, updateTempSetting);
 
     return {
-      store,
+      t,
       tempTags,
       tempExcludeItems,
       isExcludeItemsEnabled,
@@ -248,9 +228,9 @@ export default defineComponent({
       excludeItems,
       excludeElements,
       changeExcludeItems,
-      changeExcludeElements,
+      changeExcludeElements
     };
-  },
+  }
 });
 </script>
 

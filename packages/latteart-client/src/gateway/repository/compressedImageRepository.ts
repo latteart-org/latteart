@@ -22,15 +22,35 @@ import {
   createConnectionRefusedFailure,
 } from "./result";
 
-export class CompressedImageRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type CompressedImageRepository = {
   /**
    * Compress screenshot of note.
    * @param testResultId  Test result id.
    * @param noteId  Note id.
    * @returns File path after compression.
    */
+  postNoteImage(
+    testResultId: string,
+    noteId: string
+  ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>>;
+
+  /**
+   * Compress screenshot of test step.
+   * @param testResultId  Test result id.
+   * @param testStepId  Test step id of the target test step.
+   * @returns File path after compression.
+   */
+  postTestStepImage(
+    testResultId: string,
+    testStepId: string
+  ): Promise<RepositoryAccessResult<{ imageFileUrl: string }>>;
+};
+
+export class CompressedImageRepositoryImpl
+  implements CompressedImageRepository
+{
+  constructor(private restClient: RESTClient) {}
+
   public async postNoteImage(
     testResultId: string,
     noteId: string
@@ -59,12 +79,6 @@ export class CompressedImageRepository {
     }
   }
 
-  /**
-   * Compress screenshot of test step.
-   * @param testResultId  Test result id.
-   * @param testStepId  Test step id of the target test step.
-   * @returns File path after compression.
-   */
   public async postTestStepImage(
     testResultId: string,
     testStepId: string

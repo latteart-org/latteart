@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid fill-height v-if="testMatrix">
+  <v-container v-if="testMatrix" fluid>
     <v-row>
       <v-col class="ma-2">{{ testMatrix.name }}</v-col>
     </v-row>
@@ -24,21 +24,22 @@
         <v-expansion-panels v-model="expandedPanelIndex">
           <v-expansion-panel
             v-for="(group, index) in testMatrix.groups"
+            :id="`groupShowArea${index}`"
             :key="group.id"
             class="py-0"
-            :id="`groupShowArea${index}`"
+            :value="index"
           >
-            <v-expansion-panel-header>
-              <div :title="group.name" class="ellipsis">{{ group.name }}</div>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-title>
+              <div :title="group.name" class="text-truncate">{{ group.name }}</div>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
               <group-viewer
-                :testMatrixId="testMatrixId"
-                :viewPoints="testMatrix.viewPoints"
-                :displayedStories="displayedStories"
+                :test-matrix-id="testMatrixId"
+                :view-points="testMatrix.viewPoints"
+                :displayed-stories="displayedStories"
                 :group="group"
               ></group-viewer>
-            </v-expansion-panel-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
@@ -48,21 +49,21 @@
 
 <script lang="ts">
 import GroupViewer from "./GroupViewer.vue";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
+import { type Story, type TestMatrix } from "@/lib/testManagement/types";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
+  components: {
+    "group-viewer": GroupViewer
+  },
   props: {
     testMatrixId: { type: String, default: "", required: true },
     search: { type: String, default: "", required: false },
-    completionFilter: { type: Boolean, default: false, required: true },
-  },
-  components: {
-    "group-viewer": GroupViewer,
+    completionFilter: { type: Boolean, default: false, required: true }
   },
   setup(props) {
-    const store = useStore();
+    const testManagementStore = useTestManagementStore();
 
     const expandedPanelIndex = ref<number | undefined | null>(null);
     const displayedStories = ref<string[] | null>(null);
@@ -72,15 +73,12 @@ export default defineComponent({
     });
 
     const targetTestMatrix = computed((): TestMatrix | undefined => {
-      return store.getters["testManagement/findTestMatrix"](props.testMatrixId);
+      return testManagementStore.findTestMatrix(props.testMatrixId);
     });
 
     const stories = computed((): Story[] => {
-      const targetStories: Story[] =
-        store.getters["testManagement/getStories"]();
-      return targetStories.filter(
-        ({ testMatrixId }) => testMatrixId === props.testMatrixId
-      );
+      const targetStories: Story[] = testManagementStore.getStories();
+      return targetStories.filter(({ testMatrixId }) => testMatrixId === props.testMatrixId);
     });
 
     const testMatrix = ref<TestMatrix | undefined>(targetTestMatrix.value);
@@ -138,28 +136,20 @@ export default defineComponent({
       const filteredStories = filterStories();
       displayedStories.value = filteredStories.map((story) => story.id);
 
-      const testTargetIds = new Set(
-        filteredStories.map(({ testTargetId }) => testTargetId)
-      );
+      const testTargetIds = new Set(filteredStories.map(({ testTargetId }) => testTargetId));
 
       const groups = targetTestMatrix.value.groups.map((group) => {
-        const testTargets = group.testTargets.filter(({ id }) =>
-          testTargetIds.has(id)
-        );
+        const testTargets = group.testTargets.filter(({ id }) => testTargetIds.has(id));
         return { ...group, testTargets };
       });
 
-      const viewPointIds = new Set(
-        filteredStories.map(({ viewPointId }) => viewPointId)
-      );
-      const viewPoints = targetTestMatrix.value.viewPoints.filter(({ id }) =>
-        viewPointIds.has(id)
-      );
+      const viewPointIds = new Set(filteredStories.map(({ viewPointId }) => viewPointId));
+      const viewPoints = targetTestMatrix.value.viewPoints.filter(({ id }) => viewPointIds.has(id));
 
       testMatrix.value = {
         ...targetTestMatrix.value,
         groups,
-        viewPoints,
+        viewPoints
       };
     };
 
@@ -224,12 +214,11 @@ export default defineComponent({
     initializePanels();
 
     return {
-      store,
       expandedPanelIndex,
       testMatrix,
-      displayedStories,
+      displayedStories
     };
-  },
+  }
 });
 </script>
 

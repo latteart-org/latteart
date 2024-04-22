@@ -18,133 +18,120 @@
   <execute-dialog
     :opened="opened"
     :title="dialogTitle"
+    :accept-button-disabled="testMatrix.name === ''"
     @accept="update"
     @cancel="closeDialog"
-    :acceptButtonDisabled="testMatrix.name === ''"
   >
-    <template>
-      <v-container>
-        <v-row class="mt-2">
-          <v-text-field
-            :label="
-              store.getters.message('test-matrix-dialog.test-matrix-name')
-            "
-            v-model="testMatrix.name"
-            class="pt-0"
-          ></v-text-field>
-        </v-row>
-        <v-row>
-          <v-card>
-            <v-card-title>
-              {{
-                store.getters.message("test-matrix-dialog.setting-viewPoint")
-              }}
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row v-if="isCreate">
-                  <v-select
-                    v-model="selectedViewPointsPresetId"
-                    @change="changeSelectedViewPoints"
-                    :label="store.getters.message('test-matrix-dialog.preset')"
-                    :items="viewPointsPresetsWithUnselected"
-                    item-text="name"
-                    item-value="id"
-                  ></v-select>
-                </v-row>
-                <v-row>
-                  <v-expansion-panels>
-                    <v-expansion-panel
-                      v-for="(tempViewPoint, index) in tempViewPoints"
-                      :key="tempViewPoint.key + index"
-                    >
-                      <v-expansion-panel-header>
-                        <v-row>
-                          <v-col cols="9">
-                            <v-text-field
-                              :placeholder="
-                                store.getters.message(
-                                  'test-matrix-dialog.viewPoint-name'
-                                )
-                              "
-                              v-model="tempViewPoint.name"
-                              @click="(e) => e.stopPropagation()"
-                              class="view-point-name"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="1">
-                            <up-down-arrows
-                              :index="index"
-                              :upDisabled="index <= 0"
-                              :downDisabled="tempViewPoints.length - 1 <= index"
-                              @up="upViewPoint"
-                              @down="downViewPoint"
-                            />
-                          </v-col>
-                          <v-col cols="2" align-self="center">
-                            <v-btn
-                              text
-                              icon
-                              color="error"
-                              @click="deleteTempViewPoint(index)"
-                              ><v-icon>delete</v-icon></v-btn
-                            >
-                          </v-col>
-                        </v-row>
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        <div class="view-point-description">
-                          <v-textarea
-                            outlined
-                            rows="3"
-                            v-model="tempViewPoint.description"
-                            :placeholder="
-                              store.getters.message(
-                                'test-matrix-dialog.view-point-description'
-                              )
-                            "
-                          ></v-textarea>
-                        </div>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </v-row>
-                <v-row>
-                  <v-btn small @click="createTempViewPoint" class="mt-4">{{
-                    store.getters.message("test-matrix-dialog.new-viewPoint")
-                  }}</v-btn>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-row>
-      </v-container>
-    </template>
+    <v-container>
+      <v-row class="mt-2">
+        <v-text-field
+          v-model="testMatrix.name"
+          :label="$t('test-matrix-dialog.test-matrix-name')"
+          class="pt-0"
+        ></v-text-field>
+      </v-row>
+      <v-row>
+        <v-card>
+          <v-card-title>
+            {{ $t("test-matrix-dialog.setting-viewPoint") }}
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row v-if="isCreate">
+                <v-select
+                  v-model="selectedViewPointsPresetId"
+                  :label="$t('test-matrix-dialog.preset')"
+                  :items="viewPointsPresetsWithUnselected"
+                  item-title="name"
+                  item-value="id"
+                  @update:model-value="changeSelectedViewPoints"
+                ></v-select>
+              </v-row>
+              <v-row>
+                <v-expansion-panels>
+                  <v-expansion-panel
+                    v-for="(tempViewPoint, index) in tempViewPoints"
+                    :key="tempViewPoint.key + index"
+                  >
+                    <v-expansion-panel-title>
+                      <v-row>
+                        <v-col cols="9">
+                          <v-text-field
+                            v-model="tempViewPoint.name"
+                            :placeholder="$t('test-matrix-dialog.viewPoint-name')"
+                            class="view-point-name"
+                            @click="(e: any) => e.stopPropagation()"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="1">
+                          <up-down-arrows
+                            :index="index"
+                            :up-disabled="index <= 0"
+                            :down-disabled="tempViewPoints.length - 1 <= index"
+                            @up="upViewPoint"
+                            @down="downViewPoint"
+                          />
+                        </v-col>
+                        <v-col cols="2" align-self="center">
+                          <v-btn
+                            variant="text"
+                            icon
+                            color="error"
+                            @click="deleteTempViewPoint(index)"
+                            ><v-icon>delete</v-icon></v-btn
+                          >
+                        </v-col>
+                      </v-row>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <div class="view-point-description">
+                        <v-textarea
+                          v-model="tempViewPoint.description"
+                          variant="outlined"
+                          rows="3"
+                          :placeholder="$t('test-matrix-dialog.view-point-description')"
+                        ></v-textarea>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-row>
+              <v-row>
+                <v-btn size="small" class="mt-4" @click="createTempViewPoint">{{
+                  $t("test-matrix-dialog.new-viewPoint")
+                }}</v-btn>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-row>
+    </v-container>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
+import type { ViewPointsPreset, TestMatrix } from "@/lib/testManagement/types";
 import UpDownArrows from "@/components/molecules/UpDownArrows.vue";
-import { UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
+import { type UpdateTestMatrixObject } from "@/components/organisms/testMatrixEdit/ManageEditTypes";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
-  props: {
-    testMatrixBeingEdited: {
-      type: Object as PropType<TestMatrix>,
-      default: { name: "", id: "", viewPoints: [] },
-    },
-  },
   components: {
     "execute-dialog": ExecuteDialog,
-    "up-down-arrows": UpDownArrows,
+    "up-down-arrows": UpDownArrows
+  },
+  props: {
+    testMatrixBeingEdited: {
+      type: Object as PropType<TestMatrix | null>,
+      default: () => {
+        return { id: "", name: "", index: 0, groups: [], viewPoints: [] };
+      }
+    }
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const selectedViewPointsPresetId = ref("");
     const tempViewPoints = ref<
@@ -160,17 +147,16 @@ export default defineComponent({
     const testMatrix = ref<{ name: string; id: string }>({ name: "", id: "" });
 
     const viewPointsPresets = computed((): ViewPointsPreset[] => {
-      return store.state.projectSettings.viewPointsPreset;
+      return rootStore.projectSettings.viewPointsPreset;
     });
 
     const viewPointsPresetsWithUnselected = computed((): ViewPointsPreset[] => {
       const presets: ViewPointsPreset[] = [];
       presets.push({
         id: "",
-        name: store.getters.message("test-matrix-dialog.unselected"),
-        viewPoints: [],
+        name: rootStore.message("test-matrix-dialog.unselected"),
+        viewPoints: []
       });
-      selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
 
       for (const pre of viewPointsPresets.value) {
         presets.push(pre);
@@ -187,19 +173,17 @@ export default defineComponent({
     });
 
     const dialogTitle = computed((): string => {
-      const key = `test-matrix-dialog.${
-        isCreate.value ? "create-test-matrix" : "edit-test-matrix"
-      }`;
-      return store.getters.message(key);
+      const key = `test-matrix-dialog.${isCreate.value ? "create-test-matrix" : "edit-test-matrix"}`;
+      return rootStore.message(key);
     });
 
-    const init = (initTestMatrix: TestMatrix): void => {
+    const init = (initTestMatrix: TestMatrix | null): void => {
       if (!initTestMatrix) {
         return;
       }
       testMatrix.value = {
         name: initTestMatrix.name,
-        id: initTestMatrix.id,
+        id: initTestMatrix.id
       };
       if (isCreate.value) {
         selectedViewPointsPresetId.value = viewPointsPresets.value[0]?.id ?? "";
@@ -212,7 +196,7 @@ export default defineComponent({
               name: viewPoint.name,
               index: index,
               id: viewPoint.id,
-              description: viewPoint.description,
+              description: viewPoint.description
             };
           })
           .sort((v1, v2) => {
@@ -231,7 +215,7 @@ export default defineComponent({
         name: "",
         description: "",
         index: tempViewPoints.value.length,
-        id: null,
+        id: null
       });
     };
 
@@ -251,7 +235,7 @@ export default defineComponent({
           name: viewPoint.name,
           description: viewPoint.description,
           index,
-          id: null,
+          id: null
         };
       });
     };
@@ -264,7 +248,7 @@ export default defineComponent({
         .map((viewPoint, index) => {
           return {
             ...viewPoint,
-            index,
+            index
           };
         });
     };
@@ -278,7 +262,7 @@ export default defineComponent({
         isCreate: isCreate.value,
         testMatrix: {
           name: testMatrix.value.name,
-          id: testMatrix.value.id,
+          id: testMatrix.value.id
         },
         viewPoints: tempViewPoints.value
           .filter((tempViewPoint) => {
@@ -289,9 +273,9 @@ export default defineComponent({
               name: tempViewPoint.name,
               id: tempViewPoint.id,
               description: tempViewPoint.description,
-              index: tempViewPoint.index,
+              index: tempViewPoint.index
             };
-          }),
+          })
       };
       context.emit("updateTestMatrix", updateTestMatrixObject);
 
@@ -316,13 +300,22 @@ export default defineComponent({
       });
     };
 
+    const setSelectedViewPointsPresetId = () => {
+      if (viewPointsPresets.value.length > 0) {
+        selectedViewPointsPresetId.value = viewPointsPresets.value[0].id;
+      } else {
+        selectedViewPointsPresetId.value = "";
+      }
+    };
+
     const { testMatrixBeingEdited } = toRefs(props);
     watch(testMatrixBeingEdited, init);
+    watch(viewPointsPresets, setSelectedViewPointsPresetId);
 
     key.value = 0;
 
     return {
-      store,
+      t: rootStore.message,
       selectedViewPointsPresetId,
       tempViewPoints,
       testMatrix,
@@ -336,9 +329,9 @@ export default defineComponent({
       closeDialog,
       update,
       upViewPoint,
-      downViewPoint,
+      downViewPoint
     };
-  },
+  }
 });
 </script>
 

@@ -21,24 +21,19 @@
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const currentWindowName = computed((): string => {
-      const captureControlState = (store.state as any)
-        .captureControl as CaptureControlState;
-      const operationHistoryState = (store.state as any)
-        .operationHistory as OperationHistoryState;
+      const session = captureControlStore.captureSession;
 
-      const session = captureControlState.captureSession;
-
-      const currentWindow = operationHistoryState?.windows.find((window) => {
+      const currentWindow = operationHistoryStore.windows.find((window) => {
         return session && window.value === session.currentWindowHandle;
       });
 
@@ -50,8 +45,8 @@ export default defineComponent({
     });
 
     return {
-      currentWindowName,
+      currentWindowName
     };
-  },
+  }
 });
 </script>

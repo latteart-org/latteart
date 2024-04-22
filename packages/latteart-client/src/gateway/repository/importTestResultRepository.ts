@@ -22,15 +22,24 @@ import {
   createConnectionRefusedFailure,
 } from "./result";
 
-export class ImportTestResultRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type ImportTestResultRepository = {
   /**
    * Import test result.
    * @param source.importFileUrl Source import file url.
    * @param dest.testResultId Destination local test result id.
    * @param dest.shouldSaveTemporary Whether to save temporary.
    */
+  postTestResult(
+    source: { testResultFile: { data: string; name: string } },
+    dest?: { testResultId?: string }
+  ): Promise<RepositoryAccessResult<{ testResultId: string }>>;
+};
+
+export class ImportTestResultRepositoryImpl
+  implements ImportTestResultRepository
+{
+  constructor(private restClient: RESTClient) {}
+
   public async postTestResult(
     source: { testResultFile: { data: string; name: string } },
     dest?: { testResultId?: string }

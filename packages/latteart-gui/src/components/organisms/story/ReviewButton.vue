@@ -16,14 +16,14 @@
 
 <template>
   <div>
-    <test-result-load-trigger :testResultIds="testResultIds">
-      <template v-slot:activator="{ on }">
+    <test-result-load-trigger :test-result-ids="testResultIds">
+      <template #activator="{ on }">
         <v-btn
           v-if="story.sessions.length > 0"
           :disabled="disabled"
           color="info"
           @click="toReviewPage(on)"
-          >{{ store.getters.message("story-page.do-review") }}</v-btn
+          >{{ $t("story-page.do-review") }}</v-btn
         >
       </template>
     </test-result-load-trigger>
@@ -31,65 +31,59 @@
 </template>
 
 <script lang="ts">
-import { Story } from "@/lib/testManagement/types";
+import { type Story } from "@/lib/testManagement/types";
 import * as StoryService from "@/lib/testManagement/Story";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
-import { useRouter } from "vue-router/composables";
+import { computed, defineComponent, type PropType } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "test-result-load-trigger": TestResultLoadTrigger
+  },
   props: {
     story: {
       type: Object as PropType<Story>,
       default: () => ({ sessions: [] }),
-      required: true,
+      required: true
     },
     sessionIds: {
       type: Array as PropType<string[]>,
       default: () => [],
-      required: true,
+      required: true
     },
-    disabled: { type: Boolean, default: false, required: true },
-  },
-  components: {
-    "test-result-load-trigger": TestResultLoadTrigger,
+    disabled: { type: Boolean, default: false, required: true }
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
-    const toReviewPage = async (
-      loadTestResults: () => Promise<void>
-    ): Promise<void> => {
+    const toReviewPage = async (loadTestResults: () => Promise<void>): Promise<void> => {
       await loadTestResults();
 
-      store.commit("testManagement/setTempStory", { story: props.story });
+      testManagementStore.setTempStory({ story: props.story });
 
       router.push({
-        path: `../review`,
-        query: { sessionIds: props.sessionIds },
+        name: "reviewPage",
+        query: { sessionIds: props.sessionIds }
       });
     };
 
     const testResultIds = computed(() => {
-      const sessions = StoryService.getTargetSessions(
-        props.story,
-        props.sessionIds
-      );
+      const sessions = StoryService.getTargetSessions(props.story, props.sessionIds);
       return (
-        sessions
-          ?.map((session) => session.testResultFiles.map((result) => result.id))
-          .flat() ?? []
+        sessions?.map((session) => session.testResultFiles.map((result) => result.id)).flat() ?? []
       );
     });
 
     return {
-      store,
+      t: rootStore.message,
       toReviewPage,
-      testResultIds,
+      testResultIds
     };
-  },
+  }
 });
 </script>

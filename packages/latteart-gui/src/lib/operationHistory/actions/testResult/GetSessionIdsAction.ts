@@ -14,32 +14,20 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
-const GET_SESSION_IDS_FAILED_MESSAGE_KEY =
-  "error.operation_history.get_session_ids_failed";
+const GET_SESSION_IDS_FAILED_MESSAGE_KEY = "error.operation_history.get_session_ids_failed";
 
 export class GetSessionIdsAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}
 
-  public async getSessionIds(
-    testResultId: string
-  ): Promise<ActionResult<Array<string>>> {
-    const result =
-      await this.repositoryService.testResultRepository.getSessionIds(
-        testResultId
-      );
+  public async getSessionIds(testResultId: string): Promise<ActionResult<Array<string>>> {
+    const result = await this.repositoryService.testResultRepository.getSessionIds(testResultId);
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: GET_SESSION_IDS_FAILED_MESSAGE_KEY,
+        messageKey: GET_SESSION_IDS_FAILED_MESSAGE_KEY
       });
     }
 

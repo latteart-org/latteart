@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { TestMatrix } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type TestMatrix } from "../types";
 
 export class DeleteGroupAction {
   public async deleteGroup(
@@ -28,30 +24,24 @@ export class DeleteGroupAction {
       testMatrixId: string;
       groupId: string;
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "testTargetGroupRepository" | "testMatrixRepository"
-    >
+    repositoryService: Pick<RepositoryService, "testTargetGroupRepository" | "testMatrixRepository">
   ): Promise<ActionResult<TestMatrix>> {
     const testTargetGroupResult =
-      await repositoryService.testTargetGroupRepository.deleteTestTargetGroup(
-        payload.groupId
-      );
+      await repositoryService.testTargetGroupRepository.deleteTestTargetGroup(payload.groupId);
 
     if (testTargetGroupResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testTargetGroupResult.error.message ?? "",
+        messageKey: testTargetGroupResult.error.message ?? ""
       });
     }
 
-    const testMatrixResult =
-      await repositoryService.testMatrixRepository.getTestMatrix(
-        payload.testMatrixId
-      );
+    const testMatrixResult = await repositoryService.testMatrixRepository.getTestMatrix(
+      payload.testMatrixId
+    );
 
     if (testMatrixResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testMatrixResult.error.message ?? "",
+        messageKey: testMatrixResult.error.message ?? ""
       });
     }
 

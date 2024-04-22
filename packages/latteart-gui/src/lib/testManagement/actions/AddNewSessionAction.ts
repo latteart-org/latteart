@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 import SessionDataConverter from "../SessionDataConverter";
-import { Session } from "../types";
+import { type Session } from "../types";
 
 export class AddNewSessionAction {
   public async addNewSession(
@@ -29,25 +25,19 @@ export class AddNewSessionAction {
       projectId: string;
       storyId: string;
     },
-    repositoryService: Pick<
-      RepositoryService,
-      "sessionRepository" | "serviceUrl"
-    >
+    repositoryService: Pick<RepositoryService, "sessionRepository" | "serviceUrl">
   ): Promise<ActionResult<Session>> {
-    const result = await repositoryService.sessionRepository.postSession(
-      payload.projectId,
-      { storyId: payload.storyId }
-    );
+    const result = await repositoryService.sessionRepository.postSession(payload.projectId, {
+      storyId: payload.storyId
+    });
 
     if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: result.error.message ?? "",
+        messageKey: result.error.message ?? ""
       });
     }
 
-    const convertedSession = new SessionDataConverter().convertToSession(
-      result.data
-    );
+    const convertedSession = new SessionDataConverter().convertToSession(result.data);
 
     return new ActionSuccess(convertedSession);
   }

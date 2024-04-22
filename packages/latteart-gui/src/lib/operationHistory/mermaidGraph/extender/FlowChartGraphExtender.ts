@@ -15,7 +15,7 @@
  */
 
 import * as d3 from "d3";
-import MermaidGraphExtender from "./MermaidGraphExtender";
+import type MermaidGraphExtender from "./MermaidGraphExtender";
 
 /**
  * A class that extends Mermaid's flowchart
@@ -60,7 +60,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
       },
       onClickScreenRect: () => {
         /* Do nothing */
-      },
+      }
     };
   }
 
@@ -87,7 +87,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
       const edgeArea = d3.select(nodes[i] as Node as d3.BaseType);
       this.registeredEventElementList.push({
         eventName: "click",
-        element: edgeArea,
+        element: edgeArea
       });
       edgeArea.on("click", () => {
         this.callback.onClickEdge(i);
@@ -99,7 +99,7 @@ export default class FlowChartGraphExtender implements MermaidGraphExtender {
       const rectArea = d3.select(nodes[i] as Node as d3.BaseType);
       this.registeredEventElementList.push({
         eventName: "click",
-        element: rectArea,
+        element: rectArea
       });
       rectArea.on("click", () => {
         this.callback.onClickScreenRect(i);

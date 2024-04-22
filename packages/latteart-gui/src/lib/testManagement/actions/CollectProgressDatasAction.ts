@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import {
-  RepositoryService,
-  DailyTestProgressForRepository,
-} from "latteart-client";
-import { Timestamp } from "@/lib/common/Timestamp";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService, type DailyTestProgressForRepository } from "latteart-client";
+import { type Timestamp } from "@/lib/common/Timestamp";
 
 const COLLECT_PROGRESS_DATAS_FAILED_MESSAGE_KEY =
   "error.test_management.collect_progress_datas_failed";
 
 export class CollectProgressDatasAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "projectRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "projectRepository">) {}
 
   public async collect(
     projectId: string,
@@ -39,22 +30,19 @@ export class CollectProgressDatasAction {
       period?: { since: Timestamp; until: Timestamp };
     } = {}
   ): Promise<ActionResult<DailyTestProgressForRepository[]>> {
-    const getTestProgressResult =
-      await this.repositoryService.projectRepository.getTestProgress(
-        projectId,
-        {
-          period: {
-            since: filter.period?.since.unix() ?? undefined,
-            until: filter.period
-              ? filter.period.until.unix() + 3600 * 24 - 1
-              : undefined,
-          },
+    const getTestProgressResult = await this.repositoryService.projectRepository.getTestProgress(
+      projectId,
+      {
+        period: {
+          since: filter.period?.since.unix() ?? undefined,
+          until: filter.period ? filter.period.until.unix() + 3600 * 24 - 1 : undefined
         }
-      );
+      }
+    );
 
     if (getTestProgressResult.isFailure()) {
       return new ActionFailure({
-        messageKey: COLLECT_PROGRESS_DATAS_FAILED_MESSAGE_KEY,
+        messageKey: COLLECT_PROGRESS_DATAS_FAILED_MESSAGE_KEY
       });
     }
 

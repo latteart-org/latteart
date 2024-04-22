@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { SessionForRepository } from "latteart-client";
-import { Session } from "./types";
+import { type SessionForRepository } from "latteart-client";
+import { type Session } from "./types";
 
 export default class SessionDataConverter {
   public convertToSession(target: Partial<SessionForRepository>): Session {
@@ -31,7 +31,7 @@ export default class SessionDataConverter {
       attachedFiles: target.attachedFiles ?? [],
       testResultFiles: target.testResultFiles ?? [],
       testPurposes: target.testPurposes ?? [],
-      notes: target.notes ?? [],
+      notes: target.notes ?? []
     };
   }
 }

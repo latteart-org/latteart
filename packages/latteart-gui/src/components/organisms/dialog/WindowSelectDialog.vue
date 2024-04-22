@@ -17,61 +17,54 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('app.target-tab-window')"
+    :title="$t('app.target-tab-window')"
     @accept="onAcceptWindowSelector()"
     @cancel="onCancelWindowSelector()"
   >
-    <template>
-      <v-select
-        :items="capturingWindowInfo.windows"
-        v-model="capturingWindowInfo.currentWindowHandle"
-      >
-      </v-select>
-    </template>
+    <v-select
+      v-model="capturingWindowInfo.currentWindowHandle"
+      :items="capturingWindowInfo.windows"
+    >
+    </v-select>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { WindowInfo } from "@/lib/operationHistory/types";
+import { type WindowInfo } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true },
-  },
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const capturingWindowInfo = ref<{
       currentWindowHandle: string;
       windows: WindowInfo[];
     }>({
       currentWindowHandle: "",
-      windows: [],
+      windows: []
     });
 
     const openWindowSelector = (): void => {
-      const captureControlState = (store.state as any)
-        .captureControl as CaptureControlState;
-      const operationHistoryState = (store.state as any)
-        .operationHistory as OperationHistoryState;
-
-      const windows = operationHistoryState.windows.filter((window) => {
-        return captureControlState.captureSession?.windowHandles.includes(
-          window.value
-        );
+      const windows = operationHistoryStore.windows.filter((window) => {
+        return captureControlStore.captureSession?.windowHandles.includes(window.value);
       });
 
-      if (props.opened && captureControlState.captureSession) {
+      if (props.opened && captureControlStore.captureSession) {
         capturingWindowInfo.value.currentWindowHandle =
-          captureControlState.captureSession.currentWindowHandle;
+          captureControlStore.captureSession.currentWindowHandle;
         capturingWindowInfo.value.windows.splice(
           0,
           capturingWindowInfo.value.windows.length,
@@ -82,8 +75,8 @@ export default defineComponent({
 
     const onAcceptWindowSelector = (): void => {
       (async () => {
-        await store.dispatch("captureControl/switchCapturingWindow", {
-          to: capturingWindowInfo.value.currentWindowHandle,
+        captureControlStore.switchCapturingWindow({
+          to: capturingWindowInfo.value.currentWindowHandle
         });
 
         context.emit("close");
@@ -104,11 +97,11 @@ export default defineComponent({
     }
 
     return {
-      store,
+      t: rootStore.message,
       capturingWindowInfo,
       onAcceptWindowSelector,
-      onCancelWindowSelector,
+      onCancelWindowSelector
     };
-  },
+  }
 });
 </script>

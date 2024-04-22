@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-container v-if="videoUrl" fluid fill-height pa-0>
+  <v-container v-if="videoUrl" fluid class="fill-height pa-0">
     <video-display
-      :videoUrl="videoUrl"
-      :pictureInPicture="isPipMode"
+      :video-url="videoUrl"
+      :picture-in-picture="isPipMode"
       @playing="isRectDisplayed = false"
-      @enterPictureInPicture="togglePipMode(true)"
-      @leavePictureInPicture="togglePipMode(false)"
+      @enter-picture-in-picture="togglePipMode(true)"
+      @leave-picture-in-picture="togglePipMode(false)"
     >
       <div v-if="isRectDisplayed" :style="rectStyle" class="rect-area"></div>
     </video-display>
@@ -30,31 +30,24 @@
 
 <script lang="ts">
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { computed, defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "video-display": VideoDisplay,
+    "video-display": VideoDisplay
   },
   setup() {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const isRectDisplayed = ref(false);
 
-    const operationHistoryState = computed(() => {
-      return (
-        ((store.state as any).operationHistory as OperationHistoryState) ?? null
-      );
-    });
-
     const isPipMode = computed(() => {
-      return operationHistoryState.value.isPictureInPictureWindowDisplayed;
+      return operationHistoryStore.isPictureInPictureWindowDisplayed;
     });
 
     const selectedOperationInfo = computed(() => {
-      return operationHistoryState.value.selectedOperationInfo;
+      return operationHistoryStore.selectedOperationInfo;
     });
 
     const rectStyle = computed(
@@ -65,12 +58,8 @@ export default defineComponent({
         height?: string;
         display: string;
       } => {
-        const screenImage = operationHistoryState.value.screenImage;
-        if (
-          !screenImage ||
-          !screenImage.background.video ||
-          !screenImage.overlay?.markerRect
-        ) {
+        const screenImage = operationHistoryStore.screenImage;
+        if (!screenImage || !screenImage.background.video || !screenImage.overlay?.markerRect) {
           return { display: "none" };
         }
         const { width, height, offset, markerRect } = screenImage.overlay;
@@ -79,14 +68,13 @@ export default defineComponent({
           left: `${(markerRect.left / width) * 100}%`,
           width: `${(markerRect.width / width) * 100}%`,
           height: `${(markerRect.height / height) * 100}%`,
-          display: "block",
+          display: "block"
         };
       }
     );
 
     const videoUrl = computed(() => {
-      isRectDisplayed.value = true;
-      const screenImage = operationHistoryState.value.screenImage;
+      const screenImage = operationHistoryStore.screenImage;
       if (!screenImage || !screenImage.background.video) {
         return "";
       }
@@ -98,9 +86,7 @@ export default defineComponent({
       if (isPipMode) {
         isRectDisplayed.value = false;
       }
-      store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
-        isDisplayed: isPipMode,
-      });
+      operationHistoryStore.isPictureInPictureWindowDisplayed = isPipMode;
     };
 
     const displayRect = () => {
@@ -110,6 +96,9 @@ export default defineComponent({
       isRectDisplayed.value = true;
     };
 
+    watch(videoUrl, () => {
+      isRectDisplayed.value = true;
+    });
     watch(selectedOperationInfo, displayRect);
 
     return {
@@ -117,9 +106,9 @@ export default defineComponent({
       isPipMode,
       rectStyle,
       videoUrl,
-      togglePipMode,
+      togglePipMode
     };
-  },
+  }
 });
 </script>
 

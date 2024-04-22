@@ -23,7 +23,40 @@ import {
 } from "./result";
 import { TestTargetForRepository } from "./types";
 
-export class TestTargetRepository {
+export type TestTargetRepository = {
+  getTestTarget(
+    projectId: string,
+    testTargetId: string
+  ): Promise<RepositoryAccessResult<TestTargetForRepository>>;
+
+  postTestTarget(
+    projectId: string,
+    body: {
+      testTargetGroupId: string;
+      name: string;
+    }
+  ): Promise<RepositoryAccessResult<TestTargetForRepository>>;
+
+  patchTestTarget(
+    projectId: string,
+    testTargetId: string,
+    body: {
+      name?: string;
+      index?: number;
+      plans?: {
+        viewPointId: string;
+        value: number;
+      }[];
+    }
+  ): Promise<RepositoryAccessResult<TestTargetForRepository>>;
+
+  deleteTestTarget(
+    projectId: string,
+    testTargetId: string
+  ): Promise<RepositoryAccessResult<void>>;
+};
+
+export class TestTargetRepositoryImpl implements TestTargetRepository {
   constructor(private restClient: RESTClient) {}
 
   public async getTestTarget(

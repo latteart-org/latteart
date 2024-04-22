@@ -15,13 +15,13 @@
  */
 
 import {
-  DailyTestProgressForRepository,
-  ProjectRepository,
-  RepositoryAccessResult,
+  type DailyTestProgressForRepository,
+  type ProjectRepository,
+  type RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  createConnectionRefusedFailure,
+  createConnectionRefusedFailure
 } from "latteart-client";
-import { Project } from "@/lib/testManagement/types";
+import { type Project } from "@/lib/testManagement/types";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 
 export interface ProgressData {
@@ -58,9 +58,7 @@ export class ProjectFileRepository implements ProjectRepository {
    * @param selectOption  Select option.
    * @returns Export File URL.
    */
-  public async postProjectForExport(): Promise<
-    RepositoryAccessResult<{ url: string }>
-  > {
+  public async postProjectForExport(): Promise<RepositoryAccessResult<{ url: string }>> {
     return createConnectionRefusedFailure();
   }
 
@@ -80,9 +78,7 @@ export class ProjectFileRepository implements ProjectRepository {
     return createConnectionRefusedFailure();
   }
 
-  public async postProject(): Promise<
-    RepositoryAccessResult<{ id: string; name: string }>
-  > {
+  public async postProject(): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
     return createConnectionRefusedFailure();
   }
 
@@ -93,10 +89,7 @@ export class ProjectFileRepository implements ProjectRepository {
     } = {}
   ): Promise<RepositoryAccessResult<DailyTestProgressForRepository[]>> {
     const filteredProgresses = this.progressFileData.filter(({ date }) => {
-      if (
-        filter.period?.since !== undefined &&
-        filter.period.until !== undefined
-      ) {
+      if (filter.period?.since !== undefined && filter.period.until !== undefined) {
         return new TimestampImpl(date).isBetween(
           new TimestampImpl(filter.period.since),
           new TimestampImpl(filter.period.until)
@@ -104,22 +97,18 @@ export class ProjectFileRepository implements ProjectRepository {
       }
 
       if (filter.period?.since !== undefined) {
-        return new TimestampImpl(date).isSameOrAfter(
-          new TimestampImpl(filter.period.since)
-        );
+        return new TimestampImpl(date).isSameOrAfter(new TimestampImpl(filter.period.since));
       }
 
       if (filter.period?.until !== undefined) {
-        return new TimestampImpl(date).isSameOrBefore(
-          new TimestampImpl(filter.period.until)
-        );
+        return new TimestampImpl(date).isSameOrBefore(new TimestampImpl(filter.period.until));
       }
 
       return true;
     });
 
     return createRepositoryAccessSuccess({
-      data: filteredProgresses,
+      data: filteredProgresses
     });
   }
 }

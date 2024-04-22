@@ -15,20 +15,19 @@
  */
 
 import {
-  TestMatrixForRepository,
-  GroupForRepository,
-  ViewPointForRepository,
-  TestTargetForRepository,
-  PlanForRepository,
-  StoryForRepository,
-  SessionForRepository,
-  AttachedFileForRepository,
-  TestResultFileForRepository,
-  ProjectForRepository,
-  DailyTestProgressForRepository,
-  PatchSessionDto,
-  NoteForRepository,
-  VideoFrame,
+  type TestMatrixForRepository,
+  type GroupForRepository,
+  type ViewPointForRepository,
+  type TestTargetForRepository,
+  type PlanForRepository,
+  type StoryForRepository,
+  type SessionForRepository,
+  type AttachedFileForRepository,
+  type TestResultFileForRepository,
+  type ProjectForRepository,
+  type DailyTestProgressForRepository,
+  type PatchSessionDto,
+  type NoteForRepository
 } from "latteart-client";
 
 export type TestMatrix = TestMatrixForRepository;
@@ -51,10 +50,7 @@ export type Story = Omit<StoryForRepository, "sessions"> & {
   sessions: Session[];
 };
 
-export type Session = Omit<
-  SessionForRepository,
-  "testResultFiles" | "notes"
-> & {
+export type Session = Omit<SessionForRepository, "testResultFiles" | "notes"> & {
   testResultFiles: TestResultFile[];
   notes: NoteForRepository[];
 };

@@ -1,7 +1,9 @@
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { TransactionRunner } from "@/TransactionRunner";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { TestTargetGroupsService } from "@/services/TestTargetGroupsService";
@@ -10,7 +12,7 @@ import { TestTargetEntity } from "@/entities/TestTargetEntity";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -20,15 +22,15 @@ afterEach(async () => {
 describe("TestTargetGroupsService", () => {
   describe("#get", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -36,21 +38,25 @@ describe("TestTargetGroupsService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const testTarget1 = await getRepository(TestTargetEntity).save({
+      const testTarget1 = await TestDataSource.getRepository(
+        TestTargetEntity
+      ).save({
         name: "testTargetName",
         index: 0,
         testTargetGroup: testTargetGroupEntity,
         text: "[]",
       });
 
-      const testTarget2 = await getRepository(TestTargetEntity).save({
+      const testTarget2 = await TestDataSource.getRepository(
+        TestTargetEntity
+      ).save({
         name: "testTargetName2",
         index: 1,
         testTargetGroup: testTargetGroupEntity,
         text: "[]",
       });
 
-      const result = await new TestTargetGroupsService().get(
+      const result = await new TestTargetGroupsService(TestDataSource).get(
         testTargetGroupEntity.id
       );
 
@@ -77,7 +83,7 @@ describe("TestTargetGroupsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetGroupsService().get(dummyId);
+        await new TestTargetGroupsService(TestDataSource).get(dummyId);
       } catch (e) {
         expect((e as Error).message).toEqual(
           `TestTargetGroup not found. ${dummyId}`
@@ -88,15 +94,15 @@ describe("TestTargetGroupsService", () => {
 
   describe("#post", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const result = await new TestTargetGroupsService().post({
+      const result = await new TestTargetGroupsService(TestDataSource).post({
         testMatrixId: testMatrixEntity.id,
         name: "testTargetGroupName",
       });
@@ -112,7 +118,7 @@ describe("TestTargetGroupsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetGroupsService().post({
+        await new TestTargetGroupsService(TestDataSource).post({
           testMatrixId: dummyId,
           name: "testMatrixName",
         });
@@ -126,15 +132,15 @@ describe("TestTargetGroupsService", () => {
 
   describe("#patch", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixEntity = await getRepository(TestMatrixEntity).save(
-        new TestMatrixEntity("testMatrixName", 0, projectEntity)
-      );
+      const testMatrixEntity = await TestDataSource.getRepository(
+        TestMatrixEntity
+      ).save(new TestMatrixEntity("testMatrixName", 0, projectEntity));
 
-      const testTargetGroupEntity = await getRepository(
+      const testTargetGroupEntity = await TestDataSource.getRepository(
         TestTargetGroupEntity
       ).save({
         name: "testTargetGroupName",
@@ -142,7 +148,7 @@ describe("TestTargetGroupsService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      const result = await new TestTargetGroupsService().patch(
+      const result = await new TestTargetGroupsService(TestDataSource).patch(
         testTargetGroupEntity.id,
         {
           name: "testTargetGroupName2",
@@ -160,7 +166,7 @@ describe("TestTargetGroupsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetGroupsService().patch(dummyId, {
+        await new TestTargetGroupsService(TestDataSource).patch(dummyId, {
           name: "testTargetGroupName",
         });
       } catch (e) {
@@ -173,16 +179,19 @@ describe("TestTargetGroupsService", () => {
 
   describe("#delete", () => {
     it("正常系", async () => {
-      const projectEntity = await getRepository(ProjectEntity).save(
-        new ProjectEntity("projectName")
-      );
+      const projectEntity = await TestDataSource.getRepository(
+        ProjectEntity
+      ).save(new ProjectEntity("projectName"));
 
-      const testMatrixRepository = getRepository(TestMatrixEntity);
+      const testMatrixRepository =
+        TestDataSource.getRepository(TestMatrixEntity);
       const testMatrixEntity = await testMatrixRepository.save(
         new TestMatrixEntity("testMatrixName", 0, projectEntity)
       );
 
-      const testTargetGroupRepository = getRepository(TestTargetGroupEntity);
+      const testTargetGroupRepository = TestDataSource.getRepository(
+        TestTargetGroupEntity
+      );
       const testTargetGroupEntity0 = await testTargetGroupRepository.save({
         name: "testTargetGroupName0",
         index: 0,
@@ -200,12 +209,13 @@ describe("TestTargetGroupsService", () => {
         testMatrix: testMatrixEntity,
       });
 
-      await new TestTargetGroupsService().delete(
+      await new TestTargetGroupsService(TestDataSource).delete(
         testTargetGroupEntity1.id,
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const result = await testMatrixRepository.findOne(testMatrixEntity.id, {
+      const result = await testMatrixRepository.findOne({
+        where: { id: testMatrixEntity.id },
         relations: ["testTargetGroups"],
       });
 
@@ -229,9 +239,9 @@ describe("TestTargetGroupsService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestTargetGroupsService().delete(
+        await new TestTargetGroupsService(TestDataSource).delete(
           dummyId,
-          new TransactionRunner()
+          new TransactionRunner(TestDataSource)
         );
       } catch (e) {
         expect((e as Error).message).toEqual(

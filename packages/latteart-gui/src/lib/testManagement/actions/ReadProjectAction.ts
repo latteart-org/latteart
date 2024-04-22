@@ -15,20 +15,15 @@
  */
 
 import {
-  RepositoryAccessResult,
+  type RepositoryAccessResult,
   createRepositoryAccessSuccess,
-  RepositoryService,
+  type RepositoryService
 } from "latteart-client";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
+import { type Story, type TestMatrix } from "@/lib/testManagement/types";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import SessionDataConverter from "../SessionDataConverter";
 
-const READ_PROJECT_DATA_FAILED_MESSAGE_KEY =
-  "error.test_management.read_project_data_failed";
+const READ_PROJECT_DATA_FAILED_MESSAGE_KEY = "error.test_management.read_project_data_failed";
 
 export class ReadProjectAction {
   constructor(
@@ -49,7 +44,7 @@ export class ReadProjectAction {
 
     if (readProjectResult.isFailure()) {
       return new ActionFailure({
-        messageKey: READ_PROJECT_DATA_FAILED_MESSAGE_KEY,
+        messageKey: READ_PROJECT_DATA_FAILED_MESSAGE_KEY
       });
     }
 
@@ -67,8 +62,7 @@ export class ReadProjectAction {
       stories: Story[];
     }>
   > {
-    const getProjectsResult =
-      await this.repositoryService.projectRepository.getProjects();
+    const getProjectsResult = await this.repositoryService.projectRepository.getProjects();
 
     if (getProjectsResult.isFailure()) {
       return getProjectsResult;
@@ -77,8 +71,7 @@ export class ReadProjectAction {
     const projectIds = getProjectsResult.data.map(({ id }) => id);
 
     if (projectIds.length === 0) {
-      const postProjectResult =
-        await this.repositoryService.projectRepository.postProject();
+      const postProjectResult = await this.repositoryService.projectRepository.postProject();
 
       if (postProjectResult.isFailure()) {
         return postProjectResult;
@@ -90,9 +83,7 @@ export class ReadProjectAction {
     const targetProjectId = projectIds[projectIds.length - 1];
 
     const getProjectResult =
-      await this.repositoryService.projectRepository.getProject(
-        targetProjectId
-      );
+      await this.repositoryService.projectRepository.getProject(targetProjectId);
 
     if (getProjectResult.isFailure()) {
       return getProjectResult;
@@ -103,18 +94,18 @@ export class ReadProjectAction {
         ...story,
         sessions: story.sessions.map((session) => {
           return new SessionDataConverter().convertToSession(session);
-        }),
+        })
       };
     });
 
     const data = {
       projectId: targetProjectId,
       testMatrices: getProjectResult.data.testMatrices,
-      stories: convertedStories,
+      stories: convertedStories
     };
 
     return createRepositoryAccessSuccess({
-      data,
+      data
     });
   }
 }

@@ -36,6 +36,7 @@ import {
 } from "tsoa";
 import { transactionRunner } from "..";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/test-targets/")
 @Tags("projects")
@@ -57,7 +58,7 @@ export class TestTargetsController extends Controller {
     @Path() testTargetId: string
   ): Promise<GetTestTargetResponse> {
     try {
-      return await new TestTargetService().get(testTargetId);
+      return await new TestTargetService(AppDataSource).get(testTargetId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get testTarget failed.", error);
@@ -87,7 +88,10 @@ export class TestTargetsController extends Controller {
     @Body() body: { testTargetGroupId: string; name: string }
   ): Promise<PostTestTargetResponse> {
     try {
-      return await new TestTargetService().post(body, transactionRunner);
+      return await new TestTargetService(AppDataSource).post(
+        body,
+        transactionRunner
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Post testTarget failed.", error);
@@ -124,7 +128,7 @@ export class TestTargetsController extends Controller {
     }
   ): Promise<PatchTestTargetResponse> {
     try {
-      return await new TestTargetService().patch(
+      return await new TestTargetService(AppDataSource).patch(
         projectId,
         testTargetId,
         body,
@@ -158,7 +162,7 @@ export class TestTargetsController extends Controller {
     @Path() testTargetId: string
   ): Promise<void> {
     try {
-      return await new TestTargetService().delete(
+      return await new TestTargetService(AppDataSource).delete(
         testTargetId,
         transactionRunner
       );

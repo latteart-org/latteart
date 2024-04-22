@@ -15,49 +15,41 @@
 -->
 
 <template>
-  <v-container>
-    <v-row justify="end" id="screen-transition-diagram-container">
+  <v-container fluid class="ma-0 pa-0 align-start">
+    <v-row id="screen-transition-diagram-container" justify="end">
       <v-col cols="12" class="pt-0">
-        <mermaid-graph-renderer
-          v-if="graph"
-          :graph="graph"
-        ></mermaid-graph-renderer>
+        <mermaid-graph-renderer v-if="graph" :graph="graph"></mermaid-graph-renderer>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
-/* tslint:disable:max-line-length */
-
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
-import MermaidGraph from "@/lib/operationHistory/mermaidGraph/MermaidGraph";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
+  components: {
+    "mermaid-graph-renderer": MermaidGraphRenderer
+  },
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
-  },
-  components: {
-    "mermaid-graph-renderer": MermaidGraphRenderer,
+      required: true
+    }
   },
   setup() {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
-    const graph = computed((): MermaidGraph | null => {
-      return (store.state as any).operationHistory.screenTransitionDiagramGraph;
+    const graph = computed((): Element | null => {
+      return operationHistoryStore.screenTransitionDiagramGraph;
     });
 
-    return {
-      graph,
-    };
-  },
+    return { graph };
+  }
 });
 </script>
 

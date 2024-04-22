@@ -20,39 +20,39 @@
       <div class="wrap">
         <div class="text-wrap">
           <v-text-field
+            :id="`numberField${id}_text`"
+            ref="textField"
             :mask="mask"
             :label="label"
             :suffix="suffix"
-            :id="`numberField${id}_text`"
-            :value="internalValue"
-            @input="(value) => update(value)"
-            @blur="onBlur"
+            :model-value="internalValue"
             :readonly="arrowOnly"
             :disabled="disabled"
-            ref="textField"
+            @update:model-value="(value) => update(value)"
+            @blur="onBlur"
           ></v-text-field>
         </div>
         <div class="button-wrap">
           <button
             :id="`numberField${id}_increaseButton`"
             class="py-0 my-0 px-0 mx-0"
+            :disabled="disabled"
             @click="increase"
             @blur="onBlur"
             @mousedown="onMouseDown"
-            :disabled="disabled"
           >
-            <v-icon small>keyboard_arrow_up</v-icon>
+            <v-icon size="small">keyboard_arrow_up</v-icon>
           </button>
           <button
             :id="`numberField${id}_decreaseButton`"
             icon
             class="py-0 my-0 px-0 mx-0"
+            :disabled="disabled"
             @click="decrease"
             @blur="onBlur"
             @mousedown="onMouseDown"
-            :disabled="disabled"
           >
-            <v-icon small>keyboard_arrow_down</v-icon>
+            <v-icon size="small">keyboard_arrow_down</v-icon>
           </button>
         </div>
       </div>
@@ -61,115 +61,126 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
-@Component
-export default class NumberField extends Vue {
-  @Prop({ type: String, default: "" }) public readonly id!: string;
-  @Prop({ type: Number }) public readonly value!: number;
-  @Prop({ type: Number, default: 9999 }) public readonly maxValue!: number;
-  @Prop({ type: Number, default: 0 }) public readonly minValue!: number;
-  @Prop({ type: String }) public readonly label!: string;
-  @Prop({ type: String }) public readonly suffix!: string;
-  @Prop({ type: Boolean, default: false }) public readonly arrowOnly!: boolean;
-  @Prop({ type: Boolean, default: false }) public readonly disabled!: boolean;
-  @Prop({ type: Boolean, default: false }) public readonly allowBlank!: boolean;
+export default defineComponent({
+  props: {
+    id: { type: String, default: "" },
+    value: { type: Number },
+    maxValue: { type: Number, default: 9999 },
+    minValue: { type: Number, default: 0 },
+    label: { type: String },
+    suffix: { type: String },
+    arrowOnly: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
+    allowBlank: { type: Boolean, default: false }
+  },
+  setup(props, context) {
+    const internalValue = ref<number | string>(0);
+    const clicking = ref(false);
 
-  private internalValue: number | string = 0;
-  private clicking = false;
+    const textField = ref<any>();
 
-  private created() {
-    this.setValue();
-  }
+    const setValue = () => {
+      internalValue.value = props.value ?? "";
+    };
 
-  @Watch("value")
-  private setValue() {
-    this.internalValue = this.value;
-  }
+    const mask = computed(() => {
+      return Array(String(props.maxValue).length).fill("#").join("");
+    });
 
-  private get mask() {
-    return Array(String(this.maxValue).length).fill("#").join("");
-  }
-
-  private onBlur() {
-    if (!this.clicking) {
-      const num = this.internalValue;
-      if (num === "" && !this.allowBlank) {
-        this.internalValue = this.minValue;
-      } else if (this.maxValue !== undefined && num > this.maxValue) {
-        this.internalValue = this.maxValue;
-      } else if (this.minValue !== undefined && num < this.minValue) {
-        this.internalValue = this.minValue;
+    const onBlur = () => {
+      if (!clicking.value) {
+        const num = internalValue.value;
+        if (num === "" && !props.allowBlank) {
+          internalValue.value = props.minValue;
+        } else if (props.maxValue !== undefined && parseInt(num.toString(), 10) > props.maxValue) {
+          internalValue.value = props.maxValue;
+        } else if (props.minValue !== undefined && parseInt(num.toString(), 10) < props.minValue) {
+          internalValue.value = props.minValue;
+        }
+        send();
       }
-      this.send();
-    }
-  }
+    };
 
-  private onMouseDown() {
-    this.clicking = true;
-  }
+    const onMouseDown = () => {
+      clicking.value = true;
+    };
 
-  private disabledInternalValue(): boolean {
-    return (
-      this.internalValue === "" ||
-      this.internalValue === undefined ||
-      this.internalValue === null
-    );
-  }
+    const disabledInternalValue = (): boolean => {
+      return (
+        internalValue.value === "" ||
+        internalValue.value === undefined ||
+        internalValue.value === null
+      );
+    };
 
-  private increase(): void {
-    if (this.internalValue < this.maxValue) {
-      !this.internalValue
-        ? this.update("1")
-        : this.update(`${Number(this.internalValue) + 1}`);
-    } else if (this.disabledInternalValue()) {
-      this.update("1");
-    }
-    this.clicking = false;
-  }
+    const increase = (): void => {
+      if (parseInt(internalValue.value.toString(), 10) < props.maxValue) {
+        !internalValue.value ? update("1") : update(`${Number(internalValue.value) + 1}`);
+      } else if (disabledInternalValue()) {
+        update("1");
+      }
+      clicking.value = false;
+    };
 
-  private decrease(): void {
-    if (this.internalValue > this.minValue) {
-      !this.internalValue
-        ? this.update("-1")
-        : this.update(`${Number(this.internalValue) - 1}`);
-    } else if (this.disabledInternalValue()) {
-      this.update("0");
-    }
-    this.clicking = false;
-  }
+    const decrease = (): void => {
+      if (parseInt(internalValue.value.toString(), 10) > props.minValue) {
+        !internalValue.value ? update("-1") : update(`${Number(internalValue.value) - 1}`);
+      } else if (disabledInternalValue()) {
+        update("0");
+      }
+      clicking.value = false;
+    };
 
-  private update(value: string): void {
-    if (value === "") {
-      this.internalValue = "";
-      return;
-    }
-    const num = Number(value);
-    if (num !== num) {
-      (this.$refs.textField as any).internalValue = this.internalValue;
-      return;
-    }
-    this.internalValue = num;
-  }
+    const update = (value: string): void => {
+      if (value === "") {
+        internalValue.value = "";
+        return;
+      }
+      const num = Number(value);
+      if (num !== num) {
+        textField.value.internalValue = internalValue.value;
+        return;
+      }
+      internalValue.value = num;
+    };
 
-  private send(): void {
-    if (this.internalValue === this.value) {
-      return;
-    }
-    this.$emit("updateNumberFieldValue", {
-      id: this.id,
-      value: this.internalValue,
-    });
-  }
+    const send = (): void => {
+      if (internalValue.value === props.value) {
+        return;
+      }
+      context.emit("updateNumberFieldValue", {
+        id: props.id,
+        value: internalValue.value
+      });
+    };
 
-  @Watch("internalValue")
-  private realtimeSend(): void {
-    this.$emit("input", {
-      id: this.id,
-      value: this.internalValue,
-    });
+    const realtimeSend = (): void => {
+      context.emit("input", {
+        id: props.id,
+        value: internalValue.value
+      });
+    };
+
+    const { value } = toRefs(props);
+    watch(value, setValue);
+    watch(internalValue, realtimeSend);
+
+    setValue();
+
+    return {
+      internalValue,
+      textField,
+      mask,
+      onBlur,
+      onMouseDown,
+      increase,
+      decrease,
+      update
+    };
   }
-}
+});
 </script>
 
 <style lang="sass" scoped>
@@ -182,7 +193,7 @@ button:focus
   background-color: #DDD
 
 .wrap
-  display: table
+  display: flex
   minWidth: 100px
 
 .text-wrap
@@ -192,4 +203,5 @@ button:focus
 
 .button-wrap
   width: 25px
+  align-self: center
 </style>

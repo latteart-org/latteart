@@ -15,13 +15,8 @@
 -->
 
 <template>
-  <v-list-item
-    @click="scriptGenerationOptionDialogIsOpened = true"
-    :disabled="isDisabled"
-  >
-    <v-list-item-title>{{
-      store.getters.message("test-result-page.generate-testscript")
-    }}</v-list-item-title>
+  <v-list-item :disabled="isDisabled" @click="scriptGenerationOptionDialogIsOpened = true">
+    <v-list-item-title>{{ $t("test-result-page.generate-testscript") }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -33,8 +28,8 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
 
@@ -50,19 +45,21 @@
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ScriptGenerationOptionDialog from "@/components/organisms/dialog/ScriptGenerationOptionDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const scriptGenerationOptionDialogIsOpened = ref(false);
     const isGeneratingTestScripts = ref(false);
@@ -87,30 +84,25 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const sequence = computed(() => {
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = operationHistoryStore.history;
 
       return history.at(-1)?.operation.sequence ?? 0;
     });
 
     const currentRepositoryUrl = computed((): string => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl ?? "";
     });
 
     const generateTestScript = (option: {
@@ -131,25 +123,19 @@ export default defineComponent({
         isGeneratingTestScripts.value = true;
 
         try {
-          store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "manage-header.generating-test-script"
-            ),
+          rootStore.openProgressDialog({
+            message: rootStore.message("manage-header.generating-test-script")
           });
-          const testScriptInfo = await store.dispatch(
-            "operationHistory/generateTestScripts",
-            {
-              option,
-            }
-          );
-          store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
-          downloadLinkDialogMessage.value = store.getters.message(
+          const testScriptInfo = await operationHistoryStore.generateTestScripts({
+            option
+          });
+          rootStore.closeProgressDialog();
+          downloadLinkDialogTitle.value = rootStore.message("common.confirm");
+          downloadLinkDialogMessage.value = rootStore.message(
             "test-result-page.generate-testscript-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = store.getters.message(
+            downloadLinkDialogAlertMessage.value = rootStore.message(
               "test-result-page.generate-alert-info"
             );
           } else {
@@ -159,7 +145,7 @@ export default defineComponent({
           scriptGenerationOptionDialogIsOpened.value = false;
           downloadLinkDialogOpened.value = true;
         } catch (error) {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
           scriptGenerationOptionDialogIsOpened.value = false;
 
           if (error instanceof Error) {
@@ -175,7 +161,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: rootStore.message,
       scriptGenerationOptionDialogIsOpened,
       errorMessageDialogOpened,
       errorMessage,
@@ -185,8 +171,8 @@ export default defineComponent({
       downloadLinkDialogAlertMessage,
       downloadLinkDialogLinkUrl,
       isDisabled,
-      generateTestScript,
+      generateTestScript
     };
-  },
+  }
 });
 </script>

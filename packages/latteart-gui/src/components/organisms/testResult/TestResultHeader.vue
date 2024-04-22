@@ -15,26 +15,23 @@
 -->
 
 <template>
-  <v-row justify="start" align="center" @keydown="cancelKeydown">
-    <v-col>
-      <v-row justify="start" align="center">
-        <v-col>
-          <url-text-field single-line hide-details />
-        </v-col>
-        <v-col>
-          <test-result-name-text-field single-line hide-details />
-        </v-col>
+  <v-container fluid class="fill-height py-0">
+    <v-row justify="start" align="center" @keydown="cancelKeydown">
+      <v-col>
+        <url-text-field single-line hide-details />
+      </v-col>
+      <v-col>
+        <test-result-name-text-field single-line hide-details />
+      </v-col>
 
-        <record-button />
-        <pause-button />
-        <menu-button />
-      </v-row>
-    </v-col>
-  </v-row>
+      <record-button />
+      <pause-button />
+      <menu-button />
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
-import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import PauseButton from "./PauseButton.vue";
 import RecordButton from "./RecordButton.vue";
 import TestResultNameTextField from "./TestResultNameTextField.vue";
@@ -48,8 +45,7 @@ export default defineComponent({
     "test-result-name-text-field": TestResultNameTextField,
     "record-button": RecordButton,
     "pause-button": PauseButton,
-    "generate-test-script-button": GenerateTestScriptButton,
-    "menu-button": MenuButton,
+    "menu-button": MenuButton
   },
   setup() {
     const cancelKeydown = (event: Event) => {
@@ -57,8 +53,8 @@ export default defineComponent({
     };
 
     return {
-      cancelKeydown,
+      cancelKeydown
     };
-  },
+  }
 });
 </script>

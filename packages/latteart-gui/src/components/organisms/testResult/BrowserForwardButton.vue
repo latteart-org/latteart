@@ -17,52 +17,57 @@
 <template>
   <div>
     <v-btn
-      fab
-      small
-      @click="browserForward"
+      variant="elevated"
+      icon="arrow_forward"
+      size="small"
       :disabled="isDisabled"
-      :title="store.getters.message('navigate.forward')"
+      :title="$t('navigate.forward')"
       class="mx-2"
+      @click="browserForward"
     >
-      <v-icon dark>arrow_forward</v-icon>
     </v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
+    const canDoBrowserForward = ref(false);
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserForward.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
-    const canDoBrowserForward = computed(() => {
-      return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateForward ?? false
-      );
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
     });
 
     const browserForward = (): void => {
-      store.dispatch("captureControl/browserForward");
+      captureControlStore.browserForward();
     };
 
+    watch(historyLength, () => {
+      canDoBrowserForward.value = captureControlStore.captureSession?.canNavigateForward ?? false;
+    });
+
     return {
-      store,
+      t: rootStore.message,
       isDisabled,
-      browserForward,
+      browserForward
     };
-  },
+  }
 });
 </script>

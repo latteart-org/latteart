@@ -33,6 +33,7 @@ import { GetGraphViewResponse } from "@/interfaces/TestResults";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
+import { AppDataSource } from "@/data-source";
 
 /**
  * Generate graph view model of test result.
@@ -59,12 +60,12 @@ export class GraphViewsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    const service = new TestResultServiceImpl({
+    const service = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,

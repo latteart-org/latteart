@@ -18,7 +18,7 @@
   <div>
     <note-common-dialog
       :opened="opened"
-      :noteInfo="noteInfo"
+      :note-info="noteInfo"
       @execute="editNote"
       @close="close()"
     />
@@ -31,27 +31,23 @@
 </template>
 
 <script lang="ts">
-import {
-  NoteDialogInfo,
-  OperationWithNotes,
-} from "@/lib/operationHistory/types";
+import { type NoteDialogInfo } from "@/lib/operationHistory/types";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { NoteEditInfo } from "@/lib/captureControl/types";
+import { type NoteEditInfo } from "@/lib/captureControl/types";
 import NoteCommonDialog from "@/components/organisms/dialog/NoteCommonDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true },
-  },
   components: {
     "note-common-dialog": NoteCommonDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -64,7 +60,7 @@ export default defineComponent({
       imageFilePath: "",
       sequence: 1,
       maxSequence: 1,
-      videoFilePath: "",
+      videoFilePath: ""
     });
 
     const initialize = () => {
@@ -72,23 +68,18 @@ export default defineComponent({
         return;
       }
 
-      const selectedOperationNote = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote;
-      const sequence = selectedOperationNote.sequence as number;
-      const index = selectedOperationNote.index as number;
-      const historyItem: OperationWithNotes =
-        store.getters["operationHistory/findHistoryItem"](sequence);
+      const selectedOperationNote = operationHistoryStore.selectedOperationNote;
+      const sequence = selectedOperationNote.sequence ?? 0;
+      const index = selectedOperationNote.index ?? 0;
+      const historyItem = operationHistoryStore.findHistoryItem(sequence);
 
-      if (historyItem.notices && historyItem.notices[index]) {
+      if (historyItem?.notices && historyItem.notices[index]) {
         const time =
           historyItem.notices[index].videoFrame?.time ??
           historyItem.operation.videoFrame?.time ??
           0;
         const videoUrl =
-          historyItem.notices[index].videoFrame?.url ??
-          historyItem.operation.videoFrame?.url ??
-          "";
+          historyItem.notices[index].videoFrame?.url ?? historyItem.operation.videoFrame?.url ?? "";
         const videoFilePath = videoUrl ? `${videoUrl}#t=${time}` : "";
 
         noteInfo.value = {
@@ -101,10 +92,8 @@ export default defineComponent({
               ? historyItem.notices[index].imageFilePath
               : historyItem.operation.imageFilePath,
           sequence: sequence,
-          maxSequence: (
-            (store.state as any).operationHistory as OperationHistoryState
-          ).history.length,
-          videoFilePath,
+          maxSequence: operationHistoryStore.history.length,
+          videoFilePath
         };
       }
     };
@@ -113,8 +102,8 @@ export default defineComponent({
       (async () => {
         close();
         try {
-          await store.dispatch("operationHistory/editNote", {
-            noteEditInfo,
+          await operationHistoryStore.editNote({
+            noteEditInfo
           });
         } catch (error) {
           if (error instanceof Error) {
@@ -139,8 +128,8 @@ export default defineComponent({
       errorMessage,
       noteInfo,
       editNote,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

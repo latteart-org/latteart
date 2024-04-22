@@ -15,100 +15,76 @@
 -->
 
 <template>
-  <line-chart :data="chartData" :chartOptions="chartOptions"></line-chart>
+  <line-chart :data="chartData" :options="chartOptions"></line-chart>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
 import LineChart from "@/components/molecules/LineChart.vue";
 import { abbreviatedCharLength } from "@/lib/common/util";
-import "chartjs-plugin-colorschemes/src/plugins/plugin.colorschemes";
-import Chart from "chart.js";
-const {
-  Aspect6,
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-} = require("chartjs-plugin-colorschemes/src/colorschemes/colorschemes.office");
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, type PropType } from "vue";
 
-@Component({
-  components: {
-    "line-chart": LineChart,
+export default defineComponent({
+  components: { LineChart },
+  props: {
+    qualityData: {
+      type: Object as PropType<{ datasets: { label: string; data: number[] }[] }>,
+      required: true
+    },
+    totalBugNum: { type: Number, required: true }
   },
-})
-export default class QualityChart extends Vue {
-  @Prop({ type: Object }) public readonly qualityDatas!: any;
-  @Prop({ type: Number }) public readonly totalBugNum!: number;
+  setup(props) {
+    const rootStore = useRootStore();
 
-  private get chartData() {
-    return {
-      labels: this.getLabels(),
-      datasets: this.qualityDatas.datasets.map((data: any) => {
-        data.label = abbreviatedCharLength(data.label, 20);
-        return data;
-      }),
-    };
-  }
-
-  private get chartOptions(): Chart.ChartOptions {
-    return {
-      maintainAspectRatio: false,
-      responsive: true,
-      title: {
-        display: false,
-      },
-      legend: {
-        position: "right",
-        labels: {
-          boxWidth: 30,
-        },
-      },
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              min: 0,
-              stepSize: this.totalBugNum > 10 ? 5 : 1,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: this.$store.getters.message(
-                "quality-chart.bug-report-number"
-              ),
-            },
-          },
-        ],
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: this.$store.getters.message(
-                "quality-chart.number-session"
-              ),
-            },
-          },
-        ],
-      },
-      plugins: {
-        colorschemes: {
-          scheme: Aspect6,
-        },
-      },
-    };
-  }
-
-  private getLabels() {
-    let maxLen = 0;
-    this.qualityDatas.datasets.forEach((dataset: any) => {
-      if (maxLen < dataset.data.length) {
-        maxLen = dataset.data.length;
-      }
+    const chartData = computed(() => {
+      return {
+        labels: getLabels(),
+        datasets: props.qualityData.datasets.map((dataset) => {
+          dataset.label = abbreviatedCharLength(dataset.label, 20);
+          return dataset;
+        })
+      };
     });
-    if (maxLen <= 10) {
-      maxLen = 10;
-    }
-    return [...Array(maxLen).keys()].map((i) => String(i++));
+
+    const chartOptions = computed(() => {
+      return {
+        legend: { position: "right" as const, labels: { boxWidth: 30 } },
+        scales: {
+          y: {
+            min: 0,
+            ticks: { stepSize: props.totalBugNum > 10 ? 5 : 1 },
+            title: {
+              display: true,
+              text: rootStore.message("quality-chart.bug-report-number")
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: rootStore.message("quality-chart.number-session")
+            }
+          }
+        },
+        plugins: { colors: { forceOverride: true } }
+      };
+    });
+
+    const getLabels = () => {
+      let maxLen = 0;
+      props.qualityData.datasets.forEach((dataset: any) => {
+        if (maxLen < dataset.data.length) {
+          maxLen = dataset.data.length;
+        }
+      });
+      if (maxLen <= 10) {
+        maxLen = 10;
+      }
+      return [...Array(maxLen).keys()].map((i) => String(i++));
+    };
+
+    return { chartData, chartOptions };
   }
-}
+});
 </script>
 
 <style lang="sass" scoped>

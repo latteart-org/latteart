@@ -1,62 +1,58 @@
-import { ProjectRESTRepository, TestMatrixRepository } from "latteart-client";
-import { RESTClient } from "latteart-client";
-import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";
+import { ProjectRESTRepository, TestMatrixRepositoryImpl } from 'latteart-client'
+import { type RESTClient } from 'latteart-client'
+import { DeleteTestMatrixAction } from '@/lib/testManagement/actions/DeleteTestMatrixAction'
 
 const baseRestClient: RESTClient = {
-  serverUrl: "",
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  httpPut: jest.fn(),
-  httpPatch: jest.fn(),
-  httpDelete: jest.fn(),
-  httpGetFile: jest.fn(),
-};
+  serverUrl: '',
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  httpPut: vi.fn(),
+  httpPatch: vi.fn(),
+  httpDelete: vi.fn(),
+  httpGetFile: vi.fn()
+}
 
-describe("DeleteTestMatrixAction", () => {
-  describe("#deleteTestMatrix", () => {
-    it("TestMatrixを削除する", async () => {
+describe('DeleteTestMatrixAction', () => {
+  describe('#deleteTestMatrix', () => {
+    it('TestMatrixを削除する', async () => {
       const testMatrixResponse = {
         ...baseRestClient,
-        httpDelete: jest.fn().mockResolvedValue({
-          status: 204,
-        }),
-      };
+        httpDelete: vi.fn().mockResolvedValue({
+          status: 204
+        })
+      }
 
       const projectResponse = {
         ...baseRestClient,
-        httpGet: jest.fn().mockResolvedValue({
+        httpGet: vi.fn().mockResolvedValue({
           status: 200,
           data: {
-            id: "projectId",
-            name: "projectName",
+            id: 'projectId',
+            name: 'projectName',
             testMatrices: [],
             stories: [],
-            progressDatas: [],
-          },
-        }),
-      };
-
-      const args = {
-        projectId: "projectId",
-        testMatrixId: "testMatrixId",
-      };
-
-      const result = await new DeleteTestMatrixAction().deleteTestMatrix(args, {
-        testMatrixRepository: new TestMatrixRepository(testMatrixResponse),
-        projectRepository: new ProjectRESTRepository(projectResponse),
-      });
-
-      if (result.isFailure()) {
-        throw result.error;
+            progressDatas: []
+          }
+        })
       }
 
-      expect(testMatrixResponse.httpDelete).toBeCalledWith(
-        "api/v1/test-matrices/testMatrixId"
-      );
+      const args = {
+        projectId: 'projectId',
+        testMatrixId: 'testMatrixId'
+      }
 
-      expect(projectResponse.httpGet).toBeCalledWith(
-        "api/v1/projects/projectId"
-      );
-    });
-  });
-});
+      const result = await new DeleteTestMatrixAction().deleteTestMatrix(args, {
+        testMatrixRepository: new TestMatrixRepositoryImpl(testMatrixResponse),
+        projectRepository: new ProjectRESTRepository(projectResponse)
+      })
+
+      if (result.isFailure()) {
+        throw result.error
+      }
+
+      expect(testMatrixResponse.httpDelete).toBeCalledWith('api/v1/test-matrices/testMatrixId')
+
+      expect(projectResponse.httpGet).toBeCalledWith('api/v1/projects/projectId')
+    })
+  })
+})
