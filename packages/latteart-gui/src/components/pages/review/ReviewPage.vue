@@ -41,7 +41,7 @@
       >
     </v-app-bar>
 
-    <v-container fluid class="fill-height pa-0">
+    <v-container fluid class="pa-0" style="height: calc(100vh - 64px)">
       <history-display
         :change-window-title="changeWindowTitle"
         :raw-history="testResult.history"
