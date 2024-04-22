@@ -262,7 +262,6 @@ export default defineComponent({
     watch(() => captureOption.value.platform, updateDevices);
 
     return {
-      t: rootStore.message,
       errorMessageDialogOpened,
       errorMessage,
       platforms,

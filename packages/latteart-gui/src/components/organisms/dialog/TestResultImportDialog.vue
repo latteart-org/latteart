@@ -49,7 +49,6 @@ import { loadFileAsBase64 } from "@/lib/common/util";
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -60,8 +59,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const targetFile = ref<File | null>(null);
 
     const okButtonIsDisabled = computed(() => {
@@ -100,7 +97,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       targetFile,
       okButtonIsDisabled,
       selectImportFile,

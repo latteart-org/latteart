@@ -63,7 +63,6 @@ import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
 import { defineComponent, ref, toRefs, watch, inject, nextTick, type PropType } from "vue";
 import { useTestManagementStore } from "@/stores/testManagement";
-import { useRootStore } from "@/stores/root";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
@@ -88,7 +87,6 @@ export default defineComponent({
     videoUrl: { type: String, default: "", required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const testManagementStore = useTestManagementStore();
 
     const errorMessageDialogOpened = ref(false);
@@ -143,7 +141,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       errorMessageDialogOpened,
       errorMessage,
       search,

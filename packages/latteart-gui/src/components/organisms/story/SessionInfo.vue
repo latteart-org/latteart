@@ -544,7 +544,6 @@ export default defineComponent({
     reportSectionDisplayed.value = true;
 
     return {
-      t: rootStore.message,
       reportSectionDisplayed,
       captureOptionDialogOpened,
       testResultSelectionDialogOpened,

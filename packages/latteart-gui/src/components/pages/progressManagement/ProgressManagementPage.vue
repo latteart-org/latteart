@@ -297,7 +297,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       startDateMenu,
       endDateMenu,
       startDate,

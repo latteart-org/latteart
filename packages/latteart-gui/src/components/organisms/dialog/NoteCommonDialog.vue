@@ -232,7 +232,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       oldNote,
       newNote,
       newNoteDetails,

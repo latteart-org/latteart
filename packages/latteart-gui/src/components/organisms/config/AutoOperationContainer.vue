@@ -70,9 +70,7 @@
 <script lang="ts">
 import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationDialog from "../dialog/AutoOperationDialog.vue";
-import { defineComponent, ref } from "vue";
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
+import { defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -100,7 +98,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       dialogOpened,
       updateConditionGroup,
       deleteConditionGroup

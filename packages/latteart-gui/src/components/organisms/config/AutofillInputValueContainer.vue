@@ -133,10 +133,7 @@
 <script lang="ts">
 import { type AutofillCondition, type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { computed, defineComponent } from "vue";
-
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -192,7 +189,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       locatorTypeList,
       locatorMatchType,
       addCondition,

@@ -224,7 +224,6 @@ export default defineComponent({
     watch(selectedTestResults, updateCheckedTestResults);
 
     return {
-      t: rootStore.message,
       selectedTestResults,
       search,
       isEditing,

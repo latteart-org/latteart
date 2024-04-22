@@ -289,7 +289,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       search,
       customButtonCandidateTags,
       standardButtontags,

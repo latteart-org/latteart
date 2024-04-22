@@ -121,7 +121,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       updateOption,
       isExecuteButtonDisabled,
       execute

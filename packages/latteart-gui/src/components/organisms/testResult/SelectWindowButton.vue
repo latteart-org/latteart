@@ -80,7 +80,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       isReplaying,
       windowSelectorIsEnabled,
       isWindowSelectorDialogOpened

@@ -163,7 +163,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       selectedTestMatrixId,
       search,
       isCompletionFilterEnabled,

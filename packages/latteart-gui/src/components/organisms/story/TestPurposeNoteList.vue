@@ -333,7 +333,6 @@ export default defineComponent({
     watch(testPurposes, changeTestPurposes);
 
     return {
-      t: rootStore.message,
       opened,
       testPurposeOpened,
       testResultId,

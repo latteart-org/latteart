@@ -47,8 +47,7 @@ import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -185,7 +184,6 @@ export default defineComponent({
     };
 
     return {
-      t,
       intentionItems,
       noticeItems,
       show

@@ -66,8 +66,7 @@
 <script lang="ts">
 import { type TestResultComparisonSetting } from "@/lib/common/settings/Settings";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -220,7 +219,6 @@ export default defineComponent({
     watch(setting, updateTempSetting);
 
     return {
-      t,
       tempTags,
       tempExcludeItems,
       isExcludeItemsEnabled,

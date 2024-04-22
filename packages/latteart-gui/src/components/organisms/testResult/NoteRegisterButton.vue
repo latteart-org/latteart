@@ -39,7 +39,6 @@
 import TakeNoteWithPurposeDialog from "@/components/organisms/dialog/TakeNoteWithPurposeDialog.vue";
 import TakeNoteDialog from "@/components/organisms/dialog/TakeNoteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
@@ -49,7 +48,6 @@ export default defineComponent({
     "take-note-dialog": TakeNoteDialog
   },
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -72,7 +70,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
       isCapturing,

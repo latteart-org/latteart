@@ -86,7 +86,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       title,
       errorMessageDialogOpened,
       errorMessage,

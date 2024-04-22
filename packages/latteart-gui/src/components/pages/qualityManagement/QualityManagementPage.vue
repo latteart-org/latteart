@@ -486,7 +486,6 @@ export default defineComponent({
     updateCurrentTestMatrix();
 
     return {
-      t: rootStore.message,
       DISPLAYMODE_TOTAL,
       DISPLAYMODE_TIMES_PER_SESSION,
       selectedTestMatrixId,

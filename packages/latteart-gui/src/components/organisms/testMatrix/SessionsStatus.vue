@@ -34,7 +34,6 @@ import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
 import { computed, defineComponent, type PropType } from "vue";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -46,7 +45,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const rootStore = useRootStore();
     const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
@@ -103,7 +101,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       displayed,
       cardStyle,
       status,

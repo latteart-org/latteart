@@ -36,7 +36,6 @@
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -51,8 +50,6 @@ export default defineComponent({
     maxWidth: { type: Number, default: 500 }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const isExecuted = ref(false);
 
     const disabled = computed(() => {
@@ -77,7 +74,7 @@ export default defineComponent({
     const { opened } = toRefs(props);
     watch(opened, changeOpenedDialog);
 
-    return { t: rootStore.message, disabled, accept, cancel };
+    return { disabled, accept, cancel };
   }
 });
 </script>

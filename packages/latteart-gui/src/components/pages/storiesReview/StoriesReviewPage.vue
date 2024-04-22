@@ -313,7 +313,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       testMatrixFilterValue,
       groupFilterValue,
       testTargetFilterValue,

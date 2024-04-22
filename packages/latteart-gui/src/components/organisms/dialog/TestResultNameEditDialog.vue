@@ -37,7 +37,6 @@
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -48,8 +47,6 @@ export default defineComponent({
     oldTestResultName: { type: String, default: "", required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const testResultName = ref("");
 
     const okButtonIsDisabled = computed(() => {
@@ -80,7 +77,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       testResultName,
       okButtonIsDisabled,
       execute,

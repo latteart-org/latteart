@@ -31,12 +31,10 @@
 <script lang="ts">
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -63,7 +61,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       isDisabled,
       browserBack
     };

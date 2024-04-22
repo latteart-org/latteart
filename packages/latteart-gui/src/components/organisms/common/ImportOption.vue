@@ -52,7 +52,6 @@
 
 <script lang="ts">
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
-import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
@@ -60,8 +59,6 @@ export default defineComponent({
     "select-file-button": SelectFileButton
   },
   setup(_, context) {
-    const rootStore = useRootStore();
-
     const option = ref<{
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
@@ -85,7 +82,6 @@ export default defineComponent({
     watch(option, update, { deep: true });
 
     return {
-      t: rootStore.message,
       option,
       selectImportFile
     };
