@@ -669,13 +669,13 @@ export default defineComponent({
           ? numberOfDisplayedItems.value
           : displayedHistoryItems.value.length;
       const rowIndex = Math.floor(itemIndex % perPage);
-      const rowHeight = 29;
+      const rowHeight = 32;
       const rowTop = rowIndex * rowHeight;
       const rowBottom = rowTop + rowHeight;
       const container = document.querySelector(".v-table__wrapper:first-child");
       const scrollTop = container?.scrollTop ?? 0;
       const clientHeight = container?.clientHeight ?? 0;
-      const scrollBottom = scrollTop + (clientHeight - 32);
+      const scrollBottom = scrollTop + (clientHeight - 40);
 
       const destScrollTop =
         rowTop < scrollTop
