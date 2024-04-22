@@ -72,6 +72,7 @@
             multiple
             hide-selected
             closable-chips
+            chips
             append-icon="refresh"
             :disabled="testGenerationOption.testScript.isSimple"
             @click:append="resetCustomButtonTags"
