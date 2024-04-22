@@ -17,14 +17,14 @@
 <template>
   <div>
     <v-btn
+      id="openWindowSelectorButton"
       :disabled="!windowSelectorIsEnabled"
       variant="elevated"
       icon="tab"
       size="small"
-      @click="isWindowSelectorDialogOpened = true"
       :title="$t('app.target-tab-window')"
-      id="openWindowSelectorButton"
       class="mx-2"
+      @click="isWindowSelectorDialogOpened = true"
     >
     </v-btn>
 

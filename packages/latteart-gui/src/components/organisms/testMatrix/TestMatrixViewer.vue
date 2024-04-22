@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid v-if="testMatrix">
+  <v-container v-if="testMatrix" fluid>
     <v-row>
       <v-col class="ma-2">{{ testMatrix.name }}</v-col>
     </v-row>
@@ -24,9 +24,9 @@
         <v-expansion-panels v-model="expandedPanelIndex">
           <v-expansion-panel
             v-for="(group, index) in testMatrix.groups"
+            :id="`groupShowArea${index}`"
             :key="group.id"
             class="py-0"
-            :id="`groupShowArea${index}`"
             :value="index"
           >
             <v-expansion-panel-title>
@@ -34,9 +34,9 @@
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <group-viewer
-                :testMatrixId="testMatrixId"
-                :viewPoints="testMatrix.viewPoints"
-                :displayedStories="displayedStories"
+                :test-matrix-id="testMatrixId"
+                :view-points="testMatrix.viewPoints"
+                :displayed-stories="displayedStories"
                 :group="group"
               ></group-viewer>
             </v-expansion-panel-text>
@@ -54,13 +54,13 @@ import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
+  components: {
+    "group-viewer": GroupViewer
+  },
   props: {
     testMatrixId: { type: String, default: "", required: true },
     search: { type: String, default: "", required: false },
     completionFilter: { type: Boolean, default: false, required: true }
-  },
-  components: {
-    "group-viewer": GroupViewer
   },
   setup(props) {
     const testManagementStore = useTestManagementStore();

@@ -16,7 +16,7 @@
 
 <template>
   <v-card v-if="displayed" class="py-0 my-3" @click="toStory">
-    <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
+    <v-card-title primary-title class="py-1 my-0" :class="cardStyle">
       <p class="card-center">
         {{ $t(`test-matrix-page.status-${status}`) }}
       </p>

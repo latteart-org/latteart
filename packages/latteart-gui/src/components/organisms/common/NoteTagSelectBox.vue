@@ -16,15 +16,15 @@
 
 <template>
   <v-combobox
-    :label="label"
     v-model="selectedTags"
+    v-model:search="search"
+    :label="label"
     :hide-no-data="!search"
     :items="tagSelectionItems"
-    v-model:search="search"
     multiple
     :readonly="readonly"
   >
-    <template v-slot:no-data>
+    <template #no-data>
       <v-list-item>
         <v-list-item-title>
           No results matching "<strong>{{ search }}</strong
@@ -32,7 +32,7 @@
         </v-list-item-title>
       </v-list-item>
     </template>
-    <template v-slot:selection="{ item }">
+    <template #selection="{ item }">
       <v-chip :color="getChipColor(item.raw)" size="small" variant="elevated">
         <span class="pr-2">{{ item.raw }} </span>
       </v-chip>

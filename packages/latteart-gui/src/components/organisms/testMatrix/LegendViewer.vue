@@ -16,9 +16,9 @@
 
 <template>
   <v-row class="d-flex justify-center" style="flex-wrap: nowrap">
-    <div v-for="(legend, index) in legendInfos" v-bind:key="index" class="manage-show-legend">
+    <div v-for="(legend, index) in legendInfos" :key="index" class="manage-show-legend">
       <v-card class="pt-0 my-3">
-        <v-card-title primary-title class="py-2 my-0" v-bind:class="legend.class">
+        <v-card-title primary-title class="py-2 my-0" :class="legend.class">
           <p class="card-center">{{ legend.status }}</p>
         </v-card-title>
       </v-card>

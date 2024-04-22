@@ -24,6 +24,7 @@ import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
+  components: { LineChart },
   props: {
     progressData: {
       type: Object as PropType<
@@ -37,7 +38,6 @@ export default defineComponent({
       required: true
     }
   },
-  components: { LineChart },
   setup(props) {
     const rootStore = useRootStore();
 

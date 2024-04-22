@@ -17,7 +17,7 @@
 <template>
   <div>
     <v-menu :close-on-content-click="false">
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
@@ -33,8 +33,8 @@
         <test-tesult-export-button />
         <generate-test-script-button />
         <replay-button />
-        <screenshots-download-button v-slot:default="slotProps">
-          <v-list-item @click="slotProps.obj.execute" :disabled="slotProps.obj.isDisabled">
+        <screenshots-download-button v-slot="slotProps">
+          <v-list-item :disabled="slotProps.obj.isDisabled" @click="slotProps.obj.execute">
             <v-list-item-title>{{ $t("test-result-page.export-screenshots") }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>

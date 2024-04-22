@@ -19,7 +19,7 @@
     :opened="opened"
     :title="$t('common.error-dialog-title')"
     :message="message"
-    :iconOpts="{ text: 'cancel', color: 'red' }"
+    :icon-opts="{ text: 'cancel', color: 'red' }"
     @close="close()"
   />
 </template>
@@ -30,12 +30,12 @@ import { useRootStore } from "@/stores/root";
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  components: {
+    "alert-dialog": AlertDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     message: { type: String, default: "", required: true }
-  },
-  components: {
-    "alert-dialog": AlertDialog
   },
   setup(_, context) {
     const rootStore = useRootStore();

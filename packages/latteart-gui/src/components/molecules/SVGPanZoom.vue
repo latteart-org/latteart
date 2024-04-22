@@ -15,10 +15,10 @@
 -->
 
 <template>
-  <div class="svgPanZoom" ref="panZoomRef">
+  <div ref="panZoomRef" class="svgPanZoom">
     <button
       title="Zoom in"
-      v-bind:class="{ scaleButtonDisabled: scaleUpDisabled }"
+      :class="{ scaleButtonDisabled: scaleUpDisabled }"
       :disabled="scaleUpDisabled"
       class="scaleButton scaleUpButton"
       @click="clickChangeSacleButton('up')"
@@ -27,7 +27,7 @@
     </button>
     <button
       title="Zoom out"
-      v-bind:class="{ scaleButtonDisabled: scaleDownDisabled }"
+      :class="{ scaleButtonDisabled: scaleDownDisabled }"
       :disabled="scaleDownDisabled"
       class="scaleButton scaleDownButton"
       @click="clickChangeSacleButton('down')"

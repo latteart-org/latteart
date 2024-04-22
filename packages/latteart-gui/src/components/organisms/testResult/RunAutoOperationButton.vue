@@ -20,10 +20,10 @@
       :disabled="isDisabled"
       color="blue"
       icon="video_library"
-      @click="autoOperationSelectDialogOpened = true"
       size="small"
       :title="$t('app.auto-operation')"
       class="mx-2"
+      @click="autoOperationSelectDialogOpened = true"
     >
     </v-btn>
 

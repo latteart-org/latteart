@@ -18,6 +18,7 @@
   <execute-dialog
     :opened="opened"
     :title="title"
+    strong
     @accept="
       accept();
       close();
@@ -26,7 +27,6 @@
       cancel();
       close();
     "
-    strong
   >
     <span class="pre-wrap break-word">{{ message }}</span>
   </execute-dialog>
@@ -37,14 +37,14 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     title: { type: String, default: "", required: true },
     message: { type: String, default: "", required: true },
     onAccept: { type: Function as PropType<() => void>, required: true }
-  },
-  components: {
-    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const accept = (): void => {

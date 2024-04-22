@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-list-item @click="execute" :disabled="isDisabled">
+  <v-list-item :disabled="isDisabled" @click="execute">
     <v-list-item-title>{{ title }}</v-list-item-title>
     <error-message-dialog
       :opened="errorDialogOpened"
@@ -31,7 +31,7 @@
 
     <comparison-result-dialog
       :opened="resultDialogOpened"
-      :comparisonResult="comparisonResult"
+      :comparison-result="comparisonResult"
       @close="resultDialogOpened = false"
     />
   </v-list-item>

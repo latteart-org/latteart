@@ -36,11 +36,11 @@ import { computed, defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
-  props: {
-    initial: { type: Boolean, default: false }
-  },
   components: {
     "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    initial: { type: Boolean, default: false }
   },
   setup(props) {
     const rootStore = useRootStore();

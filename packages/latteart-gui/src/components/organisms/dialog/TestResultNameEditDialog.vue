@@ -19,6 +19,7 @@
     <execute-dialog
       :opened="opened"
       :title="$t('test-result-list.edit')"
+      :accept-button-disabled="okButtonIsDisabled"
       @accept="
         execute();
         close();
@@ -27,7 +28,6 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="okButtonIsDisabled"
     >
       <v-text-field v-model="testResultName"></v-text-field>
     </execute-dialog>
@@ -40,12 +40,12 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     oldTestResultName: { type: String, default: "", required: true }
-  },
-  components: {
-    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const rootStore = useRootStore();

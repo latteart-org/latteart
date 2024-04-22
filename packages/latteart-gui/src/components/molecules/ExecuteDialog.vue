@@ -15,12 +15,12 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened" :maxWidth="maxWidth">
-    <template v-slot:title>{{ title }}</template>
-    <template v-slot:content>
+  <scrollable-dialog :opened="opened" :max-width="maxWidth">
+    <template #title>{{ title }}</template>
+    <template #content>
       <slot />
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
       <v-btn
         variant="elevated"
@@ -40,15 +40,15 @@ import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
+  components: {
+    "scrollable-dialog": ScrollableDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     title: { type: String, default: "", required: true },
     acceptButtonDisabled: { type: Boolean, default: false },
     strong: { type: Boolean, default: false },
     maxWidth: { type: Number, default: 500 }
-  },
-  components: {
-    "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
     const rootStore = useRootStore();

@@ -17,12 +17,12 @@
   <execute-dialog
     :opened="opened"
     :title="$t('import-export-dialog.test-result-import-title')"
+    :accept-button-disabled="okButtonIsDisabled"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="okButtonIsDisabled"
   >
     <v-container id="import-option-dialog">
       <v-row>
@@ -52,12 +52,12 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "execute-dialog": ExecuteDialog,
     "select-file-button": SelectFileButton
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const rootStore = useRootStore();

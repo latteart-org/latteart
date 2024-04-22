@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-list-item @click="exportData" :disabled="isDisabled">
+  <v-list-item :disabled="isDisabled" @click="exportData">
     <v-list-item-title>{{ $t("import-export-dialog.test-result-export-title") }}</v-list-item-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -27,9 +27,9 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
-      :downloadMessage="$t('common.download-link')"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
+      :download-message="$t('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-item>

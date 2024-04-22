@@ -16,14 +16,14 @@
 
 <template>
   <v-text-field
+    id="outputDirectoryTextField"
+    v-model="testResultName"
     :single-line="singleLine"
     :hide-details="hideDetails"
     :label="$t('app.test-result-name')"
     prepend-icon="save_alt"
-    v-model="testResultName"
-    @change="changeCurrentTestResultName"
     :disabled="isDisabled"
-    id="outputDirectoryTextField"
+    @change="changeCurrentTestResultName"
   ></v-text-field>
 </template>
 

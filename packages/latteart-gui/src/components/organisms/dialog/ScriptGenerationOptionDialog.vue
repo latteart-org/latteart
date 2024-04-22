@@ -34,12 +34,12 @@ import { defineComponent, ref, toRefs, watch, nextTick } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false }
-  },
   components: {
     "execute-dialog": ExecuteDialog,
     "script-generation-option": ScriptGenerationOption
+  },
+  props: {
+    opened: { type: Boolean, default: false }
   },
   setup(props, context) {
     const rootStore = useRootStore();

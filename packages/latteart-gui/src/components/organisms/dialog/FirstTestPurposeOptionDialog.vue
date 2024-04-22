@@ -19,6 +19,7 @@
     <execute-dialog
       :opened="opened"
       :title="$t('test-option.start-testing')"
+      :accept-button-disabled="okButtonIsDisabled"
       @accept="
         ok();
         close();
@@ -27,11 +28,10 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="okButtonIsDisabled"
     >
       <v-checkbox
-        :label="$t('test-option.use-test-purpose')"
         v-model="shouldRecordTestPurpose"
+        :label="$t('test-option.use-test-purpose')"
       ></v-checkbox>
 
       <v-card flat>
@@ -47,14 +47,14 @@
           </h3>
 
           <v-text-field
+            v-model="firstTestPurpose"
             :disabled="!shouldRecordTestPurpose"
             :label="$t('note-edit.summary')"
-            v-model="firstTestPurpose"
           ></v-text-field>
           <v-textarea
+            v-model="firstTestPurposeDetails"
             :disabled="!shouldRecordTestPurpose"
             :label="$t('note-edit.details')"
-            v-model="firstTestPurposeDetails"
           ></v-textarea>
         </v-card-text>
       </v-card>
@@ -75,12 +75,12 @@ import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const rootStore = useRootStore();

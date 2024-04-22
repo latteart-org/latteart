@@ -17,12 +17,12 @@
   <execute-dialog
     :opened="opened"
     :title="$t('start-capture-page.title')"
+    :accept-button-disabled="isOkButtonDisabled"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="isOkButtonDisabled"
   >
     <capture-option v-if="isOptionDisplayed" @update="updateOption" />
   </execute-dialog>
@@ -36,12 +36,12 @@ import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false }
-  },
   components: {
     "execute-dialog": ExecuteDialog,
     "capture-option": CaptureOption
+  },
+  props: {
+    opened: { type: Boolean, default: false }
   },
   setup(props, context) {
     const rootStore = useRootStore();

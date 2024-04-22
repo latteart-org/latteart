@@ -20,10 +20,10 @@
       :disabled="!isCapturing"
       color="green"
       icon="add_comment"
-      @click="open"
       size="small"
       :title="$t('app.record-note')"
       class="mx-2"
+      @click="open"
     >
     </v-btn>
 

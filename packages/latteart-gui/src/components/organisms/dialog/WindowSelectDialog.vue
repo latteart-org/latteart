@@ -22,8 +22,8 @@
     @cancel="onCancelWindowSelector()"
   >
     <v-select
-      :items="capturingWindowInfo.windows"
       v-model="capturingWindowInfo.currentWindowHandle"
+      :items="capturingWindowInfo.windows"
     >
     </v-select>
   </execute-dialog>
@@ -38,11 +38,11 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "execute-dialog": ExecuteDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const rootStore = useRootStore();

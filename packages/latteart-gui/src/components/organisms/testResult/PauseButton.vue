@@ -18,13 +18,13 @@
   <div>
     <v-btn
       :disabled="!isCapturing"
-      @click="pushPauseButton"
       icon
       variant="text"
       size="large"
       :title="pauseButtonTooltip"
       :color="pauseButtonColor"
       class="mx-2"
+      @click="pushPauseButton"
     >
       <v-icon>pause</v-icon>
     </v-btn>

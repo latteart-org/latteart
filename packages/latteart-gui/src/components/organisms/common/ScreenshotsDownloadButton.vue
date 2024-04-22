@@ -16,13 +16,13 @@
 
 <template>
   <div>
-    <slot v-bind:obj="obj"> </slot>
+    <slot :obj="obj"> </slot>
 
     <download-link-dialog
       :opened="dialogOpened"
       :title="$t('common.confirm')"
       :message="$t('test-result-page.generate-screenshots')"
-      :linkUrl="linkUrl"
+      :link-url="linkUrl"
       @close="dialogOpened = false"
     />
   </div>

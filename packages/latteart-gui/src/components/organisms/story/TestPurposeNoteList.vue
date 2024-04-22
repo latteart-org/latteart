@@ -29,13 +29,13 @@
       >
       <v-card-text
         v-for="displayedItem in displayedItems"
-        class="py-0"
         :key="displayedItem.testResultId"
+        class="py-0"
       >
         <span class="test-purpose-h">
           {{ testResultName(displayedItem.testResultId) }}
         </span>
-        <v-list class="pt-0" v-model:opened="selectedItems" open-strategy="multiple">
+        <v-list v-model:opened="selectedItems" class="pt-0" open-strategy="multiple">
           <v-list-group
             v-for="testPurpose in displayedItem.testPurposes"
             :key="testPurpose.id"
@@ -44,7 +44,7 @@
               selectedItems.includes(testPurpose.id) ? 'arrow_drop_up' : 'arrow_drop_down'
             "
           >
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-list-item v-bind="props">
                 <v-list-item-title
                   ><span :title="testPurpose.value">{{
@@ -54,7 +54,7 @@
 
                 <v-list-item-subtitle>{{ testPurpose.details }}</v-list-item-subtitle>
 
-                <template v-slot:append>
+                <template #append>
                   <v-list-item-action>
                     <v-btn
                       @click.stop="openTestPurposeDetails(testPurpose.value, testPurpose.details)"
@@ -66,11 +66,11 @@
             </template>
 
             <v-list-item
+              v-for="(note, i) in testPurpose.notes"
+              :key="i"
               class="pr-2"
               lines="two"
               link
-              v-for="(note, i) in testPurpose.notes"
-              :key="i"
               :ripple="false"
               :active="false"
             >
@@ -78,7 +78,7 @@
                 ><span :title="note.value">{{ note.value }}</span></v-list-item-title
               >
               <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
-              <template v-slot:append>
+              <template #append>
                 <v-list-item-action>
                   <v-btn
                     @click.stop="
@@ -104,21 +104,21 @@
     </v-card>
     <note-details-dialog
       :opened="opened"
-      :testResultId="testResultId"
-      :noteId="noteId"
+      :test-result-id="testResultId"
+      :note-id="noteId"
       :summary="summary"
       :details="details"
       :tags="tags"
-      :imageFilePath="imagePath"
+      :image-file-path="imagePath"
+      :video-url="videoUrl"
       @execute="reload()"
-      :videoUrl="videoUrl"
       @close="opened = false"
     />
 
     <scrollable-dialog :opened="testPurposeOpened">
-      <template v-slot:title>{{ $t("note-details-dialog.details") }}</template>
+      <template #title>{{ $t("note-details-dialog.details") }}</template>
 
-      <template v-slot:content>
+      <template #content>
         <v-list class="note-details-dialog">
           <v-list-item>
             <v-list-item-title>{{ $t("note-details-dialog.summary") }}</v-list-item-title>
@@ -132,7 +132,7 @@
         </v-list>
       </template>
 
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
         <v-btn color="primary" variant="text" @click="testPurposeOpened = false">{{
           $t("common.close")
@@ -170,6 +170,11 @@ type DisplayedItem = {
 };
 
 export default defineComponent({
+  components: {
+    "note-details-dialog": NoteDetailsDialog,
+    "note-tag-chip-group": NoteTagChipGroup,
+    "scrollable-dialog": ScrollableDialog
+  },
   props: {
     testPurposes: {
       type: Array as PropType<Session["testPurposes"]>,
@@ -179,11 +184,6 @@ export default defineComponent({
       type: Array as PropType<Session["testResultFiles"]>,
       default: () => []
     }
-  },
-  components: {
-    "note-details-dialog": NoteDetailsDialog,
-    "note-tag-chip-group": NoteTagChipGroup,
-    "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
     const rootStore = useRootStore();

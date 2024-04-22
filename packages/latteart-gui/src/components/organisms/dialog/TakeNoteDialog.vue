@@ -18,8 +18,8 @@
   <div>
     <note-common-dialog
       :opened="opened"
-      :isCapturing="true"
-      :noteInfo="noteInfo"
+      :is-capturing="true"
+      :note-info="noteInfo"
       @execute="takeNote"
       @close="close()"
     />
@@ -41,12 +41,12 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "note-common-dialog": NoteCommonDialog,
     "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const captureControlStore = useCaptureControlStore();

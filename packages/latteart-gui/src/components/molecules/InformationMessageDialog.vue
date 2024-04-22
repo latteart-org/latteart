@@ -19,7 +19,7 @@
     :opened="opened"
     :title="title"
     :message="message"
-    :iconOpts="{ text: 'info', color: 'blue' }"
+    :icon-opts="{ text: 'info', color: 'blue' }"
     @close="close()"
   />
 </template>
@@ -29,13 +29,13 @@ import AlertDialog from "@/components/molecules/AlertDialog.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  components: {
+    "alert-dialog": AlertDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     title: { type: String, default: "", required: true },
     message: { type: String, default: "", required: true }
-  },
-  components: {
-    "alert-dialog": AlertDialog
   },
   setup(_, context) {
     const close = (): void => {

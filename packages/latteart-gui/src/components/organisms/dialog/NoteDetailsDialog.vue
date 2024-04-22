@@ -18,12 +18,12 @@
   <execute-dialog
     :opened="opened"
     :title="$t('note-details-dialog.details')"
+    :accept-button-disabled="isViewerMode"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="isViewerMode"
   >
     <v-list class="note-details-dialog">
       <v-list-item>
@@ -43,8 +43,8 @@
 
       <media-display-group
         v-if="isMediaDisplayed"
-        :imageFileUrl="imageFilePath"
-        :videoUrl="videoUrl"
+        :image-file-url="imageFilePath"
+        :video-url="videoUrl"
       />
     </v-list>
 
@@ -67,6 +67,12 @@ import { useRootStore } from "@/stores/root";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog,
+    "error-message-dialog": ErrorMessageDialog,
+    "media-display-group": MediaDisplayGroup,
+    "note-tag-select-box": NoteTagSelectBox
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     testResultId: { type: String, default: "", required: true },
@@ -80,12 +86,6 @@ export default defineComponent({
     },
     imageFilePath: { type: String, default: "", required: true },
     videoUrl: { type: String, default: "", required: true }
-  },
-  components: {
-    "execute-dialog": ExecuteDialog,
-    "error-message-dialog": ErrorMessageDialog,
-    "media-display-group": MediaDisplayGroup,
-    "note-tag-select-box": NoteTagSelectBox
   },
   setup(props, context) {
     const rootStore = useRootStore();

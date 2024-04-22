@@ -20,7 +20,7 @@
 
     <test-result-name-edit-dialog
       :opened="editDialogOpened"
-      :oldTestResultName="testResultName"
+      :old-test-result-name="testResultName"
       @close="editDialogOpened = false"
       @execute="editTestResultName"
     />
@@ -41,13 +41,13 @@ import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
-  props: {
-    testResultId: { type: String, default: "", required: true },
-    testResultName: { type: String, default: "", required: true }
-  },
   components: {
     "test-result-name-edit-dialog": TestResultNameEditDialog,
     "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    testResultId: { type: String, default: "", required: true },
+    testResultName: { type: String, default: "", required: true }
   },
   setup(props, context) {
     const operationHistoryStore = useOperationHistoryStore();

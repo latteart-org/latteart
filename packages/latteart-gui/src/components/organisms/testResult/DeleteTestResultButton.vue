@@ -16,7 +16,7 @@
 
 <template>
   <div>
-    <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
+    <v-list-item :disabled="isDisabled" @click="openConfirmDialog">
       <v-list-item-title>{{ $t("test-result-page.delete-test-result") }}</v-list-item-title>
     </v-list-item>
 
@@ -24,7 +24,7 @@
       :opened="confirmDialogOpened"
       :title="$t('test-result-page.delete-test-result-title')"
       :message="confirmMessage"
-      :onAccept="deleteTestResult"
+      :on-accept="deleteTestResult"
       @close="confirmDialogOpened = false"
     />
 

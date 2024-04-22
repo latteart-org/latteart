@@ -19,26 +19,26 @@
     <execute-dialog
       :opened="opened"
       :title="$t('app.record-notice')"
+      :accept-button-disabled="!canSave"
+      :max-width="800"
       @accept="execute"
       @cancel="
         cancel();
         close();
       "
-      :acceptButtonDisabled="!canSave"
-      :maxWidth="800"
     >
       <number-field
         :label="$t('note-edit.target-sequence')"
         :value="newTargetSequence ?? undefined"
-        :minValue="1"
-        :maxValue="maxSequence ?? undefined"
-        @updateNumberFieldValue="updateNewTargetSequence"
+        :min-value="1"
+        :max-value="maxSequence ?? undefined"
         :disabled="oldNote === ''"
+        @update-number-field-value="updateNewTargetSequence"
       ></number-field>
-      <v-text-field :label="$t('note-edit.summary')" v-model="newNote"></v-text-field>
-      <v-textarea :label="$t('note-edit.details')" v-model="newNoteDetails"></v-textarea>
+      <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
+      <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
 
-      <note-tag-select-box :label="$t('note-edit.tags')" v-model="newTags"></note-tag-select-box>
+      <note-tag-select-box v-model="newTags" :label="$t('note-edit.tags')"></note-tag-select-box>
 
       <h4 v-if="isCapturing && oldIndex === null">
         {{ $t("note-edit.take-screenshot") }}
@@ -65,9 +65,9 @@
           $t("note-edit.check-video")
         }}</v-btn>
 
-        <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
+        <popup-image v-if="isImageVisible" :image-file-url="screenshot" />
 
-        <video-display v-if="isVideoVisible" :videoUrl="video" />
+        <video-display v-if="isVideoVisible" :video-url="video" />
       </div>
     </execute-dialog>
   </div>
@@ -88,6 +88,13 @@ import { useOperationHistoryStore } from "@/stores/operationHistory";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
+  components: {
+    "number-field": NumberField,
+    "execute-dialog": ExecuteDialog,
+    "video-display": VideoDisplay,
+    "popup-image": PopupImage,
+    "note-tag-select-box": NoteTagSelectBox
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     isCapturing: { type: Boolean, default: false },
@@ -96,13 +103,6 @@ export default defineComponent({
       default: undefined,
       required: true
     }
-  },
-  components: {
-    "number-field": NumberField,
-    "execute-dialog": ExecuteDialog,
-    "video-display": VideoDisplay,
-    "popup-image": PopupImage,
-    "note-tag-select-box": NoteTagSelectBox
   },
   setup(props, context) {
     const rootStore = useRootStore();

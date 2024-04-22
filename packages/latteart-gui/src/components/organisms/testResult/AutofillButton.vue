@@ -20,10 +20,10 @@
       :disabled="isDisabled"
       color="blue"
       icon="edit"
-      @click="openDialog"
       size="small"
       :title="$t('app.autofill')"
       class="mx-2"
+      @click="openDialog"
     >
     </v-btn>
   </div>

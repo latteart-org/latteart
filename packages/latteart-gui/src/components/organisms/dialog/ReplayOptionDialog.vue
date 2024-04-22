@@ -17,20 +17,20 @@
 <template>
   <div>
     <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{ $t("replay-option.start-replay") }}</template>
-      <template v-slot:content>
+      <template #title>{{ $t("replay-option.start-replay") }}</template>
+      <template #content>
         <v-checkbox
-          :label="$t('replay-option.replay-capture')"
           v-model="isResultSavingEnabled"
+          :label="$t('replay-option.replay-capture')"
           hide-details
         ></v-checkbox>
 
         <v-card flat>
           <v-card-text>
             <v-text-field
+              v-model="testResultName"
               :disabled="!isResultSavingEnabled"
               :label="$t('replay-option.test-result-name')"
-              v-model="testResultName"
               hide-details
             ></v-text-field>
           </v-card-text>
@@ -41,18 +41,18 @@
         </p>
 
         <v-checkbox
+          v-model="isComparisonEnabled"
           :disabled="!isResultSavingEnabled"
           :label="
             $t('replay-option.replay-compare', {
               sourceTestResultName
             })
           "
-          v-model="isComparisonEnabled"
         ></v-checkbox>
 
         <p class="alert-message">{{ alertMessage }}</p>
       </template>
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
         <v-btn
           :disabled="okButtonIsDisabled"
@@ -93,12 +93,12 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const rootStore = useRootStore();

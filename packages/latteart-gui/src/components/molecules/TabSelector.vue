@@ -16,7 +16,7 @@
 
 <template>
   <v-tabs bg-color="#424242" slider-color="yellow" show-arrows :model-value="selectedItemIndex">
-    <v-tab dark v-for="item in items" :key="item.id" @click="select(item.id)">
+    <v-tab v-for="item in items" :key="item.id" dark @click="select(item.id)">
       {{ wordOmitted(item.name, 10) }}
     </v-tab>
   </v-tabs>

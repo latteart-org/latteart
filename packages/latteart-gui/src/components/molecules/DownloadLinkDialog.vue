@@ -16,18 +16,18 @@
 
 <template>
   <scrollable-dialog :opened="opened">
-    <template v-slot:title>
+    <template #title>
       <v-icon v-if="!!iconText" class="mr-2" size="large" :color="iconColor">{{ iconText }}</v-icon>
       <span>{{ title }}</span>
     </template>
-    <template v-slot:content>
+    <template #content>
       <span class="pre-wrap break-word">{{ message }}</span>
       <a :href="linkUrl" class="px-2" :download="downloadFileName">{{ downloadLinkMessage }}</a>
       <p v-if="alertMessage" class="pre-wrap break-word alert-message">
         {{ alertMessage }}
       </p>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
       <v-btn color="blue" variant="elevated" @click="close()">{{ $t("common.close") }}</v-btn>
     </template>
@@ -41,6 +41,9 @@ import { defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "scrollable-dialog": ScrollableDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     title: { type: String, default: "", required: true },
@@ -52,9 +55,6 @@ export default defineComponent({
       type: Object as PropType<{ text: string; color?: string } | null>
     },
     downloadMessage: { type: String, default: "" }
-  },
-  components: {
-    "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
     const rootStore = useRootStore();

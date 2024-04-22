@@ -16,7 +16,7 @@
 
 <template>
   <div>
-    <v-list-item @click="openConfirmDialog" :disabled="isDisabled">
+    <v-list-item :disabled="isDisabled" @click="openConfirmDialog">
       <v-list-item-title>{{ $t("test-result-page.compare-test-result") }}</v-list-item-title>
     </v-list-item>
 
@@ -24,13 +24,13 @@
       :opened="confirmDialogOpened"
       :title="$t('test-result-page.compare-test-result-title')"
       :message="$t('test-result-page.compare-test-result-message')"
-      :onAccept="compareHistory"
+      :on-accept="compareHistory"
       @close="confirmDialogOpened = false"
     />
 
     <comparison-result-dialog
       :opened="resultDialogOpened"
-      :comparisonResult="comparisonResult"
+      :comparison-result="comparisonResult"
       @close="resultDialogOpened = false"
     />
 

@@ -19,7 +19,7 @@
     :opened="opened"
     :title="title"
     :message="message"
-    :iconOpts="{ text: 'info', color: 'blue' }"
+    :icon-opts="{ text: 'info', color: 'blue' }"
     @close="close()"
   />
 </template>

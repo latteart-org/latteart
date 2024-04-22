@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-list-item @click="scriptGenerationOptionDialogIsOpened = true" :disabled="isDisabled">
+  <v-list-item :disabled="isDisabled" @click="scriptGenerationOptionDialogIsOpened = true">
     <v-list-item-title>{{ $t("test-result-page.generate-testscript") }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
@@ -28,8 +28,8 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
       @close="downloadLinkDialogOpened = false"
     />
 

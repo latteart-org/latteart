@@ -19,9 +19,9 @@
       <slot />
     </v-btn>
     <input
+      ref="fileInput"
       type="file"
       style="display: none"
-      ref="fileInput"
       :accept="accept"
       @change="selectFile"
     />

@@ -32,10 +32,10 @@
       :style="{ height: '100%', width: '100%' }"
       fixed-header
     >
-      <template v-slot:[`item.name`]="{ item }">
-        <td :class="{ ellipsis: true }" @click="clickRowItem(item.id, item.name)" v-ripple>
+      <template #[`item.name`]="{ item }">
+        <td v-ripple :class="{ ellipsis: true }" @click="clickRowItem(item.id, item.name)">
           <v-menu location="start" open-on-hover>
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <div
                 v-bind="props"
                 :style="{
@@ -60,8 +60,8 @@
                   }}</v-list-item-title>
                   <v-list-item-title v-else
                     ><v-text-field
-                      v-bind:model-value="item.name"
-                      v-on:update:model-value="changeTestResultName"
+                      :model-value="item.name"
+                      @update:model-value="changeTestResultName"
                       @click.stop
                   /></v-list-item-title>
 
@@ -69,15 +69,15 @@
                     <v-btn
                       v-if="!isEditing"
                       icon
-                      @click.stop="editTestResultName(item.id, item.name)"
                       :title="$t('test-result-list.edit')"
+                      @click.stop="editTestResultName(item.id, item.name)"
                       ><v-icon>edit</v-icon></v-btn
                     >
                     <v-btn
                       v-else
                       icon
-                      @click.stop="editTestResultName(item.id, newTestResultName)"
                       :title="$t('test-result-list.edit')"
+                      @click.stop="editTestResultName(item.id, newTestResultName)"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
                   </v-list-item-action>
@@ -111,7 +111,7 @@
                       {{ testPurpose.value }}
                     </li>
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle class="pl-5" v-if="item.testPurposes.length > 5"
+                  <v-list-item-subtitle v-if="item.testPurposes.length > 5" class="pl-5"
                     >… and more</v-list-item-subtitle
                   >
                 </v-list-item>

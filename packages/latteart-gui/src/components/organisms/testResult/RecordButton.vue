@@ -17,17 +17,17 @@
 <template>
   <div>
     <record-start-trigger v-if="!isCapturing">
-      <template v-slot:activator="{ on, isDisabled }">
+      <template #activator="{ on, isDisabled }">
         <v-btn
+          id="startButton"
           :disabled="isDisabled"
           icon
           variant="text"
           size="large"
           color="grey-darken-3"
-          @click="openOptionDialog"
           :title="$t('app.start')"
-          id="startButton"
           class="mx-1"
+          @click="openOptionDialog"
         >
           <v-icon>fiber_manual_record</v-icon>
         </v-btn>
@@ -42,14 +42,14 @@
 
     <v-btn
       v-else
+      id="endButton"
       icon
       variant="text"
       size="large"
       color="red"
-      @click="endCapture"
       :title="$t('app.finish')"
-      id="endButton"
       class="mx-2"
+      @click="endCapture"
     >
       <v-icon>fiber_manual_record</v-icon>
     </v-btn>

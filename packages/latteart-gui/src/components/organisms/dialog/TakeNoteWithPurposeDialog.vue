@@ -19,6 +19,8 @@
     <execute-dialog
       :opened="opened"
       :title="$t('app.record-note')"
+      :accept-button-disabled="!canSave"
+      :max-width="800"
       @accept="
         saveNote();
         close();
@@ -27,8 +29,6 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="!canSave"
-      :maxWidth="800"
     >
       <h3 class="text-h6 mb-0">
         {{ $t("note-edit.note-for-current-purpose") }}
@@ -41,12 +41,12 @@
             <v-radio :label="$t('note-edit.problem-occured')" :value="true"></v-radio>
           </v-radio-group>
           <div v-if="shouldRecordAsIssue">
-            <v-text-field :label="$t('note-edit.summary')" v-model="newNote"></v-text-field>
-            <v-textarea :label="$t('note-edit.details')" v-model="newNoteDetails"></v-textarea>
+            <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
+            <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
 
             <note-tag-select-box
-              :label="$t('note-edit.tags')"
               v-model="newTags"
+              :label="$t('note-edit.tags')"
             ></note-tag-select-box>
 
             <h4>{{ $t("note-edit.take-screenshot") }}</h4>
@@ -70,9 +70,9 @@
                 $t("note-edit.check-video")
               }}</v-btn>
 
-              <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
+              <popup-image v-if="isImageVisible" :image-file-url="screenshot" />
 
-              <video-display v-if="isVideoVisible" :videoUrl="video" />
+              <video-display v-if="isVideoVisible" :video-url="video" />
             </div>
           </div>
         </v-card-text>
@@ -85,14 +85,14 @@
       <v-card flat>
         <v-card-text>
           <v-text-field
+            v-model="newTestPurpose"
             :disabled="shouldContinueSameTestPurpose"
             :label="$t('note-edit.summary')"
-            v-model="newTestPurpose"
           ></v-text-field>
           <v-textarea
+            v-model="newTestPurposeDetails"
             :disabled="shouldContinueSameTestPurpose"
             :label="$t('note-edit.details')"
-            v-model="newTestPurposeDetails"
           ></v-textarea>
 
           <v-checkbox
@@ -123,15 +123,15 @@ import { useOperationHistoryStore } from "@/stores/operationHistory";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true }
-  },
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
     "video-display": VideoDisplay,
     "popup-image": PopupImage,
     "note-tag-select-box": NoteTagSelectBox
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
     const rootStore = useRootStore();

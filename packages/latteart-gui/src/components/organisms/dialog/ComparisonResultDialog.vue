@@ -15,12 +15,12 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened" :maxWidth="1000">
-    <template v-slot:title>
+  <scrollable-dialog :opened="opened" :max-width="1000">
+    <template #title>
       <span>{{ $t("common.confirm") }}</span>
     </template>
-    <template v-slot:content>
-      <span class="pre-wrap break-word" v-for="(message, index) in dialogMessages" :key="index">{{
+    <template #content>
+      <span v-for="(message, index) in dialogMessages" :key="index" class="pre-wrap break-word">{{
         message
       }}</span>
       <br />
@@ -38,7 +38,7 @@
           hide-default-footer
           class="hover-disabled"
         >
-          <template v-slot:item="props">
+          <template #item="props">
             <tr>
               <td>
                 {{ props.item.sequence }}
@@ -54,7 +54,7 @@
         </v-data-table>
       </div>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
       <v-btn color="blue" variant="elevated" @click="$emit('close')">{{ $t("common.ok") }}</v-btn>
     </template>
@@ -69,6 +69,9 @@ import { computed, defineComponent } from "vue";
 import type { PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "scrollable-dialog": ScrollableDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     comparisonResult: {
@@ -77,9 +80,6 @@ export default defineComponent({
         /* Do nothing */
       }
     }
-  },
-  components: {
-    "scrollable-dialog": ScrollableDialog
   },
   setup(props) {
     const rootStore = useRootStore();

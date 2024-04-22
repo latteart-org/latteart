@@ -131,11 +131,12 @@ const defaultRoutes = [
             name: "storyPage",
             component: StoryPage,
             meta: { title: "story-page.title" }
-          },          {
+          },
+          {
             path: "config",
             component: ConfigPage,
             meta: { title: "manage-header.capture-config" }
-          },
+          }
         ]
       }
     ]

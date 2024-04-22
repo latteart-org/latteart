@@ -16,13 +16,13 @@
 
 <template>
   <v-text-field
+    id="urlTextField"
+    v-model="url"
     :single-line="singleLine"
     :hide-details="hideDetails"
     label="URL"
     prepend-icon="open_in_browser"
-    v-model="url"
     :disabled="isDisabled"
-    id="urlTextField"
   ></v-text-field>
 </template>
 

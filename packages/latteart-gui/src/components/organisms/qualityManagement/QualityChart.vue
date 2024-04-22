@@ -25,6 +25,7 @@ import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
+  components: { LineChart },
   props: {
     qualityData: {
       type: Object as PropType<{ datasets: { label: string; data: number[] }[] }>,
@@ -32,7 +33,6 @@ export default defineComponent({
     },
     totalBugNum: { type: Number, required: true }
   },
-  components: { LineChart },
   setup(props) {
     const rootStore = useRootStore();
 

@@ -45,6 +45,9 @@ ChartJS.register(
 );
 
 export default defineComponent({
+  components: {
+    "line-chart-impl": Line
+  },
   props: {
     data: {
       type: Object as PropType<{
@@ -80,9 +83,6 @@ export default defineComponent({
       }>,
       default: null
     }
-  },
-  components: {
-    "line-chart-impl": Line
   },
   setup(props) {
     const chartData = computed(() => props.data);
