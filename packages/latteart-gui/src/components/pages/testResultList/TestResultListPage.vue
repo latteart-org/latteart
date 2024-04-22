@@ -21,7 +21,7 @@
         <v-card-text>
           <test-result-import-trigger @update="loadTestResultSummaries">
             <template #activator="{ on, isDisabled }">
-              <v-btn :disabled="isDisabled" variant="elevated" @click="on">{{
+              <v-btn :disabled="isDisabled" @click="on">{{
                 $t("import-export-dialog.test-result-import-title")
               }}</v-btn>
             </template>

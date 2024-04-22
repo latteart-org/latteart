@@ -24,7 +24,6 @@
           <v-btn
             class="ma-4"
             :disabled="isExecuteButtonDisabled"
-            variant="elevated"
             color="primary"
             @click="execute(on)"
             >{{ $t("start-capture-page.execute-button") }}</v-btn

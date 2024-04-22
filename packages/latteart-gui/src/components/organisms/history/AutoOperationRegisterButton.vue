@@ -19,7 +19,6 @@
     <v-btn
       :disabled="isDisabled"
       color="blue"
-      variant="elevated"
       size="small"
       class="mx-2"
       @click="registerDialogOpened = true"

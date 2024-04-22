@@ -33,7 +33,7 @@
                   <span style="color: rgba(0, 0, 0, 0.6)"
                     ><v-icon>filter_list_alt</v-icon>{{ $t("stories-review-page.filter") }}</span
                   >
-                  <v-btn variant="elevated" class="ml-4" @click="filterClear">{{
+                  <v-btn class="ml-4" @click="filterClear">{{
                     $t("stories-review-page.clear")
                   }}</v-btn>
                   <v-row>

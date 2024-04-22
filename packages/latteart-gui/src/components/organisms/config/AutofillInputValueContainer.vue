@@ -35,9 +35,7 @@
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn variant="elevated" color="error" @click="deleteConditionGroup">{{
-          $t("common.delete")
-        }}</v-btn>
+        <v-btn color="error" @click="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -128,9 +126,7 @@
         </v-col>
       </v-row>
     </div>
-    <v-btn variant="elevated" @click="addCondition">{{
-      $t("config-page.autofill.adding-autofill-values")
-    }}</v-btn>
+    <v-btn @click="addCondition">{{ $t("config-page.autofill.adding-autofill-values") }}</v-btn>
   </v-container>
 </template>
 

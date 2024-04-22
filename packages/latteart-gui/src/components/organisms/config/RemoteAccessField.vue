@@ -33,7 +33,6 @@
         id="connecttButton"
         :color="color"
         :disabled="isCapturing || isReplaying || targetUrl === url"
-        variant="elevated"
         class="ma-2"
         @click="connect()"
         >{{ $t("remote-access.connect") }}</v-btn

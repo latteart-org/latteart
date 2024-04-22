@@ -200,9 +200,12 @@
 
       <template #footer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="text" @click="testResultSelectionDialogOpened = false">{{
-          $t("common.close")
-        }}</v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="testResultSelectionDialogOpened = false"
+          >{{ $t("common.close") }}</v-btn
+        >
       </template>
     </scrollable-dialog>
 

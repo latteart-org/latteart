@@ -17,7 +17,6 @@
 <template>
   <div>
     <v-btn
-      variant="elevated"
       icon="arrow_forward"
       size="small"
       :disabled="isDisabled"
