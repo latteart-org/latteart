@@ -25,7 +25,7 @@
     </template>
     <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" @click="close()">{{ $t("common.ok") }}</v-btn>
+      <v-btn variant="elevated" color="blue" @click="close()">{{ $t("common.ok") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
