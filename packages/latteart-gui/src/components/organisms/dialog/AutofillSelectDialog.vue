@@ -41,7 +41,6 @@
 import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { watch } from "vue";
 
@@ -50,7 +49,6 @@ export default defineComponent({
     "execute-dialog": ExecuteDialog
   },
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
 
     const selectedIndex = ref(-1);
@@ -105,7 +103,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       opened,
       message,
       selectList,

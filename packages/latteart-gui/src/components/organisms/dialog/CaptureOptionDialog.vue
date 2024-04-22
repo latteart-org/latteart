@@ -33,7 +33,6 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -44,8 +43,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const isOptionDisplayed = ref<boolean>(false);
     const captureOption = ref<CaptureOptionParams>({
       url: "",
@@ -98,7 +95,6 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      t: rootStore.message,
       isOptionDisplayed,
       updateOption,
       isOkButtonDisabled,

@@ -172,7 +172,6 @@ export default defineComponent({
     watch(url, updateUrl);
 
     return {
-      t: rootStore.message,
       urlField,
       informationMessageDialogOpened,
       informationTitle,

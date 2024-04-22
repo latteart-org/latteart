@@ -461,7 +461,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       isViewerMode,
       confirmDialogOpened,
       confirmDialogTitle,

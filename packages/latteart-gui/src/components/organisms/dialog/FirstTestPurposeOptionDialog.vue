@@ -71,7 +71,6 @@
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -83,7 +82,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
 
     const firstTestPurpose = ref("");
@@ -140,7 +138,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       firstTestPurpose,
       firstTestPurposeDetails,
       shouldRecordTestPurpose,

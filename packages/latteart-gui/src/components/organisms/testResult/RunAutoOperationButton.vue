@@ -110,7 +110,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       autoOperationSelectDialogOpened,
       errorDialogOpened,
       errorDialogMessage,

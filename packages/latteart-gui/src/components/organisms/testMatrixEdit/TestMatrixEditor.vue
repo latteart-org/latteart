@@ -245,7 +245,6 @@ export default defineComponent({
     initializePanels();
 
     return {
-      t: rootStore.message,
       testMatrixBeingEdited,
       confirmDialogOpened,
       confirmDialogTitle,

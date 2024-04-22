@@ -112,7 +112,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       dialogOpened,
       linkUrl,
       obj

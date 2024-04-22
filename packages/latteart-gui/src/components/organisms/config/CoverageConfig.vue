@@ -51,9 +51,7 @@
 </template>
 
 <script lang="ts">
-import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -95,7 +93,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       tempIncludeTags,
       displayedTagList,
       changeValue

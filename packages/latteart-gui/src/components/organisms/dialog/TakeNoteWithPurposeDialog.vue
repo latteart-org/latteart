@@ -117,7 +117,6 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
@@ -134,7 +133,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -289,7 +287,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       newNote,
       newNoteDetails,
       newTags,

@@ -346,7 +346,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       confirmDialogOpened,
       confirmDialogTitle,
       confirmDialogMessage,

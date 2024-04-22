@@ -26,7 +26,6 @@
 
 <script lang="ts">
 import AlertDialog from "@/components/molecules/AlertDialog.vue";
-import { useRootStore } from "@/stores/root";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -38,13 +37,11 @@ export default defineComponent({
     message: { type: String, default: "", required: true }
   },
   setup(_, context) {
-    const rootStore = useRootStore();
-
     const close = (): void => {
       context.emit("close");
     };
 
-    return { t: rootStore.message, close };
+    return { close };
   }
 });
 </script>

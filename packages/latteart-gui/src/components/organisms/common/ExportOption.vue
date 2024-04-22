@@ -33,13 +33,10 @@
 </template>
 
 <script lang="ts">
-import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup(_, context) {
-    const rootStore = useRootStore();
-
     const option = ref({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
@@ -53,7 +50,6 @@ export default defineComponent({
     watch(option, update, { deep: true });
 
     return {
-      t: rootStore.message,
       option
     };
   }

@@ -41,10 +41,7 @@ import ScreenDefUnit from "./ScreenDefUnit.vue";
 import type { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import draggable from "vuedraggable";
 import type { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
-import { computed, defineComponent } from "vue";
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
-import { ref } from "vue";
+import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -103,7 +100,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       dragging,
       conditionGroups,
       changeOrder,

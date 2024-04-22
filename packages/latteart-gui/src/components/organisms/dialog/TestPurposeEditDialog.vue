@@ -58,7 +58,6 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
@@ -71,7 +70,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
 
     const oldNote = ref("");
@@ -232,7 +230,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       oldNote,
       newNote,
       newNoteDetails,

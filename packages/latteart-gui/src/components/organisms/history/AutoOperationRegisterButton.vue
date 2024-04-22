@@ -93,7 +93,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       registerDialogOpened,
       errorMessageDialogOpened,
       errorMessage,

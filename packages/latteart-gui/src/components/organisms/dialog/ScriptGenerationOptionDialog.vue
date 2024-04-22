@@ -31,7 +31,6 @@
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import ScriptGenerationOption from "../common/ScriptGenerationOption.vue";
 import { defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -42,8 +41,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const isOptionDisplayed = ref<boolean>(false);
 
     const option = ref<{
@@ -91,7 +88,6 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      t: rootStore.message,
       isOptionDisplayed,
       updateOption,
       execute,

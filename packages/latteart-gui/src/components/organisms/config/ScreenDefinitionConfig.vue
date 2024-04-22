@@ -19,7 +19,7 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{ t("config-page.screen-def.default-screen-definition") }}
+          {{ $t("config-page.screen-def.default-screen-definition") }}
         </h4>
         <v-radio-group
           :model-value="tempConfig.screenDefType"
@@ -50,7 +50,6 @@ import type { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/type
 import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -98,7 +97,6 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      t: useRootStore().message,
       tempConfig,
       updateConditionGroups,
       changeScreenDefType

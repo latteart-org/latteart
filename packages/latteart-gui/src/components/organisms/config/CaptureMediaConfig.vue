@@ -32,8 +32,7 @@
 <script lang="ts">
 import { type CaptureMediaSetting } from "@/lib/common/settings/Settings";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -80,7 +79,6 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      t: rootStore.message,
       tempConfig,
       captureArch,
       changeCaptureFormat

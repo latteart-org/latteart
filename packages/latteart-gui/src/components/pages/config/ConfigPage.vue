@@ -352,7 +352,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       panels,
       locales,
       initLocale,

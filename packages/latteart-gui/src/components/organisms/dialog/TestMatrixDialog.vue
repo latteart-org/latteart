@@ -315,7 +315,6 @@ export default defineComponent({
     key.value = 0;
 
     return {
-      t: rootStore.message,
       selectedViewPointsPresetId,
       tempViewPoints,
       testMatrix,

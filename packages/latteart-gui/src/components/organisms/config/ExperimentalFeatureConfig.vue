@@ -48,9 +48,7 @@
 
 <script lang="ts">
 import { type ExperimentalFeatureSetting } from "@/lib/common/settings/Settings";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -95,7 +93,6 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      t: useRootStore().message,
       captureArch
     };
   }

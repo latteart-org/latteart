@@ -45,7 +45,6 @@ import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -117,7 +116,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: useRootStore().message,
       settingName,
       settingDetails,
       okButtonIsDisabled,

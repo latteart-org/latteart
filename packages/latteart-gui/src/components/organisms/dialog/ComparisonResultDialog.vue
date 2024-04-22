@@ -183,7 +183,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       headers,
       dialogMessages,
       downloadLinkUrl,

@@ -31,20 +31,20 @@
                 >
                 </v-checkbox>
                 <v-text-field
-                  :label="t('config-page.screen-def.screen-name')"
+                  :label="$t('config-page.screen-def.screen-name')"
                   :model-value="conditionGroup.screenName"
                   @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
                 ></v-text-field>
                 <v-btn color="error" @click="deleteConditionGroup"
-                  >{{ t("config-page.screen-def.delete-definition") }}
+                  >{{ $t("config-page.screen-def.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
                 <v-btn size="small" class="mt-3" @click="addCondition">{{
-                  t("config-page.screen-def.add-condition")
+                  $t("config-page.screen-def.add-condition")
                 }}</v-btn
-                ><span class="description">{{ t("config-page.screen-def.description") }}</span>
+                ><span class="description">{{ $t("config-page.screen-def.description") }}</span>
               </v-row>
 
               <v-row
@@ -54,7 +54,7 @@
                 align="center"
               >
                 <v-col cols="1" style="text-align: right">
-                  <span v-if="i > 0">{{ t("config-page.screen-def.and") }}</span>
+                  <span v-if="i > 0">{{ $t("config-page.screen-def.and") }}</span>
                   <span v-else> </span>
                 </v-col>
 
@@ -265,7 +265,6 @@ export default defineComponent({
     };
 
     return {
-      t,
       store,
       definitionTypeList,
       matchType,
