@@ -23,6 +23,7 @@
             <v-container>
               <v-row>
                 <v-checkbox
+                  hide-details
                   :model-value="conditionGroup.isEnabled"
                   class="default-flex"
                   @update:model-value="
@@ -61,6 +62,7 @@
 
                 <v-col cols="1" style="text-align: center">
                   <v-checkbox
+                    hide-details
                     :model-value="item.isEnabled"
                     style="display: inline-block"
                     @update:model-value="

@@ -20,6 +20,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
+          density="comfortable"
           :label="$t('config-page.comparison-exclude-items-enabled')"
           hide-details
         >
@@ -43,6 +44,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
+          density="comfortable"
           :label="$t('config-page.comparison-exclude-elements-enabled')"
           hide-details
         >

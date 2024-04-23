@@ -18,14 +18,20 @@
     <v-container id="export-option" class="px-0" fluid>
       <v-checkbox
         v-model="option.selectedOptionProject"
+        density="comfortable"
+        hide-details
         :label="$t('import-export-dialog.project-data')"
       />
       <v-checkbox
         v-model="option.selectedOptionTestresult"
+        density="comfortable"
+        hide-details
         :label="$t('import-export-dialog.testresult-data')"
       />
       <v-checkbox
         v-model="option.selectedOptionConfig"
+        density="comfortable"
+        hide-details
         :label="$t('import-export-dialog.config-data')"
       />
     </v-container>
@@ -36,6 +42,7 @@
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
+  emits: ["update"],
   setup(_, context) {
     const option = ref({
       selectedOptionProject: true,

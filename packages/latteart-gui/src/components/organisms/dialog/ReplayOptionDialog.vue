@@ -21,8 +21,9 @@
       <template #content>
         <v-checkbox
           v-model="isResultSavingEnabled"
-          :label="$t('replay-option.replay-capture')"
+          density="comfortable"
           hide-details
+          :label="$t('replay-option.replay-capture')"
         ></v-checkbox>
 
         <v-card flat>
@@ -43,6 +44,7 @@
 
         <v-checkbox
           v-model="isComparisonEnabled"
+          density="comfortable"
           :disabled="!isResultSavingEnabled"
           :label="
             $t('replay-option.replay-compare', {
@@ -101,6 +103,7 @@ export default defineComponent({
   props: {
     opened: { type: Boolean, default: false, required: true }
   },
+  emits: ["ok", "cancel", "close"],
   setup(props, context) {
     const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
