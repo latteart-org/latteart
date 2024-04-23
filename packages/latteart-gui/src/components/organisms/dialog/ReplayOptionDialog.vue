@@ -29,6 +29,7 @@
           <v-card-text>
             <v-text-field
               v-model="testResultName"
+              variant="underlined"
               :disabled="!isResultSavingEnabled"
               :label="$t('replay-option.test-result-name')"
               hide-details

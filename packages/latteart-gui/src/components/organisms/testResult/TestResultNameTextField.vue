@@ -18,6 +18,7 @@
   <v-text-field
     id="outputDirectoryTextField"
     v-model="testResultName"
+    variant="underlined"
     :single-line="singleLine"
     :hide-details="hideDetails"
     :label="$t('app.test-result-name')"

@@ -26,6 +26,7 @@
     chips
     hide-selected
     :readonly="readonly"
+    variant="underlined"
   >
     <template #no-data>
       <v-list-item>

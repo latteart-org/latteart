@@ -30,12 +30,14 @@
     </div>
     <v-select
       v-model="selectedItem"
+      variant="underlined"
       :label="$t('auto-operation-select-dialog.name')"
       :items="selectList"
       item-title="settingName"
       item-value="value"
     ></v-select>
     <v-textarea
+      variant="underlined"
       :label="$t('auto-operation-select-dialog.details')"
       readonly
       no-resize

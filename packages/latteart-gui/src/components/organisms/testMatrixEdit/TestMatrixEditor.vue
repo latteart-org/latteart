@@ -52,6 +52,7 @@
                   <v-text-field
                     v-if="expandedPanelIndex === index"
                     :id="`groupNameTextField${index}`"
+                    variant="underlined"
                     :model-value="group.name"
                     @click="$event.stopPropagation()"
                     @change="(e: any) => renameGroup(group.id, e.target._value)"
@@ -78,7 +79,7 @@
     ></v-row>
     <v-row>
       <v-col cols="2"
-        ><v-text-field v-model="groupName" :label="$t('group-edit-list.name')"
+        ><v-text-field v-model="groupName" variant="underlined" :label="$t('group-edit-list.name')"
       /></v-col>
 
       <v-col cols="10"

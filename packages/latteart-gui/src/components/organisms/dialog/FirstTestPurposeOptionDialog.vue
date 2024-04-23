@@ -48,11 +48,13 @@
 
           <v-text-field
             v-model="firstTestPurpose"
+            variant="underlined"
             :disabled="!shouldRecordTestPurpose"
             :label="$t('note-edit.summary')"
           ></v-text-field>
           <v-textarea
             v-model="firstTestPurposeDetails"
+            variant="underlined"
             :disabled="!shouldRecordTestPurpose"
             :label="$t('note-edit.details')"
           ></v-textarea>

@@ -62,7 +62,7 @@
       "
       @cancel="closeDialog()"
     >
-      <v-text-field v-model="dialogValue" class="pt-0"></v-text-field>
+      <v-text-field v-model="dialogValue" variant="underlined" class="pt-0"></v-text-field>
     </execute-dialog>
 
     <script-generation-option-dialog

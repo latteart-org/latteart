@@ -41,6 +41,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="testMatrixFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.test-matrix')"
                           hide-details
@@ -53,6 +54,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="groupFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.group')"
                           hide-details
@@ -65,6 +67,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="testTargetFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.test-target')"
                           hide-details
@@ -77,6 +80,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="viewPointFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.view-point')"
                           hide-details

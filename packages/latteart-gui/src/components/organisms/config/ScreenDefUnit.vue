@@ -31,6 +31,7 @@
                 >
                 </v-checkbox>
                 <v-text-field
+                  variant="underlined"
                   :label="$t('config-page.screen-def.screen-name')"
                   :model-value="conditionGroup.screenName"
                   @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
@@ -71,6 +72,7 @@
                 <template v-if="store.getLocale() === 'ja'">
                   <v-col cols="2">
                     <v-select
+                      variant="underlined"
                       :model-value="item.definitionType"
                       :items="definitionTypeList"
                       item-title="label"
@@ -83,6 +85,7 @@
 
                   <v-col cols="4">
                     <v-text-field
+                      variant="underlined"
                       :model-value="item.word"
                       class="select-with-word"
                       @change="(e: any) => updateCondition(i, { word: e.target._value })"
@@ -92,6 +95,7 @@
 
                   <v-col cols="3">
                     <v-select
+                      variant="underlined"
                       :model-value="item.matchType"
                       :items="matchType"
                       item-title="label"
@@ -104,6 +108,7 @@
                 <template v-if="store.getLocale() === 'en'">
                   <v-col cols="2">
                     <v-select
+                      variant="underlined"
                       :model-value="item.definitionType"
                       :items="definitionTypeList"
                       item-title="label"
@@ -115,6 +120,7 @@
 
                   <v-col cols="3" class="pr-4">
                     <v-select
+                      variant="underlined"
                       :model-value="item.matchType"
                       :items="matchType"
                       item-title="label"
@@ -125,6 +131,7 @@
 
                   <v-col cols="4" class="pl-4">
                     <v-text-field
+                      variant="underlined"
                       :model-value="item.word"
                       @change="(e: any) => updateCondition(i, { word: e.target._value })"
                     ></v-text-field>

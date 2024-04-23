@@ -29,6 +29,7 @@
     </div>
     <v-text-field
       v-model="settingName"
+      variant="underlined"
       :label="$t('autofill-register-dialog.form-label')"
     ></v-text-field>
   </execute-dialog>

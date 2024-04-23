@@ -67,6 +67,7 @@
           <v-combobox
             v-model:search-input="search"
             v-model="testGenerationOption.customButtonTags"
+            variant="underlined"
             :items="customButtonCandidateTags"
             :class="{ 'pt-0': true, 'mt-0': true }"
             multiple

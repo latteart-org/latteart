@@ -26,6 +26,7 @@
       <v-row class="mt-2">
         <v-text-field
           v-model="testMatrix.name"
+          variant="underlined"
           :label="$t('test-matrix-dialog.test-matrix-name')"
           class="pt-0"
         ></v-text-field>
@@ -40,6 +41,7 @@
               <v-row v-if="isCreate">
                 <v-select
                   v-model="selectedViewPointsPresetId"
+                  variant="underlined"
                   :label="$t('test-matrix-dialog.preset')"
                   :items="viewPointsPresetsWithUnselected"
                   item-title="name"
@@ -58,6 +60,7 @@
                         <v-col cols="9">
                           <v-text-field
                             v-model="tempViewPoint.name"
+                            variant="underlined"
                             :placeholder="$t('test-matrix-dialog.viewPoint-name')"
                             class="view-point-name"
                             @click="(e: any) => e.stopPropagation()"

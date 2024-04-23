@@ -28,6 +28,7 @@
       <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeItems"
+          variant="underlined"
           :items="tempExcludeItems"
           item-title="text"
           item-value="value"
@@ -50,6 +51,7 @@
       <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeElements"
+          variant="underlined"
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
           :label="$t('config-page.comparison-exclude-elements-tagname')"

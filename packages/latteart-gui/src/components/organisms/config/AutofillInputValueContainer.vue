@@ -29,6 +29,7 @@
       </v-col>
       <v-col cols="9">
         <v-text-field
+          variant="underlined"
           :label="$t('config-page.autofill.setting-name')"
           :model-value="conditionGroup.settingName"
           @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
@@ -41,6 +42,7 @@
     <v-row>
       <v-col cols="6">
         <v-text-field
+          variant="underlined"
           label="url"
           :model-value="conditionGroup.url"
           class="px-1"
@@ -49,6 +51,7 @@
       </v-col>
       <v-col cols="6">
         <v-text-field
+          variant="underlined"
           label="title"
           :model-value="conditionGroup.title"
           class="px-1"
@@ -70,6 +73,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
+            variant="underlined"
             :label="$t('config-page.autofill.locator-type')"
             :model-value="item.locatorType"
             :items="locatorTypeList"
@@ -79,6 +83,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
+            variant="underlined"
             :label="$t('config-page.autofill.locator-match-type')"
             :model-value="item.locatorMatchType"
             :items="locatorMatchType(item.locatorType)"
@@ -88,6 +93,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
+            variant="underlined"
             :label="$t('config-page.autofill.locator')"
             :model-value="item.locator"
             class="px-1"
@@ -113,6 +119,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
+            variant="underlined"
             :label="$t('config-page.autofill.input-value')"
             :model-value="item.inputValue"
             class="px-1"

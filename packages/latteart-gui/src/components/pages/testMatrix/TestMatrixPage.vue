@@ -33,6 +33,7 @@
             <v-col>
               <v-text-field
                 v-model="search"
+                variant="underlined"
                 :label="$t('test-matrix-page.tester-name')"
                 clearable
               ></v-text-field></v-col></v-row
