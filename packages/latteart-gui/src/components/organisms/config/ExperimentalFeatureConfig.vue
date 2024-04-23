@@ -29,6 +29,7 @@
         </h4>
         <v-checkbox
           v-model="captureArch"
+          density="comfortable"
           :label="$t('config-page.capture-arch')"
           :disabled="isCapturing || isReplaying"
           hide-details

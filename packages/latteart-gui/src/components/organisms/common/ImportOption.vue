@@ -34,14 +34,20 @@
         <v-col class="pt-3">
           <v-checkbox
             v-model="option.selectedOptionProject"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.project-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionTestresult"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.testresult-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionConfig"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.config-data')"
           />
         </v-col>
@@ -58,6 +64,7 @@ export default defineComponent({
   components: {
     "select-file-button": SelectFileButton
   },
+  emits: ["update"],
   setup(_, context) {
     const option = ref<{
       selectedOptionProject: boolean;
