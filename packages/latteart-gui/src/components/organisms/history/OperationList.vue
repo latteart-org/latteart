@@ -812,7 +812,7 @@ export default defineComponent({
   overflow: hidden
   white-space: nowrap
   text-overflow: ellipsis
-  max-width: 150px
+  max-width: 250px
 
 #operation-list
   position: relative

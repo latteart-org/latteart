@@ -86,7 +86,7 @@
             </template>
 
             <template #[`item.name`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '250px' }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%', width: 'inherit' }"
@@ -98,7 +98,7 @@
             </template>
 
             <template #[`item.initialUrl`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '250px' }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%', width: 'inherit' }"
@@ -110,7 +110,7 @@
             </template>
 
             <template #[`item.testingTime`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }">
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToHHmmss(item.testingTime) }}
                 </div>
@@ -118,7 +118,7 @@
             </template>
 
             <template #[`item.creationTimestamp`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }">
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToDateFormat(item.creationTimestamp) }}
                 </div>
@@ -126,7 +126,7 @@
             </template>
 
             <template #[`item.testPurposes`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '350px' }">
                 <li
                   v-for="(testPurpose, index) in item.testPurposes.slice(0, 3)"
                   :key="index"
@@ -222,37 +222,37 @@ export default defineComponent({
         {
           title: "",
           value: "actions",
-          width: "120",
+          minWidth: "120px",
           sortable: false
         },
         {
           title: rootStore.message("test-result-list.name"),
           value: "name",
-          width: "280",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.url"),
           value: "initialUrl",
-          width: "450",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.testing-time"),
           value: "testingTime",
-          width: "120",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.creation-timestamp"),
           value: "creationTimestamp",
-          width: "170",
+          minWidth: "170px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.test-purpose"),
           value: "testPurposes",
-          width: "450",
+          minWidth: "120px",
           sortable: true
         }
       ];
