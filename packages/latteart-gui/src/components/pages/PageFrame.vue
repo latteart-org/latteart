@@ -22,7 +22,7 @@
       </v-app-bar>
 
       <v-container fluid class="ma-0 pa-0 fill-height" style="overflow-y: scroll">
-        <v-container class="ma-0 pa-0" style="height: calc(100vh - 64px)">
+        <v-container fluid class="ma-0 pa-0" style="height: calc(100vh - 64px)">
           <router-view @select-test-matrix="changeMatrixId"></router-view>
         </v-container>
       </v-container>

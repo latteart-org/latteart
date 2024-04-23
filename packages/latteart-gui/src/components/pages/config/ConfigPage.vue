@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container class="pa-8">
+  <v-container fluid class="pa-8">
     <v-row justify="start" class="fill-height">
       <v-col>
         <v-row>
