@@ -16,7 +16,9 @@
 
 <template>
   <scrollable-dialog :opened="opened" :max-width="maxWidth">
-    <template #title>{{ title }}</template>
+    <template #title
+      ><span :title="title">{{ title }}</span></template
+    >
     <template #content>
       <slot />
     </template>
@@ -47,8 +49,9 @@ export default defineComponent({
     title: { type: String, default: "", required: true },
     acceptButtonDisabled: { type: Boolean, default: false },
     strong: { type: Boolean, default: false },
-    maxWidth: { type: Number, default: 500 }
+    maxWidth: { type: Number, default: 550 }
   },
+  emits: ["accept", "cancel"],
   setup(props, context) {
     const isExecuted = ref(false);
 
