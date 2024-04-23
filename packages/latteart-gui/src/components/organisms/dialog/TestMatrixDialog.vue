@@ -32,7 +32,7 @@
         ></v-text-field>
       </v-row>
       <v-row>
-        <v-card>
+        <v-card class="w-100">
           <v-card-title>
             {{ $t("test-matrix-dialog.setting-viewPoint") }}
           </v-card-title>
@@ -133,6 +133,7 @@ export default defineComponent({
       }
     }
   },
+  emits: ["closeDialog", "updateTestMatrix"],
   setup(props, context) {
     const rootStore = useRootStore();
 
