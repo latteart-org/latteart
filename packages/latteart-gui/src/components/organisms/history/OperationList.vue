@@ -65,7 +65,7 @@
                   :model-value="checkedItems.includes(props.item.index)"
                   :true-value="true"
                   :false-value="false"
-                  class="controlSize"
+                  class="item-checkbox"
                   @input="updateCheckedItem(props.item.index)"
                 />
               </td>
@@ -803,8 +803,9 @@ export default defineComponent({
 :deep(.v-data-table__td)
   height: 32px !important
 
-.controlSize
+.item-checkbox
   --v-selection-control-size: 26px !important
+  margin-left: 7px
 
 .ellipsis
   overflow: hidden
