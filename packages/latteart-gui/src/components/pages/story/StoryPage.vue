@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="fill-height pa-8" style="overflow-y: scroll">
+  <v-container fluid class="fill-height pa-8">
     <v-container fluid class="align-self-start pa-0">
       <v-row v-if="story">
         <v-col cols="3">
