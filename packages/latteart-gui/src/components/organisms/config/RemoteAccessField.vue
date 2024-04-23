@@ -21,6 +21,7 @@
         id="connectUrlTextField"
         ref="urlField"
         v-model="targetUrl"
+        variant="underlined"
         :hide-details="hideDetails"
         :items="urls"
         :label="$t('remote-access.remote-connection-url')"

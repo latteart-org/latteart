@@ -154,6 +154,7 @@
         ></v-checkbox>
         <v-text-field
           v-model="search"
+          variant="underlined"
           class="pl-4"
           :label="message('operation.query')"
         ></v-text-field>

@@ -18,6 +18,7 @@
   <v-text-field
     id="urlTextField"
     v-model="url"
+    variant="underlined"
     :single-line="singleLine"
     :hide-details="hideDetails"
     label="URL"

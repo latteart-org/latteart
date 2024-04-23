@@ -35,6 +35,7 @@
         >
           <template #activator="{ props }">
             <v-text-field
+              variant="underlined"
               :model-value="startDate"
               single-line
               prepend-icon="event"
@@ -62,6 +63,7 @@
         >
           <template #activator="{ props }">
             <v-text-field
+              variant="underlined"
               :model-value="endDate"
               single-line
               prepend-icon="event"
@@ -87,6 +89,7 @@
       <v-col>
         <v-select
           v-model="selectedTestMatrixId"
+          variant="underlined"
           :items="testMatrices"
           item-title="name"
           item-value="id"
@@ -98,6 +101,7 @@
       <v-col>
         <v-select
           v-model="selectedGroupId"
+          variant="underlined"
           :items="groups"
           item-title="name"
           item-value="id"
@@ -109,6 +113,7 @@
       <v-col>
         <v-select
           v-model="selectedTestTargetId"
+          variant="underlined"
           :items="testTargets"
           item-title="name"
           item-value="id"

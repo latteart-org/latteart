@@ -41,8 +41,16 @@
             <v-radio :label="$t('note-edit.problem-occured')" :value="true"></v-radio>
           </v-radio-group>
           <div v-if="shouldRecordAsIssue">
-            <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
-            <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
+            <v-text-field
+              v-model="newNote"
+              variant="underlined"
+              :label="$t('note-edit.summary')"
+            ></v-text-field>
+            <v-textarea
+              v-model="newNoteDetails"
+              variant="underlined"
+              :label="$t('note-edit.details')"
+            ></v-textarea>
 
             <note-tag-select-box
               v-model="newTags"
@@ -86,11 +94,13 @@
         <v-card-text>
           <v-text-field
             v-model="newTestPurpose"
+            variant="underlined"
             :disabled="shouldContinueSameTestPurpose"
             :label="$t('note-edit.summary')"
           ></v-text-field>
           <v-textarea
             v-model="newTestPurposeDetails"
+            variant="underlined"
             :disabled="shouldContinueSameTestPurpose"
             :label="$t('note-edit.details')"
           ></v-textarea>

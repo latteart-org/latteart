@@ -29,7 +29,7 @@
         close();
       "
     >
-      <v-text-field v-model="testResultName"></v-text-field>
+      <v-text-field v-model="testResultName" variant="underlined"></v-text-field>
     </execute-dialog>
   </div>
 </template>

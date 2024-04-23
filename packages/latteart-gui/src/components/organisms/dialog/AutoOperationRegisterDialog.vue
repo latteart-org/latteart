@@ -30,10 +30,12 @@
     </div>
     <v-text-field
       v-model="settingName"
+      variant="underlined"
       :label="$t('auto-operation-register-dialog.name')"
     ></v-text-field>
     <v-textarea
       v-model="settingDetails"
+      variant="underlined"
       :label="$t('auto-operation-register-dialog.details')"
     ></v-textarea>
   </execute-dialog>

@@ -41,8 +41,16 @@
       <p v-if="isSaveWarning" class="warningMessage">
         {{ $t("note-edit.save-warning") }}
       </p>
-      <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
-      <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
+      <v-text-field
+        v-model="newNote"
+        variant="underlined"
+        :label="$t('note-edit.summary')"
+      ></v-text-field>
+      <v-textarea
+        v-model="newNoteDetails"
+        variant="underlined"
+        :label="$t('note-edit.details')"
+      ></v-textarea>
     </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"

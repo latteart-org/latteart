@@ -19,6 +19,7 @@
     <v-row no-gutters align="center" :style="{ height: '70px', 'max-width': '100%' }">
       <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
+          variant="underlined"
           class="mr-3"
           :label="message('test-result-page.test-result-name')"
           :items="testResults"
@@ -32,6 +33,7 @@
       <v-col :style="buildStyle">
         <v-select
           v-model="selectedTestPurposeIndex"
+          variant="underlined"
           class="mr-3"
           :label="message('test-result-page.test-purpose')"
           :items="testPurposes"

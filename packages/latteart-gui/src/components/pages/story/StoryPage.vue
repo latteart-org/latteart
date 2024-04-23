@@ -20,12 +20,14 @@
       <v-row v-if="story">
         <v-col cols="3">
           <v-text-field
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.test-matrix')"
             :model-value="testMatrixName"
           ></v-text-field>
           <v-text-field
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.group')"
@@ -34,18 +36,21 @@
         </v-col>
         <v-col cols="3">
           <v-text-field
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.test-target')"
             :model-value="testTargetName"
           ></v-text-field>
           <v-text-field
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.viewPoint')"
             :model-value="viewPointName"
           ></v-text-field>
           <v-select
+            variant="underlined"
             class="pt-0"
             :items="statuses"
             item-title="text"
@@ -58,6 +63,7 @@
         </v-col>
         <v-col cols="3">
           <v-text-field
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.planned-session')"
@@ -65,12 +71,14 @@
           ></v-text-field>
           <v-text-field
             v-model="doneSessionNum"
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.completed-session')"
           ></v-text-field>
           <v-text-field
             v-model="extractionBugNum"
+            variant="underlined"
             class="pt-0"
             readonly
             :label="$t('story-page.bug-count')"
@@ -85,6 +93,7 @@
 
           <v-select
             v-model="reviewTargetSessionIds"
+            variant="underlined"
             :disabled="isCapturing || isReplaying"
             :items="reviewableSessions"
             :label="$t('story-page.review-target')"

@@ -30,6 +30,7 @@
       </v-col>
       <v-col cols="8">
         <v-text-field
+          variant="underlined"
           :label="$t('config-page.autoOperation.name')"
           :model-value="conditionGroup.settingName"
           @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
@@ -49,6 +50,7 @@
       <v-col cols="1" />
       <v-col cols="9">
         <v-textarea
+          variant="underlined"
           hide-details
           :label="$t('config-page.autoOperation.details')"
           :model-value="conditionGroup.details"

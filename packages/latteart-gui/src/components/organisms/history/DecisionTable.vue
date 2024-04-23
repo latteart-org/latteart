@@ -35,6 +35,7 @@
     <v-col cols="12" class="py-0">
       <v-text-field
         v-model="search"
+        variant="underlined"
         prepend-inner-icon="search"
         :label="message('operation.query')"
         hide-details

@@ -31,6 +31,7 @@
       <v-col>
         <v-select
           v-model="selectedTestMatrixId"
+          variant="underlined"
           :items="testMatrixSelectItems"
           item-title="text"
           item-value="id"
@@ -42,6 +43,7 @@
       <v-col>
         <v-select
           v-model="selectedGroupId"
+          variant="underlined"
           :items="groups"
           item-title="text"
           item-value="id"
@@ -53,6 +55,7 @@
       <v-col>
         <v-select
           v-model="selectedTestTargetId"
+          variant="underlined"
           :items="testTargets"
           item-title="text"
           item-value="id"

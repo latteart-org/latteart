@@ -27,7 +27,12 @@
             </template>
           </test-result-import-trigger>
 
-          <v-text-field v-model="search" label="Search" clearable></v-text-field>
+          <v-text-field
+            v-model="search"
+            variant="underlined"
+            label="Search"
+            clearable
+          ></v-text-field>
 
           <v-data-table
             v-model="selectedTestResults"

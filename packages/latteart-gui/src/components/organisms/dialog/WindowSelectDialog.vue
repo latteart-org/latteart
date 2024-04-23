@@ -23,6 +23,7 @@
   >
     <v-select
       v-model="capturingWindowInfo.currentWindowHandle"
+      variant="underlined"
       :items="capturingWindowInfo.windows"
     >
     </v-select>
