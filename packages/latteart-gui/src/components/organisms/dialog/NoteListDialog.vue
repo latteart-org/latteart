@@ -21,7 +21,7 @@
     </template>
     <template #content>
       <v-card v-for="(note, index) in noteWithTime" :key="index" flat class="pre-wrap break-word">
-        <v-card-title primary-title class="pb-0">
+        <v-card-title primary-title class="pb-0 note-title">
           <h3>
             {{ note.value }}
           </h3>
@@ -97,6 +97,7 @@ export default defineComponent({
       required: true
     }
   },
+  emits: ["close"],
   setup(props, context) {
     const isMediaDisplayed = ref<boolean>(false);
 
@@ -146,4 +147,8 @@ export default defineComponent({
   font-size: medium
   font-weight: normal
   margin-left: 16px
+.note-title
+  display: flex
+  flex-wrap: wrap
+  white-space: inherit
 </style>
