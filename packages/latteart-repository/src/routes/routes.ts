@@ -642,7 +642,7 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
-                    value: { dataType: "string" },
+                    value: { dataType: "string", required: true },
                     elementId: { dataType: "string", required: true },
                   },
                 },
@@ -3521,13 +3521,13 @@ export function RegisterRoutes(app: Router) {
     "/api/v1/test-results/:testResultId/test-steps/:testStepId/compressed-image",
     ...fetchMiddlewares<RequestHandler>(CompressedImageController),
     ...fetchMiddlewares<RequestHandler>(
-      CompressedImageController.prototype.compressTestStepScreenshot
+      CompressedImageController.prototype.compressTestStepScreenshot,
     ),
 
     function CompressedImageController_compressTestStepScreenshot(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -3554,26 +3554,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.compressTestStepScreenshot.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/configs/export",
     ...fetchMiddlewares<RequestHandler>(ConfigExportController),
     ...fetchMiddlewares<RequestHandler>(
-      ConfigExportController.prototype.exportProjectSettings
+      ConfigExportController.prototype.exportProjectSettings,
     ),
 
     function ConfigExportController_exportProjectSettings(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -3594,26 +3594,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.exportProjectSettings.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/projects/:projectId/configs",
     ...fetchMiddlewares<RequestHandler>(ConfigsController),
     ...fetchMiddlewares<RequestHandler>(
-      ConfigsController.prototype.getProjectSettings
+      ConfigsController.prototype.getProjectSettings,
     ),
 
     function ConfigsController_getProjectSettings(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -3634,26 +3634,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getProjectSettings.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.put(
     "/api/v1/projects/:projectId/configs",
     ...fetchMiddlewares<RequestHandler>(ConfigsController),
     ...fetchMiddlewares<RequestHandler>(
-      ConfigsController.prototype.updateProjectSettings
+      ConfigsController.prototype.updateProjectSettings,
     ),
 
     function ConfigsController_updateProjectSettings(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -3680,26 +3680,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateProjectSettings.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/graph-views",
     ...fetchMiddlewares<RequestHandler>(GraphViewsController),
     ...fetchMiddlewares<RequestHandler>(
-      GraphViewsController.prototype.generate
+      GraphViewsController.prototype.generate,
     ),
 
     function GraphViewsController_generate(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         requestBody: {
@@ -3720,26 +3720,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.generate.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/notes/:noteId/compressed-image",
     ...fetchMiddlewares<RequestHandler>(NoteCompressedImageController),
     ...fetchMiddlewares<RequestHandler>(
-      NoteCompressedImageController.prototype.compressNoteScreenshot
+      NoteCompressedImageController.prototype.compressNoteScreenshot,
     ),
 
     function NoteCompressedImageController_compressNoteScreenshot(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -3766,13 +3766,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.compressNoteScreenshot.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
@@ -3806,13 +3806,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.addNote.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
@@ -3846,13 +3846,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getNote.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.put(
@@ -3863,7 +3863,7 @@ export function RegisterRoutes(app: Router) {
     function NotesController_updateNote(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -3896,13 +3896,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateNote.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
@@ -3913,7 +3913,7 @@ export function RegisterRoutes(app: Router) {
     function NotesController_deleteNote(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -3940,26 +3940,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteNote.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/export",
     ...fetchMiddlewares<RequestHandler>(ProjectExportController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectExportController.prototype.exportProject
+      ProjectExportController.prototype.exportProject,
     ),
 
     function ProjectExportController_exportProject(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -3986,26 +3986,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.exportProject.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/projects",
     ...fetchMiddlewares<RequestHandler>(ProjectsController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectsController.prototype.getProjectIdentifiers
+      ProjectsController.prototype.getProjectIdentifiers,
     ),
 
     function ProjectsController_getProjectIdentifiers(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {};
 
@@ -4019,26 +4019,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getProjectIdentifiers.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects",
     ...fetchMiddlewares<RequestHandler>(ProjectsController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectsController.prototype.createProject
+      ProjectsController.prototype.createProject,
     ),
 
     function ProjectsController_createProject(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {};
 
@@ -4052,26 +4052,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createProject.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/projects/:projectId",
     ...fetchMiddlewares<RequestHandler>(ProjectsController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectsController.prototype.getProject
+      ProjectsController.prototype.getProject,
     ),
 
     function ProjectsController_getProject(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4092,26 +4092,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getProject.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/projects/:projectId/progress",
     ...fetchMiddlewares<RequestHandler>(ProjectsController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectsController.prototype.getTestProgress
+      ProjectsController.prototype.getTestProgress,
     ),
 
     function ProjectsController_getTestProgress(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4134,26 +4134,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestProgress.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/test-scripts",
     ...fetchMiddlewares<RequestHandler>(ProjectTestScriptsController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectTestScriptsController.prototype.generateProjectTestScript
+      ProjectTestScriptsController.prototype.generateProjectTestScript,
     ),
 
     function ProjectTestScriptsController_generateProjectTestScript(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4180,26 +4180,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.generateProjectTestScript.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/server-name",
     ...fetchMiddlewares<RequestHandler>(ServerNameController),
     ...fetchMiddlewares<RequestHandler>(
-      ServerNameController.prototype.getServerName
+      ServerNameController.prototype.getServerName,
     ),
 
     function ServerNameController_getServerName(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {};
 
@@ -4213,26 +4213,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getServerName.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/sessions",
     ...fetchMiddlewares<RequestHandler>(SessionsController),
     ...fetchMiddlewares<RequestHandler>(
-      SessionsController.prototype.createSession
+      SessionsController.prototype.createSession,
     ),
 
     function SessionsController_createSession(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4260,26 +4260,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createSession.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/projects/:projectId/sessions/:sessionId",
     ...fetchMiddlewares<RequestHandler>(SessionsController),
     ...fetchMiddlewares<RequestHandler>(
-      SessionsController.prototype.updateSession
+      SessionsController.prototype.updateSession,
     ),
 
     function SessionsController_updateSession(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4312,26 +4312,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateSession.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/projects/:projectId/sessions/:sessionId",
     ...fetchMiddlewares<RequestHandler>(SessionsController),
     ...fetchMiddlewares<RequestHandler>(
-      SessionsController.prototype.deleteSession
+      SessionsController.prototype.deleteSession,
     ),
 
     function SessionsController_deleteSession(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4358,26 +4358,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteSession.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/snapshots",
     ...fetchMiddlewares<RequestHandler>(SnapshotsController),
     ...fetchMiddlewares<RequestHandler>(
-      SnapshotsController.prototype.outputProjectSnapshot
+      SnapshotsController.prototype.outputProjectSnapshot,
     ),
 
     function SnapshotsController_outputProjectSnapshot(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -4404,26 +4404,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.outputProjectSnapshot.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/export",
     ...fetchMiddlewares<RequestHandler>(TestResultExportController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultExportController.prototype.exportTestResult
+      TestResultExportController.prototype.exportTestResult,
     ),
 
     function TestResultExportController_exportTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4444,26 +4444,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.exportTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/imports/test-results",
     ...fetchMiddlewares<RequestHandler>(TestResultImportController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultImportController.prototype.importTestResult
+      TestResultImportController.prototype.importTestResult,
     ),
 
     function TestResultImportController_importTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         requestBody: {
@@ -4484,26 +4484,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.importTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-results",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.getTestResultIdentifiers
+      TestResultsController.prototype.getTestResultIdentifiers,
     ),
 
     function TestResultsController_getTestResultIdentifiers(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {};
 
@@ -4517,26 +4517,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestResultIdentifiers.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-results/:testResultId",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.getTestResult
+      TestResultsController.prototype.getTestResult,
     ),
 
     function TestResultsController_getTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4557,26 +4557,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.createTestResult
+      TestResultsController.prototype.createTestResult,
     ),
 
     function TestResultsController_createTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         requestBody: {
@@ -4597,26 +4597,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/test-results/:testResultId",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.updateTestResult
+      TestResultsController.prototype.updateTestResult,
     ),
 
     function TestResultsController_updateTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4643,26 +4643,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/test-results/:testResultId",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.deleteTestResult
+      TestResultsController.prototype.deleteTestResult,
     ),
 
     function TestResultsController_deleteTestResult(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4683,26 +4683,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteTestResult.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-results/:testResultId/sessions",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.getSessionIds
+      TestResultsController.prototype.getSessionIds,
     ),
 
     function TestResultsController_getSessionIds(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4723,26 +4723,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getSessionIds.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/sequence-views",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.generateSequenceView
+      TestResultsController.prototype.generateSequenceView,
     ),
 
     function TestResultsController_generateSequenceView(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4768,26 +4768,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.generateSequenceView.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/test-scripts",
     ...fetchMiddlewares<RequestHandler>(TestScriptsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestScriptsController.prototype.generateTestResultTestScript
+      TestScriptsController.prototype.generateTestResultTestScript,
     ),
 
     function TestScriptsController_generateTestResultTestScript(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4814,26 +4814,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.generateTestResultTestScript.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/test-steps",
     ...fetchMiddlewares<RequestHandler>(TestStepsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestStepsController.prototype.addTestStep
+      TestStepsController.prototype.addTestStep,
     ),
 
     function TestStepsController_addTestStep(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4860,26 +4860,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.addTestStep.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-results/:testResultId/test-steps/:testStepId",
     ...fetchMiddlewares<RequestHandler>(TestStepsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestStepsController.prototype.getTestStep
+      TestStepsController.prototype.getTestStep,
     ),
 
     function TestStepsController_getTestStep(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4906,26 +4906,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestStep.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/test-results/:testResultId/test-steps/:testStepId",
     ...fetchMiddlewares<RequestHandler>(TestStepsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestStepsController.prototype.updateTestStepNotes
+      TestStepsController.prototype.updateTestStepNotes,
     ),
 
     function TestStepsController_updateTestStepNotes(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4958,26 +4958,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateTestStepNotes.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-results/:testResultId/screenshots",
     ...fetchMiddlewares<RequestHandler>(ScreenshotsController),
     ...fetchMiddlewares<RequestHandler>(
-      ScreenshotsController.prototype.outputTestResultScreenshots
+      ScreenshotsController.prototype.outputTestResultScreenshots,
     ),
 
     function ScreenshotsController_outputTestResultScreenshots(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testResultId: {
@@ -4998,26 +4998,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.outputTestResultScreenshots.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-matrices/:testMatrixId",
     ...fetchMiddlewares<RequestHandler>(TestMatricesController),
     ...fetchMiddlewares<RequestHandler>(
-      TestMatricesController.prototype.getTestMatrix
+      TestMatricesController.prototype.getTestMatrix,
     ),
 
     function TestMatricesController_getTestMatrix(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testMatrixId: {
@@ -5038,26 +5038,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestMatrix.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-matrices",
     ...fetchMiddlewares<RequestHandler>(TestMatricesController),
     ...fetchMiddlewares<RequestHandler>(
-      TestMatricesController.prototype.createTestMatrix
+      TestMatricesController.prototype.createTestMatrix,
     ),
 
     function TestMatricesController_createTestMatrix(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         body: {
@@ -5082,26 +5082,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createTestMatrix.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/test-matrices/:testMatrixId",
     ...fetchMiddlewares<RequestHandler>(TestMatricesController),
     ...fetchMiddlewares<RequestHandler>(
-      TestMatricesController.prototype.updateTestMatrix
+      TestMatricesController.prototype.updateTestMatrix,
     ),
 
     function TestMatricesController_updateTestMatrix(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testMatrixId: {
@@ -5129,26 +5129,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateTestMatrix.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/test-matrices/:testMatrixId",
     ...fetchMiddlewares<RequestHandler>(TestMatricesController),
     ...fetchMiddlewares<RequestHandler>(
-      TestMatricesController.prototype.deleteTestMatrix
+      TestMatricesController.prototype.deleteTestMatrix,
     ),
 
     function TestMatricesController_deleteTestMatrix(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testMatrixId: {
@@ -5169,26 +5169,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteTestMatrix.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/test-target-groups/:testTargetGroupId",
     ...fetchMiddlewares<RequestHandler>(TestTargetGroupsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetGroupsController.prototype.getTestTargetGroup
+      TestTargetGroupsController.prototype.getTestTargetGroup,
     ),
 
     function TestTargetGroupsController_getTestTargetGroup(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testTargetGroupId: {
@@ -5209,26 +5209,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestTargetGroup.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-target-groups",
     ...fetchMiddlewares<RequestHandler>(TestTargetGroupsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetGroupsController.prototype.createTestTargetGroup
+      TestTargetGroupsController.prototype.createTestTargetGroup,
     ),
 
     function TestTargetGroupsController_createTestTargetGroup(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         body: {
@@ -5253,26 +5253,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createTestTargetGroup.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/test-target-groups/:testTargetGroupId",
     ...fetchMiddlewares<RequestHandler>(TestTargetGroupsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetGroupsController.prototype.updateTestTargetGroup
+      TestTargetGroupsController.prototype.updateTestTargetGroup,
     ),
 
     function TestTargetGroupsController_updateTestTargetGroup(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testTargetGroupId: {
@@ -5300,26 +5300,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateTestTargetGroup.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/test-target-groups/:testTargetGroupId",
     ...fetchMiddlewares<RequestHandler>(TestTargetGroupsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetGroupsController.prototype.deleteTestTargetGroup
+      TestTargetGroupsController.prototype.deleteTestTargetGroup,
     ),
 
     function TestTargetGroupsController_deleteTestTargetGroup(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         testTargetGroupId: {
@@ -5340,26 +5340,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteTestTargetGroup.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/projects/:projectId/test-targets/:testTargetId",
     ...fetchMiddlewares<RequestHandler>(TestTargetsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetsController.prototype.getTestTarget
+      TestTargetsController.prototype.getTestTarget,
     ),
 
     function TestTargetsController_getTestTarget(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -5386,26 +5386,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestTarget.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/test-targets",
     ...fetchMiddlewares<RequestHandler>(TestTargetsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetsController.prototype.createTestTarget
+      TestTargetsController.prototype.createTestTarget,
     ),
 
     function TestTargetsController_createTestTarget(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -5436,26 +5436,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createTestTarget.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/projects/:projectId/test-targets/:testTargetId",
     ...fetchMiddlewares<RequestHandler>(TestTargetsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetsController.prototype.updateTestTarget
+      TestTargetsController.prototype.updateTestTarget,
     ),
 
     function TestTargetsController_updateTestTarget(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -5502,26 +5502,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateTestTarget.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/projects/:projectId/test-targets/:testTargetId",
     ...fetchMiddlewares<RequestHandler>(TestTargetsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestTargetsController.prototype.deleteTestTarget
+      TestTargetsController.prototype.deleteTestTarget,
     ),
 
     function TestTargetsController_deleteTestTarget(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         projectId: {
@@ -5548,26 +5548,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteTestTarget.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
     "/api/v1/view-points/:viewPointId",
     ...fetchMiddlewares<RequestHandler>(ViewPointsController),
     ...fetchMiddlewares<RequestHandler>(
-      ViewPointsController.prototype.getTestViewPoint
+      ViewPointsController.prototype.getTestViewPoint,
     ),
 
     function ViewPointsController_getTestViewPoint(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         viewPointId: {
@@ -5588,26 +5588,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getTestViewPoint.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/view-points",
     ...fetchMiddlewares<RequestHandler>(ViewPointsController),
     ...fetchMiddlewares<RequestHandler>(
-      ViewPointsController.prototype.addViewPoint
+      ViewPointsController.prototype.addViewPoint,
     ),
 
     function ViewPointsController_addViewPoint(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         body: {
@@ -5634,26 +5634,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.addViewPoint.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/view-points/:viewPointId",
     ...fetchMiddlewares<RequestHandler>(ViewPointsController),
     ...fetchMiddlewares<RequestHandler>(
-      ViewPointsController.prototype.updateViewPoint
+      ViewPointsController.prototype.updateViewPoint,
     ),
 
     function ViewPointsController_updateViewPoint(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         viewPointId: {
@@ -5685,26 +5685,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateViewPoint.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.delete(
     "/api/v1/view-points/:viewPointId",
     ...fetchMiddlewares<RequestHandler>(ViewPointsController),
     ...fetchMiddlewares<RequestHandler>(
-      ViewPointsController.prototype.deleteViewPoint
+      ViewPointsController.prototype.deleteViewPoint,
     ),
 
     function ViewPointsController_deleteViewPoint(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         viewPointId: {
@@ -5725,26 +5725,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.deleteViewPoint.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/stories/:storyId",
     ...fetchMiddlewares<RequestHandler>(StoriesController),
     ...fetchMiddlewares<RequestHandler>(
-      StoriesController.prototype.updateStory
+      StoriesController.prototype.updateStory,
     ),
 
     function StoriesController_updateStory(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         storyId: {
@@ -5771,13 +5771,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.updateStory.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.get(
@@ -5788,7 +5788,7 @@ export function RegisterRoutes(app: Router) {
     function StoriesController_getStory(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         storyId: {
@@ -5809,26 +5809,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.getStory.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-result-comparisons",
     ...fetchMiddlewares<RequestHandler>(TestResultComparisonController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultComparisonController.prototype.compareTestResults
+      TestResultComparisonController.prototype.compareTestResults,
     ),
 
     function TestResultComparisonController_compareTestResults(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         requestBody: {
@@ -5849,13 +5849,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.compareTestResults.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
@@ -5887,13 +5887,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.createVideo.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
@@ -5928,26 +5928,26 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.patch.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/imports/projects",
     ...fetchMiddlewares<RequestHandler>(ProjectImportController),
     ...fetchMiddlewares<RequestHandler>(
-      ProjectImportController.prototype.importProject
+      ProjectImportController.prototype.importProject,
     ),
 
     function ProjectImportController_importProject(
       request: any,
       response: any,
-      next: any
+      next: any,
     ) {
       const args = {
         requestBody: {
@@ -5968,13 +5968,13 @@ export function RegisterRoutes(app: Router) {
 
         const promise = controller.importProject.apply(
           controller,
-          validatedArgs as any
+          validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
-    }
+    },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
@@ -5993,7 +5993,7 @@ export function RegisterRoutes(app: Router) {
     promise: any,
     response: any,
     successStatus: any,
-    next: any
+    next: any,
   ) {
     return Promise.resolve(promise)
       .then((data: any) => {
@@ -6017,7 +6017,7 @@ export function RegisterRoutes(app: Router) {
     response: any,
     statusCode?: number,
     data?: any,
-    headers: any = {}
+    headers: any = {},
   ) {
     if (response.headersSent) {
       return;
@@ -6043,7 +6043,7 @@ export function RegisterRoutes(app: Router) {
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
   function responder(
-    response: any
+    response: any,
   ): TsoaResponse<HttpStatusCodeLiteral, unknown> {
     return function (status, data, headers) {
       returnHandler(response, status, data, headers);
@@ -6066,7 +6066,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             undefined,
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "queries":
           return validationService.ValidateParam(
@@ -6075,7 +6075,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             undefined,
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "path":
           return validationService.ValidateParam(
@@ -6084,7 +6084,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             undefined,
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "header":
           return validationService.ValidateParam(
@@ -6093,7 +6093,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             undefined,
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "body":
           return validationService.ValidateParam(
@@ -6102,7 +6102,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             undefined,
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "body-prop":
           return validationService.ValidateParam(
@@ -6111,7 +6111,7 @@ export function RegisterRoutes(app: Router) {
             name,
             fieldErrors,
             "body.",
-            { noImplicitAdditionalProperties: "throw-on-extras" }
+            { noImplicitAdditionalProperties: "throw-on-extras" },
           );
         case "formData":
           if (args[key].dataType === "file") {
@@ -6121,7 +6121,7 @@ export function RegisterRoutes(app: Router) {
               name,
               fieldErrors,
               undefined,
-              { noImplicitAdditionalProperties: "throw-on-extras" }
+              { noImplicitAdditionalProperties: "throw-on-extras" },
             );
           } else if (
             args[key].dataType === "array" &&
@@ -6133,7 +6133,7 @@ export function RegisterRoutes(app: Router) {
               name,
               fieldErrors,
               undefined,
-              { noImplicitAdditionalProperties: "throw-on-extras" }
+              { noImplicitAdditionalProperties: "throw-on-extras" },
             );
           } else {
             return validationService.ValidateParam(
@@ -6142,7 +6142,7 @@ export function RegisterRoutes(app: Router) {
               name,
               fieldErrors,
               undefined,
-              { noImplicitAdditionalProperties: "throw-on-extras" }
+              { noImplicitAdditionalProperties: "throw-on-extras" },
             );
           }
         case "res":

@@ -117,7 +117,7 @@ export type GetGraphViewResponse = {
       videoFrame?: VideoFrame;
       testResultId?: string;
     }[];
-    defaultValues: { elementId: string; value?: string }[];
+    defaultValues: { elementId: string; value: string }[];
   }[];
   store: {
     windows: { id: string; name: string }[];

@@ -77,7 +77,7 @@ export type GraphViewNode = {
     pageUrl: string;
     pageTitle: string;
   }[];
-  defaultValues: { elementId: string; value?: string }[];
+  defaultValues: { elementId: string; value: string }[];
 };
 
 export type TestStepForGraphView = Pick<TestStep, "id"> & {

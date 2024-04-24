@@ -295,7 +295,7 @@ export type GraphViewNode = {
     videoFrame?: VideoFrame;
     testResultId: string;
   }[];
-  defaultValues: { elementId: string; value?: string }[];
+  defaultValues: { elementId: string; value: string }[];
 };
 
 export type RepositoryServiceErrorCode =
