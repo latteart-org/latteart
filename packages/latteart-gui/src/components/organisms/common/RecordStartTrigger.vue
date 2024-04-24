@@ -86,12 +86,10 @@ export default defineComponent({
     });
 
     const startCapture = async (): Promise<void> => {
-      operationHistoryStore.clearTestResult();
-
       goToHistoryView();
 
       try {
-        await rootStore.openProgressDialog({
+        rootStore.openProgressDialog({
           message: rootStore.message("start-capture-page.starting-capture")
         });
 
