@@ -38,7 +38,7 @@
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn color="error" @click="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
+        <v-btn color="red" @click="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -131,7 +131,7 @@
           ></v-text-field>
         </v-col>
         <v-col cols="1">
-          <v-btn variant="text" icon color="error" @click="deleteCondition(i)"
+          <v-btn variant="text" icon color="red" @click="deleteCondition(i)"
             ><v-icon>delete</v-icon></v-btn
           >
         </v-col>

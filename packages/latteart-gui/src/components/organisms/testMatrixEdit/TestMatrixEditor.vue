@@ -63,7 +63,7 @@
                   <v-btn
                     v-if="expandedPanelIndex === index"
                     size="small"
-                    color="error"
+                    color="red"
                     class="mr-4"
                     @click.stop="openConfirmDialogToDeleteGroup(group.id)"
                     >{{ $t("group-edit-list.delete") }}</v-btn

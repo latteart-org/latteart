@@ -40,7 +40,7 @@
         <v-btn @click="dialogOpened = true">{{
           $t("config-page.autoOperation.details-list")
         }}</v-btn>
-        <v-btn color="error" class="ml-4" @click="deleteConditionGroup">{{
+        <v-btn color="red" class="ml-4" @click="deleteConditionGroup">{{
           $t("common.delete")
         }}</v-btn>
       </v-col>

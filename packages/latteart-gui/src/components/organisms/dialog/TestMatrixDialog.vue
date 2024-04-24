@@ -76,11 +76,7 @@
                           />
                         </v-col>
                         <v-col cols="2" align-self="center">
-                          <v-btn
-                            variant="text"
-                            icon
-                            color="error"
-                            @click="deleteTempViewPoint(index)"
+                          <v-btn variant="text" icon color="red" @click="deleteTempViewPoint(index)"
                             ><v-icon>delete</v-icon></v-btn
                           >
                         </v-col>

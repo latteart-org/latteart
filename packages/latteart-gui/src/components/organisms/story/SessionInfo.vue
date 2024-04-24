@@ -86,7 +86,7 @@
                       v-if="!isViewerMode"
                       variant="text"
                       icon
-                      color="error"
+                      color="red"
                       :title="$t('session-info.remove-test-results-title')"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
@@ -148,7 +148,7 @@
                     <v-btn
                       variant="text"
                       icon
-                      color="error"
+                      color="red"
                       @click="openConfirmDialogToDeleteAttachedFile(file.fileUrl)"
                       ><v-icon>delete</v-icon></v-btn
                     >

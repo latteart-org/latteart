@@ -43,7 +43,7 @@
               variant="text"
               icon
               class="mt-3"
-              color="error"
+              color="red"
               @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
               ><v-icon>delete</v-icon></v-btn
             >
