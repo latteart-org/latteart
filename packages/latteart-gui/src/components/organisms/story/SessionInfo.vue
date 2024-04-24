@@ -471,6 +471,8 @@ export default defineComponent({
     };
 
     const startCapture = async (onStart: () => Promise<void>, option: CaptureOptionParams) => {
+      operationHistoryStore.clearTestResult();
+
       captureControlStore.url = option.url;
       captureControlStore.testResultName = option.testResultName;
 
