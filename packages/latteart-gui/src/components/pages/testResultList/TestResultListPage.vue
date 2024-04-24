@@ -146,7 +146,7 @@
           <v-btn
             :disabled="isDisabled"
             variant="elevated"
-            color="error"
+            color="red"
             @click="confirmDialogOpened = true"
             >{{ $t("test-result-navigation-drawer.delete-test-results") }}</v-btn
           >
