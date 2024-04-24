@@ -154,7 +154,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       selectedTestMatrixId,
       testMatrixBeingEdited,
       testMatrices,

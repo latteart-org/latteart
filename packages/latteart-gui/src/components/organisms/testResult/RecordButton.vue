@@ -60,7 +60,6 @@
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import FirstTestPurposeOptionDialog from "@/components/organisms/dialog/FirstTestPurposeOptionDialog.vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
 
 export default defineComponent({
@@ -69,7 +68,6 @@ export default defineComponent({
     "record-start-trigger": RecordStartTrigger
   },
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
 
     const optionDialogOpened = ref(false);
@@ -87,7 +85,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       optionDialogOpened,
       isCapturing,
       openOptionDialog,

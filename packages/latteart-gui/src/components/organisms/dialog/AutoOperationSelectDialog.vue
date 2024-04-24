@@ -30,12 +30,14 @@
     </div>
     <v-select
       v-model="selectedItem"
+      variant="underlined"
       :label="$t('auto-operation-select-dialog.name')"
       :items="selectList"
       item-title="settingName"
       item-value="value"
     ></v-select>
     <v-textarea
+      variant="underlined"
       :label="$t('auto-operation-select-dialog.details')"
       readonly
       no-resize
@@ -49,7 +51,6 @@ import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -64,8 +65,6 @@ export default defineComponent({
     }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const selectedItem = ref<{
       index: number;
       setingName: string;
@@ -104,7 +103,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       selectedItem,
       selectList,
       okButtonIsDisabled,

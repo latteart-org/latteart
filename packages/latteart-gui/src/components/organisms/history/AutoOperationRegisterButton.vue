@@ -19,7 +19,6 @@
     <v-btn
       :disabled="isDisabled"
       color="blue"
-      variant="elevated"
       size="small"
       class="mx-2"
       @click="registerDialogOpened = true"
@@ -94,7 +93,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       registerDialogOpened,
       errorMessageDialogOpened,
       errorMessage,

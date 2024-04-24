@@ -20,6 +20,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
+          density="comfortable"
           :label="$t('config-page.comparison-exclude-items-enabled')"
           hide-details
         >
@@ -28,6 +29,7 @@
       <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeItems"
+          variant="underlined"
           :items="tempExcludeItems"
           item-title="text"
           item-value="value"
@@ -42,6 +44,7 @@
       <v-col cols="12">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
+          density="comfortable"
           :label="$t('config-page.comparison-exclude-elements-enabled')"
           hide-details
         >
@@ -50,6 +53,7 @@
       <v-col cols="12" class="select-box">
         <v-select
           v-model="excludeElements"
+          variant="underlined"
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
           :label="$t('config-page.comparison-exclude-elements-tagname')"
@@ -66,8 +70,7 @@
 <script lang="ts">
 import { type TestResultComparisonSetting } from "@/lib/common/settings/Settings";
 import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -220,7 +223,6 @@ export default defineComponent({
     watch(setting, updateTempSetting);
 
     return {
-      t,
       tempTags,
       tempExcludeItems,
       isExcludeItemsEnabled,

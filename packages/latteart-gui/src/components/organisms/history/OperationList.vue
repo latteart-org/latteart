@@ -65,7 +65,7 @@
                   :model-value="checkedItems.includes(props.item.index)"
                   :true-value="true"
                   :false-value="false"
-                  class="controlSize"
+                  class="item-checkbox"
                   @input="updateCheckedItem(props.item.index)"
                 />
               </td>
@@ -154,6 +154,7 @@
         ></v-checkbox>
         <v-text-field
           v-model="search"
+          variant="underlined"
           class="pl-4"
           :label="message('operation.query')"
         ></v-text-field>
@@ -803,14 +804,15 @@ export default defineComponent({
 :deep(.v-data-table__td)
   height: 32px !important
 
-.controlSize
+.item-checkbox
   --v-selection-control-size: 26px !important
+  margin-left: 7px
 
 .ellipsis
   overflow: hidden
   white-space: nowrap
   text-overflow: ellipsis
-  max-width: 150px
+  max-width: 250px
 
 #operation-list
   position: relative

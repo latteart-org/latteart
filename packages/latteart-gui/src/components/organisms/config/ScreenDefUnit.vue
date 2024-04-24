@@ -23,6 +23,7 @@
             <v-container>
               <v-row>
                 <v-checkbox
+                  hide-details
                   :model-value="conditionGroup.isEnabled"
                   class="default-flex"
                   @update:model-value="
@@ -31,20 +32,21 @@
                 >
                 </v-checkbox>
                 <v-text-field
-                  :label="t('config-page.screen-def.screen-name')"
+                  variant="underlined"
+                  :label="$t('config-page.screen-def.screen-name')"
                   :model-value="conditionGroup.screenName"
                   @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
                 ></v-text-field>
-                <v-btn variant="elevated" color="error" @click="deleteConditionGroup"
-                  >{{ t("config-page.screen-def.delete-definition") }}
+                <v-btn color="red" @click="deleteConditionGroup"
+                  >{{ $t("config-page.screen-def.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
-                <v-btn variant="elevated" size="small" class="mt-3" @click="addCondition">{{
-                  t("config-page.screen-def.add-condition")
+                <v-btn size="small" class="mt-3" @click="addCondition">{{
+                  $t("config-page.screen-def.add-condition")
                 }}</v-btn
-                ><span class="description">{{ t("config-page.screen-def.description") }}</span>
+                ><span class="description">{{ $t("config-page.screen-def.description") }}</span>
               </v-row>
 
               <v-row
@@ -54,12 +56,13 @@
                 align="center"
               >
                 <v-col cols="1" style="text-align: right">
-                  <span v-if="i > 0">{{ t("config-page.screen-def.and") }}</span>
+                  <span v-if="i > 0">{{ $t("config-page.screen-def.and") }}</span>
                   <span v-else> </span>
                 </v-col>
 
                 <v-col cols="1" style="text-align: center">
                   <v-checkbox
+                    hide-details
                     :model-value="item.isEnabled"
                     style="display: inline-block"
                     @update:model-value="
@@ -71,6 +74,7 @@
                 <template v-if="store.getLocale() === 'ja'">
                   <v-col cols="2">
                     <v-select
+                      variant="underlined"
                       :model-value="item.definitionType"
                       :items="definitionTypeList"
                       item-title="label"
@@ -83,6 +87,7 @@
 
                   <v-col cols="4">
                     <v-text-field
+                      variant="underlined"
                       :model-value="item.word"
                       class="select-with-word"
                       @change="(e: any) => updateCondition(i, { word: e.target._value })"
@@ -92,6 +97,7 @@
 
                   <v-col cols="3">
                     <v-select
+                      variant="underlined"
                       :model-value="item.matchType"
                       :items="matchType"
                       item-title="label"
@@ -104,6 +110,7 @@
                 <template v-if="store.getLocale() === 'en'">
                   <v-col cols="2">
                     <v-select
+                      variant="underlined"
                       :model-value="item.definitionType"
                       :items="definitionTypeList"
                       item-title="label"
@@ -115,6 +122,7 @@
 
                   <v-col cols="3" class="pr-4">
                     <v-select
+                      variant="underlined"
                       :model-value="item.matchType"
                       :items="matchType"
                       item-title="label"
@@ -125,6 +133,7 @@
 
                   <v-col cols="4" class="pl-4">
                     <v-text-field
+                      variant="underlined"
                       :model-value="item.word"
                       @change="(e: any) => updateCondition(i, { word: e.target._value })"
                     ></v-text-field>
@@ -136,7 +145,7 @@
                     v-if="conditionGroup.conditions.length > 1"
                     variant="text"
                     icon
-                    color="error"
+                    color="red"
                     @click="deleteCondition(i)"
                     ><v-icon>delete</v-icon></v-btn
                   >
@@ -265,7 +274,6 @@ export default defineComponent({
     };
 
     return {
-      t,
       store,
       definitionTypeList,
       matchType,

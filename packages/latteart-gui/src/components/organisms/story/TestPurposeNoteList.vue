@@ -134,7 +134,7 @@
 
       <template #footer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="text" @click="testPurposeOpened = false">{{
+        <v-btn color="primary" variant="elevated" @click="testPurposeOpened = false">{{
           $t("common.close")
         }}</v-btn>
       </template>
@@ -333,7 +333,6 @@ export default defineComponent({
     watch(testPurposes, changeTestPurposes);
 
     return {
-      t: rootStore.message,
       opened,
       testPurposeOpened,
       testResultId,

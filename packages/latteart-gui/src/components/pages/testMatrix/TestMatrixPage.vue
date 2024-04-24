@@ -33,6 +33,7 @@
             <v-col>
               <v-text-field
                 v-model="search"
+                variant="underlined"
                 :label="$t('test-matrix-page.tester-name')"
                 clearable
               ></v-text-field></v-col></v-row
@@ -40,6 +41,7 @@
         <v-col cols="auto" style="align-self: end">
           <v-checkbox
             v-model="isCompletionFilterEnabled"
+            density="comfortable"
             :label="$t('test-matrix-page.incomplete-sessions')"
             class="mt-2"
           ></v-checkbox>
@@ -90,6 +92,7 @@ export default defineComponent({
     "tab-selector": TabSelector,
     "test-matrix-viewer": TestMatrixViewer
   },
+  emits: ["selectTestMatrix"],
   setup(_, context) {
     const rootStore = useRootStore();
     const testManagementStore = useTestManagementStore();
@@ -163,7 +166,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       selectedTestMatrixId,
       search,
       isCompletionFilterEnabled,

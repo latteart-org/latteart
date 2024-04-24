@@ -30,10 +30,12 @@
     </div>
     <v-text-field
       v-model="settingName"
+      variant="underlined"
       :label="$t('auto-operation-register-dialog.name')"
     ></v-text-field>
     <v-textarea
       v-model="settingDetails"
+      variant="underlined"
       :label="$t('auto-operation-register-dialog.details')"
     ></v-textarea>
   </execute-dialog>
@@ -45,7 +47,6 @@ import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -117,7 +118,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: useRootStore().message,
       settingName,
       settingDetails,
       okButtonIsDisabled,

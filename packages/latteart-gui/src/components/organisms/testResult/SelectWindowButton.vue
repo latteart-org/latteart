@@ -19,7 +19,6 @@
     <v-btn
       id="openWindowSelectorButton"
       :disabled="!windowSelectorIsEnabled"
-      variant="elevated"
       icon="tab"
       size="small"
       :title="$t('app.target-tab-window')"
@@ -81,7 +80,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       isReplaying,
       windowSelectorIsEnabled,
       isWindowSelectorDialogOpened

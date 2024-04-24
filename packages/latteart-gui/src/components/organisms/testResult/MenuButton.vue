@@ -53,7 +53,6 @@ import ScreenshotsDownloadButton from "@/components/organisms/common/Screenshots
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
 import { computed, defineComponent, inject } from "vue";
-import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -65,14 +64,11 @@ export default defineComponent({
     "compare-history-button": CompareHistoryButton
   },
   setup() {
-    const rootStore = useRootStore();
-
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
     });
 
     return {
-      t: rootStore.message,
       isViewerMode
     };
   }

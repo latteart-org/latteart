@@ -19,6 +19,7 @@
     <v-col cols="12" class="pb-0">
       <v-checkbox
         v-model="shouldGrayOutNotInputValueCell"
+        density="comfortable"
         class="checkbox-gray-out"
         :label="message('input-value.gray-out-not-input-value-cell')"
         hide-details
@@ -27,6 +28,7 @@
     <v-col cols="12" class="py-0">
       <v-checkbox
         v-model="shouldHideHiddenElements"
+        density="comfortable"
         class="checkbox-hide-elements"
         :label="message('input-value.hide-hidden-elements')"
         hide-details
@@ -35,6 +37,7 @@
     <v-col cols="12" class="py-0">
       <v-text-field
         v-model="search"
+        variant="underlined"
         prepend-inner-icon="search"
         :label="message('operation.query')"
         hide-details

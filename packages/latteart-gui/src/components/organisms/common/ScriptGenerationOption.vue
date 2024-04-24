@@ -17,10 +17,17 @@
   <v-card flat class="pa-0">
     <v-checkbox
       v-model="testGenerationOption.testScript.isSimple"
+      density="comfortable"
+      hide-details
       :label="$t('test-result-page.generate-simple-testscript')"
     >
     </v-checkbox>
-    <v-checkbox v-model="testGenerationOption.testScript.useMultiLocator" class="mt-0">
+    <v-checkbox
+      v-model="testGenerationOption.testScript.useMultiLocator"
+      density="comfortable"
+      hide-details
+      class="mt-0"
+    >
       <template #label>
         <div>
           {{ $t("test-result-page.use-multi-locator1") }}
@@ -67,11 +74,13 @@
           <v-combobox
             v-model:search-input="search"
             v-model="testGenerationOption.customButtonTags"
+            variant="underlined"
             :items="customButtonCandidateTags"
             :class="{ 'pt-0': true, 'mt-0': true }"
             multiple
             hide-selected
             closable-chips
+            chips
             append-icon="refresh"
             :disabled="testGenerationOption.testScript.isSimple"
             @click:append="resetCustomButtonTags"
@@ -104,6 +113,8 @@
         <v-col cols="12" class="pl-2">
           <v-checkbox
             v-model="testGenerationOption.testData.useDataDriven"
+            density="comfortable"
+            hide-details
             :label="$t('test-result-page.method-data-driven')"
             :disabled="testGenerationOption.testScript.isSimple"
           >
@@ -152,6 +163,7 @@ export default defineComponent({
   components: {
     "number-field": NumberField
   },
+  emits: ["update"],
   setup(_, context) {
     const rootStore = useRootStore();
 
@@ -288,7 +300,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       search,
       customButtonCandidateTags,
       standardButtontags,

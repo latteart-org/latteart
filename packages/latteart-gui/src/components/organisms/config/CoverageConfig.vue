@@ -32,14 +32,15 @@
       <v-card class="ma-1 pa-1" color="#EEE">
         <v-card-text class="my-0 py-0">
           <v-row align="center" class="ma-0 pa-0">
-            <v-col cols="10" class="tagName ma-0 pa-0">
+            <v-col cols="7" class="tagName ma-0 pa-0">
               {{ tag }}
             </v-col>
-            <v-col cols="2" class="ma-0 pa-0">
+            <v-col cols="5" class="ma-0 pa-0">
               <v-checkbox
                 v-model="tempIncludeTags"
                 :value="tag"
                 readonly
+                hide-details
                 @click="changeValue(tag)"
               />
             </v-col>
@@ -51,9 +52,7 @@
 </template>
 
 <script lang="ts">
-import { useRootStore } from "@/stores/root";
-import { computed, defineComponent, ref } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   props: {
@@ -95,7 +94,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       tempIncludeTags,
       displayedTagList,
       changeValue

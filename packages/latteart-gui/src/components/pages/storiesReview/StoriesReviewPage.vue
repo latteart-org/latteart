@@ -33,7 +33,7 @@
                   <span style="color: rgba(0, 0, 0, 0.6)"
                     ><v-icon>filter_list_alt</v-icon>{{ $t("stories-review-page.filter") }}</span
                   >
-                  <v-btn variant="elevated" class="ml-4" @click="filterClear">{{
+                  <v-btn class="ml-4" @click="filterClear">{{
                     $t("stories-review-page.clear")
                   }}</v-btn>
                   <v-row>
@@ -41,6 +41,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="testMatrixFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.test-matrix')"
                           hide-details
@@ -53,6 +54,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="groupFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.group')"
                           hide-details
@@ -65,6 +67,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="testTargetFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.test-target')"
                           hide-details
@@ -77,6 +80,7 @@
                       <v-row class="pa-6">
                         <v-text-field
                           v-model="viewPointFilterValue"
+                          variant="underlined"
                           type="text"
                           :label="$t('stories-review-page.view-point')"
                           hide-details
@@ -313,7 +317,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       testMatrixFilterValue,
       groupFilterValue,
       testTargetFilterValue,

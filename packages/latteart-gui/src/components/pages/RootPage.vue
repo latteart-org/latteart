@@ -347,7 +347,6 @@ export default defineComponent({
     watch(isCompletionDialogDataChanged, toHistoryView);
 
     return {
-      t: rootStore.message,
       mini,
       displayedPage,
       errorMessageDialogOpened,

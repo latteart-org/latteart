@@ -18,6 +18,7 @@
   <v-text-field
     id="outputDirectoryTextField"
     v-model="testResultName"
+    variant="underlined"
     :single-line="singleLine"
     :hide-details="hideDetails"
     :label="$t('app.test-result-name')"
@@ -30,7 +31,6 @@
 <script lang="ts">
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent } from "vue";
 
 export default defineComponent({
@@ -39,7 +39,6 @@ export default defineComponent({
     hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -70,7 +69,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       isDisabled,
       testResultName,
       changeCurrentTestResultName

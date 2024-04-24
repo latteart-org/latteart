@@ -19,6 +19,8 @@
     <v-row>
       <v-col cols="1">
         <v-checkbox
+          density="comfortable"
+          hide-details
           :model-value="conditionGroup.isEnabled"
           class="default-flex"
           @update:model-value="
@@ -29,20 +31,20 @@
       </v-col>
       <v-col cols="9">
         <v-text-field
+          variant="underlined"
           :label="$t('config-page.autofill.setting-name')"
           :model-value="conditionGroup.settingName"
           @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
         ></v-text-field>
       </v-col>
       <v-col cols="2">
-        <v-btn variant="elevated" color="error" @click="deleteConditionGroup">{{
-          $t("common.delete")
-        }}</v-btn>
+        <v-btn color="red" @click="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="6">
         <v-text-field
+          variant="underlined"
           label="url"
           :model-value="conditionGroup.url"
           class="px-1"
@@ -51,6 +53,7 @@
       </v-col>
       <v-col cols="6">
         <v-text-field
+          variant="underlined"
           label="title"
           :model-value="conditionGroup.title"
           class="px-1"
@@ -62,6 +65,8 @@
       <v-row>
         <v-col cols="1" style="text-align: center">
           <v-checkbox
+            density="comfortable"
+            hide-details
             :model-value="item.isEnabled"
             style="display: inline-block"
             class="px-1"
@@ -72,6 +77,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
+            variant="underlined"
             :label="$t('config-page.autofill.locator-type')"
             :model-value="item.locatorType"
             :items="locatorTypeList"
@@ -81,6 +87,7 @@
         </v-col>
         <v-col cols="2">
           <v-select
+            variant="underlined"
             :label="$t('config-page.autofill.locator-match-type')"
             :model-value="item.locatorMatchType"
             :items="locatorMatchType(item.locatorType)"
@@ -90,6 +97,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
+            variant="underlined"
             :label="$t('config-page.autofill.locator')"
             :model-value="item.locator"
             class="px-1"
@@ -115,6 +123,7 @@
         </v-col>
         <v-col cols="2">
           <v-text-field
+            variant="underlined"
             :label="$t('config-page.autofill.input-value')"
             :model-value="item.inputValue"
             class="px-1"
@@ -122,25 +131,20 @@
           ></v-text-field>
         </v-col>
         <v-col cols="1">
-          <v-btn variant="text" icon color="error" @click="deleteCondition(i)"
+          <v-btn variant="text" icon color="red" @click="deleteCondition(i)"
             ><v-icon>delete</v-icon></v-btn
           >
         </v-col>
       </v-row>
     </div>
-    <v-btn variant="elevated" @click="addCondition">{{
-      $t("config-page.autofill.adding-autofill-values")
-    }}</v-btn>
+    <v-btn @click="addCondition">{{ $t("config-page.autofill.adding-autofill-values") }}</v-btn>
   </v-container>
 </template>
 
 <script lang="ts">
 import { type AutofillCondition, type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
-import { computed, defineComponent } from "vue";
-
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -196,7 +200,6 @@ export default defineComponent({
     };
 
     return {
-      t: useRootStore().message,
       locatorTypeList,
       locatorMatchType,
       addCondition,

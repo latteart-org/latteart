@@ -43,7 +43,7 @@
               variant="text"
               icon
               class="mt-3"
-              color="error"
+              color="red"
               @click="openConfirmDialogToDeleteTestTarget(props.item.id)"
               ><v-icon>delete</v-icon></v-btn
             >
@@ -53,6 +53,7 @@
               <v-col cols="11" class="pr-0">
                 <v-text-field
                   :id="`testTargetNameTextField${group.id}${props.item.id}`"
+                  variant="underlined"
                   :model-value="props.item.name"
                   @change="(e: any) => renameTestTarget(e.target._value, props.item.id)"
                 ></v-text-field>
@@ -104,6 +105,7 @@
         ><v-text-field
           :id="`newTestTargetNameTextField${group?.id}`"
           v-model="newTestTargetName"
+          variant="underlined"
           :label="$t('group-edit-info.target')"
         ></v-text-field
       ></v-col>
@@ -346,7 +348,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       confirmDialogOpened,
       confirmDialogTitle,
       confirmDialogMessage,

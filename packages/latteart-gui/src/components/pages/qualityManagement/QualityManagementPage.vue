@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container class="pa-8">
+  <v-container fluid class="pa-8">
     <v-row>
       <v-col cols="12">
         {{ $t("quality-management.attention") }}
@@ -31,6 +31,7 @@
       <v-col>
         <v-select
           v-model="selectedTestMatrixId"
+          variant="underlined"
           :items="testMatrixSelectItems"
           item-title="text"
           item-value="id"
@@ -42,6 +43,7 @@
       <v-col>
         <v-select
           v-model="selectedGroupId"
+          variant="underlined"
           :items="groups"
           item-title="text"
           item-value="id"
@@ -53,6 +55,7 @@
       <v-col>
         <v-select
           v-model="selectedTestTargetId"
+          variant="underlined"
           :items="testTargets"
           item-title="text"
           item-value="id"
@@ -486,7 +489,6 @@ export default defineComponent({
     updateCurrentTestMatrix();
 
     return {
-      t: rootStore.message,
       DISPLAYMODE_TOTAL,
       DISPLAYMODE_TIMES_PER_SESSION,
       selectedTestMatrixId,

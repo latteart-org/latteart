@@ -34,14 +34,20 @@
         <v-col class="pt-3">
           <v-checkbox
             v-model="option.selectedOptionProject"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.project-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionTestresult"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.testresult-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionConfig"
+            density="comfortable"
+            hide-details
             :label="$t('import-export-dialog.config-data')"
           />
         </v-col>
@@ -52,16 +58,14 @@
 
 <script lang="ts">
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
-import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   components: {
     "select-file-button": SelectFileButton
   },
+  emits: ["update"],
   setup(_, context) {
-    const rootStore = useRootStore();
-
     const option = ref<{
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
@@ -85,7 +89,6 @@ export default defineComponent({
     watch(option, update, { deep: true });
 
     return {
-      t: rootStore.message,
       option,
       selectImportFile
     };

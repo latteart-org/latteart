@@ -25,16 +25,14 @@
     </template>
     <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" @click="close()">{{ $t("common.ok") }}</v-btn>
+      <v-btn variant="elevated" color="blue" @click="close()">{{ $t("common.ok") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { useRootStore } from "@/stores/root";
-import { defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -49,8 +47,6 @@ export default defineComponent({
     }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const iconText = ref("");
     const iconColor = ref("");
 
@@ -75,7 +71,7 @@ export default defineComponent({
     const { opened } = toRefs(props);
     watch(opened, initialize);
 
-    return { t: rootStore.message, iconText, iconColor, close };
+    return { iconText, iconColor, close };
   }
 });
 </script>

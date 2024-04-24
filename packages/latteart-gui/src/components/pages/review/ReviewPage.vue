@@ -41,7 +41,7 @@
       >
     </v-app-bar>
 
-    <v-container fluid class="fill-height pa-0">
+    <v-container fluid class="pa-0" style="height: calc(100vh - 64px)">
       <history-display
         :change-window-title="changeWindowTitle"
         :raw-history="testResult.history"
@@ -62,7 +62,7 @@
       "
       @cancel="closeDialog()"
     >
-      <v-text-field v-model="dialogValue" class="pt-0"></v-text-field>
+      <v-text-field v-model="dialogValue" variant="underlined" class="pt-0"></v-text-field>
     </execute-dialog>
 
     <script-generation-option-dialog
@@ -211,7 +211,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       dialogOpened,
       dialogTitle,
       dialogValue,

@@ -26,12 +26,13 @@
       <v-row class="mt-2">
         <v-text-field
           v-model="testMatrix.name"
+          variant="underlined"
           :label="$t('test-matrix-dialog.test-matrix-name')"
           class="pt-0"
         ></v-text-field>
       </v-row>
       <v-row>
-        <v-card>
+        <v-card class="w-100">
           <v-card-title>
             {{ $t("test-matrix-dialog.setting-viewPoint") }}
           </v-card-title>
@@ -40,6 +41,7 @@
               <v-row v-if="isCreate">
                 <v-select
                   v-model="selectedViewPointsPresetId"
+                  variant="underlined"
                   :label="$t('test-matrix-dialog.preset')"
                   :items="viewPointsPresetsWithUnselected"
                   item-title="name"
@@ -58,6 +60,7 @@
                         <v-col cols="9">
                           <v-text-field
                             v-model="tempViewPoint.name"
+                            variant="underlined"
                             :placeholder="$t('test-matrix-dialog.viewPoint-name')"
                             class="view-point-name"
                             @click="(e: any) => e.stopPropagation()"
@@ -73,11 +76,7 @@
                           />
                         </v-col>
                         <v-col cols="2" align-self="center">
-                          <v-btn
-                            variant="text"
-                            icon
-                            color="error"
-                            @click="deleteTempViewPoint(index)"
+                          <v-btn variant="text" icon color="red" @click="deleteTempViewPoint(index)"
                             ><v-icon>delete</v-icon></v-btn
                           >
                         </v-col>
@@ -130,6 +129,7 @@ export default defineComponent({
       }
     }
   },
+  emits: ["closeDialog", "updateTestMatrix"],
   setup(props, context) {
     const rootStore = useRootStore();
 
@@ -315,7 +315,6 @@ export default defineComponent({
     key.value = 0;
 
     return {
-      t: rootStore.message,
       selectedViewPointsPresetId,
       tempViewPoints,
       testMatrix,

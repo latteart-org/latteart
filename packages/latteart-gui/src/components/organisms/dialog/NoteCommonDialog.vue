@@ -35,8 +35,16 @@
         :disabled="oldNote === ''"
         @update-number-field-value="updateNewTargetSequence"
       ></number-field>
-      <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
-      <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
+      <v-text-field
+        v-model="newNote"
+        variant="underlined"
+        :label="$t('note-edit.summary')"
+      ></v-text-field>
+      <v-textarea
+        v-model="newNoteDetails"
+        variant="underlined"
+        :label="$t('note-edit.details')"
+      ></v-textarea>
 
       <note-tag-select-box v-model="newTags" :label="$t('note-edit.tags')"></note-tag-select-box>
 
@@ -232,7 +240,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       oldNote,
       newNote,
       newNoteDetails,

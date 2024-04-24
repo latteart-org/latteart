@@ -110,14 +110,12 @@
 
 <script lang="ts">
 import { type TestMatrix } from "@/lib/testManagement/types";
-import { useRootStore } from "@/stores/root";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
   setup() {
-    const rootStore = useRootStore();
     const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
@@ -180,7 +178,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       mini,
       displayedPage,
       hasTestMatrix,

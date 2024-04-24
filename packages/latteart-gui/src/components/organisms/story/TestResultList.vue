@@ -17,7 +17,13 @@
 <template>
   <v-card flat height="100%">
     <v-card-title class="pt-0">
-      <v-text-field v-model="search" label="Search" single-line hide-details></v-text-field>
+      <v-text-field
+        v-model="search"
+        variant="underlined"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
     </v-card-title>
 
     <v-data-table
@@ -60,6 +66,7 @@
                   }}</v-list-item-title>
                   <v-list-item-title v-else
                     ><v-text-field
+                      variant="underlined"
                       :model-value="item.name"
                       @update:model-value="changeTestResultName"
                       @click.stop
@@ -224,7 +231,6 @@ export default defineComponent({
     watch(selectedTestResults, updateCheckedTestResults);
 
     return {
-      t: rootStore.message,
       selectedTestResults,
       search,
       isEditing,

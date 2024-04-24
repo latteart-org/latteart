@@ -22,6 +22,7 @@
           <v-text-field
             :id="`numberField${id}_text`"
             ref="textField"
+            variant="underlined"
             :mask="mask"
             :label="label"
             :suffix="suffix"

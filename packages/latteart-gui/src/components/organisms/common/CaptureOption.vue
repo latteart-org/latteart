@@ -16,9 +16,10 @@
 <template>
   <v-card flat class="pa-0">
     <v-card-text>
-      <v-text-field v-model="captureOption.url" :label="$t('app.url')" />
+      <v-text-field v-model="captureOption.url" variant="underlined" :label="$t('app.url')" />
       <v-text-field
         v-model="captureOption.testResultName"
+        variant="underlined"
         :label="$t('app.test-result-name')"
       ></v-text-field>
     </v-card-text>
@@ -30,6 +31,7 @@
     <v-card-text>
       <v-select
         v-model="captureOption.platform"
+        variant="underlined"
         :label="$t('config-page.platform')"
         :items="platforms"
       ></v-select>
@@ -39,6 +41,7 @@
           <v-btn @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
           <v-select
             v-model="captureOption.device"
+            variant="underlined"
             :label="$t('config-page.select-device')"
             :items="devices"
             item-title="modelNumber"
@@ -48,6 +51,7 @@
           ></v-select>
           <v-text-field
             v-model="captureOption.device.osVersion"
+            variant="underlined"
             :label="$t('config-page.os-version')"
             readonly
           ></v-text-field>
@@ -56,6 +60,7 @@
 
       <v-select
         v-model="captureOption.browser"
+        variant="underlined"
         :label="$t('config-page.browser')"
         :items="browsers"
       ></v-select>
@@ -114,10 +119,12 @@
         <v-card-text>
           <v-text-field
             v-model="captureOption.firstTestPurpose"
+            variant="underlined"
             :label="$t('note-edit.summary')"
           ></v-text-field>
           <v-textarea
             v-model="captureOption.firstTestPurposeDetails"
+            variant="underlined"
             :label="$t('note-edit.details')"
           ></v-textarea>
         </v-card-text>
@@ -262,7 +269,6 @@ export default defineComponent({
     watch(() => captureOption.value.platform, updateDevices);
 
     return {
-      t: rootStore.message,
       errorMessageDialogOpened,
       errorMessage,
       platforms,

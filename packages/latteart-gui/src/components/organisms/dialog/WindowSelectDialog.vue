@@ -23,6 +23,7 @@
   >
     <v-select
       v-model="capturingWindowInfo.currentWindowHandle"
+      variant="underlined"
       :items="capturingWindowInfo.windows"
     >
     </v-select>
@@ -33,7 +34,6 @@
 import { type WindowInfo } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
@@ -45,7 +45,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -97,7 +96,6 @@ export default defineComponent({
     }
 
     return {
-      t: rootStore.message,
       capturingWindowInfo,
       onAcceptWindowSelector,
       onCancelWindowSelector

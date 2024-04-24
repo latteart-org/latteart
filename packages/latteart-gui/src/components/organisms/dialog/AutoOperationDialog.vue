@@ -147,7 +147,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t,
       options,
       headers,
       viewOperations,

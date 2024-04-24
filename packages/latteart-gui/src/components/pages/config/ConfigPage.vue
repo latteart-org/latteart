@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container class="pa-8">
+  <v-container fluid class="pa-8">
     <v-row justify="start" class="fill-height">
       <v-col>
         <v-row>
@@ -23,6 +23,7 @@
             <v-card class="pa-6">
               <v-card-text>
                 <v-select
+                  variant="underlined"
                   :label="$t('manage-header.locale')"
                   :items="locales"
                   :model-value="initLocale"
@@ -352,7 +353,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       panels,
       locales,
       initLocale,

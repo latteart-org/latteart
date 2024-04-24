@@ -29,6 +29,7 @@
     </div>
     <v-text-field
       v-model="settingName"
+      variant="underlined"
       :label="$t('autofill-register-dialog.form-label')"
     ></v-text-field>
   </execute-dialog>
@@ -39,7 +40,6 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, nextTick, watch } from "vue";
 
 export default defineComponent({
@@ -47,7 +47,6 @@ export default defineComponent({
     "execute-dialog": ExecuteDialog
   },
   setup() {
-    const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
@@ -130,7 +129,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       settingName,
       opened,
       message,

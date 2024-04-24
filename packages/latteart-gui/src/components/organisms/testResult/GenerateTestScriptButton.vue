@@ -161,7 +161,6 @@ export default defineComponent({
     };
 
     return {
-      t: rootStore.message,
       scriptGenerationOptionDialogIsOpened,
       errorMessageDialogOpened,
       errorMessage,

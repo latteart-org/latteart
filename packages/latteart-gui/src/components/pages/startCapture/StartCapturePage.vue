@@ -16,22 +16,19 @@
 
 <template>
   <v-container fluid>
-    <v-container class="pa-0">
-      <capture-option @update="updateOption" />
+    <capture-option @update="updateOption" />
 
-      <record-start-trigger initial>
-        <template #activator="{ on }">
-          <v-btn
-            class="ma-4"
-            :disabled="isExecuteButtonDisabled"
-            variant="elevated"
-            color="primary"
-            @click="execute(on)"
-            >{{ $t("start-capture-page.execute-button") }}</v-btn
-          >
-        </template>
-      </record-start-trigger>
-    </v-container>
+    <record-start-trigger initial>
+      <template #activator="{ on }">
+        <v-btn
+          class="ma-4"
+          :disabled="isExecuteButtonDisabled"
+          color="primary"
+          @click="execute(on)"
+          >{{ $t("start-capture-page.execute-button") }}</v-btn
+        >
+      </template>
+    </record-start-trigger>
   </v-container>
 </template>
 
@@ -122,7 +119,6 @@ export default defineComponent({
     });
 
     return {
-      t: rootStore.message,
       updateOption,
       isExecuteButtonDisabled,
       execute

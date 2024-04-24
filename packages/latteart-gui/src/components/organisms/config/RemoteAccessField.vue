@@ -21,6 +21,7 @@
         id="connectUrlTextField"
         ref="urlField"
         v-model="targetUrl"
+        variant="underlined"
         :hide-details="hideDetails"
         :items="urls"
         :label="$t('remote-access.remote-connection-url')"
@@ -33,7 +34,6 @@
         id="connecttButton"
         :color="color"
         :disabled="isCapturing || isReplaying || targetUrl === url"
-        variant="elevated"
         class="ma-2"
         @click="connect()"
         >{{ $t("remote-access.connect") }}</v-btn
@@ -173,7 +173,6 @@ export default defineComponent({
     watch(url, updateUrl);
 
     return {
-      t: rootStore.message,
       urlField,
       informationMessageDialogOpened,
       informationTitle,

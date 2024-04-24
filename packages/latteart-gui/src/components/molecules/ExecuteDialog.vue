@@ -16,7 +16,9 @@
 
 <template>
   <scrollable-dialog :opened="opened" :max-width="maxWidth">
-    <template #title>{{ title }}</template>
+    <template #title
+      ><span :title="title">{{ title }}</span></template
+    >
     <template #content>
       <slot />
     </template>
@@ -36,7 +38,6 @@
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -48,11 +49,10 @@ export default defineComponent({
     title: { type: String, default: "", required: true },
     acceptButtonDisabled: { type: Boolean, default: false },
     strong: { type: Boolean, default: false },
-    maxWidth: { type: Number, default: 500 }
+    maxWidth: { type: Number, default: 550 }
   },
+  emits: ["accept", "cancel"],
   setup(props, context) {
-    const rootStore = useRootStore();
-
     const isExecuted = ref(false);
 
     const disabled = computed(() => {
@@ -77,7 +77,7 @@ export default defineComponent({
     const { opened } = toRefs(props);
     watch(opened, changeOpenedDialog);
 
-    return { t: rootStore.message, disabled, accept, cancel };
+    return { disabled, accept, cancel };
   }
 });
 </script>

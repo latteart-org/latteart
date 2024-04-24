@@ -20,6 +20,7 @@
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupRegistrationDialog"
+          hide-details
           :label="$t('config-page.autofill.auto-popup-registration')"
         >
         </v-checkbox>
@@ -27,14 +28,13 @@
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupSelectionDialog"
+          hide-details
           :label="$t('config-page.autofill.auto-popup-selection')"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
-        <v-btn variant="elevated" @click="addConditionGroup">{{
-          $t("config-page.autofill.add-setting")
-        }}</v-btn>
+        <v-btn @click="addConditionGroup">{{ $t("config-page.autofill.add-setting") }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
         <autofill-input-value-container
@@ -61,9 +61,7 @@ import type {
   AutofillConditionGroup
 } from "@/lib/operationHistory/types";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
-import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -193,7 +191,6 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      t: useRootStore().message,
       conditionGroups,
       autoPopupRegistrationDialog,
       autoPopupSelectionDialog,

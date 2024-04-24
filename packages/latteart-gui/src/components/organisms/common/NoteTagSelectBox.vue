@@ -22,7 +22,11 @@
     :hide-no-data="!search"
     :items="tagSelectionItems"
     multiple
+    closable-chips
+    chips
+    hide-selected
     :readonly="readonly"
+    variant="underlined"
   >
     <template #no-data>
       <v-list-item>
@@ -32,8 +36,12 @@
         </v-list-item-title>
       </v-list-item>
     </template>
-    <template #selection="{ item }">
-      <v-chip :color="getChipColor(item.raw)" size="small" variant="elevated">
+    <template #chip="{ item, index }">
+      <v-chip
+        :color="getChipColor(item.raw)"
+        variant="elevated"
+        @click:close="selectedTags.splice(index, 1)"
+      >
         <span class="pr-2">{{ item.raw }} </span>
       </v-chip>
     </template>

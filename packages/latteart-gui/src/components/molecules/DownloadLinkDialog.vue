@@ -37,8 +37,7 @@
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import { useRootStore } from "@/stores/root";
-import { defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
   components: {
@@ -90,7 +89,7 @@ export default defineComponent({
     const { opened } = toRefs(props);
     watch(opened, initialize);
 
-    return { t: rootStore.message, iconText, iconColor, downloadLinkMessage, close };
+    return { iconText, iconColor, downloadLinkMessage, close };
   }
 });
 </script>

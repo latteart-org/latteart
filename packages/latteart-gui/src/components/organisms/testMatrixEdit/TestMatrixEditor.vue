@@ -52,6 +52,7 @@
                   <v-text-field
                     v-if="expandedPanelIndex === index"
                     :id="`groupNameTextField${index}`"
+                    variant="underlined"
                     :model-value="group.name"
                     @click="$event.stopPropagation()"
                     @change="(e: any) => renameGroup(group.id, e.target._value)"
@@ -62,7 +63,7 @@
                   <v-btn
                     v-if="expandedPanelIndex === index"
                     size="small"
-                    color="error"
+                    color="red"
                     class="mr-4"
                     @click.stop="openConfirmDialogToDeleteGroup(group.id)"
                     >{{ $t("group-edit-list.delete") }}</v-btn
@@ -78,7 +79,7 @@
     ></v-row>
     <v-row>
       <v-col cols="2"
-        ><v-text-field v-model="groupName" :label="$t('group-edit-list.name')"
+        ><v-text-field v-model="groupName" variant="underlined" :label="$t('group-edit-list.name')"
       /></v-col>
 
       <v-col cols="10"
@@ -245,7 +246,6 @@ export default defineComponent({
     initializePanels();
 
     return {
-      t: rootStore.message,
       testMatrixBeingEdited,
       confirmDialogOpened,
       confirmDialogTitle,

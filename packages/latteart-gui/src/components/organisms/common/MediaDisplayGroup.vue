@@ -44,7 +44,6 @@
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import { type MessageProvider } from "@/lib/operationHistory/types";
-import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
@@ -58,14 +57,11 @@ export default defineComponent({
     message: { type: Function as PropType<MessageProvider> }
   },
   setup(props) {
-    const rootStore = useRootStore();
-
     const mediaType = ref<"image" | "video">("image");
 
     mediaType.value = props.imageFileUrl ? "image" : "video";
 
     return {
-      t: rootStore.message,
       mediaType
     };
   }

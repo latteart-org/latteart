@@ -21,6 +21,7 @@
 
       <v-card-text class="pt-0">
         <v-text-field
+          variant="underlined"
           class="pt-0"
           :label="$t('session-info.tester-name')"
           :model-value="session.testerName"
@@ -28,6 +29,7 @@
           @change="(e: any) => updateSession({ testerName: e.target._value })"
         ></v-text-field>
         <v-textarea
+          variant="underlined"
           class="pt-0"
           :label="$t('session-info.memo')"
           :model-value="memo"
@@ -84,7 +86,7 @@
                       v-if="!isViewerMode"
                       variant="text"
                       icon
-                      color="error"
+                      color="red"
                       :title="$t('session-info.remove-test-results-title')"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
@@ -146,7 +148,7 @@
                     <v-btn
                       variant="text"
                       icon
-                      color="error"
+                      color="red"
                       @click="openConfirmDialogToDeleteAttachedFile(file.fileUrl)"
                       ><v-icon>delete</v-icon></v-btn
                     >
@@ -200,9 +202,12 @@
 
       <template #footer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" variant="text" @click="testResultSelectionDialogOpened = false">{{
-          $t("common.close")
-        }}</v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          @click="testResultSelectionDialogOpened = false"
+          >{{ $t("common.close") }}</v-btn
+        >
       </template>
     </scrollable-dialog>
 
@@ -541,7 +546,6 @@ export default defineComponent({
     reportSectionDisplayed.value = true;
 
     return {
-      t: rootStore.message,
       reportSectionDisplayed,
       captureOptionDialogOpened,
       testResultSelectionDialogOpened,

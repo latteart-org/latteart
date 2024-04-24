@@ -21,13 +21,18 @@
         <v-card-text>
           <test-result-import-trigger @update="loadTestResultSummaries">
             <template #activator="{ on, isDisabled }">
-              <v-btn :disabled="isDisabled" variant="elevated" @click="on">{{
+              <v-btn :disabled="isDisabled" @click="on">{{
                 $t("import-export-dialog.test-result-import-title")
               }}</v-btn>
             </template>
           </test-result-import-trigger>
 
-          <v-text-field v-model="search" label="Search" clearable></v-text-field>
+          <v-text-field
+            v-model="search"
+            variant="underlined"
+            label="Search"
+            clearable
+          ></v-text-field>
 
           <v-data-table
             v-model="selectedTestResults"
@@ -81,7 +86,7 @@
             </template>
 
             <template #[`item.name`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '250px' }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%', width: 'inherit' }"
@@ -93,7 +98,7 @@
             </template>
 
             <template #[`item.initialUrl`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '250px' }">
                 <div
                   :class="{ ellipsis: true }"
                   :style="{ 'max-width': '100%', width: 'inherit' }"
@@ -105,7 +110,7 @@
             </template>
 
             <template #[`item.testingTime`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }">
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToHHmmss(item.testingTime) }}
                 </div>
@@ -113,7 +118,7 @@
             </template>
 
             <template #[`item.creationTimestamp`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }">
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%', width: 'inherit' }">
                   {{ millisecondsToDateFormat(item.creationTimestamp) }}
                 </div>
@@ -121,7 +126,7 @@
             </template>
 
             <template #[`item.testPurposes`]="{ item }">
-              <td :class="{ ellipsis: true }" style="width: inherit">
+              <td :class="{ ellipsis: true }" :style="{ maxWidth: '350px' }">
                 <li
                   v-for="(testPurpose, index) in item.testPurposes.slice(0, 3)"
                   :key="index"
@@ -141,7 +146,7 @@
           <v-btn
             :disabled="isDisabled"
             variant="elevated"
-            color="error"
+            color="red"
             @click="confirmDialogOpened = true"
             >{{ $t("test-result-navigation-drawer.delete-test-results") }}</v-btn
           >
@@ -217,37 +222,37 @@ export default defineComponent({
         {
           title: "",
           value: "actions",
-          width: "120",
+          minWidth: "120px",
           sortable: false
         },
         {
           title: rootStore.message("test-result-list.name"),
           value: "name",
-          width: "280",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.url"),
           value: "initialUrl",
-          width: "450",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.testing-time"),
           value: "testingTime",
-          width: "120",
+          minWidth: "120px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.creation-timestamp"),
           value: "creationTimestamp",
-          width: "170",
+          minWidth: "170px",
           sortable: true
         },
         {
           title: rootStore.message("test-result-list.test-purpose"),
           value: "testPurposes",
-          width: "450",
+          minWidth: "120px",
           sortable: true
         }
       ];
@@ -388,7 +393,6 @@ export default defineComponent({
     })();
 
     return {
-      t: rootStore.message,
       confirmDialogOpened,
       informationDialogOpened,
       errorDialogOpened,

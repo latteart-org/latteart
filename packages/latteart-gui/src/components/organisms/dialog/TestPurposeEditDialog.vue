@@ -41,8 +41,16 @@
       <p v-if="isSaveWarning" class="warningMessage">
         {{ $t("note-edit.save-warning") }}
       </p>
-      <v-text-field v-model="newNote" :label="$t('note-edit.summary')"></v-text-field>
-      <v-textarea v-model="newNoteDetails" :label="$t('note-edit.details')"></v-textarea>
+      <v-text-field
+        v-model="newNote"
+        variant="underlined"
+        :label="$t('note-edit.summary')"
+      ></v-text-field>
+      <v-textarea
+        v-model="newNoteDetails"
+        variant="underlined"
+        :label="$t('note-edit.details')"
+      ></v-textarea>
     </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -58,7 +66,6 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
@@ -71,7 +78,6 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
 
     const oldNote = ref("");
@@ -232,7 +238,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      t: rootStore.message,
       oldNote,
       newNote,
       newNoteDetails,
