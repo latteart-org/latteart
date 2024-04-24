@@ -175,7 +175,7 @@ export default class InputValueTable {
         }
 
         return {
-          value: inputElement?.defaultValue ?? input.value,
+          value: input.value ?? inputElement?.defaultValue,
           image: input.image,
           isDefaultValue: false
         };

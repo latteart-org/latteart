@@ -383,7 +383,7 @@ export default defineComponent({
           return {
             xpath: element.xpath.toLowerCase(),
             attributes: element.attributes,
-            inputValue: element.defaultValue ?? element.inputs.at(-1)?.value ?? "",
+            inputValue: element.inputs.at(-1)?.value ?? element.defaultValue ?? "",
             iframeIndex: element.iframe?.index
           };
         }),
