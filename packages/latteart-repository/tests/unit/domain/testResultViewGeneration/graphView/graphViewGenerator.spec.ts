@@ -322,6 +322,7 @@ describe("generateGraphView", () => {
       ],
       testPurposes: [],
       notes: [],
+      radioGroup: [],
     };
 
     const expectedNodeBase = {
