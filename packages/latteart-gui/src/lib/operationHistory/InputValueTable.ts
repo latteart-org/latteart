@@ -122,7 +122,10 @@ export type ScreenTransition = {
  * Class that handles input value table.
  */
 export default class InputValueTable {
-  constructor(private screenTransitions: ScreenTransition[] = []) {}
+  constructor(
+    private screenTransitions: ScreenTransition[] = [],
+    private radioGroup: { name: string; xpath: string }[] = []
+  ) {}
 
   /**
    * Get column size.
@@ -162,10 +165,20 @@ export default class InputValueTable {
 
     return elements.map((element) => {
       const attributes = element.attributes;
+      const isRadioBtn =
+        element.attributes.type && element.attributes.type.toLowerCase() === "radio";
+      const isCheckedRadioBtn = this.getCheckedRadio(element.xpath, element.attributes.name);
 
       const inputs = this.screenTransitions.map((screenTransition) => {
         const inputElement = screenTransition.inputElements.find(({ id }) => id === element.id);
         const input = inputElement?.inputs.at(-1);
+
+        if (isRadioBtn && isCheckedRadioBtn !== undefined && !isCheckedRadioBtn) {
+          return {
+            value: "off",
+            isDefaultValue: input === undefined
+          };
+        }
 
         if (input === undefined) {
           return {
@@ -212,5 +225,13 @@ export default class InputValueTable {
    */
   public getScreenTransitions(): ScreenTransition[] {
     return this.screenTransitions;
+  }
+
+  private getCheckedRadio(xpath: string, name: string) {
+    const target = this.radioGroup.find((item) => item.name === name);
+    if (target) {
+      return target.xpath === xpath;
+    }
+    return undefined;
   }
 }

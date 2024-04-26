@@ -1250,7 +1250,11 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       graphView: GraphView;
       callback: FlowChartGraphCallback;
     }) {
-      const createFlowChartGraphExtender = ({ edges, screens }: FlowChartGraphExtenderSource) => {
+      const createFlowChartGraphExtender = ({
+        edges,
+        screens,
+        radioGroup
+      }: FlowChartGraphExtenderSource) => {
         return new FlowChartGraphExtender({
           callback: {
             onClickEdge: (index: number) => {
@@ -1260,7 +1264,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
                 return;
               }
 
-              const inputValueTable = new InputValueTable(edge.details);
+              const inputValueTable = new InputValueTable(edge.details, radioGroup);
               const image = edge.trigger?.image;
 
               payload.callback.onClickEdge({ image, inputValueTable });
@@ -1273,7 +1277,8 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
               }
 
               const inputValueTable = new InputValueTable(
-                screens.find(({ id }) => id === screenId)?.details ?? []
+                screens.find(({ id }) => id === screenId)?.details ?? [],
+                radioGroup
               );
               const image = screens[index].image;
 

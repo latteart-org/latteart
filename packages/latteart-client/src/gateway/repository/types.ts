@@ -76,6 +76,7 @@ export type GraphViewForRepository = {
       timestamp: number;
       videoFrame?: VideoFrame;
     }[];
+    radioGroup: { name: string; xpath: string }[];
   };
 };
 

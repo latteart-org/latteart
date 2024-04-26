@@ -39,6 +39,7 @@ export type FlowChartGraphExtenderSource = {
     image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
     details: ScreenTransition[];
   }[];
+  radioGroup: { name: string; xpath: string }[];
 };
 
 type Edge = {
@@ -77,6 +78,7 @@ type GraphSource = {
     details: ScreenTransition[];
   }[];
   edges: Edge[];
+  radioGroup: { name: string; xpath: string }[];
 };
 
 /**
@@ -91,6 +93,7 @@ export async function convertToScreenTransitionDiagramGraph(
 
   const screens = graphModel.screens;
   const edges = graphModel.edges;
+  const radioGroup = graphModel.radioGroup;
   const screenTexts = graphModel.screens.map(({ id, name }) => {
     const lineLength = 30;
     return `${id}["${TextUtil.escapeSpecialCharacters(
@@ -101,7 +104,7 @@ export async function convertToScreenTransitionDiagramGraph(
   const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join("\n");
 
   const graphExtender = createFlowChartGraphExtender
-    ? createFlowChartGraphExtender({ edges, screens })
+    ? createFlowChartGraphExtender({ edges, screens, radioGroup })
     : {
         extendGraph: () => {
           /* nothing */
@@ -340,7 +343,8 @@ function extractGraphSources(view: GraphView): GraphSource {
       const details = edgeDetails.filter(({ sourceScreen }) => sourceScreen.id === screen.id);
       return { ...screen, details };
     }),
-    edges
+    edges,
+    radioGroup: view.store.radioGroup
   };
 }
 

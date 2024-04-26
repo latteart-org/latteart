@@ -339,6 +339,92 @@ describe("generateGraphView", () => {
       noteIds: [],
     };
 
+    it("チェックボックスの操作をした際のGraphViewを生成する", () => {
+      const testSteps: TestStepForGraphView[] = [
+        {
+          ...testStepBase,
+          id: "ts1",
+          operation: {
+            ...testStepBase.operation,
+            elementInfo: {
+              tagname: "INPUT",
+              xpath: "xpath",
+              checked: true,
+              attributes: { type: "checkbox" },
+            },
+          },
+        },
+      ];
+      const coverageSources: {
+        screenDef: string;
+        screenElements: (ElementInfo & {
+          pageUrl: string;
+          pageTitle: string;
+        })[];
+      }[] = [];
+      const idGenerator = createIdGeneratorMock();
+      const graphView = generateGraphView(
+        testSteps,
+        coverageSources,
+        idGenerator
+      );
+
+      expect(graphView.nodes[0].testSteps[0].input).toEqual("on");
+    });
+
+    it("ラジオボタンの操作をした際のGraphViewを生成する", () => {
+      const testSteps: TestStepForGraphView[] = [
+        {
+          ...testStepBase,
+          id: "ts1",
+          operation: {
+            ...testStepBase.operation,
+            input: "value1",
+            elementInfo: {
+              tagname: "INPUT",
+              xpath: "xpath1",
+              checked: true,
+              attributes: { type: "radio", name: "test" },
+            },
+            inputElements: [
+              {
+                tagname: "INPUT",
+                xpath: "xpath1",
+                value: "value1",
+                checked: true,
+                attributes: { type: "radio", name: "test" },
+              },
+              {
+                tagname: "INPUT",
+                xpath: "xpath2",
+                value: "value2",
+                checked: false,
+                attributes: { type: "radio", name: "test" },
+              },
+            ],
+          },
+        },
+      ];
+      const coverageSources: {
+        screenDef: string;
+        screenElements: (ElementInfo & {
+          pageUrl: string;
+          pageTitle: string;
+        })[];
+      }[] = [];
+      const idGenerator = createIdGeneratorMock();
+      const graphView = generateGraphView(
+        testSteps,
+        coverageSources,
+        idGenerator
+      );
+      expect(graphView.nodes[0].testSteps[0].input).toEqual("on");
+      expect(graphView.store.radioGroup[0]).toEqual({
+        name: "test",
+        xpath: "xpath1",
+      });
+    });
+
     describe("テストステップ群をグループ化してノードを構築する", () => {
       it("screen_transitionがある場合、同テストステップから別ノードとする", () => {
         const testSteps: TestStepForGraphView[] = [
