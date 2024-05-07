@@ -58,7 +58,7 @@ export type GraphView = {
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
-    radioGroup: { name: string; xpath: string }[];
+    radioGroups: { name: string; checkedRadioButtonXPath: string }[];
   };
 };
 

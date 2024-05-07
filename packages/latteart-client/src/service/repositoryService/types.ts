@@ -276,7 +276,7 @@ export type GraphView = {
       timestamp: number;
       videoFrame?: VideoFrame;
     }[];
-    radioGroup: { name: string; xpath: string }[];
+    radioGroups: { name: string; checkedRadioButtonXPath: string }[];
   };
 };
 

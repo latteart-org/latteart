@@ -53,7 +53,7 @@ export function generateGraphView(
   const testPurposes = collectTestPurposes(testSteps);
   const notes = collectNotes(testSteps);
 
-  const { nodes, radioGroup } = createNodes(
+  const { nodes, radioGroups } = createNodes(
     testSteps,
     screenDefToScreen,
     elementMapper
@@ -61,7 +61,7 @@ export function generateGraphView(
 
   return {
     nodes,
-    store: { windows, screens, elements, testPurposes, notes, radioGroup },
+    store: { windows, screens, elements, testPurposes, notes, radioGroups },
   };
 }
 
@@ -292,9 +292,9 @@ function createNodes(
   elementMapper: ElementMapper
 ): {
   nodes: GraphView["nodes"];
-  radioGroup: { name: string; xpath: string }[];
+  radioGroups: { name: string; checkedRadioButtonXPath: string }[];
 } {
-  const radioGroup: { name: string; xpath: string }[] = [];
+  const radioGroups: { name: string; checkedRadioButtonXPath: string }[] = [];
   const testStepForNodes = testSteps.map((testStep) => {
     const targetElementId = testStep.operation.elementInfo
       ? elementMapper.findElement(
@@ -307,13 +307,13 @@ function createNodes(
     const input = getInputValue(testStep.operation);
     const target = getRadioGroup(testStep.operation);
     if (target) {
-      const targetIndex = radioGroup.findIndex(
+      const targetIndex = radioGroups.findIndex(
         (item) => item.name === target.name
       );
       if (targetIndex > -1) {
-        radioGroup.splice(0, 1, target);
+        radioGroups.splice(0, 1, target);
       } else {
-        radioGroup.push(target);
+        radioGroups.push(target);
       }
     }
 
@@ -363,7 +363,7 @@ function createNodes(
     };
   });
 
-  return { nodes, radioGroup };
+  return { nodes, radioGroups };
 }
 
 function groupTestSteps(
@@ -515,7 +515,7 @@ function getRadioGroup(operation: TestStepForGraphView["operation"]) {
       return operation.elementInfo.checked
         ? {
             name: operation.elementInfo.attributes.name,
-            xpath: operation.elementInfo.xpath,
+            checkedRadioButtonXPath: operation.elementInfo.xpath,
           }
         : undefined;
     }

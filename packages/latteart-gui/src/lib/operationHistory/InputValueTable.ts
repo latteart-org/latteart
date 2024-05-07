@@ -124,7 +124,7 @@ export type ScreenTransition = {
 export default class InputValueTable {
   constructor(
     private screenTransitions: ScreenTransition[] = [],
-    private radioGroup: { name: string; xpath: string }[] = []
+    private radioGroups: { name: string; checkedRadioButtonXPath: string }[] = []
   ) {}
 
   /**
@@ -228,9 +228,9 @@ export default class InputValueTable {
   }
 
   private getCheckedRadio(xpath: string, name: string) {
-    const target = this.radioGroup.find((item) => item.name === name);
+    const target = this.radioGroups.find((item) => item.name === name);
     if (target) {
-      return target.xpath === xpath;
+      return target.checkedRadioButtonXPath === xpath;
     }
     return undefined;
   }

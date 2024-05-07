@@ -39,7 +39,7 @@ export type FlowChartGraphExtenderSource = {
     image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
     details: ScreenTransition[];
   }[];
-  radioGroup: { name: string; xpath: string }[];
+  radioGroups: { name: string; checkedRadioButtonXPath: string }[];
 };
 
 type Edge = {
@@ -78,7 +78,7 @@ type GraphSource = {
     details: ScreenTransition[];
   }[];
   edges: Edge[];
-  radioGroup: { name: string; xpath: string }[];
+  radioGroups: { name: string; checkedRadioButtonXPath: string }[];
 };
 
 /**
@@ -93,7 +93,7 @@ export async function convertToScreenTransitionDiagramGraph(
 
   const screens = graphModel.screens;
   const edges = graphModel.edges;
-  const radioGroup = graphModel.radioGroup;
+  const radioGroups = graphModel.radioGroups;
   const screenTexts = graphModel.screens.map(({ id, name }) => {
     const lineLength = 30;
     return `${id}["${TextUtil.escapeSpecialCharacters(
@@ -104,7 +104,7 @@ export async function convertToScreenTransitionDiagramGraph(
   const graphText = ["graph TD;", ...screenTexts, ...graphTextLines, ""].join("\n");
 
   const graphExtender = createFlowChartGraphExtender
-    ? createFlowChartGraphExtender({ edges, screens, radioGroup })
+    ? createFlowChartGraphExtender({ edges, screens, radioGroups })
     : {
         extendGraph: () => {
           /* nothing */
@@ -344,7 +344,7 @@ function extractGraphSources(view: GraphView): GraphSource {
       return { ...screen, details };
     }),
     edges,
-    radioGroup: view.store.radioGroup
+    radioGroups: view.store.radioGroups
   };
 }
 

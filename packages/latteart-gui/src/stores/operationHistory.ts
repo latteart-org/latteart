@@ -1253,7 +1253,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const createFlowChartGraphExtender = ({
         edges,
         screens,
-        radioGroup
+        radioGroups
       }: FlowChartGraphExtenderSource) => {
         return new FlowChartGraphExtender({
           callback: {
@@ -1264,7 +1264,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
                 return;
               }
 
-              const inputValueTable = new InputValueTable(edge.details, radioGroup);
+              const inputValueTable = new InputValueTable(edge.details, radioGroups);
               const image = edge.trigger?.image;
 
               payload.callback.onClickEdge({ image, inputValueTable });
@@ -1278,7 +1278,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
 
               const inputValueTable = new InputValueTable(
                 screens.find(({ id }) => id === screenId)?.details ?? [],
-                radioGroup
+                radioGroups
               );
               const image = screens[index].image;
 
