@@ -53,9 +53,16 @@ export function generateGraphView(
   const testPurposes = collectTestPurposes(testSteps);
   const notes = collectNotes(testSteps);
 
-  const nodes = createNodes(testSteps, screenDefToScreen, elementMapper);
+  const { nodes, radioGroups } = createNodes(
+    testSteps,
+    screenDefToScreen,
+    elementMapper
+  );
 
-  return { nodes, store: { windows, screens, elements, testPurposes, notes } };
+  return {
+    nodes,
+    store: { windows, screens, elements, testPurposes, notes, radioGroups },
+  };
 }
 
 export type ElementMapper = {
@@ -283,7 +290,11 @@ function createNodes(
   testSteps: TestStepForGraphView[],
   screenDefToScreen: Map<string, { id: string; name: string }>,
   elementMapper: ElementMapper
-): GraphView["nodes"] {
+): {
+  nodes: GraphView["nodes"];
+  radioGroups: { name: string; checkedRadioButtonXPath: string }[];
+} {
+  const radioGroups: { name: string; checkedRadioButtonXPath: string }[] = [];
   const testStepForNodes = testSteps.map((testStep) => {
     const targetElementId = testStep.operation.elementInfo
       ? elementMapper.findElement(
@@ -293,15 +304,28 @@ function createNodes(
           testStep.operation.elementInfo?.iframe?.index
         )?.id
       : undefined;
+    const input = getInputValue(testStep.operation);
+    const target = getRadioGroup(testStep.operation);
+    if (target) {
+      const targetIndex = radioGroups.findIndex(
+        (item) => item.name === target.name
+      );
+      if (targetIndex > -1) {
+        radioGroups.splice(0, 1, target);
+      } else {
+        radioGroups.push(target);
+      }
+    }
+
     return {
       ...testStep,
-      operation: { ...testStep.operation, targetElementId },
+      operation: { ...testStep.operation, input, targetElementId },
     };
   });
 
   const testStepGroups = groupTestSteps(testStepForNodes, screenDefToScreen);
 
-  return testStepGroups.map((testStepGroup) => {
+  const nodes = testStepGroups.map((testStepGroup) => {
     const nodeTestSteps = testStepGroup.testSteps.map((testStep) => {
       const { targetElementId } = testStep.operation;
 
@@ -338,6 +362,8 @@ function createNodes(
       defaultValues: nodeDefaultValues,
     };
   });
+
+  return { nodes, radioGroups };
 }
 
 function groupTestSteps(
@@ -459,4 +485,41 @@ function getDefaultValueOfElement(
   }
 
   return element.value ?? "";
+}
+
+function getInputValue(operation: TestStepForGraphView["operation"]) {
+  if (operation.elementInfo?.tagname.toLowerCase() === "input") {
+    if (
+      operation.elementInfo?.attributes.type &&
+      operation.elementInfo?.attributes.type.toLowerCase() === "checkbox"
+    ) {
+      return operation.elementInfo.checked ? "on" : "off";
+    }
+    if (
+      operation.elementInfo?.attributes.type &&
+      operation.elementInfo?.attributes.type.toLowerCase() === "radio"
+    ) {
+      return operation.elementInfo.checked ? "on" : "off";
+    }
+  }
+
+  return operation.input ?? "";
+}
+
+function getRadioGroup(operation: TestStepForGraphView["operation"]) {
+  if (operation.elementInfo?.tagname.toLowerCase() === "input") {
+    if (
+      operation.elementInfo?.attributes.type &&
+      operation.elementInfo?.attributes.type.toLowerCase() === "radio"
+    ) {
+      return operation.elementInfo.checked
+        ? {
+            name: operation.elementInfo.attributes.name,
+            checkedRadioButtonXPath: operation.elementInfo.xpath,
+          }
+        : undefined;
+    }
+  }
+
+  return undefined;
 }

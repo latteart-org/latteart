@@ -322,6 +322,7 @@ describe("generateGraphView", () => {
       ],
       testPurposes: [],
       notes: [],
+      radioGroups: [],
     };
 
     const expectedNodeBase = {
@@ -338,6 +339,369 @@ describe("generateGraphView", () => {
       pageTitle: "title1",
       noteIds: [],
     };
+
+    describe("tagnameがINPUTの場合", () => {
+      describe("typeがcheckboxの場合", () => {
+        const defaultElementInfo = {
+          tagname: "INPUT",
+          xpath: "xpath",
+          checked: true,
+          attributes: { type: "checkbox" },
+        };
+        it("OFFからONにする操作をした場合、inputの値はonになる", () => {
+          const testSteps: TestStepForGraphView[] = [
+            {
+              ...testStepBase,
+              id: "ts1",
+              operation: {
+                ...testStepBase.operation,
+                elementInfo: defaultElementInfo,
+              },
+            },
+          ];
+          const coverageSources: {
+            screenDef: string;
+            screenElements: (ElementInfo & {
+              pageUrl: string;
+              pageTitle: string;
+            })[];
+          }[] = [];
+          const idGenerator = createIdGeneratorMock();
+          const graphView = generateGraphView(
+            testSteps,
+            coverageSources,
+            idGenerator
+          );
+
+          expect(graphView.nodes[0].testSteps[0].input).toEqual("on");
+        });
+
+        it("ONからOFFにする操作をした場合、最後の操作のinputの値はoffになる", () => {
+          const testSteps: TestStepForGraphView[] = [
+            {
+              ...testStepBase,
+              id: "ts1",
+              operation: {
+                ...testStepBase.operation,
+                elementInfo: defaultElementInfo,
+              },
+            },
+            {
+              ...testStepBase,
+              id: "ts2",
+              operation: {
+                ...testStepBase.operation,
+                elementInfo: { ...defaultElementInfo, checked: false },
+              },
+            },
+          ];
+          const coverageSources: {
+            screenDef: string;
+            screenElements: (ElementInfo & {
+              pageUrl: string;
+              pageTitle: string;
+            })[];
+          }[] = [];
+          const idGenerator = createIdGeneratorMock();
+          const graphView = generateGraphView(
+            testSteps,
+            coverageSources,
+            idGenerator
+          );
+
+          expect(graphView.nodes[0].testSteps[1].input).toEqual("off");
+        });
+      });
+      describe("typeがradioの場合", () => {
+        describe("単一ラジオグループの場合", () => {
+          it("操作をしたラジオボタンがstoreのradioGroupsに出力される", () => {
+            const testSteps: TestStepForGraphView[] = [
+              {
+                ...testStepBase,
+                id: "ts1",
+                operation: {
+                  ...testStepBase.operation,
+                  elementInfo: {
+                    tagname: "INPUT",
+                    xpath: "xpath1",
+                    checked: true,
+                    attributes: { type: "radio", name: "test" },
+                  },
+                  inputElements: [
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath1",
+                      value: "value1",
+                      checked: true,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath2",
+                      value: "value2",
+                      checked: false,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                  ],
+                },
+              },
+            ];
+            const coverageSources: {
+              screenDef: string;
+              screenElements: (ElementInfo & {
+                pageUrl: string;
+                pageTitle: string;
+              })[];
+            }[] = [];
+            const idGenerator = createIdGeneratorMock();
+            const graphView = generateGraphView(
+              testSteps,
+              coverageSources,
+              idGenerator
+            );
+            expect(graphView.nodes[0].testSteps[0].input).toEqual("on");
+            expect(graphView.store.radioGroups[0]).toEqual({
+              name: "test",
+              checkedRadioButtonXPath: "xpath1",
+            });
+          });
+
+          it("複数回操作をした際、最後に操作したラジオボタンがstoreのradioGroupsに出力される", () => {
+            const testSteps: TestStepForGraphView[] = [
+              {
+                ...testStepBase,
+                id: "ts1",
+                operation: {
+                  ...testStepBase.operation,
+                  elementInfo: {
+                    tagname: "INPUT",
+                    xpath: "xpath1",
+                    checked: true,
+                    attributes: { type: "radio", name: "test" },
+                  },
+                  inputElements: [
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath1",
+                      value: "value1",
+                      checked: true,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath2",
+                      value: "value2",
+                      checked: false,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                  ],
+                },
+              },
+              {
+                ...testStepBase,
+                id: "ts2",
+                operation: {
+                  ...testStepBase.operation,
+                  elementInfo: {
+                    tagname: "INPUT",
+                    xpath: "xpath2",
+                    checked: true,
+                    attributes: { type: "radio", name: "test" },
+                  },
+                  inputElements: [
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath1",
+                      value: "value1",
+                      checked: false,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath2",
+                      value: "value2",
+                      checked: true,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                  ],
+                },
+              },
+            ];
+            const coverageSources: {
+              screenDef: string;
+              screenElements: (ElementInfo & {
+                pageUrl: string;
+                pageTitle: string;
+              })[];
+            }[] = [];
+            const idGenerator = createIdGeneratorMock();
+            const graphView = generateGraphView(
+              testSteps,
+              coverageSources,
+              idGenerator
+            );
+            expect(graphView.nodes[0].testSteps[1].input).toEqual("on");
+            expect(graphView.store.radioGroups[0]).toEqual({
+              name: "test",
+              checkedRadioButtonXPath: "xpath2",
+            });
+          });
+        });
+        describe("複数ラジオグループの場合", () => {
+          it("各ラジオグループのラジオボタンをそれぞれ操作をした際、操作したラジオグループ毎に最後に操作したラジオボタンがstoreのradioGroupsに出力される", () => {
+            const testSteps: TestStepForGraphView[] = [
+              {
+                ...testStepBase,
+                id: "ts1",
+                operation: {
+                  ...testStepBase.operation,
+                  elementInfo: {
+                    tagname: "INPUT",
+                    xpath: "xpath1",
+                    checked: true,
+                    attributes: { type: "radio", name: "test" },
+                  },
+                  inputElements: [
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath1",
+                      value: "value1",
+                      checked: true,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath2",
+                      value: "value2",
+                      checked: false,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath3",
+                      value: "value3",
+                      checked: false,
+                      attributes: { type: "radio", name: "sample" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath4",
+                      value: "value4",
+                      checked: true,
+                      attributes: { type: "radio", name: "sample" },
+                    },
+                  ],
+                },
+              },
+              {
+                ...testStepBase,
+                id: "ts2",
+                operation: {
+                  ...testStepBase.operation,
+                  elementInfo: {
+                    tagname: "INPUT",
+                    xpath: "xpath3",
+                    checked: true,
+                    attributes: { type: "radio", name: "sample" },
+                  },
+                  inputElements: [
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath1",
+                      value: "value1",
+                      checked: false,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath2",
+                      value: "value2",
+                      checked: true,
+                      attributes: { type: "radio", name: "test" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath3",
+                      value: "value3",
+                      checked: true,
+                      attributes: { type: "radio", name: "sample" },
+                    },
+                    {
+                      tagname: "INPUT",
+                      xpath: "xpath4",
+                      value: "value4",
+                      checked: false,
+                      attributes: { type: "radio", name: "sample" },
+                    },
+                  ],
+                },
+              },
+            ];
+            const coverageSources: {
+              screenDef: string;
+              screenElements: (ElementInfo & {
+                pageUrl: string;
+                pageTitle: string;
+              })[];
+            }[] = [];
+            const idGenerator = createIdGeneratorMock();
+            const graphView = generateGraphView(
+              testSteps,
+              coverageSources,
+              idGenerator
+            );
+            expect(graphView.nodes[0].testSteps[0].input).toEqual("on");
+            expect(graphView.nodes[0].testSteps[1].input).toEqual("on");
+            expect(graphView.store.radioGroups).toEqual([
+              {
+                name: "test",
+                checkedRadioButtonXPath: "xpath1",
+              },
+              {
+                name: "sample",
+                checkedRadioButtonXPath: "xpath3",
+              },
+            ]);
+          });
+        });
+      });
+    });
+
+    describe("tagnameがINPUTではない場合", () => {
+      it("operationのinputの値がinputの値として出力される", () => {
+        const testSteps: TestStepForGraphView[] = [
+          {
+            ...testStepBase,
+            id: "ts1",
+            operation: {
+              ...testStepBase.operation,
+              input: "input",
+              elementInfo: {
+                tagname: "test",
+                xpath: "xpath",
+                checked: true,
+                attributes: { type: "checkbox" },
+              },
+            },
+          },
+        ];
+        const coverageSources: {
+          screenDef: string;
+          screenElements: (ElementInfo & {
+            pageUrl: string;
+            pageTitle: string;
+          })[];
+        }[] = [];
+        const idGenerator = createIdGeneratorMock();
+        const graphView = generateGraphView(
+          testSteps,
+          coverageSources,
+          idGenerator
+        );
+
+        expect(graphView.nodes[0].testSteps[0].input).toEqual("input");
+      });
+    });
 
     describe("テストステップ群をグループ化してノードを構築する", () => {
       it("screen_transitionがある場合、同テストステップから別ノードとする", () => {

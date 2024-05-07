@@ -58,6 +58,7 @@ export type GraphView = {
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
+    radioGroups: { name: string; checkedRadioButtonXPath: string }[];
   };
 };
 
@@ -88,7 +89,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   > & {
     elementInfo: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes" | "iframe"
+      "xpath" | "tagname" | "text" | "attributes" | "iframe" | "checked"
     > | null;
     inputElements: Pick<
       ElementInfo,
