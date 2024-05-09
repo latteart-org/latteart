@@ -18,11 +18,11 @@ describe("convertToScreenTransitionDiagramGraph", () => {
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
@@ -30,7 +30,8 @@ describe("convertToScreenTransitionDiagramGraph", () => {
             elements: [],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -58,7 +59,7 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts2",
@@ -67,10 +68,10 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -83,7 +84,7 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts4",
@@ -92,10 +93,10 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -108,7 +109,7 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts6",
@@ -117,18 +118,18 @@ s1["画面A"];
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
             screens: [
               { id: "s1", name: "画面A", elementIds: [] },
               { id: "s2", name: "画面B", elementIds: [] },
-              { id: "s3", name: "画面C", elementIds: [] },
+              { id: "s3", name: "画面C", elementIds: [] }
             ],
             elements: [
               {
@@ -138,7 +139,7 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素1",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e2",
@@ -147,7 +148,7 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素2",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e3",
@@ -156,7 +157,7 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素3",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e4",
@@ -165,7 +166,7 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素4",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e5",
@@ -174,7 +175,7 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素5",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e6",
@@ -183,12 +184,13 @@ s1["画面A"];
                 xpath: "",
                 tagname: "",
                 text: "要素6",
-                attributes: {},
-              },
+                attributes: {}
+              }
             ],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -220,7 +222,7 @@ s2 --> |"type4: 要素4"|s3;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts2",
@@ -229,10 +231,10 @@ s2 --> |"type4: 要素4"|s3;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -245,7 +247,7 @@ s2 --> |"type4: 要素4"|s3;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts4",
@@ -254,23 +256,23 @@ s2 --> |"type4: 要素4"|s3;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
               screenId: "s1",
               testSteps: [],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
             screens: [
               { id: "s1", name: "画面A", elementIds: [] },
-              { id: "s2", name: "画面B", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] }
             ],
             elements: [
               {
@@ -280,7 +282,7 @@ s2 --> |"type4: 要素4"|s3;
                 xpath: "",
                 tagname: "",
                 text: "要素1",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e2",
@@ -289,7 +291,7 @@ s2 --> |"type4: 要素4"|s3;
                 xpath: "",
                 tagname: "",
                 text: "要素2",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e3",
@@ -298,7 +300,7 @@ s2 --> |"type4: 要素4"|s3;
                 xpath: "",
                 tagname: "",
                 text: "要素3",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e4",
@@ -307,12 +309,13 @@ s2 --> |"type4: 要素4"|s3;
                 xpath: "",
                 tagname: "",
                 text: "要素4",
-                attributes: {},
-              },
+                attributes: {}
+              }
             ],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -343,16 +346,16 @@ s2 --> |"type4: 要素4"|s1;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
               screenId: "s2",
               testSteps: [],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -365,23 +368,23 @@ s2 --> |"type4: 要素4"|s1;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
               screenId: "s2",
               testSteps: [],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
             screens: [
               { id: "s1", name: "画面A", elementIds: [] },
-              { id: "s2", name: "画面B", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] }
             ],
             elements: [
               {
@@ -391,12 +394,13 @@ s2 --> |"type4: 要素4"|s1;
                 xpath: "",
                 tagname: "",
                 text: "要素1",
-                attributes: {},
-              },
+                attributes: {}
+              }
             ],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -435,16 +439,16 @@ s2 --> |"screen transition"|s1;
                       noteIds: [],
                       pageUrl: "",
                       pageTitle: "",
-                      testResultId: "",
-                    },
+                      testResultId: ""
+                    }
                   ],
-                  defaultValues: [],
+                  defaultValues: []
                 },
                 {
                   windowId: "w1",
                   screenId: "s2",
                   testSteps: [],
-                  defaultValues: [],
+                  defaultValues: []
                 },
                 {
                   windowId: "w1",
@@ -457,23 +461,23 @@ s2 --> |"screen transition"|s1;
                       noteIds: [],
                       pageUrl: "",
                       pageTitle: "",
-                      testResultId: "",
-                    },
+                      testResultId: ""
+                    }
                   ],
-                  defaultValues: [],
+                  defaultValues: []
                 },
                 {
                   windowId: "w1",
                   screenId: "s2",
                   testSteps: [],
-                  defaultValues: [],
-                },
+                  defaultValues: []
+                }
               ],
               store: {
                 windows: [{ id: "w1", name: "ウィンドウ1" }],
                 screens: [
                   { id: "s1", name: "画面A", elementIds: [] },
-                  { id: "s2", name: "画面B", elementIds: [] },
+                  { id: "s2", name: "画面B", elementIds: [] }
                 ],
                 elements: [
                   {
@@ -483,7 +487,7 @@ s2 --> |"screen transition"|s1;
                     xpath: trigger1.targetElement.xpath,
                     tagname: "",
                     text: trigger1.targetElement.text,
-                    attributes: {},
+                    attributes: {}
                   },
                   {
                     id: trigger2.targetElement.id,
@@ -492,12 +496,13 @@ s2 --> |"screen transition"|s1;
                     xpath: trigger2.targetElement.xpath,
                     tagname: "",
                     text: trigger2.targetElement.text,
-                    attributes: {},
-                  },
+                    attributes: {}
+                  }
                 ],
                 testPurposes: [],
                 notes: [],
-              },
+                radioGroups: []
+              }
             };
 
             const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -531,7 +536,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts2",
@@ -540,10 +545,10 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -556,7 +561,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts4",
@@ -565,11 +570,11 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
@@ -582,7 +587,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                 xpath: "",
                 tagname: "",
                 text: "要素1",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e2",
@@ -591,7 +596,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                 xpath: "",
                 tagname: "",
                 text: "要素2",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e3",
@@ -600,7 +605,7 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                 xpath: "",
                 tagname: "",
                 text: "要素3",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e4",
@@ -609,12 +614,13 @@ s1 --> |"${trigger2.type}: ${trigger2.targetElement.text}"|s2;
                 xpath: "",
                 tagname: "",
                 text: "要素4",
-                attributes: {},
-              },
+                attributes: {}
+              }
             ],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -636,7 +642,7 @@ s1 --> |"type2: 要素2"|s1;
               windowId: "w1",
               screenId: "s1",
               testSteps: [],
-              defaultValues: [],
+              defaultValues: []
             },
             {
               windowId: "w1",
@@ -649,7 +655,7 @@ s1 --> |"type2: 要素2"|s1;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
+                  testResultId: ""
                 },
                 {
                   id: "ts2",
@@ -658,17 +664,17 @@ s1 --> |"type2: 要素2"|s1;
                   noteIds: [],
                   pageUrl: "",
                   pageTitle: "",
-                  testResultId: "",
-                },
+                  testResultId: ""
+                }
               ],
-              defaultValues: [],
-            },
+              defaultValues: []
+            }
           ],
           store: {
             windows: [{ id: "w1", name: "ウィンドウ1" }],
             screens: [
               { id: "s1", name: "画面A", elementIds: [] },
-              { id: "s2", name: "画面B", elementIds: [] },
+              { id: "s2", name: "画面B", elementIds: [] }
             ],
             elements: [
               {
@@ -678,7 +684,7 @@ s1 --> |"type2: 要素2"|s1;
                 xpath: "",
                 tagname: "",
                 text: "要素1",
-                attributes: {},
+                attributes: {}
               },
               {
                 id: "e2",
@@ -687,12 +693,13 @@ s1 --> |"type2: 要素2"|s1;
                 xpath: "",
                 tagname: "",
                 text: "要素2",
-                attributes: {},
-              },
+                attributes: {}
+              }
             ],
             testPurposes: [],
             notes: [],
-          },
+            radioGroups: []
+          }
         };
 
         const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -723,17 +730,17 @@ s1 --> |"screen transition"|s2;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
             screenId: "s1",
             testSteps: [],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [{ id: "w1", name: "ウィンドウ1" }],
@@ -746,12 +753,13 @@ s1 --> |"screen transition"|s2;
               xpath: "",
               tagname: "",
               text: "aaa\nbbb",
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -778,17 +786,17 @@ s1 --> |"type1: aaa bbb"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
             screenId: "s1",
             testSteps: [],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [{ id: "w1", name: "ウィンドウ1" }],
@@ -801,12 +809,13 @@ s1 --> |"type1: aaa bbb"|s1;
               xpath: "",
               tagname: "",
               text: "aaaaaaaaaaaaaaaaaaaaa",
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -833,17 +842,17 @@ s1 --> |"type1: aaaaaaaaaaaaaaaaaaaa..."|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
             screenId: "s1",
             testSteps: [],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [{ id: "w1", name: "ウィンドウ1" }],
@@ -856,12 +865,13 @@ s1 --> |"type1: aaaaaaaaaaaaaaaaaaaa..."|s1;
               xpath: "",
               tagname: "",
               text: 'aa##;;<<>>""aa',
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -890,7 +900,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts2",
@@ -899,10 +909,10 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w2",
@@ -915,7 +925,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts4",
@@ -924,10 +934,10 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
@@ -940,7 +950,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts6",
@@ -949,10 +959,10 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w3",
@@ -965,22 +975,22 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [
             { id: "w1", name: "ウィンドウ1" },
             { id: "w2", name: "ウィンドウ2" },
-            { id: "w3", name: "ウィンドウ3" },
+            { id: "w3", name: "ウィンドウ3" }
           ],
           screens: [
             { id: "s1", name: "画面A", elementIds: [] },
             { id: "s2", name: "画面B", elementIds: [] },
-            { id: "s3", name: "画面C", elementIds: [] },
+            { id: "s3", name: "画面C", elementIds: [] }
           ],
           elements: [
             {
@@ -990,7 +1000,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
               xpath: "",
               tagname: "",
               text: "要素1",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e2",
@@ -999,7 +1009,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
               xpath: "",
               tagname: "",
               text: "要素2",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e3",
@@ -1008,7 +1018,7 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
               xpath: "",
               tagname: "",
               text: "要素3",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e4",
@@ -1017,12 +1027,13 @@ s1 --> |"type1: aa#35;#35;#59;#59;#60;#60;#62;#62;#34;#34;aa"|s1;
               xpath: "",
               tagname: "",
               text: "要素4",
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -1049,7 +1060,7 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts2",
@@ -1058,10 +1069,10 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
@@ -1074,7 +1085,7 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts4",
@@ -1083,10 +1094,10 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w2",
@@ -1099,7 +1110,7 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts6",
@@ -1108,10 +1119,10 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w2",
@@ -1124,7 +1135,7 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts8",
@@ -1133,10 +1144,10 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
@@ -1149,7 +1160,7 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts10",
@@ -1158,29 +1169,29 @@ s3["画面C"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w1",
             screenId: "s5",
             testSteps: [],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [
             { id: "w1", name: "ウィンドウ1" },
-            { id: "w2", name: "ウィンドウ2" },
+            { id: "w2", name: "ウィンドウ2" }
           ],
           screens: [
             { id: "s1", name: "画面A", elementIds: [] },
             { id: "s2", name: "画面B", elementIds: [] },
             { id: "s3", name: "画面C", elementIds: [] },
             { id: "s4", name: "画面D", elementIds: [] },
-            { id: "s5", name: "画面E", elementIds: [] },
+            { id: "s5", name: "画面E", elementIds: [] }
           ],
           elements: [
             {
@@ -1190,7 +1201,7 @@ s3["画面C"];
               xpath: "",
               tagname: "",
               text: "要素1",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e2",
@@ -1199,7 +1210,7 @@ s3["画面C"];
               xpath: "",
               tagname: "",
               text: "要素2",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e3",
@@ -1208,7 +1219,7 @@ s3["画面C"];
               xpath: "",
               tagname: "",
               text: "要素3",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e4",
@@ -1217,7 +1228,7 @@ s3["画面C"];
               xpath: "",
               tagname: "",
               text: "要素4",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e5",
@@ -1226,12 +1237,13 @@ s3["画面C"];
               xpath: "",
               tagname: "",
               text: "要素5",
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
@@ -1262,7 +1274,7 @@ s5["画面E"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts2",
@@ -1271,7 +1283,7 @@ s5["画面E"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
+                testResultId: ""
               },
               {
                 id: "ts3",
@@ -1280,10 +1292,10 @@ s5["画面E"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
+            defaultValues: []
           },
           {
             windowId: "w2",
@@ -1296,20 +1308,20 @@ s5["画面E"];
                 noteIds: [],
                 pageUrl: "",
                 pageTitle: "",
-                testResultId: "",
-              },
+                testResultId: ""
+              }
             ],
-            defaultValues: [],
-          },
+            defaultValues: []
+          }
         ],
         store: {
           windows: [
             { id: "w1", name: "ウィンドウ1" },
-            { id: "w2", name: "ウィンドウ2" },
+            { id: "w2", name: "ウィンドウ2" }
           ],
           screens: [
             { id: "s1", name: "画面A", elementIds: [] },
-            { id: "s2", name: "画面B", elementIds: [] },
+            { id: "s2", name: "画面B", elementIds: [] }
           ],
           elements: [
             {
@@ -1319,7 +1331,7 @@ s5["画面E"];
               xpath: "",
               tagname: "",
               text: "要素1",
-              attributes: {},
+              attributes: {}
             },
             {
               id: "e2",
@@ -1328,12 +1340,13 @@ s5["画面E"];
               xpath: "",
               tagname: "",
               text: "要素2",
-              attributes: {},
-            },
+              attributes: {}
+            }
           ],
           testPurposes: [],
           notes: [],
-        },
+          radioGroups: []
+        }
       };
 
       const graphs = await convertToScreenTransitionDiagramGraph(view);
