@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-import { createDefaultRouter, createSnapshotRouter } from "./router";
-import vuetify from "./vuetify";
-import pinia from "./pinia";
-import i18n from "./i18n";
+/**
+ * Extension.
+ */
+export type LatteartExtension = {
+  components: {
+    contents?: { name: string }[];
+    configs?: { name: string; title: string }[];
+  };
+  plugin: { install(app: any): void };
+  messages: { ja: Record<string, any>; en: Record<string, any> };
+};
 
-export function collectPlugins(appMode: "default" | "snapshot") {
-  return [
-    appMode === "snapshot" ? createSnapshotRouter() : createDefaultRouter(),
-    vuetify,
-    pinia,
-    i18n
-  ];
-}
+export const extensions: LatteartExtension[] = [
+  // add extensions.
+];

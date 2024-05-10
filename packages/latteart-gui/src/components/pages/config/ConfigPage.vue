@@ -139,6 +139,8 @@
                   </experimental-feature-config>
                 </v-expansion-panel-text>
               </v-expansion-panel>
+
+              <extension-configs />
             </v-expansion-panels>
           </v-col>
         </v-row>
@@ -172,6 +174,7 @@ import { useRoute } from "vue-router";
 import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+import ExtensionConfigs from "@/components/organisms/extensions/ExtensionConfigs.vue";
 
 export default defineComponent({
   components: {
@@ -182,7 +185,8 @@ export default defineComponent({
     "compare-config": CompareConfig,
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
-    "remote-access-field": RemoteAccessField
+    "remote-access-field": RemoteAccessField,
+    "extension-configs": ExtensionConfigs
   },
   setup() {
     const rootStore = useRootStore();

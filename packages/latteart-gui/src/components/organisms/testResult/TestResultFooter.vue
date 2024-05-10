@@ -34,6 +34,8 @@
 
       <note-register-button />
 
+      <extension-contents />
+
       <v-divider vertical class="mx-3" />
 
       <span class="px-1"><recording-time /></span>
@@ -51,6 +53,7 @@ import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 import { defineComponent } from "vue";
+import ExtensionContents from "../extensions/ExtensionContents.vue";
 
 export default defineComponent({
   components: {
@@ -61,7 +64,8 @@ export default defineComponent({
     "note-register-button": NoteRegisterButton,
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
-    "run-auto-operation-button": RunAutoOperationButton
+    "run-auto-operation-button": RunAutoOperationButton,
+    "extension-contents": ExtensionContents
   }
 });
 </script>

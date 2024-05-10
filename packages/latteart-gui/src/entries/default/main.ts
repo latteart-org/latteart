@@ -16,17 +16,28 @@
 
 import { createApp } from "vue";
 import App from "./App.vue";
-import { collectPlugins } from "@/plugins";
 import { useRootStore } from "@/stores/root";
-import i18n from "@/plugins/i18n";
 import { RESTClientImpl, createRepositoryService } from "latteart-client";
 import { RepositoryDataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
+import { createDefaultRouter } from "@/plugins/router";
+import vuetify from "@/plugins/vuetify";
+import pinia from "@/plugins/pinia";
+import { createI18n } from "@/plugins/i18n";
+import defaultMessages from "@/messages";
+import { extensions } from "@/extensions";
 
 const app = createApp(App);
-const plugins = collectPlugins("default");
 
-for (const plugin of plugins) {
+const router = createDefaultRouter();
+const i18n = createI18n(defaultMessages, ...extensions.map((extension) => extension.messages));
+
+app.use(router);
+app.use(vuetify);
+app.use(pinia);
+app.use(i18n);
+
+for (const plugin of extensions.map((extension) => extension.plugin)) {
   app.use(plugin);
 }
 
