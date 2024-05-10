@@ -28,3 +28,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Extensions
+/src/extensions/**/*
+!/src/extensions/index.ts

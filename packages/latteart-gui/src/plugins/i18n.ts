@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-import messages from "@/messages";
-import { createI18n } from "vue-i18n";
+import { createI18n as createVueI18n } from "vue-i18n";
 
-const i18n = createI18n({ locale: "en", fallbackLocale: "en", allowComposition: true, messages });
+export function createI18n(...messageSets: { ja: Record<string, any>; en: Record<string, any> }[]) {
+  const messages = messageSets.reduce(
+    (acc: { ja: Record<string, any>; en: Record<string, any> }, messageSet) => {
+      return {
+        ja: { ...acc.ja, ...messageSet.ja },
+        en: { ...acc.en, ...messageSet.en }
+      };
+    },
+    { ja: {}, en: {} }
+  );
 
-export default i18n;
+  return createVueI18n({
+    locale: "en",
+    fallbackLocale: "en",
+    allowComposition: true,
+    messages
+  });
+}
