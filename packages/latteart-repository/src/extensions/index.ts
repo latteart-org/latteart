@@ -17,15 +17,13 @@
 /**
  * Extension.
  */
-export type GuiExtension = {
-  components: {
-    contents?: { name: string }[];
-    configs?: { name: string; title: string }[];
-  };
-  plugin: { install(app: any): void };
-  messages: { ja: Record<string, any>; en: Record<string, any> };
+export type RepositoryExtension = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  entities: Function[];
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  migrations: Function[];
 };
 
-export const extensions: GuiExtension[] = [
+export const extensions: RepositoryExtension[] = [
   // add extensions.
 ];

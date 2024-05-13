@@ -38,6 +38,10 @@ import { UpdateTestResultEntity1689841542715 } from "./migrations/1689841542715-
 import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideoEntity";
 import { LinkMultipleTestResultsToSession1694494561042 } from "./migrations/1694494561042-LinkMultipleTestResultsToSession";
 import { appRootPath } from "./common";
+import { extensions } from "./extensions";
+
+const extensionEntities = extensions.flatMap(({ entities }) => entities);
+const extensionMigrations = extensions.flatMap(({ migrations }) => migrations);
 
 export const AppDataSource = new DataSource({
   type: "sqlite",
@@ -64,6 +68,7 @@ export const AppDataSource = new DataSource({
     ViewPointPresetEntity,
     TestProgressEntity,
     VideoEntity,
+    ...extensionEntities,
   ],
   migrations: [
     Init1638930268191,
@@ -81,5 +86,6 @@ export const AppDataSource = new DataSource({
     UpdateTestResultEntity1689841542715,
     AddVideoEntity1693220246649,
     LinkMultipleTestResultsToSession1694494561042,
+    ...extensionMigrations,
   ],
 });
