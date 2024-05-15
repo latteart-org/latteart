@@ -44,7 +44,7 @@ for (const plugin of extensions.map((extension) => extension.plugin)) {
 // initialize store
 const i18nProvider: I18nProvider = {
   message(message: string, args?: { [key: string]: string }) {
-    return i18n.global.t(message, args ?? {});
+    return (i18n.global as any).t(message, args ?? {});
   },
 
   getLocale() {
