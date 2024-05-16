@@ -26,7 +26,7 @@
   "dependencies": {
     "encoding-japanese": "^1.0.30",
     "express": "^4.17.1",
-    "log4js": "^6.3.0",
+    "log4js": "^6.7.1",
     "moment": "^2.29.0",
     "selenium-webdriver": "4.4.0",
     "socket.io": "^4.5.4"
