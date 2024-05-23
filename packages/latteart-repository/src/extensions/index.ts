@@ -27,3 +27,5 @@ export type RepositoryExtension = {
 export const extensions: RepositoryExtension[] = [
   // add extensions.
 ];
+
+export type ExtentionsServerErrorCode = "";
