@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { ExtentionsServerErrorCode } from "./extensions";
+
 export type ServerErrorCode =
   | "save_project_failed"
   | "get_project_failed"
@@ -75,7 +77,9 @@ export type ServerErrorCode =
 /**
  * Server error data.
  */
-export type ServerErrorData<T extends ServerErrorCode> = {
+export type ServerErrorData<
+  T extends ServerErrorCode | ExtentionsServerErrorCode,
+> = {
   code: T;
   message?: string;
   details?: Array<{
@@ -85,8 +89,13 @@ export type ServerErrorData<T extends ServerErrorCode> = {
   }>;
 };
 
-export class ServerError<T extends ServerErrorCode> extends Error {
-  constructor(public statusCode: number, public data?: ServerErrorData<T>) {
+export class ServerError<
+  T extends ServerErrorCode | ExtentionsServerErrorCode,
+> extends Error {
+  constructor(
+    public statusCode: number,
+    public data?: ServerErrorData<T>
+  ) {
     super(data?.message ?? "");
   }
 }
