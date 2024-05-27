@@ -41,6 +41,8 @@ for (const plugin of extensions.map((extension) => extension.plugin)) {
   app.use(plugin);
 }
 
+app.provide("isViewerMode", false);
+
 // initialize store
 const i18nProvider: I18nProvider = {
   message(message: string, args?: { [key: string]: string }) {
