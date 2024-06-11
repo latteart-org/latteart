@@ -7,3 +7,4 @@
 # Extensions
 /src/extensions/**/*
 !/src/extensions/index.ts
+latteart.*.config.json
