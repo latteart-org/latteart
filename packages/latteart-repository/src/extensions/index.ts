@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* ADD IMPORTS FOR EXTENSIONS */
 
 /**
  * Extension.
@@ -25,5 +26,5 @@ export type RepositoryExtension = {
 };
 
 export const extensions: RepositoryExtension[] = [
-  // add extensions.
+  /* ADD EXTENSIONS */
 ];
