@@ -44,10 +44,7 @@ import {
 } from "@/domain/testResultViewGeneration/sequenceView";
 import { ElementInfo, TestResultViewOption } from "@/domain/types";
 import { FileRepository } from "@/interfaces/fileRepository";
-import {
-  createTestActions,
-  isSameProcedure,
-} from "@/domain/pageTesting/action";
+import { createTestActions } from "@/domain/pageTesting/action";
 import {
   assertPageStateEqual,
   PageAssertionOption,
@@ -59,10 +56,8 @@ import {
   extractOperation,
 } from "./helper/testResultComparisonHelper";
 import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
-import { ServerError } from "@/ServerError";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
-import { createLogger } from "@/logger/logger";
 import { VideoEntity } from "@/entities/VideoEntity";
 
 export type TestResultService = {
@@ -638,6 +633,10 @@ export class TestResultServiceImpl implements TestResultService {
     expectedTestResultId: string,
     option: PageAssertionOption = {}
   ): Promise<CompareTestResultsResponse> {
+    if (!this.service) {
+      throw new Error("Service not initialized.");
+    }
+
     const testStepRepository = this.dataSource.getRepository(TestStepEntity);
     const findOption = {
       relations: ["screenshot", "video"],
@@ -652,12 +651,6 @@ export class TestResultServiceImpl implements TestResultService {
       where: { testResult: { id: expectedTestResultId } },
     });
 
-    if (!this.service) {
-      throw new ServerError(500, {
-        code: "comparison_targets_not_same_procedures",
-      });
-    }
-
     const { screenshotFileRepository } = this.service;
 
     const actualOperations = actualTestStepEntities.map((entity) => {
@@ -669,24 +662,6 @@ export class TestResultServiceImpl implements TestResultService {
 
     const actualActions = createTestActions(...actualOperations);
     const expectedActions = createTestActions(...expectedOperations);
-
-    if (!isSameProcedure(actualActions, expectedActions)) {
-      createLogger().error("Comparison targets not same procedures.");
-      createLogger().error(
-        `expected: ${JSON.stringify(
-          expectedActions.map(({ operation }) => operation)
-        )}`
-      );
-      createLogger().error(
-        `actual: ${JSON.stringify(
-          actualActions.map(({ operation }) => operation)
-        )}`
-      );
-
-      throw new ServerError(500, {
-        code: "comparison_targets_not_same_procedures",
-      });
-    }
 
     const assertionResults = await Promise.all(
       expectedActions.map((expected, index) => {

@@ -44,39 +44,3 @@ export function createTestActions(
     ];
   }, []);
 }
-
-export function isSameProcedure(
-  actions1: PageTestAction[],
-  actions2: PageTestAction[]
-): boolean {
-  if (actions1.length !== actions2.length) {
-    return false;
-  }
-
-  return actions1.every((action1, index) => {
-    const operation1 = action1.operation;
-    const operation2 = actions2[index].operation;
-
-    if (!operation1 || !operation2) {
-      return !operation1 && !operation2;
-    }
-
-    if (operation1.url !== operation2.url) {
-      return false;
-    }
-
-    if (operation1.type !== operation2.type) {
-      return false;
-    }
-
-    if (operation1.elementInfo?.xpath !== operation2.elementInfo?.xpath) {
-      return false;
-    }
-
-    if (operation1.input !== operation2.input) {
-      return false;
-    }
-
-    return true;
-  });
-}
