@@ -32,6 +32,7 @@ import { ServerError } from "./ServerError";
 import { TransactionRunner } from "./TransactionRunner";
 import { createLogger } from "./logger/logger";
 import { AppDataSource } from "./data-source";
+import { extensions } from "./extensions";
 
 export const transactionRunner = new TransactionRunner(AppDataSource);
 
@@ -103,6 +104,9 @@ function runServer(port: number, timeout?: number) {
   app.use(bodyParser.json({ limit: "100mb" }));
 
   RegisterRoutes(app);
+  for (const extension of extensions) {
+    extension.registerRoutes(app);
+  }
 
   const logger = createLogger();
 

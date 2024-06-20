@@ -38,7 +38,7 @@
     "routesDir": "src/routes",
     "basePath": "/api/v1"
   },
-  "ignore": ["**/node_modules/**"],
+  "ignore": ["**/node_modules/**", "**/src/extensions/**"],
   "compilerOptions": {
     "paths": {
       "@/*": ["src/*"]
