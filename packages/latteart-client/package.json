@@ -1,6 +1,6 @@
 {
   "name": "latteart-client",
-  "version": "2.14.1",
+  "version": "2.14.2",
   "private": true,
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
