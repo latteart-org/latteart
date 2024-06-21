@@ -21,13 +21,13 @@
     </v-app-bar>
 
     <v-container
-      class="fill-height py-0"
+      class="fill-height py-0 px-1"
       fluid
       :style="{
         'max-height': 'calc(100vh - 64px - 64px)'
       }"
     >
-      <v-row class="fill-height">
+      <v-row class="fill-height ma-0" style="max-width: 100%">
         <history-display
           :locale="locale"
           :change-window-title="changeWindowTitle"
