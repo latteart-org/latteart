@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Router } from "express";
 /* ADD IMPORTS FOR EXTENSIONS */
 
 /**
@@ -24,6 +25,7 @@ export type RepositoryExtension = {
   entities: Function[];
   // eslint-disable-next-line @typescript-eslint/ban-types
   migrations: Function[];
+  registerRoutes: (app: Router) => void;
 };
 
 export const extensions: RepositoryExtension[] = [
